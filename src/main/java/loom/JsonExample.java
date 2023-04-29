@@ -1,4 +1,4 @@
-package com.github.crutcher.workshop.json;
+package loom;
 
 import lombok.Builder;
 import lombok.Data;
@@ -8,5 +8,5 @@ import lombok.extern.jackson.Jacksonized;
 @Builder
 @Data
 public class JsonExample {
-    private int id;
+  private int id;
 }
