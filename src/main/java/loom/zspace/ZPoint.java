@@ -3,9 +3,8 @@ package loom.zspace;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import lombok.Data;
-
 import java.util.Arrays;
+import lombok.Data;
 
 @Data
 @JsonDeserialize(using = ZPoint.Deserializer.class)
@@ -21,6 +20,10 @@ public class ZPoint {
               "%s and %s differ in dimensions",
               formatLabeledCoord("start", start), formatLabeledCoord("end", end)));
     }
+  }
+
+  public static void verifyZPointSameNDims(ZPoint start, ZPoint end) {
+    verifyZPointSameNDims(start.coords, end.coords);
   }
 
   /**
@@ -43,6 +46,10 @@ public class ZPoint {
     }
   }
 
+  public static void verifyZPointLE(ZPoint start, ZPoint end) {
+    verifyZPointLE(start.coords, end.coords);
+  }
+
   static class Deserializer extends StdDeserializer<ZPoint> {
     public Deserializer() {
       super(ZPoint.class);
@@ -58,7 +65,11 @@ public class ZPoint {
     }
   }
 
-  @JsonValue private final int[] coords;
+  @JsonValue final int[] coords;
+
+  public static ZPoint of(int... coords) {
+    return new ZPoint(coords);
+  }
 
   public ZPoint(int... coords) {
     this.coords = coords;

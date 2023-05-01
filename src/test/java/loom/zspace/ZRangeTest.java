@@ -17,13 +17,13 @@ public class ZRangeTest implements CommonAssertions {
 
   @Test
   public void testBasic() {
-    var range = ZRange.builder().start(new int[] {-3, 0}).end(new int[] {1, 1}).build();
+    var range = new ZRange(ZPoint.of(-3, 0), ZPoint.of(1, 1));
     assertJsonEquals(range, "{\"start\":[-3,0],\"end\":[1,1]}");
 
     assertThat(range.ndim()).isEqualTo(2);
     assertThat(range.shape()).isEqualTo(new int[] {4, 1});
     assertThat(range.size()).isEqualTo(4);
 
-    assertThat(range.toString()).isEqualTo("ZRange(start=[-3, 0], end=[1, 1])");
+    assertThat(range.toString()).isEqualTo("ZRange(start=<[-3, 0]>, end=<[1, 1]>)");
   }
 }

@@ -14,7 +14,7 @@ public class BlockExpressionTest implements CommonAssertions {
 
     assertThat(expr)
         .hasToString(
-            "BlockExpression(op=BlockOp(id=op1), index=BlockIndex(range=ZRange(start=[], end=[])))");
+            "BlockExpression(op=BlockOp(id=op1), index=BlockIndex(range=ZRange(start=<[]>, end=<[]>)))");
 
     assertJsonEquals(
         expr, "{\"op\":{\"id\":\"op1\"},\"index\":{\"range\":{\"start\":[],\"end\":[]}}}");

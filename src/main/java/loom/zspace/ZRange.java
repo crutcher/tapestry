@@ -7,8 +7,9 @@ import lombok.extern.jackson.Jacksonized;
 /** Representation of a range of indices in a ZSpace. */
 @Data
 public class ZRange {
-  private final int[] start;
-  private final int[] end;
+  // Immutable, and verified that start <= end at construction.
+  private final ZPoint start;
+  private final ZPoint end;
 
   /**
    * Create a ZRange from a shape.
@@ -18,8 +19,12 @@ public class ZRange {
    * @param shape the shape of the range.
    * @return the range.
    */
-  public static ZRange fromShape(int[] shape) {
-    return new ZRange(new int[shape.length], shape);
+  public static ZRange of(int... shape) {
+    return of(ZPoint.of(shape));
+  }
+
+  public static ZRange of(ZPoint shape) {
+    return new ZRange(new ZPoint(new int[shape.ndim()]), shape);
   }
 
   /**
@@ -31,21 +36,20 @@ public class ZRange {
    * @return the range.
    */
   public static ZRange scalar() {
-    return fromShape(new int[] {});
+    return of(new int[] {});
   }
 
   @Jacksonized
   @Builder
-  ZRange(int[] start, int[] end) {
+  ZRange(ZPoint start, ZPoint end) {
     ZPoint.verifyZPointLE(start, end);
-
-    this.start = start.clone();
-    this.end = end.clone();
+    this.start = start;
+    this.end = end;
   }
 
   /** Return the number of dimensions in the range. */
   public int ndim() {
-    return start.length;
+    return start.ndim();
   }
 
   /**
@@ -56,7 +60,7 @@ public class ZRange {
   public int[] shape() {
     int[] shape = new int[ndim()];
     for (int i = 0; i < ndim(); i++) {
-      shape[i] = end[i] - start[i];
+      shape[i] = end.coords[i] - start.coords[i];
     }
     return shape;
   }
@@ -71,7 +75,7 @@ public class ZRange {
   public int size() {
     int size = 1;
     for (int i = 0; i < ndim(); i++) {
-      size *= end[i] - start[i];
+      size *= end.coords[i] - start.coords[i];
     }
     return size;
   }
@@ -93,11 +97,11 @@ public class ZRange {
           String.format(
               "%s and %s differ in dimensions",
               ZPoint.formatLabeledCoord("index", index),
-              ZPoint.formatLabeledCoord("range", start)));
+              ZPoint.formatLabeledCoord("range", start.coords)));
     }
 
     for (int i = 0; i < ndim(); i++) {
-      if (index[i] < start[i] || index[i] >= end[i]) {
+      if (index[i] < start.coords[i] || index[i] >= end.coords[i]) {
         return false;
       }
     }

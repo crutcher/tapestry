@@ -43,6 +43,9 @@ dependencies {
   // implementation("org.projectlombok:lombok:1.18.22")
   errorprone("com.google.errorprone:error_prone_core:2.18.0")
 
+  // implementation("org.tensorflow:ndarray:0.4.0")
+
+
   // Guava.
   implementation("com.google.guava:guava:31.1-jre")
 
