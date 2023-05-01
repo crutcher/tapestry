@@ -1,4 +1,4 @@
-package loom;
+package junk;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.assertj.core.api.WithAssertions;
