@@ -1,0 +1,2 @@
+fn_params_layout = "Vertical"
+match_block_trailing_comma = true

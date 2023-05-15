@@ -1,4 +1,4 @@
-.gradle
+/.gradle
 
 
 .idea/*
@@ -6,4 +6,3 @@
 
 out
 build
-target
