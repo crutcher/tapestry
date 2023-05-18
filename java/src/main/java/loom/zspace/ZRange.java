@@ -3,6 +3,7 @@ package loom.zspace;
 import lombok.Builder;
 import lombok.Data;
 import lombok.extern.jackson.Jacksonized;
+import loom.linear.LongOps;
 
 /** Representation of a range of indices in a ZSpace. */
 @Data
@@ -19,12 +20,16 @@ public class ZRange {
    * @param shape the shape of the range.
    * @return the range.
    */
-  public static ZRange of(int... shape) {
+  public static ZRange of(long... shape) {
     return of(ZPoint.of(shape));
   }
 
   public static ZRange of(ZPoint shape) {
-    return new ZRange(new ZPoint(new int[shape.ndim()]), shape);
+    return new ZRange(new ZPoint(new long[shape.ndim()]), shape);
+  }
+
+  public static ZRange between(ZPoint start, ZPoint end) {
+    return new ZRange(start, end);
   }
 
   /**
@@ -36,7 +41,7 @@ public class ZRange {
    * @return the range.
    */
   public static ZRange scalar() {
-    return of(new int[] {});
+    return of(ZPoint.scalar());
   }
 
   @Jacksonized
@@ -45,6 +50,22 @@ public class ZRange {
     ZPoint.verifyZPointLE(start, end);
     this.start = start;
     this.end = end;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder sb = new StringBuilder();
+    sb.append("zr[");
+    for (int idx = 0; idx < ndim(); ++idx) {
+      if (idx > 0) {
+        sb.append(", ");
+      }
+      sb.append(start.coords[idx]);
+      sb.append(":");
+      sb.append(end.coords[idx]);
+    }
+    sb.append("]");
+    return sb.toString();
   }
 
   /** Return the number of dimensions in the range. */
@@ -57,9 +78,9 @@ public class ZRange {
    *
    * @return the shape of the range.
    */
-  public int[] shape() {
-    int[] shape = new int[ndim()];
-    for (int i = 0; i < ndim(); i++) {
+  public long[] shape() {
+    long[] shape = new long[ndim()];
+    for (int i = 0, d = ndim(); i < d; i++) {
       shape[i] = end.coords[i] - start.coords[i];
     }
     return shape;
@@ -72,9 +93,9 @@ public class ZRange {
    *
    * @return the size.
    */
-  public int size() {
-    int size = 1;
-    for (int i = 0; i < ndim(); i++) {
+  public long size() {
+    long size = 1;
+    for (int i = 0, d = ndim(); i < d; i++) {
       size *= end.coords[i] - start.coords[i];
     }
     return size;
@@ -91,20 +112,11 @@ public class ZRange {
     return size() == 0;
   }
 
-  public boolean contains(int[] index) {
-    if (index.length != ndim()) {
-      throw new IllegalArgumentException(
-          String.format(
-              "%s and %s differ in dimensions",
-              ZPoint.formatLabeledCoord("index", index),
-              ZPoint.formatLabeledCoord("range", start.coords)));
-    }
+  public boolean isScalar() {
+    return ndim() == 0;
+  }
 
-    for (int i = 0; i < ndim(); i++) {
-      if (index[i] < start.coords[i] || index[i] >= end.coords[i]) {
-        return false;
-      }
-    }
-    return true;
+  public boolean contains(long[] index) {
+    return LongOps.le(start.coords, index) && LongOps.lt(index, end.coords);
   }
 }

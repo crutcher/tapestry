@@ -13,8 +13,7 @@ public class BlockExpressionTest implements CommonAssertions {
     var expr = BlockExpression.builder().op(op).index(index).build();
 
     assertThat(expr)
-        .hasToString(
-            "BlockExpression(op=BlockOp(id=op1), index=BlockIndex(range=ZRange(start=<[]>, end=<[]>)))");
+        .hasToString("BlockExpression(op=BlockOp(id=op1), index=BlockIndex(range=zr[]))");
 
     assertJsonEquals(
         expr, "{\"op\":{\"id\":\"op1\"},\"index\":{\"range\":{\"start\":[],\"end\":[]}}}");

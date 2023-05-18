@@ -8,22 +8,18 @@ import lombok.Data;
 
 @Data
 @JsonDeserialize(using = ZPoint.Deserializer.class)
-public class ZPoint {
-  static String formatLabeledCoord(String label, int[] coordinate) {
+public final class ZPoint implements ZDim {
+  static String formatLabeledCoord(String label, long[] coordinate) {
     return String.format("%s:%s", label, Arrays.toString(coordinate));
   }
 
-  public static void verifyZPointSameNDims(int[] start, int[] end) {
+  public static void verifyZPointSameNDims(long[] start, long[] end) {
     if (start.length != end.length) {
       throw new IllegalArgumentException(
           String.format(
               "%s and %s differ in dimensions",
               formatLabeledCoord("start", start), formatLabeledCoord("end", end)));
     }
-  }
-
-  public static void verifyZPointSameNDims(ZPoint start, ZPoint end) {
-    verifyZPointSameNDims(start.coords, end.coords);
   }
 
   /**
@@ -34,7 +30,7 @@ public class ZPoint {
    * @throws IllegalArgumentException if start and end are not the same dims and start is not <= all
    *     elements of end.
    */
-  public static void verifyZPointLE(int[] start, int[] end) {
+  public static void verifyZPointLE(long[] start, long[] end) {
     verifyZPointSameNDims(start, end);
     for (int i = 0; i < start.length; i++) {
       if (start[i] > end[i]) {
@@ -59,36 +55,45 @@ public class ZPoint {
     public ZPoint deserialize(
         com.fasterxml.jackson.core.JsonParser p,
         com.fasterxml.jackson.databind.DeserializationContext ctxt)
-        throws java.io.IOException, com.fasterxml.jackson.core.JsonProcessingException {
-      int[] coords = p.readValueAs(int[].class);
+        throws java.io.IOException {
+      long[] coords = p.readValueAs(long[].class);
       return new ZPoint(coords);
     }
   }
 
-  @JsonValue final int[] coords;
+  @JsonValue final long[] coords;
 
-  public static ZPoint of(int... coords) {
+  public static ZPoint scalar() {
+    return new ZPoint();
+  }
+
+  public static ZPoint of(long... coords) {
     return new ZPoint(coords);
   }
 
-  public ZPoint(int... coords) {
+  public ZPoint(long... coords) {
     this.coords = coords;
   }
 
+  @Override
   public int ndim() {
     return coords.length;
   }
 
-  @Override
-  public String toString() {
-    return "<" + java.util.Arrays.toString(coords) + ">";
+  public boolean isScalar() {
+    return ndim() == 0;
   }
 
-  public int get(int i) {
+  @Override
+  public String toString() {
+    return "z" + java.util.Arrays.toString(coords);
+  }
+
+  public long get(int i) {
     return coords[i];
   }
 
-  public int[] copyCoords() {
+  public long[] copyCoords() {
     return this.coords.clone();
   }
 }

@@ -9,8 +9,11 @@ public class ZRangeTest implements CommonAssertions {
   public void testScalar() {
     var scalar = ZRange.scalar();
     assertThat(scalar.ndim()).isEqualTo(0);
-    assertThat(scalar.shape()).isEqualTo(new int[] {});
+    assertThat(scalar.shape()).isEqualTo(new long[] {});
     assertThat(scalar.size()).isEqualTo(1);
+
+    assertThat(scalar.isScalar()).isTrue();
+    assertThat(scalar.isEmpty()).isFalse();
 
     assertJsonEquals(scalar, "{\"start\":[],\"end\":[]}");
   }
@@ -21,9 +24,16 @@ public class ZRangeTest implements CommonAssertions {
     assertJsonEquals(range, "{\"start\":[-3,0],\"end\":[1,1]}");
 
     assertThat(range.ndim()).isEqualTo(2);
-    assertThat(range.shape()).isEqualTo(new int[] {4, 1});
+    assertThat(range.shape()).isEqualTo(new long[] {4, 1});
     assertThat(range.size()).isEqualTo(4);
 
-    assertThat(range.toString()).isEqualTo("ZRange(start=<[-3, 0]>, end=<[1, 1]>)");
+    assertThat(range.toString()).isEqualTo("zr[-3:1, 0:1]");
+  }
+
+  @Test
+  public void testSize() {
+    // scalar
+    var scalarPoint = ZPoint.scalar();
+    assertThat(ZRange.between(scalarPoint, scalarPoint).size()).isEqualTo(1);
   }
 }
