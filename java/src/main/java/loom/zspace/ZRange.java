@@ -3,7 +3,6 @@ package loom.zspace;
 import lombok.Builder;
 import lombok.Data;
 import lombok.extern.jackson.Jacksonized;
-import loom.linear.LongOps;
 
 /** Representation of a range of indices in a ZSpace. */
 @Data
@@ -114,9 +113,5 @@ public class ZRange {
 
   public boolean isScalar() {
     return ndim() == 0;
-  }
-
-  public boolean contains(long[] index) {
-    return LongOps.le(start.coords, index) && LongOps.lt(index, end.coords);
   }
 }

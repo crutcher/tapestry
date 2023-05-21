@@ -1,4 +1,4 @@
-package loom.linear;
+package loom.zspace.tensor;
 
 public class LinearOpsError extends RuntimeException {
   public LinearOpsError(String message) {
