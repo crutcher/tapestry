@@ -1,117 +1,164 @@
 package loom.zspace;
 
-import lombok.Builder;
-import lombok.Data;
-import lombok.extern.jackson.Jacksonized;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.base.Splitter;
+import java.util.List;
+import java.util.Objects;
+import javax.annotation.concurrent.Immutable;
+import javax.annotation.concurrent.ThreadSafe;
+import loom.common.HasToJsonString;
+import loom.common.JsonUtil;
 
-/** Representation of a range of indices in a ZSpace. */
-@Data
-public class ZRange {
-  // Immutable, and verified that start <= end at construction.
-  private final ZPoint start;
-  private final ZPoint end;
+@ThreadSafe
+@Immutable
+public final class ZRange implements HasDimension, HasToJsonString {
 
-  /**
-   * Create a ZRange from a shape.
-   *
-   * <p>The start is all zeros and the end is the shape.
-   *
-   * @param shape the shape of the range.
-   * @return the range.
-   */
-  public static ZRange of(long... shape) {
-    return of(ZPoint.of(shape));
+  public final ZPoint start;
+  public final ZPoint end;
+
+  @JsonIgnore public final ZTensor shape;
+  @JsonIgnore public final int size;
+
+  public static ZRange fromShape(int... shape) {
+    return fromShape(new ZPoint(shape));
   }
 
-  public static ZRange of(ZPoint shape) {
-    return new ZRange(new ZPoint(new long[shape.ndim()]), shape);
+  public static ZRange fromShape(ZTensor shape) {
+    return fromShape(new ZPoint(shape));
   }
 
-  public static ZRange between(ZPoint start, ZPoint end) {
+  public static ZRange fromShape(ZPoint shape) {
+    return new ZRange(ZPoint.zeros(shape.ndim()), shape);
+  }
+
+  public static ZRange of(ZPoint start, ZPoint end) {
     return new ZRange(start, end);
   }
 
-  /**
-   * Create a scalar ZRange.
-   *
-   * <p>The start and end are both empty; this results in a range with no dimensions, i.e. a scalar;
-   * and a size of 1.
-   *
-   * @return the range.
-   */
-  public static ZRange scalar() {
-    return of(ZPoint.scalar());
+  public static ZRange of(ZTensor start, ZTensor end) {
+    return new ZRange(start, end);
   }
 
-  @Jacksonized
-  @Builder
-  ZRange(ZPoint start, ZPoint end) {
-    ZPoint.verifyZPointLE(start, end);
+  @JsonCreator
+  public ZRange(@JsonProperty("start") ZPoint start, @JsonProperty("end") ZPoint end) {
+    start.coords.assertMatchingShape(end.coords);
+    if (start.gt(end)) {
+      throw new IllegalArgumentException("start must be <= end");
+    }
     this.start = start;
     this.end = end;
+
+    shape = end.coords.sub(start.coords).immutable();
+    {
+      int acc = 1;
+      for (var coords : shape.toT1()) {
+        acc *= coords;
+      }
+      size = acc;
+    }
+  }
+
+  public ZRange(ZTensor start, ZTensor end) {
+    this(new ZPoint(start), new ZPoint(end));
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    ZRange zRange = (ZRange) o;
+    return Objects.equals(start, zRange.start) && Objects.equals(end, zRange.end);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(start, end);
   }
 
   @Override
   public String toString() {
-    StringBuilder sb = new StringBuilder();
-    sb.append("zr[");
-    for (int idx = 0; idx < ndim(); ++idx) {
-      if (idx > 0) {
-        sb.append(", ");
+    var b = new StringBuilder();
+    b.append("zr[");
+    for (int i = 0; i < ndim(); ++i) {
+      if (i > 0) {
+        b.append(", ");
       }
-      sb.append(start.coords[idx]);
-      sb.append(":");
-      sb.append(end.coords[idx]);
+      b.append(start.coords.get(i));
+      b.append(":");
+      b.append(end.coords.get(i));
     }
-    sb.append("]");
-    return sb.toString();
+    b.append("]");
+    return b.toString();
   }
 
-  /** Return the number of dimensions in the range. */
+  public static ZRange parseZRange(String str) {
+    if (str.startsWith("{")) {
+      return JsonUtil.fromJson(str, ZRange.class);
+    }
+
+    if (str.startsWith("zr[") && str.endsWith("]")) {
+      var t = str.substring(3, str.length() - 1).trim();
+      if (t.isEmpty()) {
+        return new ZRange(new ZPoint(), new ZPoint());
+      }
+
+      List<String> parts = Splitter.on(",").splitToList(t);
+      int[] start = new int[parts.size()];
+      int[] end = new int[parts.size()];
+
+      for (int i = 0; i < parts.size(); ++i) {
+        var rangeParts = Splitter.on(':').splitToList(parts.get(i));
+        if (rangeParts.size() != 2) {
+          throw new IllegalArgumentException(String.format("invalid range: %s", str));
+        }
+
+        start[i] = Integer.parseInt(rangeParts.get(0).trim());
+        end[i] = Integer.parseInt(rangeParts.get(1).trim());
+      }
+
+      return new ZRange(new ZPoint(start), new ZPoint(end));
+    }
+
+    throw new IllegalArgumentException(String.format("invalid range: %s", str));
+  }
+
+  @Override
   public int ndim() {
     return start.ndim();
   }
 
-  /**
-   * Return the shape of the range.
-   *
-   * @return the shape of the range.
-   */
-  public long[] shape() {
-    long[] shape = new long[ndim()];
-    for (int i = 0, d = ndim(); i < d; i++) {
-      shape[i] = end.coords[i] - start.coords[i];
-    }
-    return shape;
-  }
-
-  /**
-   * Return the size of the range.
-   *
-   * <p>The size is defined as the product of the shape.
-   *
-   * @return the size.
-   */
-  public long size() {
-    long size = 1;
-    for (int i = 0, d = ndim(); i < d; i++) {
-      size *= end.coords[i] - start.coords[i];
-    }
-    return size;
-  }
-
-  /**
-   * Return true if the range is empty.
-   *
-   * <p>The range is empty if the size is 0.
-   *
-   * @return true if the range is empty.
-   */
+  @JsonIgnore
   public boolean isEmpty() {
-    return size() == 0;
+    return size == 0;
   }
 
-  public boolean isScalar() {
-    return ndim() == 0;
+  public boolean contains(ZRange other) {
+    return !isEmpty() && start.le(other.start) && other.end.le(end);
+  }
+
+  public boolean contains(ZPoint p) {
+    return !isEmpty() && start.le(p) && p.lt(end);
+  }
+
+  public ZPoint inclusiveEnd() {
+    if (isEmpty()) {
+      throw new IndexOutOfBoundsException("empty range");
+    }
+
+    return new ZPoint(end.coords.sub(1));
+  }
+
+  public ZRange translate(ZTensor delta) {
+    return ZRange.of(start.coords.add(delta), end.coords.add(delta));
+  }
+
+  public ZRange mul(ZTensor factor) {
+    return ZRange.of(start.coords.mul(factor), end.coords.mul(factor));
+  }
+
+  public ZRange div(ZTensor factor) {
+    return ZRange.of(start.coords.div(factor), end.coords.div(factor));
   }
 }

@@ -3,49 +3,22 @@ package loom.zspace;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import java.util.Arrays;
-import lombok.Data;
+import com.google.errorprone.annotations.Immutable;
+import javax.annotation.concurrent.ThreadSafe;
+import loom.common.HasToJsonString;
+import org.jetbrains.annotations.NotNull;
 
-@Data
+/**
+ * A point in a ZSpace.
+ *
+ * <p>Internally, represented by an immutable ZTensor.
+ *
+ * <p>Serializes as the JSON representation of a ZTensor.
+ */
+@ThreadSafe
+@Immutable
 @JsonDeserialize(using = ZPoint.Deserializer.class)
-public final class ZPoint implements ZDim {
-  static String formatLabeledCoord(String label, long[] coordinate) {
-    return String.format("%s:%s", label, Arrays.toString(coordinate));
-  }
-
-  public static void verifyZPointSameNDims(long[] start, long[] end) {
-    if (start.length != end.length) {
-      throw new IllegalArgumentException(
-          String.format(
-              "%s and %s differ in dimensions",
-              formatLabeledCoord("start", start), formatLabeledCoord("end", end)));
-    }
-  }
-
-  /**
-   * Verify that start is <= end in all dimensions.
-   *
-   * @param start the start of the range.
-   * @param end the end of the range.
-   * @throws IllegalArgumentException if start and end are not the same dims and start is not <= all
-   *     elements of end.
-   */
-  public static void verifyZPointLE(long[] start, long[] end) {
-    verifyZPointSameNDims(start, end);
-    for (int i = 0; i < start.length; i++) {
-      if (start[i] > end[i]) {
-        throw new IllegalArgumentException(
-            String.format(
-                "%s is not <= %s",
-                formatLabeledCoord("start", start), formatLabeledCoord("end", end)));
-      }
-    }
-  }
-
-  public static void verifyZPointLE(ZPoint start, ZPoint end) {
-    verifyZPointLE(start.coords, end.coords);
-  }
-
+public final class ZPoint implements HasDimension, HasToJsonString {
   static class Deserializer extends StdDeserializer<ZPoint> {
     public Deserializer() {
       super(ZPoint.class);
@@ -56,44 +29,298 @@ public final class ZPoint implements ZDim {
         com.fasterxml.jackson.core.JsonParser p,
         com.fasterxml.jackson.databind.DeserializationContext ctxt)
         throws java.io.IOException {
-      long[] coords = p.readValueAs(long[].class);
-      return new ZPoint(coords);
+      return new ZPoint(p.readValueAs(ZTensor.class));
     }
   }
 
-  @JsonValue final long[] coords;
-
-  public static ZPoint scalar() {
-    return new ZPoint();
+  public static @NotNull ZPoint zeros(int ndim) {
+    return new ZPoint(ZTensor.zeros(ndim));
   }
 
-  public static ZPoint of(long... coords) {
-    return new ZPoint(coords);
+  @JsonValue
+  @SuppressWarnings("Immutable")
+  public final ZTensor coords;
+
+  ZPoint(ZTensor coord) {
+    coord.assertNdim(1);
+    this.coords = coord.immutable();
   }
 
-  public ZPoint(long... coords) {
-    this.coords = coords;
+  ZPoint(int... coords) {
+    this(ZTensor.vector(coords));
   }
 
   @Override
-  public int ndim() {
-    return coords.length;
+  public boolean equals(Object other) {
+    if (this == other) return true;
+    if (other == null || getClass() != other.getClass()) return false;
+    var that = (ZPoint) other;
+    return eq(that);
   }
 
-  public boolean isScalar() {
-    return ndim() == 0;
+  @Override
+  public int hashCode() {
+    return coords.hashCode();
   }
 
   @Override
   public String toString() {
-    return "z" + java.util.Arrays.toString(coords);
+    return coords.toString();
   }
 
-  public long get(int i) {
-    return coords[i];
+  /**
+   * Parse a ZPoint from a string.
+   *
+   * @param source the string to parse.
+   * @return the parsed ZPoint.
+   */
+  public static ZPoint parseZPoint(String source) {
+    return new ZPoint(ZTensor.parseZTensor(source));
   }
 
-  public long[] copyCoords() {
-    return this.coords.clone();
+  @Override
+  public int ndim() {
+    return coords.shape(0);
+  }
+
+  /** Namespace of ZPoint operations. */
+  public static final class Ops {
+    // Prevent instantiation.
+    private Ops() {}
+
+    /**
+     * Compute the partial ordering of two tensors as coordinates in distance from 0.
+     *
+     * @param lhs the left-hand side.
+     * @param rhs the right-hand side.
+     * @return the partial ordering.
+     */
+    public static PartialOrdering partialCompare(ZTensor lhs, ZTensor rhs) {
+      HasDimension.assertSameZDim(lhs, rhs);
+
+      boolean lt = false;
+      boolean gt = false;
+      for (int[] coords : lhs.byCoords()) {
+        int cmp = Integer.compare(lhs.get(coords), rhs.get(coords));
+        if (cmp < 0) {
+          lt = true;
+        } else if (cmp > 0) {
+          gt = true;
+        }
+      }
+      if (lt && gt) return PartialOrdering.INCOMPARABLE;
+      if (lt) return PartialOrdering.LESS_THAN;
+      if (gt) return PartialOrdering.GREATER_THAN;
+      return PartialOrdering.EQUAL;
+    }
+
+    /**
+     * Compute the partial ordering of two points.
+     *
+     * @param lhs the left-hand side.
+     * @param rhs the right-hand side.
+     * @return the partial ordering.
+     */
+    public static PartialOrdering partialCompare(ZPoint lhs, ZPoint rhs) {
+      return partialCompare(lhs.coords, rhs.coords);
+    }
+
+    /**
+     * Are these points equal under partial ordering?
+     *
+     * @param lhs the left-hand side.
+     * @param rhs the right-hand side.
+     * @return true if the points are equal.
+     */
+    public static boolean eq(ZPoint lhs, ZPoint rhs) {
+      return eq(lhs.coords, rhs.coords);
+    }
+
+    public static boolean eq(ZTensor lhs, ZPoint rhs) {
+      return eq(lhs, rhs.coords);
+    }
+
+    public static boolean eq(ZPoint lhs, ZTensor rhs) {
+      return eq(lhs.coords, rhs);
+    }
+
+    public static boolean eq(ZTensor lhs, ZTensor rhs) {
+      return lhs.equals(rhs);
+    }
+
+    /**
+     * Are these points non-equal under partial ordering?
+     *
+     * @param lhs the left-hand side.
+     * @param rhs the right-hand side.
+     * @return true if the points are non-equal.
+     */
+    public static boolean ne(ZPoint lhs, ZPoint rhs) {
+      return !eq(lhs.coords, rhs.coords);
+    }
+
+    public static boolean ne(ZTensor lhs, ZPoint rhs) {
+      return !eq(lhs, rhs.coords);
+    }
+
+    public static boolean ne(ZPoint lhs, ZTensor rhs) {
+      return !eq(lhs.coords, rhs);
+    }
+
+    public static boolean ne(ZTensor lhs, ZTensor rhs) {
+      return !eq(lhs, rhs);
+    }
+
+    /**
+     * Is `lhs < rhs`?
+     *
+     * @param lhs the left-hand side.
+     * @param rhs the right-hand side.
+     * @return true or false.
+     */
+    public static boolean lt(ZPoint lhs, ZPoint rhs) {
+      return lt(lhs.coords, rhs.coords);
+    }
+
+    public static boolean lt(ZTensor lhs, ZPoint rhs) {
+      return lt(lhs, rhs.coords);
+    }
+
+    public static boolean lt(ZPoint lhs, ZTensor rhs) {
+      return lt(lhs.coords, rhs);
+    }
+
+    public static boolean lt(ZTensor lhs, ZTensor rhs) {
+      return partialCompare(lhs, rhs) == PartialOrdering.LESS_THAN;
+    }
+
+    /**
+     * Is `lhs <= rhs`?
+     *
+     * @param lhs the left-hand side.
+     * @param rhs the right-hand side.
+     * @return true or false.
+     */
+    public static boolean le(ZPoint lhs, ZPoint rhs) {
+      return le(lhs.coords, rhs.coords);
+    }
+
+    public static boolean le(ZPoint lhs, ZTensor rhs) {
+      return le(lhs.coords, rhs);
+    }
+
+    public static boolean le(ZTensor lhs, ZPoint rhs) {
+      return le(lhs, rhs.coords);
+    }
+
+    public static boolean le(ZTensor lhs, ZTensor rhs) {
+      switch (partialCompare(lhs, rhs)) {
+        case LESS_THAN:
+        case EQUAL:
+          return true;
+        default:
+          return false;
+      }
+    }
+
+    /**
+     * Is `lhs > rhs`?
+     *
+     * @param lhs the left-hand side.
+     * @param rhs the right-hand side.
+     * @return true or false.
+     */
+    public static boolean gt(ZPoint lhs, ZPoint rhs) {
+      return gt(lhs.coords, rhs.coords);
+    }
+
+    public static boolean gt(ZPoint lhs, ZTensor rhs) {
+      return gt(lhs.coords, rhs);
+    }
+
+    public static boolean gt(ZTensor lhs, ZPoint rhs) {
+      return gt(lhs, rhs.coords);
+    }
+
+    public static boolean gt(ZTensor lhs, ZTensor rhs) {
+      return partialCompare(lhs, rhs) == PartialOrdering.GREATER_THAN;
+    }
+
+    /**
+     * Is `lhs >= rhs`?
+     *
+     * @param lhs the left-hand side.
+     * @param rhs the right-hand side.
+     * @return true or false.
+     */
+    public static boolean ge(ZPoint lhs, ZPoint rhs) {
+      return ge(lhs.coords, rhs.coords);
+    }
+
+    public static boolean ge(ZPoint lhs, ZTensor rhs) {
+      return ge(lhs.coords, rhs);
+    }
+
+    public static boolean ge(ZTensor lhs, ZPoint rhs) {
+      return ge(lhs, rhs.coords);
+    }
+
+    public static boolean ge(ZTensor lhs, ZTensor rhs) {
+      switch (partialCompare(lhs, rhs)) {
+        case GREATER_THAN:
+        case EQUAL:
+          return true;
+        default:
+          return false;
+      }
+    }
+  }
+
+  public boolean eq(ZPoint rhs) {
+    return ZPoint.Ops.eq(this, rhs);
+  }
+
+  public boolean eq(ZTensor rhs) {
+    return ZPoint.Ops.eq(this, rhs);
+  }
+
+  public boolean ne(ZPoint rhs) {
+    return ZPoint.Ops.ne(this, rhs);
+  }
+
+  public boolean ne(ZTensor rhs) {
+    return ZPoint.Ops.ne(this, rhs);
+  }
+
+  public boolean lt(ZPoint rhs) {
+    return ZPoint.Ops.lt(this, rhs);
+  }
+
+  public boolean lt(ZTensor rhs) {
+    return ZPoint.Ops.lt(this, rhs);
+  }
+
+  public boolean le(ZPoint rhs) {
+    return ZPoint.Ops.le(this, rhs);
+  }
+
+  public boolean le(ZTensor rhs) {
+    return ZPoint.Ops.le(this, rhs);
+  }
+
+  public boolean gt(ZPoint rhs) {
+    return ZPoint.Ops.gt(this, rhs);
+  }
+
+  public boolean gt(ZTensor rhs) {
+    return ZPoint.Ops.gt(this, rhs);
+  }
+
+  public boolean ge(ZPoint rhs) {
+    return ZPoint.Ops.ge(this, rhs);
+  }
+
+  public boolean ge(ZTensor rhs) {
+    return ZPoint.Ops.ge(this, rhs);
   }
 }

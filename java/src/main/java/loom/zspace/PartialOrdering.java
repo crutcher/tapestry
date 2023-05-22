@@ -1,4 +1,4 @@
-package loom.zspace.tensor;
+package loom.zspace;
 
 public enum PartialOrdering {
   LESS_THAN,

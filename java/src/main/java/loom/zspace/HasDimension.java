@@ -3,17 +3,17 @@ package loom.zspace;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
-public interface ZDim {
+public interface HasDimension {
   /**
    * Assert that all objects have the same number of dimensions.
    *
    * @param objs the objects to check.
    * @throws ZDimMissMatchError if the objects do not have the same number of dimensions.
    */
-  static void assertSameZDim(ZDim... objs) throws ZDimMissMatchError {
+  static void assertSameZDim(HasDimension... objs) throws ZDimMissMatchError {
     int ndim = objs[0].ndim();
     boolean same = true;
-    for (ZDim o : objs) {
+    for (HasDimension o : objs) {
       if (o.ndim() != ndim) {
         same = false;
       }
@@ -25,7 +25,8 @@ public interface ZDim {
 
     throw new ZDimMissMatchError(
         String.format(
-            "ZDim mismatch: %s", Arrays.stream(objs).map(ZDim::ndim).collect(Collectors.toList())));
+            "ZDim mismatch: %s",
+            Arrays.stream(objs).map(HasDimension::ndim).collect(Collectors.toList())));
   }
 
   int ndim();

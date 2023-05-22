@@ -1,4 +1,4 @@
-package loom.zspace.tensor;
+package loom.zspace;
 
 import com.fasterxml.jackson.core.TreeNode;
 import com.fasterxml.jackson.databind.JsonSerializer;
@@ -6,6 +6,9 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.node.IntNode;
+import com.google.common.collect.ImmutableList;
+import com.google.common.primitives.Ints;
+import loom.common.HasToJsonString;
 import loom.common.JsonUtil;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -21,7 +24,7 @@ import java.util.stream.StreamSupport;
 @ThreadSafe
 @JsonSerialize(using = ZTensor.JsonSupport.Serializer.class)
 @JsonDeserialize(using = ZTensor.JsonSupport.Deserializer.class)
-public final class ZTensor {
+public final class ZTensor implements HasDimension, HasToJsonString {
     private class CoordsIterator implements Iterator<int[]> {
         // Assuming a non-scalar ZTensor; non-empty ZTensor.
         private int remaining = size();
@@ -55,7 +58,7 @@ public final class ZTensor {
         }
     }
 
-    private class CoordsIterable implements Iterable<int[]> {
+    public class CoordsIterable implements Iterable<int[]> {
         @Contract(" -> new")
         @Override
         public @NotNull Iterator<int[]> iterator() {
@@ -93,9 +96,10 @@ public final class ZTensor {
     }
 
     private boolean mutable;
-    private Integer hash;
+    private int hash;
 
     private final int[] shape;
+    private final ImmutableList<Integer> shapeList;
 
     private final int size;
 
@@ -198,7 +202,6 @@ public final class ZTensor {
         return diagonal(diag);
     }
 
-
     /**
      * Given a non-sparse array of unknown dimensionality, returns a ZTensor with the same shape and
      * data.
@@ -229,18 +232,23 @@ public final class ZTensor {
         this.mutable = mutable;
         if (mutable) {
             // Hash is only well-defined for immutable ZTensors.
-            hash = null;
+            hash = -1;
         } else {
-            hash =
-                    coordsStream().mapToInt(this::get).reduce(0, (h, v) -> h * 31 + v)
-                            + Arrays.hashCode(shape);
+            _markImmutableAndRebuildHash();
         }
 
         this.shape = shape;
+        this.shapeList = ImmutableList.copyOf(Ints.asList(shape));
         this.size = shapeToSize(shape);
         this.stride = stride;
         this.offset = offset;
         this.data = data;
+    }
+
+    private void _markImmutableAndRebuildHash() {
+        mutable = false;
+        hash =
+                coordsStream().mapToInt(this::get).reduce(0, (h, v) -> h * 31 + v) + Arrays.hashCode(shape);
     }
 
     /**
@@ -445,6 +453,29 @@ public final class ZTensor {
     }
 
     @Override
+    public boolean equals(Object other) {
+        if (this == other) return true;
+        if (other == null || getClass() != other.getClass()) return false;
+        var that = (ZTensor) other;
+
+        HasDimension.assertSameZDim(this, that);
+        for (var coords : byCoords()) {
+            if (that.get(coords) != get(coords)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        if (mutable) {
+            throw new IllegalStateException("Cannot take the hash of a mutable tensor.");
+        }
+        return hash;
+    }
+
+    @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
         toTree(() -> sb.append('['), () -> sb.append(']'), () -> sb.append(", "), sb::append);
@@ -563,12 +594,14 @@ public final class ZTensor {
      * @return a new ZTensor with the same data.
      */
     public ZTensor clone(boolean mutable) {
-        int[] data = new int[size()];
-        for (int[] coords : byCoords()) {
-            data[ravel(shape, stride, coords)] = get(coords);
+        var res = new ZTensor(true, shape);
+        for (var coords : byCoords()) {
+            res.set(get(coords), coords);
         }
-
-        return new ZTensor(mutable, shape, stride, data, 0);
+        if (!mutable) {
+            res._markImmutableAndRebuildHash();
+        }
+        return res;
     }
 
     /**
@@ -578,6 +611,19 @@ public final class ZTensor {
      */
     public int[] shapeAsArray() {
         return shape.clone();
+    }
+
+    /**
+     * Returns the shape of this tensor as a list.
+     *
+     * @return an immutable shape list.
+     */
+    public ImmutableList<Integer> shapeAsList() {
+        return shapeList;
+    }
+
+    public int shape(int dim) {
+        return shape[dim];
     }
 
     /**
@@ -592,6 +638,7 @@ public final class ZTensor {
     /**
      * Returns the number of dimensions of this tensor.
      */
+    @Override
     public int ndim() {
         return shape.length;
     }
@@ -603,7 +650,7 @@ public final class ZTensor {
      * @param idx  the index.
      * @param size the size of the bounds.
      * @return the resolved index.
-     * @throws ArrayIndexOutOfBoundsException if the index is out of range.
+     * @throws IndexOutOfBoundsException if the index is out of range.
      */
     static int resolveIndex(String msg, int idx, int size) {
         var res = idx;
@@ -611,7 +658,7 @@ public final class ZTensor {
             res += size;
         }
         if (res < 0 || res >= size) {
-            throw new ArrayIndexOutOfBoundsException(
+            throw new IndexOutOfBoundsException(
                     String.format("%s: index %d out of range [0, %d)", msg, idx, size));
         }
         return res;
@@ -625,7 +672,7 @@ public final class ZTensor {
      * @param dim   the dimension index.
      * @param shape the shape of the tensor.
      * @return the resolved dimension index.
-     * @throws ArrayIndexOutOfBoundsException if the index is out of range.
+     * @throws IndexOutOfBoundsException if the index is out of range.
      */
     public static int resolveDim(int dim, int[] shape) {
         return resolveIndex("invalid dimension", dim, shape.length);
@@ -638,7 +685,7 @@ public final class ZTensor {
      *
      * @param dim the dimension index.
      * @return the resolved dimension index.
-     * @throws ArrayIndexOutOfBoundsException if the index is out of range.
+     * @throws IndexOutOfBoundsException if the index is out of range.
      */
     public int resolveDim(int dim) {
         return resolveDim(dim, shape);
@@ -847,7 +894,7 @@ public final class ZTensor {
      * @param stride the strides array.
      * @param coords the coordinates.
      * @return the ravel index.
-     * @throws ArrayIndexOutOfBoundsException if the coordinates are out of bounds.
+     * @throws IndexOutOfBoundsException if the coordinates are out of bounds.
      */
     @Contract(pure = true)
     public static int ravel(@NotNull int[] shape, @NotNull int[] stride, @NotNull int[] coords) {
@@ -893,7 +940,7 @@ public final class ZTensor {
      *
      * @param value  the value to set.
      * @param coords the coordinates.
-     * @throws ArrayIndexOutOfBoundsException if the coordinates are out of bounds.
+     * @throws IndexOutOfBoundsException if the coordinates are out of bounds.
      */
     void _set(int value, int... coords) {
         data[ravel(coords)] = value;
@@ -904,8 +951,8 @@ public final class ZTensor {
      *
      * @param value  the value to set.
      * @param coords the coordinates.
-     * @throws ArrayIndexOutOfBoundsException if the coordinates are out of bounds.
-     * @throws IllegalStateException          if the tensor is read-only.
+     * @throws IndexOutOfBoundsException if the coordinates are out of bounds.
+     * @throws IllegalStateException     if the tensor is read-only.
      */
     public void set(int value, int... coords) {
         assertMutable();
@@ -1036,100 +1083,6 @@ public final class ZTensor {
          * Prevent instantiation.
          */
         private Ops() {
-        }
-
-        /**
-         * Compute the partial ordering of two tensors.
-         *
-         * @param lhs the left-hand side.
-         * @param rhs the right-hand side.
-         * @return the partial ordering.
-         */
-        public static PartialOrdering partialCompare(ZTensor lhs, ZTensor rhs) {
-            assertMatchingShapes(lhs, rhs);
-
-            boolean lt = false;
-            boolean gt = false;
-            for (int[] coords : lhs.byCoords()) {
-                int cmp = Integer.compare(lhs.get(coords), rhs.get(coords));
-                if (cmp < 0) {
-                    lt = true;
-                } else if (cmp > 0) {
-                    gt = true;
-                }
-            }
-            if (lt && gt) return PartialOrdering.INCOMPARABLE;
-            if (lt) return PartialOrdering.LESS_THAN;
-            if (gt) return PartialOrdering.GREATER_THAN;
-            return PartialOrdering.EQUAL;
-        }
-
-        /**
-         * Are these tensors equal under partial ordering?
-         *
-         * @param lhs the left-hand side.
-         * @param rhs the right-hand side.
-         * @return true if the tensors are equal.
-         */
-        public static boolean eq(ZTensor lhs, ZTensor rhs) {
-            return partialCompare(lhs, rhs) == PartialOrdering.EQUAL;
-        }
-
-        /**
-         * Are these tensors non-equal under partial ordering?
-         *
-         * @param lhs the left-hand side.
-         * @param rhs the right-hand side.
-         * @return true if the tensors are non-equal.
-         */
-        public static boolean ne(ZTensor lhs, ZTensor rhs) {
-            return partialCompare(lhs, rhs) != PartialOrdering.EQUAL;
-        }
-
-        /**
-         * Is `lhs < rhs`?
-         *
-         * @param lhs the left-hand side.
-         * @param rhs the right-hand side.
-         * @return true or false.
-         */
-        public static boolean lt(ZTensor lhs, ZTensor rhs) {
-            return partialCompare(lhs, rhs) == PartialOrdering.LESS_THAN;
-        }
-
-        /**
-         * Is `lhs <= rhs`?
-         *
-         * @param lhs the left-hand side.
-         * @param rhs the right-hand side.
-         * @return true or false.
-         */
-        public static boolean le(ZTensor lhs, ZTensor rhs) {
-            var ordering = partialCompare(lhs, rhs);
-            return ordering == PartialOrdering.LESS_THAN || ordering == PartialOrdering.EQUAL;
-        }
-
-        /**
-         * Is `lhs > rhs`?
-         *
-         * @param lhs the left-hand side.
-         * @param rhs the right-hand side.
-         * @return true or false.
-         */
-        public static boolean gt(ZTensor lhs, ZTensor rhs) {
-            return partialCompare(lhs, rhs) == PartialOrdering.GREATER_THAN;
-        }
-
-        /**
-         * Is `lhs >= rhs`?
-         *
-         * @param lhs the left-hand side.
-         * @param rhs the right-hand side.
-         * @return true or false.
-         */
-        public static boolean ge(ZTensor lhs, ZTensor rhs) {
-            var ordering = partialCompare(lhs, rhs);
-            return ordering == PartialOrdering.GREATER_THAN || ordering == PartialOrdering.EQUAL;
         }
 
         /**
@@ -1296,47 +1249,6 @@ public final class ZTensor {
         public static void mod_(ZTensor lhs, int rhs) {
             lhs.binOp_((l, r) -> l % r, rhs);
         }
-    }
-
-    @Override
-    public boolean equals(Object other) {
-        if (other instanceof ZTensor) {
-            return eq((ZTensor) other);
-        } else {
-            return false;
-        }
-    }
-
-    @Override
-    public int hashCode() {
-        if (hash == null) {
-            throw new IllegalStateException("Cannot take the hash of a mutable tensor.");
-        }
-        return hash;
-    }
-
-    public boolean eq(ZTensor rhs) {
-        return Ops.eq(this, rhs);
-    }
-
-    public boolean ne(ZTensor rhs) {
-        return Ops.ne(this, rhs);
-    }
-
-    public boolean lt(ZTensor rhs) {
-        return Ops.lt(this, rhs);
-    }
-
-    public boolean le(ZTensor rhs) {
-        return Ops.le(this, rhs);
-    }
-
-    public boolean gt(ZTensor rhs) {
-        return Ops.gt(this, rhs);
-    }
-
-    public boolean ge(ZTensor rhs) {
-        return Ops.ge(this, rhs);
     }
 
     public @NotNull ZTensor neg() {
