@@ -26,9 +26,7 @@ public class ZRangeTest implements CommonAssertions {
     assertThat(range.contains(range)).isTrue();
 
     // Does a zero-dimensional range contain a zero-dimensional point?
-    // The naive interpretations of `(start <= p && p < end)` suggest no.
-    assertThat(range.contains(new ZPoint())).isFalse();
-
+    assertThat(range.contains(new ZPoint())).isTrue();
     assertThat(range.inclusiveEnd()).isEqualTo(new ZPoint());
   }
 
@@ -112,5 +110,44 @@ public class ZRangeTest implements CommonAssertions {
       assertThat(range.ndim()).isEqualTo(2);
       assertThat(range.size).isEqualTo(4);
     }
+  }
+
+  @Test
+  public void test_contains() {
+    {
+      // 0-dim ranges.
+      var r0 = new ZRange(new ZPoint(), new ZPoint());
+      assertThat(r0.contains(r0.start)).isTrue();
+      assertThat(r0.contains(r0.end)).isTrue();
+    }
+
+    var range = ZRange.fromShape(2, 3);
+
+    assertThat(range.contains(range)).isTrue();
+    assertThat(range.contains(range.start)).isTrue();
+    assertThat(range.contains(range.inclusiveEnd())).isTrue();
+    assertThat(range.contains(range.end)).isFalse();
+
+    {
+      // Empty Ranges
+      ZRange empty = ZRange.fromShape(0, 0);
+      assertThat(empty.contains(empty)).isTrue();
+      assertThat(empty.contains(empty.start)).isFalse();
+      assertThat(range.contains(empty)).isTrue();
+      assertThat(range.contains(empty.translate(range.end))).isTrue();
+      assertThat(range.contains(empty.translate(ZTensor.vector(-1, 0)))).isFalse();
+    }
+
+    assertThat(range.contains(new ZPoint(1, 1))).isTrue();
+    assertThat(range.contains(new ZPoint(-2, 1))).isFalse();
+
+    assertThat(range.contains(ZTensor.vector(1, 1))).isTrue();
+    assertThat(range.contains(ZTensor.vector(-2, 1))).isFalse();
+
+    assertThat(range.contains(ZRange.of(ZTensor.vector(0, 0), ZTensor.vector(1, 1)))).isTrue();
+    assertThat(range.contains(ZRange.of(ZTensor.vector(1, 2), ZTensor.vector(2, 3)))).isTrue();
+
+    assertThat(range.contains(ZRange.of(ZTensor.vector(0, -1), ZTensor.vector(1, 1)))).isFalse();
+    assertThat(range.contains(ZRange.of(ZTensor.vector(0, 0), ZTensor.vector(3, 1)))).isFalse();
   }
 }
