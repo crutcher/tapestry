@@ -41,12 +41,12 @@ public final class ZPoint implements HasDimension, HasToJsonString {
   @SuppressWarnings("Immutable")
   public final ZTensor coords;
 
-  ZPoint(ZTensor coord) {
+  public ZPoint(ZTensor coord) {
     coord.assertNdim(1);
     this.coords = coord.immutable();
   }
 
-  ZPoint(int... coords) {
+  public ZPoint(int... coords) {
     this(ZTensor.vector(coords));
   }
 

@@ -3,26 +3,21 @@ package loom.zspace;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.Objects;
+import javax.annotation.concurrent.Immutable;
+import javax.annotation.concurrent.ThreadSafe;
 import loom.common.HasToJsonString;
 import loom.common.JsonUtil;
 
-import javax.annotation.concurrent.Immutable;
-import javax.annotation.concurrent.ThreadSafe;
-import java.util.Objects;
-
-/**
- * A linear map from {@code Z^inDim} to {@code Z^outDim}.
- */
+/** A linear map from {@code Z^inDim} to {@code Z^outDim}. */
 @ThreadSafe
 @Immutable
 public class ZAffineMap implements HasToJsonString {
   public final ZTensor A;
   public final ZTensor b;
 
-  @JsonIgnore
-  public final int inDim;
-  @JsonIgnore
-  public final int outDim;
+  @JsonIgnore public final int inDim;
+  @JsonIgnore public final int outDim;
 
   @JsonCreator
   public ZAffineMap(@JsonProperty("A") ZTensor A, @JsonProperty("b") ZTensor b) {
@@ -35,7 +30,7 @@ public class ZAffineMap implements HasToJsonString {
     b.assertNdim(1);
     if (b.shapeAsList().get(0) != outDim) {
       throw new IllegalArgumentException(
-              String.format("A.shape[1] != b.shape[0]: %s != %s", A.shapeAsList(), b.shapeAsList()));
+          String.format("A.shape[1] != b.shape[0]: %s != %s", A.shapeAsList(), b.shapeAsList()));
     }
 
     this.A = A.immutable();
@@ -75,7 +70,7 @@ public class ZAffineMap implements HasToJsonString {
     x.assertNdim(1);
     if (x.shapeAsList().get(0) != inDim) {
       throw new IllegalArgumentException(
-              String.format("A.shape[1] != x.shape[0]: %s != %s", A.shapeAsList(), x.shapeAsList()));
+          String.format("A.shape[1] != x.shape[0]: %s != %s", A.shapeAsList(), x.shapeAsList()));
     }
 
     // denoted in the `out` dim.
@@ -83,7 +78,7 @@ public class ZAffineMap implements HasToJsonString {
 
     for (int j = 0; j < inDim; j++) {
       for (int i = 0; i < outDim; i++) {
-        res.set(new int[]{i}, res.get(i) + A.get(i, j) * x.get(j));
+        res.set(new int[] {i}, res.get(i) + A.get(i, j) * x.get(j));
       }
     }
     return res;
