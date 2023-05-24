@@ -150,48 +150,96 @@ public final class ZTensor implements HasDimension, HasToJsonString, HasPermute 
         return Arrays.stream(shape).reduce(1, (a, b) -> a * b);
     }
 
+    /**
+     * Construct a new mutable ZTensor filled with zeros with a shape like the given ZTensor.
+     *
+     * @param ref the ZTensor to copy the shape from.
+     * @return a new mutable ZTensor.
+     */
     @Contract("_ -> new")
-    public static @NotNull ZTensor zeros_like(@NotNull ZTensor tensor) {
-        return new ZTensor(true, tensor.shapeAsArray());
+    public static @NotNull ZTensor zeros_like(@NotNull ZTensor ref) {
+        return new ZTensor(true, ref.shapeAsArray());
     }
 
+    /**
+     * Construct a new mutable tensor filled with zeros.
+     *
+     * @param shape the shape of the tensor.
+     * @return a new mutable ZTensor.
+     */
     @Contract("_ -> new")
     public static @NotNull ZTensor zeros(@NotNull int... shape) {
         return new ZTensor(true, shape.clone());
     }
 
-    @Contract("_ -> new")
-    public static @NotNull ZTensor full(int fill_value, @NotNull int... shape) {
+    /**
+     * Construct a new mutable tensor filled with the given fill value.
+     *
+     * @param shape      the shape of the tensor.
+     * @param fill_value the value to fill the tensor with.
+     * @return a new mutable ZTensor.
+     */
+    public static @NotNull ZTensor full(@NotNull int[] shape, int fill_value) {
         var tensor = zeros(shape);
         tensor.fill(fill_value);
         return tensor;
     }
 
-    @Contract("_ -> new")
+    /**
+     * Construct a new mutable ZTensor filled with the fill value with a shape like the given ZTensor.
+     *
+     * @param ref        the ZTensor to copy the shape from.
+     * @param fill_value the value to fill the tensor with.
+     * @return a new mutable ZTensor.
+     */
     public static @NotNull ZTensor full_like(ZTensor ref, int fill_value) {
         var tensor = zeros_like(ref);
         tensor.fill(fill_value);
         return tensor;
     }
 
+    /**
+     * Construct a new mutable tensor filled with ones.
+     *
+     * @param shape the shape of the tensor.
+     * @return a new mutable ZTensor.
+     */
     @Contract("_ -> new")
     public static @NotNull ZTensor ones(@NotNull int... shape) {
-        return full(1, shape);
+        return full(shape, 1);
     }
 
+    /**
+     * Construct a new mutable ZTensor filled with ones with a shape like the given ZTensor.
+     *
+     * @param ref the ZTensor to copy the shape from.
+     * @return a new mutable ZTensor.
+     */
     @Contract("_ -> new")
     public static @NotNull ZTensor ones_like(ZTensor ref) {
         return full_like(ref, 1);
     }
 
+    /**
+     * Construct a diagonal matrix from a list of values.
+     *
+     * @param diag the values to put on the diagonal.
+     * @return a new ZTensor.
+     */
     public static ZTensor diagonal(int... diag) {
         var tensor = zeros(diag.length, diag.length);
         for (int i = 0; i < diag.length; ++i) {
-            tensor._set(new int[]{i, diag[i]}, i);
+            tensor._set(new int[]{i, i}, diag[i]);
         }
         return tensor;
     }
 
+    /**
+     * Construct an identity matrix of size nxn.
+     *
+     * @param n the size of a side of the matrix.
+     * @return a new ZTensor.
+     */
     public static ZTensor identity(int n) {
         int[] diag = new int[n];
         for (int i = 0; i < n; ++i) {
@@ -1065,6 +1113,11 @@ public final class ZTensor implements HasDimension, HasToJsonString, HasPermute 
         return (int[][]) toArray();
     }
 
+    /**
+     * Fill the tensor with a value.
+     *
+     * @param fill_value the value to fill with.
+     */
     public void fill(int fill_value) {
         assertMutable();
         for (int[] coords : byCoords()) {
