@@ -149,12 +149,22 @@ public class ZTensorTest implements CommonAssertions {
     assertThat(ZTensor.scalar(3).toString()).isEqualTo("3");
     assertThat(ZTensor.zeros(3, 0).toString()).isEqualTo("[[]]");
 
-    assertThat(ZTensor.parseZTensor("3")).isEqualTo(ZTensor.scalar(3));
-    assertThat(ZTensor.parseZTensor("[[2, 3]]")).isEqualTo(ZTensor.from(new int[][] {{2, 3}}));
-    assertThat(ZTensor.parseZTensor("[[[]]]")).isEqualTo(ZTensor.zeros(0, 0, 0));
+    assertThat(ZTensor.parse("3")).isEqualTo(ZTensor.scalar(3));
+    assertThat(ZTensor.parse("[[2, 3]]")).isEqualTo(ZTensor.from(new int[][] {{2, 3}}));
+    assertThat(ZTensor.parse("[[[]]]")).isEqualTo(ZTensor.zeros(0, 0, 0));
 
     assertThatExceptionOfType(IllegalArgumentException.class)
-        .isThrownBy(() -> ZTensor.parseZTensor("[[2, "));
+        .isThrownBy(() -> ZTensor.parse("[[2, "));
+  }
+
+  @Test
+  public void test_selectDim() {
+    ZTensor t = ZTensor.from(new int[][] {{2, 3}, {4, 5}});
+
+    assertThat(t.selectDim(0, 0)).isEqualTo(ZTensor.from(new int[] {2, 3}));
+    assertThat(t.selectDim(0, 1)).isEqualTo(ZTensor.from(new int[] {4, 5}));
+    assertThat(t.selectDim(1, 0)).isEqualTo(ZTensor.from(new int[] {2, 4}));
+    assertThat(t.selectDim(1, 1)).isEqualTo(ZTensor.from(new int[] {3, 5}));
   }
 
   @Test
@@ -165,6 +175,14 @@ public class ZTensorTest implements CommonAssertions {
 
     assertThat(t.permute(0, 2, 1))
         .isEqualTo(ZTensor.from(new int[][][] {{{2, 4}, {3, 5}}, {{6, 8}, {7, 9}}}));
+  }
+
+  @Test
+  public void test_reorderDim() {
+    var t = ZTensor.from(new int[][][] {{{2, 3}, {4, 5}}, {{6, 7}, {8, 9}}});
+
+    var r = t.reorderDim(new int[] {1, 0}, 1);
+    assertThat(r).isEqualTo(ZTensor.from(new int[][][] {{{4, 5}, {2, 3}}, {{8, 9}, {6, 7}}}));
   }
 
   @Test
@@ -218,6 +236,14 @@ public class ZTensorTest implements CommonAssertions {
 
     assertThat(points)
         .contains(new int[] {0, 0}, new int[] {0, 1}, new int[] {1, 0}, new int[] {1, 1});
+  }
+
+  @Test
+  public void test_assign() {
+    var t = ZTensor.zeros(2, 3);
+
+    t.selectDim(0, 0).assign(ZTensor.vector(1, 2, 3));
+    assertThat(t).isEqualTo(ZTensor.from(new int[][] {{1, 2, 3}, {0, 0, 0}}));
   }
 
   @Test

@@ -12,23 +12,23 @@ import loom.common.JsonUtil;
 /** A linear map from {@code Z^inDim} to {@code Z^outDim}. */
 @ThreadSafe
 @Immutable
-public class ZAffineMap implements HasToJsonString {
+public class ZAffineMap implements HasPermuteInput, HasPermuteOutput, HasToJsonString {
   public final ZTensor A;
   public final ZTensor b;
 
-  @JsonIgnore public final int inDim;
-  @JsonIgnore public final int outDim;
+  @JsonIgnore public final int inputDim;
+  @JsonIgnore public final int outputDim;
 
   @JsonCreator
   public ZAffineMap(@JsonProperty("A") ZTensor A, @JsonProperty("b") ZTensor b) {
     A.assertNdim(2);
     // This seems like a backwards way to represent this;
     // but `Ax + b` is the standard form.
-    outDim = A.shapeAsList().get(0);
-    inDim = A.shapeAsList().get(1);
+    outputDim = A.shapeAsList().get(0);
+    inputDim = A.shapeAsList().get(1);
 
     b.assertNdim(1);
-    if (b.shapeAsList().get(0) != outDim) {
+    if (b.shapeAsList().get(0) != outputDim) {
       throw new IllegalArgumentException(
           String.format("A.shape[1] != b.shape[0]: %s != %s", A.shapeAsList(), b.shapeAsList()));
     }
@@ -55,8 +55,24 @@ public class ZAffineMap implements HasToJsonString {
     return toJsonString();
   }
 
-  public static ZAffineMap parseZAffineMap(String str) {
+  /**
+   * Parse a ZAffineMap from a string.
+   *
+   * @param str the string to parse.
+   * @return the parsed ZAffineMap.
+   */
+  public static ZAffineMap parse(String str) {
     return JsonUtil.fromJson(str, ZAffineMap.class);
+  }
+
+  @Override
+  public ZAffineMap permuteInput(int... permutation) {
+    return new ZAffineMap(A.reorderDim(permutation, 1), b);
+  }
+
+  @Override
+  public ZAffineMap permuteOutput(int... permutation) {
+    return new ZAffineMap(A.reorderDim(permutation, 0), b.reorderDim(permutation, 0));
   }
 
   /**
@@ -68,7 +84,7 @@ public class ZAffineMap implements HasToJsonString {
   public ZTensor apply(ZTensor x) {
     // denoted in the `in` dim.
     x.assertNdim(1);
-    if (x.shapeAsList().get(0) != inDim) {
+    if (x.shapeAsList().get(0) != inputDim) {
       throw new IllegalArgumentException(
           String.format("A.shape[1] != x.shape[0]: %s != %s", A.shapeAsList(), x.shapeAsList()));
     }
@@ -76,8 +92,8 @@ public class ZAffineMap implements HasToJsonString {
     // denoted in the `out` dim.
     var res = b.clone(true);
 
-    for (int j = 0; j < inDim; j++) {
-      for (int i = 0; i < outDim; i++) {
+    for (int j = 0; j < inputDim; j++) {
+      for (int i = 0; i < outputDim; i++) {
         res.set(new int[] {i}, res.get(i) + A.get(i, j) * x.get(j));
       }
     }

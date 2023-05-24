@@ -6,16 +6,19 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.google.common.collect.ImmutableList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Objects;
 import java.util.regex.Pattern;
 import javax.annotation.concurrent.Immutable;
+import javax.annotation.concurrent.ThreadSafe;
 import loom.common.HasToJsonString;
 import loom.common.JsonUtil;
 
 @Immutable
+@ThreadSafe
 @JsonDeserialize(using = DimensionMap.Deserializer.class)
-public class DimensionMap implements HasDimension, HasToJsonString {
+public class DimensionMap implements HasDimension, HasNamedPermute, HasToJsonString {
   static class Deserializer extends StdDeserializer<DimensionMap> {
     public Deserializer() {
       super(ZPoint.class);
@@ -41,7 +44,7 @@ public class DimensionMap implements HasDimension, HasToJsonString {
   @JsonValue public final ImmutableList<String> names;
 
   @JsonCreator
-  public DimensionMap(@JsonProperty("names") String[] names) {
+  public DimensionMap(@JsonProperty("names") String... names) {
     this.names = ImmutableList.copyOf(names);
     for (var name : names) {
       if (name == null) {
@@ -111,5 +114,49 @@ public class DimensionMap implements HasDimension, HasToJsonString {
    */
   public String nameOf(int index) {
     return names.get(index);
+  }
+
+  /**
+   * Maps a permutation of names to a permutation of indices.
+   *
+   * @param names the names in the desired order.
+   * @return the permutation of indices.
+   * @throws IndexOutOfBoundsException if the given names are not a permutation of this dimension.
+   */
+  public int[] toPermutation(String... names) {
+    return toPermutation(Arrays.asList(names));
+  }
+
+  /**
+   * Maps a permutation of names to a permutation of indices.
+   *
+   * @param names the names in the desired order.
+   * @return the permutation of indices.
+   * @throws IndexOutOfBoundsException if the given names are not a permutation of this dimension.
+   */
+  public int[] toPermutation(Iterable<String> names) {
+    var perm = new int[ndim()];
+    int i = 0;
+    for (var name : names) {
+      perm[i++] = indexOf(name);
+    }
+    return ZTensor.resolvePermutation(perm, ndim());
+  }
+
+  @Override
+  public DimensionMap permute(int... permutation) {
+    var perm = ZTensor.resolvePermutation(permutation, ndim());
+
+    var names = new String[ndim()];
+    for (int i = 0; i < ndim(); ++i) {
+      names[i] = nameOf(perm[i]);
+    }
+
+    return new DimensionMap(names);
+  }
+
+  @Override
+  public DimensionMap permute(String... permutation) {
+    return permute(toPermutation(permutation));
   }
 }

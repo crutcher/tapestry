@@ -20,8 +20,8 @@ public class ZRangeTest implements CommonAssertions {
     String json = "{\"start\":[],\"end\":[]}";
     assertThat(range.toJsonString()).isEqualTo(json);
 
-    assertThat(ZRange.parseZRange(pretty)).isEqualTo(range);
-    assertThat(ZRange.parseZRange(json)).isEqualTo(range);
+    assertThat(ZRange.parse(pretty)).isEqualTo(range);
+    assertThat(ZRange.parse(json)).isEqualTo(range);
 
     assertThat(range.contains(range)).isTrue();
 
@@ -52,7 +52,7 @@ public class ZRangeTest implements CommonAssertions {
   @Test
   public void test_string_parse_json() {
     assertThatExceptionOfType(IllegalArgumentException.class)
-        .isThrownBy(() -> ZRange.parseZRange("zr[1, 2, 3]"));
+        .isThrownBy(() -> ZRange.parse("zr[1, 2, 3]"));
 
     {
       var range = new ZRange(new ZPoint(), new ZPoint());
@@ -62,8 +62,8 @@ public class ZRangeTest implements CommonAssertions {
       assertThat(range).hasToString(pretty);
       assertJsonEquals(range, json);
 
-      assertThat(ZRange.parseZRange(pretty)).isEqualTo(range);
-      assertThat(ZRange.parseZRange(json)).isEqualTo(range);
+      assertThat(ZRange.parse(pretty)).isEqualTo(range);
+      assertThat(ZRange.parse(json)).isEqualTo(range);
     }
 
     {
@@ -74,9 +74,15 @@ public class ZRangeTest implements CommonAssertions {
       assertThat(range).hasToString(pretty);
       assertJsonEquals(range, json);
 
-      assertThat(ZRange.parseZRange(pretty)).isEqualTo(range);
-      assertThat(ZRange.parseZRange(json)).isEqualTo(range);
+      assertThat(ZRange.parse(pretty)).isEqualTo(range);
+      assertThat(ZRange.parse(json)).isEqualTo(range);
     }
+  }
+
+  @Test
+  public void test_permute() {
+    var r = new ZRange(new ZPoint(5, 6, 7), new ZPoint(8, 9, 10));
+    assertThat(r.permute(1, 2, 0)).isEqualTo(new ZRange(new ZPoint(6, 7, 5), new ZPoint(9, 10, 8)));
   }
 
   @Test

@@ -37,8 +37,14 @@ public class ZPointTest implements CommonAssertions {
     String str = "[2, 3]";
 
     assertThat(p).hasToString(str);
-    assertThat(ZPoint.parseZPoint(str)).isEqualTo(p);
+    assertThat(ZPoint.parse(str)).isEqualTo(p);
     assertJsonEquals(p, str);
+  }
+
+  @Test
+  public void test_permute() {
+    var p = new ZPoint(8, 9, 10);
+    assertThat(p.permute(1, 2, 0)).isEqualTo(new ZPoint(9, 10, 8));
   }
 
   @Test
