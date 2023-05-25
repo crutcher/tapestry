@@ -30,10 +30,8 @@ public final class BoundSlice implements HasDimension, HasToJsonString {
             @Nonnull String dtype,
             @Nonnull NamedZRange index,
             @Nonnull IndexProjectionFunction projection) {
-        Identifiers.validAtomicIdentifier(name);
-
-        this.name = name;
-        this.dtype = dtype;
+        this.name = Identifiers.validAtomicIdentifier(name);
+        this.dtype = Identifiers.validDottedIdentifier(dtype);
         this.index = index;
         this.projection = projection;
 

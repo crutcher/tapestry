@@ -9,15 +9,17 @@ public class Identifiers {
   public static Pattern DOTTED_IDENTIFIER_PATTERN =
       Pattern.compile("[a-zA-Z][a-zA-Z0-9_]*(.[a-zA-Z][a-zA-Z0-9_]*)*");
 
-  public static void validAtomicIdentifier(String name) {
+  public static String validAtomicIdentifier(String name) {
     if (!ATOMIC_IDENTIFIER_PATTERN.matcher(name).matches()) {
       throw new IllegalArgumentException("invalid atomic identifier: " + name);
     }
+    return name;
   }
 
-  public static void validDottedIdentifier(String name) {
+  public static String validDottedIdentifier(String name) {
     if (!DOTTED_IDENTIFIER_PATTERN.matcher(name).matches()) {
       throw new IllegalArgumentException("invalid dotted identifier: " + name);
     }
+    return name;
   }
 }
