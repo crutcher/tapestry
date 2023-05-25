@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Splitter;
 import java.util.Objects;
+import javax.annotation.Nonnull;
 import javax.annotation.concurrent.Immutable;
 import javax.annotation.concurrent.ThreadSafe;
 import loom.common.HasToJsonString;
@@ -14,8 +15,9 @@ import loom.common.JsonUtil;
 @Immutable
 public final class ZRange implements HasDimension, HasPermute, HasToJsonString {
 
-  public final ZPoint start;
-  public final ZPoint end;
+  @Nonnull public final ZPoint start;
+
+  @Nonnull public final ZPoint end;
 
   @JsonIgnore public final ZTensor shape;
   @JsonIgnore public final int size;
