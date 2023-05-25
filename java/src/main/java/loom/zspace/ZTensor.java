@@ -782,6 +782,16 @@ public final class ZTensor implements HasDimension, HasToJsonString, HasPermute,
     return size;
   }
 
+  /** Are all cells in this tensor > 0? */
+  public boolean isStrictlyPositive() {
+    for (var c : byCoords()) {
+      if (get(c) <= 0) {
+        return false;
+      }
+    }
+    return true;
+  }
+
   /**
    * Returns an {@code Iterable<int[]>} over the coordinates of this tensor.
    *
@@ -1257,6 +1267,30 @@ public final class ZTensor implements HasDimension, HasToJsonString, HasPermute,
       var result = zeros_like(rhs);
       result.assignFromMap(op, lhs, rhs);
       return result;
+    }
+
+    public static @Nonnull ZTensor min(ZTensor lhs, ZTensor rhs) {
+      return binOp(Math::min, lhs, rhs);
+    }
+
+    public static @Nonnull ZTensor min(ZTensor lhs, int rhs) {
+      return binOp(Math::min, lhs, rhs);
+    }
+
+    public static @Nonnull ZTensor min(int lhs, ZTensor rhs) {
+      return binOp(Math::min, lhs, rhs);
+    }
+
+    public static @Nonnull ZTensor max(ZTensor lhs, ZTensor rhs) {
+      return binOp(Math::max, lhs, rhs);
+    }
+
+    public static @Nonnull ZTensor max(ZTensor lhs, int rhs) {
+      return binOp(Math::max, lhs, rhs);
+    }
+
+    public static @Nonnull ZTensor max(int lhs, ZTensor rhs) {
+      return binOp(Math::max, lhs, rhs);
     }
 
     public static @Nonnull ZTensor add(ZTensor lhs, ZTensor rhs) {

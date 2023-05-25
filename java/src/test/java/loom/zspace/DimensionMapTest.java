@@ -1,5 +1,6 @@
 package loom.zspace;
 
+import loom.expressions.DimensionMap;
 import loom.testing.CommonAssertions;
 import org.junit.Test;
 

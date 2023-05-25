@@ -1,4 +1,6 @@
-package loom.zspace;
+package loom.expressions;
+
+import loom.zspace.HasPermuteInput;
 
 public interface HasNamedPermuteInput extends HasPermuteInput {
 

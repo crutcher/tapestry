@@ -1,6 +1,8 @@
-package loom.zspace;
+package loom.expressions;
 
 import loom.testing.CommonAssertions;
+import loom.zspace.ZRange;
+import loom.zspace.ZTensor;
 import org.junit.Test;
 
 public class NamedZRangeTest implements CommonAssertions {

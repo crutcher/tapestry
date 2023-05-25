@@ -1,4 +1,4 @@
-package loom.zspace;
+package loom.expressions;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -9,11 +9,13 @@ import com.google.common.collect.ImmutableList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Objects;
-import java.util.regex.Pattern;
 import javax.annotation.concurrent.Immutable;
 import javax.annotation.concurrent.ThreadSafe;
 import loom.common.HasToJsonString;
 import loom.common.JsonUtil;
+import loom.zspace.HasDimension;
+import loom.zspace.ZPoint;
+import loom.zspace.ZTensor;
 
 @Immutable
 @ThreadSafe
@@ -33,14 +35,6 @@ public class DimensionMap implements HasDimension, HasNamedPermute, HasToJsonStr
     }
   }
 
-  public static Pattern DIMENSION_NAME_PATTERN = Pattern.compile("[a-zA-Z][a-zA-Z0-9_]*");
-
-  public static void checkName(String name) {
-    if (!DIMENSION_NAME_PATTERN.matcher(name).matches()) {
-      throw new IllegalArgumentException("invalid name: " + name);
-    }
-  }
-
   @JsonValue public final ImmutableList<String> names;
 
   @JsonCreator
@@ -54,7 +48,7 @@ public class DimensionMap implements HasDimension, HasNamedPermute, HasToJsonStr
         throw new IllegalArgumentException("duplicate name: " + name);
       }
 
-      checkName(name);
+      Identifiers.validAtomicIdentifier(name);
     }
   }
 

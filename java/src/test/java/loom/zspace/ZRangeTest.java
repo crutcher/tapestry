@@ -80,6 +80,15 @@ public class ZRangeTest implements CommonAssertions {
   }
 
   @Test
+  public void test_boundingRange() {
+    assertThat(
+            ZRange.boundingRange(
+                new ZRange(new ZPoint(1, 2, 3), new ZPoint(4, 10, 6)),
+                new ZRange(new ZPoint(2, 0, 4), new ZPoint(5, 6, 7))))
+        .isEqualTo(new ZRange(new ZPoint(1, 0, 3), new ZPoint(5, 10, 7)));
+  }
+
+  @Test
   public void test_permute() {
     var r = new ZRange(new ZPoint(5, 6, 7), new ZPoint(8, 9, 10));
     assertThat(r.permute(1, 2, 0)).isEqualTo(new ZRange(new ZPoint(6, 7, 5), new ZPoint(9, 10, 8)));

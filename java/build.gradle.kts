@@ -49,8 +49,9 @@ dependencies {
     // implementation("org.projectlombok:lombok:1.18.22")
     errorprone("com.google.errorprone:error_prone_core:2.18.0")
 
-//  implementation("org.apache.commons:commons-math-parent:4.0-beta1")
     implementation("org.apache.commons:commons-math3:3.6.1")
+
+    implementation("org.glassfish:javax.json:1.1.4")
 
     // Guava.
     implementation("com.google.guava:guava:31.1-jre")

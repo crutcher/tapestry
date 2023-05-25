@@ -1,4 +1,4 @@
-package loom.zspace;
+package loom.expressions;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -11,6 +11,10 @@ import lombok.Builder;
 import lombok.extern.jackson.Jacksonized;
 import loom.common.HasToJsonString;
 import loom.common.JsonUtil;
+import loom.zspace.HasDimension;
+import loom.zspace.ZPoint;
+import loom.zspace.ZRange;
+import loom.zspace.ZTensor;
 
 @Immutable
 @ThreadSafe

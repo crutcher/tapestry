@@ -350,6 +350,58 @@ public class ZTensorTest implements CommonAssertions {
   }
 
   @Test
+  public void test_min() {
+    var empty = ZTensor.zeros(0, 0);
+    var lhs = ZTensor.from(new int[][] {{3, 2}, {1, 1}});
+
+    // [2, 2], [2, 2]
+    assertThat(ZTensor.Ops.min(empty, empty)).isEqualTo(empty);
+
+    var rhs = ZTensor.from(new int[][] {{-1, 2}, {1, 0}});
+    assertThat(ZTensor.Ops.min(lhs, rhs)).isEqualTo(ZTensor.from(new int[][] {{-1, 2}, {1, 0}}));
+
+    assertThatThrownBy(() -> ZTensor.Ops.min(lhs, empty))
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessageContaining("shape [2, 2] != expected shape [0, 0]");
+
+    // [2, 2], <scalar>
+    assertThat(ZTensor.Ops.min(empty, 2)).isEqualTo(empty);
+
+    assertThat(ZTensor.Ops.min(lhs, 2)).isEqualTo(ZTensor.from(new int[][] {{2, 2}, {1, 1}}));
+
+    // <scalar>, [2, 2]
+    assertThat(ZTensor.Ops.min(2, empty)).isEqualTo(empty);
+
+    assertThat(ZTensor.Ops.min(2, lhs)).isEqualTo(ZTensor.from(new int[][] {{2, 2}, {1, 1}}));
+  }
+
+  @Test
+  public void test_max() {
+    var empty = ZTensor.zeros(0, 0);
+    var lhs = ZTensor.from(new int[][] {{3, 2}, {1, 1}});
+
+    // [2, 2], [2, 2]
+    assertThat(ZTensor.Ops.max(empty, empty)).isEqualTo(empty);
+
+    var rhs = ZTensor.from(new int[][] {{-1, 2}, {1, 6}});
+    assertThat(ZTensor.Ops.max(lhs, rhs)).isEqualTo(ZTensor.from(new int[][] {{3, 2}, {1, 6}}));
+
+    assertThatThrownBy(() -> ZTensor.Ops.max(lhs, empty))
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessageContaining("shape [2, 2] != expected shape [0, 0]");
+
+    // [2, 2], <scalar>
+    assertThat(ZTensor.Ops.max(empty, 2)).isEqualTo(empty);
+
+    assertThat(ZTensor.Ops.max(lhs, 2)).isEqualTo(ZTensor.from(new int[][] {{3, 2}, {2, 2}}));
+
+    // <scalar>, [2, 2]
+    assertThat(ZTensor.Ops.max(2, empty)).isEqualTo(empty);
+
+    assertThat(ZTensor.Ops.max(2, lhs)).isEqualTo(ZTensor.from(new int[][] {{3, 2}, {2, 2}}));
+  }
+
+  @Test
   public void test_add() {
     var empty = ZTensor.zeros(0, 0);
     var lhs = ZTensor.from(new int[][] {{3, 2}, {1, 1}});
