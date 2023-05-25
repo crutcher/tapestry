@@ -12,6 +12,39 @@ import javax.annotation.concurrent.Immutable;
 import javax.annotation.concurrent.ThreadSafe;
 import java.util.Objects;
 
+/**
+ * Represents a range of points in discrete space.
+ *
+ * <p>A simple definition is that a range {@code other} is contained if
+ *
+ * <pre>
+ * this.start <= other.start && this.end >= other.end
+ * </pre>
+ *
+ * <p>But there are a number of special cases to consider:
+ *
+ * <ol>
+ *   Can an empty range be contained?
+ * </ol>
+ *
+ * <ol>
+ *   Can an empty range contain anything?
+ * </ol>
+ *
+ * <ol>
+ *   How do define the behavior at 0-dim?
+ * </ol>
+ *
+ * <p>Empty ranges can have utility in a number of algorithms; they can describe partition surfaces;
+ * so we may wish to define containment in a way which permits them to be contained.
+ *
+ * <p>Empty ranges could only possibly *contain* other empty ranges; describing point-less boundary
+ * surfaces; so permitting them to contain other empty ranges seems acceptable.
+ *
+ * <p>In the case of 0-dim spaces; no point is {@code < end}, as there's exactly one point in the
+ * space. So either all 0-dim ranges contain all other 0-dim ranges; or none do. We select the
+ * former; as it seems more useful.
+ */
 @ThreadSafe
 @Immutable
 public final class ZRange implements HasDimension, HasSize, HasPermute, HasToJsonString {
@@ -27,22 +60,54 @@ public final class ZRange implements HasDimension, HasSize, HasPermute, HasToJso
     @JsonIgnore
     public final int size;
 
+    /**
+     * Build a range from {@code [0, shape)}.
+     *
+     * @param shape the shape of the range.
+     * @return a new range.
+     */
     public static ZRange fromShape(int... shape) {
         return fromShape(new ZPoint(shape));
     }
 
+    /**
+     * Build a range from {@code [0, shape)}.
+     *
+     * @param shape the shape of the range.
+     * @return a new range.
+     */
     public static ZRange fromShape(ZTensor shape) {
         return fromShape(new ZPoint(shape));
     }
 
+    /**
+     * Build a range from {@code [0, shape)}.
+     *
+     * @param shape the shape of the range.
+     * @return a new range.
+     */
     public static ZRange fromShape(ZPoint shape) {
         return new ZRange(ZPoint.zeros(shape.ndim()), shape);
     }
 
+    /**
+     * Construct a new ZRange of {@code [start, end)}.
+     *
+     * @param start the start point.
+     * @param end   the exclusive end point.
+     * @return a new range.
+     */
     public static ZRange of(ZPoint start, ZPoint end) {
         return new ZRange(start, end);
     }
 
+    /**
+     * Construct a new ZRange of {@code [start, end)}.
+     *
+     * @param start the start point.
+     * @param end   the exclusive end point.
+     * @return a new range.
+     */
     public static ZRange of(ZTensor start, ZTensor end) {
         return new ZRange(start, end);
     }
@@ -99,6 +164,14 @@ public final class ZRange implements HasDimension, HasSize, HasPermute, HasToJso
         return b.toString();
     }
 
+    /**
+     * Parse a range from a string.
+     *
+     * <p>Supports both the JSON and pretty {@code zr[0:1, 0:1]} format.
+     *
+     * @param str the string to parse.
+     * @return the parsed range.
+     */
     public static ZRange parse(String str) {
         if (str.startsWith("{")) {
             return JsonUtil.fromJson(str, ZRange.class);
@@ -136,13 +209,13 @@ public final class ZRange implements HasDimension, HasSize, HasPermute, HasToJso
     }
 
     @Override
-    public ZRange permute(int... permutation) {
-        return new ZRange(start.permute(permutation), end.permute(permutation));
+    public int size() {
+        return size;
     }
 
     @Override
-    public int size() {
-        return size;
+    public ZRange permute(int... permutation) {
+        return new ZRange(start.permute(permutation), end.permute(permutation));
     }
 
     /**
@@ -177,8 +250,6 @@ public final class ZRange implements HasDimension, HasSize, HasPermute, HasToJso
      * <p>In the case of 0-dim spaces; no point is {@code < end}, as there's exactly one point in the
      * space. So either all 0-dim ranges contain all other 0-dim ranges; or none do. We select the
      * former; as it seems more useful.
-     *
-     * <p>
      *
      * @param other the other range
      * @return true if this range contains the other range.
