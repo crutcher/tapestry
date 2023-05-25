@@ -1,5 +1,6 @@
 package loom.zspace;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
@@ -41,5 +42,12 @@ public interface HasDimension {
             Arrays.stream(objs).map(HasDimension::ndim).collect(Collectors.toList())));
   }
 
+  /** Returns the number of dimensions of this object. */
   int ndim();
+
+  /** Is this object a scalar? */
+  @JsonIgnore
+  default boolean isScalar() {
+    return ndim() == 0;
+  }
 }

@@ -555,6 +555,8 @@ public class ZTensorTest implements CommonAssertions {
   @Test
   public void test_mutable() {
     var tensor = ZTensor.from(new int[][] {{1, 2}, {3, 4}});
+    assertThat(tensor.isMutable()).isTrue();
+    assertThat(tensor.isReadOnly()).isFalse();
 
     assertThatExceptionOfType(IllegalStateException.class)
         .isThrownBy(tensor::hashCode)
@@ -566,6 +568,8 @@ public class ZTensorTest implements CommonAssertions {
     assertThat(tensor).isEqualTo(ZTensor.from(new int[][] {{5, 2}, {3, 4}}));
 
     var fixed = tensor.immutable();
+    assertThat(fixed.isMutable()).isFalse();
+    assertThat(fixed.isReadOnly()).isTrue();
     fixed.assertReadOnly();
     assertThat(fixed).isNotSameAs(tensor).extracting(ZTensor::isMutable).isEqualTo(false);
     assertThat(fixed.immutable()).isSameAs(fixed);
