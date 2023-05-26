@@ -2,10 +2,12 @@ import net.ltgt.gradle.errorprone.errorprone
 
 plugins {
     java
-    // id("java-library")
+
     id("net.ltgt.errorprone") version "3.1.0"
     id("com.diffplug.spotless") version "6.18.0"
     id("io.freefair.lombok") version "8.0.1"
+
+    jacoco
 }
 
 repositories {
@@ -44,8 +46,15 @@ tasks {
     }
 }
 
+tasks.test {
+    finalizedBy(tasks.jacocoTestReport)
+}
+tasks.jacocoTestReport {
+    dependsOn(tasks.test)
+}
+
 dependencies {
-    implementation("org.jetbrains:annotations:23.0.0")
+    implementation("org.jetbrains:annotations:24.0.1")
     // implementation("org.projectlombok:lombok:1.18.22")
     errorprone("com.google.errorprone:error_prone_core:2.18.0")
 
@@ -64,9 +73,9 @@ dependencies {
     testImplementation("org.assertj:assertj-core:3.24.2")
     testImplementation("org.mockito:mockito-core:5.3.1")
 
-    implementation("com.fasterxml.jackson.core:jackson-core:2.15.0")
-    implementation("com.fasterxml.jackson.core:jackson-databind:2.15.0")
-    implementation("com.fasterxml.jackson.core:jackson-annotations:2.15.0")
+    implementation("com.fasterxml.jackson.core:jackson-core:2.15.1")
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.15.1")
+    implementation("com.fasterxml.jackson.core:jackson-annotations:2.15.1")
 
 }
 

@@ -13,9 +13,10 @@ import java.lang.reflect.Array;
 import java.util.*;
 import java.util.function.*;
 import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import loom.common.HasToJsonString;
+import loom.common.IteratorUtils;
 import loom.common.JsonUtil;
 
 /**
@@ -35,7 +36,7 @@ public final class ZTensor implements HasDimension, HasToJsonString, HasPermute,
   private final class CoordsIterator implements Iterator<int[]> {
     // Assuming a non-scalar ZTensor; non-empty ZTensor.
     private int remaining = size();
-    @Nonnull private int[] coords;
+    @Nullable private int[] coords = null;
 
     @Override
     public boolean hasNext() {
@@ -73,7 +74,7 @@ public final class ZTensor implements HasDimension, HasToJsonString, HasPermute,
     }
 
     public @Nonnull Stream<int[]> stream() {
-      return StreamSupport.stream(spliterator(), false);
+      return IteratorUtils.iterableToStream(this);
     }
   }
 
@@ -90,11 +91,21 @@ public final class ZTensor implements HasDimension, HasToJsonString, HasPermute,
   /**
    * Construct a new mutable vector (1-dim) tensor.
    *
-   * @param value the vector values.
+   * @param values the vector values.
    * @return the new tensor.
    */
-  public static @Nonnull ZTensor vector(@Nonnull int... value) {
-    return from(value);
+  public static @Nonnull ZTensor vector(@Nonnull int... values) {
+    return from(values);
+  }
+
+  /**
+   * Construct a new mutable vector (1-dim) tensor.
+   *
+   * @param values the vector values.
+   * @return the new tensor.
+   */
+  public static @Nonnull ZTensor vector(@Nonnull Iterable<Integer> values) {
+    return vector(IteratorUtils.iterableToStream(values).mapToInt(Integer::intValue).toArray());
   }
 
   /**
@@ -377,7 +388,7 @@ public final class ZTensor implements HasDimension, HasToJsonString, HasPermute,
       Function<T, int[]> getChunk) {
 
     if (!isArray.test(root)) {
-      return ZTensor.scalar(scalarValue.apply(root));
+      return loom.zspace.ZTensor.scalar(scalarValue.apply(root));
     }
 
     List<Integer> shapeList = new ArrayList<>();
@@ -398,7 +409,7 @@ public final class ZTensor implements HasDimension, HasToJsonString, HasPermute,
 
     if (shapeList.contains(0)) {
       // Handle degenerate tensors.
-      return ZTensor.zeros(new int[ndim]);
+      return loom.zspace.ZTensor.zeros(new int[ndim]);
     }
 
     int[] shape = shapeList.stream().mapToInt(i -> i).toArray();
@@ -1170,7 +1181,7 @@ public final class ZTensor implements HasDimension, HasToJsonString, HasPermute,
      */
     public static @Nonnull ZTensor binOp(
         BinaryOperator<Integer> op, @Nonnull ZTensor lhs, int rhs) {
-      return binOp(op, lhs, ZTensor.scalar(rhs));
+      return binOp(op, lhs, loom.zspace.ZTensor.scalar(rhs));
     }
 
     /**
@@ -1183,7 +1194,7 @@ public final class ZTensor implements HasDimension, HasToJsonString, HasPermute,
      */
     public static @Nonnull ZTensor binOp(
         BinaryOperator<Integer> op, int lhs, @Nonnull ZTensor rhs) {
-      return binOp(op, ZTensor.scalar(lhs), rhs);
+      return binOp(op, loom.zspace.ZTensor.scalar(lhs), rhs);
     }
 
     public static @Nonnull ZTensor min(@Nonnull ZTensor lhs, @Nonnull ZTensor rhs) {
@@ -1399,19 +1410,10 @@ public final class ZTensor implements HasDimension, HasToJsonString, HasPermute,
    * Jackson Serialization Support namespace.
    *
    * <ul>
-   *   scalars are serialized as a single number;
-   * </ul>
-   *
-   * <ul>
-   *   vectors are serialized as a single array;
-   * </ul>
-   *
-   * <ul>
-   *   matrices are serialized as an array of arrays;
-   * </ul>
-   *
-   * <ul>
-   *   etc.
+   *   <li>scalars are serialized as a single number;
+   *   <li>vectors are serialized as a single array;
+   *   <li>matrices are serialized as an array of arrays;
+   *   <li>etc.
    * </ul>
    *
    * <p>All empty tensors serialize to nested "[...]"; so all degenerate tensors (empty tensors with

@@ -51,6 +51,10 @@ public final class ZPoint implements HasDimension, HasPermute, HasToJsonString {
     this(ZTensor.vector(coords));
   }
 
+  public ZPoint(Iterable<Integer> coords) {
+    this(ZTensor.vector(coords));
+  }
+
   @Override
   public boolean equals(Object other) {
     if (this == other) return true;
