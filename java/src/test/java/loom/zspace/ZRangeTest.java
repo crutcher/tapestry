@@ -174,5 +174,7 @@ public class ZRangeTest implements CommonAssertions {
     assertThat(range.intersection(range)).isEqualTo(range);
     assertThat(range.intersection(ZRange.of(new ZPoint(-2, 1), new ZPoint(2, 5))))
         .isEqualTo(ZRange.of(new ZPoint(0, 1), new ZPoint(2, 3)));
+
+    assertThat(range.intersection(new ZRange(new ZPoint(-5, -5), new ZPoint(-1, -1)))).isNull();
   }
 }

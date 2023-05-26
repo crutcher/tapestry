@@ -1,8 +1,12 @@
 package loom.zspace;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.TreeNode;
+import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
@@ -167,7 +171,7 @@ public final class ZTensor implements HasDimension, HasToJsonString, HasPermute,
    * @param fill_value the value to fill the tensor with.
    * @return a new mutable ZTensor.
    */
-  public static @Nonnull ZTensor full_like(ZTensor ref, int fill_value) {
+  public static @Nonnull ZTensor full_like(@Nonnull ZTensor ref, int fill_value) {
     var tensor = zeros_like(ref);
     tensor.fill(fill_value);
     return tensor;
@@ -189,7 +193,7 @@ public final class ZTensor implements HasDimension, HasToJsonString, HasPermute,
    * @param ref the ZTensor to copy the shape from.
    * @return a new mutable ZTensor.
    */
-  public static @Nonnull ZTensor ones_like(ZTensor ref) {
+  public static @Nonnull ZTensor ones_like(@Nonnull ZTensor ref) {
     return full_like(ref, 1);
   }
 
@@ -199,7 +203,7 @@ public final class ZTensor implements HasDimension, HasToJsonString, HasPermute,
    * @param diag the values to put on the diagonal.
    * @return a new ZTensor.
    */
-  public static ZTensor diagonal(int... diag) {
+  public static ZTensor diagonal(@Nonnull int... diag) {
     var tensor = zeros(diag.length, diag.length);
     for (int i = 0; i < diag.length; ++i) {
       tensor._set(new int[] {i, i}, diag[i]);
@@ -260,7 +264,12 @@ public final class ZTensor implements HasDimension, HasToJsonString, HasPermute,
    * @param data the data.
    * @param data_offset the offset in the source data.
    */
-  private ZTensor(boolean mutable, int[] shape, int[] stride, int[] data, int data_offset) {
+  private ZTensor(
+      boolean mutable,
+      @Nonnull int[] shape,
+      @Nonnull int[] stride,
+      @Nonnull int[] data,
+      int data_offset) {
     this.shape = shape;
     this.size = Indexing.shapeToSize(shape);
     this.stride = stride;
@@ -290,7 +299,8 @@ public final class ZTensor implements HasDimension, HasToJsonString, HasPermute,
    * @param stride the strides.
    * @param data the data.
    */
-  private ZTensor(boolean mutable, int[] shape, int[] stride, int[] data) {
+  private ZTensor(
+      boolean mutable, @Nonnull int[] shape, @Nonnull int[] stride, @Nonnull int[] data) {
     this(mutable, shape, stride, data, 0);
   }
 
@@ -303,7 +313,7 @@ public final class ZTensor implements HasDimension, HasToJsonString, HasPermute,
    * @param shape the shape.
    * @param data the data.
    */
-  private ZTensor(boolean mutable, int[] shape, int[] data) {
+  private ZTensor(boolean mutable, @Nonnull int[] shape, @Nonnull int[] data) {
     this(mutable, shape, Indexing.shapeToLSFStrides(shape), data);
   }
 
@@ -313,8 +323,17 @@ public final class ZTensor implements HasDimension, HasToJsonString, HasPermute,
    * @param mutable whether the ZTensor is mutable.
    * @param shape the shape.
    */
-  private ZTensor(boolean mutable, int[] shape) {
+  private ZTensor(boolean mutable, @Nonnull int[] shape) {
     this(mutable, shape, new int[Indexing.shapeToSize(shape)]);
+  }
+
+  /**
+   * Construct an immutable ZPoint from this ZTensor. Asserts that this is a 1-dim tensor.
+   *
+   * @return a new immutable ZPoint.
+   */
+  public ZPoint zpoint() {
+    return new ZPoint(this);
   }
 
   /**
@@ -581,7 +600,7 @@ public final class ZTensor implements HasDimension, HasToJsonString, HasPermute,
    * @param expected the expected shape.
    * @throws IllegalStateException if the shapes do not match.
    */
-  public static void assertShape(int[] actual, int[] expected) {
+  public static void assertShape(@Nonnull int[] actual, @Nonnull int[] expected) {
     if (!Arrays.equals(actual, expected)) {
       throw new IllegalArgumentException(
           "shape " + Arrays.toString(actual) + " != expected shape " + Arrays.toString(expected));
@@ -593,7 +612,7 @@ public final class ZTensor implements HasDimension, HasToJsonString, HasPermute,
    *
    * @param shape the shape.
    */
-  public void assertShape(int... shape) {
+  public void assertShape(@Nonnull int... shape) {
     assertShape(this.shape, shape);
   }
 
@@ -602,7 +621,7 @@ public final class ZTensor implements HasDimension, HasToJsonString, HasPermute,
    *
    * @param other the other tensor.
    */
-  public void assertMatchingShape(ZTensor other) {
+  public void assertMatchingShape(@Nonnull ZTensor other) {
     assertMatchingShapes(this, other);
   }
 
@@ -717,7 +736,7 @@ public final class ZTensor implements HasDimension, HasToJsonString, HasPermute,
    *
    * @param consumer the consumer.
    */
-  public void forEachItem(BiConsumer<int[], Integer> consumer) {
+  public void forEachItem(@Nonnull BiConsumer<int[], Integer> consumer) {
     for (int[] coords : byCoords()) {
       consumer.accept(coords, get(coords));
     }
@@ -747,7 +766,7 @@ public final class ZTensor implements HasDimension, HasToJsonString, HasPermute,
    * @return a permuted view of this tensor.
    */
   @Override
-  public ZTensor permute(int... permutation) {
+  public ZTensor permute(@Nonnull int... permutation) {
     var perm = Indexing.resolvePermutation(permutation, ndim());
 
     int[] newShape = new int[ndim()];
@@ -767,7 +786,7 @@ public final class ZTensor implements HasDimension, HasToJsonString, HasPermute,
    * @param permutation the permutation of the dimension.
    * @return a copy of this tensor with a reordered dimension.
    */
-  public ZTensor reorderDim(int[] permutation, int dim) {
+  public ZTensor reorderDim(@Nonnull int[] permutation, int dim) {
     var d = resolveDim(dim);
     var perm = Indexing.resolvePermutation(permutation, shape[d]);
     var res = new ZTensor(true, shape);
@@ -933,7 +952,7 @@ public final class ZTensor implements HasDimension, HasToJsonString, HasPermute,
    * @param targetShape the target shape.
    * @return a broadcasted view of this tensor.
    */
-  public ZTensor broadcastTo(int... targetShape) {
+  public ZTensor broadcastTo(@Nonnull int... targetShape) {
     if (Arrays.equals(shape, targetShape)) {
       return this;
     }
@@ -974,7 +993,7 @@ public final class ZTensor implements HasDimension, HasToJsonString, HasPermute,
    * @param coords the coordinates.
    * @return the ravel index.
    */
-  int ravel(int... coords) {
+  private int ravel(@Nonnull int... coords) {
     return data_offset + Indexing.ravel(shape, stride, coords);
   }
 
@@ -984,7 +1003,7 @@ public final class ZTensor implements HasDimension, HasToJsonString, HasPermute,
    * @param coords the coordinates.
    * @return the cell value.
    */
-  public int get(int... coords) {
+  public int get(@Nonnull int... coords) {
     return data[ravel(coords)];
   }
 
@@ -1017,7 +1036,7 @@ public final class ZTensor implements HasDimension, HasToJsonString, HasPermute,
    * @param value the value to set.
    * @throws IndexOutOfBoundsException if the coordinates are out of bounds.
    */
-  void _set(int[] coords, int value) {
+  void _set(@Nonnull int[] coords, int value) {
     data[ravel(coords)] = value;
   }
 
@@ -1029,7 +1048,7 @@ public final class ZTensor implements HasDimension, HasToJsonString, HasPermute,
    * @throws IndexOutOfBoundsException if the coordinates are out of bounds.
    * @throws IllegalStateException if the tensor is read-only.
    */
-  public void set(int[] coords, int value) {
+  public void set(@Nonnull int[] coords, int value) {
     assertMutable();
     _set(coords, value);
   }
@@ -1046,13 +1065,13 @@ public final class ZTensor implements HasDimension, HasToJsonString, HasPermute,
   }
 
   /** Convert this structure to a T1 (a vector) value. Assert that the shape is valid. */
-  public int[] toT1() {
+  public @Nonnull int[] toT1() {
     assertNdim(1);
     return (int[]) toArray();
   }
 
   /** Convert this structure to a T2 (a matrix) value. Assert that the shape is valid. */
-  public int[][] toT2() {
+  public @Nonnull int[][] toT2() {
     assertNdim(2);
     return (int[][]) toArray();
   }
@@ -1425,11 +1444,7 @@ public final class ZTensor implements HasDimension, HasToJsonString, HasPermute,
 
     static class Serializer extends JsonSerializer<ZTensor> {
       @Override
-      public void serialize(
-          ZTensor value,
-          com.fasterxml.jackson.core.JsonGenerator gen,
-          com.fasterxml.jackson.databind.SerializerProvider serializers)
-          throws java.io.IOException {
+      public void serialize(ZTensor value, JsonGenerator gen, SerializerProvider serializers) {
 
         value.toTree(
             () -> {
@@ -1463,9 +1478,7 @@ public final class ZTensor implements HasDimension, HasToJsonString, HasPermute,
       }
 
       @Override
-      public ZTensor deserialize(
-          com.fasterxml.jackson.core.JsonParser p,
-          com.fasterxml.jackson.databind.DeserializationContext ctxt)
+      public ZTensor deserialize(JsonParser p, DeserializationContext ctxt)
           throws java.io.IOException {
 
         return fromTree(

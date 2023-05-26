@@ -336,7 +336,7 @@ public class ZTensorTest implements CommonAssertions {
 
       assertThat(ZTensor.Ops.binOp(fn, lhs, rhs).toArray()).isEqualTo(new int[] {1, 20});
       assertThatThrownBy(() -> ZTensor.Ops.binOp(fn, lhs, empty))
-          .isInstanceOf(IllegalArgumentException.class)
+          .isInstanceOf(IndexOutOfBoundsException.class)
           .hasMessageContaining("cannot broadcast shapes: [2], [0]");
 
       // Broadcast rules.
@@ -369,7 +369,7 @@ public class ZTensorTest implements CommonAssertions {
       assertThat(ZTensor.Ops.binOp(fn, lhs, rhs).toArray())
           .isEqualTo(new int[][] {{1, 20}, {5, 1}});
       assertThatThrownBy(() -> ZTensor.Ops.binOp(fn, lhs, empty))
-          .isInstanceOf(IllegalArgumentException.class)
+          .isInstanceOf(IndexOutOfBoundsException.class)
           .hasMessageContaining("cannot broadcast shapes: [2, 2], [0, 0]");
 
       // [2, 2], <scalar>
@@ -396,7 +396,7 @@ public class ZTensorTest implements CommonAssertions {
     assertThat(ZTensor.Ops.min(lhs, rhs)).isEqualTo(ZTensor.from(new int[][] {{-1, 2}, {1, 0}}));
 
     assertThatThrownBy(() -> ZTensor.Ops.min(lhs, empty))
-        .isInstanceOf(IllegalArgumentException.class)
+        .isInstanceOf(IndexOutOfBoundsException.class)
         .hasMessageContaining("cannot broadcast shapes: [2, 2], [0, 0]");
 
     // [2, 2], <scalar>
@@ -422,7 +422,7 @@ public class ZTensorTest implements CommonAssertions {
     assertThat(ZTensor.Ops.max(lhs, rhs)).isEqualTo(ZTensor.from(new int[][] {{3, 2}, {1, 6}}));
 
     assertThatThrownBy(() -> ZTensor.Ops.max(lhs, empty))
-        .isInstanceOf(IllegalArgumentException.class)
+        .isInstanceOf(IndexOutOfBoundsException.class)
         .hasMessageContaining("cannot broadcast shapes: [2, 2], [0, 0]");
 
     // [2, 2], <scalar>
@@ -450,7 +450,7 @@ public class ZTensorTest implements CommonAssertions {
         .isEqualTo(ZTensor.from(new int[][] {{2, 11}, {3, 1}}));
 
     assertThatThrownBy(() -> ZTensor.Ops.add(lhs, empty))
-        .isInstanceOf(IllegalArgumentException.class)
+        .isInstanceOf(IndexOutOfBoundsException.class)
         .hasMessageContaining("cannot broadcast shapes: [2, 2], [0, 0]");
 
     // [2, 2], <scalar>
@@ -487,7 +487,7 @@ public class ZTensorTest implements CommonAssertions {
         .isEqualTo(ZTensor.from(new int[][] {{4, -7}, {-1, 1}}));
 
     assertThatThrownBy(() -> ZTensor.Ops.sub(lhs, empty))
-        .isInstanceOf(IllegalArgumentException.class)
+        .isInstanceOf(IndexOutOfBoundsException.class)
         .hasMessageContaining("cannot broadcast shapes: [2, 2], [0, 0]");
 
     // [2, 2], <scalar>
@@ -524,7 +524,7 @@ public class ZTensorTest implements CommonAssertions {
         .isEqualTo(ZTensor.from(new int[][] {{-3, 18}, {2, 0}}));
 
     assertThatThrownBy(() -> ZTensor.Ops.mul(lhs, empty))
-        .isInstanceOf(IllegalArgumentException.class)
+        .isInstanceOf(IndexOutOfBoundsException.class)
         .hasMessageContaining("cannot broadcast shapes: [2, 2], [0, 0]");
 
     // [2, 2], <scalar>
@@ -561,7 +561,7 @@ public class ZTensorTest implements CommonAssertions {
         .isEqualTo(ZTensor.from(new int[][] {{-24, 1}, {4, 1}}));
 
     assertThatThrownBy(() -> ZTensor.Ops.div(lhs, empty))
-        .isInstanceOf(IllegalArgumentException.class)
+        .isInstanceOf(IndexOutOfBoundsException.class)
         .hasMessageContaining("cannot broadcast shapes: [2, 2], [0, 0]");
 
     // [2, 2], <scalar>
@@ -607,7 +607,7 @@ public class ZTensorTest implements CommonAssertions {
         .isEqualTo(ZTensor.from(new int[][] {{0, 3}, {1, 0}}));
 
     assertThatThrownBy(() -> ZTensor.Ops.mod(lhs, empty))
-        .isInstanceOf(IllegalArgumentException.class)
+        .isInstanceOf(IndexOutOfBoundsException.class)
         .hasMessageContaining("cannot broadcast shapes: [2, 2], [0, 0]");
 
     // [2, 2], <scalar>

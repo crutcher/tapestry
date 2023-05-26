@@ -3,6 +3,8 @@ package loom.expressions;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.google.common.collect.ImmutableList;
@@ -27,9 +29,7 @@ public class DimensionMap implements HasDimension, HasNamedPermute, HasToJsonStr
     }
 
     @Override
-    public DimensionMap deserialize(
-        com.fasterxml.jackson.core.JsonParser p,
-        com.fasterxml.jackson.databind.DeserializationContext ctxt)
+    public DimensionMap deserialize(JsonParser p, DeserializationContext ctxt)
         throws java.io.IOException {
       return new DimensionMap(p.readValueAs(String[].class));
     }
