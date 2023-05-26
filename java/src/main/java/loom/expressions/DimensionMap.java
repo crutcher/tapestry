@@ -14,8 +14,8 @@ import javax.annotation.concurrent.ThreadSafe;
 import loom.common.HasToJsonString;
 import loom.common.JsonUtil;
 import loom.zspace.HasDimension;
+import loom.zspace.Indexing;
 import loom.zspace.ZPoint;
-import loom.zspace.ZTensor;
 
 @Immutable
 @ThreadSafe
@@ -134,12 +134,12 @@ public class DimensionMap implements HasDimension, HasNamedPermute, HasToJsonStr
     for (var name : names) {
       perm[i++] = indexOf(name);
     }
-    return ZTensor.resolvePermutation(perm, ndim());
+    return Indexing.resolvePermutation(perm, ndim());
   }
 
   @Override
   public DimensionMap permute(int... permutation) {
-    var perm = ZTensor.resolvePermutation(permutation, ndim());
+    var perm = Indexing.resolvePermutation(permutation, ndim());
 
     var names = new String[ndim()];
     for (int i = 0; i < ndim(); ++i) {

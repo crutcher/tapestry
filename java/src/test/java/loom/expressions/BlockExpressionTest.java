@@ -64,7 +64,7 @@ public class BlockExpressionTest implements CommonAssertions {
     assertJsonEquals(block, json);
 
     var pretty =
-        "BlockExpression(index=i[x=0:3, y=0:4, z=0:5], inputs=[foo:int32 i[a=4:9, b=5:17] p[a=x+4:+3, b=x+2z+5:+2]], outputs=[])";
+        "BlockExpression(index=i[x=0:3, y=0:4, z=0:5], inputs=[b[foo:int32 i[a=4:9, b=5:17]; p[a=x+4:+3, b=x+2z+5:+2]]], outputs=[])";
     assertThat(block).hasToString(pretty);
   }
 }

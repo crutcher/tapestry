@@ -93,7 +93,7 @@ public final class ZPoint implements HasDimension, HasPermute, HasToJsonString {
   @Override
   public ZPoint permute(int... permutation) {
     var cs = new int[ndim()];
-    var perm = ZTensor.resolvePermutation(permutation, ndim());
+    var perm = Indexing.resolvePermutation(permutation, ndim());
     for (int i = 0; i < ndim(); ++i) {
       cs[i] = coords.get(perm[i]);
     }

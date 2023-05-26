@@ -63,7 +63,7 @@ public final class IndexProjectionFunction
 
   @Override
   public String toString() {
-    // Ex: "[a=x+4:+2, b=2y+5:+1, c=-x+2y+6:+4]"
+    // Ex: "p[a=x+4:+2, b=2y+5:+1, c=-x+2y+6:+4]"
 
     StringBuilder sb = new StringBuilder();
     sb.append("p[");

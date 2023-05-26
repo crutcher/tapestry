@@ -21,7 +21,7 @@ public class BoundSliceTest implements CommonAssertions {
                     new DimensionMap("x", "y"),
                     new DimensionMap("a", "b", "c"),
                     new ZAffineMap(
-                        ZTensor.from(new int[][] {{1, 0}, {0, 2}, {1, 2}}),
+                        ZTensor.from(new int[][] {{1, 0}, {0, 2}, {-1, 2}}),
                         ZTensor.vector(4, 5, 6)),
                     new ZPoint(3, 2, 1)))
             .build();
@@ -42,7 +42,7 @@ public class BoundSliceTest implements CommonAssertions {
                             "input": ["x", "y"],
                             "output": ["a", "b", "c"],
                             "map": {
-                              "A": [[1, 0], [0, 2], [1, 2]],
+                              "A": [[1, 0], [0, 2], [-1, 2]],
                               "b": [4, 5, 6]
                             },
                             "shape": [3, 2, 1]
@@ -51,5 +51,8 @@ public class BoundSliceTest implements CommonAssertions {
                         """;
 
     assertJsonEquals(slice, json);
+
+    assertThat(slice)
+        .hasToString("b[foo:int32 i[a=0:3, b=0:4, c=0:5]; p[a=x+4:+3, b=2y+5:+2, c=-x+2y+6:+1]]");
   }
 }
