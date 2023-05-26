@@ -185,8 +185,8 @@ public class ZTensorTest implements CommonAssertions {
 
   @Test
   public void test_identity() {
-    assertThat(ZTensor.identity(0)).isEqualTo(ZTensor.zeros(0, 0));
-    assertThat(ZTensor.identity(3))
+    assertThat(ZTensor.identity_matrix(0)).isEqualTo(ZTensor.zeros(0, 0));
+    assertThat(ZTensor.identity_matrix(3))
         .isEqualTo(ZTensor.from(new int[][] {{1, 0, 0}, {0, 1, 0}, {0, 0, 1}}));
   }
 
