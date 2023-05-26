@@ -16,7 +16,7 @@ import lombok.extern.jackson.Jacksonized;
 @Jacksonized
 @Builder
 @Data
-public class BlockExpression {
+public final class BlockExpression {
   @Nonnull public final NamedZRange index;
 
   @Nonnull public final List<BoundSlice> inputs;
@@ -41,7 +41,7 @@ public class BlockExpression {
       throw new IllegalArgumentException("Input names must be unique: " + inputs);
     }
     if (outputs.size() != outputs.stream().map(i -> i.name).collect(Collectors.toSet()).size()) {
-      throw new IllegalArgumentException("output names must be unique: " + outputs);
+      throw new IllegalArgumentException("Output names must be unique: " + outputs);
     }
 
     inputs.forEach(i -> i.validateAgainstIndex(index));

@@ -1,7 +1,5 @@
 package loom.expressions;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
@@ -16,14 +14,14 @@ import javax.annotation.concurrent.ThreadSafe;
 import loom.common.HasToJsonString;
 import loom.common.JsonUtil;
 import loom.zspace.HasDimension;
-import loom.zspace.Indexing;
+import loom.zspace.IndexingFns;
 import loom.zspace.ZPoint;
 
 @Immutable
 @ThreadSafe
 @JsonDeserialize(using = DimensionMap.Deserializer.class)
-public class DimensionMap implements HasDimension, HasNamedPermute, HasToJsonString {
-  static class Deserializer extends StdDeserializer<DimensionMap> {
+public final class DimensionMap implements HasDimension, HasNamedPermute, HasToJsonString {
+  static final class Deserializer extends StdDeserializer<DimensionMap> {
     public Deserializer() {
       super(ZPoint.class);
     }
@@ -37,8 +35,7 @@ public class DimensionMap implements HasDimension, HasNamedPermute, HasToJsonStr
 
   @JsonValue public final ImmutableList<String> names;
 
-  @JsonCreator
-  public DimensionMap(@JsonProperty("names") String... names) {
+  public DimensionMap(String... names) {
     this.names = ImmutableList.copyOf(names);
     for (var name : names) {
       if (name == null) {
@@ -48,7 +45,7 @@ public class DimensionMap implements HasDimension, HasNamedPermute, HasToJsonStr
         throw new IllegalArgumentException("duplicate name: " + name);
       }
 
-      Identifiers.validAtomicIdentifier(name);
+      IdentifiersFns.validAtomicIdentifier(name);
     }
   }
 
@@ -134,12 +131,12 @@ public class DimensionMap implements HasDimension, HasNamedPermute, HasToJsonStr
     for (var name : names) {
       perm[i++] = indexOf(name);
     }
-    return Indexing.resolvePermutation(perm, ndim());
+    return IndexingFns.resolvePermutation(perm, ndim());
   }
 
   @Override
   public DimensionMap permute(int... permutation) {
-    var perm = Indexing.resolvePermutation(permutation, ndim());
+    var perm = IndexingFns.resolvePermutation(permutation, ndim());
 
     var names = new String[ndim()];
     for (int i = 0; i < ndim(); ++i) {

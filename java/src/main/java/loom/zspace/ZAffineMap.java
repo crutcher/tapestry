@@ -12,7 +12,7 @@ import loom.common.JsonUtil;
 /** A linear map from {@code Z^inDim} to {@code Z^outDim}. */
 @ThreadSafe
 @Immutable
-public class ZAffineMap implements HasPermuteInput, HasPermuteOutput, HasToJsonString {
+public final class ZAffineMap implements HasPermuteInput, HasPermuteOutput, HasToJsonString {
   public final ZTensor A;
   public final ZTensor b;
 
@@ -20,7 +20,9 @@ public class ZAffineMap implements HasPermuteInput, HasPermuteOutput, HasToJsonS
   @JsonIgnore public final int outputDim;
 
   @JsonCreator
-  public ZAffineMap(@JsonProperty("A") ZTensor A, @JsonProperty("b") ZTensor b) {
+  public ZAffineMap(
+      @JsonProperty(value = "A", required = true) ZTensor A,
+      @JsonProperty(value = "b", required = true) ZTensor b) {
     A.assertNdim(2);
     // This seems like a backwards way to represent this;
     // but `Ax + b` is the standard form.

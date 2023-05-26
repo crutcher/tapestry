@@ -128,7 +128,7 @@ public final class ZTensor implements HasDimension, HasToJsonString, HasPermute,
 
     int[] shape = new int[] {numRows, numCols};
     int[] data = Arrays.stream(rows).flatMapToInt(Arrays::stream).toArray();
-    return new ZTensor(true, shape, Indexing.shapeToLSFStrides(shape), data);
+    return new ZTensor(true, shape, IndexingFns.shapeToLSFStrides(shape), data);
   }
 
   /**
@@ -271,7 +271,7 @@ public final class ZTensor implements HasDimension, HasToJsonString, HasPermute,
       @Nonnull int[] data,
       int data_offset) {
     this.shape = shape;
-    this.size = Indexing.shapeToSize(shape);
+    this.size = IndexingFns.shapeToSize(shape);
     this.stride = stride;
     this.data_offset = data_offset;
     this.data = data;
@@ -314,7 +314,7 @@ public final class ZTensor implements HasDimension, HasToJsonString, HasPermute,
    * @param data the data.
    */
   private ZTensor(boolean mutable, @Nonnull int[] shape, @Nonnull int[] data) {
-    this(mutable, shape, Indexing.shapeToLSFStrides(shape), data);
+    this(mutable, shape, IndexingFns.shapeToLSFStrides(shape), data);
   }
 
   /**
@@ -324,7 +324,7 @@ public final class ZTensor implements HasDimension, HasToJsonString, HasPermute,
    * @param shape the shape.
    */
   private ZTensor(boolean mutable, @Nonnull int[] shape) {
-    this(mutable, shape, new int[Indexing.shapeToSize(shape)]);
+    this(mutable, shape, new int[IndexingFns.shapeToSize(shape)]);
   }
 
   /**
@@ -712,7 +712,7 @@ public final class ZTensor implements HasDimension, HasToJsonString, HasPermute,
    * @throws IndexOutOfBoundsException if the index is out of range.
    */
   public int resolveDim(int dim) {
-    return Indexing.resolveDim(dim, shape);
+    return IndexingFns.resolveDim(dim, shape);
   }
 
   /** Returns the number of elements in this tensor. */
@@ -767,7 +767,7 @@ public final class ZTensor implements HasDimension, HasToJsonString, HasPermute,
    */
   @Override
   public ZTensor permute(@Nonnull int... permutation) {
-    var perm = Indexing.resolvePermutation(permutation, ndim());
+    var perm = IndexingFns.resolvePermutation(permutation, ndim());
 
     int[] newShape = new int[ndim()];
     int[] newStride = new int[ndim()];
@@ -788,7 +788,7 @@ public final class ZTensor implements HasDimension, HasToJsonString, HasPermute,
    */
   public ZTensor reorderDim(@Nonnull int[] permutation, int dim) {
     var d = resolveDim(dim);
-    var perm = Indexing.resolvePermutation(permutation, shape[d]);
+    var perm = IndexingFns.resolvePermutation(permutation, shape[d]);
     var res = new ZTensor(true, shape);
     for (int i = 0; i < shape[d]; ++i) {
       res.selectDim(d, i).assign(this.selectDim(d, perm[i]));
@@ -810,7 +810,7 @@ public final class ZTensor implements HasDimension, HasToJsonString, HasPermute,
       return this;
     }
 
-    int[] perm = Indexing.iota(ndim());
+    int[] perm = IndexingFns.iota(ndim());
     perm[rA] = rB;
     perm[rB] = rA;
     return permute(perm);
@@ -822,7 +822,7 @@ public final class ZTensor implements HasDimension, HasToJsonString, HasPermute,
    * @return a transposed view of this tensor.
    */
   public ZTensor transpose() {
-    return permute(Indexing.aoti(ndim()));
+    return permute(IndexingFns.aoti(ndim()));
   }
 
   /**
@@ -957,7 +957,7 @@ public final class ZTensor implements HasDimension, HasToJsonString, HasPermute,
       return this;
     }
 
-    if (isScalar() && Indexing.shapeToSize(targetShape) == 0) {
+    if (isScalar() && IndexingFns.shapeToSize(targetShape) == 0) {
       return new ZTensor(mutable, targetShape);
     }
 
@@ -994,7 +994,7 @@ public final class ZTensor implements HasDimension, HasToJsonString, HasPermute,
    * @return the ravel index.
    */
   private int ravel(@Nonnull int... coords) {
-    return data_offset + Indexing.ravel(shape, stride, coords);
+    return data_offset + IndexingFns.ravel(shape, stride, coords);
   }
 
   /**
@@ -1016,7 +1016,7 @@ public final class ZTensor implements HasDimension, HasToJsonString, HasPermute,
    */
   public ZTensor selectDim(int dim, int index) {
     var d = resolveDim(dim);
-    var i = Indexing.resolveIndex("index", index, shape[d]);
+    var i = IndexingFns.resolveIndex("index", index, shape[d]);
 
     var new_shape = shape.clone();
     new_shape[d] = 1;
@@ -1185,7 +1185,7 @@ public final class ZTensor implements HasDimension, HasToJsonString, HasPermute,
      */
     public static @Nonnull ZTensor binOp(
         BinaryOperator<Integer> op, @Nonnull ZTensor lhs, @Nonnull ZTensor rhs) {
-      var result = zeros(Indexing.commonBroadcastShape(lhs.shape, rhs.shape));
+      var result = zeros(IndexingFns.commonBroadcastShape(lhs.shape, rhs.shape));
       result.assignFromMap(op, lhs, rhs);
       return result;
     }
@@ -1438,11 +1438,11 @@ public final class ZTensor implements HasDimension, HasToJsonString, HasPermute,
    * <p>All empty tensors serialize to nested "[...]"; so all degenerate tensors (empty tensors with
    * non-zero shapes) are serialized as empty tensors.
    */
-  static class JsonSupport {
+  static final class JsonSupport {
     /** Private constructor to prevent instantiation. */
     private JsonSupport() {}
 
-    static class Serializer extends JsonSerializer<ZTensor> {
+    static final class Serializer extends JsonSerializer<ZTensor> {
       @Override
       public void serialize(ZTensor value, JsonGenerator gen, SerializerProvider serializers) {
 
@@ -1472,7 +1472,7 @@ public final class ZTensor implements HasDimension, HasToJsonString, HasPermute,
       }
     }
 
-    static class Deserializer extends StdDeserializer<ZTensor> {
+    static final class Deserializer extends StdDeserializer<ZTensor> {
       public Deserializer() {
         super(ZTensor.class);
       }

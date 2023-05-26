@@ -7,9 +7,9 @@ import java.util.stream.Collectors;
 /**
  * Utility functions for computing tensor indices.
  */
-public class Indexing {
+public final class IndexingFns {
     // Prevent instantiation.
-    private Indexing() {
+    private IndexingFns() {
     }
 
     /**

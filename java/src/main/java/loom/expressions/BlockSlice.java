@@ -18,8 +18,8 @@ public final class BlockSlice implements HasDimension, HasToJsonString {
 
   @JsonCreator
   public BlockSlice(@Nonnull String name, @Nonnull String dtype, @Nonnull NamedZRange index) {
-    this.name = Identifiers.validAtomicIdentifier(name);
-    this.dtype = Identifiers.validDottedIdentifier(dtype);
+    this.name = IdentifiersFns.validAtomicIdentifier(name);
+    this.dtype = IdentifiersFns.validDottedIdentifier(dtype);
     this.index = index;
   }
 

@@ -3,30 +3,29 @@ package loom.expressions;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Splitter;
-import java.util.List;
-import java.util.Objects;
-import javax.annotation.concurrent.Immutable;
-import javax.annotation.concurrent.ThreadSafe;
 import lombok.Builder;
 import lombok.extern.jackson.Jacksonized;
 import loom.common.HasToJsonString;
 import loom.common.JsonUtil;
-import loom.zspace.HasDimension;
-import loom.zspace.ZPoint;
-import loom.zspace.ZRange;
-import loom.zspace.ZTensor;
+import loom.zspace.*;
+
+import javax.annotation.concurrent.Immutable;
+import javax.annotation.concurrent.ThreadSafe;
+import java.util.List;
+import java.util.Objects;
 
 @Immutable
 @ThreadSafe
 @Jacksonized
 @Builder
-public final class NamedZRange implements HasDimension, HasNamedPermute, HasToJsonString {
+public final class NamedZRange implements HasDimension, HasSize, HasNamedPermute, HasToJsonString {
   public final DimensionMap dimensions;
   public final ZRange range;
 
   @JsonCreator
   public NamedZRange(
-      @JsonProperty("dimensions") DimensionMap dimensions, @JsonProperty("slice") ZRange slice) {
+          @JsonProperty(value = "dimensions", required = true) DimensionMap dimensions,
+          @JsonProperty(value = "slice", required = true) ZRange slice) {
     HasDimension.assertSameNDim(dimensions, slice);
     this.dimensions = dimensions;
     this.range = slice;
@@ -46,11 +45,6 @@ public final class NamedZRange implements HasDimension, HasNamedPermute, HasToJs
   }
 
   @Override
-  public int ndim() {
-    return dimensions.ndim();
-  }
-
-  @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
 
@@ -61,9 +55,9 @@ public final class NamedZRange implements HasDimension, HasNamedPermute, HasToJs
         sb.append(", ");
       }
       sb.append(
-          String.format(
-              "%s=%d:%d",
-              dimensions.nameOf(i), range.start.coords.get(i), range.end.coords.get(i)));
+              String.format(
+                      "%s=%d:%d",
+                      dimensions.nameOf(i), range.start.coords.get(i), range.end.coords.get(i)));
     }
     sb.append("]");
 
@@ -75,6 +69,19 @@ public final class NamedZRange implements HasDimension, HasNamedPermute, HasToJs
     return JsonUtil.toJson(this);
   }
 
+  /**
+   * Parse a string into a NamedZRange.
+   * <p>
+   * Supports two formats:
+   * <ul>
+   *     <li>JSON</li>
+   *     <li>pretty string</li>
+   * </ul>
+   *
+   * @param str the string to parse.
+   * @return the parsed NamedZRange.
+   * @throws IllegalArgumentException if the string is not a valid NamedZRange.
+   */
   public static NamedZRange parse(String str) {
     if (str.startsWith("{")) {
       return JsonUtil.fromJson(str, NamedZRange.class);
@@ -111,11 +118,21 @@ public final class NamedZRange implements HasDimension, HasNamedPermute, HasToJs
       }
 
       return new NamedZRange(
-          new DimensionMap(dims),
-          new ZRange(new ZPoint(ZTensor.from(start)), new ZPoint(ZTensor.from(end))));
+              new DimensionMap(dims),
+              new ZRange(new ZPoint(ZTensor.from(start)), new ZPoint(ZTensor.from(end))));
     }
 
     throw new IllegalArgumentException(String.format("Invalid ZRange: %s", str));
+  }
+
+  @Override
+  public int ndim() {
+    return dimensions.ndim();
+  }
+
+  @Override
+  public int size() {
+    return range.size();
   }
 
   @Override
