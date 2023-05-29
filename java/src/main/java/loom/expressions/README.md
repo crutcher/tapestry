@@ -313,4 +313,4 @@ and that the marginal costs associated with the tensors is borne
 entirely by the marginal data overlap and the transmissions costs.
 
 Additionally, multiple sharded expressions can share the same shape
-and cost information (as well as information about the operation being modeled)
+and cost information (as well as information about the operation being modeled).
