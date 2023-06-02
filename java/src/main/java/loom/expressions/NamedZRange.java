@@ -3,16 +3,15 @@ package loom.expressions;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Splitter;
+import java.util.List;
+import java.util.Objects;
+import javax.annotation.concurrent.Immutable;
+import javax.annotation.concurrent.ThreadSafe;
 import lombok.Builder;
 import lombok.extern.jackson.Jacksonized;
 import loom.common.HasToJsonString;
 import loom.common.JsonUtil;
 import loom.zspace.*;
-
-import javax.annotation.concurrent.Immutable;
-import javax.annotation.concurrent.ThreadSafe;
-import java.util.List;
-import java.util.Objects;
 
 @Immutable
 @ThreadSafe
@@ -24,8 +23,8 @@ public final class NamedZRange implements HasDimension, HasSize, HasNamedPermute
 
   @JsonCreator
   public NamedZRange(
-          @JsonProperty(value = "dimensions", required = true) DimensionMap dimensions,
-          @JsonProperty(value = "slice", required = true) ZRange slice) {
+      @JsonProperty(value = "dimensions", required = true) DimensionMap dimensions,
+      @JsonProperty(value = "slice", required = true) ZRange slice) {
     HasDimension.assertSameNDim(dimensions, slice);
     this.dimensions = dimensions;
     this.range = slice;
@@ -55,9 +54,9 @@ public final class NamedZRange implements HasDimension, HasSize, HasNamedPermute
         sb.append(", ");
       }
       sb.append(
-              String.format(
-                      "%s=%d:%d",
-                      dimensions.nameOf(i), range.start.coords.get(i), range.end.coords.get(i)));
+          String.format(
+              "%s=%d:%d",
+              dimensions.nameOf(i), range.start.coords.get(i), range.end.coords.get(i)));
     }
     sb.append("]");
 
@@ -71,11 +70,12 @@ public final class NamedZRange implements HasDimension, HasSize, HasNamedPermute
 
   /**
    * Parse a string into a NamedZRange.
-   * <p>
-   * Supports two formats:
+   *
+   * <p>Supports two formats:
+   *
    * <ul>
-   *     <li>JSON</li>
-   *     <li>pretty string</li>
+   *   <li>JSON
+   *   <li>pretty string
    * </ul>
    *
    * @param str the string to parse.
@@ -118,8 +118,8 @@ public final class NamedZRange implements HasDimension, HasSize, HasNamedPermute
       }
 
       return new NamedZRange(
-              new DimensionMap(dims),
-              new ZRange(new ZPoint(ZTensor.from(start)), new ZPoint(ZTensor.from(end))));
+          new DimensionMap(dims),
+          new ZRange(new ZPoint(ZTensor.from(start)), new ZPoint(ZTensor.from(end))));
     }
 
     throw new IllegalArgumentException(String.format("Invalid ZRange: %s", str));
