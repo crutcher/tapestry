@@ -18,8 +18,7 @@
     <ExternalSystemDebugServerProcess>false</ExternalSystemDebugServerProcess>
     <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
     <DebugAllEnabled>false</DebugAllEnabled>
-    <method v="2">
-      <option name="RunConfigurationTask" enabled="true" run_configuration_name="Compile" run_configuration_type="GradleRunConfiguration" />
-    </method>
+    <ForceTestExec>false</ForceTestExec>
+    <method v="2" />
   </configuration>
 </component>

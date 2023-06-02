@@ -6,6 +6,8 @@ plugins {
     id("net.ltgt.errorprone") version "3.1.0"
     id("com.diffplug.spotless") version "6.18.0"
     id("io.freefair.lombok") version "8.0.1"
+    id("me.champeau.jmh") version "0.7.1"
+
 
     jacoco
 }
@@ -53,7 +55,23 @@ tasks.jacocoTestReport {
     dependsOn(tasks.test)
 }
 
+jmh {
+    // See: https://github.com/melix/jmh-gradle-plugin
+
+    // This dramatically reduces the value of these benchmarks, but it's
+    // a nice fast iteration for now. We can remove the nerfing later,
+    // and run stronger benchmarks.
+    fork.set(1);
+    iterations.set(1);
+    timeOnIteration.set("1s");
+    warmupIterations.set(1);
+    warmupMode.set("BULK");
+}
+
 dependencies {
+    testImplementation("org.openjdk.jmh:jmh-core:1.36")
+    testImplementation("org.openjdk.jmh:jmh-generator-annprocess:1.36")
+
     implementation("org.jetbrains:annotations:24.0.1")
     // implementation("org.projectlombok:lombok:1.18.22")
     errorprone("com.google.errorprone:error_prone_core:2.18.0")
