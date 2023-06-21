@@ -4,10 +4,10 @@ import loom.testing.CommonAssertions;
 import loom.zspace.ZPoint;
 import org.junit.Test;
 
-public class TensorNodeTest implements CommonAssertions {
+public class LoomTensorTest implements CommonAssertions {
   @Test
   public void test_json() {
-    var node = TensorNode.builder().dtype("float32").shape(new ZPoint(2, 3)).build();
+    var node = LoomTensor.builder().dtype("float32").shape(new ZPoint(2, 3)).build();
 
     assertJsonEquals(
         node,

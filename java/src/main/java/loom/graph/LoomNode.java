@@ -15,8 +15,9 @@ import loom.common.HasToJsonString;
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "@type")
 @JsonSubTypes(
     value = {
-      @JsonSubTypes.Type(value = TagNode.class, name = "tag"),
-      @JsonSubTypes.Type(value = TensorNode.class, name = "tensor")
+      @JsonSubTypes.Type(value = LoomTag.class, name = "tag"),
+      @JsonSubTypes.Type(value = LoomEdge.class, name = "edge"),
+      @JsonSubTypes.Type(value = LoomTensor.class, name = "tensor")
     })
 @Jacksonized
 @SuperBuilder
