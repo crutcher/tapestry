@@ -1,10 +1,12 @@
 package loom.graph;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import lombok.experimental.SuperBuilder;
-import lombok.extern.jackson.Jacksonized;
+import java.util.UUID;
+import javax.annotation.Nullable;
 
 @JsonTypeName("operator")
-@Jacksonized
-@SuperBuilder
-public class TOperator extends TNode {}
+public abstract class TOperator extends TNode {
+  TOperator(@Nullable UUID id) {
+    super(id);
+  }
+}

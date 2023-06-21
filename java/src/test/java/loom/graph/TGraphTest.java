@@ -1,32 +1,56 @@
 package loom.graph;
 
 import loom.testing.CommonAssertions;
-import loom.zspace.ZPoint;
 import org.junit.Test;
 
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 public class TGraphTest implements CommonAssertions {
+    static class SimpleNode extends TNode {
+        SimpleNode() {
+            super();
+        }
+
+        @Override
+        public SimpleNode copy() {
+            return new SimpleNode();
+        }
+    }
+
+    static class ExtNode extends SimpleNode {
+        ExtNode() {
+            super();
+        }
+
+        @Override
+        public ExtNode copy() {
+            return new ExtNode();
+        }
+    }
 
     @Test
-    public void test_json() {
+    public void test_query() {
         var graph = new TGraph();
 
-        var tensor = graph.addNode(TTensor.builder().dtype("float32").shape(new ZPoint(2, 3)).build());
+        var simple = graph.addNode(new SimpleNode());
+        var ext = graph.addNode(new ExtNode());
 
-        var tag = graph.addNode(TTag.builder().sourceId(tensor.id).build());
+        assertThat(simple.hasGraph()).isTrue();
+        assertThat(ext.hasGraph()).isTrue();
 
-        assertThat(tensor.hasGraph()).isTrue();
+        assertThat(graph.queryNodes(ExtNode.class).toSingleton()).isSameAs(ext);
+        assertThat(graph.queryNodes(SimpleNode.class).excluding(ExtNode.class).toSingleton())
+                .isSameAs(simple);
+    }
 
-        assertThat(graph.queryNodes(TTensor.class).toSingleton()).isSameAs(tensor);
+    @Test
+    public void test_validate() {
+        var graph = new TGraph();
+        var sp = graph.addNode(new TSequencePoint());
+        var simple = graph.addNode(new SimpleNode());
+        graph.addNode(new TWaitsOn(simple.id, sp.id));
 
-        assertJsonEquals(
-                graph,
-                "{\"nodes\":"
-                        + Stream.of(tensor, tag)
-                        .map(TNode::toJsonString)
-                        .collect(Collectors.joining(", ", "[", "]"))
-                        + "}");
+        graph.validate();
+
+        graph.addNode(new TWaitsOn(simple.id, simple.id));
+        assertThatExceptionOfType(ClassCastException.class).isThrownBy(graph::validate);
     }
 }
