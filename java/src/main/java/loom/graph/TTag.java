@@ -7,11 +7,11 @@ import javax.annotation.Nonnull;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.jackson.Jacksonized;
 
-@JsonTypeName("edge")
+@JsonTypeName("tag")
 @Jacksonized
 @SuperBuilder
-public class LoomEdge extends LoomTag {
+public class TTag extends TNode {
   @Nonnull
   @JsonProperty(required = true)
-  public final UUID targetId;
+  public final UUID sourceId;
 }
