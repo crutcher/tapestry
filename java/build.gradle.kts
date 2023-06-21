@@ -41,6 +41,7 @@ tasks {
         // Work around a Lombok/ErrorProne bug:
         // https://github.com/projectlombok/lombok/issues/2730
         options.errorprone.disable("MissingSummary")
+        options.errorprone.disableWarningsInGeneratedCode.set(true)
     }
 
     compileTestJava {
@@ -61,20 +62,22 @@ jmh {
     // This dramatically reduces the value of these benchmarks, but it's
     // a nice fast iteration for now. We can remove the nerfing later,
     // and run stronger benchmarks.
-    fork.set(1);
-    iterations.set(1);
-    timeOnIteration.set("1s");
-    warmupIterations.set(1);
-    warmupMode.set("BULK");
+    fork.set(1)
+    iterations.set(1)
+    timeOnIteration.set("1s")
+    warmupIterations.set(1)
+    warmupMode.set("BULK")
 }
 
 dependencies {
+    implementation("javax.annotation:javax.annotation-api:1.3.2")
+
     testImplementation("org.openjdk.jmh:jmh-core:1.36")
     testImplementation("org.openjdk.jmh:jmh-generator-annprocess:1.36")
 
     implementation("org.jetbrains:annotations:24.0.1")
     // implementation("org.projectlombok:lombok:1.18.22")
-    errorprone("com.google.errorprone:error_prone_core:2.18.0")
+    errorprone("com.google.errorprone:error_prone_core:2.20.0")
 
     implementation("org.apache.commons:commons-math3:3.6.1")
 
