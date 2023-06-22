@@ -3,6 +3,8 @@ package loom.graph;
 import loom.testing.CommonAssertions;
 import org.junit.Test;
 
+import java.util.stream.Collectors;
+
 public class TGraphTest implements CommonAssertions {
     static class SimpleNode extends TNode {
         SimpleNode() {
@@ -42,15 +44,38 @@ public class TGraphTest implements CommonAssertions {
     }
 
     @Test
+    public void test_json() {
+        var graph = new TGraph();
+        var sp1 = graph.addNode(new TSequencePoint());
+        var sp2 = graph.addNode(new TSequencePoint());
+        graph.addNode(new THappensAfter(sp2.id, sp1.id));
+
+        assertJsonEquals(
+                graph,
+                "{\"nodes\":"
+                        + graph.getNodeMap().values().stream()
+                        .map(TNode::toJsonString)
+                        .collect(Collectors.joining(",", "[", "]"))
+                        + "}");
+    }
+
+    @Test
     public void test_validate() {
         var graph = new TGraph();
-        var sp = graph.addNode(new TSequencePoint());
-        var simple = graph.addNode(new SimpleNode());
-        graph.addNode(new TWaitsOn(simple.id, sp.id));
+        var sp1 = graph.addNode(new TSequencePoint());
+        var sp2 = graph.addNode(new TSequencePoint());
+        graph.addNode(new THappensAfter(sp2.id, sp1.id));
+
+        assertThat(sp2.barrierIds()).containsOnly(sp1.id);
+        assertThat(sp2.barriers()).containsOnly(sp1);
 
         graph.validate();
 
-        graph.addNode(new TWaitsOn(simple.id, simple.id));
+        var gc = graph.copy();
+        gc.validate();
+
+        var simple = graph.addNode(new SimpleNode());
+        graph.addNode(new THappensAfter(simple.id, simple.id));
         assertThatExceptionOfType(ClassCastException.class).isThrownBy(graph::validate);
     }
 }

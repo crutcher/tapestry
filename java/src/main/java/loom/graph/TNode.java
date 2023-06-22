@@ -1,21 +1,21 @@
 package loom.graph;
 
-import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import java.util.UUID;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import loom.common.HasToJsonString;
 import loom.common.IdUtils;
 
-@JsonTypeName("node")
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "@type")
 @JsonSubTypes(
     value = {
-      @JsonSubTypes.Type(value = TTag.class, name = "tag"),
-      @JsonSubTypes.Type(value = TEdge.class, name = "edge"),
-      @JsonSubTypes.Type(value = TOperator.class, name = "operator"),
-      @JsonSubTypes.Type(value = TSequencePoint.class, name = "sequence_point"),
-      @JsonSubTypes.Type(value = TWaitsOn.class, name = "WaitsOn"),
+      @JsonSubTypes.Type(value = TTag.class),
+      @JsonSubTypes.Type(value = TOperator.class),
+      @JsonSubTypes.Type(value = TSequencePoint.class),
     })
 public abstract class TNode implements HasToJsonString {
   @Nullable @JsonIgnore TGraph graph = null;

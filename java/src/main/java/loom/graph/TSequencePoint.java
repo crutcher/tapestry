@@ -6,8 +6,8 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 import java.util.UUID;
 import javax.annotation.Nullable;
 
-@JsonTypeName("sequence_point")
-public class TSequencePoint extends TNode {
+@JsonTypeName("SequencePoint")
+public class TSequencePoint extends TSequencedBase {
   @JsonCreator
   TSequencePoint(@Nullable @JsonProperty(value = "id", required = true) UUID id) {
     super(id);
