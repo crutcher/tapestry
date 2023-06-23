@@ -70,32 +70,22 @@ public final class TGraphDotExporter {
                         .graphAttr()
                         .with("nodesep", "0.7");
 
-        class GenSym {
-            int idx = 0;
-
-            String next() {
-                return Integer.toHexString(++idx);
+        Map<UUID, String> syms = new HashMap<>();
+        for (var tnode : tgraph) {
+            String nodeTypePrefix;
+            if (tnode instanceof TEdge) {
+                nodeTypePrefix = "E";
+            } else if (tnode instanceof TTag) {
+                nodeTypePrefix = "T";
+            } else {
+                nodeTypePrefix = "N";
             }
+            var sym =
+                    String.format(
+                            "%s.%s%s",
+                            tnode.jsonTypeName(), nodeTypePrefix, Integer.toHexString(syms.size() + 1));
+            syms.put(tnode.id, sym);
         }
-
-        var gensym = new GenSym();
-
-        Map<UUID, String> displayIds =
-                tgraph
-                        .queryNodes()
-                        .toStream()
-                        .collect(
-                                Collectors.toMap(
-                                        tnode -> tnode.id,
-                                        tnode -> {
-                                            String pre = "N";
-                                            if (tnode instanceof TEdge) {
-                                                pre = "E";
-                                            } else if (tnode instanceof TTag) {
-                                                pre = "T";
-                                            }
-                                            return tnode.jsonTypeName() + "." + pre + gensym.next();
-                                        }));
 
         for (var tnode : tgraph) {
             Map<String, Object> data = JsonUtil.toMap(tnode);
@@ -124,7 +114,7 @@ public final class TGraphDotExporter {
                 tableAttrs.put("bgcolor", bgcolor);
             }
 
-            String title = displayIds.get(tnode.id);
+            String title = syms.get(tnode.id);
 
             var attrs =
                     tableAttrs.entrySet().stream()
