@@ -1,126 +1,125 @@
 package loom.graph;
 
+import java.util.ArrayList;
+import java.util.UUID;
+import java.util.stream.Collectors;
 import loom.common.LookupError;
 import loom.testing.CommonAssertions;
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.UUID;
-import java.util.stream.Collectors;
-
 public class TGraphTest implements CommonAssertions {
-    static class SimpleNode extends TNode {
-        SimpleNode() {
-            super();
-        }
-
-        @Override
-        public SimpleNode copy() {
-            return new SimpleNode();
-        }
+  static class SimpleNode extends TNode {
+    SimpleNode() {
+      super();
     }
 
-    static class ExtNode extends SimpleNode {
-        ExtNode() {
-            super();
-        }
+    @Override
+    public SimpleNode copy() {
+      return new SimpleNode();
+    }
+  }
 
-        @Override
-        public ExtNode copy() {
-            return new ExtNode();
-        }
+  static class ExtNode extends SimpleNode {
+    ExtNode() {
+      super();
     }
 
-    @Test
-    public void testLookupNode() {
-        var graph = new TGraph();
-        var simple = graph.addNode(new SimpleNode());
-
-        assertThat(graph.lookupNode(simple.id)).isSameAs(simple);
-
-        assertThatExceptionOfType(LookupError.class)
-                .isThrownBy(() -> graph.lookupNode(null))
-                .withMessage("Lookup failed: null not found in graph");
-
-        assertThat(graph.lookupNode(simple.id, SimpleNode.class)).isSameAs(simple);
-
-        assertThatExceptionOfType(ClassCastException.class)
-                .isThrownBy(() -> graph.lookupNode(simple.id, ExtNode.class))
-                .withMessageContaining("Cannot cast");
+    @Override
+    public ExtNode copy() {
+      return new ExtNode();
     }
+  }
 
-    @Test
-    public void test_query() {
-        var graph = new TGraph();
+  @Test
+  public void testLookupNode() {
+    var graph = new TGraph();
+    var simple = graph.addNode(new SimpleNode());
 
-        var simple = graph.addNode(new SimpleNode());
-        var ext = graph.addNode(new ExtNode());
+    assertThat(graph.lookupNode(simple.id)).isSameAs(simple);
 
-        assertThat(graph.summary()).isEqualTo("TGraph (2 nodes)");
+    assertThatExceptionOfType(LookupError.class)
+        .isThrownBy(() -> graph.lookupNode(null))
+        .withMessage("Lookup failed: null not found in graph");
 
-        assertThat(simple.hasGraph()).isTrue();
-        assertThat(ext.hasGraph()).isTrue();
+    assertThat(graph.lookupNode(simple.id, SimpleNode.class)).isSameAs(simple);
 
-        assertThat(graph.queryNodes(ExtNode.class).toSingleton()).isSameAs(ext);
-        assertThat(graph.queryNodes(SimpleNode.class).excluding(ExtNode.class).toSingleton())
-                .isSameAs(simple);
+    assertThatExceptionOfType(ClassCastException.class)
+        .isThrownBy(() -> graph.lookupNode(simple.id, ExtNode.class))
+        .withMessageContaining("Cannot cast");
+  }
 
-        assertThat(
-                graph
-                        .queryNodes(TNode.class)
-                        .restrictedTo(SimpleNode.class)
-                        .excluding(ExtNode.class)
-                        .toSingleton())
-                .isSameAs(simple);
+  @Test
+  public void test_query() {
+    var graph = new TGraph();
 
-        var lst = new ArrayList<UUID>();
-        graph
+    var simple = graph.addNode(new SimpleNode());
+    var ext = graph.addNode(new ExtNode());
+
+    assertThat(graph.summary()).isEqualTo("TGraph (2 nodes)");
+
+    assertThat(simple.hasGraph()).isTrue();
+    assertThat(ext.hasGraph()).isTrue();
+
+    assertThat(graph.queryNodes(ExtNode.class).toSingleton()).isSameAs(ext);
+    assertThat(graph.queryNodes(SimpleNode.class).excluding(ExtNode.class).toSingleton())
+        .isSameAs(simple);
+
+    assertThat(
+            graph
                 .queryNodes(TNode.class)
                 .restrictedTo(SimpleNode.class)
                 .excluding(ExtNode.class)
-                .forEach(n -> lst.add(n.id));
-        assertThat(lst).containsExactly(simple.id);
+                .toSingleton())
+        .isSameAs(simple);
 
-        assertThat(graph.queryNodes(TNode.class).withFilter(n -> n.id.equals(simple.id)).toSingleton())
-                .isSameAs(simple);
-    }
+    var lst = new ArrayList<UUID>();
+    graph
+        .queryNodes(TNode.class)
+        .restrictedTo(SimpleNode.class)
+        .excluding(ExtNode.class)
+        .forEach(n -> lst.add(n.id));
+    assertThat(lst).containsExactly(simple.id);
 
-    @Test
-    public void test_json() {
-        var graph = new TGraph();
-        var sp1 = graph.addNode(new TSequencePoint());
-        var sp2 = graph.addNode(new TSequencePoint());
-        graph.addNode(new THappensAfter(sp2.id, sp1.id));
+    assertThat(graph.queryNodes(TNode.class).withFilter(n -> n.id.equals(simple.id)).toSingleton())
+        .isSameAs(simple);
+  }
 
-        assertJsonEquals(
-                graph,
-                "{\"nodes\":"
-                        + graph.getNodeMap().values().stream()
-                        .map(TNode::toJsonString)
-                        .collect(Collectors.joining(",", "[", "]"))
-                        + "}");
-    }
+  @Test
+  public void test_json() {
+    var graph = new TGraph();
+    var sp1 = graph.addNode(new TSequencePoint());
+    var sp2 = graph.addNode(new TSequencePoint());
+    graph.addNode(new THappensAfter(sp2.id, sp1.id));
 
-    @Test
-    public void test_validate() {
-        var graph = new TGraph();
-        var sp1 = graph.addNode(new TSequencePoint());
-        var sp2 = graph.addNode(new TSequencePoint());
-        var barrier = graph.addNode(new THappensAfter(sp2.id, sp1.id));
+    assertJsonEquals(
+        graph,
+        "{\"nodes\":"
+            + graph.getNodeMap().values().stream()
+                .map(TNode::toJsonString)
+                .collect(Collectors.joining(",", "[", "]"))
+            + "}");
+  }
 
-        assertThat(graph.queryEdges(THappensAfter.class).withTargetId(sp1.id).toSingleton())
-                .isSameAs(barrier);
+  @Test
+  public void test_validate() {
+    var graph = new TGraph();
+    var sp1 = graph.addNode(new TSequencePoint());
+    var sp2 = graph.addNode(new TSequencePoint());
+    var barrier = graph.addNode(new THappensAfter(sp2.id, sp1.id));
 
-        assertThat(sp2.barrierIds()).containsOnly(sp1.id);
-        assertThat(sp2.barriers()).containsOnly(sp1);
+    assertThat(graph.queryEdges(THappensAfter.class).withTargetId(sp1.id).toSingleton())
+        .isSameAs(barrier);
 
-        graph.validate();
+    assertThat(sp2.barrierIds()).containsOnly(sp1.id);
+    assertThat(sp2.barriers()).containsOnly(sp1);
 
-        var gc = graph.copy();
-        gc.validate();
+    graph.validate();
 
-        var simple = graph.addNode(new SimpleNode());
-        graph.addNode(new THappensAfter(simple.id, simple.id));
-        assertThatExceptionOfType(ClassCastException.class).isThrownBy(graph::validate);
-    }
+    var gc = graph.copy();
+    gc.validate();
+
+    var simple = graph.addNode(new SimpleNode());
+    graph.addNode(new THappensAfter(simple.id, simple.id));
+    assertThatExceptionOfType(ClassCastException.class).isThrownBy(graph::validate);
+  }
 }
