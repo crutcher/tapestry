@@ -4,6 +4,8 @@ import loom.common.LookupError;
 import loom.testing.CommonAssertions;
 import org.junit.Test;
 
+import java.util.ArrayList;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 public class TGraphTest implements CommonAssertions {
@@ -71,12 +73,16 @@ public class TGraphTest implements CommonAssertions {
                         .toSingleton())
                 .isSameAs(simple);
 
-        assertThat(
-                graph
-                        .queryNodes(TNode.class)
-                        .withFilter(n -> n.id == simple.id)
-                        .toSingleton()
-        ).isSameAs(simple);
+        var lst = new ArrayList<UUID>();
+        graph
+                .queryNodes(TNode.class)
+                .restrictedTo(SimpleNode.class)
+                .excluding(ExtNode.class)
+                .forEach(n -> lst.add(n.id));
+        assertThat(lst).containsExactly(simple.id);
+
+        assertThat(graph.queryNodes(TNode.class).withFilter(n -> n.id.equals(simple.id)).toSingleton())
+                .isSameAs(simple);
     }
 
     @Test
