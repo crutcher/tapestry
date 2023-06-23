@@ -62,6 +62,21 @@ public class TGraphTest implements CommonAssertions {
         assertThat(graph.queryNodes(ExtNode.class).toSingleton()).isSameAs(ext);
         assertThat(graph.queryNodes(SimpleNode.class).excluding(ExtNode.class).toSingleton())
                 .isSameAs(simple);
+
+        assertThat(
+                graph
+                        .queryNodes(TNode.class)
+                        .restrictedTo(SimpleNode.class)
+                        .excluding(ExtNode.class)
+                        .toSingleton())
+                .isSameAs(simple);
+
+        assertThat(
+                graph
+                        .queryNodes(TNode.class)
+                        .withFilter(n -> n.id == simple.id)
+                        .toSingleton()
+        ).isSameAs(simple);
     }
 
     @Test
