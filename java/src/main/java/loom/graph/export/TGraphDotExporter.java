@@ -33,34 +33,6 @@ public final class TGraphDotExporter {
         return Graphviz.fromGraph(toGraph(tgraph)).render(Format.PNG).toImage();
     }
 
-    static String formatData(Object data) {
-        if (data instanceof Map) {
-            @SuppressWarnings("unchecked")
-            Map<String, Object> m = (Map<String, Object>) data;
-
-            return "<table border=\"0\" cellborder=\"1\" cellspacing\"0\">"
-                    + formatDataTableRow(m)
-                    + "</table>";
-        } else {
-            return HtmlEscapers.htmlEscaper().escape(data.toString());
-        }
-    }
-
-    static String formatDataTableRow(Map<String, Object> data) {
-        StringBuilder sb = new StringBuilder();
-        for (var entry : data.entrySet()) {
-            sb.append("<tr>")
-                    .append("<td align=\"right\"><b>")
-                    .append(entry.getKey())
-                    .append(":</b></td>")
-                    .append("<td align=\"left\">")
-                    .append(formatData(entry.getValue()))
-                    .append("</td>")
-                    .append("</tr>");
-        }
-        return sb.toString();
-    }
-
     public Graph toGraph(TGraph tgraph) {
         Graph g =
                 Factory.graph("G")
@@ -70,32 +42,22 @@ public final class TGraphDotExporter {
                         .graphAttr()
                         .with("nodesep", "0.7");
 
-        class GenSym {
-            int idx = 0;
-
-            String next() {
-                return Integer.toHexString(++idx);
+        Map<UUID, String> syms = new HashMap<>();
+        for (var tnode : tgraph) {
+            String nodeTypePrefix;
+            if (tnode instanceof TEdge) {
+                nodeTypePrefix = "E";
+            } else if (tnode instanceof TTag) {
+                nodeTypePrefix = "T";
+            } else {
+                nodeTypePrefix = "N";
             }
+            var sym =
+                    String.format(
+                            "%s.%s%s",
+                            tnode.jsonTypeName(), nodeTypePrefix, Integer.toHexString(syms.size() + 1));
+            syms.put(tnode.id, sym);
         }
-
-        var gensym = new GenSym();
-
-        Map<UUID, String> displayIds =
-                tgraph
-                        .queryNodes()
-                        .toStream()
-                        .collect(
-                                Collectors.toMap(
-                                        tnode -> tnode.id,
-                                        tnode -> {
-                                            String pre = "N";
-                                            if (tnode instanceof TEdge) {
-                                                pre = "E";
-                                            } else if (tnode instanceof TTag) {
-                                                pre = "T";
-                                            }
-                                            return tnode.jsonTypeName() + "." + pre + gensym.next();
-                                        }));
 
         for (var tnode : tgraph) {
             Map<String, Object> data = JsonUtil.toMap(tnode);
@@ -124,7 +86,7 @@ public final class TGraphDotExporter {
                 tableAttrs.put("bgcolor", bgcolor);
             }
 
-            String title = displayIds.get(tnode.id);
+            String title = syms.get(tnode.id);
 
             var attrs =
                     tableAttrs.entrySet().stream()
@@ -138,7 +100,7 @@ public final class TGraphDotExporter {
                             + "<tr><td colspan=\"2\">"
                             + title
                             + "</td></tr>"
-                            + formatDataTableRow(data)
+                            + formatRecursiveDataRow(data)
                             + "</table>>";
 
             var gnode = Factory.node(tnode.id.toString()).with(Shape.PLAIN).with(Label.raw(label));
@@ -161,5 +123,33 @@ public final class TGraphDotExporter {
         }
 
         return g;
+    }
+
+    private String formatRecursiveData(Object data) {
+        if (data instanceof Map) {
+            @SuppressWarnings("unchecked")
+            Map<String, Object> m = (Map<String, Object>) data;
+
+            return "<table border=\"0\" cellborder=\"1\" cellspacing\"0\">"
+                    + formatRecursiveDataRow(m)
+                    + "</table>";
+        } else {
+            return HtmlEscapers.htmlEscaper().escape(data.toString());
+        }
+    }
+
+    private String formatRecursiveDataRow(Map<String, Object> data) {
+        StringBuilder sb = new StringBuilder();
+        for (var entry : data.entrySet()) {
+            sb.append("<tr>")
+                    .append("<td align=\"right\"><b>")
+                    .append(entry.getKey())
+                    .append(":</b></td>")
+                    .append("<td align=\"left\">")
+                    .append(formatRecursiveData(entry.getValue()))
+                    .append("</td>")
+                    .append("</tr>");
+        }
+        return sb.toString();
     }
 }
