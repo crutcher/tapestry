@@ -106,7 +106,10 @@ public class TGraphTest implements CommonAssertions {
         var graph = new TGraph();
         var sp1 = graph.addNode(new TSequencePoint());
         var sp2 = graph.addNode(new TSequencePoint());
-        graph.addNode(new THappensAfter(sp2.id, sp1.id));
+        var barrier = graph.addNode(new THappensAfter(sp2.id, sp1.id));
+
+        assertThat(graph.queryEdges(THappensAfter.class).withTargetId(sp1.id).toSingleton())
+                .isSameAs(barrier);
 
         assertThat(sp2.barrierIds()).containsOnly(sp1.id);
         assertThat(sp2.barriers()).containsOnly(sp1);
