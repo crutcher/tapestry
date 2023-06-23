@@ -9,12 +9,12 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import lombok.Getter;
 
-@TEdge.TargetType(TNode.class)
+@TEdgeBase.TargetType(TNodeBase.class)
 @JsonSubTypes(
     value = {
       @JsonSubTypes.Type(value = THappensAfter.class),
     })
-public abstract class TEdge<S extends TNode, T extends TNode> extends TTag<S> {
+public abstract class TEdgeBase<S extends TNodeBase, T extends TNodeBase> extends TTagBase<S> {
   /**
    * Runtime annotation to specify the target type of an TEdge.
    *
@@ -24,7 +24,7 @@ public abstract class TEdge<S extends TNode, T extends TNode> extends TTag<S> {
   @Retention(RetentionPolicy.RUNTIME)
   @Target(ElementType.TYPE)
   public @interface TargetType {
-    Class<? extends TNode> value();
+    Class<? extends TNodeBase> value();
   }
 
   /**
@@ -33,7 +33,7 @@ public abstract class TEdge<S extends TNode, T extends TNode> extends TTag<S> {
    * @param cls the TEdge class.
    * @return the target type class.
    */
-  public static Class<? extends TNode> getTargetType(Class<? extends TEdge<?, ?>> cls) {
+  public static Class<? extends TNodeBase> getTargetType(Class<? extends TEdgeBase<?, ?>> cls) {
     return cls.getAnnotation(TargetType.class).value();
   }
 
@@ -43,12 +43,12 @@ public abstract class TEdge<S extends TNode, T extends TNode> extends TTag<S> {
   @JsonProperty(required = true)
   public final UUID targetId;
 
-  public TEdge(@Nullable UUID id, @Nonnull UUID sourceId, @Nonnull UUID targetId) {
+  public TEdgeBase(@Nullable UUID id, @Nonnull UUID sourceId, @Nonnull UUID targetId) {
     super(id, sourceId);
     this.targetId = targetId;
   }
 
-  public TEdge(@Nonnull UUID sourceId, @Nonnull UUID targetId) {
+  public TEdgeBase(@Nonnull UUID sourceId, @Nonnull UUID targetId) {
     this(null, sourceId, targetId);
   }
 
@@ -61,7 +61,7 @@ public abstract class TEdge<S extends TNode, T extends TNode> extends TTag<S> {
   @JsonIgnore
   public final T getTarget() {
     @SuppressWarnings("unchecked")
-    var typ = (Class<T>) getTargetType((Class<TEdge<S, T>>) getClass());
+    var typ = (Class<T>) getTargetType((Class<TEdgeBase<S, T>>) getClass());
     return assertGraph().lookupNode(targetId, typ);
   }
 }

@@ -15,12 +15,12 @@ import javax.annotation.Nullable;
  * <p>The sourceId field is the id of the node that this tag is attached to; the type of that node
  * is specified by the SourceType annotation.
  */
-@TTag.SourceType(TNode.class)
+@TTagBase.SourceType(TNodeBase.class)
 @JsonSubTypes(
     value = {
-      @JsonSubTypes.Type(value = TEdge.class),
+      @JsonSubTypes.Type(value = TEdgeBase.class),
     })
-public abstract class TTag<S extends TNode> extends TNode {
+public abstract class TTagBase<S extends TNodeBase> extends TNodeBase {
   /**
    * Runtime annotation to specify the source type of a TTag.
    *
@@ -30,7 +30,7 @@ public abstract class TTag<S extends TNode> extends TNode {
   @Retention(RetentionPolicy.RUNTIME)
   @Target(ElementType.TYPE)
   public @interface SourceType {
-    Class<? extends TNode> value();
+    Class<? extends TNodeBase> value();
   }
 
   /**
@@ -39,8 +39,8 @@ public abstract class TTag<S extends TNode> extends TNode {
    * @param cls the TTag class.
    * @return the source type class.
    */
-  public static Class<? extends TNode> getSourceType(Class<? extends TNode> cls) {
-    return cls.getAnnotation(TTag.SourceType.class).value();
+  public static Class<? extends TNodeBase> getSourceType(Class<? extends TNodeBase> cls) {
+    return cls.getAnnotation(TTagBase.SourceType.class).value();
   }
 
   @Nonnull
@@ -48,14 +48,14 @@ public abstract class TTag<S extends TNode> extends TNode {
   public final UUID sourceId;
 
   @JsonCreator
-  public TTag(
+  public TTagBase(
       @Nullable @JsonProperty(value = "id", required = true) UUID id,
       @Nonnull @JsonProperty(value = "sourceId", required = true) UUID sourceId) {
     super(id);
     this.sourceId = sourceId;
   }
 
-  public TTag(@Nonnull UUID sourceId) {
+  public TTagBase(@Nonnull UUID sourceId) {
     this(null, sourceId);
   }
 

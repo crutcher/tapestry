@@ -4,8 +4,8 @@ import java.util.UUID;
 import loom.testing.CommonAssertions;
 import org.junit.Test;
 
-public class TTagTest implements CommonAssertions {
-  public static class ExampleTag<S extends TNode> extends TTag<S> {
+public class TTagBaseTest implements CommonAssertions {
+  public static class ExampleTag<S extends TNodeBase> extends TTagBase<S> {
     public ExampleTag(UUID sourceId) {
       super(sourceId);
     }
@@ -19,7 +19,7 @@ public class TTagTest implements CommonAssertions {
   @Test
   public void testConstructor() {
     @SuppressWarnings("unused")
-    TTag<?> tTag = new TTagTest.ExampleTag<>(UUID.randomUUID());
+    TTagBase<?> tTag = new TTagBaseTest.ExampleTag<>(UUID.randomUUID());
   }
 
   @Test

@@ -8,9 +8,9 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 @JsonTypeName("HappensAfter")
-@TTag.SourceType(TSequencedBase.class)
-@TEdge.TargetType(TSequencePoint.class)
-public final class THappensAfter extends TEdge<TSequencedBase, TSequencePoint> {
+@TTagBase.SourceType(TSequencedBase.class)
+@TEdgeBase.TargetType(TSequencePoint.class)
+public final class THappensAfter extends TEdgeBase<TSequencedBase, TSequencePoint> {
   @JsonCreator
   public THappensAfter(
       @Nullable @JsonProperty(value = "id", required = true) UUID id,
