@@ -1,11 +1,13 @@
 package loom.graph;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import java.lang.annotation.*;
 import java.util.UUID;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * A tag is a node that is attached to another node.
@@ -18,7 +20,7 @@ import javax.annotation.Nonnull;
     value = {
       @JsonSubTypes.Type(value = TEdge.class),
     })
-public abstract class TTag extends TNode {
+public abstract class TTag<S extends TNode> extends TNode {
   /**
    * Runtime annotation to specify the source type of a TTag.
    *
@@ -46,20 +48,27 @@ public abstract class TTag extends TNode {
   public final UUID sourceId;
 
   @JsonCreator
-  TTag(
-      @Nonnull @JsonProperty(value = "id", required = true) UUID id,
+  public TTag(
+      @Nullable @JsonProperty(value = "id", required = true) UUID id,
       @Nonnull @JsonProperty(value = "sourceId", required = true) UUID sourceId) {
     super(id);
     this.sourceId = sourceId;
   }
 
-  TTag(@Nonnull UUID sourceId) {
+  public TTag(@Nonnull UUID sourceId) {
     this(null, sourceId);
   }
 
   @Override
   public void validate() {
     super.validate();
-    assertGraph().lookupNode(sourceId, getSourceType(getClass()));
+    getSource();
+  }
+
+  @JsonIgnore
+  public final S getSource() {
+    @SuppressWarnings("unchecked")
+    var typ = (Class<S>) getSourceType(getClass());
+    return assertGraph().lookupNode(sourceId, typ);
   }
 }

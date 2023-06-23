@@ -2,6 +2,7 @@ package loom.common;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.Map;
 
 public class JsonUtil {
   // Prevent Construction.
@@ -23,6 +24,13 @@ public class JsonUtil {
     }
   }
 
+  /**
+   * Serialize an object to pretty JSON via Jackson defaults.
+   *
+   * @param obj the object to serialize.
+   * @return the pretty JSON string.
+   * @throws IllegalArgumentException if the object cannot be serialized.
+   */
   public static String toPrettyJson(Object obj) {
     var mapper = new ObjectMapper();
     try {
@@ -30,6 +38,13 @@ public class JsonUtil {
     } catch (JsonProcessingException e) {
       throw new IllegalArgumentException(e);
     }
+  }
+
+  public static Map<String, Object> toMap(Object obj) {
+    var mapper = new ObjectMapper();
+    @SuppressWarnings("unchecked")
+    Map<String, Object> result = mapper.convertValue(obj, Map.class);
+    return result;
   }
 
   /**

@@ -42,6 +42,14 @@ tasks {
         // https://github.com/projectlombok/lombok/issues/2730
         options.errorprone.disable("MissingSummary")
         options.errorprone.disableWarningsInGeneratedCode.set(true)
+
+        options.compilerArgs.add("-Xlint:deprecation")
+        options.compilerArgs.add("-Xlint:unchecked")
+    }
+
+    compileJava {
+        options.compilerArgs.add("-Xlint:deprecation")
+        options.compilerArgs.add("-Xlint:unchecked")
     }
 
     compileTestJava {
@@ -72,6 +80,8 @@ jmh {
 
 dependencies {
     implementation("javax.annotation:javax.annotation-api:1.3.2")
+
+    implementation("guru.nidi:graphviz-java-all-j2v8:0.18.1")
 
     testImplementation("org.openjdk.jmh:jmh-core:1.36")
     testImplementation("org.openjdk.jmh:jmh-generator-annprocess:1.36")

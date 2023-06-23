@@ -1,9 +1,7 @@
 package loom.graph;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.*;
+import java.lang.annotation.*;
 import java.util.UUID;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -17,7 +15,19 @@ import loom.common.IdUtils;
       @JsonSubTypes.Type(value = TOperator.class),
       @JsonSubTypes.Type(value = TSequencePoint.class),
     })
+@TNode.DisplayOptions.BackgroundColor("#ffffff")
 public abstract class TNode implements HasToJsonString {
+  public static class DisplayOptions {
+    private DisplayOptions() {}
+
+    @Inherited
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(ElementType.TYPE)
+    public @interface BackgroundColor {
+      String value() default "";
+    }
+  }
+
   @Nullable @JsonIgnore TGraph graph = null;
 
   @Nonnull
@@ -30,6 +40,14 @@ public abstract class TNode implements HasToJsonString {
 
   TNode() {
     this(null);
+  }
+
+  public String displayBackgroundColor() {
+    return getClass().getAnnotation(DisplayOptions.BackgroundColor.class).value();
+  }
+
+  public String jsonTypeName() {
+    return getClass().getAnnotation(JsonTypeName.class).value();
   }
 
   public final boolean hasGraph() {

@@ -13,6 +13,7 @@ import lombok.Data;
 import loom.common.HasToJsonString;
 import loom.common.LookupError;
 import loom.common.ReflectionUtils;
+import org.jetbrains.annotations.Debug;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -23,6 +24,10 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+@Debug.Renderer(
+        text = "summary()",
+        childrenArray = "nodeMap.values().toArray(new TNode[0])",
+        hasChildren = "nodeMap.size() > 0")
 @Data
 public final class TGraph implements Iterable<TNode>, HasToJsonString {
     @JsonProperty(value = "nodes", required = true)
@@ -30,6 +35,11 @@ public final class TGraph implements Iterable<TNode>, HasToJsonString {
     @JsonDeserialize(using = TGraph.JsonSupport.NodesDeserializer.class)
     private final Map<UUID, TNode> nodeMap = new HashMap<>();
 
+    public String summary() {
+        return String.format("TGraph (%d nodes)", nodeMap.size());
+    }
+
+    @Nonnull
     @Override
     public Iterator<TNode> iterator() {
         return nodeMap.values().iterator();
@@ -41,6 +51,51 @@ public final class TGraph implements Iterable<TNode>, HasToJsonString {
             copy.addNode(node.copy());
         }
         return copy;
+    }
+
+    /**
+     * Lookup a node by its ID.
+     *
+     * @param id The ID to lookup.
+     * @return The node.
+     * @throws LookupError If the node does not exist in the graph.
+     */
+    public TNode lookupNode(UUID id) {
+        var node = nodeMap.get(id);
+        if (node == null) {
+            throw new LookupError(id + " not found in graph");
+        }
+        return node;
+    }
+
+    /**
+     * Lookup a node by its ID, and cast it to the given type.
+     *
+     * @param id       The ID to lookup.
+     * @param nodeType The type to cast to.
+     * @param <T>      The type to cast to.
+     * @return The node.
+     * @throws LookupError        If the node does not exist in the graph.
+     * @throws ClassCastException If the node is not of the given type.
+     */
+    public <T extends TNode> T lookupNode(UUID id, Class<T> nodeType) {
+        return nodeType.cast(nodeMap.get(id));
+    }
+
+    /**
+     * Add a node to the graph.
+     *
+     * @param node The node to add.
+     * @return The node that was added.
+     * @throws IllegalStateException If the node is already part of a graph.
+     */
+    public <T extends TNode> T addNode(T node) {
+        if (node.graph != null) {
+            throw new IllegalStateException("Node is already part of a graph");
+        }
+        nodeMap.put(node.id, node);
+        node.graph = this;
+        return node;
     }
 
     /**
@@ -189,7 +244,11 @@ public final class TGraph implements Iterable<TNode>, HasToJsonString {
         return new NodeStream<>(nodeType);
     }
 
-    public class TagStream<T extends TTag> extends NodeStream<T> {
+    public NodeStream<TNode> queryNodes() {
+        return new NodeStream<>(TNode.class);
+    }
+
+    public class TagStream<T extends TTag<?>> extends NodeStream<T> {
         private TagStream(Class<T> tagType) {
             super(tagType);
             ReflectionUtils.checkIsSubclass(tagType, TTag.class);
@@ -201,11 +260,11 @@ public final class TGraph implements Iterable<TNode>, HasToJsonString {
         }
     }
 
-    public <T extends TTag> TagStream<T> queryTags(Class<T> tagType) {
+    public <T extends TTag<?>> TagStream<T> queryTags(Class<T> tagType) {
         return new TagStream<>(tagType);
     }
 
-    public class EdgeStream<T extends TEdge> extends TagStream<T> {
+    public class EdgeStream<T extends TEdge<?, ?>> extends TagStream<T> {
         private EdgeStream(Class<T> tagType) {
             super(tagType);
             ReflectionUtils.checkIsSubclass(tagType, TEdge.class);
@@ -217,53 +276,8 @@ public final class TGraph implements Iterable<TNode>, HasToJsonString {
         }
     }
 
-    public <T extends TEdge> EdgeStream<T> queryEdges(Class<T> edgeType) {
+    public <T extends TEdge<?, ?>> EdgeStream<T> queryEdges(Class<T> edgeType) {
         return new EdgeStream<>(edgeType);
-    }
-
-    /**
-     * Lookup a node by its ID.
-     *
-     * @param id The ID to lookup.
-     * @return The node.
-     * @throws LookupError If the node does not exist in the graph.
-     */
-    public TNode lookupNode(UUID id) {
-        var node = nodeMap.get(id);
-        if (node == null) {
-            throw new LookupError(id + " not found in graph");
-        }
-        return node;
-    }
-
-    /**
-     * Lookup a node by its ID, and cast it to the given type.
-     *
-     * @param id       The ID to lookup.
-     * @param nodeType The type to cast to.
-     * @param <T>      The type to cast to.
-     * @return The node.
-     * @throws LookupError        If the node does not exist in the graph.
-     * @throws ClassCastException If the node is not of the given type.
-     */
-    public <T extends TNode> T lookupNode(UUID id, Class<T> nodeType) {
-        return nodeType.cast(nodeMap.get(id));
-    }
-
-    /**
-     * Add a node to the graph.
-     *
-     * @param node The node to add.
-     * @return The node that was added.
-     * @throws IllegalStateException If the node is already part of a graph.
-     */
-    public <T extends TNode> T addNode(T node) {
-        if (node.graph != null) {
-            throw new IllegalStateException("Node is already part of a graph");
-        }
-        nodeMap.put(node.id, node);
-        node.graph = this;
-        return node;
     }
 
     public void validate() {

@@ -1,5 +1,6 @@
 package loom.graph;
 
+import loom.common.LookupError;
 import loom.testing.CommonAssertions;
 import org.junit.Test;
 
@@ -29,11 +30,31 @@ public class TGraphTest implements CommonAssertions {
     }
 
     @Test
+    public void testLookupNode() {
+        var graph = new TGraph();
+        var simple = graph.addNode(new SimpleNode());
+
+        assertThat(graph.lookupNode(simple.id)).isSameAs(simple);
+
+        assertThatExceptionOfType(LookupError.class)
+                .isThrownBy(() -> graph.lookupNode(null))
+                .withMessage("Lookup failed: null not found in graph");
+
+        assertThat(graph.lookupNode(simple.id, SimpleNode.class)).isSameAs(simple);
+
+        assertThatExceptionOfType(ClassCastException.class)
+                .isThrownBy(() -> graph.lookupNode(simple.id, ExtNode.class))
+                .withMessageContaining("Cannot cast");
+    }
+
+    @Test
     public void test_query() {
         var graph = new TGraph();
 
         var simple = graph.addNode(new SimpleNode());
         var ext = graph.addNode(new ExtNode());
+
+        assertThat(graph.summary()).isEqualTo("TGraph (2 nodes)");
 
         assertThat(simple.hasGraph()).isTrue();
         assertThat(ext.hasGraph()).isTrue();
