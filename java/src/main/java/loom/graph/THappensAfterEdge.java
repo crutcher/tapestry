@@ -10,25 +10,25 @@ import javax.annotation.Nullable;
 @JsonTypeName("HappensAfter")
 @TTagBase.SourceType(TSequencedBase.class)
 @TEdgeBase.TargetType(TSequencePoint.class)
-public final class THappensAfter extends TEdgeBase<TSequencedBase, TSequencePoint> {
+public final class THappensAfterEdge extends TEdgeBase<TSequencedBase, TSequencePoint> {
   @JsonCreator
-  public THappensAfter(
+  public THappensAfterEdge(
       @Nullable @JsonProperty(value = "id", required = true) UUID id,
       @Nonnull @JsonProperty(value = "sourceId", required = true) UUID sourceId,
       @Nonnull @JsonProperty(value = "targetId", required = true) UUID targetId) {
     super(id, sourceId, targetId);
   }
 
-  public THappensAfter(@Nonnull UUID sourceId, @Nonnull UUID targetId) {
+  public THappensAfterEdge(@Nonnull UUID sourceId, @Nonnull UUID targetId) {
     this(null, sourceId, targetId);
   }
 
-  public THappensAfter(@Nonnull THappensAfter source) {
+  public THappensAfterEdge(@Nonnull THappensAfterEdge source) {
     this(source.id, source.sourceId, source.targetId);
   }
 
   @Override
-  public THappensAfter copy() {
-    return new THappensAfter(this);
+  public THappensAfterEdge copy() {
+    return new THappensAfterEdge(this);
   }
 }

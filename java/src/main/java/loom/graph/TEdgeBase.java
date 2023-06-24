@@ -12,7 +12,7 @@ import lombok.Getter;
 @TEdgeBase.TargetType(TNodeBase.class)
 @JsonSubTypes(
     value = {
-      @JsonSubTypes.Type(value = THappensAfter.class),
+      @JsonSubTypes.Type(value = THappensAfterEdge.class),
     })
 public abstract class TEdgeBase<S extends TNodeBase, T extends TNodeBase> extends TTagBase<S> {
   /**
