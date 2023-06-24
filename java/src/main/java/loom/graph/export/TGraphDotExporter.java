@@ -3,7 +3,6 @@ package loom.graph.export;
 import com.google.common.html.HtmlEscapers;
 import guru.nidi.graphviz.attribute.Label;
 import guru.nidi.graphviz.attribute.Rank;
-import guru.nidi.graphviz.attribute.Shape;
 import guru.nidi.graphviz.engine.Format;
 import guru.nidi.graphviz.engine.Graphviz;
 import guru.nidi.graphviz.model.Factory;
@@ -51,8 +50,8 @@ public final class TGraphDotExporter {
       }
       var sym =
           String.format(
-              "%s.%s%s",
-              tnode.jsonTypeName(), nodeTypePrefix, Integer.toHexString(syms.size() + 1));
+              "%s%s: %s",
+              nodeTypePrefix, Integer.toHexString(syms.size() + 1), tnode.jsonTypeName());
       syms.put(tnode.id, sym);
     }
 
@@ -77,13 +76,8 @@ public final class TGraphDotExporter {
           new HashMap<>(
               Map.of(
                   "border", "0",
-                  "cellborder", "1",
-                  "cellspacing", "0",
-                  "cellpadding", "4"));
-
-      if (displayOptions.backgroundColor != null) {
-        tableAttrs.put("bgcolor", displayOptions.backgroundColor);
-      }
+                  "cellborder", "0",
+                  "cellspacing", "0"));
 
       var attrs =
           tableAttrs.entrySet().stream()
@@ -100,7 +94,12 @@ public final class TGraphDotExporter {
               + formatRecursiveDataRow(data)
               + "</table>>";
 
-      var gnode = Factory.node(tnode.id.toString()).with(Shape.PLAIN).with(Label.raw(label));
+      var gnode =
+          Factory.node(tnode.id.toString())
+              .with("shape", displayOptions.nodeShape)
+              .with("style", "filled")
+              .with("fillcolor", displayOptions.backgroundColor)
+              .with(Label.raw(label));
 
       g = g.with(gnode);
 
