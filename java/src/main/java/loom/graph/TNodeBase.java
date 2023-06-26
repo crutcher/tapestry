@@ -2,46 +2,66 @@ package loom.graph;
 
 import com.fasterxml.jackson.annotation.*;
 import java.lang.annotation.*;
-import java.util.UUID;
+import java.util.*;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import lombok.Getter;
 import loom.common.HasToJsonString;
 import loom.common.IdUtils;
+import loom.common.JsonUtil;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "@type")
 @JsonSubTypes(
     value = {
+      @JsonSubTypes.Type(value = TObserver.class),
       @JsonSubTypes.Type(value = TTagBase.class),
-      @JsonSubTypes.Type(value = TOperatorBase.class),
-      @JsonSubTypes.Type(value = TSequencePoint.class),
+      @JsonSubTypes.Type(value = TSequencedBase.class),
       @JsonSubTypes.Type(value = TTensor.class),
     })
-@TNodeBase.DisplayOptions.BackgroundColor("#ffffff")
-@TNodeBase.DisplayOptions.NodeShape("box")
+@TNodeBase.DisplayOptions.NodeAttributes(
+    value = {
+      @TNodeBase.DisplayOptions.Attribute(name = "shape", value = "box"),
+      @TNodeBase.DisplayOptions.Attribute(name = "style", value = "filled"),
+      @TNodeBase.DisplayOptions.Attribute(name = "fillcolor", value = "#ffffff")
+    })
 public abstract class TNodeBase implements HasToJsonString {
   public static class DisplayOptions {
-    @Nullable public final String backgroundColor;
-
-    @Nullable public final String nodeShape;
+    @Nonnull public final Map<String, String> nodeAttributes;
 
     public DisplayOptions(Class<? extends TNodeBase> cls) {
-      backgroundColor = cls.getAnnotation(BackgroundColor.class).value();
-      nodeShape = cls.getAnnotation(NodeShape.class).value();
+      List<Class<?>> superclasses = new ArrayList<>();
+      Class<?> tmp = cls;
+      while (tmp != null) {
+        superclasses.add(tmp);
+        tmp = tmp.getSuperclass();
+      }
+      Collections.reverse(superclasses);
+
+      nodeAttributes = new HashMap<>();
+      for (var c : superclasses) {
+        var na = c.getDeclaredAnnotation(NodeAttributes.class);
+        if (na != null) {
+          for (var a : na.value()) {
+            nodeAttributes.put(a.name(), a.value());
+          }
+        }
+      }
+    }
+
+    @Inherited
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(ElementType.FIELD)
+    public @interface Attribute {
+      String name();
+
+      String value();
     }
 
     @Inherited
     @Retention(RetentionPolicy.RUNTIME)
     @Target(ElementType.TYPE)
-    public @interface BackgroundColor {
-      String value() default "";
-    }
-
-    @Inherited
-    @Retention(RetentionPolicy.RUNTIME)
-    @Target(ElementType.TYPE)
-    public @interface NodeShape {
-      String value() default "";
+    public @interface NodeAttributes {
+      Attribute[] value();
     }
   }
 
@@ -60,6 +80,11 @@ public abstract class TNodeBase implements HasToJsonString {
     this(null);
   }
 
+  public Map<String, Object> displayData() {
+    return JsonUtil.toMap(this);
+  }
+
+  @Nonnull
   public DisplayOptions displayOptions() {
     return new DisplayOptions(getClass());
   }

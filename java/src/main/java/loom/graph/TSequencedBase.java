@@ -1,17 +1,24 @@
 package loom.graph;
 
+import com.fasterxml.jackson.annotation.JsonSubTypes;
 import java.util.List;
 import java.util.UUID;
 import javax.annotation.Nullable;
 
+@JsonSubTypes(
+    value = {
+      @JsonSubTypes.Type(value = TOperatorBase.class),
+      @JsonSubTypes.Type(value = TObserver.class),
+      @JsonSubTypes.Type(value = TSequencePoint.class),
+    })
 public abstract class TSequencedBase extends TNodeBase {
-  TSequencedBase(@Nullable UUID id) {
+  protected TSequencedBase(@Nullable UUID id) {
     super(id);
   }
 
   public final List<UUID> barrierIds() {
     return assertGraph()
-        .queryEdges(THappensAfterEdge.class)
+        .queryEdges(TWaitsOnEdge.class)
         .withSourceId(getId())
         .toStream()
         .map(TEdgeBase::getTargetId)
@@ -20,10 +27,10 @@ public abstract class TSequencedBase extends TNodeBase {
 
   public final List<TSequencePoint> barriers() {
     return assertGraph()
-        .queryEdges(THappensAfterEdge.class)
+        .queryEdges(TWaitsOnEdge.class)
         .withSourceId(getId())
         .toStream()
-        .map(THappensAfterEdge::getTarget)
+        .map(TWaitsOnEdge::getTarget)
         .toList();
   }
 }

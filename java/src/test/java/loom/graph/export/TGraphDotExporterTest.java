@@ -1,27 +1,61 @@
 package loom.graph.export;
 
-import loom.graph.TGraph;
-import loom.graph.THappensAfterEdge;
-import loom.graph.TSequencePoint;
-import loom.graph.TTensor;
+import guru.nidi.graphviz.attribute.Rank;
+import loom.graph.*;
 import loom.testing.CommonAssertions;
 import loom.zspace.ZPoint;
 import org.junit.Test;
 
+import java.util.Map;
+
 public class TGraphDotExporterTest implements CommonAssertions {
-  @Test
-  public void test_to_graph() {
-    var graph = new TGraph();
-    var sp1 = graph.addNode(new TSequencePoint());
-    var sp2 = graph.addNode(new TSequencePoint());
-    graph.addNode(new THappensAfterEdge(sp2.id, sp1.id));
+    @Test
+    public void testExampleGraph() {
+        var graph = new TGraph();
 
-    graph.addNode(new TTensor(new ZPoint(2, 3), "float32"));
+        var l0 = graph.addNode(new TBlockOperator("load"));
+        graph.addNode(
+                new TWithEdge(l0.id, graph.addNode(new TParameters(Map.of("source", "#ref0"))).id));
+        var a0 = graph.addNode(new TTensor(new ZPoint(50, 20), "float32"));
+        graph.addNode(new TResultEdge(a0.id, l0.id, "result"));
 
-    @SuppressWarnings("unused")
-    var dot = TGraphDotExporter.builder().build().toGraph(graph).toString();
+        var l1 = graph.addNode(new TBlockOperator("load"));
+        graph.addNode(
+                new TWithEdge(l1.id, graph.addNode(new TParameters(Map.of("source", "#ref1"))).id));
+        var a1 = graph.addNode(new TTensor(new ZPoint(50, 20), "float32"));
+        graph.addNode(new TResultEdge(a1.id, l1.id, "result"));
 
-    @SuppressWarnings("unused")
-    var img = new TGraphDotExporter().toImage(graph);
-  }
+        var concat = graph.addNode(new TSelectorOperator("concat"));
+        graph.addNode(new TWithEdge(concat.id, graph.addNode(new TParameters(Map.of("dim", "0"))).id));
+        graph.addNode(new TConsumesEdge(concat.id, a0.id, "0"));
+        graph.addNode(new TConsumesEdge(concat.id, a1.id, "1"));
+
+        var a = graph.addNode(new TTensor(new ZPoint(100, 20), "float32"));
+        graph.addNode(new TResultEdge(a.id, concat.id, "result"));
+
+        var split = graph.addNode(new TSelectorOperator("split"));
+        graph.addNode(
+                new TWithEdge(
+                        split.id, graph.addNode(new TParameters(Map.of("dim", "1", "size", "10"))).id));
+        graph.addNode(new TConsumesEdge(split.id, a.id, "input"));
+
+        var b0 = graph.addNode(new TTensor(new ZPoint(100, 10), "float32"));
+        graph.addNode(new TResultEdge(b0.id, split.id, "0"));
+
+        var b1 = graph.addNode(new TTensor(new ZPoint(100, 10), "float32"));
+        graph.addNode(new TResultEdge(b1.id, split.id, "1"));
+
+        var store = graph.addNode(new TBlockOperator("store"));
+        graph.addNode(
+                new TWithEdge(store.id, graph.addNode(new TParameters(Map.of("target", "#refOut"))).id));
+        graph.addNode(new TConsumesEdge(store.id, b0.id, "input"));
+
+        var obv = graph.addNode(new TObserver());
+        graph.addNode(new TWaitsOnEdge(obv.id, store.id));
+
+        var img =
+                TGraphDotExporter.builder().rankDir(Rank.RankDir.RIGHT_TO_LEFT).build().toImage(graph);
+
+        assertThat(img).isNotNull();
+    }
 }

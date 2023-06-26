@@ -7,28 +7,28 @@ import java.util.UUID;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-@JsonTypeName("HappensAfter")
+@JsonTypeName("WaitsOn")
 @TTagBase.SourceType(TSequencedBase.class)
 @TEdgeBase.TargetType(TSequencePoint.class)
-public final class THappensAfterEdge extends TEdgeBase<TSequencedBase, TSequencePoint> {
+public final class TWaitsOnEdge extends TEdgeBase<TSequencedBase, TSequencePoint> {
   @JsonCreator
-  public THappensAfterEdge(
+  public TWaitsOnEdge(
       @Nullable @JsonProperty(value = "id", required = true) UUID id,
       @Nonnull @JsonProperty(value = "sourceId", required = true) UUID sourceId,
       @Nonnull @JsonProperty(value = "targetId", required = true) UUID targetId) {
     super(id, sourceId, targetId);
   }
 
-  public THappensAfterEdge(@Nonnull UUID sourceId, @Nonnull UUID targetId) {
+  public TWaitsOnEdge(@Nonnull UUID sourceId, @Nonnull UUID targetId) {
     this(null, sourceId, targetId);
   }
 
-  public THappensAfterEdge(@Nonnull THappensAfterEdge source) {
+  public TWaitsOnEdge(@Nonnull TWaitsOnEdge source) {
     this(source.id, source.sourceId, source.targetId);
   }
 
   @Override
-  public THappensAfterEdge copy() {
-    return new THappensAfterEdge(this);
+  public TWaitsOnEdge copy() {
+    return new TWaitsOnEdge(this);
   }
 }

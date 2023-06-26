@@ -7,7 +7,8 @@ import java.util.UUID;
 import javax.annotation.Nullable;
 
 @JsonTypeName("SequencePoint")
-@TNodeBase.DisplayOptions.BackgroundColor("#deebf7")
+@TNodeBase.DisplayOptions.NodeAttributes(
+    value = {@TNodeBase.DisplayOptions.Attribute(name = "fillcolor", value = "#deebf7")})
 public class TSequencePoint extends TSequencedBase {
   @JsonCreator
   public TSequencePoint(@Nullable @JsonProperty(value = "id", required = true) UUID id) {
