@@ -9,9 +9,9 @@ import javax.annotation.Nullable;
 import java.util.UUID;
 
 @JsonTypeName("WaitsOn")
-@TTagBase.SourceType(TSequencedBase.class)
-@TEdgeBase.TargetType(TSequencedBase.class)
-public final class TWaitsOnEdge extends TEdgeBase<TSequencedBase, TSequencePoint> {
+@TTagBase.SourceType(TCanBeSequencedProperty.class)
+@TEdgeBase.TargetType(TCanBeSequencedProperty.class)
+public final class TWaitsOnEdge extends TEdgeBase<TCanBeSequencedProperty, TSequencePoint> {
     @JsonCreator
     public TWaitsOnEdge(
             @Nullable @JsonProperty(value = "id", required = true) UUID id,

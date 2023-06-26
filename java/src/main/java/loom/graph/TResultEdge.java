@@ -11,10 +11,10 @@ import lombok.Getter;
 
 @JsonTypeName("ResultOf")
 @TTagBase.SourceType(TTensor.class)
-@TEdgeBase.TargetType(TOperatorBase.class)
+@TEdgeBase.TargetType(TYieldsResultsProperty.class)
 @TNodeBase.DisplayOptions.NodeAttributes(
     value = {@TNodeBase.DisplayOptions.Attribute(name = "fillcolor", value = "#A7E1D5")})
-public final class TResultEdge extends TEdgeBase<TTensor, TOperatorBase> {
+public final class TResultEdge extends TEdgeBase<TTensor, TYieldsResultsProperty> {
   @Nonnull @Getter private final String name;
 
   @JsonCreator

@@ -10,11 +10,11 @@ import javax.annotation.Nullable;
 import lombok.Getter;
 
 @JsonTypeName("Consumes")
-@TTagBase.SourceType(TOperatorBase.class)
+@TTagBase.SourceType(TConsumesInputsProperty.class)
 @TEdgeBase.TargetType(TTensor.class)
 @TNodeBase.DisplayOptions.NodeAttributes(
     value = {@TNodeBase.DisplayOptions.Attribute(name = "fillcolor", value = "#DDA6E0")})
-public final class TConsumesEdge extends TEdgeBase<TOperatorBase, TTensor> {
+public final class TConsumesEdge extends TEdgeBase<TConsumesInputsProperty, TTensor> {
   @Nonnull @Getter private final String name;
 
   @JsonCreator

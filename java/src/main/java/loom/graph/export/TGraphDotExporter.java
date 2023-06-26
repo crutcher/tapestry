@@ -151,18 +151,31 @@ public final class TGraphDotExporter {
 
       g = g.with(gnode);
 
-      if (tnode instanceof TTagBase<?> ttag) {
-        g =
-            g.with(
-                Factory.node(ttag.sourceId.toString())
-                    .link(Factory.to(Factory.node(ttag.id.toString()))));
-      }
-
+      boolean isEdge = false;
       if (tnode instanceof TEdgeBase<?, ?> tedge) {
         g =
             g.with(
                 Factory.node(tedge.id.toString())
                     .link(Factory.to(Factory.node(tedge.targetId.toString()))));
+        isEdge = true;
+      }
+
+      if (tnode instanceof TTagBase<?> ttag) {
+        // TODO: Better way of determining tag placement;
+        // Assuming that we should flip the direction of stand-alone tags
+        // (i.e. tags that are not edges) is a hack.
+
+        UUID toId;
+        UUID fromId;
+        if (!isEdge) {
+          toId = ttag.sourceId;
+          fromId = ttag.id;
+        } else {
+          toId = ttag.id;
+          fromId = ttag.sourceId;
+        }
+
+        g = g.with(Factory.node(fromId.toString()).link(Factory.to(Factory.node(toId.toString()))));
       }
     }
 

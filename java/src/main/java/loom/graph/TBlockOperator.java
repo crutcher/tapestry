@@ -14,7 +14,7 @@ import java.util.UUID;
                 @TNodeBase.DisplayOptions.Attribute(name = "fillcolor", value = "#E5E8E8"),
                 @TNodeBase.DisplayOptions.Attribute(name = "margin", value = "0.15")
         })
-public class TBlockOperator extends TOperatorBase {
+public class TBlockOperator extends TOperatorBase implements TCanBeSequencedProperty {
 
     @Nonnull
     @Getter

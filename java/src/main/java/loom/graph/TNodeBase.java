@@ -15,7 +15,8 @@ import loom.common.JsonUtil;
     value = {
       @JsonSubTypes.Type(value = TObserver.class),
       @JsonSubTypes.Type(value = TTagBase.class),
-      @JsonSubTypes.Type(value = TSequencedBase.class),
+      @JsonSubTypes.Type(value = TOperatorBase.class),
+      @JsonSubTypes.Type(value = TSequencePoint.class),
       @JsonSubTypes.Type(value = TTensor.class),
     })
 @TNodeBase.DisplayOptions.NodeAttributes(
@@ -24,7 +25,7 @@ import loom.common.JsonUtil;
       @TNodeBase.DisplayOptions.Attribute(name = "style", value = "filled"),
       @TNodeBase.DisplayOptions.Attribute(name = "fillcolor", value = "#ffffff")
     })
-public abstract class TNodeBase implements HasToJsonString {
+public abstract class TNodeBase implements HasToJsonString, TNodeInterface {
   public static class DisplayOptions {
     @Nonnull public final Map<String, String> nodeAttributes;
 
@@ -97,6 +98,7 @@ public abstract class TNodeBase implements HasToJsonString {
     return graph != null;
   }
 
+  @Override
   public final TGraph assertGraph() {
     if (graph == null) {
       throw new IllegalStateException("Node is not part of a graph");

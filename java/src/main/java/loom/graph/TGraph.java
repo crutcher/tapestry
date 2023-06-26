@@ -79,7 +79,7 @@ public final class TGraph implements Iterable<TNodeBase>, HasToJsonString {
    * @throws LookupError If the node does not exist in the graph.
    * @throws ClassCastException If the node is not of the given type.
    */
-  public <T extends TNodeBase> T lookupNode(UUID id, Class<T> nodeType) {
+  public <T> T lookupNode(UUID id, Class<T> nodeType) {
     return nodeType.cast(nodeMap.get(id));
   }
 

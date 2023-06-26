@@ -16,7 +16,8 @@ import lombok.Getter;
       @JsonSubTypes.Type(value = TResultEdge.class),
       @JsonSubTypes.Type(value = TConsumesEdge.class),
     })
-public abstract class TEdgeBase<S extends TNodeBase, T extends TNodeBase> extends TTagBase<S> {
+public abstract class TEdgeBase<S extends TNodeInterface, T extends TNodeInterface>
+    extends TTagBase<S> {
   /**
    * Runtime annotation to specify the target type of an TEdge.
    *
@@ -26,7 +27,7 @@ public abstract class TEdgeBase<S extends TNodeBase, T extends TNodeBase> extend
   @Retention(RetentionPolicy.RUNTIME)
   @Target(ElementType.TYPE)
   public @interface TargetType {
-    Class<? extends TNodeBase> value();
+    Class<? extends TNodeInterface> value();
   }
 
   /**
@@ -35,7 +36,8 @@ public abstract class TEdgeBase<S extends TNodeBase, T extends TNodeBase> extend
    * @param cls the TEdge class.
    * @return the target type class.
    */
-  public static Class<? extends TNodeBase> getTargetType(Class<? extends TEdgeBase<?, ?>> cls) {
+  public static Class<? extends TNodeInterface> getTargetType(
+      Class<? extends TEdgeBase<?, ?>> cls) {
     return cls.getAnnotation(TargetType.class).value();
   }
 
