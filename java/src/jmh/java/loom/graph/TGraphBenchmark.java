@@ -35,7 +35,7 @@ public class TGraphBenchmark {
     var a1 = graph.addNode(new TTensor(new ZPoint(50, 20), "float32"));
     graph.addNode(new TTensor.TResultEdge(a1.id, l1.id, "result"));
 
-    var concat = graph.addNode(new TSelectorOperator("concat"));
+    var concat = graph.addNode(new TViewOperator("concat"));
     graph.addNode(
         new TParameters.TWithParametersEdge(
             concat.id, graph.addNode(new TParameters(Map.of("dim", "0"))).id));
@@ -46,7 +46,7 @@ public class TGraphBenchmark {
     graph.addNode(new TTensor.TResultEdge(a.id, concat.id, "result"));
     graph.addNode(new TLabelTag(a.id, "A"));
 
-    var split = graph.addNode(new TSelectorOperator("split"));
+    var split = graph.addNode(new TViewOperator("split"));
     graph.addNode(
         new TParameters.TWithParametersEdge(
             split.id, graph.addNode(new TParameters(Map.of("dim", "1", "size", "10"))).id));

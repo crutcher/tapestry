@@ -1,5 +1,6 @@
 package loom.graph;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
@@ -34,6 +35,14 @@ public final class TGraph implements Iterable<TNodeBase>, HasToJsonString {
     @JsonSerialize(using = TGraph.JsonSupport.NodesSerializer.class)
     @JsonDeserialize(using = TGraph.JsonSupport.NodesDeserializer.class)
     private final Map<UUID, TNodeBase> nodeMap = new HashMap<>();
+
+    @JsonCreator
+    public TGraph(
+            @Nonnull @JsonProperty(value = "nodes", required = true) Map<UUID, TNodeBase> nodes) {
+        for (var node : nodes.values()) {
+            addNode(node);
+        }
+    }
 
     public TGraph() {
     }
@@ -287,8 +296,8 @@ public final class TGraph implements Iterable<TNodeBase>, HasToJsonString {
                 throw new RuntimeException(
                         String.format(
                                 "Error validating node: %s\n%s",
-                                node.getClass().getCanonicalName(),
-                                node.toJsonString()), e);
+                                node.getClass().getCanonicalName(), node.toJsonString()),
+                        e);
             }
         }
     }

@@ -8,34 +8,34 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import lombok.Getter;
 
-@JsonTypeName("Selector")
+@JsonTypeName("Cellwise")
 @TNodeBase.DisplayOptions.NodeAttributes(
     value = {
-      @TNodeBase.DisplayOptions.Attribute(name = "shape", value = "component"),
+      @TNodeBase.DisplayOptions.Attribute(name = "shape", value = "cds"),
       @TNodeBase.DisplayOptions.Attribute(name = "fillcolor", value = "#a0d0d0"),
       @TNodeBase.DisplayOptions.Attribute(name = "margin", value = "0.15")
     })
-public class TSelectorOperator extends TOperatorBase {
+public class TCellwiseOperator extends TOperatorBase {
   @Nonnull @Getter public final String op;
 
   @JsonCreator
-  public TSelectorOperator(
+  public TCellwiseOperator(
       @Nullable @JsonProperty(value = "id", required = true) UUID id,
       @Nonnull @JsonProperty(value = "op", required = true) String op) {
     super(id);
     this.op = op;
   }
 
-  public TSelectorOperator(@Nonnull String op) {
+  public TCellwiseOperator(@Nonnull String op) {
     this(null, op);
   }
 
-  public TSelectorOperator(@Nonnull TSelectorOperator source) {
+  public TCellwiseOperator(@Nonnull TCellwiseOperator source) {
     this(source.id, source.op);
   }
 
   @Override
-  public TSelectorOperator copy() {
-    return new TSelectorOperator(this);
+  public TCellwiseOperator copy() {
+    return new TCellwiseOperator(this);
   }
 }

@@ -1,5 +1,7 @@
 package loom.graph;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import lombok.Getter;
 
@@ -20,7 +22,10 @@ public class TBlockOperator extends TOperatorBase implements TCanBeSequencedProp
     @Getter
     public final String op;
 
-    public TBlockOperator(@Nullable UUID id, @Nonnull String op) {
+    @JsonCreator
+    public TBlockOperator(
+            @Nullable @JsonProperty(value = "id", required = true) UUID id,
+            @Nonnull @JsonProperty(value = "op", required = true) String op) {
         super(id);
         this.op = op;
     }

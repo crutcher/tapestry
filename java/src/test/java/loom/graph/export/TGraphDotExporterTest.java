@@ -1,5 +1,6 @@
 package loom.graph.export;
 
+import loom.common.JsonUtil;
 import loom.graph.*;
 import loom.testing.CommonAssertions;
 import loom.zspace.ZPoint;
@@ -45,33 +46,36 @@ public class TGraphDotExporterTest implements CommonAssertions {
         //     var a = graph.concat(0).inputs(a0, a1).yields().item();
         // }
 
-        var concat = graph.addNode(new TSelectorOperator("concat"));
+        var concat = graph.addNode(new TFusionOperator("concat"));
         concat.bindParameters(Map.of("dim", "0"));
         concat.bindInput(a0, "0");
-        concat.bindInput(a1, "0");
+        concat.bindInput(a1, "1");
         var a = concat.bindResult(new ZPoint(100, 20), float32, "result");
         graph.addNode(new TLabelTag(a.id, "A"));
 
-        var split = graph.addNode(new TSelectorOperator("split"));
+        var split = graph.addNode(new TViewOperator("split"));
         split.bindParameters(Map.of("dim", "1", "size", "10"));
         split.bindInput(a, "input");
-
         var b0 = split.bindResult(new ZPoint(100, 10), float32, "0");
-        graph.addNode(new TLabelTag(b0.id, "B"));
+        split.bindResult(new ZPoint(100, 10), float32, "1");
 
-        var b1 = split.bindResult(new ZPoint(100, 10), float32, "1");
-        graph.addNode(new TTensor.TResultEdge(b1.id, split.id, "1"));
+        var retype = graph.addNode(new TCellwiseOperator("float8"));
+        retype.bindInput(b0, "input");
+        var c = retype.bindResult(new ZPoint(100, 10), "float8", "result");
+        graph.addNode(new TLabelTag(c.id, "B"));
 
         var store = graph.addNode(new TBlockOperator("store"));
         var spF = graph.addNode(new TSequencePoint());
         spF.waitOnBarrier(store);
         store.bindParameters(Map.of("target", "#refOut"));
         graph.addNode(new TIndexTag(store.id, ZRange.fromShape(100)));
-        store.bindInput(b0, "input");
+        store.bindInput(c, "input");
 
         var obv = graph.addNode(new TObserver());
         obv.waitOnBarrier(spF);
 
+        // Force reserialization to validate the graph.
+        graph = JsonUtil.roundtrip(graph);
         graph.validate();
 
         var img = TGraphDotExporter.builder().build().toImage(graph);
