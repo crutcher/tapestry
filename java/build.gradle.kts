@@ -19,9 +19,11 @@ repositories {
 java {
     sourceCompatibility = JavaVersion.VERSION_17
     targetCompatibility = JavaVersion.VERSION_17
+
     // toolchain {
     //   languageVersion.set(JavaLanguageVersion.of(17))
     // }
+
 }
 
 spotless {
@@ -73,7 +75,7 @@ jmh {
     // and run stronger benchmarks.
     fork.set(1)
     iterations.set(1)
-    timeOnIteration.set("1s")
+    timeOnIteration.set("2s")
     warmupIterations.set(1)
     warmupMode.set("BULK")
 }

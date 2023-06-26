@@ -34,6 +34,8 @@ public final class TGraph implements Iterable<TNodeBase>, HasToJsonString {
   @JsonDeserialize(using = TGraph.JsonSupport.NodesDeserializer.class)
   private final Map<UUID, TNodeBase> nodeMap = new HashMap<>();
 
+  public TGraph() {}
+
   public String summary() {
     return String.format("TGraph (%d nodes)", nodeMap.size());
   }
