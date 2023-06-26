@@ -53,9 +53,10 @@ public class TGraphTest implements CommonAssertions {
     var graph = new TGraph();
     var sp1 = graph.addNode(new TSequencePoint());
     var sp2 = graph.addNode(new TSequencePoint());
-    var barrier = graph.addNode(new TWaitsOnEdge(sp2.id, sp1.id));
+    var barrier = graph.addNode(new TCanBeSequencedProperty.TWaitsOnEdge(sp2.id, sp1.id));
 
-    assertThat(graph.queryTags(TWaitsOnEdge.class).toSingleton()).isSameAs(barrier);
+    assertThat(graph.queryTags(TCanBeSequencedProperty.TWaitsOnEdge.class).toSingleton())
+        .isSameAs(barrier);
   }
 
   @Test
@@ -101,7 +102,7 @@ public class TGraphTest implements CommonAssertions {
     var graph = new TGraph();
     var sp1 = graph.addNode(new TSequencePoint());
     var sp2 = graph.addNode(new TSequencePoint());
-    graph.addNode(new TWaitsOnEdge(sp2.id, sp1.id));
+    graph.addNode(new TCanBeSequencedProperty.TWaitsOnEdge(sp2.id, sp1.id));
 
     assertJsonEquals(
         graph,
@@ -117,9 +118,13 @@ public class TGraphTest implements CommonAssertions {
     var graph = new TGraph();
     var sp1 = graph.addNode(new TSequencePoint());
     var sp2 = graph.addNode(new TSequencePoint());
-    var barrier = graph.addNode(new TWaitsOnEdge(sp2.id, sp1.id));
+    var barrier = graph.addNode(new TCanBeSequencedProperty.TWaitsOnEdge(sp2.id, sp1.id));
 
-    assertThat(graph.queryEdges(TWaitsOnEdge.class).withTargetId(sp1.id).toSingleton())
+    assertThat(
+            graph
+                .queryEdges(TCanBeSequencedProperty.TWaitsOnEdge.class)
+                .withTargetId(sp1.id)
+                .toSingleton())
         .isSameAs(barrier);
 
     assertThat(sp2.barrierIds()).containsOnly(sp1.id);
@@ -131,7 +136,7 @@ public class TGraphTest implements CommonAssertions {
     gc.validate();
 
     var simple = graph.addNode(new SimpleNode());
-    graph.addNode(new TWaitsOnEdge(simple.id, simple.id));
+    graph.addNode(new TCanBeSequencedProperty.TWaitsOnEdge(simple.id, simple.id));
     assertThatExceptionOfType(ClassCastException.class).isThrownBy(graph::validate);
   }
 }

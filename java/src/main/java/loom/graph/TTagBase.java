@@ -19,6 +19,7 @@ import java.util.UUID;
 @TTagBase.SourceType(TNodeBase.class)
 @JsonSubTypes(
         value = {
+                @JsonSubTypes.Type(value = TLabelTag.class),
                 @JsonSubTypes.Type(value = TEdgeBase.class),
         })
 public abstract class TTagBase<S extends TNodeInterface> extends TNodeBase {

@@ -3,6 +3,7 @@ package loom.graph;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import lombok.Getter;
 
 import javax.annotation.Nonnull;
@@ -56,5 +57,44 @@ public class TParameters extends TNodeBase {
             data.put("@" + entry.getKey(), entry.getValue());
         }
         return data;
+    }
+
+    public interface THasParametersProperty extends TNodeInterface {
+        default TParameters bindParameters(TParameters parameters) {
+            // TODO: validate/update singleton
+            assertGraph().addNode(new TWithParametersEdge(getId(), parameters.id));
+            return parameters;
+        }
+
+        @CanIgnoreReturnValue
+        default TParameters bindParameters(Map<String, String> params) {
+            return bindParameters(assertGraph().addNode(new TParameters(params)));
+        }
+    }
+
+    @JsonTypeName("With")
+    @TTagBase.SourceType(THasParametersProperty.class)
+    @TEdgeBase.TargetType(TParameters.class)
+    public static final class TWithParametersEdge extends TEdgeBase<TOperatorBase, TParameters> {
+        @JsonCreator
+        public TWithParametersEdge(
+                @Nullable @JsonProperty(value = "id", required = true) UUID id,
+                @Nonnull @JsonProperty(value = "sourceId", required = true) UUID sourceId,
+                @Nonnull @JsonProperty(value = "targetId", required = true) UUID targetId) {
+            super(id, sourceId, targetId);
+        }
+
+        public TWithParametersEdge(@Nonnull UUID sourceId, @Nonnull UUID targetId) {
+            this(null, sourceId, targetId);
+        }
+
+        public TWithParametersEdge(@Nonnull TWithParametersEdge source) {
+            this(source.id, source.sourceId, source.targetId);
+        }
+
+        @Override
+        public TWithParametersEdge copy() {
+            return new TWithParametersEdge(this);
+        }
     }
 }

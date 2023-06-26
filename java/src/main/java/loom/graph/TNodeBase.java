@@ -13,10 +13,10 @@ import loom.common.JsonUtil;
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "@type")
 @JsonSubTypes(
     value = {
+      @JsonSubTypes.Type(value = TSequencePoint.class),
       @JsonSubTypes.Type(value = TObserver.class),
       @JsonSubTypes.Type(value = TTagBase.class),
       @JsonSubTypes.Type(value = TOperatorBase.class),
-      @JsonSubTypes.Type(value = TSequencePoint.class),
       @JsonSubTypes.Type(value = TTensor.class),
     })
 @TNodeBase.DisplayOptions.NodeAttributes(
