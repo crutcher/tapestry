@@ -15,6 +15,13 @@ public interface TCanBeSequencedProperty extends TNodeInterface {
     return assertGraph().addNode(new TWaitsOnEdge(getId(), barrier.getId()));
   }
 
+  default TSequencePoint createBarrier() {
+    var g = assertGraph();
+    var sp = g.addNode(new TSequencePoint());
+    g.addNode(new TWaitsOnEdge(sp.id, getId()));
+    return sp;
+  }
+
   default List<UUID> barrierIds() {
     return assertGraph()
         .queryEdges(TWaitsOnEdge.class)

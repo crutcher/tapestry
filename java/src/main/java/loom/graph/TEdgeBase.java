@@ -14,7 +14,7 @@ import lombok.Getter;
     value = {
       @JsonSubTypes.Type(value = TCanBeSequencedProperty.TWaitsOnEdge.class),
       @JsonSubTypes.Type(value = TTensor.TResultEdge.class),
-      @JsonSubTypes.Type(value = TTensor.TConsumesEdge.class),
+      @JsonSubTypes.Type(value = TTensor.TInputEdge.class),
       @JsonSubTypes.Type(value = TParameters.TWithParametersEdge.class),
     })
 public abstract class TEdgeBase<S extends TNodeInterface, T extends TNodeInterface>

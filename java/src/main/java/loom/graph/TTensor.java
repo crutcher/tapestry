@@ -1,11 +1,14 @@
 package loom.graph;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import lombok.Getter;
@@ -45,23 +48,32 @@ public class TTensor extends TNodeBase {
     return new TTensor(this);
   }
 
-  public interface TConsumesInputsProperty extends TNodeInterface {
+  public interface THasInputsProperty extends TNodeInterface {
     @CanIgnoreReturnValue
-    default TConsumesEdge bindInput(TTensor tensor, String label) {
-      return assertGraph().addNode(new TConsumesEdge(getId(), tensor.id, label));
+    default TInputEdge bindInput(String label, TTensor tensor) {
+      return assertGraph().addNode(new TInputEdge(getId(), tensor.id, label));
+    }
+
+    @CanIgnoreReturnValue
+    default Map<String, TInputEdge> bindInputs(Map<String, TTensor> inputs) {
+      var edges = new HashMap<String, TInputEdge>();
+      for (var entry : inputs.entrySet()) {
+        edges.put(entry.getKey(), bindInput(entry.getKey(), entry.getValue()));
+      }
+      return edges;
     }
   }
 
-  @JsonTypeName("Consumes")
-  @TTagBase.SourceType(TConsumesInputsProperty.class)
+  @JsonTypeName("Input")
+  @TTagBase.SourceType(THasInputsProperty.class)
   @TEdgeBase.TargetType(TTensor.class)
   @DisplayOptions.NodeAttributes(
       value = {@DisplayOptions.Attribute(name = "fillcolor", value = "#DDA6E0")})
-  public static final class TConsumesEdge extends TEdgeBase<TConsumesInputsProperty, TTensor> {
+  public static final class TInputEdge extends TEdgeBase<THasInputsProperty, TTensor> {
     @Nonnull @Getter private final String name;
 
     @JsonCreator
-    public TConsumesEdge(
+    public TInputEdge(
         @Nullable @JsonProperty(value = "id", required = true) UUID id,
         @Nonnull @JsonProperty(value = "sourceId", required = true) UUID sourceId,
         @Nonnull @JsonProperty(value = "targetId", required = true) UUID targetId,
@@ -70,17 +82,17 @@ public class TTensor extends TNodeBase {
       this.name = name;
     }
 
-    public TConsumesEdge(@Nonnull UUID sourceId, @Nonnull UUID targetId, @Nonnull String name) {
+    public TInputEdge(@Nonnull UUID sourceId, @Nonnull UUID targetId, @Nonnull String name) {
       this(null, sourceId, targetId, name);
     }
 
-    public TConsumesEdge(@Nonnull TConsumesEdge source) {
+    public TInputEdge(@Nonnull TInputEdge source) {
       this(source.id, source.sourceId, source.targetId, source.name);
     }
 
     @Override
-    public TConsumesEdge copy() {
-      return new TConsumesEdge(this);
+    public TInputEdge copy() {
+      return new TInputEdge(this);
     }
 
     @Override
@@ -91,14 +103,38 @@ public class TTensor extends TNodeBase {
       }
       return data;
     }
+
+    @Override
+    public void validate() {
+      super.validate();
+      var conflictingEdges =
+          assertGraph()
+              .queryEdges(TInputEdge.class)
+              .withSourceId(getSourceId())
+              .withFilter(e -> e.getName().equals(getName()))
+              .toList();
+      if (conflictingEdges.size() > 1) {
+        throw new IllegalStateException("Conflicting input names: " + conflictingEdges);
+      }
+    }
   }
 
   public interface TYieldsResultsProperty extends TNodeInterface {
-    default TTensor bindResult(ZPoint shape, String dtype, String label) {
+    default TTensor bindResult(String label, ZPoint shape, String dtype) {
       var g = assertGraph();
       var t = g.addNode(new TTensor(shape, dtype));
       g.addNode(new TResultEdge(t.id, getId(), label));
       return t;
+    }
+
+    @JsonIgnore
+    @CanIgnoreReturnValue
+    default Map<String, TTensor> getResults() {
+      return assertGraph()
+          .queryEdges(TResultEdge.class)
+          .withTargetId(getId())
+          .toStream()
+          .collect(Collectors.toMap(TResultEdge::getName, TResultEdge::getSource));
     }
   }
 
@@ -140,6 +176,20 @@ public class TTensor extends TNodeBase {
         data.remove("name");
       }
       return data;
+    }
+
+    @Override
+    public void validate() {
+      super.validate();
+      var conflictingEdges =
+          assertGraph()
+              .queryEdges(TResultEdge.class)
+              .withTargetId(getTargetId())
+              .withFilter(e -> e.getName().equals(getName()))
+              .toList();
+      if (conflictingEdges.size() > 1) {
+        throw new IllegalStateException("Conflicting result names: " + conflictingEdges);
+      }
     }
   }
 }

@@ -93,5 +93,15 @@ public class TParameters extends TNodeBase {
     public TWithParametersEdge copy() {
       return new TWithParametersEdge(this);
     }
+
+    @Override
+    public void validate() {
+      super.validate();
+      var conflictingEdges =
+          assertGraph().queryEdges(TWithParametersEdge.class).withSourceId(getSourceId()).toList();
+      if (conflictingEdges.size() > 1) {
+        throw new IllegalStateException("Multiple parameters: " + conflictingEdges);
+      }
+    }
   }
 }

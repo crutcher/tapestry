@@ -15,63 +15,53 @@ public class TGraphBenchmark {
   @BenchmarkMode(Mode.SampleTime)
   @OutputTimeUnit(TimeUnit.MILLISECONDS)
   public void buildAndCopy(Blackhole bh) {
+    final String float32 = "float32";
+
     var graph = new TGraph();
 
     var l0 = graph.addNode(new TBlockOperator("load"));
     var sp0 = graph.addNode(new TSequencePoint());
-    graph.addNode(new TCanBeSequencedProperty.TWaitsOnEdge(sp0.id, l0.id));
-    graph.addNode(
-        new TParameters.TWithParametersEdge(
-            l0.id, graph.addNode(new TParameters(Map.of("source", "#ref0"))).id));
-    var a0 = graph.addNode(new TTensor(new ZPoint(50, 20), "float32"));
-    graph.addNode(new TTensor.TResultEdge(a0.id, l0.id, "result"));
+    sp0.waitOnBarrier(l0);
+    l0.bindParameters(Map.of("source", "#ref0"));
+    var a0 = l0.bindResult("result", new ZPoint(50, 20), float32);
 
     var l1 = graph.addNode(new TBlockOperator("load"));
     var sp1 = graph.addNode(new TSequencePoint());
-    graph.addNode(new TCanBeSequencedProperty.TWaitsOnEdge(sp1.id, l1.id));
-    graph.addNode(
-        new TParameters.TWithParametersEdge(
-            l1.id, graph.addNode(new TParameters(Map.of("source", "#ref1"))).id));
-    var a1 = graph.addNode(new TTensor(new ZPoint(50, 20), "float32"));
-    graph.addNode(new TTensor.TResultEdge(a1.id, l1.id, "result"));
+    sp1.waitOnBarrier(l1);
+    l1.bindParameters(Map.of("source", "#ref1"));
+    var a1 = l1.bindResult("result", new ZPoint(50, 20), float32);
 
-    var concat = graph.addNode(new TViewOperator("concat"));
-    graph.addNode(
-        new TParameters.TWithParametersEdge(
-            concat.id, graph.addNode(new TParameters(Map.of("dim", "0"))).id));
-    graph.addNode(new TTensor.TConsumesEdge(concat.id, a0.id, "0"));
-    graph.addNode(new TTensor.TConsumesEdge(concat.id, a1.id, "1"));
-
-    var a = graph.addNode(new TTensor(new ZPoint(100, 20), "float32"));
-    graph.addNode(new TTensor.TResultEdge(a.id, concat.id, "result"));
+    var concat = graph.addNode(new TFusionOperator("concat"));
+    concat.bindParameters(Map.of("dim", "0"));
+    concat.bindInput("0", a0);
+    concat.bindInput("1", a1);
+    var a = concat.bindResult("result", new ZPoint(100, 20), float32);
     graph.addNode(new TLabelTag(a.id, "A"));
 
     var split = graph.addNode(new TViewOperator("split"));
-    graph.addNode(
-        new TParameters.TWithParametersEdge(
-            split.id, graph.addNode(new TParameters(Map.of("dim", "1", "size", "10"))).id));
-    graph.addNode(new TTensor.TConsumesEdge(split.id, a.id, "input"));
+    split.bindParameters(Map.of("dim", "1", "size", "10"));
+    split.bindInput("input", a);
+    var b0 = split.bindResult("0", new ZPoint(100, 10), float32);
+    split.bindResult("1", new ZPoint(100, 10), float32);
 
-    var b0 = graph.addNode(new TTensor(new ZPoint(100, 10), "float32"));
-    graph.addNode(new TTensor.TResultEdge(b0.id, split.id, "0"));
-    graph.addNode(new TLabelTag(b0.id, "B"));
-
-    var b1 = graph.addNode(new TTensor(new ZPoint(100, 10), "float32"));
-    graph.addNode(new TTensor.TResultEdge(b1.id, split.id, "1"));
+    var retype = graph.addNode(new TCellwiseOperator("float8"));
+    retype.bindInput("input", b0);
+    var c = retype.bindResult("result", new ZPoint(100, 10), "float8");
+    graph.addNode(new TLabelTag(c.id, "B"));
 
     var store = graph.addNode(new TBlockOperator("store"));
     var spF = graph.addNode(new TSequencePoint());
-    graph.addNode(new TCanBeSequencedProperty.TWaitsOnEdge(spF.id, store.id));
-    graph.addNode(
-        new TParameters.TWithParametersEdge(
-            store.id, graph.addNode(new TParameters(Map.of("target", "#refOut"))).id));
+    spF.waitOnBarrier(store);
+    store.bindParameters(Map.of("target", "#refOut"));
     graph.addNode(new TIndexTag(store.id, ZRange.fromShape(100)));
-    graph.addNode(new TTensor.TConsumesEdge(store.id, b0.id, "input"));
+    store.bindInput("input", c);
 
     var obv = graph.addNode(new TObserver());
-    graph.addNode(new TCanBeSequencedProperty.TWaitsOnEdge(obv.id, spF.id));
+    obv.waitOnBarrier(spF);
 
     var cp = graph.copy();
+    graph.validate();
+
     bh.consume(cp);
   }
 }

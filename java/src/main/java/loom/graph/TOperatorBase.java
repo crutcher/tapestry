@@ -13,7 +13,7 @@ import javax.annotation.Nullable;
     })
 public abstract class TOperatorBase extends TNodeBase
     implements TParameters.THasParametersProperty,
-        TTensor.TConsumesInputsProperty,
+        TTensor.THasInputsProperty,
         TTensor.TYieldsResultsProperty {
 
   protected TOperatorBase(@Nullable UUID id) {

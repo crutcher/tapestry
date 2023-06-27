@@ -17,16 +17,14 @@ public class TGraphDotExporterTest implements CommonAssertions {
         var graph = new TGraph();
 
         var l0 = graph.addNode(new TBlockOperator("load"));
-        var sp0 = graph.addNode(new TSequencePoint());
-        sp0.waitOnBarrier(l0);
+        l0.createBarrier();
         l0.bindParameters(Map.of("source", "#ref0"));
-        var a0 = l0.bindResult(new ZPoint(50, 20), float32, "result");
+        var a0 = l0.bindResult("result", new ZPoint(50, 20), float32);
 
         var l1 = graph.addNode(new TBlockOperator("load"));
-        var sp1 = graph.addNode(new TSequencePoint());
-        sp1.waitOnBarrier(l1);
+        l1.createBarrier();
         l1.bindParameters(Map.of("source", "#ref1"));
-        var a1 = l1.bindResult(new ZPoint(50, 20), float32, "result");
+        var a1 = l1.bindResult("result", new ZPoint(50, 20), float32);
 
         // {
         //     var concatResults = TSelectorOperator.opBuilder()
@@ -48,28 +46,26 @@ public class TGraphDotExporterTest implements CommonAssertions {
 
         var concat = graph.addNode(new TFusionOperator("concat"));
         concat.bindParameters(Map.of("dim", "0"));
-        concat.bindInput(a0, "0");
-        concat.bindInput(a1, "1");
-        var a = concat.bindResult(new ZPoint(100, 20), float32, "result");
+        concat.bindInputs(Map.of("0", a0, "1", a1));
+        var a = concat.bindResult("result", new ZPoint(100, 20), float32);
         graph.addNode(new TLabelTag(a.id, "A"));
 
         var split = graph.addNode(new TViewOperator("split"));
         split.bindParameters(Map.of("dim", "1", "size", "10"));
-        split.bindInput(a, "input");
-        var b0 = split.bindResult(new ZPoint(100, 10), float32, "0");
-        split.bindResult(new ZPoint(100, 10), float32, "1");
+        split.bindInput("input", a);
+        var b0 = split.bindResult("0", new ZPoint(100, 10), float32);
+        split.bindResult("1", new ZPoint(100, 10), float32);
 
         var retype = graph.addNode(new TCellwiseOperator("float8"));
-        retype.bindInput(b0, "input");
-        var c = retype.bindResult(new ZPoint(100, 10), "float8", "result");
+        retype.bindInput("input", b0);
+        var c = retype.bindResult("result", new ZPoint(100, 10), "float8");
         graph.addNode(new TLabelTag(c.id, "B"));
 
         var store = graph.addNode(new TBlockOperator("store"));
-        var spF = graph.addNode(new TSequencePoint());
-        spF.waitOnBarrier(store);
+        var spF = store.createBarrier();
         store.bindParameters(Map.of("target", "#refOut"));
         graph.addNode(new TIndexTag(store.id, ZRange.fromShape(100)));
-        store.bindInput(c, "input");
+        store.bindInput("input", c);
 
         var obv = graph.addNode(new TObserver());
         obv.waitOnBarrier(spF);
