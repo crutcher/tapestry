@@ -9,9 +9,7 @@ import guru.nidi.graphviz.model.Factory;
 import guru.nidi.graphviz.model.Graph;
 import lombok.Builder;
 import lombok.experimental.SuperBuilder;
-import loom.graph.TEdgeBase;
-import loom.graph.TGraph;
-import loom.graph.TTagBase;
+import loom.graph.*;
 
 import java.awt.image.BufferedImage;
 import java.nio.charset.StandardCharsets;
@@ -24,6 +22,9 @@ import java.util.stream.Collectors;
 public final class TGraphDotExporter {
     @Builder.Default
     private boolean enableNodeIds = false;
+
+    @Builder.Default
+    private boolean markNotObservable = true;
 
     @Builder.Default
     private Rank.RankDir rankDir = Rank.RankDir.RIGHT_TO_LEFT;
@@ -85,6 +86,14 @@ public final class TGraphDotExporter {
                         .nodeAttr()
                         .with("margin", "0.1");
 
+        Set<TNodeInterface> observedNodes = null;
+        if (markNotObservable) {
+            var observers = tgraph.queryNodes(TObserver.class).toList();
+            if (observers.size() > 0) {
+                observedNodes = observers.get(0).findObservedNodes();
+            }
+        }
+
         var nodeSyms = nodeSymbols(tgraph, minPrefixLength);
 
         for (var tnode : tgraph) {
@@ -133,6 +142,9 @@ public final class TGraphDotExporter {
                             .with("xlabel", "#" + sym);
             for (var entry : tnode.displayOptions().nodeAttributes.entrySet()) {
                 gnode = gnode.with(entry.getKey(), entry.getValue());
+            }
+            if (observedNodes != null && !observedNodes.contains(tnode)) {
+                gnode = gnode.with("fillcolor", "#eeeeee");
             }
 
             if (tnode instanceof TEdgeBase<?, ?> tedge

@@ -9,37 +9,36 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.UUID;
 
-@JsonTypeName("BlockOperator")
+@JsonTypeName("CellOperator")
 @TNodeBase.DisplayOptions.NodeAttributes(
         value = {
                 @TNodeBase.DisplayOptions.Attribute(name = "shape", value = "cds"),
-                @TNodeBase.DisplayOptions.Attribute(name = "fillcolor", value = "#E5E8E8"),
+                @TNodeBase.DisplayOptions.Attribute(name = "fillcolor", value = "#a0d0d0"),
                 @TNodeBase.DisplayOptions.Attribute(name = "margin", value = "0.15")
         })
-public class TBlockOperator extends TOperatorBase implements TCanBeSequencedProperty, TBlockIndex.THasBlockIndexProperty {
-
+public class TCellOperator extends TOperatorBase {
     @Nonnull
     @Getter
     public final String op;
 
     @JsonCreator
-    public TBlockOperator(
+    public TCellOperator(
             @Nullable @JsonProperty(value = "id", required = true) UUID id,
             @Nonnull @JsonProperty(value = "op", required = true) String op) {
         super(id);
         this.op = op;
     }
 
-    public TBlockOperator(@Nonnull String op) {
+    public TCellOperator(@Nonnull String op) {
         this(null, op);
     }
 
-    public TBlockOperator(@Nonnull TBlockOperator source) {
+    public TCellOperator(@Nonnull TCellOperator source) {
         this(source.id, source.op);
     }
 
     @Override
-    public TBlockOperator copy() {
-        return new TBlockOperator(this);
+    public TCellOperator copy() {
+        return new TCellOperator(this);
     }
 }

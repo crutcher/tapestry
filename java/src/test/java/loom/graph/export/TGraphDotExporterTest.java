@@ -48,7 +48,6 @@ public class TGraphDotExporterTest implements CommonAssertions {
         concat.bindParameters(Map.of("dim", "0"));
         concat.bindInputs(Map.of("0", a0, "1", a1));
         var a = concat.bindResult("result", new ZPoint(100, 20), float32);
-        graph.addNode(new TLabelTag(a.id, "A"));
 
         var split = graph.addNode(new TViewOperator("split"));
         split.bindParameters(Map.of("dim", "1", "size", "10"));
@@ -56,15 +55,14 @@ public class TGraphDotExporterTest implements CommonAssertions {
         var b0 = split.bindResult("0", new ZPoint(100, 10), float32);
         split.bindResult("1", new ZPoint(100, 10), float32);
 
-        var retype = graph.addNode(new TCellwiseOperator("float8"));
+        var retype = graph.addNode(new TCellOperator("float8"));
         retype.bindInput("input", b0);
         var c = retype.bindResult("result", new ZPoint(100, 10), "float8");
-        graph.addNode(new TLabelTag(c.id, "B"));
 
         var store = graph.addNode(new TBlockOperator("store"));
+        store.bindIndex(ZRange.fromShape(100));
         var spF = store.createBarrier();
         store.bindParameters(Map.of("target", "#refOut"));
-        graph.addNode(new TIndexTag(store.id, ZRange.fromShape(100)));
         store.bindInput("input", c);
 
         var obv = graph.addNode(new TObserver());
@@ -74,7 +72,8 @@ public class TGraphDotExporterTest implements CommonAssertions {
         graph = JsonUtil.roundtrip(graph);
         graph.validate();
 
-        var img = TGraphDotExporter.builder().build().toImage(graph);
+        var img = TGraphDotExporter.builder()
+                .build().toImage(graph);
 
         assertThat(img).isNotNull();
     }

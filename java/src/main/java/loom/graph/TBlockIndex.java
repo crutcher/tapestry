@@ -5,102 +5,101 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import lombok.Getter;
+import loom.zspace.ZRange;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Map;
 import java.util.UUID;
 
-@JsonTypeName("Parameters")
+@JsonTypeName("BlockIndex")
 @TNodeBase.DisplayOptions.NodeAttributes(
         value = {
                 @TNodeBase.DisplayOptions.Attribute(name = "shape", value = "tab"),
                 @TNodeBase.DisplayOptions.Attribute(name = "fillcolor", value = "#E7DCB8"),
                 @TNodeBase.DisplayOptions.Attribute(name = "margin", value = "0.15")
         })
-public class TParameters extends TNodeBase {
+public class TBlockIndex extends TNodeBase {
     @Nonnull
     @Getter
-    public final Map<String, String> params;
+    public final ZRange range;
 
     @JsonCreator
-    public TParameters(
+    public TBlockIndex(
             @Nullable @JsonProperty(value = "id", required = true) UUID id,
-            @Nullable @JsonProperty(value = "params") Map<String, String> params) {
+            @Nonnull @JsonProperty(value = "range") ZRange range) {
         super(id);
-
-        if (params == null) {
-            this.params = Map.of();
-        } else {
-            this.params = Map.copyOf(params);
-        }
+        this.range = range;
     }
 
-    public TParameters(@Nullable Map<String, String> params) {
-        this(null, params);
+    public TBlockIndex(@Nonnull ZRange range) {
+        this(null, range);
     }
 
-    public TParameters(@Nonnull TParameters source) {
-        this(source.id, source.params);
+    public TBlockIndex(@Nonnull TBlockIndex source) {
+        this(source.id, source.range);
     }
 
     @Override
-    public TParameters copy() {
-        return new TParameters(this);
+    public TBlockIndex copy() {
+        return new TBlockIndex(this);
     }
 
     @Override
     public Map<String, Object> displayData() {
         var data = super.displayData();
-        data.remove("params");
-        for (var entry : params.entrySet()) {
-            data.put("@" + entry.getKey(), entry.getValue());
+        @SuppressWarnings("unchecked")
+        var rangeKeys = (Map<String, Object>) data.remove("range");
+        if (rangeKeys != null) {
+            for (var entry : rangeKeys.entrySet()) {
+                data.put("@" + entry.getKey(), entry.getValue());
+            }
         }
         return data;
     }
 
-    public interface THasParametersProperty extends TNodeInterface {
-        default TParameters bindParameters(TParameters parameters) {
-            assertGraph().addNode(new TWithParametersEdge(getId(), parameters.id));
-            return parameters;
+    public interface THasBlockIndexProperty extends TNodeInterface {
+        default TBlockIndex bindIndex(TBlockIndex index) {
+            assertGraph().addNode(new TWithIndexEdge(getId(), index.id));
+            return index;
         }
 
         @CanIgnoreReturnValue
-        default TParameters bindParameters(Map<String, String> params) {
-            return bindParameters(assertGraph().addNode(new TParameters(params)));
+        default TBlockIndex bindIndex(ZRange range) {
+            return bindIndex(assertGraph().addNode(new TBlockIndex(range)));
         }
     }
 
-    @JsonTypeName("WithParams")
-    @TTagBase.SourceType(THasParametersProperty.class)
-    @TEdgeBase.TargetType(TParameters.class)
-    public static final class TWithParametersEdge extends TEdgeBase<THasParametersProperty, TParameters> {
+    @JsonTypeName("WithIndex")
+    @TTagBase.SourceType(THasBlockIndexProperty.class)
+    @TEdgeBase.TargetType(TBlockIndex.class)
+    public static final class TWithIndexEdge extends TEdgeBase<THasBlockIndexProperty, TBlockIndex> {
         @JsonCreator
-        public TWithParametersEdge(
+        public TWithIndexEdge(
                 @Nullable @JsonProperty(value = "id", required = true) UUID id,
                 @Nonnull @JsonProperty(value = "sourceId", required = true) UUID sourceId,
                 @Nonnull @JsonProperty(value = "targetId", required = true) UUID targetId) {
             super(id, sourceId, targetId);
         }
 
-        public TWithParametersEdge(@Nonnull UUID sourceId, @Nonnull UUID targetId) {
+        public TWithIndexEdge(@Nonnull UUID sourceId, @Nonnull UUID targetId) {
             this(null, sourceId, targetId);
         }
 
-        public TWithParametersEdge(@Nonnull TWithParametersEdge source) {
+        public TWithIndexEdge(@Nonnull TWithIndexEdge source) {
             this(source.id, source.sourceId, source.targetId);
         }
 
         @Override
-        public TWithParametersEdge copy() {
-            return new TWithParametersEdge(this);
+        public TWithIndexEdge copy() {
+            return new TWithIndexEdge(this);
         }
 
         @Override
         public void validate() {
             super.validate();
             var conflictingEdges =
-                    assertGraph().queryEdges(TWithParametersEdge.class).withSourceId(getSourceId()).toList();
+                    assertGraph().queryEdges(TWithIndexEdge.class).withSourceId(getSourceId()).toList();
             if (conflictingEdges.size() > 1) {
                 throw new IllegalStateException("Multiple parameters: " + conflictingEdges);
             }
