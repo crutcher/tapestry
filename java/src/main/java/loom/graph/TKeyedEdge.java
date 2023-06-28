@@ -1,21 +1,18 @@
 package loom.graph;
 
-import lombok.Getter;
-
+import java.util.UUID;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.UUID;
+import lombok.Getter;
 
 public abstract class TKeyedEdge<S extends TNodeInterface, T extends TNodeInterface>
-        extends TEdgeBase<S, T> {
+    extends TEdgeBase<S, T> {
 
-    @Nonnull
-    @Getter
-    protected final String key;
+  @Nonnull @Getter protected final String key;
 
-    public TKeyedEdge(
-            @Nullable UUID id, @Nonnull UUID sourceId, @Nonnull UUID targetId, @Nonnull String key) {
-        super(id, sourceId, targetId);
-        this.key = key;
-    }
+  public TKeyedEdge(
+      @Nullable UUID id, @Nonnull UUID sourceId, @Nonnull UUID targetId, @Nonnull String key) {
+    super(id, sourceId, targetId);
+    this.key = key;
+  }
 }
