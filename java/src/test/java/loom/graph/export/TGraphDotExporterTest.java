@@ -5,27 +5,60 @@ import loom.graph.*;
 import loom.testing.CommonAssertions;
 import loom.zspace.ZPoint;
 import loom.zspace.ZRange;
+import org.apache.commons.math3.util.Pair;
 import org.junit.Test;
 
+import java.util.List;
 import java.util.Map;
 
 public class TGraphDotExporterTest implements CommonAssertions {
+    public static TTensor load(TGraph graph, String ref, ZPoint shape, String dtype) {
+        var lop = graph.addNode(new TBlockOperator("load"));
+        lop.bindParameters(Map.of("source", ref));
+        return lop.bindResult("result", shape, dtype);
+    }
+
+    public static TTensor loadShards(
+            TGraph graph, int dim, String dtype, List<Pair<String, ZPoint>> shards) {
+        int[] fusedShape = null;
+        for (var shard : shards) {
+            ZPoint shape = shard.getSecond();
+            if (fusedShape == null) {
+                fusedShape = shape.toArray();
+            } else {
+                for (int i = 0; i < fusedShape.length; i++) {
+                    if (i == dim) {
+                        fusedShape[i] += shape.get(i);
+                    } else if (fusedShape[i] != shape.get(i)) {
+                        throw new IllegalArgumentException(
+                                "Incompatible shapes: " + new ZPoint(fusedShape) + " vs " + shape);
+                    }
+                }
+            }
+        }
+        if (fusedShape == null) {
+            throw new IllegalArgumentException("No shards provided");
+        }
+        var concatOp = graph.addNode(new TFusionOperator("concat"));
+
+        for (int i = 0; i < shards.size(); ++i) {
+            var shard = shards.get(i);
+            String ref = shard.getFirst();
+            ZPoint shape = shard.getSecond();
+
+            var lop = graph.addNode(new TBlockOperator("load"));
+            lop.bindParameters(Map.of("source", ref));
+            var tensor = lop.bindResult("result", shape, dtype);
+
+            concatOp.bindInput(String.valueOf(i), tensor);
+        }
+
+        return concatOp.bindResult("result", new ZPoint(fusedShape), dtype);
+    }
+
     @Test
     public void testExampleGraph() {
-        final String float32 = "float32";
-
-        var graph = new TGraph();
-
-        var l0 = graph.addNode(new TBlockOperator("load"));
-        l0.createBarrier();
-        l0.bindParameters(Map.of("source", "#ref0"));
-        var a0 = l0.bindResult("result", new ZPoint(50, 20), float32);
-
-        var l1 = graph.addNode(new TBlockOperator("load"));
-        l1.createBarrier();
-        l1.bindParameters(Map.of("source", "#ref1"));
-        var a1 = l1.bindResult("result", new ZPoint(50, 20), float32);
-
+        // Ideas:
         // {
         //     var concatResults = TSelectorOperator.opBuilder()
         //             .op("concat")
@@ -44,10 +77,19 @@ public class TGraphDotExporterTest implements CommonAssertions {
         //     var a = graph.concat(0).inputs(a0, a1).yields().item();
         // }
 
-        var concat = graph.addNode(new TFusionOperator("concat"));
-        concat.bindParameters(Map.of("dim", "0"));
-        concat.bindInputs(Map.of("0", a0, "1", a1));
-        var a = concat.bindResult("result", new ZPoint(100, 20), float32);
+        final String float32 = "float32";
+        final String float8 = "float8";
+
+        var graph = new TGraph();
+
+        var a =
+                loadShards(
+                        graph,
+                        0,
+                        "float32",
+                        List.of(
+                                Pair.create("#ref0", new ZPoint(50, 20)),
+                                Pair.create("#ref1", new ZPoint(50, 20))));
 
         var split = graph.addNode(new TViewOperator("split"));
         split.bindParameters(Map.of("dim", "1", "size", "10"));
@@ -57,23 +99,27 @@ public class TGraphDotExporterTest implements CommonAssertions {
 
         var retype = graph.addNode(new TCellOperator("float8"));
         retype.bindInput("input", b0);
-        var c = retype.bindResult("result", new ZPoint(100, 10), "float8");
+        var c = retype.bindResult("result", new ZPoint(100, 10), float8);
+
+        var w = load(graph, "#refW", new ZPoint(5, 10), float8);
+
+        var dense = graph.addNode(new TMacroOperator("dense"));
+        dense.bindInputs(Map.of("input", c, "weight", w));
+        var y = dense.bindResult("result", new ZPoint(100, 5), float8);
 
         var store = graph.addNode(new TBlockOperator("store"));
         store.bindIndex(ZRange.fromShape(100));
-        var spF = store.createBarrier();
         store.bindParameters(Map.of("target", "#refOut"));
-        store.bindInput("input", c);
+        store.bindInput("input", y);
 
         var obv = graph.addNode(new TObserver());
-        obv.waitOnBarrier(spF);
+        obv.waitOnBarrier(store);
 
         // Force reserialization to validate the graph.
         graph = JsonUtil.roundtrip(graph);
         graph.validate();
 
-        var img = TGraphDotExporter.builder()
-                .build().toImage(graph);
+        var img = TGraphDotExporter.builder().build().toImage(graph);
 
         assertThat(img).isNotNull();
     }

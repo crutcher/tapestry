@@ -140,7 +140,7 @@ public final class TGraphDotExporter {
                     Factory.node(tnode.id.toString())
                             .with(Label.raw("<" + label + ">"))
                             .with("xlabel", "#" + sym);
-            for (var entry : tnode.displayOptions().nodeAttributes.entrySet()) {
+            for (var entry : tnode.nodeDisplayOptions().nodeAttributes.entrySet()) {
                 gnode = gnode.with(entry.getKey(), entry.getValue());
             }
             if (observedNodes != null && !observedNodes.contains(tnode)) {
@@ -156,11 +156,12 @@ public final class TGraphDotExporter {
                     .toList()
                     .isEmpty()) {
 
-                g =
-                        g.with(
-                                Factory.node(tedge.sourceId.toString())
-                                        .link(
-                                                Factory.to(Factory.node(tedge.targetId.toString())).with(Label.of(title))));
+                var link = Factory.to(Factory.node(tedge.targetId.toString()));
+                if (!tedge.edgeDisplayOptions().constrainEdge) {
+                    link = link.with("constraint", "false");
+                }
+
+                g = g.with(Factory.node(tedge.sourceId.toString()).link(link.with(Label.of(title))));
 
                 continue;
             }
@@ -168,14 +169,20 @@ public final class TGraphDotExporter {
             g = g.with(gnode);
 
             boolean isEdge = false;
+            boolean constrainEdge = true;
+
             if (tnode instanceof TEdgeBase<?, ?> tedge) {
-                g =
-                        g.with(
-                                Factory.node(tedge.id.toString())
-                                        .link(
-                                                Factory.to(Factory.node(tedge.targetId.toString()))
-                                                        .with("dir", "both")
-                                                        .with("arrowtail", "oinv")));
+                var link =
+                        Factory.to(Factory.node(tedge.targetId.toString()))
+                                .with("dir", "both")
+                                .with("arrowtail", "oinv");
+
+                constrainEdge = tedge.edgeDisplayOptions().constrainEdge;
+                if (!constrainEdge) {
+                    link = link.with("constraint", "false");
+                }
+
+                g = g.with(Factory.node(tedge.id.toString()).link(link));
                 isEdge = true;
             }
 
@@ -185,14 +192,14 @@ public final class TGraphDotExporter {
                 // (i.e. tags that are not edges) is a hack.
 
                 if (!isEdge) {
-                    g =
-                            g.with(
-                                    Factory.node(ttag.id.toString()).link(Factory.to(Factory.node(ttag.sourceId.toString()))));
+                    var link = Factory.to(Factory.node(ttag.sourceId.toString()));
+                    g = g.with(Factory.node(ttag.id.toString()).link(link));
                 } else {
-                    g =
-                            g.with(
-                                    Factory.node(ttag.sourceId.toString())
-                                            .link(Factory.to(Factory.node(ttag.id.toString())).with("arrowhead", "odot")));
+                    var link = Factory.to(Factory.node(ttag.id.toString()));
+                    if (!constrainEdge) {
+                        link = link.with("constraint", "false");
+                    }
+                    g = g.with(Factory.node(ttag.sourceId.toString()).link(link.with("arrowhead", "odot")));
                 }
             }
         }

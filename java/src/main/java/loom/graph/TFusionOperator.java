@@ -6,24 +6,18 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 import java.util.UUID;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import lombok.Getter;
 
 @JsonTypeName("Fusion")
-@TNodeBase.DisplayOptions.NodeAttributes(
+@TNodeBase.NodeDisplayOptions.NodeAttributes(
     value = {
-      @TNodeBase.DisplayOptions.Attribute(name = "shape", value = "component"),
-      @TNodeBase.DisplayOptions.Attribute(name = "fillcolor", value = "#a0d0d0"),
-      @TNodeBase.DisplayOptions.Attribute(name = "margin", value = "0.15")
+      @TNodeBase.NodeDisplayOptions.Attribute(name = "shape", value = "component"),
     })
-public class TFusionOperator extends TOperatorBase {
-  @Nonnull @Getter public final String op;
-
+public class TFusionOperator extends TAlignedOperatorBase {
   @JsonCreator
   public TFusionOperator(
       @Nullable @JsonProperty(value = "id", required = true) UUID id,
       @Nonnull @JsonProperty(value = "op", required = true) String op) {
-    super(id);
-    this.op = op;
+    super(id, op);
   }
 
   public TFusionOperator(@Nonnull String op) {
