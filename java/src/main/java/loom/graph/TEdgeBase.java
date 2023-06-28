@@ -15,103 +15,101 @@ import java.util.UUID;
 
 @TEdgeBase.TargetType(TNodeBase.class)
 @JsonSubTypes(
-        value = {
-                @JsonSubTypes.Type(value = TCanBeSequencedProperty.TWaitsOnEdge.class),
-                @JsonSubTypes.Type(value = TTensor.TResultEdge.class),
-                @JsonSubTypes.Type(value = TTensor.TWithInputEdge.class),
-                @JsonSubTypes.Type(value = TParameters.TWithParametersEdge.class),
-                @JsonSubTypes.Type(value = TBlockIndex.TWithIndexEdge.class),
-        })
+    value = {
+      @JsonSubTypes.Type(value = TCanBeSequencedProperty.TWaitsOnEdge.class),
+      @JsonSubTypes.Type(value = TTensor.TResultEdge.class),
+      @JsonSubTypes.Type(value = TTensor.TWithInputEdge.class),
+      @JsonSubTypes.Type(value = TParameters.TWithParametersEdge.class),
+      @JsonSubTypes.Type(value = TBlockIndex.TWithIndexEdge.class),
+    })
 @TEdgeBase.EdgeDisplayOptions.ConstrainEdge(true)
 public abstract class TEdgeBase<S extends TNodeInterface, T extends TNodeInterface>
-        extends TTagBase<S> {
-    public static class EdgeDisplayOptions {
-        public final boolean constrainEdge;
+    extends TTagBase<S> {
+  public static class EdgeDisplayOptions {
+    public final boolean constrainEdge;
 
-        public EdgeDisplayOptions(Class<? extends TEdgeBase<?, ?>> cls) {
-            List<Class<?>> superclasses = new ArrayList<>();
-            Class<?> tmp = cls;
-            while (tmp != null) {
-                superclasses.add(tmp);
-                tmp = tmp.getSuperclass();
-            }
-            Collections.reverse(superclasses);
+    public EdgeDisplayOptions(Class<? extends TEdgeBase<?, ?>> cls) {
+      List<Class<?>> superclasses = new ArrayList<>();
+      Class<?> tmp = cls;
+      while (tmp != null) {
+        superclasses.add(tmp);
+        tmp = tmp.getSuperclass();
+      }
+      Collections.reverse(superclasses);
 
-            boolean constrain = true;
-            for (var c : superclasses) {
-                var na = c.getDeclaredAnnotation(TEdgeBase.EdgeDisplayOptions.ConstrainEdge.class);
-                if (na != null) {
-                    constrain = na.value();
-                }
-            }
-            constrainEdge = constrain;
+      boolean constrain = true;
+      for (var c : superclasses) {
+        var na = c.getDeclaredAnnotation(TEdgeBase.EdgeDisplayOptions.ConstrainEdge.class);
+        if (na != null) {
+          constrain = na.value();
         }
-
-        @Inherited
-        @Retention(RetentionPolicy.RUNTIME)
-        @Target(ElementType.TYPE)
-        public @interface ConstrainEdge {
-            boolean value();
-        }
+      }
+      constrainEdge = constrain;
     }
 
-    /**
-     * Runtime annotation to specify the target type of an TEdge.
-     *
-     * <p>Inherited so that subclasses of TEdge can inherit the annotation.
-     */
     @Inherited
     @Retention(RetentionPolicy.RUNTIME)
     @Target(ElementType.TYPE)
-    public @interface TargetType {
-        Class<? extends TNodeInterface> value();
+    public @interface ConstrainEdge {
+      boolean value();
     }
+  }
 
-    /**
-     * For a given TEdge class, return the target type.
-     *
-     * @param cls the TEdge class.
-     * @return the target type class.
-     */
-    public static Class<? extends TNodeInterface> getTargetType(
-            Class<? extends TEdgeBase<?, ?>> cls) {
-        return cls.getAnnotation(TargetType.class).value();
-    }
+  /**
+   * Runtime annotation to specify the target type of an TEdge.
+   *
+   * <p>Inherited so that subclasses of TEdge can inherit the annotation.
+   */
+  @Inherited
+  @Retention(RetentionPolicy.RUNTIME)
+  @Target(ElementType.TYPE)
+  public @interface TargetType {
+    Class<? extends TNodeInterface> value();
+  }
 
-    /**
-     * The id of the target node.
-     */
-    @Getter
-    @Nonnull
-    @JsonProperty(required = true)
-    public final UUID targetId;
+  /**
+   * For a given TEdge class, return the target type.
+   *
+   * @param cls the TEdge class.
+   * @return the target type class.
+   */
+  public static Class<? extends TNodeInterface> getTargetType(
+      Class<? extends TEdgeBase<?, ?>> cls) {
+    return cls.getAnnotation(TargetType.class).value();
+  }
 
-    public TEdgeBase(@Nullable UUID id, @Nonnull UUID sourceId, @Nonnull UUID targetId) {
-        super(id, sourceId);
-        this.targetId = targetId;
-    }
+  /** The id of the target node. */
+  @Getter
+  @Nonnull
+  @JsonProperty(required = true)
+  public final UUID targetId;
 
-    public TEdgeBase(@Nonnull UUID sourceId, @Nonnull UUID targetId) {
-        this(null, sourceId, targetId);
-    }
+  public TEdgeBase(@Nullable UUID id, @Nonnull UUID sourceId, @Nonnull UUID targetId) {
+    super(id, sourceId);
+    this.targetId = targetId;
+  }
 
-    @Nonnull
-    public EdgeDisplayOptions edgeDisplayOptions() {
-        @SuppressWarnings("unchecked")
-        var clz = (Class<? extends TEdgeBase<?, ?>>) getClass();
-        return new EdgeDisplayOptions(clz);
-    }
+  public TEdgeBase(@Nonnull UUID sourceId, @Nonnull UUID targetId) {
+    this(null, sourceId, targetId);
+  }
 
-    @Override
-    public void validate() {
-        super.validate();
-        getTarget();
-    }
+  @Nonnull
+  public EdgeDisplayOptions edgeDisplayOptions() {
+    @SuppressWarnings("unchecked")
+    var clz = (Class<? extends TEdgeBase<?, ?>>) getClass();
+    return new EdgeDisplayOptions(clz);
+  }
 
-    @JsonIgnore
-    public final T getTarget() {
-        @SuppressWarnings("unchecked")
-        var typ = (Class<T>) getTargetType((Class<TEdgeBase<S, T>>) getClass());
-        return assertGraph().lookupNode(targetId, typ);
-    }
+  @Override
+  public void validate() {
+    super.validate();
+    getTarget();
+  }
+
+  @JsonIgnore
+  public final T getTarget() {
+    @SuppressWarnings("unchecked")
+    var typ = (Class<T>) getTargetType((Class<TEdgeBase<S, T>>) getClass());
+    return assertGraph().lookupNode(targetId, typ);
+  }
 }
