@@ -26,6 +26,20 @@ public class ZPointTest implements CommonAssertions {
   }
 
   @Test
+  public void test_get() {
+    ZPoint p = new ZPoint(1, 2, 3);
+    assertThat(p.get(0)).isEqualTo(1);
+    assertThat(p.get(1)).isEqualTo(2);
+    assertThat(p.get(2)).isEqualTo(3);
+  }
+
+  @Test
+  public void test_toArray() {
+    ZPoint p = new ZPoint(1, 2, 3);
+    assertThat(p.toArray()).isEqualTo(new int[] {1, 2, 3});
+  }
+
+  @Test
   public void test_hashCode() {
     ZPoint p = new ZPoint(1, 2, 3);
     assertThat(p).hasSameHashCodeAs(new ZPoint(1, 2, 3));

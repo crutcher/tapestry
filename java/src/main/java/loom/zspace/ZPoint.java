@@ -91,10 +91,21 @@ public final class ZPoint implements HasDimension, HasPermute, HasToJsonString {
         return coords.toString();
     }
 
+    /**
+     * Get the coordinate at the given dimension.
+     *
+     * @param i the dimension.
+     * @return the coordinate.
+     */
     public int get(int i) {
         return coords.get(i);
     }
 
+    /**
+     * Get the coordinates as an array.
+     *
+     * @return the coordinates.
+     */
     public int[] toArray() {
         return coords.toT1();
     }
