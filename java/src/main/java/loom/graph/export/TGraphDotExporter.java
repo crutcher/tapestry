@@ -7,16 +7,15 @@ import guru.nidi.graphviz.engine.Format;
 import guru.nidi.graphviz.engine.Graphviz;
 import guru.nidi.graphviz.model.Factory;
 import guru.nidi.graphviz.model.Graph;
-import lombok.Builder;
-import lombok.experimental.SuperBuilder;
-import loom.graph.*;
-
 import java.awt.image.BufferedImage;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
 import java.util.stream.Collectors;
+import lombok.Builder;
+import lombok.experimental.SuperBuilder;
+import loom.graph.*;
 
 @SuperBuilder
 public final class TGraphDotExporter {
@@ -212,7 +211,13 @@ public final class TGraphDotExporter {
           + formatRecursiveDataRow(m)
           + "</table>";
     } else {
-      return HtmlEscapers.htmlEscaper().escape(data.toString());
+      String field;
+      if (data instanceof String) {
+        field = String.format("\"%s\"", data);
+      } else {
+        field = data.toString();
+      }
+      return HtmlEscapers.htmlEscaper().escape(field);
     }
   }
 

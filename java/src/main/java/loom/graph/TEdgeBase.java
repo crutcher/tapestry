@@ -3,22 +3,21 @@ package loom.graph;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
-import lombok.Getter;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.lang.annotation.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import lombok.Getter;
 
 @TEdgeBase.TargetType(TNodeBase.class)
 @JsonSubTypes(
     value = {
       @JsonSubTypes.Type(value = TCanBeSequencedProperty.TWaitsOnEdge.class),
-      @JsonSubTypes.Type(value = TTensor.TResultEdge.class),
-      @JsonSubTypes.Type(value = TTensor.TWithInputEdge.class),
+      @JsonSubTypes.Type(value = TOperatorBase.TResultEdge.class),
+      @JsonSubTypes.Type(value = TOperatorBase.TWithInputEdge.class),
       @JsonSubTypes.Type(value = TParameters.TWithParametersEdge.class),
       @JsonSubTypes.Type(value = TBlockIndex.TWithIndexEdge.class),
     })

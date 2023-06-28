@@ -2,15 +2,21 @@ package loom.graph;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import java.util.UUID;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.UUID;
 
 @JsonTypeName("BlockOperator")
 @TNodeBase.NodeDisplayOptions.NodeAttributes(
     value = {
       @TNodeBase.NodeDisplayOptions.Attribute(name = "shape", value = "rarrow"),
+    })
+@JsonSubTypes(
+    value = {
+      @JsonSubTypes.Type(value = TMacroOperator.class),
     })
 public class TBlockOperator extends TOperatorBase
     implements TCanBeSequencedProperty, TBlockIndex.THasBlockIndexProperty {

@@ -4,15 +4,20 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
-import java.util.List;
-import java.util.UUID;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.List;
+import java.util.UUID;
 
 public interface TCanBeSequencedProperty extends TNodeInterface {
   @CanIgnoreReturnValue
   default TWaitsOnEdge waitOnBarrier(TCanBeSequencedProperty barrier) {
     return assertGraph().addNode(new TWaitsOnEdge(getId(), barrier.getId()));
+  }
+
+  default void markAsIO() {
+    assertGraph().addNode(new TIOTag(getId()));
   }
 
   default TSequencePoint createBarrier() {
@@ -63,6 +68,34 @@ public interface TCanBeSequencedProperty extends TNodeInterface {
     @Override
     public TWaitsOnEdge copy() {
       return new TWaitsOnEdge(this);
+    }
+  }
+
+  @JsonTypeName("IO")
+  @TTagBase.SourceType(TCanBeSequencedProperty.class)
+  @TNodeBase.NodeDisplayOptions.NodeAttributes(
+          value = {
+                  @TNodeBase.NodeDisplayOptions.Attribute(name = "fillcolor", value = "coral"),
+          })
+  class TIOTag extends TTagBase<TCanBeSequencedProperty> {
+    @JsonCreator
+    public TIOTag(
+        @Nullable @JsonProperty(value = "id", required = true) UUID id,
+        @Nonnull @JsonProperty(value = "sourceId", required = true) UUID sourceId) {
+      super(id, sourceId);
+    }
+
+    public TIOTag(UUID sourceId) {
+      this(null, sourceId);
+    }
+
+    public TIOTag(@Nonnull TIOTag source) {
+      this(source.id, source.sourceId);
+    }
+
+    @Override
+    public TIOTag copy() {
+      return new TIOTag(this);
     }
   }
 }

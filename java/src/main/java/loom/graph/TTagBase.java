@@ -1,14 +1,14 @@
 package loom.graph;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
-import java.lang.annotation.*;
-import java.util.UUID;
+import lombok.Getter;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import lombok.Getter;
+import java.lang.annotation.*;
+import java.util.UUID;
 
 /**
  * A tag is a node that is attached to another node.
@@ -20,6 +20,7 @@ import lombok.Getter;
 @JsonSubTypes(
     value = {
       @JsonSubTypes.Type(value = TEdgeBase.class),
+      @JsonSubTypes.Type(value = TCanBeSequencedProperty.TIOTag.class),
     })
 public abstract class TTagBase<S extends TNodeInterface> extends TNodeBase {
   /**
@@ -49,10 +50,7 @@ public abstract class TTagBase<S extends TNodeInterface> extends TNodeBase {
   @JsonProperty(required = true)
   public final UUID sourceId;
 
-  @JsonCreator
-  public TTagBase(
-      @Nullable @JsonProperty(value = "id", required = true) UUID id,
-      @Nonnull @JsonProperty(value = "sourceId", required = true) UUID sourceId) {
+  public TTagBase(@Nullable UUID id, @Nonnull UUID sourceId) {
     super(id);
     this.sourceId = sourceId;
   }

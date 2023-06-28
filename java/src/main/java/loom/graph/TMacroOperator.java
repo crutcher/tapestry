@@ -12,7 +12,7 @@ import javax.annotation.Nullable;
     value = {
       @TNodeBase.NodeDisplayOptions.Attribute(name = "shape", value = "Msquare"),
     })
-public class TMacroOperator extends TOperatorBase implements TCanBeSequencedProperty {
+public class TMacroOperator extends TBlockOperator {
 
   @JsonCreator
   public TMacroOperator(
