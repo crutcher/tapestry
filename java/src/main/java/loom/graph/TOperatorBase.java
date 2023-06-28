@@ -2,10 +2,11 @@ package loom.graph;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
-import java.util.UUID;
+import lombok.Getter;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import lombok.Getter;
+import java.util.UUID;
 
 @JsonSubTypes(
     value = {
@@ -23,8 +24,8 @@ import lombok.Getter;
     })
 public abstract class TOperatorBase extends TNodeBase
     implements TParameters.THasParametersProperty,
-        TTensor.THasInputsProperty,
-        TTensor.THasResultsProperty {
+        TTensor.THasTensorInputsProperty,
+        TTensor.THasTensorResultsProperty {
 
   @Nonnull @Getter public final String op;
 

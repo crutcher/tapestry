@@ -56,7 +56,7 @@ public abstract class TEdgeBase<S extends TNodeInterface, T extends TNodeInterfa
   }
 
   /**
-   * Runtime annotation to specify the target type of an TEdge.
+   * Runtime annotation to specify the target type of TEdge.
    *
    * <p>Inherited so that subclasses of TEdge can inherit the annotation.
    */

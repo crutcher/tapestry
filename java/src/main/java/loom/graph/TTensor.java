@@ -47,7 +47,7 @@ public class TTensor extends TNodeBase {
     return new TTensor(this);
   }
 
-  public interface THasInputsProperty extends TNodeInterface {
+  public interface THasTensorInputsProperty extends TNodeInterface {
     @CanIgnoreReturnValue
     default TWithInputEdge bindInput(String label, TTensor tensor) {
       return assertGraph().addNode(new TWithInputEdge(getId(), tensor.id, label));
@@ -64,12 +64,12 @@ public class TTensor extends TNodeBase {
   }
 
   @JsonTypeName("WithInput")
-  @TTagBase.SourceType(THasInputsProperty.class)
+  @TTagBase.SourceType(THasTensorInputsProperty.class)
   @TEdgeBase.TargetType(TTensor.class)
   @NodeDisplayOptions.NodeAttributes(
       value = {@NodeDisplayOptions.Attribute(name = "fillcolor", value = "#DDA6E0")})
   public static final class TWithInputEdge
-      extends TSourceKeyedEdge<TWithInputEdge, THasInputsProperty, TTensor> {
+      extends TSourceKeyedEdge<TWithInputEdge, THasTensorInputsProperty, TTensor> {
     @JsonCreator
     public TWithInputEdge(
         @Nullable @JsonProperty(value = "id", required = true) UUID id,
@@ -93,7 +93,7 @@ public class TTensor extends TNodeBase {
     }
   }
 
-  public interface THasResultsProperty extends TNodeInterface {
+  public interface THasTensorResultsProperty extends TNodeInterface {
     default TTensor bindResult(String label, ZPoint shape, String dtype) {
       var g = assertGraph();
       var t = g.addNode(new TTensor(shape, dtype));
@@ -104,11 +104,11 @@ public class TTensor extends TNodeBase {
 
   @JsonTypeName("ResultOf")
   @TTagBase.SourceType(TTensor.class)
-  @TEdgeBase.TargetType(THasResultsProperty.class)
+  @TEdgeBase.TargetType(THasTensorResultsProperty.class)
   @NodeDisplayOptions.NodeAttributes(
       value = {@NodeDisplayOptions.Attribute(name = "fillcolor", value = "#A7E1D5")})
   public static final class TResultEdge
-      extends TTargetKeyedEdge<TResultEdge, TTensor, THasResultsProperty> {
+      extends TTargetKeyedEdge<TResultEdge, TTensor, THasTensorResultsProperty> {
     @JsonCreator
     public TResultEdge(
         @Nullable @JsonProperty(value = "id", required = true) UUID id,
