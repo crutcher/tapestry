@@ -81,7 +81,12 @@ public class TGraphDotExporterTest implements CommonAssertions, TGraphOperations
     @SuppressWarnings("unused")
     var json = JsonUtil.toPrettyJson(graph);
 
-    var img = TGraphDotExporter.builder().build().toImage(graph);
+    var exporter = TGraphDotExporter.builder().build();
+
+    @SuppressWarnings("unused")
+    var dot = exporter.toGraph(graph).toString();
+
+    var img = exporter.toImage(graph);
 
     assertThat(img).isNotNull();
   }
