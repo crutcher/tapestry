@@ -2,6 +2,7 @@ package loom.graph;
 
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import loom.alt.linkgraph.graph.*;
 import loom.zspace.ZPoint;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
