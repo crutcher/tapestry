@@ -2,20 +2,26 @@ package loom.alt.densegraph;
 
 import guru.nidi.graphviz.engine.Format;
 import guru.nidi.graphviz.engine.Graphviz;
+import loom.alt.linkgraph.expressions.DimensionMap;
+import loom.alt.linkgraph.expressions.IndexProjectionFunction;
+import loom.testing.CommonAssertions;
+import loom.zspace.ZAffineMap;
+import loom.zspace.ZPoint;
+import loom.zspace.ZTensor;
+import org.apache.commons.math3.util.Pair;
+import org.junit.Test;
+
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import loom.testing.CommonAssertions;
-import loom.zspace.ZPoint;
-import org.apache.commons.math3.util.Pair;
-import org.junit.Test;
 
 public class ExprGraphTest implements CommonAssertions {
   public static EGTensor loadTensor(ExprGraph graph, String ref, ZPoint shape, String dtype) {
     var result = graph.addNode(EGTensor.builder().shape(shape).dtype(dtype));
 
-    var op = new OperatorName("tapestry.io", "load");
-    var sig = graph.addNode(EGSignature.builder().op(op).external(true).build());
+    var op = new ScopedName("tapestry.io", "load");
+    var sig = graph.addCommonOpSignature(EGOpSignature.builder().op(op).external(true));
+
     graph.addNode(
         EGOperation.builder()
             .signature(sig.getId())
@@ -67,8 +73,8 @@ public class ExprGraphTest implements CommonAssertions {
             .signature(
                 graph
                     .addNode(
-                        EGSignature.builder()
-                            .op(new OperatorName("tapestry.io", "concat"))
+                        EGOpSignature.builder()
+                            .op(new ScopedName("tapestry.io", "concat"))
                             .external(false)
                             .build())
                     .getId())
@@ -114,8 +120,8 @@ public class ExprGraphTest implements CommonAssertions {
             .signature(
                 graph
                     .addNode(
-                        EGSignature.builder()
-                            .op(new OperatorName("tapestry.io", "split"))
+                        EGOpSignature.builder()
+                            .op(new ScopedName("tapestry.io", "split"))
                             .external(false)
                             .build())
                     .getId())
@@ -131,8 +137,8 @@ public class ExprGraphTest implements CommonAssertions {
             .signature(
                 graph
                     .addNode(
-                        EGSignature.builder()
-                            .op(new OperatorName("tapestry.io", "cast"))
+                        EGOpSignature.builder()
+                            .op(new ScopedName("tapestry.io", "cast"))
                             .external(false)
                             .build())
                     .getId())
@@ -148,9 +154,28 @@ public class ExprGraphTest implements CommonAssertions {
             .signature(
                 graph
                     .addNode(
-                        EGSignature.builder()
-                            .op(new OperatorName("tapestry.io", "dense"))
+                        EGOpSignature.builder()
+                            .op(new ScopedName("tapestry.io", "dense"))
                             .external(false)
+                            .polySig(
+                                EGPolyhedralSignature.builder()
+                                    .indexMap(new DimensionMap("batch", "out"))
+                                    .inputProjection(
+                                        "input",
+                                        List.of(
+                                            IndexProjectionFunction.builder()
+                                                .input(new DimensionMap("block", "out"))
+                                                .output(new DimensionMap("block", "in"))
+                                                .map(
+                                                    ZAffineMap.builder()
+                                                        .a(
+                                                            ZTensor.matrix(
+                                                                new int[][] {{1, 0}, {0, 0}}))
+                                                        .b(ZTensor.vector(0, 0))
+                                                        .build())
+                                                .shape(new ZPoint(1, 20))
+                                                .build()))
+                                    .build())
                             .build())
                     .getId())
             .input("input", List.of(c.getId()))
@@ -159,10 +184,10 @@ public class ExprGraphTest implements CommonAssertions {
 
     graph.addNode(
         EGOperation.builder()
-            .withSignature(
+            .withMeta(
                 graph.addNode(
-                    EGSignature.builder()
-                        .op(new OperatorName("tapestry.io", "save"))
+                    EGOpSignature.builder()
+                        .op(new ScopedName("tapestry.io", "save"))
                         .external(true)
                         .build()))
             .option("target", "#ref3")

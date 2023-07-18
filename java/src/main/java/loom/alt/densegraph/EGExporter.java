@@ -3,6 +3,8 @@ package loom.alt.densegraph;
 import com.google.common.html.HtmlEscapers;
 import guru.nidi.graphviz.attribute.Label;
 import guru.nidi.graphviz.attribute.Rank;
+import guru.nidi.graphviz.attribute.Shape;
+import guru.nidi.graphviz.attribute.Style;
 import guru.nidi.graphviz.engine.Format;
 import guru.nidi.graphviz.engine.Graphviz;
 import guru.nidi.graphviz.model.Factory;
@@ -12,12 +14,14 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
-import java.util.stream.Collectors;
 import lombok.Builder;
 import lombok.experimental.SuperBuilder;
+import loom.common.JsonUtil;
+import loom.common.collections.EntryPair;
 
 @SuperBuilder
 public class EGExporter {
+
   @Builder.Default private final Rank.RankDir rankDir = Rank.RankDir.RIGHT_TO_LEFT;
 
   @Builder.Default private final int minPrefixLength = 2;
@@ -80,53 +84,92 @@ public class EGExporter {
 
     for (var node : eg) {
       var sym = nodeSyms.get(node.id);
+      var gnode =
+          Factory.node(node.id.toString()).with("xlabel", "#" + sym).with("style", "filled");
 
       String title = node.jsonTypeName();
 
-      Map<String, Object> data = new HashMap<>();
+      List<Object> rows = new ArrayList<>();
+      rows.add(title);
 
-      Map<String, String> tableAttrs =
-          new HashMap<>(
-              Map.of(
-                  "border", "0",
-                  "cellborder", "0",
-                  "cellspacing", "0"));
+      if (node instanceof EGTensor tensor) {
+        gnode = gnode.with(Shape.BOX_3D).with("fillcolor", "#d0d0ff");
+        rows.add(EntryPair.of("shape", tensor.getShape()));
+        rows.add(EntryPair.of("dtype", tensor.getDtype()));
 
-      var attrs =
-          tableAttrs.entrySet().stream()
-              .map(e -> e.getKey() + "=\"" + e.getValue() + "\"")
-              .collect(Collectors.joining(" "));
+      } else if (node instanceof EGOperation op) {
+        gnode = gnode.with(Shape.R_ARROW).with("margin", "0.15").with("fillcolor", "#75DDDD");
+
+        var meta = op.getSignature(eg);
+
+        rows.add(EntryPair.of("op", meta.getOp().name()));
+
+        if (meta.isExternal()) {
+          gnode = gnode.with("color", "red").with("penwidth", "6");
+        }
+
+      } else if (node instanceof EGOpSignature signature) {
+        gnode = gnode.with(Shape.COMPONENT).with("margin", "0.05").with("fillcolor", "#FDCEDF");
+
+        rows.add(EntryPair.of("op", signature.getOp().toString()));
+        rows.add(EntryPair.of("external", signature.isExternal()));
+
+        if (signature.polySig != null) {
+          rows.add(EntryPair.of("polyProjection", JsonUtil.toMap(signature.polySig)));
+        }
+      }
 
       String label =
-          "<table "
-              + attrs
-              + ">"
-              + "<tr><td colspan=\"2\">"
-              + title
-              + "</td></tr>"
-              + formatRecursiveDataRow(data)
+          "<table border=\"0\" cellborder=\"0\" cellspacing=\"0\">"
+              + formatRecursiveDataRows(rows)
               + "</table>";
 
-      var gnode =
-          Factory.node(node.id.toString())
-              .with(Label.raw("<" + label + ">"))
-              .with("xlabel", "#" + sym);
+      gnode = gnode.with(Label.raw("<" + label + ">"));
 
       g = g.with(gnode);
 
       if (node instanceof EGOperation op) {
-        g = g.with(gnode.link(Factory.node(op.getSignature().toString())));
+        g =
+            g.with(
+                gnode.link(Factory.to(Factory.node(op.getSignature().toString())).with(Style.DOTTED)));
 
         for (var input : op.getInputs().entrySet()) {
-          for (var inputId : input.getValue()) {
-            g = g.with(gnode.link(Factory.node(inputId.toString())));
-          }
+          var edgeLabel = String.format("\"%s\"", input.getKey());
+          var tensors = input.getValue();
+          if (tensors.size() == 1) {
+            g =
+                g.with(
+                    gnode.link(
+                        Factory.to(Factory.node(tensors.get(0).toString()))
+                            .with(Label.of(edgeLabel))));
+          } else
+            for (int i = 0; i < tensors.size(); ++i) {
+              g =
+                  g.with(
+                      gnode.link(
+                          Factory.to(Factory.node(tensors.get(i).toString()))
+                              .with(Label.of(String.format("%s[%d]", edgeLabel, i)))));
+            }
         }
 
         for (var result : op.getResults().entrySet()) {
-          for (var resultId : result.getValue()) {
-            g = g.with(Factory.node(resultId.toString()).link(gnode));
-          }
+          var edgeLabel = String.format("\"%s\"", result.getKey());
+          var tensors = result.getValue();
+          if (tensors.size() == 1) {
+            g =
+                g.with(
+                    Factory.node(tensors.get(0).toString())
+                        .link(Factory.to(gnode).with(Label.of(edgeLabel))));
+
+          } else
+            for (int i = 0; i < tensors.size(); ++i) {
+              g =
+                  g.with(
+                      Factory.node(tensors.get(i).toString())
+                          .link(
+                              Factory.to(gnode)
+                                  .with(Label.of(String.format("%s[%d]", edgeLabel, i)))));
+            }
         }
       }
     }
@@ -134,17 +177,21 @@ public class EGExporter {
     return g;
   }
 
-  private String formatRecursiveData(Object data) {
+  private String formatRecursiveData(Object data, boolean quoteStrings) {
     if (data instanceof Map) {
       @SuppressWarnings("unchecked")
       Map<String, Object> m = (Map<String, Object>) data;
 
-      return "<table border=\"0\" cellborder=\"1\" cellspacing=\"0\">"
-          + formatRecursiveDataRow(m)
-          + "</table>";
+      if (((Map<?, ?>) data).isEmpty()) {
+        return "";
+      } else {
+        return "<table border=\"0\" cellborder=\"1\" cellspacing=\"0\">"
+            + formatRecursiveDataRows(m)
+            + "</table>";
+      }
     } else {
       String field;
-      if (data instanceof String) {
+      if (quoteStrings && data instanceof String) {
         field = String.format("\"%s\"", data);
       } else {
         field = data.toString();
@@ -153,18 +200,28 @@ public class EGExporter {
     }
   }
 
-  private String formatRecursiveDataRow(Map<String, Object> data) {
+  private String formatRecursiveDataRows(Collection<?> rows) {
     StringBuilder sb = new StringBuilder();
-    for (var entry : data.entrySet()) {
-      sb.append("<tr>")
-          .append("<td align=\"right\"><b>")
-          .append(entry.getKey())
-          .append(":</b></td>")
-          .append("<td align=\"left\">")
-          .append(formatRecursiveData(entry.getValue()))
-          .append("</td>")
-          .append("</tr>");
+    for (var row : rows) {
+      if (row instanceof Map.Entry<?, ?> entry) {
+        sb.append("<tr>")
+            .append("<td align=\"right\"><b>")
+            .append(entry.getKey())
+            .append(":</b></td>")
+            .append("<td align=\"left\">")
+            .append(formatRecursiveData(entry.getValue(), true))
+            .append("</td>")
+            .append("</tr>");
+      } else {
+        sb.append("<tr><td colspan=\"2\">")
+            .append(formatRecursiveData(row, false))
+            .append("</td></tr>");
+      }
     }
     return sb.toString();
+  }
+
+  private String formatRecursiveDataRows(Map<String, Object> data) {
+    return formatRecursiveDataRows(data.entrySet());
   }
 }

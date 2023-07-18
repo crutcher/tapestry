@@ -10,26 +10,26 @@ import java.io.IOException;
 import java.util.regex.Pattern;
 import loom.common.HasToJsonString;
 
-@JsonSerialize(using = OperatorName.JsonSupport.Serializer.class)
-@JsonDeserialize(using = OperatorName.JsonSupport.Deserializer.class)
-public record OperatorName(String scope, String name) implements HasToJsonString {
+@JsonSerialize(using = ScopedName.JsonSupport.Serializer.class)
+@JsonDeserialize(using = ScopedName.JsonSupport.Deserializer.class)
+public record ScopedName(String scope, String name) implements HasToJsonString {
   public static final class JsonSupport {
     private JsonSupport() {}
 
     public static final class Deserializer
-        extends com.fasterxml.jackson.databind.JsonDeserializer<OperatorName> {
+        extends com.fasterxml.jackson.databind.JsonDeserializer<ScopedName> {
       @Override
-      public OperatorName deserialize(
+      public ScopedName deserialize(
           com.fasterxml.jackson.core.JsonParser p, DeserializationContext ctxt) throws IOException {
-        return OperatorName.parse(p.getText());
+        return ScopedName.parse(p.getText());
       }
     }
 
     public static final class Serializer
-        extends com.fasterxml.jackson.databind.JsonSerializer<OperatorName> {
+        extends com.fasterxml.jackson.databind.JsonSerializer<ScopedName> {
       @Override
       public void serialize(
-          OperatorName value,
+          ScopedName value,
           com.fasterxml.jackson.core.JsonGenerator gen,
           SerializerProvider serializers)
           throws IOException {
@@ -42,7 +42,7 @@ public record OperatorName(String scope, String name) implements HasToJsonString
   public static final Pattern LEGAL_NAME = NamePatterns.DOTTED_IDENTIFIER;
 
   @JsonCreator
-  public OperatorName {
+  public ScopedName {
     if (!LEGAL_SCOPE.matcher(scope).matches()) {
       throw new IllegalArgumentException("Invalid scope: " + scope);
     }
@@ -56,11 +56,11 @@ public record OperatorName(String scope, String name) implements HasToJsonString
     return scope + "/" + name;
   }
 
-  public static OperatorName parse(String str) {
+  public static ScopedName parse(String str) {
     var parts = Splitter.on('/').splitToList(str);
     if (parts.size() != 2) {
       throw new IllegalArgumentException("Invalid operator name: " + str);
     }
-    return new OperatorName(parts.get(0), parts.get(1));
+    return new ScopedName(parts.get(0), parts.get(1));
   }
 }

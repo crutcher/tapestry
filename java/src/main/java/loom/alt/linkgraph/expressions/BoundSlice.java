@@ -37,7 +37,7 @@ public final class BoundSlice implements HasDimension, HasToJsonString {
               index.dimensions, projection.output));
     }
 
-    index.assertNDim(projection.map.outputDim);
+    index.assertNDim(projection.map.outputDim());
   }
 
   public void validateAgainstIndex(NamedZRange sourceIndex) {

@@ -9,7 +9,7 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 public class EGEnvironment {
   @Singular @Nonnull
-  private final Map<OperatorName, EGOperatorDefinition> signatures = new HashMap<>();
+  private final Map<ScopedName, EGOperatorDefinition> signatures = new HashMap<>();
 
   /**
    * Lookup the signature for the given name.
@@ -17,7 +17,7 @@ public class EGEnvironment {
    * @param name The name to lookup.
    * @return The signature for the given name.
    */
-  public EGOperatorDefinition getDef(OperatorName name) {
+  public EGOperatorDefinition getDef(ScopedName name) {
     return signatures.get(name);
   }
 

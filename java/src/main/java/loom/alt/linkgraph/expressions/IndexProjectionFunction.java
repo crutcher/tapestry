@@ -6,7 +6,7 @@ import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.Immutable;
 import javax.annotation.concurrent.ThreadSafe;
-import lombok.Builder;
+import lombok.experimental.SuperBuilder;
 import lombok.extern.jackson.Jacksonized;
 import loom.common.HasToJsonString;
 import loom.common.JsonUtil;
@@ -18,7 +18,7 @@ import loom.zspace.ZTensor;
 @Immutable
 @ThreadSafe
 @Jacksonized
-@Builder
+@SuperBuilder
 public final class IndexProjectionFunction
     implements HasToJsonString, HasNamedPermuteInput, HasNamedPermuteOutput {
   @Nonnull public final DimensionMap input;
@@ -32,9 +32,9 @@ public final class IndexProjectionFunction
       @JsonProperty("output") DimensionMap output,
       @JsonProperty("map") ZAffineMap map,
       @JsonProperty("shape") ZPoint shape) {
-    input.assertNDim(map.inputDim);
-    output.assertNDim(map.outputDim);
-    shape.assertNDim(map.outputDim);
+    input.assertNDim(map.inputDim());
+    output.assertNDim(map.outputDim());
+    shape.assertNDim(map.outputDim());
 
     if (!shape.coords.isStrictlyPositive()) {
       throw new IllegalArgumentException(
@@ -67,14 +67,14 @@ public final class IndexProjectionFunction
 
     StringBuilder sb = new StringBuilder();
     sb.append("p[");
-    for (int i = 0; i < map.outputDim; ++i) {
+    for (int i = 0; i < map.outputDim(); ++i) {
       if (i > 0) sb.append(", ");
 
       sb.append(output.nameOf(i) + "=");
       boolean leading = false;
 
-      for (int j = 0; j < map.inputDim; ++j) {
-        var f = map.A.get(i, j);
+      for (int j = 0; j < map.inputDim(); ++j) {
+        var f = map.a.get(i, j);
         if (f == 0) continue;
 
         if (f < 0) {

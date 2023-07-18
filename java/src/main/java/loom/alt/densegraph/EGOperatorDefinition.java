@@ -8,7 +8,7 @@ import lombok.extern.jackson.Jacksonized;
 @Jacksonized
 @SuperBuilder
 public final class EGOperatorDefinition {
-  @Nonnull public final OperatorName name;
+  @Nonnull public final ScopedName name;
 
   @Builder.Default public final boolean external = false;
 

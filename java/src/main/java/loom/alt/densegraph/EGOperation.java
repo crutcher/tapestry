@@ -2,12 +2,6 @@ package loom.alt.densegraph;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.function.Consumer;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Singular;
@@ -15,6 +9,13 @@ import lombok.Value;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.jackson.Jacksonized;
 import loom.zspace.ZRange;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.function.Consumer;
 
 @JsonTypeName("Operation")
 @Jacksonized
@@ -26,7 +27,7 @@ public class EGOperation extends EGNodeBase {
           C extends EGOperation, B extends EGOperationBuilder<C, B>>
       extends EGNodeBaseBuilder<C, B> {
 
-    public B withSignature(EGSignature sig) {
+    public B withMeta(EGOpSignature sig) {
       return signature(sig.getId());
     }
   }
@@ -34,13 +35,13 @@ public class EGOperation extends EGNodeBase {
   @Nonnull public UUID signature;
   @Builder.Default @Nullable public ZRange index = null;
 
-  @Singular @Nonnull public Map<String, String> options;
-  @Singular @Nonnull private Map<String, List<UUID>> inputs;
-  @Singular @Nonnull private Map<String, List<UUID>> results;
+  @Singular @Nonnull Map<String, String> options;
+  @Singular @Nonnull Map<String, List<UUID>> inputs;
+  @Singular @Nonnull Map<String, List<UUID>> results;
 
   @JsonIgnore
-  public EGSignature getSignature(ExprGraph graph) {
-    return graph.getNode(signature, EGSignature.class);
+  public EGOpSignature getSignature(ExprGraph graph) {
+    return graph.getNode(signature, EGOpSignature.class);
   }
 
   @JsonIgnore

@@ -42,7 +42,7 @@ public class BoundSliceTest implements CommonAssertions {
                             "input": ["x", "y"],
                             "output": ["a", "b", "c"],
                             "map": {
-                              "A": [[1, 0], [0, 2], [-1, 2]],
+                              "a": [[1, 0], [0, 2], [-1, 2]],
                               "b": [4, 5, 6]
                             },
                             "shape": [3, 2, 1]

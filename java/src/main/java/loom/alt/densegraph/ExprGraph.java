@@ -9,11 +9,12 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import lombok.Data;
+
+import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
-import javax.annotation.Nonnull;
-import lombok.Data;
 
 @Data
 public class ExprGraph implements Iterable<EGNodeBase> {
@@ -102,6 +103,19 @@ public class ExprGraph implements Iterable<EGNodeBase> {
       EGNodeBase.EGNodeBaseBuilder<T, B> builder) {
     var node = builder.id(newId()).build();
     return addNode(node);
+  }
+
+  public <T extends EGOpSignature, B extends EGOpSignature.EGOpSignatureBuilder<T, B>>
+  EGOpSignature addCommonOpSignature(EGOpSignature.EGOpSignatureBuilder<T, B> builder) {
+    var sig = builder.id(newId()).build();
+    for (var node : nodeMap.values()) {
+      if (node instanceof EGOpSignature op) {
+        if (op.equivalent(sig)) {
+          return op;
+        }
+      }
+    }
+    return addNode(sig);
   }
 
   public EGNodeBase getNode(UUID id) {

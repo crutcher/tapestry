@@ -11,10 +11,10 @@ public class ZAffineMapTest implements CommonAssertions {
 
     assertThat(map.apply(new ZPoint(1, 1))).isEqualTo(new ZPoint(5, 7, 9));
 
-    assertThat(map.inputDim).isEqualTo(2);
-    assertThat(map.outputDim).isEqualTo(3);
+    assertThat(map.inputDim()).isEqualTo(2);
+    assertThat(map.outputDim()).isEqualTo(3);
 
-    assertThat(map.A.isMutable()).isFalse();
+    assertThat(map.a.isMutable()).isFalse();
     assertThat(map.b.isMutable()).isFalse();
 
     assertThat(map)
@@ -29,7 +29,7 @@ public class ZAffineMapTest implements CommonAssertions {
     var map =
         new ZAffineMap(ZTensor.from(new int[][] {{1, 0}, {0, 2}, {1, 2}}), ZTensor.vector(4, 5, 6));
 
-    String json = "{\"A\":[[1,0],[0,2],[1,2]],\"b\":[4,5,6]}";
+    String json = "{\"a\":[[1,0],[0,2],[1,2]],\"b\":[4,5,6]}";
 
     assertThat(map).hasToString(json);
     assertThat(map.toJsonString()).isEqualTo(json);

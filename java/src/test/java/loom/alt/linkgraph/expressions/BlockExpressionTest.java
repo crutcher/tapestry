@@ -51,7 +51,7 @@ public class BlockExpressionTest implements CommonAssertions {
                                         "input": ["x", "y", "z"],
                                         "output": ["a", "b"],
                                         "map": {
-                                            "A": [[1, 0, 0], [1, 0, 2]],
+                                            "a": [[1, 0, 0], [1, 0, 2]],
                                             "b": [4, 5]
                                         },
                                         "shape": [3, 2]

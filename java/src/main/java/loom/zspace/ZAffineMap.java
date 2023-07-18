@@ -1,42 +1,47 @@
 package loom.zspace;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Objects;
 import javax.annotation.concurrent.Immutable;
 import javax.annotation.concurrent.ThreadSafe;
+import lombok.experimental.SuperBuilder;
+import lombok.extern.jackson.Jacksonized;
 import loom.common.HasToJsonString;
 import loom.common.JsonUtil;
 
 /** A linear map from {@code Z^inDim} to {@code Z^outDim}. */
 @ThreadSafe
 @Immutable
+@Jacksonized
+@SuperBuilder
 public final class ZAffineMap implements HasPermuteInput, HasPermuteOutput, HasToJsonString {
-  public final ZTensor A;
+  public final ZTensor a;
   public final ZTensor b;
 
-  @JsonIgnore public final int inputDim;
-  @JsonIgnore public final int outputDim;
+  // This seems like a backwards way to represent this;
+  // but `Ax + b` is the standard form.
+  public int inputDim() {
+    return a.shape(1);
+  }
+
+  public int outputDim() {
+    return a.shape(0);
+  }
 
   @JsonCreator
   public ZAffineMap(
-      @JsonProperty(value = "A", required = true) ZTensor A,
+      @JsonProperty(value = "a", required = true) ZTensor a,
       @JsonProperty(value = "b", required = true) ZTensor b) {
-    A.assertNdim(2);
-    // This seems like a backwards way to represent this;
-    // but `Ax + b` is the standard form.
-    outputDim = A.shapeAsList().get(0);
-    inputDim = A.shapeAsList().get(1);
-
-    b.assertNdim(1);
-    if (b.shapeAsList().get(0) != outputDim) {
-      throw new IllegalArgumentException(
-          String.format("A.shape[1] != b.shape[0]: %s != %s", A.shapeAsList(), b.shapeAsList()));
-    }
-
-    this.A = A.immutable();
+    this.a = a.immutable();
     this.b = b.immutable();
+
+    a.assertNdim(2);
+    b.assertNdim(1);
+    if (b.shapeAsList().get(0) != outputDim()) {
+      throw new IllegalArgumentException(
+          String.format("A.shape[1] != b.shape[0]: %s != %s", a.shapeAsList(), b.shapeAsList()));
+    }
   }
 
   @Override
@@ -44,12 +49,12 @@ public final class ZAffineMap implements HasPermuteInput, HasPermuteOutput, HasT
     if (this == o) return true;
     if (!(o instanceof ZAffineMap)) return false;
     ZAffineMap that = (ZAffineMap) o;
-    return A.equals(that.A) && b.equals(that.b);
+    return a.equals(that.a) && b.equals(that.b);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(A, b);
+    return Objects.hash(a, b);
   }
 
   @Override
@@ -69,12 +74,12 @@ public final class ZAffineMap implements HasPermuteInput, HasPermuteOutput, HasT
 
   @Override
   public ZAffineMap permuteInput(int... permutation) {
-    return new ZAffineMap(A.reorderDim(permutation, 1), b);
+    return new ZAffineMap(a.reorderDim(permutation, 1), b);
   }
 
   @Override
   public ZAffineMap permuteOutput(int... permutation) {
-    return new ZAffineMap(A.reorderDim(permutation, 0), b.reorderDim(permutation, 0));
+    return new ZAffineMap(a.reorderDim(permutation, 0), b.reorderDim(permutation, 0));
   }
 
   /**
@@ -86,17 +91,17 @@ public final class ZAffineMap implements HasPermuteInput, HasPermuteOutput, HasT
   public ZTensor apply(ZTensor x) {
     // denoted in the `in` dim.
     x.assertNdim(1);
-    if (x.shapeAsList().get(0) != inputDim) {
+    if (x.shapeAsList().get(0) != inputDim()) {
       throw new IllegalArgumentException(
-          String.format("A.shape[1] != x.shape[0]: %s != %s", A.shapeAsList(), x.shapeAsList()));
+          String.format("A.shape[1] != x.shape[0]: %s != %s", a.shapeAsList(), x.shapeAsList()));
     }
 
     // denoted in the `out` dim.
     var res = b.clone(true);
 
-    for (int j = 0; j < inputDim; j++) {
-      for (int i = 0; i < outputDim; i++) {
-        res.set(new int[] {i}, res.get(i) + A.get(i, j) * x.get(j));
+    for (int j = 0; j < inputDim(); j++) {
+      for (int i = 0; i < outputDim(); i++) {
+        res.set(new int[] {i}, res.get(i) + a.get(i, j) * x.get(j));
       }
     }
     return res;
