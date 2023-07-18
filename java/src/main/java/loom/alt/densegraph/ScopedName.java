@@ -36,6 +36,14 @@ public record ScopedName(String scope, String name) implements HasToJsonString {
         gen.writeString(value.toString());
       }
     }
+
+    public static final class KeyDeserializer
+        extends com.fasterxml.jackson.databind.KeyDeserializer {
+      @Override
+      public Object deserializeKey(String key, DeserializationContext ctxt) {
+        return ScopedName.parse(key);
+      }
+    }
   }
 
   public static final Pattern LEGAL_SCOPE = NamePatterns.DOTTED_IDENTIFIER;

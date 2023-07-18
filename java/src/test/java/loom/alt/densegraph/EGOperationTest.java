@@ -10,28 +10,28 @@ public class EGOperationTest implements CommonAssertions {
   @Test
   public void testJsonSimple() {
     var opId = UUID.randomUUID();
-    var metaId = UUID.randomUUID();
-    var op = EGOperation.builder().id(opId).signature(metaId).build();
+    var sigId = UUID.randomUUID();
+    var op = EGOperation.builder().id(opId).signature(sigId).build();
 
     assertJsonEquals(
         op,
         Json.createObjectBuilder()
             .add("@type", "Operation")
             .add("id", opId.toString())
-            .add("meta", metaId.toString()));
+            .add("signature", sigId.toString()));
   }
 
   @Test
   public void testJson() {
     var opId = UUID.randomUUID();
-    var metaId = UUID.randomUUID();
+    var sigId = UUID.randomUUID();
     var a = UUID.randomUUID();
     var b = UUID.randomUUID();
 
     var op =
         EGOperation.builder()
             .id(opId)
-            .signature(metaId)
+            .signature(sigId)
             .option("foo", "1")
             .input("a", List.of(a))
             .result("b", List.of(b))
@@ -42,7 +42,7 @@ public class EGOperationTest implements CommonAssertions {
         Json.createObjectBuilder()
             .add("@type", "Operation")
             .add("id", opId.toString())
-            .add("meta", metaId.toString())
+            .add("signature", sigId.toString())
             .add(
                 "inputs",
                 Json.createObjectBuilder().add("a", Json.createArrayBuilder().add(a.toString())))
@@ -60,7 +60,7 @@ public class EGOperationTest implements CommonAssertions {
         Json.createObjectBuilder()
             .add("@type", "Operation")
             .add("id", opId.toString())
-            .add("meta", metaId.toString())
+            .add("signature", sigId.toString())
             .add(
                 "inputs",
                 Json.createObjectBuilder().add("a", Json.createArrayBuilder().add(a.toString())))

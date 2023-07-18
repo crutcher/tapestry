@@ -1,5 +1,6 @@
 package loom.alt.densegraph;
 
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.html.HtmlEscapers;
 import guru.nidi.graphviz.attribute.Label;
 import guru.nidi.graphviz.attribute.Rank;
@@ -9,15 +10,16 @@ import guru.nidi.graphviz.engine.Format;
 import guru.nidi.graphviz.engine.Graphviz;
 import guru.nidi.graphviz.model.Factory;
 import guru.nidi.graphviz.model.Graph;
+import lombok.Builder;
+import lombok.experimental.SuperBuilder;
+import loom.common.JsonUtil;
+import loom.common.collections.EntryPair;
+
 import java.awt.image.BufferedImage;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
-import lombok.Builder;
-import lombok.experimental.SuperBuilder;
-import loom.common.JsonUtil;
-import loom.common.collections.EntryPair;
 
 @SuperBuilder
 public class EGExporter {
@@ -113,10 +115,6 @@ public class EGExporter {
 
         rows.add(EntryPair.of("op", signature.getOp().toString()));
         rows.add(EntryPair.of("external", signature.isExternal()));
-
-        if (signature.polySig != null) {
-          rows.add(EntryPair.of("polyProjection", JsonUtil.toMap(signature.polySig)));
-        }
       }
 
       String label =
@@ -128,10 +126,35 @@ public class EGExporter {
 
       g = g.with(gnode);
 
+      for (var attr : node.getAttributes().entrySet()) {
+        String attrLabel;
+        var tree = JsonUtil.readTree(attr.getValue());
+        if (tree instanceof ObjectNode objectNode) {
+          var attrData = JsonUtil.toMap(objectNode);
+          attrLabel =
+                  "<table border=\"0\" cellborder=\"0\" cellspacing=\"0\">"
+                          + formatRecursiveDataRows(attrData)
+                          + "</table>";
+
+        } else {
+            attrLabel = HtmlEscapers.htmlEscaper().escape(JsonUtil.reformat(attr.getValue()));
+        }
+
+
+        var attrNode = Factory.node(UUID.randomUUID().toString())
+                .with("shape", "component")
+                .with("style", "filled")
+                .with("fillcolor", "#FDCEDF")
+                        .with(Label.raw("<" + attrLabel + ">"));
+
+        g = g.with(gnode.link(Factory.to(attrNode).with(Label.of(attr.getKey().toString()))));
+      }
+
       if (node instanceof EGOperation op) {
         g =
             g.with(
-                gnode.link(Factory.to(Factory.node(op.getSignature().toString())).with(Style.DOTTED)));
+                gnode.link(
+                    Factory.to(Factory.node(op.getSignature().toString())).with(Style.DOTTED)));
 
         for (var input : op.getInputs().entrySet()) {
           var edgeLabel = String.format("\"%s\"", input.getKey());

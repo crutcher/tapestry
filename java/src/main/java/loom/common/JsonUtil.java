@@ -1,6 +1,7 @@
 package loom.common;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Map;
 
@@ -35,6 +36,19 @@ public class JsonUtil {
     var mapper = new ObjectMapper();
     try {
       return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(obj);
+    } catch (JsonProcessingException e) {
+      throw new IllegalArgumentException(e);
+    }
+  }
+
+  public static String reformat(String json) {
+    return toPrettyJson(readTree(json));
+  }
+
+  public static JsonNode readTree(String json) {
+    var mapper = new ObjectMapper();
+    try {
+      return mapper.readTree(json);
     } catch (JsonProcessingException e) {
       throw new IllegalArgumentException(e);
     }

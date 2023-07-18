@@ -157,7 +157,8 @@ public class ExprGraphTest implements CommonAssertions {
                         EGOpSignature.builder()
                             .op(new ScopedName("tapestry.io", "dense"))
                             .external(false)
-                            .polySig(
+                            .attribute(
+                                new ScopedName("tapestry.io", "polysig"),
                                 EGPolyhedralSignature.builder()
                                     .indexMap(new DimensionMap("batch", "out"))
                                     .inputProjection(
@@ -175,7 +176,8 @@ public class ExprGraphTest implements CommonAssertions {
                                                         .build())
                                                 .shape(new ZPoint(1, 20))
                                                 .build()))
-                                    .build())
+                                    .build()
+                                    .toJsonString())
                             .build())
                     .getId())
             .input("input", List.of(c.getId()))
