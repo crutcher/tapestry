@@ -27,7 +27,7 @@ public class EGOperation extends EGNodeBase {
           C extends EGOperation, B extends EGOperationBuilder<C, B>>
       extends EGNodeBaseBuilder<C, B> {
 
-    public B withMeta(EGOpSignature sig) {
+    public B withSignature(EGOpSignature sig) {
       return signature(sig.getId());
     }
   }

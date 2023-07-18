@@ -184,7 +184,7 @@ public class ExprGraphTest implements CommonAssertions {
 
     graph.addNode(
         EGOperation.builder()
-            .withMeta(
+            .withSignature(
                 graph.addNode(
                     EGOpSignature.builder()
                         .op(new ScopedName("tapestry.io", "save"))
