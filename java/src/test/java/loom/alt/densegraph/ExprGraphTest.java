@@ -2,6 +2,9 @@ package loom.alt.densegraph;
 
 import guru.nidi.graphviz.engine.Format;
 import guru.nidi.graphviz.engine.Graphviz;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import loom.alt.linkgraph.expressions.DimensionMap;
 import loom.alt.linkgraph.expressions.IndexProjectionFunction;
 import loom.testing.CommonAssertions;
@@ -10,10 +13,6 @@ import loom.zspace.ZPoint;
 import loom.zspace.ZTensor;
 import org.apache.commons.math3.util.Pair;
 import org.junit.Test;
-
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 public class ExprGraphTest implements CommonAssertions {
   public static EGTensor loadTensor(ExprGraph graph, String ref, ZPoint shape, String dtype) {

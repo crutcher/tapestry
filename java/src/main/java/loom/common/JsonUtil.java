@@ -3,6 +3,8 @@ package loom.common;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import java.util.Map;
 
 public class JsonUtil {
@@ -36,6 +38,16 @@ public class JsonUtil {
     var mapper = new ObjectMapper();
     try {
       return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(obj);
+    } catch (JsonProcessingException e) {
+      throw new IllegalArgumentException(e);
+    }
+  }
+
+  public static String toXml(Object obj) {
+    var mapper = new XmlMapper();
+    mapper.enable(SerializationFeature.INDENT_OUTPUT);
+    try {
+      return mapper.writeValueAsString(obj);
     } catch (JsonProcessingException e) {
       throw new IllegalArgumentException(e);
     }

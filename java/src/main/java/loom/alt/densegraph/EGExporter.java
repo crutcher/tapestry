@@ -10,16 +10,15 @@ import guru.nidi.graphviz.engine.Format;
 import guru.nidi.graphviz.engine.Graphviz;
 import guru.nidi.graphviz.model.Factory;
 import guru.nidi.graphviz.model.Graph;
-import lombok.Builder;
-import lombok.experimental.SuperBuilder;
-import loom.common.JsonUtil;
-import loom.common.collections.EntryPair;
-
 import java.awt.image.BufferedImage;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
+import lombok.Builder;
+import lombok.experimental.SuperBuilder;
+import loom.common.JsonUtil;
+import loom.common.collections.EntryPair;
 
 @SuperBuilder
 public class EGExporter {
@@ -132,22 +131,25 @@ public class EGExporter {
         if (tree instanceof ObjectNode objectNode) {
           var attrData = JsonUtil.toMap(objectNode);
           attrLabel =
-                  "<table border=\"0\" cellborder=\"0\" cellspacing=\"0\">"
-                          + formatRecursiveDataRows(attrData)
-                          + "</table>";
+              "<table border=\"0\" cellborder=\"0\" cellspacing=\"0\">"
+                  + formatRecursiveDataRows(attrData)
+                  + "</table>";
 
         } else {
-            attrLabel = HtmlEscapers.htmlEscaper().escape(JsonUtil.reformat(attr.getValue()));
+          attrLabel = HtmlEscapers.htmlEscaper().escape(JsonUtil.reformat(attr.getValue()));
         }
 
-
-        var attrNode = Factory.node(UUID.randomUUID().toString())
+        var attrNode =
+            Factory.node(UUID.randomUUID().toString())
                 .with("shape", "component")
                 .with("style", "filled")
                 .with("fillcolor", "#FDCEDF")
-                        .with(Label.raw("<" + attrLabel + ">"));
+                .with(Label.raw("<" + attrLabel + ">"));
 
-        g = g.with(gnode.link(Factory.to(attrNode).with(Label.of(attr.getKey().toString()))));
+        g =
+            g.with(
+                gnode.link(
+                    Factory.to(attrNode).with(Label.raw("<" + attr.getKey().toString() + ">"))));
       }
 
       if (node instanceof EGOperation op) {
@@ -164,14 +166,14 @@ public class EGExporter {
                 g.with(
                     gnode.link(
                         Factory.to(Factory.node(tensors.get(0).toString()))
-                            .with(Label.of(edgeLabel))));
+                            .with(Label.raw("<" + edgeLabel + ">"))));
           } else
             for (int i = 0; i < tensors.size(); ++i) {
               g =
                   g.with(
                       gnode.link(
                           Factory.to(Factory.node(tensors.get(i).toString()))
-                              .with(Label.of(String.format("%s[%d]", edgeLabel, i)))));
+                              .with(Label.raw("<" + String.format("%s[%d]", edgeLabel, i) + ">"))));
             }
         }
 
@@ -182,7 +184,7 @@ public class EGExporter {
             g =
                 g.with(
                     Factory.node(tensors.get(0).toString())
-                        .link(Factory.to(gnode).with(Label.of(edgeLabel))));
+                        .link(Factory.to(gnode).with(Label.raw("<" + edgeLabel + ">"))));
 
           } else
             for (int i = 0; i < tensors.size(); ++i) {
@@ -191,7 +193,9 @@ public class EGExporter {
                       Factory.node(tensors.get(i).toString())
                           .link(
                               Factory.to(gnode)
-                                  .with(Label.of(String.format("%s[%d]", edgeLabel, i)))));
+                                  .with(
+                                      Label.raw(
+                                          "<" + String.format("%s[%d]", edgeLabel, i) + ">"))));
             }
         }
       }

@@ -5,4 +5,8 @@ public interface HasToJsonString {
   default String toJsonString() {
     return JsonUtil.toJson(this);
   }
+
+  default String toPrettyJsonString() {
+    return JsonUtil.toPrettyJson(this);
+  }
 }

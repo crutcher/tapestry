@@ -5,7 +5,7 @@ import lombok.Getter;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.jackson.Jacksonized;
 
-@JsonTypeName("OpMeta")
+@JsonTypeName("OpSignature")
 @Jacksonized
 @SuperBuilder
 @Getter

@@ -89,6 +89,7 @@ dependencies {
     implementation("javax.annotation:javax.annotation-api:1.3.2")
 
     implementation("guru.nidi:graphviz-java-all-j2v8:0.18.1")
+    implementation("com.fasterxml:jackson-xml-databind:0.6.2")
 
     testImplementation("org.openjdk.jmh:jmh-core:1.36")
     testImplementation("org.openjdk.jmh:jmh-generator-annprocess:1.36")
@@ -115,6 +116,6 @@ dependencies {
     implementation("com.fasterxml.jackson.core:jackson-core:2.15.1")
     implementation("com.fasterxml.jackson.core:jackson-databind:2.15.1")
     implementation("com.fasterxml.jackson.core:jackson-annotations:2.15.1")
-
+    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.15.1")
 }
 
