@@ -13,12 +13,14 @@ public class FNodeTest implements CommonAssertions {
 
   @Test
   public void testFoo() {
-    var actual =
+    FNode actual =
         FNode.builder()
             .type(OGBuiltins.TENSOR)
             .attr(OGBuiltins.SHAPE, List.of(1, 2, 3))
             .attr(OGBuiltins.DTYPE, "float32")
             .build();
+
+    System.out.println(actual.toPrettyJsonString());
 
     assertThatExceptionOfType(UnsupportedOperationException.class)
         .isThrownBy(
