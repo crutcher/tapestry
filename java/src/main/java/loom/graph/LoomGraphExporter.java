@@ -11,11 +11,6 @@ import guru.nidi.graphviz.engine.Graphviz;
 import guru.nidi.graphviz.model.Factory;
 import guru.nidi.graphviz.model.Graph;
 import guru.nidi.graphviz.model.Node;
-import lombok.Builder;
-import loom.common.serialization.JsonUtil;
-import org.apache.commons.text.StringEscapeUtils;
-
-import javax.annotation.Nonnull;
 import java.awt.image.BufferedImage;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -23,6 +18,10 @@ import java.security.NoSuchAlgorithmException;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
+import javax.annotation.Nonnull;
+import lombok.Builder;
+import loom.common.serialization.JsonUtil;
+import org.apache.commons.text.StringEscapeUtils;
 
 @Builder
 public class LoomGraphExporter {

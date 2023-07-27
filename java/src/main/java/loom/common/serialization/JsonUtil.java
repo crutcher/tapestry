@@ -7,7 +7,8 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import java.util.Map;
-import loom.graph.LoomGraph;
+
+import loom.graph.LoomJacksonModule;
 
 public class JsonUtil {
   // Prevent Construction.
@@ -21,7 +22,7 @@ public class JsonUtil {
   private static ObjectMapper getMapper() {
     var mapper = new ObjectMapper();
     mapper.configure(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS, true);
-    mapper.registerModule(new LoomGraph.JsonSupport.LoomGraphModule());
+    mapper.registerModule(new LoomJacksonModule());
     return mapper;
   }
 

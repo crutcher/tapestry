@@ -2,27 +2,24 @@ package loom.graph;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import com.fasterxml.jackson.databind.module.SimpleModule;
-import java.io.IOException;
-import java.util.*;
-import java.util.stream.Stream;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import lombok.Builder;
 import lombok.Data;
 import lombok.Value;
 import lombok.extern.jackson.Jacksonized;
 import loom.common.HasToJsonString;
 import loom.common.serialization.JsonUtil;
+import loom.common.serialization.MapValueListSerializer;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.*;
+import java.util.stream.Stream;
 
 /** The Loom expression graph. */
 @Data
@@ -214,34 +211,6 @@ public final class LoomGraph implements HasToJsonString {
   public static class JsonSupport {
     private JsonSupport() {}
 
-    /** Jackson module to support {@link LoomGraph}. */
-    public static class LoomGraphModule extends SimpleModule {
-      public LoomGraphModule() {
-        super("LoomGraphModule");
-        addKeyDeserializer(NSName.class, new NSName.JsonSupport.KeyDeserializer());
-      }
-    }
-
-    /** Serializer to write a {@link Map<UUID, Node>} as an array of {@link Node}. */
-    static final class NodesSerializer extends JsonSerializer<Map<UUID, Node>> {
-      @Override
-      public void serialize(
-          Map<UUID, Node> value, JsonGenerator gen, SerializerProvider serializers)
-          throws IOException {
-        gen.writeStartArray();
-
-        // Stable output ordering.
-        var nodes = new ArrayList<>(value.values());
-        nodes.sort(Comparator.comparing(n -> n.id));
-
-        for (var node : nodes) {
-          gen.writeObject(node);
-        }
-
-        gen.writeEndArray();
-      }
-    }
-
     /** Deserializer to read a {@link Map<UUID, Node>} from an array of {@link Node}. */
     static final class NodesDeserializer extends StdDeserializer<Map<UUID, Node>> {
       public NodesDeserializer() {
@@ -269,7 +238,7 @@ public final class LoomGraph implements HasToJsonString {
   @Nullable private UUID parentId;
 
   @JsonProperty(value = "nodes", required = true)
-  @JsonSerialize(using = JsonSupport.NodesSerializer.class)
+  @JsonSerialize(using = MapValueListSerializer.class)
   @JsonDeserialize(using = JsonSupport.NodesDeserializer.class)
   private final Map<UUID, Node> nodeMap = new HashMap<>();
 
@@ -411,4 +380,5 @@ public final class LoomGraph implements HasToJsonString {
     }
     return namespaces;
   }
+
 }
