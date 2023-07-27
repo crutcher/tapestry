@@ -4,7 +4,16 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 import javax.annotation.Nonnull;
 
-public class IteratorUtils {
+public final class IteratorUtils {
+  private IteratorUtils() {}
+
+  /**
+   * Convert an Iterable to a Stream.
+   *
+   * @param iterable The Iterable to convert.
+   * @return The Stream.
+   * @param <T> The type of the Iterable.
+   */
   public static <T> Stream<T> iterableToStream(@Nonnull Iterable<T> iterable) {
     return StreamSupport.stream(iterable.spliterator(), false);
   }

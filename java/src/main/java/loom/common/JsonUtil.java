@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import java.util.Map;
-import loom.alt.objgraph.FNodeModule;
+import loom.alt.attrgraph.LoomGraph;
 
 public class JsonUtil {
   // Prevent Construction.
@@ -20,7 +20,7 @@ public class JsonUtil {
   private static ObjectMapper getMapper() {
     var mapper = new ObjectMapper();
     mapper.configure(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS, true);
-    mapper.registerModule(new FNodeModule());
+    mapper.registerModule(new LoomGraph.JsonSupport.LoomGraphModule());
     return mapper;
   }
 
@@ -99,6 +99,14 @@ public class JsonUtil {
   public static <T> T fromJson(String json, Class<T> clazz) {
     try {
       return getMapper().readValue(json, clazz);
+    } catch (JsonProcessingException e) {
+      throw new IllegalArgumentException(e);
+    }
+  }
+
+  public static <T> T fromJson(JsonNode node, Class<T> clazz) {
+    try {
+      return getMapper().treeToValue(node, clazz);
     } catch (JsonProcessingException e) {
       throw new IllegalArgumentException(e);
     }

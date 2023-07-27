@@ -1,4 +1,4 @@
-package loom.alt.objgraph;
+package loom.alt.attrgraph;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -25,22 +25,22 @@ import loom.common.HasToJsonString;
  * @param urn namespace urn
  * @param name name
  */
-@JsonSerialize(using = JNSName.JsonSupport.Serializer.class)
-@JsonDeserialize(using = JNSName.JsonSupport.Deserializer.class)
-public record JNSName(String urn, String name) implements HasToJsonString, Comparable<JNSName> {
+@JsonSerialize(using = NSName.JsonSupport.Serializer.class)
+@JsonDeserialize(using = NSName.JsonSupport.Deserializer.class)
+public record NSName(String urn, String name) implements HasToJsonString, Comparable<NSName> {
   public static final class JsonSupport {
     private JsonSupport() {}
 
-    public static final class Deserializer extends JsonDeserializer<JNSName> {
+    public static final class Deserializer extends JsonDeserializer<NSName> {
       @Override
-      public JNSName deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
-        return JNSName.parse(p.getText());
+      public NSName deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
+        return NSName.parse(p.getText());
       }
     }
 
-    public static final class Serializer extends JsonSerializer<JNSName> {
+    public static final class Serializer extends JsonSerializer<NSName> {
       @Override
-      public void serialize(JNSName value, JsonGenerator gen, SerializerProvider serializers)
+      public void serialize(NSName value, JsonGenerator gen, SerializerProvider serializers)
           throws IOException {
         gen.writeString(value.toString());
       }
@@ -50,7 +50,7 @@ public record JNSName(String urn, String name) implements HasToJsonString, Compa
         extends com.fasterxml.jackson.databind.KeyDeserializer {
       @Override
       public Object deserializeKey(String key, DeserializationContext ctxt) {
-        return JNSName.parse(key);
+        return NSName.parse(key);
       }
     }
   }
@@ -58,7 +58,7 @@ public record JNSName(String urn, String name) implements HasToJsonString, Compa
   public static final Pattern LEGAL_NAME = NamePatterns.DOTTED_IDENTIFIER;
 
   @Override
-  public int compareTo(JNSName o) {
+  public int compareTo(NSName o) {
     var cmp = urn.compareTo(o.urn);
     if (cmp != 0) {
       return cmp;
@@ -67,7 +67,7 @@ public record JNSName(String urn, String name) implements HasToJsonString, Compa
   }
 
   @JsonCreator
-  public JNSName {
+  public NSName {
     try {
       new URL(urn);
     } catch (MalformedURLException e) {
@@ -83,7 +83,7 @@ public record JNSName(String urn, String name) implements HasToJsonString, Compa
     return String.format("{%s}%s", urn, name);
   }
 
-  public static JNSName parse(String str) {
+  public static NSName parse(String str) {
     if (!str.startsWith("{")) {
       throw new IllegalArgumentException("Invalid JNSName: " + str);
     }
@@ -92,6 +92,6 @@ public record JNSName(String urn, String name) implements HasToJsonString, Compa
     if (parts.size() != 2) {
       throw new IllegalArgumentException("Invalid JNSName: " + str);
     }
-    return new JNSName(parts.get(0), parts.get(1));
+    return new NSName(parts.get(0), parts.get(1));
   }
 }

@@ -85,6 +85,7 @@ dependencies {
 
     // https://mvnrepository.com/artifact/org.apache.commons/commons-lang3
     implementation("org.apache.commons:commons-lang3:3.12.0")
+    implementation("org.apache.commons:commons-text:1.10.0")
 
     implementation("javax.annotation:javax.annotation-api:1.3.2")
 
