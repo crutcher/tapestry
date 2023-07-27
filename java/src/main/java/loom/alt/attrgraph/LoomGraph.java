@@ -114,10 +114,10 @@ public final class LoomGraph implements HasToJsonString {
       return toPrettyJsonString();
     }
 
-    @Override
-    public String toString() {
-      return toJsonString();
-    }
+   @Override
+   public String toString() {
+     return toJsonString();
+   }
 
     /**
      * Iterable view of the node's attributes.

@@ -10,6 +10,12 @@ import guru.nidi.graphviz.engine.Format;
 import guru.nidi.graphviz.engine.Graphviz;
 import guru.nidi.graphviz.model.Factory;
 import guru.nidi.graphviz.model.Graph;
+import guru.nidi.graphviz.model.Node;
+import lombok.Builder;
+import loom.common.JsonUtil;
+import org.apache.commons.text.StringEscapeUtils;
+
+import javax.annotation.Nonnull;
 import java.awt.image.BufferedImage;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -17,10 +23,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
-import javax.annotation.Nonnull;
-import lombok.Builder;
-import org.apache.commons.text.StringEscapeUtils;
+import java.util.function.Supplier;
 
 @Builder
 public class LoomGraphExporter {
@@ -31,9 +34,11 @@ public class LoomGraphExporter {
 
   @Nonnull private LoomGraph graph;
 
-  @Builder.Default private Map<UUID, String> idSymbols = new HashMap<>();
+  @Builder.Default private Map<UUID, String> idToAliasMap = new HashMap<>();
 
-  @Builder.Default private Map<String, String> nsAbbrevs = new HashMap<>();
+  @Builder.Default private Map<String, String> nsToAliasMap = new HashMap<>();
+
+  private LoomEnvironment environment;
 
   public BufferedImage toImage() {
     return Graphviz.fromGraph(toGraph()).render(Format.PNG).toImage();
@@ -52,7 +57,7 @@ public class LoomGraphExporter {
    * @param minPrefixLength The minimum length of the prefix to try.
    * @return A map from node UUIDs to symbols.
    */
-  private static Map<UUID, String> nodeSymbols(LoomGraph graph, int minPrefixLength) {
+  static Map<UUID, String> buildIdToAliasMap(LoomGraph graph, int minPrefixLength) {
     Map<UUID, String> longSyms = new HashMap<>();
     for (var tnode : graph.nodes()) {
       try {
@@ -78,6 +83,11 @@ public class LoomGraphExporter {
     return longSyms;
   }
 
+  /**
+   * Map positive integers to base-26 strings.
+   * @param i The integer to map.
+   * @return The base-26 string.
+   */
   public static String toBase26(int i) {
     i--;
     if (i < 26) {
@@ -87,27 +97,57 @@ public class LoomGraphExporter {
     }
   }
 
-  private static Map<String, String> namespaceAbbrev(LoomGraph graph) {
+  private Map<String, String> buildNamespaceToAliasMap() {
     Map<String, String> abbrev = new TreeMap<>();
+
+    environment.aliasMap.forEach((k, v) -> abbrev.put(v, k));
+
+    Supplier<String> nextSym =
+        () -> {
+          int idx = abbrev.size();
+          while (true) {
+            var abrv = toBase26(idx);
+            if (!abbrev.containsValue(abrv)) {
+              return abrv;
+            }
+            idx++;
+          }
+        };
+
     Consumer<String> addAbbrev =
         (namespace) -> {
-          abbrev.put(namespace, toBase26(abbrev.size() + 1));
+             if (abbrev.containsKey(namespace)) {
+                return;
+            }
+          abbrev.put(namespace, nextSym.get());
         };
-    graph.namespaces().stream().distinct().sorted().forEach(addAbbrev);
+
+    graph.namespaces().stream().sorted().forEach(addAbbrev);
     return abbrev;
   }
 
-  private static String htmlEscape(String s) {
+  /**
+   * Escape a string for use in HTML.
+   * @param s The string to escape.
+   * @return The escaped string.
+   */
+  static String htmlEscape(String s) {
     return HtmlEscapers.htmlEscaper().escape(s);
   }
 
-  private String displayName(NSName name) {
-    return String.format("%s:%s", nsAbbrevs.get(name.urn()), name.name());
+
+  /**
+   * Get the abbreviated name of a NSName.
+   * @param name The name to abbreviate.
+   * @return The abbreviated name.
+   */
+  String abbreviatedName(NSName name) {
+    return String.format("%s:%s", nsToAliasMap.get(name.urn()), name.name());
   }
 
   public Graph toGraph() {
-    idSymbols = nodeSymbols(graph, minPrefixLength);
-    nsAbbrevs = namespaceAbbrev(graph);
+    idToAliasMap = buildIdToAliasMap(graph, minPrefixLength);
+    nsToAliasMap = buildNamespaceToAliasMap();
 
     Graph g =
         Factory.graph("G")
@@ -127,7 +167,7 @@ public class LoomGraphExporter {
       var sb = new StringBuilder();
       sb.append("<table border=\"0\" cellborder=\"0\" cellspacing=\"0\">");
       sb.append("<tr><td colspan=\"2\"><b><u>Namespaces</u></b></td></tr>");
-      for (var entry : nsAbbrevs.entrySet()) {
+      for (var entry : nsToAliasMap.entrySet()) {
         sb.append("<tr><td>")
             .append(entry.getValue())
             .append(":</td><td>")
@@ -142,7 +182,7 @@ public class LoomGraphExporter {
     for (var node :
         graph.nodeStream().sorted(Comparator.comparing(LoomGraph.Node::getId)).toList()) {
       var id = node.getId();
-      var sym = idSymbols.get(id);
+      var sym = idToAliasMap.get(id);
       var gnode = Factory.node(id.toString()).with("xlabel", "#" + sym).with("style", "filled");
 
       var links = new HashMap<List<Object>, UUID>();
@@ -151,13 +191,13 @@ public class LoomGraphExporter {
       var sb = new StringBuilder();
       sb.append("<table border=\"0\">");
       sb.append("<tr><td><b>");
-      sb.append(displayName(node.getType()));
+      sb.append(abbreviatedName(node.getType()));
       sb.append("</b></td></tr>");
       if (node.getAttrs().size() > 0) {
         sb.append("<tr><td><table border=\"0\" cellspacing=\"0\" cellborder=\"1\">");
         for (var attr : node.attrStream().sorted(Map.Entry.comparingByKey()).toList()) {
           sb.append("<tr><td>");
-          sb.append(displayName(attr.getKey()));
+          sb.append(abbreviatedName(attr.getKey()));
           sb.append("</td><td>");
           sb.append(displayAttribute(List.of(attr.getKey()), attr.getValue(), onLink));
           sb.append("</td></tr>");
@@ -172,36 +212,71 @@ public class LoomGraphExporter {
 
       for (var entry : links.entrySet()) {
         var path = entry.getKey();
-        // var attr = NSName.class.cast(path.get(0));
+        var attr = NSName.class.cast(path.get(0));
         var target = entry.getValue();
 
-        List<String> parts = new ArrayList<>();
-        for (var p : path) {
-          if (p instanceof NSName name) {
-            parts.add(displayName(name));
-          } else {
-            parts.add(p.toString());
-          }
+        LoomSchema.Attribute attribute = null;
+        try {
+          attribute = environment.getAttribute(attr);
+        } catch (NoSuchElementException e) {
+          // ignore
         }
-        var label = parts.stream().collect(Collectors.joining("/"));
+        var invertEdge = attribute != null && attribute.isInvertEdge();
 
-        g = g.with(gnode.link(Factory.to(Factory.node(target.toString())).with(Label.of(label))));
+        var label = formatAttributePath(path);
+
+        var linkNode = Factory.node(target.toString());
+
+        Node from, to;
+        if (invertEdge) {
+          from = linkNode;
+          to = gnode;
+        } else {
+          from = gnode;
+          to = linkNode;
+        }
+        g = g.with(from.link(Factory.to(to).with(Label.of(label))));
       }
     }
 
     return g;
   }
 
-  public boolean isValueArray(ArrayNode node) {
-    for (JsonNode child : node) {
-      if (!child.isValueNode()) {
-        return false;
+  /**
+   * Given a path of [NSName, (String | Integer) ...] return a string representation of the path.
+   *
+   * Usess the namespace abbreviations to shorten the NSName,
+   * displays String names with a '/' prefix, and displays Integer names with a '[]' wrapper..
+   *
+   * @param path the path.
+   * @return the string representation.
+   */
+  String formatAttributePath(List<Object> path) {
+    var sb = new StringBuilder();
+    for (int i = 0; i < path.size(); ++i) {
+      var p = path.get(i);
+      if (p instanceof NSName name) {
+        sb.append(abbreviatedName(name));
+      } if (p instanceof String) {
+        sb.append("/")
+                .append(p);
+      } if (p instanceof Integer) {
+        sb.append("[" + p + "]");
       }
     }
-    return true;
+    return sb.toString();
   }
 
-  private String displayAttribute(
+
+  /**
+   * Recursively a display table for an attribute, and collect links.
+   *
+   * @param path the path to the attribute.
+   * @param node the current node.
+   * @param onLink a callback for when a link is found.
+   * @return the display table.
+   */
+  String displayAttribute(
       List<Object> path, JsonNode node, BiConsumer<List<Object>, UUID> onLink) {
     if (node.isValueNode()) {
       String text = node.asText();
@@ -209,8 +284,8 @@ public class LoomGraphExporter {
         try {
           var id = UUID.fromString(text);
           onLink.accept(path, id);
-          if (idSymbols.containsKey(id)) {
-            return "#" + idSymbols.get(id);
+          if (idToAliasMap.containsKey(id)) {
+            return "#" + idToAliasMap.get(id);
           }
         } catch (IllegalArgumentException e) {
           // ignore
@@ -218,7 +293,7 @@ public class LoomGraphExporter {
 
         try {
           var name = NSName.parse(text);
-          return displayName(name);
+          return abbreviatedName(name);
         } catch (IllegalArgumentException e) {
           // ignore
         }
@@ -229,7 +304,7 @@ public class LoomGraphExporter {
       return htmlEscape(text);
 
     } else if (node instanceof ArrayNode arrayNode) {
-      if (isValueArray(arrayNode)) {
+      if (JsonUtil.isValueArray(arrayNode)) {
         StringBuilder sb = new StringBuilder();
         sb.append("[");
         for (int idx = 0; idx < arrayNode.size(); idx++) {
@@ -238,7 +313,7 @@ public class LoomGraphExporter {
           }
 
           var itemPath = new ArrayList<>(path);
-          itemPath.add("[" + idx + "]");
+          itemPath.add(idx);
           sb.append(displayAttribute(itemPath, arrayNode.get(idx), onLink));
         }
         sb.append("]");
@@ -249,7 +324,7 @@ public class LoomGraphExporter {
         sb.append("<table border=\"0\" cellspacing=\"0\" cellborder=\"1\">");
         for (int idx = 0; idx < arrayNode.size(); idx++) {
           var itemPath = new ArrayList<>(path);
-          itemPath.add("[" + idx + "]");
+          itemPath.add(idx);
           sb.append("<tr><td>")
               .append(displayAttribute(itemPath, arrayNode.get(idx), onLink))
               .append("</td></tr>");

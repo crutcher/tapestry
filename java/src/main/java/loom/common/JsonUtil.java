@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import java.util.Map;
 import loom.alt.attrgraph.LoomGraph;
@@ -116,5 +117,19 @@ public class JsonUtil {
     @SuppressWarnings("unchecked")
     var cls = (Class<T>) obj.getClass();
     return fromJson(toJson(obj), cls);
+  }
+
+  /**
+   * Is this ArrayNode an un-nested value array?
+   * @param node the node.
+   * @return true if the node is an array of values.
+   */
+  public static boolean isValueArray(ArrayNode node) {
+    for (JsonNode child : node) {
+      if (!child.isValueNode()) {
+        return false;
+      }
+    }
+    return true;
   }
 }
