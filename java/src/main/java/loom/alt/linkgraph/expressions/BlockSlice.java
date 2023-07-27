@@ -6,7 +6,7 @@ import javax.annotation.Nonnull;
 import lombok.Builder;
 import lombok.extern.jackson.Jacksonized;
 import loom.common.HasToJsonString;
-import loom.common.JsonUtil;
+import loom.common.serialization.JsonUtil;
 import loom.zspace.HasDimension;
 
 @Jacksonized

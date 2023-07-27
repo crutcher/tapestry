@@ -2,7 +2,7 @@ package loom.zspace;
 
 import java.util.Objects;
 import java.util.function.BinaryOperator;
-import loom.common.JsonUtil;
+import loom.common.serialization.JsonUtil;
 import loom.testing.CommonAssertions;
 import org.junit.Test;
 

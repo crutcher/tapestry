@@ -1,4 +1,4 @@
-package loom.alt.densegraph;
+package loom.common;
 
 import java.util.regex.Pattern;
 

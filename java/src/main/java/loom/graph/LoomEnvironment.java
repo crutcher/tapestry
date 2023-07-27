@@ -1,10 +1,9 @@
-package loom.alt.attrgraph;
-
-import lombok.Data;
+package loom.graph;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import lombok.Data;
 
 @Data
 public class LoomEnvironment {

@@ -1,4 +1,4 @@
-package loom.alt.linkgraph.expressions;
+package loom.zspace;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.core.JsonParser;
@@ -11,11 +11,9 @@ import java.util.Collections;
 import java.util.Objects;
 import javax.annotation.concurrent.Immutable;
 import javax.annotation.concurrent.ThreadSafe;
+import loom.alt.linkgraph.expressions.IdentifiersFns;
 import loom.common.HasToJsonString;
-import loom.common.JsonUtil;
-import loom.zspace.HasDimension;
-import loom.zspace.IndexingFns;
-import loom.zspace.ZPoint;
+import loom.common.serialization.JsonUtil;
 
 @Immutable
 @ThreadSafe

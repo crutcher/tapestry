@@ -8,7 +8,7 @@ import javax.annotation.concurrent.ThreadSafe;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.jackson.Jacksonized;
 import loom.common.HasToJsonString;
-import loom.common.JsonUtil;
+import loom.common.serialization.JsonUtil;
 
 /** A linear map from {@code Z^inDim} to {@code Z^outDim}. */
 @ThreadSafe

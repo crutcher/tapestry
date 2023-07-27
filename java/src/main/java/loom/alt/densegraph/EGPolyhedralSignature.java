@@ -6,9 +6,9 @@ import lombok.Singular;
 import lombok.Value;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.jackson.Jacksonized;
-import loom.alt.linkgraph.expressions.DimensionMap;
 import loom.alt.linkgraph.expressions.IndexProjectionFunction;
 import loom.common.HasToJsonString;
+import loom.zspace.DimensionMap;
 
 @Value
 @Jacksonized

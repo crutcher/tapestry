@@ -10,8 +10,9 @@ import javax.annotation.concurrent.ThreadSafe;
 import lombok.Builder;
 import lombok.extern.jackson.Jacksonized;
 import loom.common.HasToJsonString;
-import loom.common.JsonUtil;
+import loom.common.serialization.JsonUtil;
 import loom.zspace.*;
+import loom.zspace.DimensionMap;
 
 @Immutable
 @ThreadSafe

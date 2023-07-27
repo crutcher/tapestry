@@ -9,6 +9,7 @@ import com.google.common.base.Splitter;
 import java.io.IOException;
 import java.util.regex.Pattern;
 import loom.common.HasToJsonString;
+import loom.common.NamePatterns;
 
 @JsonSerialize(using = ScopedName.JsonSupport.Serializer.class)
 @JsonDeserialize(using = ScopedName.JsonSupport.Deserializer.class)

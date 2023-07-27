@@ -1,4 +1,4 @@
-package loom.common;
+package loom.common.serialization;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -7,7 +7,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import java.util.Map;
-import loom.alt.attrgraph.LoomGraph;
+import loom.graph.LoomGraph;
 
 public class JsonUtil {
   // Prevent Construction.

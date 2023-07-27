@@ -1,4 +1,4 @@
-package loom.alt.attrgraph;
+package loom.graph;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -22,7 +22,7 @@ import lombok.Data;
 import lombok.Value;
 import lombok.extern.jackson.Jacksonized;
 import loom.common.HasToJsonString;
-import loom.common.JsonUtil;
+import loom.common.serialization.JsonUtil;
 
 /** The Loom expression graph. */
 @Data

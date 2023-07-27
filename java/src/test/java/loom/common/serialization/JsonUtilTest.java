@@ -1,4 +1,4 @@
-package loom.common;
+package loom.common.serialization;
 
 import java.util.Map;
 import loom.testing.CommonAssertions;

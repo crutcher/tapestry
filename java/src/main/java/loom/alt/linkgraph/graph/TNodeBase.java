@@ -8,7 +8,7 @@ import javax.annotation.Nullable;
 import lombok.Getter;
 import loom.common.HasToJsonString;
 import loom.common.IdUtils;
-import loom.common.JsonUtil;
+import loom.common.serialization.JsonUtil;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "@type")
 @JsonSubTypes(

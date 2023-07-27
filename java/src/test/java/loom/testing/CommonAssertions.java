@@ -3,7 +3,7 @@ package loom.testing;
 import javax.json.JsonArrayBuilder;
 import javax.json.JsonObjectBuilder;
 import javax.json.JsonValue;
-import loom.common.JsonUtil;
+import loom.common.serialization.JsonUtil;
 import org.assertj.core.api.WithAssertions;
 
 public interface CommonAssertions extends WithAssertions {

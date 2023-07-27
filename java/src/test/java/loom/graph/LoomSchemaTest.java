@@ -1,6 +1,4 @@
-package loom.alt.attrgraph;
-
-import static org.junit.Assert.*;
+package loom.graph;
 
 import loom.testing.CommonAssertions;
 import org.junit.Test;

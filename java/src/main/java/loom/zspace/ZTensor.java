@@ -22,7 +22,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import loom.common.HasToJsonString;
 import loom.common.IteratorUtils;
-import loom.common.JsonUtil;
+import loom.common.serialization.JsonUtil;
 
 /**
  * Minimal discrete Tensor.

@@ -1,4 +1,4 @@
-package loom.alt.attrgraph;
+package loom.graph;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -14,8 +14,8 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.regex.Pattern;
-import loom.alt.densegraph.NamePatterns;
 import loom.common.HasToJsonString;
+import loom.common.NamePatterns;
 
 /**
  * JSON Namespace Names.

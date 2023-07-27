@@ -1,4 +1,4 @@
-package loom.alt.attrgraph;
+package loom.graph;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -12,7 +12,7 @@ import guru.nidi.graphviz.model.Factory;
 import guru.nidi.graphviz.model.Graph;
 import guru.nidi.graphviz.model.Node;
 import lombok.Builder;
-import loom.common.JsonUtil;
+import loom.common.serialization.JsonUtil;
 import org.apache.commons.text.StringEscapeUtils;
 
 import javax.annotation.Nonnull;

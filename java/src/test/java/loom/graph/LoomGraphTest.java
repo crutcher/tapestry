@@ -1,4 +1,4 @@
-package loom.alt.attrgraph;
+package loom.graph;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;

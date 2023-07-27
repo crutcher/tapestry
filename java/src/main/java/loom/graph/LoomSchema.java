@@ -1,4 +1,4 @@
-package loom.alt.attrgraph;
+package loom.graph;
 
 import java.util.Map;
 import java.util.NoSuchElementException;

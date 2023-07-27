@@ -1,4 +1,4 @@
-package loom.alt.attrgraph;
+package loom.graph;
 
 public class LoomBuiltinNS {
   private LoomBuiltinNS() {}

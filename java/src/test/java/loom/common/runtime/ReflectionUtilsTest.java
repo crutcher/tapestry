@@ -1,6 +1,4 @@
-package loom.common;
-
-import static org.junit.Assert.*;
+package loom.common.runtime;
 
 import loom.testing.CommonAssertions;
 import org.junit.Test;

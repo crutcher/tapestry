@@ -1,4 +1,4 @@
-package loom.common;
+package loom.common.runtime;
 
 public final class ReflectionUtils {
   private ReflectionUtils() {}

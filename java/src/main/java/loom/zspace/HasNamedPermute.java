@@ -1,6 +1,4 @@
-package loom.alt.linkgraph.expressions;
-
-import loom.zspace.HasPermute;
+package loom.zspace;
 
 public interface HasNamedPermute extends HasPermute {
   HasNamedPermute permute(String... permutation);

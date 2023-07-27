@@ -14,6 +14,7 @@ import lombok.Singular;
 import lombok.Value;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.jackson.Jacksonized;
+import loom.common.NamePatterns;
 import loom.zspace.ZRange;
 
 @JsonTypeName("Operation")

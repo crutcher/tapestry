@@ -17,8 +17,8 @@ import java.security.NoSuchAlgorithmException;
 import java.util.*;
 import lombok.Builder;
 import lombok.experimental.SuperBuilder;
-import loom.common.JsonUtil;
 import loom.common.collections.EntryPair;
+import loom.common.serialization.JsonUtil;
 
 @SuperBuilder
 public class EGExporter {

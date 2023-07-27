@@ -1,4 +1,4 @@
-package loom.alt.attrgraph;
+package loom.graph;
 
 import loom.testing.CommonAssertions;
 import loom.zspace.ZPoint;
