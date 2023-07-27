@@ -7,7 +7,6 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import java.util.Map;
-
 import loom.graph.LoomJacksonModule;
 
 public class JsonUtil {

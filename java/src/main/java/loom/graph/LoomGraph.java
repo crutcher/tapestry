@@ -12,6 +12,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.Value;
 import lombok.extern.jackson.Jacksonized;
+import lombok.val;
 import loom.common.HasToJsonString;
 import loom.common.serialization.JsonUtil;
 import loom.common.serialization.MapValueListSerializer;
@@ -42,16 +43,11 @@ public final class LoomGraph implements HasToJsonString {
        * @return The builder.
        */
       public NodeBuilder attr(NSName name, Object value) {
-        if (this.attrs == null) {
-          this.attrs = new java.util.HashMap<>();
+        if (attrs == null) {
+          attrs = new java.util.HashMap<>();
         }
-        JsonNode jvalue;
-        if (value instanceof JsonNode node) {
-          jvalue = node.deepCopy();
-        } else {
-          jvalue = JsonUtil.toTree(value);
-        }
-        this.attrs.put(name, jvalue);
+        attrs.put(
+            name, (value instanceof JsonNode nValue) ? nValue.deepCopy() : JsonUtil.toTree(value));
         return this;
       }
 
@@ -62,8 +58,8 @@ public final class LoomGraph implements HasToJsonString {
        * @return The builder.
        */
       public NodeBuilder removeAttr(NSName name) {
-        if (this.attrs != null) {
-          this.attrs.remove(name);
+        if (attrs != null) {
+          attrs.remove(name);
         }
         return this;
       }
@@ -94,15 +90,9 @@ public final class LoomGraph implements HasToJsonString {
 
     @Builder
     public Node(@Nullable UUID id, @Nonnull NSName type, @Nullable Map<NSName, JsonNode> attrs) {
-      if (id == null) {
-        id = UUID.randomUUID();
-      }
-      this.id = id;
+      this.id = (id == null) ? UUID.randomUUID() : id;
       this.type = type;
-      if (attrs == null) {
-        attrs = Map.of();
-      }
-      this.attrs = Map.copyOf(attrs);
+      this.attrs = (attrs == null) ? Map.of() : Map.copyOf(attrs);
     }
 
     @Override
@@ -140,7 +130,7 @@ public final class LoomGraph implements HasToJsonString {
      */
     public Set<String> namespaces() {
       Set<String> namespaces = new HashSet<>();
-      for (Map.Entry<NSName, JsonNode> entry : attrs()) {
+      for (val entry : attrs()) {
         namespaces.add(entry.getKey().urn());
       }
       return namespaces;
@@ -188,7 +178,7 @@ public final class LoomGraph implements HasToJsonString {
      * @throws NoSuchElementException if the attribute does not exist.
      */
     public JsonNode getAttrTree(NSName name) {
-      var attr = attrs.get(name);
+      val attr = attrs.get(name);
       if (attr == null) {
         throw new NoSuchElementException(name.toString());
       }
@@ -220,9 +210,9 @@ public final class LoomGraph implements HasToJsonString {
       @Override
       public Map<UUID, Node> deserialize(JsonParser p, DeserializationContext ctxt)
           throws java.io.IOException {
-        var nodes = p.readValueAs(Node[].class);
+        val nodes = p.readValueAs(Node[].class);
         Map<UUID, Node> nodeMap = new HashMap<>();
-        for (var node : nodes) {
+        for (val node : nodes) {
           nodeMap.put(node.id, node);
         }
         return nodeMap;
@@ -250,7 +240,7 @@ public final class LoomGraph implements HasToJsonString {
    * @return The copy.
    */
   public LoomGraph copy() {
-    var copy = new LoomGraph();
+    val copy = new LoomGraph();
     copy.id = id;
     copy.parentId = parentId;
     copy.nodeMap.putAll(nodeMap);
@@ -265,7 +255,7 @@ public final class LoomGraph implements HasToJsonString {
    * @return The copy.
    */
   public LoomGraph newChild() {
-    var copy = new LoomGraph();
+    val copy = new LoomGraph();
     copy.parentId = id;
     copy.nodeMap.putAll(nodeMap);
     return copy;
@@ -361,7 +351,7 @@ public final class LoomGraph implements HasToJsonString {
    * @throws NoSuchElementException if no node with the given ID exists.
    */
   public Node lookupNode(UUID id) {
-    var node = nodeMap.get(id);
+    val node = nodeMap.get(id);
     if (node == null) {
       throw new NoSuchElementException("No node with ID " + id);
     }
@@ -374,11 +364,10 @@ public final class LoomGraph implements HasToJsonString {
    * @return The namespaces.
    */
   public Set<String> namespaces() {
-    var namespaces = new HashSet<String>();
-    for (var node : nodeMap.values()) {
+    val namespaces = new HashSet<String>();
+    for (val node : nodeMap.values()) {
       namespaces.addAll(node.namespaces());
     }
     return namespaces;
   }
-
 }
