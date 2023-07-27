@@ -13,15 +13,15 @@ public class LoomGraphExporterTest implements CommonAssertions {
 
     var env = new LoomEnvironment();
     env.addSchema(
-            LoomSchema.builder()
-                    .urn(LoomBuiltinNS.BUILTINS_URN)
-                    .attribute(
-                            LoomBuiltinNS.RESULTS.name(),
-                            LoomSchema.Attribute.builder()
-                                    .name(LoomBuiltinNS.RESULTS.name())
-                                    .invertEdge(true)
-                                    .build())
-                    .build());
+        LoomSchema.builder()
+            .urn(LoomBuiltinNS.BUILTINS_URN)
+            .attribute(
+                LoomBuiltinNS.RESULTS.name(),
+                LoomSchema.Attribute.builder()
+                    .name(LoomBuiltinNS.RESULTS.name())
+                    .invertEdge(true)
+                    .build())
+            .build());
 
     env.aliasMap.put("tap", LoomBuiltinNS.BUILTINS_URN);
 
@@ -56,7 +56,7 @@ public class LoomGraphExporterTest implements CommonAssertions {
             .attr(LoomBuiltinNS.RESULTS, Map.of("out", c.getId())));
 
     @SuppressWarnings("unused")
-            var json = graph.toString();
+    var json = graph.toString();
 
     var exporter = LoomGraphExporter.builder().graph(graph).environment(env).build();
 

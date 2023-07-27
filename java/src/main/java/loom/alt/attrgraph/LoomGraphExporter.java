@@ -21,7 +21,6 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -85,6 +84,7 @@ public class LoomGraphExporter {
 
   /**
    * Map positive integers to base-26 strings.
+   *
    * @param i The integer to map.
    * @return The base-26 string.
    */
@@ -116,9 +116,9 @@ public class LoomGraphExporter {
 
     Consumer<String> addAbbrev =
         (namespace) -> {
-             if (abbrev.containsKey(namespace)) {
-                return;
-            }
+          if (abbrev.containsKey(namespace)) {
+            return;
+          }
           abbrev.put(namespace, nextSym.get());
         };
 
@@ -128,6 +128,7 @@ public class LoomGraphExporter {
 
   /**
    * Escape a string for use in HTML.
+   *
    * @param s The string to escape.
    * @return The escaped string.
    */
@@ -135,9 +136,9 @@ public class LoomGraphExporter {
     return HtmlEscapers.htmlEscaper().escape(s);
   }
 
-
   /**
    * Get the abbreviated name of a NSName.
+   *
    * @param name The name to abbreviate.
    * @return The abbreviated name.
    */
@@ -186,7 +187,6 @@ public class LoomGraphExporter {
       var gnode = Factory.node(id.toString()).with("xlabel", "#" + sym).with("style", "filled");
 
       var links = new HashMap<List<Object>, UUID>();
-      BiConsumer<List<Object>, UUID> onLink = links::put;
 
       var sb = new StringBuilder();
       sb.append("<table border=\"0\">");
@@ -196,10 +196,14 @@ public class LoomGraphExporter {
       if (node.getAttrs().size() > 0) {
         sb.append("<tr><td><table border=\"0\" cellspacing=\"0\" cellborder=\"1\">");
         for (var attr : node.attrStream().sorted(Map.Entry.comparingByKey()).toList()) {
+          NSName name = attr.getKey();
+          JsonNode value = attr.getValue();
+          findLinks(List.of(name), value, links);
+
           sb.append("<tr><td>");
-          sb.append(abbreviatedName(attr.getKey()));
+          sb.append(abbreviatedName(name));
           sb.append("</td><td>");
-          sb.append(displayAttribute(List.of(attr.getKey()), attr.getValue(), onLink));
+          sb.append(displayAttribute(List.of(name), value));
           sb.append("</td></tr>");
         }
         sb.append("</table></td></tr>");
@@ -214,6 +218,10 @@ public class LoomGraphExporter {
         var path = entry.getKey();
         var attr = NSName.class.cast(path.get(0));
         var target = entry.getValue();
+
+        if (!graph.hasNode(target)) {
+          continue;
+        }
 
         LoomSchema.Attribute attribute = null;
         try {
@@ -245,8 +253,8 @@ public class LoomGraphExporter {
   /**
    * Given a path of [NSName, (String | Integer) ...] return a string representation of the path.
    *
-   * Usess the namespace abbreviations to shorten the NSName,
-   * displays String names with a '/' prefix, and displays Integer names with a '[]' wrapper..
+   * <p>Usess the namespace abbreviations to shorten the NSName, displays String names with a '/'
+   * prefix, and displays Integer names with a '[]' wrapper..
    *
    * @param path the path.
    * @return the string representation.
@@ -257,33 +265,66 @@ public class LoomGraphExporter {
       var p = path.get(i);
       if (p instanceof NSName name) {
         sb.append(abbreviatedName(name));
-      } if (p instanceof String) {
-        sb.append("/")
-                .append(p);
-      } if (p instanceof Integer) {
+      }
+      if (p instanceof String) {
+        sb.append("/").append(p);
+      }
+      if (p instanceof Integer) {
         sb.append("[" + p + "]");
       }
     }
     return sb.toString();
   }
 
-
   /**
-   * Recursively a display table for an attribute, and collect links.
+   * Given an attribute prefix path and node value, find nested graph links.
    *
-   * @param path the path to the attribute.
-   * @param node the current node.
-   * @param onLink a callback for when a link is found.
-   * @return the display table.
+   * @param path the attribute prefix path.
+   * @param node the node value.
+   * @param links the map of links to update.
    */
-  String displayAttribute(
-      List<Object> path, JsonNode node, BiConsumer<List<Object>, UUID> onLink) {
+  void findLinks(List<Object> path, JsonNode node, Map<List<Object>, UUID> links) {
     if (node.isValueNode()) {
       String text = node.asText();
       if (node.isTextual()) {
         try {
           var id = UUID.fromString(text);
-          onLink.accept(path, id);
+          links.put(path, id);
+        } catch (IllegalArgumentException e) {
+          // ignore
+        }
+      }
+    } else if (node instanceof ArrayNode arrayNode) {
+      for (int i = 0; i < node.size(); ++i) {
+        var p = new ArrayList<>(path);
+        p.add(i);
+        findLinks(p, arrayNode.get(i), links);
+      }
+    } else if (node instanceof ObjectNode objectNode) {
+      objectNode
+          .fields()
+          .forEachRemaining(
+              e -> {
+                var p = new ArrayList<>(path);
+                p.add(e.getKey());
+                findLinks(p, e.getValue(), links);
+              });
+    }
+  }
+
+  /**
+   * Recursively a display table for an attribute.
+   *
+   * @param path the path to the attribute.
+   * @param node the current node.
+   * @return the display table.
+   */
+  String displayAttribute(List<Object> path, JsonNode node) {
+    if (node.isValueNode()) {
+      String text = node.asText();
+      if (node.isTextual()) {
+        try {
+          var id = UUID.fromString(text);
           if (idToAliasMap.containsKey(id)) {
             return "#" + idToAliasMap.get(id);
           }
@@ -314,7 +355,7 @@ public class LoomGraphExporter {
 
           var itemPath = new ArrayList<>(path);
           itemPath.add(idx);
-          sb.append(displayAttribute(itemPath, arrayNode.get(idx), onLink));
+          sb.append(displayAttribute(itemPath, arrayNode.get(idx)));
         }
         sb.append("]");
         return sb.toString();
@@ -326,7 +367,7 @@ public class LoomGraphExporter {
           var itemPath = new ArrayList<>(path);
           itemPath.add(idx);
           sb.append("<tr><td>")
-              .append(displayAttribute(itemPath, arrayNode.get(idx), onLink))
+              .append(displayAttribute(itemPath, arrayNode.get(idx)))
               .append("</td></tr>");
         }
         sb.append("</table>");
@@ -346,7 +387,7 @@ public class LoomGraphExporter {
                 sb.append("<tr><td>")
                     .append(entry.getKey())
                     .append("</td><td>")
-                    .append(displayAttribute(itemPath, entry.getValue(), onLink))
+                    .append(displayAttribute(itemPath, entry.getValue()))
                     .append("</td></tr>");
               });
       sb.append("</table>");

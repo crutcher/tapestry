@@ -12,18 +12,17 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import java.io.IOException;
+import java.util.*;
+import java.util.stream.Stream;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import lombok.Builder;
 import lombok.Data;
 import lombok.Value;
 import lombok.extern.jackson.Jacksonized;
 import loom.common.HasToJsonString;
 import loom.common.JsonUtil;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.io.IOException;
-import java.util.*;
-import java.util.stream.Stream;
 
 /** The Loom expression graph. */
 @Data
@@ -114,10 +113,10 @@ public final class LoomGraph implements HasToJsonString {
       return toPrettyJsonString();
     }
 
-   @Override
-   public String toString() {
-     return toJsonString();
-   }
+    @Override
+    public String toString() {
+      return toJsonString();
+    }
 
     /**
      * Iterable view of the node's attributes.

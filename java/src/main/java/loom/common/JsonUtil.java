@@ -121,6 +121,7 @@ public class JsonUtil {
 
   /**
    * Is this ArrayNode an un-nested value array?
+   *
    * @param node the node.
    * @return true if the node is an array of values.
    */
