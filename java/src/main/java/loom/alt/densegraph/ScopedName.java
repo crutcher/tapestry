@@ -12,7 +12,8 @@ import loom.common.HasToJsonString;
 
 @JsonSerialize(using = ScopedName.JsonSupport.Serializer.class)
 @JsonDeserialize(using = ScopedName.JsonSupport.Deserializer.class)
-public record ScopedName(String scope, String name) implements HasToJsonString {
+public record ScopedName(String scope, String name)
+    implements HasToJsonString, Comparable<ScopedName> {
   public static final class JsonSupport {
     private JsonSupport() {}
 
@@ -57,6 +58,15 @@ public record ScopedName(String scope, String name) implements HasToJsonString {
     if (!LEGAL_NAME.matcher(name).matches()) {
       throw new IllegalArgumentException("Invalid name: " + name);
     }
+  }
+
+  @Override
+  public int compareTo(ScopedName o) {
+    var cmp = scope.compareTo(o.scope);
+    if (cmp != 0) {
+      return cmp;
+    }
+    return name.compareTo(o.name);
   }
 
   @Override

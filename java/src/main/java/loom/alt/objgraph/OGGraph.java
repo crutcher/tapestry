@@ -68,11 +68,8 @@ public final class OGGraph implements HasToJsonString, Iterable<OGNode> {
    *
    * @param builder The builder to use.
    * @return The node that was added.
-   * @param <T> the type of node.
-   * @param <B> the type of builder.
    */
-  public <T extends OGNode, B extends OGNode.OGNodeBuilder<T, B>> OGNode addNode(
-      OGNode.OGNodeBuilder<T, B> builder) {
+  public OGNode addNode(OGNode.OGNodeBuilder builder) {
     var node = builder.id(newId()).build();
     return addNode(node);
   }

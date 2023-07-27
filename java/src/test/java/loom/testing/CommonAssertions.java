@@ -8,11 +8,19 @@ import org.assertj.core.api.WithAssertions;
 
 public interface CommonAssertions extends WithAssertions {
   default void assertJsonEquals(Object obj, String json) {
+
     String objJson = JsonUtil.toJson(obj);
 
     // We establish a 'clean' json by re-serializing the JSON derived object.
     var objFromJson = JsonUtil.fromJson(json, obj.getClass());
     var cleanJson = JsonUtil.toJson(objFromJson);
+
+    boolean debug = false;
+    if (debug) {
+      System.out.println(String.format("assertJsonEquals.expectedJson: %s", json));
+      System.out.println(String.format("assertJsonEquals.cleanedJson: %s", cleanJson));
+      System.out.println(String.format("assertJsonEquals.objJson: %s", objJson));
+    }
 
     // Does the serialization of the source object to JSON match the cleaned JSON?
     assertThat(objJson).isEqualTo(cleanJson);

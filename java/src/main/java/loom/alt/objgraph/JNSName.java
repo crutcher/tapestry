@@ -27,7 +27,7 @@ import loom.common.HasToJsonString;
  */
 @JsonSerialize(using = JNSName.JsonSupport.Serializer.class)
 @JsonDeserialize(using = JNSName.JsonSupport.Deserializer.class)
-public record JNSName(String urn, String name) implements HasToJsonString {
+public record JNSName(String urn, String name) implements HasToJsonString, Comparable<JNSName> {
   public static final class JsonSupport {
     private JsonSupport() {}
 
@@ -56,6 +56,15 @@ public record JNSName(String urn, String name) implements HasToJsonString {
   }
 
   public static final Pattern LEGAL_NAME = NamePatterns.DOTTED_IDENTIFIER;
+
+  @Override
+  public int compareTo(JNSName o) {
+    var cmp = urn.compareTo(o.urn);
+    if (cmp != 0) {
+      return cmp;
+    }
+    return name.compareTo(o.name);
+  }
 
   @JsonCreator
   public JNSName {

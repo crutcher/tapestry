@@ -13,7 +13,7 @@ public class OGNodeTest implements CommonAssertions {
     var node =
         OGNode.builder()
             .type(OGBuiltins.TENSOR)
-            .attr(OGBuiltins.TENSOR_SHAPE, new ZPoint(2, 3).toJsonString())
+            .attr(OGBuiltins.SHAPE, new ZPoint(2, 3))
             .attr(OGBuiltins.DTYPE, "int32")
             .build();
 
@@ -25,8 +25,8 @@ public class OGNodeTest implements CommonAssertions {
             .add(
                 "attrs",
                 Json.createObjectBuilder()
-                    .add(OGBuiltins.TENSOR_SHAPE.toString(), "[2,3]")
-                    .add(OGBuiltins.DTYPE.toString(), "int32")));
+                    .add(OGBuiltins.SHAPE.toString(), "[2,3]")
+                    .add(OGBuiltins.DTYPE.toString(), "\"int32\"")));
   }
 
   @Test
@@ -35,19 +35,20 @@ public class OGNodeTest implements CommonAssertions {
     var node =
         OGNode.builder()
             .type(OGBuiltins.TENSOR)
-            .attr(OGBuiltins.TENSOR_SHAPE, new ZPoint(2, 3).toJsonString())
+            .attr(OGBuiltins.SHAPE, new ZPoint(2, 3))
             .attr(OGBuiltins.DTYPE, "int32")
             .attr(new JNSName(LOCAL_URN, "bar"), "baz")
             .build();
 
-    assertThat(node.attrsByNamespace())
+    Map<String, Map<String, String>> actual = node.attrsByNamespace();
+    assertThat(actual)
         .containsExactlyInAnyOrderEntriesOf(
             Map.of(
                 OGBuiltins.TENSOR.urn(),
                 Map.of(
-                    OGBuiltins.TENSOR_SHAPE.name(), "[2,3]",
-                    OGBuiltins.DTYPE.name(), "int32"),
+                    OGBuiltins.SHAPE.name(), "[2,3]",
+                    OGBuiltins.DTYPE.name(), "\"int32\""),
                 LOCAL_URN,
-                Map.of("bar", "baz")));
+                Map.of("bar", "\"baz\"")));
   }
 }

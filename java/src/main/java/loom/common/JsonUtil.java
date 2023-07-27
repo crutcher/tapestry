@@ -4,12 +4,28 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import java.util.Map;
+import loom.alt.objgraph.JNSName;
 
 public class JsonUtil {
   // Prevent Construction.
   private JsonUtil() {}
+
+  /**
+   * Get a Jackson ObjectMapper with default settings.
+   *
+   * @return the ObjectMapper.
+   */
+  private static ObjectMapper getMapper() {
+    var mapper = new ObjectMapper();
+    mapper.configure(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS, true);
+    mapper.registerModule(
+        new SimpleModule()
+            .addKeyDeserializer(JNSName.class, new JNSName.JsonSupport.KeyDeserializer()));
+    return mapper;
+  }
 
   /**
    * Serialize an object to JSON via Jackson defaults.
@@ -19,9 +35,8 @@ public class JsonUtil {
    * @throws IllegalArgumentException if the object cannot be serialized.
    */
   public static String toJson(Object obj) {
-    var mapper = new ObjectMapper();
     try {
-      return mapper.writer().writeValueAsString(obj);
+      return getMapper().writer().writeValueAsString(obj);
     } catch (JsonProcessingException e) {
       throw new IllegalArgumentException(e);
     }
@@ -35,9 +50,8 @@ public class JsonUtil {
    * @throws IllegalArgumentException if the object cannot be serialized.
    */
   public static String toPrettyJson(Object obj) {
-    var mapper = new ObjectMapper();
     try {
-      return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(obj);
+      return getMapper().writerWithDefaultPrettyPrinter().writeValueAsString(obj);
     } catch (JsonProcessingException e) {
       throw new IllegalArgumentException(e);
     }
@@ -58,18 +72,20 @@ public class JsonUtil {
   }
 
   public static JsonNode readTree(String json) {
-    var mapper = new ObjectMapper();
     try {
-      return mapper.readTree(json);
+      return getMapper().readTree(json);
     } catch (JsonProcessingException e) {
       throw new IllegalArgumentException(e);
     }
   }
 
+  public static JsonNode toTree(Object obj) {
+    return getMapper().valueToTree(obj);
+  }
+
   public static Map<String, Object> toMap(Object obj) {
-    var mapper = new ObjectMapper();
     @SuppressWarnings("unchecked")
-    Map<String, Object> result = mapper.convertValue(obj, Map.class);
+    Map<String, Object> result = getMapper().convertValue(obj, Map.class);
     return result;
   }
 
@@ -84,9 +100,8 @@ public class JsonUtil {
    *     class.
    */
   public static <T> T fromJson(String json, Class<T> clazz) {
-    var mapper = new ObjectMapper();
     try {
-      return mapper.readValue(json, clazz);
+      return getMapper().readValue(json, clazz);
     } catch (JsonProcessingException e) {
       throw new IllegalArgumentException(e);
     }
