@@ -10,12 +10,11 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import lombok.Data;
-import loom.common.HasToJsonString;
-
-import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.util.*;
+import javax.annotation.Nonnull;
+import lombok.Data;
+import loom.common.HasToJsonString;
 
 @Data
 public final class OGGraph implements HasToJsonString, Iterable<OGNode> {

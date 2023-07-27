@@ -4,10 +4,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import java.util.Map;
-import loom.alt.objgraph.JNSName;
+import loom.alt.objgraph.FNodeModule;
 
 public class JsonUtil {
   // Prevent Construction.
@@ -21,9 +20,7 @@ public class JsonUtil {
   private static ObjectMapper getMapper() {
     var mapper = new ObjectMapper();
     mapper.configure(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS, true);
-    mapper.registerModule(
-        new SimpleModule()
-            .addKeyDeserializer(JNSName.class, new JNSName.JsonSupport.KeyDeserializer()));
+    mapper.registerModule(new FNodeModule());
     return mapper;
   }
 

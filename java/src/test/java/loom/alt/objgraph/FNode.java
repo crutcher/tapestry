@@ -1,21 +1,21 @@
 package loom.alt.objgraph;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.deser.std.JsonNodeDeserializer;
+import java.util.Map;
+import java.util.UUID;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import lombok.Builder;
 import lombok.Value;
 import lombok.extern.jackson.Jacksonized;
-import loom.common.HasToJsonString;
 import loom.common.JsonUtil;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.util.Map;
-import java.util.UUID;
 
 @Value
 @Jacksonized
 @Builder(toBuilder = true)
-public class FNode implements HasToJsonString {
+public class FNode {
   public static class FNodeBuilder {
     public FNodeBuilder attr(JNSName name, Object value) {
       if (this.attrs == null) {
@@ -31,16 +31,21 @@ public class FNode implements HasToJsonString {
       return this;
     }
 
-    public FNodeBuilder attrs(@Nonnull Map<JNSName, ? extends Object> entries) {
-      entries.forEach(this::attr);
+    public FNodeBuilder attrs(Map<JNSName, ? extends Object> entries) {
+      if (entries != null) {
+        entries.forEach(this::attr);
+      }
       return this;
     }
   }
 
   @Nonnull UUID id;
-
   @Nonnull JNSName type;
 
+  @Nonnull
+  @JsonDeserialize(
+      keyUsing = JNSName.JsonSupport.KeyDeserializer.class,
+      contentUsing = JsonNodeDeserializer.class)
   Map<JNSName, JsonNode> attrs;
 
   @Builder

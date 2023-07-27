@@ -37,7 +37,6 @@ public class OGNode implements HasToJsonString {
       contentUsing = StringDeserializer.class)
   Map<JNSName, String> attrs;
 
-  /** Return a nested { urn: { attr: value } } Map of the attributes. */
   public Map<String, Map<String, String>> attrsByNamespace() {
     return attrs.entrySet().stream()
         .collect(
