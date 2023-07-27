@@ -81,8 +81,6 @@ jmh {
 }
 
 dependencies {
-    implementation("org.json:org.json:chargebee-1.0")
-
     // https://mvnrepository.com/artifact/org.apache.commons/commons-lang3
     implementation("org.apache.commons:commons-lang3:3.12.0")
     implementation("org.apache.commons:commons-text:1.10.0")

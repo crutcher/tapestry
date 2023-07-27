@@ -75,7 +75,7 @@ public final class LoomGraph implements HasToJsonString {
       /**
        * Add a map of attributes to the node.
        *
-       * <p>This method is used implicitly by the generated {@link Node.toBuilder} method.
+       * <p>This method is used implicitly by the generated toBuilder method.
        *
        * @param entries the map of attributes.
        * @return The builder.

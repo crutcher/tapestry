@@ -1,11 +1,10 @@
 package loom.alt.attrgraph;
 
+import java.util.List;
+import java.util.Map;
 import loom.testing.CommonAssertions;
 import loom.zspace.ZPoint;
 import org.junit.Test;
-
-import java.util.List;
-import java.util.Map;
 
 public class LoomGraphExporterTest implements CommonAssertions {
   @Test

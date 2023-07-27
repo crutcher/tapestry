@@ -10,10 +10,6 @@ import guru.nidi.graphviz.engine.Format;
 import guru.nidi.graphviz.engine.Graphviz;
 import guru.nidi.graphviz.model.Factory;
 import guru.nidi.graphviz.model.Graph;
-import lombok.Builder;
-import org.apache.commons.text.StringEscapeUtils;
-
-import javax.annotation.Nonnull;
 import java.awt.image.BufferedImage;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -22,6 +18,9 @@ import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
+import javax.annotation.Nonnull;
+import lombok.Builder;
+import org.apache.commons.text.StringEscapeUtils;
 
 @Builder
 public class LoomGraphExporter {
