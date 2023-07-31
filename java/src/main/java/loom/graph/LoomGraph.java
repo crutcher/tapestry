@@ -130,7 +130,7 @@ public final class LoomGraph implements HasToJsonString {
      */
     public Set<String> namespaces() {
       Set<String> namespaces = new HashSet<>();
-      for (val entry : attrs()) {
+      for (var entry : attrs()) {
         namespaces.add(entry.getKey().urn());
       }
       return namespaces;
@@ -210,9 +210,9 @@ public final class LoomGraph implements HasToJsonString {
       @Override
       public Map<UUID, Node> deserialize(JsonParser p, DeserializationContext ctxt)
           throws java.io.IOException {
-        val nodes = p.readValueAs(Node[].class);
+        var nodes = p.readValueAs(Node[].class);
         Map<UUID, Node> nodeMap = new HashMap<>();
-        for (val node : nodes) {
+        for (var node : nodes) {
           nodeMap.put(node.id, node);
         }
         return nodeMap;
@@ -240,7 +240,7 @@ public final class LoomGraph implements HasToJsonString {
    * @return The copy.
    */
   public LoomGraph copy() {
-    val copy = new LoomGraph();
+    var copy = new LoomGraph();
     copy.id = id;
     copy.parentId = parentId;
     copy.nodeMap.putAll(nodeMap);
@@ -255,7 +255,7 @@ public final class LoomGraph implements HasToJsonString {
    * @return The copy.
    */
   public LoomGraph newChild() {
-    val copy = new LoomGraph();
+    var copy = new LoomGraph();
     copy.parentId = id;
     copy.nodeMap.putAll(nodeMap);
     return copy;
@@ -351,7 +351,7 @@ public final class LoomGraph implements HasToJsonString {
    * @throws NoSuchElementException if no node with the given ID exists.
    */
   public Node lookupNode(UUID id) {
-    val node = nodeMap.get(id);
+    var node = nodeMap.get(id);
     if (node == null) {
       throw new NoSuchElementException("No node with ID " + id);
     }
@@ -364,8 +364,8 @@ public final class LoomGraph implements HasToJsonString {
    * @return The namespaces.
    */
   public Set<String> namespaces() {
-    val namespaces = new HashSet<String>();
-    for (val node : nodeMap.values()) {
+    var namespaces = new HashSet<String>();
+    for (var node : nodeMap.values()) {
       namespaces.addAll(node.namespaces());
     }
     return namespaces;
