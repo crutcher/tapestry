@@ -8,6 +8,10 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import java.util.*;
+import java.util.stream.Stream;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import lombok.Builder;
 import lombok.Data;
 import lombok.Value;
@@ -16,11 +20,6 @@ import lombok.val;
 import loom.common.HasToJsonString;
 import loom.common.serialization.JsonUtil;
 import loom.common.serialization.MapValueListSerializer;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.util.*;
-import java.util.stream.Stream;
 
 /** The Loom expression graph. */
 @Data

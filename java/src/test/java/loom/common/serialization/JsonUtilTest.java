@@ -1,10 +1,22 @@
 package loom.common.serialization;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
+import lombok.Value;
 import loom.testing.CommonAssertions;
+import net.jimblackler.jsonschemafriend.SchemaException;
+import net.jimblackler.jsonschemafriend.SchemaStore;
+import net.jimblackler.jsonschemafriend.Validator;
 import org.junit.Test;
 
 public class JsonUtilTest implements CommonAssertions {
+  @Value
+  public static class Example {
+    public String a;
+    public int b;
+  }
+
   @Test
   @SuppressWarnings("unused")
   public void toJsonString() {
@@ -24,32 +36,71 @@ public class JsonUtilTest implements CommonAssertions {
   }
 
   @Test
-  @SuppressWarnings("unused")
-  public void toMap() {
-    var obj =
-        new Object() {
-          public final String a = "a";
-          public final int b = 1;
+  public void testToSimpleJson() {
+    var example = new Example("hello", 3);
 
-          public final Object c =
-              new Object() {
-                public final String d = "d";
-                public final int e = 2;
-              };
-        };
+    assertThat(JsonUtil.toSimpleJson(List.of(example)))
+        .isEqualTo(List.of(Map.of("a", "hello", "b", 3)));
+  }
 
-    Map<String, Object> res = JsonUtil.toMap(obj);
-    assertThat(res)
-        .hasEntrySatisfying("a", v -> assertThat(v).isEqualTo("a"))
-        .hasEntrySatisfying("b", v -> assertThat(v).isEqualTo(1))
-        .hasEntrySatisfying(
+  @Test
+  public void testValidateSimpleJson() {
+    JsonUtil.validateSimpleJson(2);
+
+    JsonUtil.validateSimpleJson(2.0);
+    JsonUtil.validateSimpleJson(Float.POSITIVE_INFINITY);
+    JsonUtil.validateSimpleJson(Float.NEGATIVE_INFINITY);
+    JsonUtil.validateSimpleJson(Float.NaN);
+
+    JsonUtil.validateSimpleJson(true);
+    JsonUtil.validateSimpleJson(false);
+    JsonUtil.validateSimpleJson(null);
+
+    JsonUtil.validateSimpleJson("hello");
+
+    JsonUtil.validateSimpleJson(List.of(1, 2.0, "hello", true, false, Float.POSITIVE_INFINITY));
+
+    JsonUtil.validateSimpleJson(
+        Map.of(
+            "a",
+            1,
+            "b",
+            2.0,
             "c",
-            v -> {
-              @SuppressWarnings("unchecked")
-              Map<String, Object> m = (Map<String, Object>) v;
-              assertThat(m)
-                  .hasEntrySatisfying("d", w -> assertThat(w).isEqualTo("d"))
-                  .hasEntrySatisfying("e", w -> assertThat(w).isEqualTo(2));
-            });
+            "hello",
+            "d",
+            true,
+            "e",
+            false,
+            "f",
+            Float.POSITIVE_INFINITY,
+            "g",
+            List.of(1, 2.0, "hello", true, false, Float.POSITIVE_INFINITY),
+            "h",
+            Map.of("a", 1, "b", 2.0)));
+
+    assertThatExceptionOfType(IllegalArgumentException.class)
+        .isThrownBy(() -> JsonUtil.validateSimpleJson(new Object()));
+
+    var cycle = new ArrayList<>();
+    cycle.add(cycle);
+    assertThatExceptionOfType(IllegalArgumentException.class)
+        .isThrownBy(() -> JsonUtil.validateSimpleJson(Map.of("foo", cycle)));
+  }
+
+  @Test
+  public void testSimpleSchema() throws SchemaException {
+    var schemaStore = new SchemaStore();
+
+    String schemaString =
+        "{"
+            + "  \"$schema\": \"http://json-schema.org/draft-07/schema#\","
+            + "  \"type\": \"integer\""
+            + "}";
+
+    var schema = schemaStore.loadSchemaJson(schemaString);
+
+    var validator = new Validator();
+    validator.validate(schema, 2);
   }
 }

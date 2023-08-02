@@ -14,6 +14,11 @@ plugins {
 
 repositories {
     mavenCentral()
+
+    maven {
+        url = uri("https://jitpack.io")
+    }
+
 }
 
 java {
@@ -85,10 +90,19 @@ dependencies {
     implementation("org.apache.commons:commons-lang3:3.12.0")
     implementation("org.apache.commons:commons-text:1.10.0")
 
+    // JSON Schema
+    implementation("net.jimblackler.jsonschemafriend:core:0.11.4")
+    implementation("io.vertx:vertx-json-schema:4.4.4")
+
     implementation("javax.annotation:javax.annotation-api:1.3.2")
 
     implementation("guru.nidi:graphviz-java-all-j2v8:0.18.1")
-    implementation("com.fasterxml:jackson-xml-databind:0.6.2")
+
+    // jaxb
+    implementation("org.glassfish.jaxb:jaxb-core:4.0.3")
+    implementation("org.glassfish.jaxb:jaxb-xjc:4.0.3")
+    implementation("org.glassfish.jaxb:jaxb-runtime:4.0.3")
+    implementation("org.glassfish.jaxb:jaxb-jxc:4.0.3")
 
     testImplementation("org.openjdk.jmh:jmh-core:1.36")
     testImplementation("org.openjdk.jmh:jmh-generator-annprocess:1.36")
