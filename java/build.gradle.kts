@@ -96,6 +96,7 @@ dependencies {
 
     implementation("javax.annotation:javax.annotation-api:1.3.2")
 
+    // rdf support
     implementation("guru.nidi:graphviz-java-all-j2v8:0.18.1")
 
     // jaxb
@@ -103,6 +104,23 @@ dependencies {
     implementation("org.glassfish.jaxb:jaxb-xjc:4.0.3")
     implementation("org.glassfish.jaxb:jaxb-runtime:4.0.3")
     implementation("org.glassfish.jaxb:jaxb-jxc:4.0.3")
+    implementation("org.apache.jena:jena-core:4.9.0")
+    implementation("org.apache.commons:commons-rdf-jena:0.5.0")
+    implementation("org.glassfish:jakarta.json:2.0.1")
+    implementation("org.apache.jena:apache-jena-libs:4.9.0")
+    implementation("com.github.jsonld-java:jsonld-java:0.13.4")
+    implementation("com.github.jsonld-java:jsonld-java-rdf2go:0.12.0")
+    implementation("com.github.jsonld-java:jsonld-java-tools:0.12.4")
+    implementation("com.github.jsonld-java:jsonld-java-integration:0.6.0")
+    implementation("org.apache.jena:jena-commonsrdf:4.9.0")
+    implementation("org.apache.jena:jena-commonsrdf:4.9.0")
+    implementation("com.apicatalog:titanium-json-ld:1.3.2")
+    implementation("com.github.fluentxml4j:fluentxml4j-core:2.2.1")
+    implementation("com.github.fluentxml4j:fluentxml4j-junit:2.2.1")
+    implementation("org.apache.cxf:cxf-xerces-xsd-validation:2.7.18")
+    implementation("xerces:xerces:2.4.0")
+    implementation("org.exist-db.thirdparty.xerces:xercesImpl:2.12.2")
+    implementation("org.opengis.cite.xerces:xercesImpl-xsd11:2.12-beta-r1667115")
 
     testImplementation("org.openjdk.jmh:jmh-core:1.36")
     testImplementation("org.openjdk.jmh:jmh-generator-annprocess:1.36")

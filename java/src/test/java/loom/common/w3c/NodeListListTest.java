@@ -1,15 +1,14 @@
 package loom.common.w3c;
 
-import loom.testing.CommonAssertions;
-import org.junit.Test;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-
-import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import javax.xml.parsers.DocumentBuilderFactory;
+import loom.testing.CommonAssertions;
+import org.junit.Test;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 public class NodeListListTest implements CommonAssertions {
   public static NodeList exampleNodeList() {
