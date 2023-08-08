@@ -24,11 +24,17 @@
         </xs:annotation>
         <xs:complexType>
             <xs:sequence>
-                <!--
-                 | Ideally, this would be restricted to subtypes of NodeType;
-                 | but that requires use of an XSD 1.1 processor.
-                 +-->
-                <xs:any minOccurs="0" maxOccurs="unbounded"/>
+                <xs:element name="nodes">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <!--
+                             | Ideally, this would be restricted to subtypes of NodeType;
+                             | but that requires use of an XSD 1.1 processor.
+                             +-->
+                            <xs:any minOccurs="0" maxOccurs="unbounded"/>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
             </xs:sequence>
         </xs:complexType>
     </xs:element>
@@ -107,7 +113,7 @@
                 <xs:extension base="eg:NodeType">
                     <xs:sequence>
                         <xs:element ref="eg:inputs" minOccurs="0"/>
-                        <xs:element ref="eg:results" minOccurs="0"/>
+                        <xs:element ref="eg:outputs" minOccurs="0"/>
                         <xs:element ref="eg:options" minOccurs="0"/>
                     </xs:sequence>
                     <xs:attribute name="op" type="xs:anyURI" use="required"/>
@@ -116,7 +122,7 @@
         </xs:complexType>
     </xs:element>
 
-    <!-- Operation inputs and results -->
+    <!-- Operation inputs and outputs -->
     <xs:complexType name="KeyedReferenceMap">
         <xs:annotation>
             <xs:documentation>
@@ -128,7 +134,7 @@
             <xs:element name="item" maxOccurs="unbounded">
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element ref="eg:ref" minOccurs="1" maxOccurs="unbounded"/>
+                        <xs:element ref="eg:ref" maxOccurs="unbounded"/>
                     </xs:sequence>
                     <xs:attribute name="name" type="eg:SimpleIdent"/>
                 </xs:complexType>
@@ -143,8 +149,8 @@
         </xs:unique>
     </xs:element>
 
-    <xs:element name="results" type="eg:KeyedReferenceMap">
-        <xs:unique name="results.unique.keys">
+    <xs:element name="outputs" type="eg:KeyedReferenceMap">
+        <xs:unique name="outputs.unique.keys">
             <xs:selector xpath="eg:item"/>
             <xs:field xpath="@name"/>
         </xs:unique>
@@ -156,7 +162,7 @@
                 <xs:element name="item" maxOccurs="unbounded">
                     <xs:complexType>
                         <xs:sequence>
-                            <xs:any minOccurs="0" maxOccurs="unbounded"/>
+                            <xs:any maxOccurs="unbounded"/>
                         </xs:sequence>
                         <xs:attribute name="name" type="eg:SimpleIdent"/>
                     </xs:complexType>
@@ -198,8 +204,20 @@
         <xs:complexType>
             <xs:complexContent>
                 <xs:extension base="eg:NodeType">
-                    <xs:attribute name="dtype" type="xs:string" use="required"/>
-                    <xs:attribute name="shape" type="eg:ZTensor" use="required"/>
+                    <xs:sequence>
+                        <xs:element name="dtype" type="eg:SimpleIdent"/>
+                        <xs:element name="shape">
+                            <xs:complexType>
+                                <xs:sequence>
+                                    <xs:element name="dim" minOccurs="0" maxOccurs="unbounded">
+                                        <xs:complexType>
+                                            <xs:attribute name="size" type="xs:nonNegativeInteger" use="required"/>
+                                        </xs:complexType>
+                                    </xs:element>
+                                </xs:sequence>
+                            </xs:complexType>
+                        </xs:element>
+                    </xs:sequence>
                 </xs:extension>
             </xs:complexContent>
         </xs:complexType>

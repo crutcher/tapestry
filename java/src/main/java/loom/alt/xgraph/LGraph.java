@@ -5,7 +5,6 @@ import loom.common.w3c.NodeListList;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
-import javax.xml.transform.dom.DOMSource;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -13,7 +12,6 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.UUID;
 
 @Data
@@ -85,17 +83,12 @@ public class LGraph {
   }
 
   public void validate() {
-    try {
-      var val = XGraphUtils.getLoomSchema(doc).newValidator();
-      val.validate(new DOMSource(doc));
-    } catch (Exception e) {
-      throw new RuntimeException(e);
-    }
+    XGraphUtils.validateLoomGraph(doc);
   }
 
   private List<Node> docNodes() {
     var result = new ArrayList<Node>();
-    for (var n : NodeListList.of(doc.getDocumentElement().getChildNodes())) {
+    for (var n : NodeListList.of(doc.getElementsByTagNameNS(XGraphUtils.EG_SCHEMA_URI, "nodes").item(0).getChildNodes())) {
       if (n.getNodeType() == Node.ELEMENT_NODE && n.getAttributes().getNamedItem("id") != null) {
         result.add(n);
       }
@@ -107,10 +100,10 @@ public class LGraph {
     return docNodes().stream().map(NodeHandle::new).toList();
   }
 
-  public NodeHandle getNode(String id) {
-    for (var n : listNodes()) {
-      if (n.getId().equals(id)) return n;
-    }
-    throw new NoSuchElementException(id);
-  }
+  // TODO: setIdAttribute
+  //  public NodeHandle getNode(String id) {
+  //    var docNode = doc.getElementById(id);
+  //    if (docNode == null) throw new NoSuchElementException(id);
+  //    return new NodeHandle(docNode);
+  //  }
 }
