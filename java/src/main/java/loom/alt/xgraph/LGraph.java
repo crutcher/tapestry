@@ -1,10 +1,5 @@
 package loom.alt.xgraph;
 
-import lombok.Data;
-import loom.common.w3c.NodeListList;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -13,6 +8,10 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import lombok.Data;
+import loom.common.w3c.NodeListList;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 
 @Data
 public class LGraph {
@@ -38,9 +37,7 @@ public class LGraph {
   }
 
   public static LGraph from(Document doc) {
-    var graph = new LGraph(doc);
-    graph.validate();
-    return graph;
+    return new LGraph(doc);
   }
 
   public static LGraph from(InputStream is) {
@@ -73,13 +70,17 @@ public class LGraph {
   private Document doc;
 
   public LGraph(Document doc) {
-    doc.normalizeDocument();
+    this(doc, true);
+  }
+
+  LGraph(Document doc, boolean validate) {
     this.doc = doc;
+    if (validate) validate();
   }
 
   @Override
   public LGraph clone() {
-    return new LGraph((Document) doc.cloneNode(true));
+    return new LGraph((Document) doc.cloneNode(true), false);
   }
 
   public void validate() {
@@ -88,7 +89,11 @@ public class LGraph {
 
   private List<Node> docNodes() {
     var result = new ArrayList<Node>();
-    for (var n : NodeListList.of(doc.getElementsByTagNameNS(XGraphUtils.EG_SCHEMA_URI, "nodes").item(0).getChildNodes())) {
+    for (var n :
+        NodeListList.of(
+            doc.getElementsByTagNameNS(XGraphUtils.EG_SCHEMA_URI, "nodes")
+                .item(0)
+                .getChildNodes())) {
       if (n.getNodeType() == Node.ELEMENT_NODE && n.getAttributes().getNamedItem("id") != null) {
         result.add(n);
       }

@@ -16,11 +16,15 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathFactory;
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -65,6 +69,10 @@ public final class XGraphUtils {
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
+  }
+
+  public static Document parse(String source) {
+    return parse(new ByteArrayInputStream(source.getBytes(StandardCharsets.UTF_8)));
   }
 
   public static final SchemaFactory schemaFactory =
@@ -165,8 +173,9 @@ public final class XGraphUtils {
     }
 
     try {
-      var schema = schemaFactory.newSchema(
-          loadSchemaNodes(ns).stream().map(DOMSource::new).toArray(Source[]::new));
+      var schema =
+          schemaFactory.newSchema(
+              loadSchemaNodes(ns).stream().map(DOMSource::new).toArray(Source[]::new));
       SCHEMA_CACHE.put(key, schema);
       return schema;
     } catch (Exception e) {
@@ -179,10 +188,10 @@ public final class XGraphUtils {
   private static final Document XSLT_DOC = parse(resourceAsStream(XFORM_RESOURCE));
 
   private static final Transformer XSLT_TRANSFORMER;
+
   static {
     try {
-      XSLT_TRANSFORMER =
-              factory.newTransformer(new DOMSource(XSLT_DOC));
+      XSLT_TRANSFORMER = factory.newTransformer(new DOMSource(XSLT_DOC));
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
@@ -192,34 +201,40 @@ public final class XGraphUtils {
   public static void xsltCheck(Document loomDoc) {
     List<String> errors = new ArrayList<>();
     XSLT_TRANSFORMER.setErrorListener(
-            new javax.xml.transform.ErrorListener() {
+        new javax.xml.transform.ErrorListener() {
 
-              @Override
-              public void warning(TransformerException e) throws TransformerException {
-                errors.add(e.getMessageAndLocation());
-                throw e;
-              }
+          @Override
+          public void warning(TransformerException e) throws TransformerException {
+            errors.add(e.getMessageAndLocation());
+            throw e;
+          }
 
-              @Override
-              public void error(TransformerException e) throws TransformerException {
-                errors.add(e.getMessageAndLocation());
-                throw e;
-              }
+          @Override
+          public void error(TransformerException e) throws TransformerException {
+            errors.add(e.getMessageAndLocation());
+            throw e;
+          }
 
-              @Override
-              public void fatalError(TransformerException e) throws TransformerException {
-                errors.add(e.getMessageAndLocation());
-                throw e;
-              }
-            }
-    );
+          @Override
+          public void fatalError(TransformerException e) throws TransformerException {
+            errors.add(e.getMessageAndLocation());
+            throw e;
+          }
+        });
 
+    Document errorDoc = documentBuilder.newDocument();
 
-    var result = new DOMResult();
+    var result = new DOMResult(errorDoc);
     try {
       XSLT_TRANSFORMER.transform(new DOMSource(loomDoc), result);
     } catch (TransformerException e) {
       throw new IllegalStateException(Joiner.on("\n").join(errors));
+    }
+
+    Document outDoc = (Document) result.getNode();
+    if (outDoc.getElementsByTagName("error").getLength() > 0) {
+      throw new IllegalStateException(
+              documentToString(outDoc));
     }
   }
 
@@ -238,6 +253,23 @@ public final class XGraphUtils {
     }
 
     xsltCheck(doc);
+  }
 
+
+  public static String documentToString(Document document) {
+    try {
+      DOMSource domSource = new DOMSource(document);
+      StringWriter writer = new StringWriter();
+      StreamResult result = new StreamResult(writer);
+
+      TransformerFactory tf = TransformerFactory.newInstance();
+      Transformer transformer = tf.newTransformer();
+      transformer.transform(domSource, result);
+
+      return writer.toString();
+    } catch (Exception ex) {
+      ex.printStackTrace();
+      return null;
+    }
   }
 }

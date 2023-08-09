@@ -17,14 +17,21 @@ public class XGraphUtilsTest implements CommonAssertions {
 
     String source =
         """
-                <?xml version="1.0" encoding="UTF-8"?>
-                <eg:graph
-                      xmlns:eg="http://loom-project.org/schemas/v0.1/ExpressionGraph.core.xsd"
-                  >
-                  <eg:tensor id="node-00000000-0000-0000-0000-0000000000E1" dtype="float32" shape="[30, 2]"/>
-                  <eg:tensor id="node-00000000-0000-0000-0000-0000000000E2" dtype="float32" shape="[20, 3]"/>
-                  </eg:graph>
-                """;
+        <?xml version="1.0" encoding="UTF-8"?>
+        <eg:graph
+              xmlns:eg="http://loom-project.org/schemas/v0.1/ExpressionGraph.core.xsd"
+          >
+          <eg:nodes>
+            <eg:tensor id="node-00000000-0000-0000-0000-0000000000E1">
+              <eg:dtype>float32</eg:dtype>
+              <eg:shape>
+                <eg:dim size="30"/>
+                <eg:dim size="2"/>
+                </eg:shape>
+              </eg:tensor>
+          </eg:nodes>
+          </eg:graph>
+        """;
 
     var doc = dBuilder.parse(new ByteArrayInputStream(source.getBytes(StandardCharsets.UTF_8)));
 
