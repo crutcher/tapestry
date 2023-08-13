@@ -78,7 +78,7 @@
         <!-- this is the linked-annotation approach. -->
         <xs:complexContent>
             <xs:extension base="eg:NodeType">
-                <xs:attribute name="ref" type="eg:NodeRef" use="required"/>
+                <xs:attribute name="target" type="eg:NodeRef" use="required"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>

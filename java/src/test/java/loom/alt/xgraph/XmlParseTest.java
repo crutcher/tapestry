@@ -2,11 +2,14 @@ package loom.alt.xgraph;
 
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.Marshaller;
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.StringWriter;
-import java.nio.charset.StandardCharsets;
-import java.util.Iterator;
+import loom.common.serialization.JsonSchemaTest;
+import loom.testing.CommonAssertions;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
+import org.w3c.dom.Document;
+import org.w3c.dom.NodeList;
+
 import javax.xml.XMLConstants;
 import javax.xml.namespace.NamespaceContext;
 import javax.xml.parsers.DocumentBuilder;
@@ -19,13 +22,11 @@ import javax.xml.validation.SchemaFactory;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
-import loom.common.serialization.JsonSchemaTest;
-import loom.testing.CommonAssertions;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-import org.w3c.dom.Document;
-import org.w3c.dom.NodeList;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
+import java.util.Iterator;
 
 public class XmlParseTest implements CommonAssertions {
   @Rule public TemporaryFolder temp = new TemporaryFolder();
@@ -112,7 +113,6 @@ public class XmlParseTest implements CommonAssertions {
 
       return writer.toString();
     } catch (Exception e) {
-      e.printStackTrace();
       throw new RuntimeException("Error converting to String", e);
     }
   }
@@ -187,6 +187,7 @@ public class XmlParseTest implements CommonAssertions {
     // Set the NamespaceContext to resolve prefixes in the XPath expression
     xpath.setNamespaceContext(
         new NamespaceContext() {
+          @Override
           public String getNamespaceURI(String prefix) {
             if (prefix == null) throw new NullPointerException("Null prefix");
             else if ("t".equals(prefix)) return "http://loom.org/v1";

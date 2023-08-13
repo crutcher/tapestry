@@ -1,5 +1,10 @@
 package loom.alt.xgraph;
 
+import lombok.Data;
+import loom.common.w3c.NodeListList;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -7,14 +12,23 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.UUID;
-import lombok.Data;
-import loom.common.w3c.NodeListList;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
 
 @Data
-public class LGraph {
+public final class LGraph {
+
+  public static String uuidToNodeId(UUID uuid) {
+    return "node-" + uuid.toString();
+  }
+
+  public static UUID nodeIdToUuid(String nodeId) {
+    if (!nodeId.startsWith("node-")) {
+      throw new IllegalArgumentException("Invalid node id: " + nodeId);
+    }
+    return UUID.fromString(nodeId.substring(5));
+  }
+
   @Data
   public class NodeHandle {
     private final Node node;
@@ -28,7 +42,7 @@ public class LGraph {
     }
 
     public UUID getUUID() {
-      return UUID.fromString(getId());
+      return nodeIdToUuid(getId());
     }
 
     public LGraph getGraph() {
@@ -61,30 +75,33 @@ public class LGraph {
   }
 
   public static LGraph create() {
-    var doc = XGraphUtils.documentBuilder.newDocument();
+    var doc = XGraphUtils.DOCUMENT_BUILDER.newDocument();
     doc.appendChild(doc.createElementNS(XGraphUtils.EG_SCHEMA_URI, "loom:graph"));
 
     return new LGraph(doc);
   }
 
+  private LoomValidator validator;
+
   private Document doc;
 
   public LGraph(Document doc) {
-    this(doc, true);
+    this(doc, LoomValidator.instance, true);
   }
 
-  LGraph(Document doc, boolean validate) {
+  LGraph(Document doc, LoomValidator validator, boolean validate) {
     this.doc = doc;
+    this.validator = validator;
     if (validate) validate();
   }
 
   @Override
   public LGraph clone() {
-    return new LGraph((Document) doc.cloneNode(true), false);
+    return new LGraph((Document) doc.cloneNode(true), validator, false);
   }
 
   public void validate() {
-    XGraphUtils.validateLoomGraph(doc);
+    validator.validate(doc);
   }
 
   private List<Node> docNodes() {
@@ -105,10 +122,16 @@ public class LGraph {
     return docNodes().stream().map(NodeHandle::new).toList();
   }
 
-  // TODO: setIdAttribute
-  //  public NodeHandle getNode(String id) {
-  //    var docNode = doc.getElementById(id);
-  //    if (docNode == null) throw new NoSuchElementException(id);
-  //    return new NodeHandle(docNode);
-  //  }
+  public NodeHandle getNode(UUID uuid) {
+    return getNode(uuidToNodeId(uuid));
+  }
+
+  public NodeHandle getNode(String id) {
+    for (var n : docNodes()) {
+      if (n.getAttributes().getNamedItem("id").getNodeValue().equals(id)) {
+        return new NodeHandle(n);
+      }
+    }
+    throw new NoSuchElementException(id);
+  }
 }

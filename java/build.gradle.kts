@@ -121,6 +121,8 @@ dependencies {
     implementation("xerces:xerces:2.4.0")
     implementation("org.exist-db.thirdparty.xerces:xercesImpl:2.12.2")
     implementation("org.opengis.cite.xerces:xercesImpl-xsd11:2.12-beta-r1667115")
+    implementation("xalan:xalan:2.7.3")
+    implementation("xalan:serializer:2.7.3")
 
     testImplementation("org.openjdk.jmh:jmh-core:1.36")
     testImplementation("org.openjdk.jmh:jmh-generator-annprocess:1.36")

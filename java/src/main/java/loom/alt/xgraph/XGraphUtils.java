@@ -10,10 +10,7 @@ import javax.xml.XMLConstants;
 import javax.xml.namespace.NamespaceContext;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.transform.Source;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.*;
 import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
@@ -21,9 +18,7 @@ import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathFactory;
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.io.StringWriter;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -38,26 +33,30 @@ public final class XGraphUtils {
 
   public record SchemaResource(String prefix, String namespace, String resourcePath) {}
 
+  public static final String EXPRESSION_GRAPH_CORE_XSD = "loom/alt/xgraph/ExpressionGraph.core.xsd";
+  public static final String EXPRESSION_GRAPH_EXT_XSD = "loom/alt/xgraph/ExpressionGraph.ext.xsd";
+
   public static final List<SchemaResource> SCHEMA_RESOURCES =
       List.of(
-          new SchemaResource("loom", EG_SCHEMA_URI, "loom/alt/xgraph/ExpressionGraph.core.xsd"),
-          new SchemaResource("ext", EG_EXT_SCHEMA_URI, "loom/alt/xgraph/ExpressionGraph.ext.xsd"));
+          new SchemaResource("loom", EG_SCHEMA_URI, EXPRESSION_GRAPH_CORE_XSD),
+          new SchemaResource("ext", EG_EXT_SCHEMA_URI, EXPRESSION_GRAPH_EXT_XSD));
 
   public static final String XFORM_RESOURCE = "loom/alt/xgraph/Validate.core.xsl";
 
-  public static final DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+  public static final DocumentBuilderFactory DOCUMENT_BUILDER_FACTORY =
+      DocumentBuilderFactory.newInstance();
 
   static {
-    dbFactory.setNamespaceAware(true);
-    dbFactory.setIgnoringComments(true);
-    dbFactory.setIgnoringElementContentWhitespace(true);
+    DOCUMENT_BUILDER_FACTORY.setNamespaceAware(true);
+    DOCUMENT_BUILDER_FACTORY.setIgnoringComments(true);
+    DOCUMENT_BUILDER_FACTORY.setIgnoringElementContentWhitespace(true);
   }
 
-  public static final DocumentBuilder documentBuilder;
+  public static final DocumentBuilder DOCUMENT_BUILDER;
 
   static {
     try {
-      documentBuilder = dbFactory.newDocumentBuilder();
+      DOCUMENT_BUILDER = DOCUMENT_BUILDER_FACTORY.newDocumentBuilder();
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
@@ -65,7 +64,7 @@ public final class XGraphUtils {
 
   public static Document parse(InputStream is) {
     try {
-      return documentBuilder.parse(is);
+      return DOCUMENT_BUILDER.parse(is);
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
@@ -183,7 +182,7 @@ public final class XGraphUtils {
     }
   }
 
-  public static final TransformerFactory factory = TransformerFactory.newInstance();
+  public static final TransformerFactory TRANSFORMER_FACTORY = TransformerFactory.newInstance();
 
   private static final Document XSLT_DOC = parse(resourceAsStream(XFORM_RESOURCE));
 
@@ -191,7 +190,7 @@ public final class XGraphUtils {
 
   static {
     try {
-      XSLT_TRANSFORMER = factory.newTransformer(new DOMSource(XSLT_DOC));
+      XSLT_TRANSFORMER = TRANSFORMER_FACTORY.newTransformer(new DOMSource(XSLT_DOC));
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
@@ -222,7 +221,7 @@ public final class XGraphUtils {
           }
         });
 
-    Document errorDoc = documentBuilder.newDocument();
+    Document errorDoc = DOCUMENT_BUILDER.newDocument();
 
     var result = new DOMResult(errorDoc);
     try {
@@ -233,8 +232,7 @@ public final class XGraphUtils {
 
     Document outDoc = (Document) result.getNode();
     if (outDoc.getElementsByTagName("error").getLength() > 0) {
-      throw new IllegalStateException(
-              documentToString(outDoc));
+      throw new IllegalStateException(documentToString(outDoc));
     }
   }
 
@@ -255,21 +253,45 @@ public final class XGraphUtils {
     xsltCheck(doc);
   }
 
-
-  public static String documentToString(Document document) {
+  public static String documentToString(Node node) {
     try {
-      DOMSource domSource = new DOMSource(document);
+      DOMSource domSource = new DOMSource(node);
       StringWriter writer = new StringWriter();
       StreamResult result = new StreamResult(writer);
 
-      TransformerFactory tf = TransformerFactory.newInstance();
-      Transformer transformer = tf.newTransformer();
+      Transformer transformer = TRANSFORMER_FACTORY.newTransformer();
+      transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
       transformer.transform(domSource, result);
 
       return writer.toString();
     } catch (Exception ex) {
-      ex.printStackTrace();
-      return null;
+      throw new RuntimeException(ex);
+    }
+  }
+
+  public static void documentToFile(Node node, File path) {
+    try {
+      DOMSource domSource = new DOMSource(node);
+      FileWriter writer = new FileWriter(path);
+      StreamResult result = new StreamResult(writer);
+
+      Transformer transformer = TRANSFORMER_FACTORY.newTransformer();
+      transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+      transformer.transform(domSource, result);
+
+    } catch (Exception ex) {
+      throw new RuntimeException(ex);
+    }
+  }
+
+  public static File documentToTempFile(Node node) {
+    try {
+      File tempFile = File.createTempFile("tmp", ".tmp");
+      tempFile.deleteOnExit();
+      documentToFile(node, tempFile);
+      return tempFile;
+    } catch (Exception ex) {
+      throw new RuntimeException(ex);
     }
   }
 }

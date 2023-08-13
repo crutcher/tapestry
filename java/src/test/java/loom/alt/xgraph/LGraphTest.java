@@ -1,5 +1,7 @@
 package loom.alt.xgraph;
 
+import guru.nidi.graphviz.engine.Format;
+import guru.nidi.graphviz.engine.Graphviz;
 import loom.testing.CommonAssertions;
 import org.junit.Test;
 
@@ -33,7 +35,7 @@ public class LGraphTest implements CommonAssertions {
                   </eg:tensor>
                 <eg:trace
                     id="node-00000000-0000-0000-0000-0000000000A1"
-                    ref="node-00000000-0000-0000-0000-0000000000E0">
+                    target="node-00000000-0000-0000-0000-0000000000E0">
                   <eg:text>foo</eg:text>
                   </eg:trace>
                 <eg:operation id="node-00000000-0000-0000-0000-0000000000E0"
@@ -46,7 +48,7 @@ public class LGraphTest implements CommonAssertions {
                     </eg:inputs>
                   <eg:outputs>
                     <eg:item name="out">
-                      <eg:ref target="node-00000000-0000-0000-0000-0000000000E2" />
+                      <eg:ref target="node-00000000-0000-0000-0000-0000000000E3" />
                       </eg:item>
                     </eg:outputs>
                   <eg:options>
@@ -64,7 +66,14 @@ public class LGraphTest implements CommonAssertions {
               </eg:graph>
             """);
 
-    LGraph.from(doc);
+    var graph = LGraph.from(doc);
+
+    String dot = LGraphVisualizer.builder().build().toDot(graph);
+
+    @SuppressWarnings("unused")
+    var img = Graphviz.fromString(dot).render(Format.PNG).toImage();
+
+    System.out.println(dot);
   }
 
   @SuppressWarnings("unused")
@@ -95,7 +104,7 @@ public class LGraphTest implements CommonAssertions {
                 </eg:tensor>
               <eg:trace
                   id="node-00000000-0000-0000-0000-0000000000A1"
-                  ref="node-00000000-0000-0000-0000-0000000000E0">
+                  target="node-00000000-0000-0000-0000-0000000000E0">
                 <eg:text>foo</eg:text>
                 </eg:trace>
               <eg:operation id="node-00000000-0000-0000-0000-0000000000E0"
@@ -160,7 +169,7 @@ public class LGraphTest implements CommonAssertions {
                         </eg:tensor>
                       <eg:trace
                           id="node-00000000-0000-0000-0000-0000000000A1"
-                          ref="node-00000000-0000-0000-0000-0000000000E0">
+                          target="node-00000000-0000-0000-0000-0000000000E0">
                         <eg:text>foo</eg:text>
                         </eg:trace>
                       <eg:operation id="node-00000000-0000-0000-0000-0000000000E0"
