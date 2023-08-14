@@ -4,6 +4,82 @@
                 xmlns:eg="http://loom-project.org/schemas/v0.1/ExpressionGraph.core.xsd"
                 exclude-result-prefixes="eg"
 >
+    <!-- ===================================== -->
+    <!-- Work out importing utility sheets -->
+
+
+    <xsl:template name="GeneratePath">
+        <xsl:param name="this"/>
+        <xsl:param name="pathRoot"/>
+
+        <xsl:param name="stackFormatParts" select="'no'"/>
+
+        <xsl:param name="pathRootIsDocumentRoot" select="not($pathRoot/parent::node())"/>
+
+        <xsl:param name="parent" select="$this/parent::*"/>
+        <xsl:variable name="isDirectChild" select="$pathRoot = $parent"/>
+
+        <xsl:choose>
+            <xsl:when test="$this = $pathRoot">
+                <xsl:choose>
+                    <xsl:when test="$pathRootIsDocumentRoot">
+                        <xsl:text>/</xsl:text>
+                        <xsl:value-of select="name($this)"/>
+                    </xsl:when>
+                    <xsl:otherwise/>
+                </xsl:choose>
+            </xsl:when>
+            <xsl:otherwise>
+                <!-- Recurse for the prefix -->
+                <xsl:call-template name="GeneratePath">
+                    <xsl:with-param name="pathRoot" select="$pathRoot"/>
+                    <xsl:with-param name="this" select="$parent"/>
+                    <xsl:with-param name="stackFormatParts" select="$stackFormatParts"/>
+                </xsl:call-template>
+
+                <xsl:choose>
+                    <xsl:when test="$isDirectChild and $pathRootIsDocumentRoot">
+                        <xsl:text>/</xsl:text>
+                    </xsl:when>
+                    <xsl:when test="$isDirectChild"/>
+                    <xsl:otherwise>
+                        <xsl:if test="$stackFormatParts = 'yes'">
+                            <xsl:text>&#10;</xsl:text>
+                        </xsl:if>
+                        <xsl:text>/</xsl:text>
+                    </xsl:otherwise>
+                </xsl:choose>
+
+                <xsl:value-of select="name($this)"/>
+
+                <xsl:variable name="idAttribute"
+                              select="$this/@*[name() = 'id' or name() = 'key']"/>
+
+                <!-- Output the positional selector conditionally -->
+                <xsl:choose>
+                    <!-- hardcoded notion of which are id attributes -->
+                    <xsl:when test="boolean($idAttribute)">
+                        <xsl:text>[@</xsl:text>
+                        <xsl:value-of select="name($idAttribute)"/>
+                        <xsl:text>='</xsl:text>
+                        <xsl:value-of select="$idAttribute"/>
+                        <xsl:text>']</xsl:text>
+                    </xsl:when>
+
+                    <!-- If there's more than one sibling of the same name, include the position -->
+                    <xsl:when test="count($this/../child::*[name() = name($this)]) > 1">
+                        <xsl:value-of
+                                select="concat('[', count($this/preceding-sibling::*[name() = name($this)]) + 1, ']')"/>
+                    </xsl:when>
+                    <!-- Otherwise, don't output anything for the position -->
+                    <xsl:otherwise/>
+                </xsl:choose>
+            </xsl:otherwise>
+        </xsl:choose>
+
+    </xsl:template>
+
+    <!-- ===================================== -->
     <!--
     There are XSLT extensions which would permit us to directly pass a document or node-set;
     but debugging them with Java is a pain, so we'll just pass a URI and use a temp file.
@@ -28,13 +104,19 @@
     <xsl:template name="graph-defaults">
         <xsl:text>graph [</xsl:text>
         <xsl:text>"rankdir"="RL"</xsl:text>
+        <xsl:text>,"fontname"="helvetica"</xsl:text>
         <xsl:text>,"nodesep"="0.7"</xsl:text>
         <xsl:text>,"forcelabels"="true"</xsl:text>
         <xsl:text>]&#10;</xsl:text>
 
         <xsl:text>node [</xsl:text>
-        <xsl:text>"margin"="0.1",</xsl:text>
+        <xsl:text>"margin"="0.1"</xsl:text>
+        <xsl:text>,"fontname"="helvetica"</xsl:text>
         <xsl:text>"shape"="box"</xsl:text>
+        <xsl:text>]&#10;</xsl:text>
+
+        <xsl:text>edge [</xsl:text>
+        <xsl:text>"fontname"="helvetica"</xsl:text>
         <xsl:text>]&#10;</xsl:text>
     </xsl:template>
 
@@ -56,7 +138,7 @@
         <xsl:text>" [</xsl:text>
         <xsl:apply-templates mode="node-attrs" select="."/>
         <xsl:text disable-output-escaping="yes">,"xlabel"=&lt;</xsl:text>
-        <font color="red" point-size="12">
+        <font color="blue" point-size="12">
             <xsl:call-template name="node-id-to-alias">
                 <xsl:with-param name="id" select="@id"/>
             </xsl:call-template>
@@ -138,55 +220,29 @@
     </xsl:template>
 
     <xsl:template match="*" mode="edge-attrs">
-        <xsl:call-template name="edge-label"/>
+        <xsl:apply-templates mode="edge-label" select="."/>
     </xsl:template>
 
-    <xsl:template name="edge-label">
+    <xsl:template match="*" mode="edge-label">
         <xsl:text>"label"="</xsl:text>
-        <xsl:call-template name="generate-path">
-            <xsl:with-param name="ancestorNode" select="ancestor::*[@id][1]"/>
-            <xsl:with-param name="descendantNode" select="."/>
-            <xsl:with-param name="stack" select="'yes'"/>
+        <xsl:call-template name="GeneratePath">
+            <xsl:with-param name="pathRoot" select="ancestor::*[@id][1]"/>
+            <xsl:with-param name="this" select="."/>
+            <xsl:with-param name="stackFormatParts" select="'yes'"/>
         </xsl:call-template>
         <xsl:text>"</xsl:text>
     </xsl:template>
 
-    <xsl:template name="generate-path">
-        <xsl:param name="ancestorNode"/>
-        <xsl:param name="descendantNode"/>
-        <xsl:param name="stack" select="'no'"/>
+    <xsl:template match="eg:ref[ancestor::eg:inputs or ancestor::eg:outputs]" mode="edge-label">
+        <xsl:variable name="this" select="."/>
 
-        <!-- If the descendant node is neither the ancestor node nor the root, proceed -->
-        <xsl:if test="not($descendantNode = $ancestorNode)">
-            <xsl:call-template name="generate-path">
-                <xsl:with-param name="ancestorNode" select="$ancestorNode"/>
-                <xsl:with-param name="descendantNode" select="$descendantNode/parent::*"/>
-                <xsl:with-param name="stack" select="$stack"/>
-            </xsl:call-template>
-        </xsl:if>
-
-        <!-- Check if the current descendantNode is NOT the ancestorNode, then output its name and position -->
-        <xsl:if test="not($descendantNode = $ancestorNode)">
-            <!-- Check if we're at the first node after the ancestor; if not, prepend with a slash -->
-            <xsl:if test="not($descendantNode/parent::* = $ancestorNode)">
-                <xsl:if test="$stack = 'yes'">
-                    <xsl:text>&#10;</xsl:text>
-                </xsl:if>
-                <xsl:text>/</xsl:text>
-            </xsl:if>
-
-            <xsl:value-of select="name($descendantNode)"/>
-
-            <!-- Output the positional selector conditionally -->
-            <xsl:choose>
-                <!-- If there's more than one sibling of the same name, include the position -->
-                <xsl:when test="count($descendantNode/../child::*[name() = name($descendantNode)]) > 1">
-                    <xsl:value-of
-                            select="concat('[', count($descendantNode/preceding-sibling::*[name() = name($descendantNode)]) + 1, ']')"/>
-                </xsl:when>
-                <!-- Otherwise, don't output anything for the position -->
-                <xsl:otherwise/>
-            </xsl:choose>
-        </xsl:if>
+        <xsl:text>"label"="</xsl:text>
+        <xsl:value-of select="local-name(ancestor::eg:item/parent::*)"/>
+        <xsl:text>['</xsl:text>
+        <xsl:value-of select="ancestor::eg:item/@key"/>
+        <xsl:text>'][</xsl:text>
+        <xsl:value-of select="count($this/preceding-sibling::eg:ref) + 1"/>
+        <xsl:text>]"</xsl:text>
     </xsl:template>
+
 </xsl:stylesheet>

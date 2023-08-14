@@ -1,5 +1,8 @@
 package loom.alt.xgraph;
 
+import guru.nidi.graphviz.engine.Format;
+import guru.nidi.graphviz.engine.Graphviz;
+import guru.nidi.graphviz.engine.Renderer;
 import lombok.Builder;
 import org.w3c.dom.Document;
 
@@ -8,6 +11,8 @@ import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.stream.StreamSource;
+import java.awt.image.BufferedImage;
+import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -18,9 +23,43 @@ import java.util.Map;
 
 @Builder
 public class LGraphVisualizer {
+  LGraph graph;
+
   @Builder.Default boolean debugTransform = true;
 
   @Builder.Default private Integer minPrefixLength = 3;
+
+  @Builder.Default private Float scale = 2.0f;
+
+  String dot;
+
+  @Builder
+  public LGraphVisualizer(
+        LGraph graph,
+        boolean debugTransform,
+        Integer minPrefixLength,
+        Float scale,
+        String dot) {
+    this.graph = graph;
+    this.debugTransform = debugTransform;
+    this.minPrefixLength = minPrefixLength;
+    this.scale = scale;
+    this.dot = dot;
+
+    toDot();
+  }
+
+  public void clear() {
+    dot = null;
+  }
+
+  public BufferedImage toImage() {
+    return toRenderer(Format.PNG).toImage();
+  }
+
+  public Renderer toRenderer(Format format) {
+    return Graphviz.fromString(toDot()).scale(scale).render(format);
+  }
 
   public Transformer getTransformer() {
     try {
@@ -34,7 +73,7 @@ public class LGraphVisualizer {
     }
   }
 
-  Map<String, String> buildIdToAliasMap(LGraph graph) {
+  private Map<String, String> buildIdToAliasMap() {
     Map<String, String> longSyms = new HashMap<>();
     for (var tnode : graph.listNodes()) {
       var id = tnode.getId();
@@ -62,12 +101,12 @@ public class LGraphVisualizer {
     return longSyms;
   }
 
-  Document buildNodeAliases(LGraph graph) {
+  private Document buildNodeAliases() {
     var doc = XGraphUtils.DOCUMENT_BUILDER.newDocument();
     var root = doc.createElement("NodeAliases");
     doc.appendChild(root);
 
-    buildIdToAliasMap(graph)
+    buildIdToAliasMap()
         .forEach(
             (id, alias) -> {
               var node = doc.createElement("node");
@@ -79,7 +118,11 @@ public class LGraphVisualizer {
     return doc;
   }
 
-  public String toDot(LGraph graph) {
+  public String toDot() {
+    if (dot != null) {
+        return dot;
+    }
+
     var transformer = getTransformer();
 
     if (debugTransform) {
@@ -105,17 +148,21 @@ public class LGraphVisualizer {
           });
     }
 
-      transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+    transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
 
-    transformer.setParameter(
-        "NodeAliasesURI", XGraphUtils.documentToTempFile(buildNodeAliases(graph)).toURI());
+      Document aliasesDoc = buildNodeAliases();
+      File paramFile = XGraphUtils.documentToTempFile(aliasesDoc);
+      transformer.setParameter(
+        "NodeAliasesURI", paramFile.toURI());
 
     try {
       var result = new javax.xml.transform.stream.StreamResult(new java.io.StringWriter());
       transformer.transform(new javax.xml.transform.dom.DOMSource(graph.getDoc()), result);
-      return result.getWriter().toString();
+      dot = result.getWriter().toString();
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
+
+    return dot;
   }
 }

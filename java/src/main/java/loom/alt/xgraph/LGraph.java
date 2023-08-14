@@ -1,10 +1,5 @@
 package loom.alt.xgraph;
 
-import lombok.Data;
-import loom.common.w3c.NodeListList;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -14,6 +9,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
+import lombok.Data;
+import loom.common.w3c.NodeListList;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 
 @Data
 public final class LGraph {

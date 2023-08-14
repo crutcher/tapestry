@@ -1,8 +1,17 @@
 package loom.alt.xgraph;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import lombok.Builder;
+import lombok.Value;
+import loom.common.serialization.JsonUtil;
 import loom.common.w3c.NodeListList;
 import org.w3c.dom.Document;
+import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
+import org.xml.sax.ErrorHandler;
+import org.xml.sax.Locator;
+import org.xml.sax.SAXException;
+import org.xml.sax.SAXParseException;
 
 import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
@@ -16,13 +25,12 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 import java.io.InputStream;
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public final class LoomValidator {
   public static final String EG_SCHEMA_URI =
@@ -126,36 +134,147 @@ public final class LoomValidator {
     transformers.add(transformer);
   }
 
-  public void validate(Document doc) {
+  @Builder
+  @Value
+  private static class IdLocator implements Locator {
+    @Builder.Default String publicId = null;
+    @Builder.Default String systemId = null;
+    @Builder.Default int lineNumber = -1;
+    @Builder.Default int columnNumber = -1;
+  }
+
+  public ValidationReport validationReport(Document doc) {
+    // TODO: collect as many errors as possible, present them at once.
+    // This may not be possible, malformation at one layer may prevent other checks;
+    // but the goal is to generate structured lint output here as a lib, and
+    // then in the "just validate" context, format it to a string and throw an error.
+    var report = new ValidationReport();
+
+    var validator = getSchema().newValidator();
+    final List<SAXParseException> xsdExceptions = new ArrayList<>();
+    validator.setErrorHandler(
+        new ErrorHandler() {
+          @Override
+          public void warning(SAXParseException exception) throws SAXException {
+            xsdExceptions.add(exception);
+          }
+
+          @Override
+          public void error(SAXParseException exception) throws SAXException {
+            xsdExceptions.add(exception);
+          }
+
+          @Override
+          public void fatalError(SAXParseException exception) throws SAXException {
+            xsdExceptions.add(exception);
+          }
+        });
+
     try {
-      getSchema().newValidator().validate(new DOMSource(doc));
+      validator.validate(new DOMSource(doc));
+    } catch (SAXException e) {
+      // This catch is if a fatalError occurs. Other errors and warnings are captured by the
+      // ErrorHandler.
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
 
-    List<Node> errors = new ArrayList<>();
+    for (var e : xsdExceptions) {
+      var details = new LinkedHashMap<String, String>();
+      report.issues.add(
+          ValidationReport.Issue.builder()
+              .type("XsdSchema")
+              .lineNumber(e.getLineNumber())
+              .details(details)
+              .summary("Schema validation error")
+              .message(e.getMessage())
+              .build());
+    }
+
     for (var transformer : transformers) {
       Document resultDoc = DOCUMENT_BUILDER.newDocument();
       try {
         transformer.transform(new DOMSource(doc), new DOMResult(resultDoc));
-        errors.addAll(NodeListList.of(resultDoc.getElementsByTagName("error")));
       } catch (TransformerException e) {
-        throw new RuntimeException(e);
+        throw new LoomValidationException(e.getMessage(), e);
+      }
+
+      for (var error : NodeListList.of(resultDoc.getElementsByTagName("error"))) {
+
+        NamedNodeMap attributes = error.getAttributes();
+        var type = attributes.getNamedItem("type").getTextContent();
+        var path = attributes.getNamedItem("path").getTextContent();
+
+        var details = new LinkedHashMap<String, String>();
+        try {
+          var detailsNode =
+              (Node) XGraphUtils.xpath.evaluate("details", error, XPathConstants.NODE);
+          if (detailsNode != null) {
+            for (var detail : NodeListList.of(detailsNode.getChildNodes())) {
+              details.put(detail.getNodeName(), detail.getTextContent());
+            }
+          }
+        } catch (XPathExpressionException e) {
+          throw new RuntimeException(e);
+        }
+
+        String summary;
+        try {
+          summary = (String) XGraphUtils.xpath.evaluate("summary", error, XPathConstants.STRING);
+        } catch (XPathExpressionException e) {
+          throw new RuntimeException(e);
+        }
+
+        StringBuilder sb = new StringBuilder();
+
+        // TODO: maybe a rendering XSLT, or some XPath here?
+        // select the 'message' element child of 'node':
+        var message =
+            NodeListList.of(error.getChildNodes()).stream()
+                .filter(n -> n.getNodeName().equals("message"))
+                .findFirst()
+                .get();
+        var render = XGraphUtils.documentToString(message);
+        // Drop the wrapper.
+        sb.append(render.replace("<message>", "").replace("</message>", ""));
+
+        report.issues.add(
+            ValidationReport.Issue.builder()
+                .xpath(path)
+                .type(type)
+                .summary(summary)
+                .message(sb.toString())
+                .details(details)
+                .build());
       }
     }
 
-    if (!errors.isEmpty()) {
-      StringBuilder sb = new StringBuilder();
+    // Parse all the JSON
+    // It would be nice to apply JSON schema to things; if we had a way to match them.
+    for (var jsonNode : NodeListList.of(doc.getElementsByTagNameNS(EG_SCHEMA_URI, "json"))) {
+      var json = jsonNode.getTextContent().trim();
 
-      for (int i = 0; i < errors.size(); i++) {
-        var error = errors.get(i);
-        sb.append("\n");
-
-        sb.append(XGraphUtils.documentToString(error));
+      try {
+        JsonUtil.fromJson(json, JsonNode.class);
+      } catch (Exception e) {
+        report.issues.add(
+            ValidationReport.Issue.builder()
+                .type("JsonParse")
+                .xpath(XGraphUtils.getXPath(jsonNode, Set.of("id", "key")))
+                .summary("JSON parse error")
+                .message(e.getMessage().trim())
+                .details(Map.of("json", "<%s>".formatted(json)))
+                .build());
       }
-      sb.append("\n");
+    }
 
-      throw new IllegalArgumentException(sb.toString());
+    return report;
+  }
+
+  public void validate(Document doc) {
+    var report = validationReport(doc);
+    if (!report.isValid()) {
+      throw new LoomValidationException(report.toCollatedString(doc));
     }
   }
 }

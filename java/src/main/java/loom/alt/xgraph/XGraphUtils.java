@@ -38,7 +38,7 @@ public final class XGraphUtils {
 
   public static final List<SchemaResource> SCHEMA_RESOURCES =
       List.of(
-          new SchemaResource("loom", EG_SCHEMA_URI, EXPRESSION_GRAPH_CORE_XSD),
+          new SchemaResource("eg", EG_SCHEMA_URI, EXPRESSION_GRAPH_CORE_XSD),
           new SchemaResource("ext", EG_EXT_SCHEMA_URI, EXPRESSION_GRAPH_EXT_XSD));
 
   public static final String XFORM_RESOURCE = "loom/alt/xgraph/Validate.core.xsl";
@@ -253,14 +253,27 @@ public final class XGraphUtils {
     xsltCheck(doc);
   }
 
+  private static Transformer outputTransformer() {
+    Transformer transformer;
+    try {
+      transformer = TRANSFORMER_FACTORY.newTransformer();
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
+    transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+    transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+
+    return transformer;
+  }
+
   public static String documentToString(Node node) {
     try {
       DOMSource domSource = new DOMSource(node);
       StringWriter writer = new StringWriter();
       StreamResult result = new StreamResult(writer);
 
-      Transformer transformer = TRANSFORMER_FACTORY.newTransformer();
-      transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+      var transformer = outputTransformer();
+
       transformer.transform(domSource, result);
 
       return writer.toString();
@@ -275,8 +288,7 @@ public final class XGraphUtils {
       FileWriter writer = new FileWriter(path);
       StreamResult result = new StreamResult(writer);
 
-      Transformer transformer = TRANSFORMER_FACTORY.newTransformer();
-      transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+      var transformer = outputTransformer();
       transformer.transform(domSource, result);
 
     } catch (Exception ex) {
@@ -287,11 +299,78 @@ public final class XGraphUtils {
   public static File documentToTempFile(Node node) {
     try {
       File tempFile = File.createTempFile("tmp", ".tmp");
-      tempFile.deleteOnExit();
       documentToFile(node, tempFile);
+      tempFile.deleteOnExit();
       return tempFile;
     } catch (Exception ex) {
       throw new RuntimeException(ex);
     }
+  }
+
+  public static String getXPath(Node node, Set<String> idAttrs) {
+    if (node == null || node.getNodeType() != Node.ELEMENT_NODE) {
+      return null;
+    }
+
+    // Step 1: Check if it's the root node
+    Node parent = node.getParentNode();
+    if (parent == null) {
+      return "/";
+    }
+
+    StringBuilder xpath = new StringBuilder();
+
+    // Step 2: Traverse from the node up to the root
+    while (node != null && node.getNodeType() == Node.ELEMENT_NODE) {
+      String nodeName = node.getNodeName();
+      String step = "/" + nodeName;
+
+      boolean withId = false;
+      for (String idAttr : idAttrs) {
+        if (node.getAttributes().getNamedItem(idAttr) != null) {
+          step +=
+              "[@"
+                  + idAttr
+                  + "='"
+                  + node.getAttributes().getNamedItem(idAttr).getNodeValue()
+                  + "']";
+          withId = true;
+          break;
+        }
+      }
+      if (!withId) {
+        int position = getPositionAmongSiblings(node);
+        if (position != -1) {
+          step += "[" + (position + 1) + "]";
+        }
+      }
+
+      xpath.insert(0, step);
+      node = node.getParentNode();
+    }
+
+    return xpath.toString();
+  }
+
+  private static int getPositionAmongSiblings(Node node) {
+    if (node == null || node.getParentNode() == null) {
+      return -1; // Default position
+    }
+
+    var name = node.getNodeName();
+
+    Node parent = node.getParentNode();
+    var siblings =
+        NodeListList.of(parent.getChildNodes()).stream()
+            .filter(n -> n.getNodeType() == Node.ELEMENT_NODE && n.getNodeName() == name)
+            .toList();
+
+    int siblingCount = siblings.size();
+    int position = siblings.indexOf(node);
+
+    if (siblingCount == 1) {
+      return -1; // No position
+    }
+    return position;
   }
 }
