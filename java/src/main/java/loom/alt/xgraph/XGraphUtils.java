@@ -1,11 +1,10 @@
 package loom.alt.xgraph;
 
 import com.google.common.base.Joiner;
-import lombok.Synchronized;
-import loom.common.w3c.NodeListList;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
+import java.util.stream.Collectors;
 import javax.xml.XMLConstants;
 import javax.xml.namespace.NamespaceContext;
 import javax.xml.parsers.DocumentBuilder;
@@ -18,10 +17,10 @@ import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathFactory;
-import java.io.*;
-import java.nio.charset.StandardCharsets;
-import java.util.*;
-import java.util.stream.Collectors;
+import lombok.Synchronized;
+import loom.common.w3c.NodeListList;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 
 public final class XGraphUtils {
   private XGraphUtils() {}

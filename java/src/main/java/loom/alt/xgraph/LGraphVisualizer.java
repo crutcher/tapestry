@@ -3,14 +3,6 @@ package loom.alt.xgraph;
 import guru.nidi.graphviz.engine.Format;
 import guru.nidi.graphviz.engine.Graphviz;
 import guru.nidi.graphviz.engine.Renderer;
-import lombok.Builder;
-import org.w3c.dom.Document;
-
-import javax.xml.transform.ErrorListener;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.stream.StreamSource;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.nio.charset.StandardCharsets;
@@ -20,6 +12,13 @@ import java.util.HashMap;
 import java.util.HexFormat;
 import java.util.Locale;
 import java.util.Map;
+import javax.xml.transform.ErrorListener;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.stream.StreamSource;
+import lombok.Builder;
+import org.w3c.dom.Document;
 
 @Builder
 public class LGraphVisualizer {
@@ -35,11 +34,7 @@ public class LGraphVisualizer {
 
   @Builder
   public LGraphVisualizer(
-        LGraph graph,
-        boolean debugTransform,
-        Integer minPrefixLength,
-        Float scale,
-        String dot) {
+      LGraph graph, boolean debugTransform, Integer minPrefixLength, Float scale, String dot) {
     this.graph = graph;
     this.debugTransform = debugTransform;
     this.minPrefixLength = minPrefixLength;
@@ -120,7 +115,7 @@ public class LGraphVisualizer {
 
   public String toDot() {
     if (dot != null) {
-        return dot;
+      return dot;
     }
 
     var transformer = getTransformer();
@@ -150,10 +145,9 @@ public class LGraphVisualizer {
 
     transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
 
-      Document aliasesDoc = buildNodeAliases();
-      File paramFile = XGraphUtils.documentToTempFile(aliasesDoc);
-      transformer.setParameter(
-        "NodeAliasesURI", paramFile.toURI());
+    Document aliasesDoc = buildNodeAliases();
+    File paramFile = XGraphUtils.documentToTempFile(aliasesDoc);
+    transformer.setParameter("NodeAliasesURI", paramFile.toURI());
 
     try {
       var result = new javax.xml.transform.stream.StreamResult(new java.io.StringWriter());

@@ -1,16 +1,15 @@
 package loom.alt.xgraph;
 
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import javax.xml.xpath.XPathConstants;
 import lombok.Builder;
 import lombok.Data;
 import org.jetbrains.annotations.NotNull;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
-
-import javax.xml.xpath.XPathConstants;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
 
 @Data
 public class ValidationReport {
@@ -40,7 +39,6 @@ public class ValidationReport {
   public String toCollatedString(@NotNull Document doc) {
     StringBuilder sb = new StringBuilder();
     sb.append("Validation failed with %d issues:\n".formatted(issues.size()));
-
 
     String uri = doc.getDocumentURI();
 

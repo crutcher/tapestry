@@ -1,17 +1,13 @@
 package loom.alt.xgraph;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import lombok.Builder;
-import lombok.Value;
 import loom.common.serialization.JsonUtil;
+import loom.common.w3c.ErrorCollectingValidationHandler;
 import loom.common.w3c.NodeListList;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
-import org.xml.sax.ErrorHandler;
-import org.xml.sax.Locator;
 import org.xml.sax.SAXException;
-import org.xml.sax.SAXParseException;
 
 import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
@@ -134,15 +130,6 @@ public final class LoomValidator {
     transformers.add(transformer);
   }
 
-  @Builder
-  @Value
-  private static class IdLocator implements Locator {
-    @Builder.Default String publicId = null;
-    @Builder.Default String systemId = null;
-    @Builder.Default int lineNumber = -1;
-    @Builder.Default int columnNumber = -1;
-  }
-
   public ValidationReport validationReport(Document doc) {
     // TODO: collect as many errors as possible, present them at once.
     // This may not be possible, malformation at one layer may prevent other checks;
@@ -151,24 +138,8 @@ public final class LoomValidator {
     var report = new ValidationReport();
 
     var validator = getSchema().newValidator();
-    final List<SAXParseException> xsdExceptions = new ArrayList<>();
-    validator.setErrorHandler(
-        new ErrorHandler() {
-          @Override
-          public void warning(SAXParseException exception) throws SAXException {
-            xsdExceptions.add(exception);
-          }
-
-          @Override
-          public void error(SAXParseException exception) throws SAXException {
-            xsdExceptions.add(exception);
-          }
-
-          @Override
-          public void fatalError(SAXParseException exception) throws SAXException {
-            xsdExceptions.add(exception);
-          }
-        });
+    var errorCollector = new ErrorCollectingValidationHandler();
+    validator.setErrorHandler(errorCollector);
 
     try {
       validator.validate(new DOMSource(doc));
@@ -179,7 +150,7 @@ public final class LoomValidator {
       throw new RuntimeException(e);
     }
 
-    for (var e : xsdExceptions) {
+    for (var e : errorCollector.getExceptions()) {
       var details = new LinkedHashMap<String, String>();
       report.issues.add(
           ValidationReport.Issue.builder()
