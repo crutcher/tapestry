@@ -1,10 +1,12 @@
 package loom.graph;
 
 import com.google.common.base.Joiner;
-import java.io.*;
-import java.nio.charset.StandardCharsets;
-import java.util.*;
-import java.util.stream.Collectors;
+import lombok.Synchronized;
+import loom.common.w3c.NodeListList;
+import org.apache.commons.lang3.tuple.Pair;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+
 import javax.xml.XMLConstants;
 import javax.xml.namespace.NamespaceContext;
 import javax.xml.parsers.DocumentBuilder;
@@ -17,10 +19,10 @@ import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathFactory;
-import lombok.Synchronized;
-import loom.common.w3c.NodeListList;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public final class XGraphUtils {
   private XGraphUtils() {}
@@ -73,7 +75,7 @@ public final class XGraphUtils {
     return parse(new ByteArrayInputStream(source.getBytes(StandardCharsets.UTF_8)));
   }
 
-  public static final SchemaFactory schemaFactory =
+  public static final SchemaFactory SCHEMA_FACTORY =
       SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
   // public static final SchemaFactory schemaFactory =
   //     SchemaFactory.newInstance("http://www.w3.org/XML/XMLSchema/v1.1");
@@ -172,7 +174,7 @@ public final class XGraphUtils {
 
     try {
       var schema =
-          schemaFactory.newSchema(
+          SCHEMA_FACTORY.newSchema(
               loadSchemaNodes(ns).stream().map(DOMSource::new).toArray(Source[]::new));
       SCHEMA_CACHE.put(key, schema);
       return schema;
@@ -284,7 +286,7 @@ public final class XGraphUtils {
   public static void documentToFile(Node node, File path) {
     try {
       DOMSource domSource = new DOMSource(node);
-      FileWriter writer = new FileWriter(path);
+      FileWriter writer = new FileWriter(path, StandardCharsets.UTF_8);
       StreamResult result = new StreamResult(writer);
 
       var transformer = outputTransformer();
@@ -306,7 +308,16 @@ public final class XGraphUtils {
     }
   }
 
-  public static String getXPath(Node node, Set<String> idAttrs) {
+  /**
+   * Generates an XPath selector for the given node, from the document root.
+   *
+   * @param node The node to generate the XPath for.
+   * @param elementIdAttributes The set of (element, attributes) that are considered to be unique
+   *     identifiers at the sibling level for nodes in the tree.
+   * @return an XPath selector for the given node.
+   */
+  public static String generateXPathSelector(
+      Node node, List<Pair<String, String>> elementIdAttributes) {
     if (node == null || node.getNodeType() != Node.ELEMENT_NODE) {
       return null;
     }
@@ -325,7 +336,13 @@ public final class XGraphUtils {
       String step = "/" + nodeName;
 
       boolean withId = false;
-      for (String idAttr : idAttrs) {
+      for (var elemIdAttrib : elementIdAttributes) {
+        String elemName = elemIdAttrib.getLeft();
+        if (!elemName.equals(nodeName)) {
+          continue;
+        }
+        String idAttr = elemIdAttrib.getRight();
+
         if (node.getAttributes().getNamedItem(idAttr) != null) {
           step +=
               "[@"
@@ -361,7 +378,7 @@ public final class XGraphUtils {
     Node parent = node.getParentNode();
     var siblings =
         NodeListList.of(parent.getChildNodes()).stream()
-            .filter(n -> n.getNodeType() == Node.ELEMENT_NODE && n.getNodeName() == name)
+            .filter(n -> n.getNodeType() == Node.ELEMENT_NODE && n.getNodeName().equals(name))
             .toList();
 
     int siblingCount = siblings.size();

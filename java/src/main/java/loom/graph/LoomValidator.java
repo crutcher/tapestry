@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import loom.common.serialization.JsonUtil;
 import loom.common.w3c.ErrorCollectingValidationHandler;
 import loom.common.w3c.NodeListList;
+import org.apache.commons.lang3.tuple.Pair;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -231,7 +232,9 @@ public final class LoomValidator {
         report.issues.add(
             ValidationReport.Issue.builder()
                 .type("JsonParse")
-                .xpath(XGraphUtils.getXPath(jsonNode, Set.of("id", "key")))
+                .xpath(
+                    XGraphUtils.generateXPathSelector(
+                        jsonNode, List.of(Pair.of(null, "id"), Pair.of("eg:item", "key"))))
                 .summary("JSON parse error")
                 .message(e.getMessage().trim())
                 .details(Map.of("json", "<%s>".formatted(json)))

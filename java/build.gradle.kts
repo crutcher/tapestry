@@ -8,8 +8,16 @@ plugins {
     id("io.freefair.lombok") version "8.0.1"
     id("me.champeau.jmh") version "0.7.1"
 
+    id("idea")
 
     jacoco
+}
+
+idea {
+    module {
+        isDownloadJavadoc = true
+        isDownloadSources = true
+    }
 }
 
 repositories {
@@ -86,69 +94,59 @@ jmh {
 }
 
 dependencies {
-    // https://mvnrepository.com/artifact/org.apache.commons/commons-lang3
-    implementation("org.apache.commons:commons-lang3:3.12.0")
-    implementation("org.apache.commons:commons-text:1.10.0")
-
-    // JSON Schema
-    implementation("net.jimblackler.jsonschemafriend:core:0.11.4")
-    implementation("io.vertx:vertx-json-schema:4.4.4")
-
+    // Java extension annotations
     implementation("javax.annotation:javax.annotation-api:1.3.2")
 
-    // rdf support
-    implementation("guru.nidi:graphviz-java-all-j2v8:0.18.1")
+    // Jetbrains annotations
+    implementation("org.jetbrains:annotations:24.0.1")
 
-    // jaxb
-    implementation("org.glassfish.jaxb:jaxb-core:4.0.3")
-    implementation("org.glassfish.jaxb:jaxb-xjc:4.0.3")
-    implementation("org.glassfish.jaxb:jaxb-runtime:4.0.3")
-    implementation("org.glassfish.jaxb:jaxb-jxc:4.0.3")
-    implementation("org.apache.jena:jena-core:4.9.0")
-    implementation("org.apache.commons:commons-rdf-jena:0.5.0")
-    implementation("org.glassfish:jakarta.json:2.0.1")
-    implementation("org.apache.jena:apache-jena-libs:4.9.0")
-    implementation("com.github.jsonld-java:jsonld-java:0.13.4")
-    implementation("com.github.jsonld-java:jsonld-java-rdf2go:0.12.0")
-    implementation("com.github.jsonld-java:jsonld-java-tools:0.12.4")
-    implementation("com.github.jsonld-java:jsonld-java-integration:0.6.0")
-    implementation("org.apache.jena:jena-commonsrdf:4.9.0")
-    implementation("org.apache.jena:jena-commonsrdf:4.9.0")
-    implementation("com.apicatalog:titanium-json-ld:1.3.2")
-    implementation("com.github.fluentxml4j:fluentxml4j-core:2.2.1")
-    implementation("com.github.fluentxml4j:fluentxml4j-junit:2.2.1")
-    implementation("org.apache.cxf:cxf-xerces-xsd-validation:2.7.18")
-    implementation("xerces:xerces:2.4.0")
-    implementation("org.exist-db.thirdparty.xerces:xercesImpl:2.12.2")
-    implementation("org.opengis.cite.xerces:xercesImpl-xsd11:2.12-beta-r1667115")
+    // XML Processing
     implementation("xalan:xalan:2.7.3")
     implementation("xalan:serializer:2.7.3")
 
-    testImplementation("org.openjdk.jmh:jmh-core:1.36")
-    testImplementation("org.openjdk.jmh:jmh-generator-annprocess:1.36")
-
-    implementation("org.jetbrains:annotations:24.0.1")
-    // implementation("org.projectlombok:lombok:1.18.22")
+    // Set up ErrorProne deps for lint.
     errorprone("com.google.errorprone:error_prone_core:2.20.0")
-
-    implementation("org.apache.commons:commons-math3:3.6.1")
-
-    implementation("org.glassfish:javax.json:1.1.4")
-
-    // Guava.
-    implementation("com.google.guava:guava:31.1-jre")
 
     // Logging.
     implementation("org.slf4j:slf4j-simple:2.0.7")
+
+    // JMH benchmarking.
+    testImplementation("org.openjdk.jmh:jmh-core:1.36")
+    testImplementation("org.openjdk.jmh:jmh-generator-annprocess:1.36")
 
     // Test frameworks.
     testImplementation("junit:junit:4.13.2")
     testImplementation("org.assertj:assertj-core:3.24.2")
     testImplementation("org.mockito:mockito-core:5.3.1")
 
+    // Apache Commons.
+    implementation("org.apache.commons:commons-lang3:3.12.0")
+    implementation("org.apache.commons:commons-text:1.10.0")
+    implementation("org.apache.commons:commons-math3:3.6.1")
+
+
+    // Guava.
+    implementation("com.google.guava:guava:31.1-jre")
+
+    // ================
+    // JSON Stuff
+    // javax.json
+    implementation("org.glassfish:javax.json:1.1.4")
+
+    // Jackson
     implementation("com.fasterxml.jackson.core:jackson-core:2.15.1")
     implementation("com.fasterxml.jackson.core:jackson-databind:2.15.1")
     implementation("com.fasterxml.jackson.core:jackson-annotations:2.15.1")
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.15.1")
+
+    // graphviz wrapper
+    // implementation("guru.nidi:graphviz-java-all-j2v8:0.18.1")
+    implementation("guru.nidi:graphviz-java:0.18.1")
+    // Manual deps for graphviz
+    implementation("org.apache.logging.log4j:log4j-api:2.13.0")
+    implementation("org.apache.logging.log4j:log4j-core:2.13.0")
+    // Optional: Graal JS engine; enable as the default.
+    implementation("org.graalvm.js:js:20.0.0")
+    // Graphviz.useEngine(GraphvizJdkEngine())
 }
 

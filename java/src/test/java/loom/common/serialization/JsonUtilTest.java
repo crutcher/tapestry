@@ -5,9 +5,6 @@ import java.util.List;
 import java.util.Map;
 import lombok.Value;
 import loom.testing.CommonAssertions;
-import net.jimblackler.jsonschemafriend.SchemaException;
-import net.jimblackler.jsonschemafriend.SchemaStore;
-import net.jimblackler.jsonschemafriend.Validator;
 import org.junit.Test;
 
 public class JsonUtilTest implements CommonAssertions {
@@ -86,21 +83,5 @@ public class JsonUtilTest implements CommonAssertions {
     cycle.add(cycle);
     assertThatExceptionOfType(IllegalArgumentException.class)
         .isThrownBy(() -> JsonUtil.validateSimpleJson(Map.of("foo", cycle)));
-  }
-
-  @Test
-  public void testSimpleSchema() throws SchemaException {
-    var schemaStore = new SchemaStore();
-
-    String schemaString =
-        "{"
-            + "  \"$schema\": \"http://json-schema.org/draft-07/schema#\","
-            + "  \"type\": \"integer\""
-            + "}";
-
-    var schema = schemaStore.loadSchemaJson(schemaString);
-
-    var validator = new Validator();
-    validator.validate(schema, 2);
   }
 }

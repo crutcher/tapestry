@@ -3,14 +3,10 @@ package loom.common.serialization;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
-
 import java.io.IOException;
 import java.util.Map;
 
-
-/**
- * Serializer to write a {@link Map <K, T>} as a json {@link [T] }.
- */
+/** Serializer to write a {@link Map <K, T>} as a json {@code [T] }. */
 public final class MapValueListSerializer<K extends Comparable<K>, V>
     extends JsonSerializer<Map<K, V>> {
   @Override
