@@ -11,7 +11,6 @@ import java.util.Collections;
 import java.util.Objects;
 import javax.annotation.concurrent.Immutable;
 import javax.annotation.concurrent.ThreadSafe;
-import loom.alt.linkgraph.expressions.IdentifiersFns;
 import loom.common.HasToJsonString;
 import loom.common.serialization.JsonUtil;
 

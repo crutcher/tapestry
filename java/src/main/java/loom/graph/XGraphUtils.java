@@ -1,4 +1,4 @@
-package loom.alt.xgraph;
+package loom.graph;
 
 import com.google.common.base.Joiner;
 import java.io.*;

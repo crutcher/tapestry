@@ -1,8 +1,6 @@
 package loom.graph;
 
 import java.util.concurrent.TimeUnit;
-import loom.alt.xgraph.LGraph;
-import loom.alt.xgraph.XGraphUtils;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
 import org.openjdk.jmh.annotations.Mode;

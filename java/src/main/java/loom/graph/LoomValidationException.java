@@ -1,4 +1,4 @@
-package loom.alt.xgraph;
+package loom.graph;
 
 public class LoomValidationException extends RuntimeException {
   public long serialVersionUID = 1L;

@@ -1,4 +1,4 @@
-package loom.alt.xgraph;
+package loom.graph;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import loom.common.serialization.JsonUtil;

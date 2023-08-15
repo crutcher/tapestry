@@ -1,4 +1,4 @@
-package loom.alt.xgraph;
+package loom.graph;
 
 import loom.testing.CommonAssertions;
 import org.junit.Test;
@@ -76,7 +76,8 @@ public class LGraphTest implements CommonAssertions {
     @SuppressWarnings("unused")
     var img = vis.toImage();
 
-    System.out.println(dot);
+    // Mainly hear to pin a breakpoint.
+    assertThat(dot).isNotNull();
   }
 
   @SuppressWarnings("unused")

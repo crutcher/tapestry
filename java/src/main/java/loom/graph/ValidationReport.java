@@ -1,4 +1,4 @@
-package loom.alt.xgraph;
+package loom.graph;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;

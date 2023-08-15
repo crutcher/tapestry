@@ -1,4 +1,4 @@
-package loom.alt.xgraph;
+package loom.graph;
 
 import guru.nidi.graphviz.engine.Format;
 import guru.nidi.graphviz.engine.Graphviz;

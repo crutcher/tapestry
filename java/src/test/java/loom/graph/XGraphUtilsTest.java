@@ -1,4 +1,4 @@
-package loom.alt.xgraph;
+package loom.graph;
 
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;

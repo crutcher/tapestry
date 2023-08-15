@@ -1,12 +1,15 @@
-package loom.alt.xgraph;
+package loom.experiment;
 
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.Marshaller;
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.StringWriter;
-import java.nio.charset.StandardCharsets;
-import java.util.Iterator;
+import loom.common.serialization.JsonSchemaTest;
+import loom.testing.CommonAssertions;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
+import org.w3c.dom.Document;
+import org.w3c.dom.NodeList;
+
 import javax.xml.XMLConstants;
 import javax.xml.namespace.NamespaceContext;
 import javax.xml.parsers.DocumentBuilder;
@@ -19,13 +22,11 @@ import javax.xml.validation.SchemaFactory;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
-import loom.common.serialization.JsonSchemaTest;
-import loom.testing.CommonAssertions;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-import org.w3c.dom.Document;
-import org.w3c.dom.NodeList;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
+import java.util.Iterator;
 
 public class XmlParseTest implements CommonAssertions {
   @Rule public TemporaryFolder temp = new TemporaryFolder();
@@ -94,7 +95,7 @@ public class XmlParseTest implements CommonAssertions {
                                         """
                     .getBytes(StandardCharsets.UTF_8)));
 
-    System.out.println(documentToString(doc));
+    // System.out.println(documentToString(doc));
 
     validator.validate(new DOMSource(doc));
   }
@@ -136,8 +137,9 @@ public class XmlParseTest implements CommonAssertions {
     jaxbMarshaller.marshal(example, sw);
 
     // Verify XML Content
+    @SuppressWarnings("unused")
     String xmlContent = sw.toString();
-    System.out.println(xmlContent);
+    // System.out.println(xmlContent);
   }
 
   @Test
@@ -209,10 +211,11 @@ public class XmlParseTest implements CommonAssertions {
     // Compile and execute the XPath expression
     // This example retrieves all elements with the tag name "element"
     String expression = "//t:node[@id='00000000-0000-0000-0000-000000000002']";
+    @SuppressWarnings("unused")
     NodeList nodeList = (NodeList) xpath.evaluate(expression, doc, XPathConstants.NODESET);
 
-    for (int i = 0; i < nodeList.getLength(); i++) {
-      System.out.println(nodeList.item(i).getTextContent());
-    }
+    // for (int i = 0; i < nodeList.getLength(); i++) {
+    //   System.out.println(nodeList.item(i).getTextContent());
+    // }
   }
 }
