@@ -10,12 +10,12 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 import lombok.Data;
-import loom.common.w3c.NodeListList;
+import loom.common.xml.w3c.NodeListList;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 @Data
-public final class LGraph {
+public final class ExpressionGraph {
 
   public static String uuidToNodeId(UUID uuid) {
     return "node-" + uuid.toString();
@@ -44,28 +44,28 @@ public final class LGraph {
       return nodeIdToUuid(getId());
     }
 
-    public LGraph getGraph() {
-      return LGraph.this;
+    public ExpressionGraph getGraph() {
+      return ExpressionGraph.this;
     }
   }
 
-  public static LGraph from(Document doc) {
-    return new LGraph(doc);
+  public static ExpressionGraph from(Document doc) {
+    return new ExpressionGraph(doc);
   }
 
-  public static LGraph from(InputStream is) {
-    return from(XGraphUtils.parse(is));
+  public static ExpressionGraph from(InputStream is) {
+    return from(LoomXmlResources.parse(is));
   }
 
-  public static LGraph from(String content) {
+  public static ExpressionGraph from(String content) {
     return from(content.getBytes(StandardCharsets.UTF_8));
   }
 
-  public static LGraph from(byte[] content) {
+  public static ExpressionGraph from(byte[] content) {
     return from(new ByteArrayInputStream(content));
   }
 
-  public static LGraph from(File file) {
+  public static ExpressionGraph from(File file) {
     try {
       return from(new FileInputStream(file));
     } catch (Exception e) {
@@ -73,41 +73,38 @@ public final class LGraph {
     }
   }
 
-  public static LGraph create() {
-    var doc = XGraphUtils.DOCUMENT_BUILDER.newDocument();
-    doc.appendChild(doc.createElementNS(XGraphUtils.EG_SCHEMA_URI, "loom:graph"));
+  public static ExpressionGraph create() {
+    var doc = LoomXmlResources.DOCUMENT_BUILDER.newDocument();
+    doc.appendChild(doc.createElementNS(LoomXmlResources.EG_CORE_SCHEMA_URI, "loom:graph"));
 
-    return new LGraph(doc);
+    return new ExpressionGraph(doc);
   }
-
-  private LoomValidator validator;
 
   private Document doc;
 
-  public LGraph(Document doc) {
-    this(doc, LoomValidator.instance, true);
+  public ExpressionGraph(Document doc) {
+    this(doc, true);
   }
 
-  LGraph(Document doc, LoomValidator validator, boolean validate) {
+  ExpressionGraph(Document doc, boolean validate) {
     this.doc = doc;
-    this.validator = validator;
     if (validate) validate();
   }
 
   @Override
-  public LGraph clone() {
-    return new LGraph((Document) doc.cloneNode(true), validator, false);
+  public ExpressionGraph clone() {
+    return new ExpressionGraph((Document) doc.cloneNode(true), false);
   }
 
   public void validate() {
-    validator.validate(doc);
+    ExpressionGraphValidator.instance.validate(doc);
   }
 
   private List<Node> docNodes() {
     var result = new ArrayList<Node>();
     for (var n :
         NodeListList.of(
-            doc.getElementsByTagNameNS(XGraphUtils.EG_SCHEMA_URI, "nodes")
+            doc.getElementsByTagNameNS(LoomXmlResources.EG_CORE_SCHEMA_URI, "nodes")
                 .item(0)
                 .getChildNodes())) {
       if (n.getNodeType() == Node.ELEMENT_NODE && n.getAttributes().getNamedItem("id") != null) {

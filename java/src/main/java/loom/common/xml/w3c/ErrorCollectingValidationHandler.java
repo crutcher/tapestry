@@ -1,4 +1,4 @@
-package loom.common.w3c;
+package loom.common.xml.w3c;
 
 import java.util.ArrayList;
 import java.util.List;

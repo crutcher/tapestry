@@ -2,82 +2,81 @@
 <xsl:stylesheet version="1.0"
                 xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
                 xmlns:eg="http://loom-project.org/schemas/v0.1/ExpressionGraph.core.xsd"
+                xmlns:func="http://exslt.org/functions"
+                extension-element-prefixes="func"
                 exclude-result-prefixes="eg"
 >
     <!-- ===================================== -->
     <!-- Work out importing utility sheets -->
 
-
-    <xsl:template name="GeneratePath">
+    <func:function name="eg:GenerateXPath">
         <xsl:param name="this"/>
-        <xsl:param name="pathRoot"/>
+        <xsl:param name="pathRoot" select="/"/>
+        <xsl:param name="stack" select="'no'"/>
 
-        <xsl:param name="stackFormatParts" select="'no'"/>
-
-        <xsl:param name="pathRootIsDocumentRoot" select="not($pathRoot/parent::node())"/>
-
-        <xsl:param name="parent" select="$this/parent::*"/>
+        <xsl:variable name="pathRootIsDocumentRoot" select="not($pathRoot/parent::node())"/>
+        <xsl:variable name="parent" select="$this/parent::*"/>
         <xsl:variable name="isDirectChild" select="$pathRoot = $parent"/>
 
-        <xsl:choose>
-            <xsl:when test="$this = $pathRoot">
-                <xsl:choose>
-                    <xsl:when test="$pathRootIsDocumentRoot">
-                        <xsl:text>/</xsl:text>
-                        <xsl:value-of select="name($this)"/>
-                    </xsl:when>
-                    <xsl:otherwise/>
-                </xsl:choose>
-            </xsl:when>
-            <xsl:otherwise>
-                <!-- Recurse for the prefix -->
-                <xsl:call-template name="GeneratePath">
-                    <xsl:with-param name="pathRoot" select="$pathRoot"/>
-                    <xsl:with-param name="this" select="$parent"/>
-                    <xsl:with-param name="stackFormatParts" select="$stackFormatParts"/>
-                </xsl:call-template>
+        <func:result>
+            <xsl:choose>
+                <xsl:when test="$this = $pathRoot">
+                    <xsl:choose>
+                        <xsl:when test="$pathRootIsDocumentRoot">
+                            <xsl:text>/</xsl:text>
+                            <xsl:value-of select="name($this)"/>
+                        </xsl:when>
+                        <xsl:otherwise>
+                            <xsl:text>.</xsl:text>
+                        </xsl:otherwise>
+                    </xsl:choose>
+                </xsl:when>
+                <xsl:otherwise>
+                    <!-- Recurse for the prefix -->
+                    <xsl:value-of select="eg:GenerateXPath($parent, $pathRoot, $stack)"/>
 
-                <xsl:choose>
-                    <xsl:when test="$isDirectChild and $pathRootIsDocumentRoot">
-                        <xsl:text>/</xsl:text>
-                    </xsl:when>
-                    <xsl:when test="$isDirectChild"/>
-                    <xsl:otherwise>
-                        <xsl:if test="$stackFormatParts = 'yes'">
-                            <xsl:text>&#10;</xsl:text>
-                        </xsl:if>
-                        <xsl:text>/</xsl:text>
-                    </xsl:otherwise>
-                </xsl:choose>
+                    <xsl:choose>
+                        <xsl:when test="$isDirectChild and $pathRootIsDocumentRoot">
+                            <xsl:text>/</xsl:text>
+                        </xsl:when>
+                        <xsl:when test="$isDirectChild"/>
+                        <xsl:otherwise>
+                            <xsl:if test="$stack = 'yes'">
+                                <xsl:text>&#10;</xsl:text>
+                            </xsl:if>
+                            <xsl:text>/</xsl:text>
+                        </xsl:otherwise>
+                    </xsl:choose>
 
-                <xsl:value-of select="name($this)"/>
+                    <xsl:value-of select="name($this)"/>
 
-                <xsl:variable name="idAttribute"
-                              select="$this/@*[name() = 'id' or name() = 'key']"/>
+                    <xsl:variable name="idAttribute"
+                                  select="$this/@*[name() = 'id' or name() = 'key']"/>
 
-                <!-- Output the positional selector conditionally -->
-                <xsl:choose>
-                    <!-- hardcoded notion of which are id attributes -->
-                    <xsl:when test="boolean($idAttribute)">
-                        <xsl:text>[@</xsl:text>
-                        <xsl:value-of select="name($idAttribute)"/>
-                        <xsl:text>='</xsl:text>
-                        <xsl:value-of select="$idAttribute"/>
-                        <xsl:text>']</xsl:text>
-                    </xsl:when>
+                    <!-- Output the positional selector conditionally -->
+                    <xsl:choose>
+                        <!-- hardcoded notion of which are id attributes -->
+                        <xsl:when test="boolean($idAttribute)">
+                            <xsl:text>[@</xsl:text>
+                            <xsl:value-of select="name($idAttribute)"/>
+                            <xsl:text>='</xsl:text>
+                            <xsl:value-of select="$idAttribute"/>
+                            <xsl:text>']</xsl:text>
+                        </xsl:when>
 
-                    <!-- If there's more than one sibling of the same name, include the position -->
-                    <xsl:when test="count($this/../child::*[name() = name($this)]) > 1">
-                        <xsl:value-of
-                                select="concat('[', count($this/preceding-sibling::*[name() = name($this)]) + 1, ']')"/>
-                    </xsl:when>
-                    <!-- Otherwise, don't output anything for the position -->
-                    <xsl:otherwise/>
-                </xsl:choose>
-            </xsl:otherwise>
-        </xsl:choose>
+                        <!-- If there's more than one sibling of the same name, include the position -->
+                        <xsl:when test="count($this/../child::*[name() = name($this)]) > 1">
+                            <xsl:value-of
+                                    select="concat('[', count($this/preceding-sibling::*[name() = name($this)]) + 1, ']')"/>
+                        </xsl:when>
+                        <!-- Otherwise, don't output anything for the position -->
+                        <xsl:otherwise/>
+                    </xsl:choose>
+                </xsl:otherwise>
+            </xsl:choose>
+        </func:result>
 
-    </xsl:template>
+    </func:function>
 
     <!-- ===================================== -->
     <!--
@@ -93,11 +92,11 @@
     <xsl:param name="NodeAliasesURI"/>
     <xsl:variable name="NodeAliases" select="document($NodeAliasesURI)"/>
 
-    <xsl:template name="node-id-to-alias">
+    <func:function name="eg:NodeAlias">
         <xsl:param name="id"/>
-        <xsl:text>#</xsl:text>
-        <xsl:value-of select="$NodeAliases/descendant::*[@id=$id]/@*[local-name() = 'alias']"/>
-    </xsl:template>
+        <func:result select="$NodeAliases/descendant::*[@id=$id]/@*[local-name() = 'alias']"/>
+    </func:function>
+
 
     <xsl:output method="xml" omit-xml-declaration="yes"/>
 
@@ -139,9 +138,7 @@
         <xsl:apply-templates mode="node-attrs" select="."/>
         <xsl:text disable-output-escaping="yes">,"xlabel"=&lt;</xsl:text>
         <font color="blue" point-size="12">
-            <xsl:call-template name="node-id-to-alias">
-                <xsl:with-param name="id" select="@id"/>
-            </xsl:call-template>
+            <xsl:value-of select="eg:NodeAlias(@id)"/>
         </font>
         <xsl:text disable-output-escaping="yes">&gt;</xsl:text>
         <xsl:text>];&#10;</xsl:text>
@@ -225,11 +222,7 @@
 
     <xsl:template match="*" mode="edge-label">
         <xsl:text>"label"="</xsl:text>
-        <xsl:call-template name="GeneratePath">
-            <xsl:with-param name="pathRoot" select="ancestor::*[@id][1]"/>
-            <xsl:with-param name="this" select="."/>
-            <xsl:with-param name="stackFormatParts" select="'yes'"/>
-        </xsl:call-template>
+        <xsl:value-of select="eg:GeneratePath(., ancestor::*[@id][1], 'yes')"/>
         <xsl:text>"</xsl:text>
     </xsl:template>
 

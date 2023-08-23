@@ -103,6 +103,13 @@ dependencies {
     // XML Processing
     implementation("xalan:xalan:2.7.3")
     implementation("xalan:serializer:2.7.3")
+    implementation("org.jdom:jdom2:2.0.6.1")
+    implementation("jaxen:jaxen:2.0.0")
+    implementation("jaxen:jaxen-integration:2.0.0")
+    implementation("jaxen:jaxen-parent:2.0.0")
+
+    implementation("org.dom4j:dom4j:2.1.4")
+
 
     // Set up ErrorProne deps for lint.
     errorprone("com.google.errorprone:error_prone_core:2.20.0")

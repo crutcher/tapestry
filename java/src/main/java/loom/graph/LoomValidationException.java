@@ -1,13 +1,14 @@
 package loom.graph;
 
+import org.jetbrains.annotations.NotNull;
+
 public class LoomValidationException extends RuntimeException {
   public long serialVersionUID = 1L;
 
-  public LoomValidationException(String message) {
-    super(message);
-  }
+  @NotNull public ValidationReport report;
 
-  public LoomValidationException(String message, Throwable cause) {
-    super(message, cause);
+  public LoomValidationException(ValidationReport report) {
+    super(report.toString());
+    this.report = report;
   }
 }

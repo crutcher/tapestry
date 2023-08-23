@@ -1,4 +1,4 @@
-package loom.common.w3c;
+package loom.common.xml.w3c;
 
 import java.util.AbstractList;
 import java.util.List;

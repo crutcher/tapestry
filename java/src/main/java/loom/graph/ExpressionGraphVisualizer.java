@@ -3,14 +3,6 @@ package loom.graph;
 import guru.nidi.graphviz.engine.Format;
 import guru.nidi.graphviz.engine.Graphviz;
 import guru.nidi.graphviz.engine.Renderer;
-import lombok.Builder;
-import org.w3c.dom.Document;
-
-import javax.xml.transform.ErrorListener;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.stream.StreamSource;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.nio.charset.StandardCharsets;
@@ -20,10 +12,18 @@ import java.util.HashMap;
 import java.util.HexFormat;
 import java.util.Locale;
 import java.util.Map;
+import javax.xml.transform.ErrorListener;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.stream.StreamSource;
+import lombok.Builder;
+import loom.common.runtime.ReflectionUtils;
+import org.w3c.dom.Document;
 
 @Builder
-public class LGraphVisualizer {
-  LGraph graph;
+public class ExpressionGraphVisualizer {
+  ExpressionGraph graph;
 
   @Builder.Default boolean debugTransform = true;
 
@@ -34,8 +34,12 @@ public class LGraphVisualizer {
   String dot;
 
   @Builder
-  public LGraphVisualizer(
-      LGraph graph, boolean debugTransform, Integer minPrefixLength, Float scale, String dot) {
+  public ExpressionGraphVisualizer(
+      ExpressionGraph graph,
+      boolean debugTransform,
+      Integer minPrefixLength,
+      Float scale,
+      String dot) {
     this.graph = graph;
     this.debugTransform = debugTransform;
     this.minPrefixLength = minPrefixLength;
@@ -59,11 +63,9 @@ public class LGraphVisualizer {
 
   public Transformer getTransformer() {
     try {
-      return XGraphUtils.TRANSFORMER_FACTORY.newTransformer(
+      return LoomXmlResources.TRANSFORMER_FACTORY.newTransformer(
           new StreamSource(
-              LGraphVisualizer.class
-                  .getClassLoader()
-                  .getResourceAsStream("loom/alt/xgraph/LGraphToDot.xsl")));
+              ReflectionUtils.resourceAsStream(LoomXmlResources.LOOM_EG_TO_DOT_XSL_RESOURCE_PATH)));
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
@@ -98,7 +100,7 @@ public class LGraphVisualizer {
   }
 
   private Document buildNodeAliases() {
-    var doc = XGraphUtils.DOCUMENT_BUILDER.newDocument();
+    var doc = LoomXmlResources.DOCUMENT_BUILDER.newDocument();
     var root = doc.createElement("NodeAliases");
     doc.appendChild(root);
 
@@ -147,7 +149,7 @@ public class LGraphVisualizer {
     transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
 
     Document aliasesDoc = buildNodeAliases();
-    File paramFile = XGraphUtils.documentToTempFile(aliasesDoc);
+    File paramFile = LoomXmlResources.documentToTempFile(aliasesDoc);
     transformer.setParameter("NodeAliasesURI", paramFile.toURI());
 
     try {

@@ -135,13 +135,10 @@
                         <xsl:text>:: </xsl:text>
                     </xsl:if>
 
-                    <xsl:text>Invalid </xsl:text>
-
-                    <xsl:text disable-output-escaping="yes">&lt;</xsl:text>
+                    <xsl:text>Invalid "</xsl:text>
                     <xsl:value-of select="name($ref)"/>
-                    <xsl:text disable-output-escaping="yes">/&gt;</xsl:text>
 
-                    <xsl:text> @target type, </xsl:text>
+                    <xsl:text>" @target type, </xsl:text>
                     <xsl:value-of select="$summary"/>
                     <xsl:text>:</xsl:text>
 

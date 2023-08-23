@@ -1,28 +1,27 @@
 package loom.experiment;
 
-import loom.graph.XGraphUtils;
-import org.junit.Test;
-import org.w3c.dom.Document;
-
+import java.io.ByteArrayInputStream;
+import java.nio.charset.StandardCharsets;
 import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamSource;
-import java.io.ByteArrayInputStream;
-import java.nio.charset.StandardCharsets;
+import loom.graph.LoomXmlResources;
+import org.junit.Test;
+import org.w3c.dom.Document;
 
 public class XsltTests {
   @SuppressWarnings("unused")
   @Test
-  public void testFunc() throws Exception{
+  public void testFunc() throws Exception {
     var xml =
-        XGraphUtils.parse(
+        LoomXmlResources.parse(
             """
                 <?xml version="1.0" encoding="UTF-8"?>
                 <foo a="1"/>
                 """);
 
     var xsl =
-            """
+        """
 <?xml version="1.0"?>
 <xsl:stylesheet version="1.0"
                 xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
@@ -49,12 +48,13 @@ public class XsltTests {
 </xsl:stylesheet>
                         """;
 
-    var xslSource = new StreamSource(new ByteArrayInputStream(xsl.getBytes(StandardCharsets.UTF_8)));
-    var transform = XGraphUtils.TRANSFORMER_FACTORY.newTransformer(xslSource);
+    var xslSource =
+        new StreamSource(new ByteArrayInputStream(xsl.getBytes(StandardCharsets.UTF_8)));
+    var transform = LoomXmlResources.TRANSFORMER_FACTORY.newTransformer(xslSource);
 
-    Document resultDoc = XGraphUtils.DOCUMENT_BUILDER.newDocument();
+    Document resultDoc = LoomXmlResources.DOCUMENT_BUILDER.newDocument();
     transform.transform(new DOMSource(xml), new DOMResult(resultDoc));
 
-    System.out.println(XGraphUtils.documentToString(resultDoc));
+    System.out.println(LoomXmlResources.documentToPrettyString(resultDoc));
   }
 }

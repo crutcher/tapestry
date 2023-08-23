@@ -13,7 +13,7 @@ public class LGraphBenchmark {
   @OutputTimeUnit(TimeUnit.MILLISECONDS)
   public void buildAndCopy(Blackhole bh) {
     var doc =
-        XGraphUtils.parse(
+        LoomXmlResources.parse(
             """
                 <?xml version="1.0" encoding="UTF-8"?>
                 <eg:graph
@@ -68,7 +68,7 @@ public class LGraphBenchmark {
                   </eg:graph>
                 """);
 
-    var lg = LGraph.from(doc);
+    var lg = ExpressionGraph.from(doc);
 
     var c = lg.clone();
 

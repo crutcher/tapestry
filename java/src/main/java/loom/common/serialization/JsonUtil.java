@@ -101,10 +101,14 @@ public class JsonUtil {
    */
   public static <T> T fromJson(String json, Class<T> clazz) {
     try {
-      return getMapper().readValue(json, clazz);
+      return fromJsonDirect(json, clazz);
     } catch (JsonProcessingException e) {
       throw new IllegalArgumentException(e);
     }
+  }
+
+  public static <T> T fromJsonDirect(String json, Class<T> cls) throws JsonProcessingException {
+    return getMapper().readValue(json, cls);
   }
 
   public static <T> T fromJson(JsonNode node, Class<T> clazz) {
