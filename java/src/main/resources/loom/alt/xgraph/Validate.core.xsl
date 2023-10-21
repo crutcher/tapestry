@@ -1,5 +1,6 @@
 <?xml version="1.0"?>
 <xsl:stylesheet version="1.0"
+                xmlns:xs="http://www.w3.org/2001/XMLSchema"
                 xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
                 xmlns:eg="http://loom-project.org/schemas/v0.1/ExpressionGraph.core.xsd"
                 xmlns:xalan="http://xml.apache.org/xalan"
@@ -95,13 +96,20 @@
     <xsl:template name="CheckRefTargetType">
         <xsl:param name="ref" select="."/>
         <xsl:param name="context"/>
-        <xsl:param name="expectedType"/>
+
+        <xsl:param name="expectedNs"/>
+        <xsl:param name="expectedLocalName"/>
 
         <xsl:variable name="targetId" select="$ref/@target"/>
         <xsl:variable name="target" select="//*[@id=$targetId]"/>
-        <xsl:variable name="actualType" select="name($target)"/>
+
+        <xsl:variable name="ns" select="namespace-uri($target)"/>
+        <xsl:variable name="localName" select="local-name($target)"/>
 
         <xsl:variable name="path" select="eg:GenerateXPath($ref)"/>
+
+        <xsl:variable name="expectedType" select="concat('{', $expectedNs, '}', $expectedLocalName)"/>
+        <xsl:variable name="actualType" select="concat('{', $ns, '}', $localName)"/>
 
         <xsl:variable name="summary">
             <xsl:text>expected "</xsl:text>
@@ -111,7 +119,7 @@
             <xsl:text>"</xsl:text>
         </xsl:variable>
 
-        <xsl:if test="$actualType != $expectedType">
+        <xsl:if test="$expectedType != $actualType">
             <error type="RefTargetType" path="{$path}">
                 <summary>
                     <xsl:text>Invalid eg:ref target type: </xsl:text>
@@ -121,12 +129,18 @@
                     <target>
                         <xsl:value-of select="$targetId"/>
                     </target>
-                    <expectedType>
-                        <xsl:value-of select="$expectedType"/>
-                    </expectedType>
-                    <actualType>
-                        <xsl:value-of select="$actualType"/>
-                    </actualType>
+                    <expectedNs>
+                        <xsl:value-of select="$expectedNs"/>
+                    </expectedNs>
+                    <expectedLocalName>
+                        <xsl:value-of select="$expectedLocalName"/>
+                    </expectedLocalName>
+                    <ns>
+                        <xsl:value-of select="$ns"/>
+                    </ns>
+                    <localName>
+                        <xsl:value-of select="$localName"/>
+                    </localName>
                 </details>
 
                 <message>
@@ -177,7 +191,9 @@
                             <xsl:value-of select="position()"/>
                             <xsl:text>]</xsl:text>
                         </xsl:with-param>
-                        <xsl:with-param name="expectedType" select="'eg:tensor'"/>
+                        <xsl:with-param name="expectedNs"
+                                        select="'http://loom-project.org/schemas/v0.1/ExpressionGraph.core.xsd'"/>
+                        <xsl:with-param name="expectedLocalName" select="'tensor'"/>
                     </xsl:call-template>
 
                 </xsl:for-each>

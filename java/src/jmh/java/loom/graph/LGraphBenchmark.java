@@ -13,7 +13,7 @@ public class LGraphBenchmark {
   @OutputTimeUnit(TimeUnit.MILLISECONDS)
   public void buildAndCopy(Blackhole bh) {
     var doc =
-        LoomXmlResources.parse(
+        LoomXml.parse(
             """
                 <?xml version="1.0" encoding="UTF-8"?>
                 <eg:graph

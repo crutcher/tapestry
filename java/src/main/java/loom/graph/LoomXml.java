@@ -5,6 +5,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 import javax.xml.XMLConstants;
 import javax.xml.namespace.NamespaceContext;
+import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.OutputKeys;
@@ -14,13 +15,16 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.validation.SchemaFactory;
 import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 import loom.common.xml.w3c.NodeListList;
 import org.apache.commons.lang3.tuple.Pair;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
-public class LoomXmlResources {
+public class LoomXml {
   public static final String EG_CORE_SCHEMA_URI =
       "http://loom-project.org/schemas/v0.1/ExpressionGraph.core.xsd";
 
@@ -102,6 +106,7 @@ public class LoomXmlResources {
   }
 
   public static Document parse(InputStream is) {
+
     try {
       var doc = DOCUMENT_BUILDER.parse(is);
       collapseWhitespaceTextNodes(doc);
@@ -276,5 +281,77 @@ public class LoomXmlResources {
       return -1; // No position
     }
     return position;
+  }
+
+  public static Object evaluate(String xpath, Node context, QName returnType) {
+    try {
+      return XPATH.evaluate(xpath, context, returnType);
+    } catch (XPathExpressionException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  public static List<Node> queryNodes(String xpath, Node context) {
+    return NodeListList.of((NodeList) evaluate(xpath, context, XPathConstants.NODESET));
+  }
+
+  public static Node queryNode(String xpath, Node context) {
+    return (Node) evaluate(xpath, context, XPathConstants.NODE);
+  }
+
+  public static String queryString(String xpath, Node context) {
+    return (String) evaluate(xpath, context, XPathConstants.STRING);
+  }
+
+  public static Number queryNumber(String xpath, Node context) {
+    return (Number) evaluate(xpath, context, XPathConstants.NUMBER);
+  }
+
+  public static Boolean queryBoolean(String xpath, Node context) {
+    return (Boolean) evaluate(xpath, context, XPathConstants.BOOLEAN);
+  }
+
+  public static XQuery xquery(Node context) {
+    return XQuery.on(context);
+  }
+
+  public static final class XQuery {
+    private final Object context;
+
+    public static XQuery on(Node context) {
+      return new XQuery(context);
+    }
+
+    public XQuery(Object context) {
+      this.context = context;
+    }
+
+    public Object evaluate(String xpath, QName returnType) {
+      try {
+        return XPATH.evaluate(xpath, context, returnType);
+      } catch (XPathExpressionException e) {
+        throw new RuntimeException(e);
+      }
+    }
+
+    public List<Node> queryNodes(String xpath) {
+      return NodeListList.of((NodeList) evaluate(xpath, XPathConstants.NODESET));
+    }
+
+    public Node queryNode(String xpath) {
+      return (Node) evaluate(xpath, XPathConstants.NODE);
+    }
+
+    public String queryString(String xpath) {
+      return (String) evaluate(xpath, XPathConstants.STRING);
+    }
+
+    public Number queryNumber(String xpath) {
+      return (Number) evaluate(xpath, XPathConstants.NUMBER);
+    }
+
+    public Boolean queryBoolean(String xpath) {
+      return (Boolean) evaluate(xpath, XPathConstants.BOOLEAN);
+    }
   }
 }

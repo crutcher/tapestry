@@ -89,6 +89,10 @@ public class JsonUtil {
     return result;
   }
 
+  public static Map<String, Object> parseToMap(String json) {
+    return toMap(readTree(json));
+  }
+
   /**
    * De-serialize a JSON string to an object of the specified class.
    *

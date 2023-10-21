@@ -6,7 +6,7 @@ import org.junit.Test;
 public class ExpressionGraphValidatorTest implements CommonAssertions {
   @Test
   public void testDisplayNodeInContext() {
-    var doc = LoomXmlResources.parse("<foo><bar><baz/></bar></foo>");
+    var doc = LoomXml.parse("<foo><bar><baz/></bar></foo>");
 
     assertThat(ExpressionGraphValidator.instance.prettyContext(doc))
         .isEqualTo(

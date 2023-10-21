@@ -14,8 +14,6 @@ import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpressionException;
 import lombok.Builder;
 import lombok.Data;
 import loom.common.runtime.ReflectionUtils;
@@ -39,7 +37,7 @@ public final class ExpressionGraphValidator {
 
     ValidationContext(Document doc) {
       this.doc = doc;
-      this.content = LoomXmlResources.documentToPrettyString(doc);
+      this.content = LoomXml.documentToPrettyString(doc);
       this.lines = Arrays.asList(content.split("\n"));
       this.report = new ValidationReport();
     }
@@ -53,14 +51,14 @@ public final class ExpressionGraphValidator {
       ExpressionGraphValidator.builder().build();
 
   static {
-    LoomXmlResources.SCHEMA_RESOURCES.forEach(
+    LoomXml.SCHEMA_RESOURCES.forEach(
         r -> {
           instance.addSchema(
               URI.create(r.namespace()), ReflectionUtils.resourceAsStream(r.resourcePath()));
         });
 
     instance.addValidatorTransform(
-        ReflectionUtils.resourceAsStream(LoomXmlResources.EG_CORE_XSLT_RESOURCE_PATH));
+        ReflectionUtils.resourceAsStream(LoomXml.EG_CORE_XSLT_RESOURCE_PATH));
   }
 
   @Builder.Default Map<URI, Document> schemaDocuments = new HashMap<>();
@@ -68,7 +66,7 @@ public final class ExpressionGraphValidator {
   @Builder.Default List<Transformer> transformers = new ArrayList<>();
 
   public void addSchema(URI uri, InputStream stream) {
-    addSchema(uri, LoomXmlResources.parse(stream));
+    addSchema(uri, LoomXml.parse(stream));
   }
 
   public void addSchema(URI uri, Document document) {
@@ -82,7 +80,7 @@ public final class ExpressionGraphValidator {
   public Schema getSchema() {
     var sources = schemaDocuments.values().stream().map(DOMSource::new).toArray(Source[]::new);
     try {
-      return LoomXmlResources.SCHEMA_FACTORY.newSchema(sources);
+      return LoomXml.SCHEMA_FACTORY.newSchema(sources);
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
@@ -91,8 +89,7 @@ public final class ExpressionGraphValidator {
   public void addValidatorTransform(InputStream stream) {
     try {
       addValidatorTransform(
-          LoomXmlResources.TRANSFORMER_FACTORY.newTransformer(
-              new DOMSource(LoomXmlResources.parse(stream))));
+          LoomXml.TRANSFORMER_FACTORY.newTransformer(new DOMSource(LoomXml.parse(stream))));
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
@@ -123,8 +120,7 @@ public final class ExpressionGraphValidator {
 
     var sb = new StringBuilder();
 
-    for (var line :
-        Splitter.on("\n").split(LoomXmlResources.documentToPrettyString(ancestor).trim())) {
+    for (var line : Splitter.on("\n").split(LoomXml.documentToPrettyString(ancestor).trim())) {
       sb.append("> %s".formatted(line));
       sb.append("\n");
     }
@@ -195,9 +191,9 @@ public final class ExpressionGraphValidator {
     // Parse all the JSON
     // It would be nice to apply JSON schema to things; if we had a way to match them.
     for (var jsonNode :
-        NodeListList.of(
-            context.doc.getElementsByTagNameNS(LoomXmlResources.EG_CORE_SCHEMA_URI, "json"))) {
-      var json = jsonNode.getTextContent().trim();
+        NodeListList.of(context.doc.getElementsByTagNameNS(LoomXml.EG_CORE_SCHEMA_URI, "json"))) {
+
+      var json = jsonNode.getFirstChild().getNodeValue().trim();
 
       try {
         JsonUtil.fromJson(json, JsonNode.class);
@@ -206,7 +202,7 @@ public final class ExpressionGraphValidator {
             ValidationReport.Issue.builder()
                 .type("JsonParse")
                 .xpath(
-                    LoomXmlResources.generateXPathSelector(
+                    LoomXml.generateXPathSelector(
                         jsonNode, List.of(Pair.of(null, "id"), Pair.of("eg:item", "key"))))
                 .summary("JSON parse error")
                 .message(e.getMessage().trim())
@@ -220,7 +216,7 @@ public final class ExpressionGraphValidator {
 
   private void xsltValidation(ValidationContext context) {
     for (var transformer : transformers) {
-      Document resultDoc = LoomXmlResources.DOCUMENT_BUILDER.newDocument();
+      Document resultDoc = LoomXml.DOCUMENT_BUILDER.newDocument();
       try {
         transformer.transform(new DOMSource(context.doc), new DOMResult(resultDoc));
       } catch (TransformerException e) {
@@ -235,38 +231,22 @@ public final class ExpressionGraphValidator {
         var issue = ValidationReport.Issue.builder().type(type).xpath(path);
 
         if (path == null) {
-          try {
-            var contextNode =
-                (Node) LoomXmlResources.XPATH.evaluate(path, context.doc, XPathConstants.NODE);
-            if (contextNode != null) {
-              issue.context(prettyContext(contextNode));
-            }
-          } catch (XPathExpressionException e) {
-            throw new RuntimeException(e);
+          var contextNode = LoomXml.xquery(context.doc).queryNode(path);
+          if (contextNode != null) {
+            issue.context(prettyContext(contextNode));
           }
         }
 
-        try {
-          var detailsNode =
-              (Node) LoomXmlResources.XPATH.evaluate("details", error, XPathConstants.NODE);
-          if (detailsNode != null) {
-            var details = new LinkedHashMap<String, String>();
-            for (var detail : NodeListList.of(detailsNode.getChildNodes())) {
-              details.put(detail.getNodeName(), detail.getTextContent());
-            }
-            issue.details(details);
+        var detailsNode = LoomXml.xquery(error).queryNode("detailS");
+        if (detailsNode != null) {
+          var details = new LinkedHashMap<String, String>();
+          for (var detail : NodeListList.of(detailsNode.getChildNodes())) {
+            details.put(detail.getNodeName(), detail.getTextContent());
           }
-        } catch (XPathExpressionException e) {
-          throw new RuntimeException(e);
+          issue.details(details);
         }
 
-        try {
-          String summary =
-              (String) LoomXmlResources.XPATH.evaluate("summary", error, XPathConstants.STRING);
-          issue.summary(summary);
-        } catch (XPathExpressionException e) {
-          throw new RuntimeException(e);
-        }
+        issue.summary(LoomXml.xquery(error).queryString("summary"));
 
         StringBuilder sb = new StringBuilder();
 
@@ -277,7 +257,7 @@ public final class ExpressionGraphValidator {
                 .filter(n -> n.getNodeName().equals("message"))
                 .findFirst()
                 .get();
-        var render = LoomXmlResources.documentToPrettyString(message);
+        var render = LoomXml.documentToPrettyString(message);
         // Drop the wrapper.
         sb.append(render.replace("<message>", "").replace("</message>", ""));
 

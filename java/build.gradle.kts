@@ -110,6 +110,9 @@ dependencies {
 
     implementation("org.dom4j:dom4j:2.1.4")
 
+    implementation("org.snakeyaml:snakeyaml-engine:2.6")
+    implementation("org.tomlj:tomlj:1.1.0")
+
 
     // Set up ErrorProne deps for lint.
     errorprone("com.google.errorprone:error_prone_core:2.20.0")

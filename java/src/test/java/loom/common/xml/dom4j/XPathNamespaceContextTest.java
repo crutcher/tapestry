@@ -1,6 +1,6 @@
 package loom.common.xml.dom4j;
 
-import loom.graph.LoomXmlResources;
+import loom.graph.LoomXml;
 import loom.testing.BaseTestClass;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Node;
@@ -10,39 +10,38 @@ public class XPathNamespaceContextTest extends BaseTestClass {
 
   @Test
   public void testSelectors() throws Exception {
-    var doc =
-        DocumentHelper.parseText(
-            """
-                <?xml version="1.0" encoding="UTF-8"?>
-                <f:graph
-                  xmlns:f="http://loom-project.org/schemas/v0.1/ExpressionGraph.core.xsd"
-                  >
-                  <f:nodes>
-                    <f:tensor id="2">
-                      <f:dtype>float32</f:dtype>
-                      <f:shape>
-                        <f:dim size="30"/>
-                        <f:dim size="2"/>
-                        </f:shape>
-                      </f:tensor>
-                    <f:tensor id="1">
-                      <f:annotations>
-                        <f:pre>foo</f:pre>
-                        </f:annotations>
-                      <f:dtype>float32</f:dtype>
-                      <f:shape>
-                        <f:dim size="30"/>
-                        <f:dim size="2"/>
-                        </f:shape>
-                      </f:tensor>
-                    </f:nodes>
-                  </f:graph>
-                """);
+    String content =
+        """
+              <?xml version="1.0" encoding="UTF-8"?>
+              <f:graph
+                xmlns:f="http://loom-project.org/schemas/v0.1/ExpressionGraph.core.xsd"
+                >
+                <f:nodes>
+                  <f:tensor id="2">
+                    <f:dtype>float32</f:dtype>
+                    <f:shape>
+                      <f:dim size="30"/>
+                      <f:dim size="2"/>
+                      </f:shape>
+                    </f:tensor>
+                  <f:tensor id="1">
+                    <f:annotations>
+                      <f:pre>foo</f:pre>
+                      </f:annotations>
+                    <f:dtype>float32</f:dtype>
+                    <f:shape>
+                      <f:dim size="30"/>
+                      <f:dim size="2"/>
+                      </f:shape>
+                    </f:tensor>
+                  </f:nodes>
+                </f:graph>
+              """;
+
+    var doc = DocumentHelper.parseText(content);
 
     final var xpCtx =
-        XPathNamespaceContext.builder()
-            .namespace("eg", LoomXmlResources.EG_CORE_SCHEMA_URI)
-            .build();
+        XPathNamespaceContext.builder().namespace("eg", LoomXml.EG_CORE_SCHEMA_URI).build();
 
     assertThat(xpCtx.selectNodes(doc, "//eg:tensor"))
         .extracting(n -> n.valueOf("@id"))

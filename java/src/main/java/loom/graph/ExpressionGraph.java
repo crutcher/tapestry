@@ -54,7 +54,7 @@ public final class ExpressionGraph {
   }
 
   public static ExpressionGraph from(InputStream is) {
-    return from(LoomXmlResources.parse(is));
+    return from(LoomXml.parse(is));
   }
 
   public static ExpressionGraph from(String content) {
@@ -74,8 +74,8 @@ public final class ExpressionGraph {
   }
 
   public static ExpressionGraph create() {
-    var doc = LoomXmlResources.DOCUMENT_BUILDER.newDocument();
-    doc.appendChild(doc.createElementNS(LoomXmlResources.EG_CORE_SCHEMA_URI, "loom:graph"));
+    var doc = LoomXml.DOCUMENT_BUILDER.newDocument();
+    doc.appendChild(doc.createElementNS(LoomXml.EG_CORE_SCHEMA_URI, "loom:graph"));
 
     return new ExpressionGraph(doc);
   }
@@ -96,6 +96,10 @@ public final class ExpressionGraph {
     return new ExpressionGraph((Document) doc.cloneNode(true), false);
   }
 
+  public LoomXml.XQuery xquery() {
+    return LoomXml.xquery(doc);
+  }
+
   public void validate() {
     ExpressionGraphValidator.instance.validate(doc);
   }
@@ -104,7 +108,7 @@ public final class ExpressionGraph {
     var result = new ArrayList<Node>();
     for (var n :
         NodeListList.of(
-            doc.getElementsByTagNameNS(LoomXmlResources.EG_CORE_SCHEMA_URI, "nodes")
+            doc.getElementsByTagNameNS(LoomXml.EG_CORE_SCHEMA_URI, "nodes")
                 .item(0)
                 .getChildNodes())) {
       if (n.getNodeType() == Node.ELEMENT_NODE && n.getAttributes().getNamedItem("id") != null) {

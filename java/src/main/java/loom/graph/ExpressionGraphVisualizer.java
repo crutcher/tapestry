@@ -63,9 +63,9 @@ public class ExpressionGraphVisualizer {
 
   public Transformer getTransformer() {
     try {
-      return LoomXmlResources.TRANSFORMER_FACTORY.newTransformer(
+      return LoomXml.TRANSFORMER_FACTORY.newTransformer(
           new StreamSource(
-              ReflectionUtils.resourceAsStream(LoomXmlResources.LOOM_EG_TO_DOT_XSL_RESOURCE_PATH)));
+              ReflectionUtils.resourceAsStream(LoomXml.LOOM_EG_TO_DOT_XSL_RESOURCE_PATH)));
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
@@ -100,7 +100,7 @@ public class ExpressionGraphVisualizer {
   }
 
   private Document buildNodeAliases() {
-    var doc = LoomXmlResources.DOCUMENT_BUILDER.newDocument();
+    var doc = LoomXml.DOCUMENT_BUILDER.newDocument();
     var root = doc.createElement("NodeAliases");
     doc.appendChild(root);
 
@@ -149,7 +149,7 @@ public class ExpressionGraphVisualizer {
     transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
 
     Document aliasesDoc = buildNodeAliases();
-    File paramFile = LoomXmlResources.documentToTempFile(aliasesDoc);
+    File paramFile = LoomXml.documentToTempFile(aliasesDoc);
     transformer.setParameter("NodeAliasesURI", paramFile.toURI());
 
     try {

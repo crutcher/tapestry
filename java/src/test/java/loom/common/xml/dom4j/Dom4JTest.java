@@ -1,7 +1,8 @@
 package loom.common.xml.dom4j;
 
+import java.io.StringReader;
 import loom.graph.ExpressionGraph;
-import loom.graph.LoomXmlResources;
+import loom.graph.LoomXml;
 import loom.testing.CommonAssertions;
 import org.dom4j.Document;
 import org.dom4j.dom.DOMDocument;
@@ -10,10 +11,9 @@ import org.dom4j.io.DOMReader;
 import org.dom4j.io.SAXReader;
 import org.junit.Test;
 
-import java.io.StringReader;
-
 public class Dom4JTest implements CommonAssertions {
 
+  @SuppressWarnings("unused")
   @Test
   public void testparse() throws Exception {
     var content =
@@ -73,8 +73,14 @@ public class Dom4JTest implements CommonAssertions {
                       </eg:graph>
                     """;
 
-    var reader = new SAXReader(DOMDocumentFactory.getInstance());
+    var factory = new DOMDocumentFactory();
+
+    var reader = new SAXReader(factory);
     var doc = (DOMDocument) reader.read(new StringReader(content));
+
+    System.out.println(doc.asXML());
+
+    var eg = ExpressionGraph.from(doc);
   }
 
   @Test
@@ -141,10 +147,7 @@ public class Dom4JTest implements CommonAssertions {
     DOMReader reader = new DOMReader();
     Document d4jdoc = reader.read(graph.getDoc());
 
-    var ctx =
-        XPathNamespaceContext.builder()
-            .namespace("eg", LoomXmlResources.EG_CORE_SCHEMA_URI)
-            .build();
+    var ctx = XPathNamespaceContext.builder().namespace("eg", LoomXml.EG_CORE_SCHEMA_URI).build();
 
     ctx.selectNodes(d4jdoc, "//eg:tensor")
         .forEach(

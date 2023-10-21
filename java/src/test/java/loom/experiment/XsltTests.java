@@ -5,7 +5,7 @@ import java.nio.charset.StandardCharsets;
 import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamSource;
-import loom.graph.LoomXmlResources;
+import loom.graph.LoomXml;
 import org.junit.Test;
 import org.w3c.dom.Document;
 
@@ -14,7 +14,7 @@ public class XsltTests {
   @Test
   public void testFunc() throws Exception {
     var xml =
-        LoomXmlResources.parse(
+        LoomXml.parse(
             """
                 <?xml version="1.0" encoding="UTF-8"?>
                 <foo a="1"/>
@@ -50,11 +50,11 @@ public class XsltTests {
 
     var xslSource =
         new StreamSource(new ByteArrayInputStream(xsl.getBytes(StandardCharsets.UTF_8)));
-    var transform = LoomXmlResources.TRANSFORMER_FACTORY.newTransformer(xslSource);
+    var transform = LoomXml.TRANSFORMER_FACTORY.newTransformer(xslSource);
 
-    Document resultDoc = LoomXmlResources.DOCUMENT_BUILDER.newDocument();
+    Document resultDoc = LoomXml.DOCUMENT_BUILDER.newDocument();
     transform.transform(new DOMSource(xml), new DOMResult(resultDoc));
 
-    System.out.println(LoomXmlResources.documentToPrettyString(resultDoc));
+    System.out.println(LoomXml.documentToPrettyString(resultDoc));
   }
 }
