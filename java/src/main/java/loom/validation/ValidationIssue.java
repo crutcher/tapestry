@@ -162,7 +162,7 @@ public final class ValidationIssue {
     var sb = new StringBuilder();
     sb.append(type);
     if (params != null && !params.isEmpty()) {
-      sb.append(new TreeMap<>(params).toString());
+      sb.append(new TreeMap<>(params));
     }
     return sb.toString();
   }
