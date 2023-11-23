@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
-
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
@@ -14,7 +13,7 @@ import java.util.function.Function;
 /**
  * Utilities for serializing and deserializing a {@code Map<K, T>} as a json {@code [T]}.
  *
- * Example usage:
+ * <p>Example usage:
  *
  * <pre>{@code
  * @Data
@@ -65,7 +64,6 @@ public class MapValueListUtil {
     private final Function<V, K> keyExtractor;
 
     private final Class<? extends Map> mapClass;
-
 
     public MapDeserializer(
         Class<V> valueClass, Function<V, K> keyExtractor, Class<? extends Map> mapClass) {

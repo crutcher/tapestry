@@ -9,11 +9,13 @@ import org.assertj.core.api.WithAssertions;
 public interface CommonAssertions extends WithAssertions {
   default void assertJsonEquals(Object obj, String json) {
 
-    String objJson = JsonUtil.toJson(obj);
+    json = JsonUtil.reformatToPrettyJson(json);
+
+    String objJson = JsonUtil.toPrettyJson(obj);
 
     // We establish a 'clean' json by re-serializing the JSON derived object.
     var objFromJson = JsonUtil.fromJson(json, obj.getClass());
-    var cleanJson = JsonUtil.toJson(objFromJson);
+    var cleanJson = JsonUtil.toPrettyJson(objFromJson);
 
     boolean debug = false;
     if (debug) {
@@ -23,7 +25,7 @@ public interface CommonAssertions extends WithAssertions {
     }
 
     // Does the serialization of the source object to JSON match the cleaned JSON?
-    assertThat(objJson).isEqualTo(cleanJson);
+    assertThat(objJson).describedAs("Object Json != Source Json").isEqualTo(cleanJson);
   }
 
   default void assertJsonEquals(Object obj, JsonValue json) {

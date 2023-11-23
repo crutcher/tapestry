@@ -100,19 +100,6 @@ dependencies {
     // Jetbrains annotations
     implementation("org.jetbrains:annotations:24.0.1")
 
-    // XML Processing
-    implementation("xalan:xalan:2.7.3")
-    implementation("xalan:serializer:2.7.3")
-    implementation("org.jdom:jdom2:2.0.6.1")
-    implementation("jaxen:jaxen:2.0.0")
-    implementation("jaxen:jaxen-integration:2.0.0")
-    implementation("jaxen:jaxen-parent:2.0.0")
-
-    implementation("org.dom4j:dom4j:2.1.4")
-
-    implementation("org.snakeyaml:snakeyaml-engine:2.6")
-    implementation("org.tomlj:tomlj:1.1.0")
-
 
     // Set up ErrorProne deps for lint.
     errorprone("com.google.errorprone:error_prone_core:2.20.0")
@@ -142,6 +129,10 @@ dependencies {
     // JSON Stuff
     // javax.json
     implementation("org.glassfish:javax.json:1.1.4")
+    implementation("net.jimblackler.jsonschemafriend:core:0.12.2")
+
+    // https://mvnrepository.com/artifact/com.jayway.jsonpath/json-path
+    implementation("com.jayway.jsonpath:json-path:2.8.0")
 
     // Jackson
     implementation("com.fasterxml.jackson.core:jackson-core:2.15.1")
@@ -153,10 +144,10 @@ dependencies {
     // implementation("guru.nidi:graphviz-java-all-j2v8:0.18.1")
     implementation("guru.nidi:graphviz-java:0.18.1")
     // Manual deps for graphviz
-    implementation("org.apache.logging.log4j:log4j-api:2.13.0")
-    implementation("org.apache.logging.log4j:log4j-core:2.13.0")
+    implementation("org.apache.logging.log4j:log4j-api:2.20.0")
+    implementation("org.apache.logging.log4j:log4j-core:2.20.0")
     // Optional: Graal JS engine; enable as the default.
-    implementation("org.graalvm.js:js:20.0.0")
+    implementation("org.graalvm.js:js:22.3.1")
     // Graphviz.useEngine(GraphvizJdkEngine())
 }
 

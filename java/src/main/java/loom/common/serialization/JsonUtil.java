@@ -67,7 +67,7 @@ public class JsonUtil {
     }
   }
 
-  public static String reformat(String json) {
+  public static String reformatToPrettyJson(String json) {
     return toPrettyJson(readTree(json));
   }
 
