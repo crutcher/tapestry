@@ -80,8 +80,10 @@ public class JsonUtilTest implements CommonAssertions {
         .isThrownBy(() -> JsonUtil.validateSimpleJson(new Object()));
 
     var cycle = new ArrayList<>();
+    //noinspection CollectionAddedToSelf
     cycle.add(cycle);
     assertThatExceptionOfType(IllegalArgumentException.class)
         .isThrownBy(() -> JsonUtil.validateSimpleJson(Map.of("foo", cycle)));
+    cycle.clear();
   }
 }

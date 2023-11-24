@@ -49,8 +49,7 @@ public final class DimensionMap implements HasDimension, HasNamedPermute, HasToJ
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
-    if (!(o instanceof DimensionMap)) return false;
-    DimensionMap that = (DimensionMap) o;
+    if (!(o instanceof DimensionMap that)) return false;
     return names.equals(that.names);
   }
 

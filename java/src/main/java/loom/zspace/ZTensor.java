@@ -13,16 +13,18 @@ import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.node.IntNode;
 import com.google.common.primitives.Ints;
 import com.google.errorprone.annotations.CheckReturnValue;
+import lombok.Getter;
+import loom.common.HasToJsonString;
+import loom.common.IteratorUtils;
+import loom.common.serialization.JsonUtil;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.lang.reflect.Array;
 import java.util.*;
 import java.util.function.*;
 import java.util.stream.Stream;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import loom.common.HasToJsonString;
-import loom.common.IteratorUtils;
-import loom.common.serialization.JsonUtil;
 
 /**
  * Minimal discrete Tensor.
@@ -240,7 +242,7 @@ public final class ZTensor implements HasDimension, HasToJsonString, HasPermute,
         obj -> (int[]) obj);
   }
 
-  private final boolean mutable;
+  @Getter private final boolean mutable;
   private final int hash;
 
   @Nonnull private final int[] shape;
@@ -332,15 +334,6 @@ public final class ZTensor implements HasDimension, HasToJsonString, HasPermute,
    */
   public ZPoint zpoint() {
     return new ZPoint(this);
-  }
-
-  /**
-   * Is this ZTensor mutable?
-   *
-   * @return true if mutable; false otherwise.
-   */
-  public boolean isMutable() {
-    return mutable;
   }
 
   /**
@@ -876,6 +869,20 @@ public final class ZTensor implements HasDimension, HasToJsonString, HasPermute,
   }
 
   /**
+   * Copy the given array, removing the given index.
+   *
+   * @param arr the array.
+   * @param index the index to remove.
+   * @return a copy of the array with the given index removed.
+   */
+  int[] _removeIdx(int[] arr, int index) {
+    int[] res = new int[arr.length - 1];
+    System.arraycopy(arr, 0, res, 0, index);
+    System.arraycopy(arr, index + 1, res, index, arr.length - index - 1);
+    return res;
+  }
+
+  /**
    * Returns a view of this tensor with a dimensions of size 1 removed.
    *
    * @param d the dimension to remove; accepts negative indices.
@@ -889,15 +896,7 @@ public final class ZTensor implements HasDimension, HasToJsonString, HasPermute,
           "dimension " + rD + ", shape " + shape[rD] + " is not squeezable");
     }
 
-    int[] newShape = new int[ndim() - 1];
-    System.arraycopy(shape, 0, newShape, 0, rD);
-    System.arraycopy(shape, rD + 1, newShape, rD, ndim() - rD - 1);
-
-    int[] newStride = new int[ndim() - 1];
-    System.arraycopy(stride, 0, newStride, 0, rD);
-    System.arraycopy(stride, rD + 1, newStride, rD, ndim() - rD - 1);
-
-    return new ZTensor(mutable, newShape, newStride, data, data_offset);
+    return new ZTensor(mutable, _removeIdx(shape, rD), _removeIdx(stride, rD), data, data_offset);
   }
 
   /**

@@ -76,7 +76,11 @@ public class LoomDocTest implements CommonAssertions {
         LoomDoc.NodeDoc.builder()
             .id(UUID.fromString("00000000-0000-0000-0000-000000000000"))
             .type("test")
+            .fieldFromObject("foo", "abc")
             .build();
+
+    assertThat(node.hasField("foo")).isTrue();
+    assertThat(node.hasField("bar")).isFalse();
 
     assertThat(doc.hasNode(node.getId())).isFalse();
     assertThat(doc.hasNode(node.getId().toString())).isFalse();

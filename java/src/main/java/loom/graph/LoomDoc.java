@@ -3,10 +3,6 @@ package loom.graph;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
-import javax.annotation.Nullable;
 import lombok.Builder;
 import lombok.Data;
 import lombok.Singular;
@@ -16,6 +12,12 @@ import loom.common.LookupError;
 import loom.common.serialization.JsonUtil;
 import loom.common.serialization.MapValueListUtil;
 import org.jetbrains.annotations.NotNull;
+
+import javax.annotation.CheckReturnValue;
+import javax.annotation.Nullable;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 /**
  * A Loom Graph document.
@@ -60,6 +62,13 @@ public class LoomDoc implements HasToJsonString {
       public NodeDocBuilder fieldFromString(String key, String json) {
         return this.field(key, JsonUtil.readTree(json));
       }
+
+      public NodeDocBuilder asFields(Object fields) {
+        JsonUtil.toTree(fields)
+            .fields()
+            .forEachRemaining(entry -> this.field(entry.getKey(), entry.getValue()));
+        return this;
+      }
     }
 
     @NotNull private final UUID id;
@@ -75,12 +84,7 @@ public class LoomDoc implements HasToJsonString {
       builder.type(type);
       builder.label(label);
 
-      fields
-          .entrySet()
-          .forEach(
-              entry -> {
-                builder.field(entry.getKey(), entry.getValue().deepCopy());
-              });
+      fields.forEach((key, value) -> builder.field(key, value.deepCopy()));
 
       return builder.build();
     }
@@ -118,7 +122,7 @@ public class LoomDoc implements HasToJsonString {
      * @param <T> the target type.
      */
     public <T> T getFieldAsType(String key, Class<T> type) {
-      return JsonUtil.fromJson(getFieldAsJsonNode(key), type);
+      return JsonUtil.convertValue(getFieldAsJsonNode(key), type);
     }
 
     /**
@@ -139,6 +143,7 @@ public class LoomDoc implements HasToJsonString {
   private final Map<UUID, NodeDoc> nodes = new HashMap<>();
 
   /** Make a full deep copy of the XGraphDoc. */
+  @CheckReturnValue
   public LoomDoc deepCopy() {
     var dup = new LoomDoc();
     dup.id = id;

@@ -16,7 +16,7 @@ public class LoomGraphTest extends BaseTestClass {
   public void testNodeJPath() {
     var nodeId = "00000000-0000-4000-8000-000000000001";
 
-    String source =
+    final String source =
         """
                 {
                   "nodes": [
@@ -45,63 +45,31 @@ public class LoomGraphTest extends BaseTestClass {
   }
 
   @Test
-  public void testParse() {
-    var nodeId = "00000000-0000-4000-8000-000000000001";
-
-    String source =
-        """
-            {
-              "nodes": [
-                 {
-                   "id": "%s",
-                   "type": "test",
-                   "label": "Foo",
-                   "fields": {
-                     "b": [2, 3],
-                     "a": 1
-                   }
-                 }
-              ]
-            }
-            """
-            .formatted(nodeId);
-
-    var env = LoomGraphEnv.createDefault();
-    assertJsonEquals(env.wrap(JsonUtil.fromJson(source, LoomDoc.class)).getDoc(), source);
-    assertJsonEquals(env.parse(source).getDoc(), source);
-    assertJsonEquals(env.parse(JsonUtil.readTree(source)).getDoc(), source);
-  }
-
-  @Test
   public void testDup() {
-    var nodeId = "00000000-0000-4000-8000-000000000001";
-
-    String source =
+    final String source =
         """
-            {
-              "nodes": [
-                 {
-                   "id": "%s",
-                   "type": "test",
-                   "label": "Foo",
-                   "fields": {
-                     "a": 1,
-                     "b": [2, 3]
-                   }
-                 }
-              ]
-            }
-            """
-            .formatted(nodeId);
-
-    var doc = JsonUtil.fromJson(source, LoomDoc.class);
+        {
+          "nodes": [
+             {
+               "id": "%1$s",
+               "type": "%2$s",
+               "label": "Foo",
+               "fields": {
+                 "shape": [1, 3],
+                 "dtype": "int32"
+               }
+             }
+          ]
+        }
+        """
+            .formatted("00000000-0000-4000-8000-000000000001", TensorNodeTypeOps.TENSOR_TYPE);
 
     var env = LoomGraphEnv.createDefault();
-
-    var graph = env.wrap(doc);
+    var graph = env.parse(source);
 
     var dup = graph.deepCopy();
 
+    assertThat(dup.getDoc()).isNotSameAs(graph.getDoc());
     assertJsonEquals(dup.getDoc(), source);
   }
 
@@ -185,9 +153,7 @@ public class LoomGraphTest extends BaseTestClass {
 
   @Test
   public void testValidateFail() {
-    var nodeId = "00000000-0000-4000-8000-000000000001";
-
-    String source =
+    final String source =
         """
             {
               "nodes": [
@@ -203,7 +169,7 @@ public class LoomGraphTest extends BaseTestClass {
               ]
             }
             """
-            .formatted(nodeId, TensorNodeTypeOps.TENSOR_TYPE);
+            .formatted("00000000-0000-4000-8000-000000000001", TensorNodeTypeOps.TENSOR_TYPE);
 
     var env = LoomGraphEnv.createDefault();
     var graph = env.parse(source);
@@ -218,10 +184,8 @@ public class LoomGraphTest extends BaseTestClass {
     }
 
     assertThat(issues)
-        .extracting(ValidationIssue::formattedType)
+        .extracting(ValidationIssue::typeDescription)
         .containsExactlyInAnyOrder(
-            "JsdError{error=MinimumError}",
-            "JsdError{error=FalseSchemaError}",
-            "TypeValidation{field=dtype, type=%s}".formatted(TensorNodeTypeOps.TENSOR_TYPE));
+            "JsdError{error=MinimumError}", "JsdError{error=FalseSchemaError}");
   }
 }

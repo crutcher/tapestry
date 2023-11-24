@@ -1,5 +1,11 @@
 package loom.validation;
 
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+import java.util.stream.Collectors;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import lombok.Builder;
 import lombok.Data;
 import lombok.Singular;
@@ -7,13 +13,6 @@ import loom.common.HasToJsonString;
 import loom.common.json.JsonPathUtils;
 import loom.common.serialization.JsonUtil;
 import loom.common.text.IndentUtils;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
-import java.util.stream.Collectors;
 
 /** A Description of a validation failure. */
 @Data
@@ -34,7 +33,8 @@ public final class ValidationIssue {
     return "Validation failed with "
         + issues.size()
         + " issues:\n\n"
-        + issues.stream().map(ValidationIssue::toDisplayString).collect(Collectors.joining("\n\n"));
+        + issues.stream().map(ValidationIssue::toDisplayString).collect(Collectors.joining("\n\n"))
+        + "\n";
   }
 
   /** A named Context for a ValidationIssue. */
@@ -64,7 +64,7 @@ public final class ValidationIssue {
        * @param data the data to set.
        * @return the builder.
        */
-      public ContextBuilder dataToJson(Object data) {
+      public ContextBuilder dataFromTree(Object data) {
         this.jsonData = JsonUtil.toPrettyJson(data);
         return this;
       }
@@ -107,7 +107,7 @@ public final class ValidationIssue {
 
       sb.append("- %s::".formatted(name));
       if (jsonpath != null) {
-        sb.append(" (").append(jsonpath).append(")");
+        sb.append(" ").append(jsonpath);
       }
 
       if (message != null) {
@@ -158,7 +158,7 @@ public final class ValidationIssue {
    *
    * @return the formatted string.
    */
-  public String formattedType() {
+  public String typeDescription() {
     var sb = new StringBuilder();
     sb.append(type);
     if (params != null && !params.isEmpty()) {
@@ -174,7 +174,7 @@ public final class ValidationIssue {
    */
   public String toDisplayString() {
     var sb = new StringBuilder();
-    sb.append("* Error [").append(formattedType()).append("]: ").append(summary);
+    sb.append("* Error [").append(typeDescription()).append("]: ").append(summary);
 
     if (message != null) {
       sb.append("\n").append(IndentUtils.reindent(2, message));

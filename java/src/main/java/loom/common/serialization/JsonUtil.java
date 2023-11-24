@@ -7,7 +7,6 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.NumericNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import java.util.*;
 import javax.annotation.Nullable;
 import lombok.Value;
@@ -57,16 +56,6 @@ public class JsonUtil {
     }
   }
 
-  public static String toXml(Object obj) {
-    var mapper = new XmlMapper();
-    mapper.enable(SerializationFeature.INDENT_OUTPUT);
-    try {
-      return mapper.writeValueAsString(obj);
-    } catch (JsonProcessingException e) {
-      throw new IllegalArgumentException(e);
-    }
-  }
-
   public static String reformatToPrettyJson(String json) {
     return toPrettyJson(readTree(json));
   }
@@ -105,50 +94,40 @@ public class JsonUtil {
    */
   public static <T> T fromJson(String json, Class<T> clazz) {
     try {
-      return fromJsonDirect(json, clazz);
+      return readValue(json, clazz);
     } catch (JsonProcessingException e) {
       throw new IllegalArgumentException(e);
     }
-  }
-
-  public static <T> T fromJsonDirect(String json, Class<T> cls) throws JsonProcessingException {
-    return getMapper().readValue(json, cls);
-  }
-
-  public static <T> T fromJson(JsonNode node, Class<T> clazz) {
-    try {
-      return getMapper().treeToValue(node, clazz);
-    } catch (JsonProcessingException e) {
-      throw new IllegalArgumentException(e);
-    }
-  }
-
-  public static <T> T roundtrip(T obj) {
-    @SuppressWarnings("unchecked")
-    var cls = (Class<T>) obj.getClass();
-    return fromJson(toJson(obj), cls);
   }
 
   /**
-   * Is this ArrayNode an un-nested value array?
+   * De-serialize a JSON string to an object of the specified class.
    *
-   * @param node the node.
-   * @return true if the node is an array of values.
+   * @param json the JSON string.
+   * @param cls the class of the object to de-serialize.
+   * @return the de-serialized object.
+   * @param <T> the type of the object to de-serialize.
+   * @throws JsonProcessingException if the JSON string cannot be de-serialized to the specified.
    */
-  public static boolean isValueArray(ArrayNode node) {
-    for (JsonNode child : node) {
-      if (!child.isValueNode()) {
-        return false;
-      }
-    }
-    return true;
+  public static <T> T readValue(String json, Class<T> cls) throws JsonProcessingException {
+    return getMapper().readValue(json, cls);
+  }
+
+  /**
+   * Convert an object to an object of the specified class.
+   *
+   * @param tree the object to convert.
+   * @param clazz the class of the object to convert to.
+   * @return the converted object.
+   * @param <T> the type of the object to convert to.
+   * @throws IllegalArgumentException if the object cannot be converted to the specified class.
+   */
+  public static <T> T convertValue(Object tree, Class<T> clazz) {
+    return getMapper().convertValue(tree, clazz);
   }
 
   /**
    * Convert an Object to a simple JSON object.
-   *
-   * <p>Serializes to a JSON object using Jackson {@link ObjectMapper.valueToTree}; then converts
-   * from {@link JsonNode} to a simple JSON value tree.
    *
    * @param obj the object to convert.
    * @return the simple JSON value tree.
@@ -158,7 +137,10 @@ public class JsonUtil {
   }
 
   /**
-   * Convert a Jackson JsonNode tree a a simple JSON value tree.
+   * Convert a Jackson JsonNode tree a simple JSON value tree.
+   *
+   * <p>Simple JSON value trees are composed of the following types: - null - String - Number -
+   * Boolean - List<$Simple> - Map<String, $Simple>
    *
    * @param node the node to convert.
    * @return the simple JSON value tree.
@@ -185,93 +167,109 @@ public class JsonUtil {
     }
   }
 
-  /**
-   * Validate that a JSON object is a simple JSON value tree.
-   *
-   * @param obj the object to validate.
-   * @throws IllegalArgumentException if the object is not a simple JSON value tree.
-   */
-  public static void validateSimpleJson(Object obj) {
-    @Value
-    class History {
-      @Nullable History parent;
-      @Nullable Object selector;
-      @Nullable Object target;
+  /** Traversal context for the validateSimpleJson method. */
+  @Value
+  protected static class ValidatorPathContext {
+    @Nullable ValidatorPathContext parent;
+    @Nullable Object selector;
+    @Nullable Object target;
 
-      String path() {
-        if (selector == null) {
-          return "";
-        }
-        var prefix = (parent == null) ? "" : parent.path();
+    /**
+     * Selector path from the root to this context location.
+     *
+     * @return a string representing the path.
+     */
+    String path() {
+      if (selector == null) {
+        return "";
+      }
+      var prefix = (parent == null) ? "" : parent.path();
+      if (!prefix.isEmpty()) {
+        prefix += ".";
+      }
+
+      if (selector instanceof String s) {
         if (!prefix.isEmpty()) {
-          prefix += ".";
+          return prefix + "/" + s;
+        } else {
+          return s;
         }
-
-        if (selector instanceof String s) {
-          if (!prefix.isEmpty()) {
-            return prefix + "/" + s;
-          } else {
-            return s;
-          }
-        } else if (selector instanceof Number n) {
-          if (!prefix.isEmpty()) {
-            return prefix + "[" + n + "]";
-          } else {
-            throw new IllegalStateException("Unexpected value: " + selector);
-          }
+      } else if (selector instanceof Number n) {
+        if (!prefix.isEmpty()) {
+          return prefix + "[" + n + "]";
         } else {
           throw new IllegalStateException("Unexpected value: " + selector);
         }
-      }
-
-      boolean isCycle() {
-        var h = parent;
-        while (h != null) {
-          if (h.target == target) {
-            return true;
-          }
-          h = h.parent;
-        }
-        return false;
+      } else {
+        throw new IllegalStateException("Unexpected value: " + selector);
       }
     }
 
-    var toVisit = new ArrayDeque<History>();
-    toVisit.add(new History(null, null, obj));
-    while (!toVisit.isEmpty()) {
-      var item = toVisit.pop();
-      if (item.target == null) {
-        continue;
+    /**
+     * Is there a cycle in the traversal path?
+     *
+     * @return true if there is a cycle.
+     */
+    boolean isCycle() {
+      var h = parent;
+      while (h != null) {
+        if (h.target == target) {
+          return true;
+        }
+        h = h.parent;
       }
+      return false;
+    }
+  }
+
+  /**
+   * Validate that a JSON object is a simple JSON value tree.
+   *
+   * @param tree the object to validate.
+   * @throws IllegalArgumentException if the object is not a simple JSON value tree.
+   */
+  public static void validateSimpleJson(Object tree) {
+    var scheduled = new ArrayDeque<ValidatorPathContext>();
+    scheduled.add(new ValidatorPathContext(null, null, tree));
+
+    while (!scheduled.isEmpty()) {
+      var item = scheduled.pop();
 
       if (item.isCycle()) {
         throw new IllegalArgumentException("Cycle detected at " + item.path());
       }
-      var target = item.getTarget();
-      if (target instanceof String) {
+
+      final var target = item.getTarget();
+
+      if (target == null
+          || target instanceof String
+          || target instanceof Number
+          || target instanceof Boolean) {
+        // Valid scalar values.
         continue;
-      } else if (target instanceof Number) {
-        continue;
-      } else if (target instanceof Boolean) {
-        continue;
-      } else if (target instanceof Map<?, ?> map) {
-        for (var entry : map.entrySet()) {
-          var key = entry.getKey();
-          var value = entry.getValue();
-          if (!(key instanceof String)) {
-            throw new IllegalArgumentException("Unexpected key: " + key + " at " + item.path());
-          }
-          toVisit.add(new History(item, key, value));
-        }
-      } else if (target instanceof List<?> list) {
-        int i = 0;
-        for (var entry : list) {
-          toVisit.add(new History(item, i++, entry));
-        }
-      } else {
-        throw new IllegalArgumentException(
-            "Unexpected value type: " + target + " at " + item.path());
       }
+
+      if (target instanceof Map<?, ?> map) {
+        map.forEach(
+            (k, v) -> {
+              if (!(k instanceof String)) {
+                throw new IllegalArgumentException("Unexpected key: " + k + " at " + item.path());
+              }
+              // Valid if all children are valid.
+              scheduled.add(new ValidatorPathContext(item, k, v));
+            });
+        continue;
+      }
+
+      if (target instanceof List<?> list) {
+        for (int i = 0; i < list.size(); i++) {
+          // Valid if all children are valid.
+          scheduled.add(new ValidatorPathContext(item, i, list.get(i)));
+        }
+        continue;
+      }
+
+      throw new IllegalArgumentException("Unexpected value type: " + target + " at " + item.path());
     }
   }
 }

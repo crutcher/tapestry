@@ -1,7 +1,5 @@
 package loom.validation;
 
-import static org.junit.Assert.*;
-
 import loom.testing.BaseTestClass;
 import org.junit.Test;
 
@@ -28,7 +26,8 @@ public class ValidationIssueCollectorTest extends BaseTestClass {
 
         * Error [foo]: a test
 
-        * Error [bar]: xyz""");
+        * Error [bar]: xyz
+        """);
 
     assertThatExceptionOfType(LoomValidationError.class).isThrownBy(collector::check);
   }

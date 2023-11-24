@@ -4,7 +4,12 @@ import static loom.validation.Constants.TYPE_VALIDATION;
 
 import java.util.HashSet;
 import java.util.Set;
+import lombok.Builder;
+import lombok.Data;
+import lombok.Getter;
+import lombok.extern.jackson.Jacksonized;
 import loom.common.json.JsonPathUtils;
+import loom.common.serialization.JsonUtil;
 import loom.graph.LoomGraph;
 import loom.graph.LoomGraphEnv;
 import loom.validation.Constants;
@@ -36,18 +41,35 @@ public class TensorNodeTypeOps extends LoomGraphEnv.LoomNodeTypeOps {
            }
           """;
 
-  public Set<String> datatypes = new HashSet<>();
+  @Data
+  @Jacksonized
+  @Builder
+  public static class TensorFields {
+    private int[] shape;
+    private String dtype;
+  }
+
+  @Getter public Set<String> datatypes = new HashSet<>();
 
   public TensorNodeTypeOps() {
     super(TENSOR_TYPE, TENSOR_FIELD_SCHEMA);
   }
 
+  public static TensorFields parseFields(LoomGraph.NodeDom node) {
+    return JsonUtil.convertValue(node.getFields(), TensorNodeTypeOps.TensorFields.class);
+  }
+
+  /**
+   * Add a datatype to the set of valid datatypes.
+   *
+   * @param datatype the datatype to add.
+   */
   public void addDatatype(String datatype) {
     datatypes.add(datatype);
   }
 
   @Override
-  public void checkNode(LoomGraphEnv env, LoomGraph.NodeDom node) {
+  public void checkNodeSemantics(LoomGraphEnv env, LoomGraph.NodeDom node) {
     var issues = new ValidationIssueCollector();
     if (!datatypes.isEmpty()) {
       var dtype = node.getFieldAsType("dtype", String.class);
@@ -63,7 +85,7 @@ public class TensorNodeTypeOps extends LoomGraphEnv.LoomNodeTypeOps {
                     ValidationIssue.Context.builder()
                         .name("DType")
                         .jsonpath(JsonPathUtils.concatJsonPath(node.jpath(), ".fields.dtype"))
-                        .dataToJson(dtype)
+                        .dataFromTree(dtype)
                         .build())
                 .build());
       }

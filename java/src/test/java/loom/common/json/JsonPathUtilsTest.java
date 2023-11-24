@@ -27,6 +27,7 @@ public class JsonPathUtilsTest extends BaseTestClass {
     List<Pair<String[], String>> examples =
         List.of(
             Pair.of(new String[] {"$", "$.foo[2]", "$.bar"}, "$.foo[2].bar"),
+            Pair.of(new String[] {"$.", "", null, "foo", "[2]", "$.bar"}, "$.foo[2].bar"),
             Pair.of(new String[] {".foo[2]", "$.bar"}, "$.foo[2].bar"));
 
     for (var example : examples) {

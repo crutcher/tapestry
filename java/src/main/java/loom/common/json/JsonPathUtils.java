@@ -1,6 +1,8 @@
 package loom.common.json;
 
 import com.google.common.base.Splitter;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class JsonPathUtils {
   /** No instantiation. */
@@ -41,14 +43,40 @@ public class JsonPathUtils {
    * @param parts the parts to concatenate.
    * @return the concatenated JSON path.
    */
-  public static String concatJsonPath(String... parts) {
+  @Nonnull
+  public static String concatJsonPath(@Nullable String... parts) {
     var sb = new StringBuilder();
     sb.append("$");
+
     for (var part : parts) {
       if (part == null || part.isEmpty()) {
         continue;
       }
-      part = part.replaceFirst("^\\$", "");
+
+      var k = part.length();
+
+      var start = 0;
+      if (part.charAt(start) == '$') {
+        start++;
+      }
+      if (start >= k) {
+        continue;
+      }
+      if (part.charAt(start) == '.') {
+        start++;
+      }
+      if (start >= k) {
+        continue;
+      }
+
+      if (start > 0) part = part.substring(start);
+
+      if (part.isEmpty()) {
+        continue;
+      }
+      if (part.charAt(0) != '[') {
+        sb.append(".");
+      }
       sb.append(part);
     }
     return sb.toString();

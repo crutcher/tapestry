@@ -17,12 +17,9 @@ public interface CommonAssertions extends WithAssertions {
     var objFromJson = JsonUtil.fromJson(json, obj.getClass());
     var cleanJson = JsonUtil.toPrettyJson(objFromJson);
 
-    boolean debug = false;
-    if (debug) {
-      System.out.println(String.format("assertJsonEquals.expectedJson: %s", json));
-      System.out.println(String.format("assertJsonEquals.cleanedJson: %s", cleanJson));
-      System.out.println(String.format("assertJsonEquals.objJson: %s", objJson));
-    }
+    // System.out.printf("assertJsonEquals.expectedJson: %s%n", json);
+    // System.out.printf("assertJsonEquals.cleanedJson: %s%n", cleanJson);
+    // System.out.printf("assertJsonEquals.objJson: %s%n", objJson);
 
     // Does the serialization of the source object to JSON match the cleaned JSON?
     assertThat(objJson).describedAs("Object Json != Source Json").isEqualTo(cleanJson);

@@ -56,7 +56,7 @@ public class OperationNodeTypeOps extends LoomGraphEnv.LoomNodeTypeOps {
   }
 
   @Override
-  public void checkNode(LoomGraphEnv env, LoomGraph.NodeDom node) {
+  public void checkNodeSemantics(LoomGraphEnv env, LoomGraph.NodeDom node) {
     var graph = node.getGraph();
     var issues = new ValidationIssueCollector();
 
@@ -84,7 +84,7 @@ public class OperationNodeTypeOps extends LoomGraphEnv.LoomNodeTypeOps {
                         ValidationIssue.Context.builder()
                             .name("Target")
                             .jsonpath("$.fields.%s.%s[%d]".formatted(ioMap, ioKey, idx))
-                            .dataToJson(target)
+                            .dataFromTree(target)
                             .build())
                     .build());
           }

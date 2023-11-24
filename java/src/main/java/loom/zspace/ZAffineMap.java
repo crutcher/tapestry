@@ -47,8 +47,7 @@ public final class ZAffineMap implements HasPermuteInput, HasPermuteOutput, HasT
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
-    if (!(o instanceof ZAffineMap)) return false;
-    ZAffineMap that = (ZAffineMap) o;
+    if (!(o instanceof ZAffineMap that)) return false;
     return a.equals(that.a) && b.equals(that.b);
   }
 

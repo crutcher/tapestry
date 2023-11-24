@@ -1,15 +1,25 @@
 package loom.validation;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Function;
 import lombok.Getter;
 import loom.common.HasToJsonString;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Function;
+
 /** Collects ValidationIssues. */
 public class ValidationIssueCollector implements HasToJsonString {
   @Getter @Nullable private List<ValidationIssue> issues;
+
+  /**
+   * Check if the collector is empty.
+   *
+   * @return true if the collector is empty.
+   */
+  public boolean isEmpty() {
+    return issues == null || issues.isEmpty();
+  }
 
   /**
    * Format the issues.

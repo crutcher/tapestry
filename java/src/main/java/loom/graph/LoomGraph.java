@@ -2,12 +2,14 @@ package loom.graph;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonValue;
-import java.util.UUID;
-import java.util.stream.Stream;
 import lombok.Getter;
 import lombok.experimental.Delegate;
 import loom.common.HasToJsonString;
 import loom.common.LookupError;
+
+import javax.annotation.CheckReturnValue;
+import java.util.UUID;
+import java.util.stream.Stream;
 
 /** XGraph DOM API. */
 public class LoomGraph implements HasToJsonString {
@@ -28,20 +30,21 @@ public class LoomGraph implements HasToJsonString {
     }
   }
 
-  @JsonIgnore @Getter private LoomGraphEnv env;
-  @JsonValue @Getter private LoomDoc doc;
+  @JsonIgnore @Getter private final LoomGraphEnv env;
+  @JsonValue @Getter private final LoomDoc doc;
 
   public LoomGraph(LoomDoc doc, LoomGraphEnv env) {
     this.doc = doc;
     this.env = env;
   }
 
+  @CheckReturnValue
   public LoomGraph deepCopy() {
     return new LoomGraph(doc.deepCopy(), env);
   }
 
   public void validate() {
-    env.validateDom(this);
+    env.validateGraph(this);
   }
 
   /**

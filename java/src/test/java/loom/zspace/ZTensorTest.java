@@ -1,5 +1,6 @@
 package loom.zspace;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import java.util.Objects;
 import java.util.function.BinaryOperator;
 import loom.common.serialization.JsonUtil;
@@ -8,6 +9,20 @@ import org.junit.Test;
 
 public class ZTensorTest implements CommonAssertions {
   @Test
+  public void testAssertShape() {
+    ZTensor t = ZTensor.from(new int[][] {{2, 3}, {4, 5}});
+
+    assertThat(t.shapeAsArray()).isEqualTo(new int[] {2, 2});
+    assertThat(t.shapeAsTensor()).isEqualTo(ZTensor.vector(2, 2));
+
+    t.assertShape(2, 2);
+
+    assertThatThrownBy(() -> t.assertShape(2, 2, 1, 2))
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessageContaining("shape [2, 2] != expected shape [2, 2, 1, 2]");
+  }
+
+  @Test
   public void test_hashCode() {
     ZTensor t = ZTensor.vector(1, 2, 3).immutable();
     assertThat(t).hasSameHashCodeAs(ZTensor.vector(1, 2, 3).immutable());
@@ -15,7 +30,8 @@ public class ZTensorTest implements CommonAssertions {
     ZTensor x = ZTensor.vector(3, 2, 1);
     var view = x.reverse(0);
 
-    assertThatExceptionOfType(IllegalStateException.class).isThrownBy(() -> view.hashCode());
+    //noinspection ResultOfMethodCallIgnored
+    assertThatExceptionOfType(IllegalStateException.class).isThrownBy(view::hashCode);
 
     var t2 = view.immutable();
 
@@ -645,6 +661,7 @@ public class ZTensorTest implements CommonAssertions {
     assertThat(tensor.isMutable()).isTrue();
     assertThat(tensor.isReadOnly()).isFalse();
 
+    //noinspection ResultOfMethodCallIgnored
     assertThatExceptionOfType(IllegalStateException.class)
         .isThrownBy(tensor::hashCode)
         .withMessageContaining("mutable");
@@ -680,9 +697,11 @@ public class ZTensorTest implements CommonAssertions {
     assertThat(tensor).isEqualTo(ZTensor.from(new int[][] {{2, 2, 2}, {5, 2, 2}}));
   }
 
-  static class JsonExampleContainer {
+  public static class JsonExampleContainer {
     public ZTensor tensor;
 
+    //noinspection unused
+    @JsonCreator
     public JsonExampleContainer() {}
 
     public JsonExampleContainer(ZTensor tensor) {
@@ -697,8 +716,7 @@ public class ZTensorTest implements CommonAssertions {
     @Override
     public boolean equals(Object o) {
       if (this == o) return true;
-      if (!(o instanceof JsonExampleContainer)) return false;
-      JsonExampleContainer that = (JsonExampleContainer) o;
+      if (!(o instanceof JsonExampleContainer that)) return false;
       return Objects.equals(tensor, that.tensor);
     }
 

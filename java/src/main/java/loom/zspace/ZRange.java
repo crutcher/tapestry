@@ -174,8 +174,7 @@ public final class ZRange implements HasDimension, HasSize, HasPermute, HasToJso
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
-    if (!(o instanceof ZRange)) return false;
-    ZRange zRange = (ZRange) o;
+    if (!(o instanceof ZRange zRange)) return false;
     return Objects.equals(start, zRange.start) && Objects.equals(end, zRange.end);
   }
 

@@ -107,6 +107,7 @@ public class IndexingFnsTest implements CommonAssertions {
         .isThrownBy(() -> IndexingFns.ravel(shape, strides, new int[] {0, 1, 0}));
   }
 
+  @SuppressWarnings("ResultOfMethodCallIgnored")
   @Test
   public void test_shapeToLFSStrides() {
     assertThat(IndexingFns.shapeToLSFStrides(new int[] {2, 1, 3})).isEqualTo(new int[] {3, 0, 1});

@@ -43,6 +43,7 @@ public class ZRangeTest implements CommonAssertions {
     }
   }
 
+  @SuppressWarnings("DuplicateExpressions")
   @Test
   public void test_hashCode() {
     var range = new ZRange(new ZPoint(1, 2, 3), new ZPoint(4, 5, 6));

@@ -24,6 +24,7 @@ public class DimensionMapTest implements CommonAssertions {
         .isThrownBy(() -> new DimensionMap(new String[] {"x", ""}));
   }
 
+  @SuppressWarnings("ResultOfMethodCallIgnored")
   @Test
   public void test_lookup() {
     var dm = new DimensionMap("x", "y", "z");
