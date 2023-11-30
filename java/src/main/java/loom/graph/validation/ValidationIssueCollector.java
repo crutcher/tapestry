@@ -1,12 +1,11 @@
-package loom.validation;
-
-import lombok.Getter;
-import loom.common.HasToJsonString;
-import org.jetbrains.annotations.Nullable;
+package loom.graph.validation;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
+import lombok.Getter;
+import loom.common.HasToJsonString;
+import org.jetbrains.annotations.Nullable;
 
 /** Collects ValidationIssues. */
 public class ValidationIssueCollector implements HasToJsonString {
@@ -40,6 +39,15 @@ public class ValidationIssueCollector implements HasToJsonString {
       issues = new ArrayList<>();
     }
     issues.add(issue);
+  }
+
+  /**
+   * Add an issue to the collector.
+   *
+   * @param issueBuilder the issue builder to add.
+   */
+  public void add(ValidationIssue.ValidationIssueBuilder issueBuilder) {
+    add(issueBuilder.build());
   }
 
   /**

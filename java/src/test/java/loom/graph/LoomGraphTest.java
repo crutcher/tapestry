@@ -1,15 +1,15 @@
 package loom.graph;
 
 import com.jayway.jsonpath.JsonPath;
+import loom.common.serialization.JsonUtil;
+import loom.graph.nodes.TensorNodeTypeBindings;
+import loom.graph.validation.LoomValidationError;
+import loom.graph.validation.ValidationIssue;
+import loom.testing.BaseTestClass;
+import org.junit.Test;
+
 import java.util.List;
 import java.util.Map;
-import loom.common.serialization.JsonUtil;
-import loom.graph.nodes.OperationNodeTypeOps;
-import loom.graph.nodes.TensorNodeTypeOps;
-import loom.testing.BaseTestClass;
-import loom.validation.LoomValidationError;
-import loom.validation.ValidationIssue;
-import org.junit.Test;
 
 public class LoomGraphTest extends BaseTestClass {
   @Test
@@ -34,7 +34,7 @@ public class LoomGraphTest extends BaseTestClass {
                 """
             .formatted(nodeId);
 
-    var env = LoomGraphEnv.createDefault();
+    var env = CommonLoomGraphEnvironments.createDefault();
     var graph = env.parse(source);
 
     LoomGraph.NodeDom nodeDom = graph.assertNode(nodeId);
@@ -62,9 +62,9 @@ public class LoomGraphTest extends BaseTestClass {
           ]
         }
         """
-            .formatted("00000000-0000-4000-8000-000000000001", TensorNodeTypeOps.TENSOR_TYPE);
+            .formatted("00000000-0000-4000-8000-000000000001", TensorNodeTypeBindings.TENSOR_TYPE);
 
-    var env = LoomGraphEnv.createDefault();
+    var env = CommonLoomGraphEnvironments.createDefault();
     var graph = env.parse(source);
 
     var dup = graph.deepCopy();
@@ -96,7 +96,7 @@ public class LoomGraphTest extends BaseTestClass {
             .formatted(nodeId);
 
     var doc = JsonUtil.fromJson(source, LoomDoc.class);
-    var env = LoomGraphEnv.createDefault();
+    var env = CommonLoomGraphEnvironments.createDefault();
 
     var graph = env.wrap(doc);
     assertJsonEquals(graph.getDoc(), source);
@@ -107,42 +107,47 @@ public class LoomGraphTest extends BaseTestClass {
   @Test
   public void testValidatePass() {
     var tensorA = "00000000-0000-4000-8000-000000000001";
-    var operationA = "00000000-0000-4000-8000-100000000001";
+    var operationA = "00000000-0000-4000-8000-0000000000A1";
+    var operationB = "00000000-0000-4000-8000-0000000000A2";
 
     String source =
         """
                 {
                   "nodes": [
                      {
-                       "id": "%1$s",
-                       "type": "%2$s",
+                        "id": "%1$s",
+                         "type": "https://loom-project.org/schema/v1/loom#types/operation",
+                         "label": "source",
+                         "fields": {
+                             "outputs": {
+                                 "data": [ "%2$s" ]
+                             }
+                         }
+                     },
+                     {
+                       "id": "%2$s",
+                       "type": "https://loom-project.org/schema/v1/loom#types/tensor",
                        "fields": {
                          "shape": [2, 3, 1],
                          "dtype": "int32"
                        }
                      },
                      {
-                        "id": "%3$s",
-                         "type": "%4$s",
-                         "fields": {
-                             "inputs": {
-                                 "sources": [ "%1$s" ]
-                             },
-                             "outputs": {
-                                 "sources": [ "%1$s" ]
-                             }
-                         }
+                       "id": "%3$s",
+                        "type": "https://loom-project.org/schema/v1/loom#types/operation",
+                        "label": "sink",
+                        "fields": {
+                            "inputs": {
+                                "sources": [ "%1$s" ]
+                            }
+                        }
                      }
                   ]
                 }
                 """
-            .formatted(
-                tensorA,
-                TensorNodeTypeOps.TENSOR_TYPE,
-                operationA,
-                OperationNodeTypeOps.OPERATION_TYPE);
+            .formatted(operationA, tensorA, operationB);
 
-    var env = LoomGraphEnv.createDefault();
+    var env = CommonLoomGraphEnvironments.createDefault();
     env.parse(source).validate();
 
     LoomGraph graph = env.wrap(JsonUtil.fromJson(source, LoomDoc.class));
@@ -169,9 +174,9 @@ public class LoomGraphTest extends BaseTestClass {
               ]
             }
             """
-            .formatted("00000000-0000-4000-8000-000000000001", TensorNodeTypeOps.TENSOR_TYPE);
+            .formatted("00000000-0000-4000-8000-000000000001", TensorNodeTypeBindings.TENSOR_TYPE);
 
-    var env = LoomGraphEnv.createDefault();
+    var env = CommonLoomGraphEnvironments.createDefault();
     var graph = env.parse(source);
 
     List<ValidationIssue> issues;

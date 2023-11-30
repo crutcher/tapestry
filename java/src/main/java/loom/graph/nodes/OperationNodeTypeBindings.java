@@ -1,14 +1,22 @@
 package loom.graph.nodes;
 
-import java.util.List;
-import java.util.Map;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import lombok.Builder;
+import lombok.Data;
+import lombok.extern.jackson.Jacksonized;
+import loom.common.serialization.JsonUtil;
+import loom.graph.Constants;
 import loom.graph.LoomGraph;
 import loom.graph.LoomGraphEnv;
-import loom.validation.Constants;
-import loom.validation.ValidationIssue;
-import loom.validation.ValidationIssueCollector;
+import loom.graph.validation.ValidationIssue;
+import loom.graph.validation.ValidationIssueCollector;
 
-public class OperationNodeTypeOps extends LoomGraphEnv.LoomNodeTypeOps {
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+
+public class OperationNodeTypeBindings extends NodeTypeBindings {
   public static final String OPERATION_TYPE = Constants.LOOM_NS + "#types/operation";
 
   public static final String IO_KEY_REGEX = "[a-zA-Z_][a-zA-Z0-9_]*";
@@ -51,14 +59,31 @@ public class OperationNodeTypeOps extends LoomGraphEnv.LoomNodeTypeOps {
           .formatted(IO_KEY_REGEX);
   public static final String MISSING_TARGET = "MissingTarget";
 
-  public OperationNodeTypeOps() {
+  @Data
+  @Jacksonized
+  @Builder
+  public static class OperationFields {
+    @Builder.Default
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
+    private Map<String, List<UUID>> inputs = new HashMap<>();
+
+    @Builder.Default
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
+    private Map<String, List<UUID>> outputs = new HashMap<>();
+  }
+
+  public static OperationFields parseFields(LoomGraph.NodeDom node) {
+    return JsonUtil.convertValue(node.getFields(), OperationFields.class);
+  }
+
+  public OperationNodeTypeBindings() {
     super(OPERATION_TYPE, OPERATION_FIELD_SCHEMA);
   }
 
   @Override
-  public void checkNodeSemantics(LoomGraphEnv env, LoomGraph.NodeDom node) {
+  public void checkNodeSemantics(
+      LoomGraphEnv env, LoomGraph.NodeDom node, ValidationIssueCollector issueCollector) {
     var graph = node.getGraph();
-    var issues = new ValidationIssueCollector();
 
     for (var ioMap : new String[] {"inputs", "outputs"}) {
       if (!node.hasField(ioMap)) {
@@ -74,7 +99,7 @@ public class OperationNodeTypeOps extends LoomGraphEnv.LoomNodeTypeOps {
         for (var idx = 0; idx < targets.size(); idx++) {
           var target = targets.get(idx);
           if (!graph.hasNode(target)) {
-            issues.add(
+            issueCollector.add(
                 ValidationIssue.builder()
                     .type(Constants.TYPE_VALIDATION)
                     .param("type", OPERATION_TYPE)
@@ -85,13 +110,10 @@ public class OperationNodeTypeOps extends LoomGraphEnv.LoomNodeTypeOps {
                             .name("Target")
                             .jsonpath("$.fields.%s.%s[%d]".formatted(ioMap, ioKey, idx))
                             .dataFromTree(target)
-                            .build())
-                    .build());
+                            .build()));
           }
         }
       }
     }
-
-    issues.check();
   }
 }

@@ -1,18 +1,16 @@
 package loom.graph;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import java.net.URI;
 import java.util.*;
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import lombok.Data;
-import loom.common.json.JsonPathUtils;
+import lombok.Getter;
+import loom.common.LookupError;
 import loom.common.serialization.JsonUtil;
-import loom.graph.nodes.OperationNodeTypeOps;
-import loom.graph.nodes.TensorNodeTypeOps;
-import loom.validation.Constants;
-import loom.validation.ValidationIssue;
-import loom.validation.ValidationIssueCollector;
-import net.jimblackler.jsonschemafriend.*;
+import loom.graph.nodes.NodeTypeBindings;
+import loom.graph.validation.LoomValidationError;
+import loom.graph.validation.ValidationIssue;
+import loom.graph.validation.ValidationIssueCollector;
 
 /**
  * LoomGraph environment.
@@ -23,71 +21,11 @@ public class LoomGraphEnv {
 
   public static final String UNKNOWN_NODE_TYPE = "UnknownNodeType";
 
-  /**
-   * Node type operations.
-   *
-   * <p>Defines the type and field schema for a node type.
-   */
-  @Data
-  public abstract static class LoomNodeTypeOps {
-    private final String type;
-    private final String fieldSchema;
+  @Nonnull @Getter private final JsdManager jsdManager;
 
-    /**
-     * Check a node against the JSD schema for the type.
-     *
-     * @param env the environment.
-     * @param node the node to check.
-     * @throws loom.validation.LoomValidationError if the node is invalid.
-     */
-    public final void checkNodeSchema(LoomGraphEnv env, LoomGraph.NodeDom node) {
-      env.applySchemaJson(
-          URI.create("urn:loom:node:" + type),
-          JsonUtil.parseToMap(fieldSchema),
-          node.jpath(),
-          JsonUtil.toJson(node.getFields()),
-          List.of(
-              ValidationIssue.Context.builder()
-                  .name("Node")
-                  .jsonpath(node.jpath())
-                  .dataFromTree(node.getDoc())
-                  .build(),
-              ValidationIssue.Context.builder()
-                  .name("Field Schema")
-                  .jsonData(fieldSchema)
-                  .build()));
-    }
+  private final Map<String, NodeTypeBindings> typeOpsMap = new HashMap<>();
 
-    /**
-     * Check a node.
-     *
-     * <p>Subclasses can override this method to perform additional checks.
-     *
-     * @param env the environment.
-     * @param node the node to check.
-     * @throws loom.validation.LoomValidationError if the node is invalid.
-     */
-    public void checkNodeSemantics(LoomGraphEnv env, LoomGraph.NodeDom node) {}
-  }
-
-  /**
-   * Create a default environment.
-   *
-   * @return the environment.
-   */
-  public static LoomGraphEnv createDefault() {
-    var env = new LoomGraphEnv();
-
-    var tensorOps = env.registerNodeTypeOps(new TensorNodeTypeOps());
-    tensorOps.addDatatype("int32");
-
-    env.registerNodeTypeOps(new OperationNodeTypeOps());
-
-    return env;
-  }
-
-  private final SchemaStore schemaStore;
-  private final Map<String, LoomNodeTypeOps> typeOpsMap = new HashMap<>();
+  private final List<GraphConstraint> constraints = new ArrayList<>();
 
   /**
    * Create a new environment.
@@ -101,10 +39,10 @@ public class LoomGraphEnv {
   /**
    * Create a new environment.
    *
-   * @param schemaStore the schema store; if null, an empty schema store will be created.
+   * @param jsdManager the JSD manager.
    */
-  public LoomGraphEnv(@Nullable SchemaStore schemaStore) {
-    this.schemaStore = schemaStore != null ? schemaStore : new SchemaStore(true);
+  public LoomGraphEnv(@Nullable JsdManager jsdManager) {
+    this.jsdManager = jsdManager != null ? jsdManager : new JsdManager(null);
   }
 
   /**
@@ -114,9 +52,21 @@ public class LoomGraphEnv {
    * @return the node type operations.
    * @param <T> the type of the node type operations.
    */
-  public <T extends LoomNodeTypeOps> T registerNodeTypeOps(T ops) {
+  public <T extends NodeTypeBindings> T addNodeTypeBindings(T ops) {
     typeOpsMap.put(ops.getType(), ops);
     return ops;
+  }
+
+  /**
+   * Add a graph constraint.
+   *
+   * @param constraint the constraint.
+   * @return the constraint.`
+   * @param <T> the type of the constraint.
+   */
+  public <T extends GraphConstraint> T addConstraint(T constraint) {
+    constraints.add(constraint);
+    return constraint;
   }
 
   /**
@@ -136,8 +86,39 @@ public class LoomGraphEnv {
    * @return the node type operations, or null if the environment does not have node type
    *     operations.
    */
-  public LoomNodeTypeOps getNodeTypeOps(String type) {
+  public NodeTypeBindings getNodeTypeOps(String type) {
     return typeOpsMap.get(type);
+  }
+
+  /**
+   * Get the node type operations for a type.
+   *
+   * @param type the type.
+   * @return the node type operations.
+   * @throws LookupError if the environment does not have node type operations.
+   */
+  public NodeTypeBindings assertNodeTypeOps(String type) {
+    var ops = getNodeTypeOps(type);
+    if (ops == null) {
+      throw new LookupError("Unknown node type: " + type);
+    }
+    return ops;
+  }
+
+  /**
+   * Get the node type operations for a type.
+   *
+   * <p>This method is a type-safe version of {@link #getNodeTypeOps(String)}; the clazz parameter
+   * is used to cast the result.
+   *
+   * @param type the type.
+   * @param clazz the type of the node type operations.
+   * @return the node type operations.
+   * @param <T> the type of the node type operations.
+   * @throws LookupError if the environment does not have node type operations.
+   */
+  public <T extends NodeTypeBindings> T assertNodeTypeOps(String type, Class<T> clazz) {
+    return clazz.cast(assertNodeTypeOps(type));
   }
 
   /**
@@ -185,119 +166,55 @@ public class LoomGraphEnv {
   /**
    * Validate a graph against an environment.
    *
-   * @param dom the graph.
-   * @throws loom.validation.LoomValidationError if the graph is invalid.
+   * @param graph the graph.
+   * @throws LoomValidationError if the graph is invalid.
    */
-  public void validateGraph(LoomGraph dom) {
-    // A - Validate the whole graph against JSD.
-    var env = dom.getEnv();
-
+  public void validateGraph(LoomGraph graph) {
     var issues = new ValidationIssueCollector();
 
-    for (var node : dom.nodes()) {
-      var nodeType = node.getType();
-
-      var nodeOps = env.typeOpsMap.get(nodeType);
-      if (nodeOps == null) {
-        issues.add(
-            ValidationIssue.builder()
-                .type(UNKNOWN_NODE_TYPE)
-                .summary("Unknown node type: " + nodeType)
-                .build());
-      } else {
-        issues.collect(() -> nodeOps.checkNodeSchema(this, node));
-      }
-    }
-
-    if (issues.isEmpty()) {
-      for (var node : dom.nodes()) {
-        var nodeType = node.getType();
-        var nodeOps = env.typeOpsMap.get(nodeType);
-        issues.collect(() -> nodeOps.checkNodeSemantics(this, node));
-      }
-    }
+    validateGraph(graph, issues);
 
     issues.check();
   }
 
   /**
-   * Apply a JSON schema to a JSON document.
+   * Validate a graph against an environment.
    *
-   * @param schemaUri the schema URI.
-   * @param schemaDoc the schema document.
-   * @param jpathPrefix the JSON path prefix to apply to the context.
-   * @param json the JSON document.
-   * @param contexts additional Issue contexts.
-   * @throws loom.validation.LoomValidationError if the JSON document does not match the schema.
+   * <p>Collects issues in the given issue collector.
+   *
+   * @param graph the graph.
+   * @param issueCollector the issue collector.
    */
-  public void applySchemaJson(
-      URI schemaUri,
-      Object schemaDoc,
-      @Nullable String jpathPrefix,
-      String json,
-      @Nullable Collection<ValidationIssue.Context> contexts) {
-    var validator = new Validator();
+  void validateGraph(LoomGraph graph, @Nonnull ValidationIssueCollector issueCollector) {
+    Objects.requireNonNull(issueCollector);
 
-    try {
-      schemaStore.store(schemaUri, schemaDoc);
-    } catch (IllegalStateException e) {
-      // Ignore; already loaded.
-    }
+    for (var node : graph.nodes()) {
+      var nodeType = node.getType();
+      var nodeOps = typeOpsMap.get(nodeType);
 
-    Schema schema;
-    try {
-      schema = schemaStore.loadSchema(schemaUri, validator);
-    } catch (SchemaException e) {
-      throw new RuntimeException(e);
-    }
-
-    Collection<ValidationError> errors;
-
-    try {
-      validator.validateJson(schema, json);
-      return;
-    } catch (ValidationException e) {
-      if (!(e instanceof ListValidationException)) {
-        throw new RuntimeException(e);
+      if (nodeOps == null) {
+        issueCollector.add(
+            ValidationIssue.builder()
+                .type(UNKNOWN_NODE_TYPE)
+                .summary("Unknown node type: " + nodeType));
+      } else {
+        nodeOps.checkNodeSchema(this, node, issueCollector);
       }
-
-      errors = ((ListValidationException) e).getErrors();
     }
 
-    var issues = new ValidationIssueCollector();
+    if (issueCollector.isEmpty()) {
+      for (var node : graph.nodes()) {
+        var nodeType = node.getType();
+        var nodeOps = typeOpsMap.get(nodeType);
 
-    for (var error : errors) {
-      String summary =
-          error.getSchema().getUri().getFragment()
-              + ": ("
-              + error.getObject()
-              + ") "
-              + error.getMessage();
-
-      var contextList = new ArrayList<ValidationIssue.Context>();
-      contextList.add(
-          ValidationIssue.Context.builder()
-              .name("Instance")
-              .jsonpath(
-                  JsonPathUtils.concatJsonPath(
-                      jpathPrefix,
-                      JsonPathUtils.jsonPointerToJsonPath(error.getUri().toString().substring(1))))
-              .dataFromTree(error.getObject())
-              .build());
-
-      if (contexts != null) {
-        contextList.addAll(contexts);
+        nodeOps.checkNodeSemantics(this, node, issueCollector);
       }
-
-      issues.add(
-          ValidationIssue.builder()
-              .type(Constants.JSD_ERROR)
-              .param("error", error.getClass().getSimpleName())
-              .summary(summary)
-              .contexts(contextList)
-              .build());
     }
 
-    issues.check();
+    if (issueCollector.isEmpty()) {
+      for (var constraint : constraints) {
+        issueCollector.collect(() -> constraint.validate(this, graph, issueCollector));
+      }
+    }
   }
 }

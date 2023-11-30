@@ -13,18 +13,17 @@ import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.node.IntNode;
 import com.google.common.primitives.Ints;
 import com.google.errorprone.annotations.CheckReturnValue;
-import lombok.Getter;
-import loom.common.HasToJsonString;
-import loom.common.IteratorUtils;
-import loom.common.serialization.JsonUtil;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.io.IOException;
 import java.lang.reflect.Array;
 import java.util.*;
 import java.util.function.*;
 import java.util.stream.Stream;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import lombok.Getter;
+import loom.common.HasToJsonString;
+import loom.common.IteratorUtils;
+import loom.common.serialization.JsonUtil;
 
 /**
  * Minimal discrete Tensor.

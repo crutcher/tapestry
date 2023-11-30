@@ -15,7 +15,7 @@ public class TensorNodeTypeOpsTest extends BaseTestClass {
   public LoomGraphEnv buildEnv() {
     var env = new LoomGraphEnv();
 
-    var tensorOps = env.registerNodeTypeOps(new TensorNodeTypeOps());
+    var tensorOps = env.addNodeTypeBindings(new TensorNodeTypeBindings());
     tensorOps.addDatatype("int32");
 
     return env;
@@ -42,15 +42,15 @@ public class TensorNodeTypeOpsTest extends BaseTestClass {
                           ]
                         }
                         """
-            .formatted(tensorA, TensorNodeTypeOps.TENSOR_TYPE);
+            .formatted(tensorA, TensorNodeTypeBindings.TENSOR_TYPE);
 
     var graph = env.parse(source);
     graph.validate();
 
     var node = graph.assertNode(tensorA);
 
-    assertThat(TensorNodeTypeOps.parseFields(node))
-        .isInstanceOf(TensorNodeTypeOps.TensorFields.class)
+    assertThat(TensorNodeTypeBindings.parseFields(node))
+        .isInstanceOf(TensorNodeTypeBindings.TensorFields.class)
         .hasFieldOrPropertyWithValue("shape", new int[] {2, 3, 1})
         .hasFieldOrPropertyWithValue("dtype", "int32");
   }
@@ -65,9 +65,9 @@ public class TensorNodeTypeOpsTest extends BaseTestClass {
             .getDoc()
             .addNode(
                 LoomDoc.NodeDoc.builder()
-                    .type(TensorNodeTypeOps.TENSOR_TYPE)
+                    .type(TensorNodeTypeBindings.TENSOR_TYPE)
                     .asFields(
-                        TensorNodeTypeOps.TensorFields.builder()
+                        TensorNodeTypeBindings.TensorFields.builder()
                             .shape(new int[] {2, 3, 1})
                             .dtype("int32")
                             .build()));
