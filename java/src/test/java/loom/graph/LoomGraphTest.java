@@ -1,15 +1,14 @@
 package loom.graph;
 
 import com.jayway.jsonpath.JsonPath;
+import java.util.List;
+import java.util.Map;
 import loom.common.serialization.JsonUtil;
 import loom.graph.nodes.TensorNodeTypeBindings;
 import loom.graph.validation.LoomValidationError;
 import loom.graph.validation.ValidationIssue;
 import loom.testing.BaseTestClass;
 import org.junit.Test;
-
-import java.util.List;
-import java.util.Map;
 
 public class LoomGraphTest extends BaseTestClass {
   @Test

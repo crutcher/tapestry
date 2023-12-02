@@ -1,6 +1,10 @@
 package loom.graph.nodes;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import lombok.Builder;
 import lombok.Data;
 import lombok.extern.jackson.Jacksonized;
@@ -10,11 +14,6 @@ import loom.graph.LoomGraph;
 import loom.graph.LoomGraphEnv;
 import loom.graph.validation.ValidationIssue;
 import loom.graph.validation.ValidationIssueCollector;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 
 public class OperationNodeTypeBindings extends NodeTypeBindings {
   public static final String OPERATION_TYPE = Constants.LOOM_NS + "#types/operation";

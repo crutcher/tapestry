@@ -1,5 +1,6 @@
 package loom.zspace;
 
+import java.util.List;
 import loom.testing.CommonAssertions;
 import org.junit.Test;
 
@@ -7,13 +8,19 @@ public class ZPointTest implements CommonAssertions {
   @Test
   public void test_constructor() {
     {
-      ZPoint p = new ZPoint(1, 2, 3);
+      var p = new ZPoint(1, 2, 3);
       assertThat(p.ndim()).isEqualTo(3);
       assertThat(p.coords).isEqualTo(ZTensor.vector(1, 2, 3));
     }
 
     {
-      ZPoint p = new ZPoint(ZTensor.vector(1, 2, 3));
+      var p = new ZPoint(ZTensor.vector(1, 2, 3));
+      assertThat(p.ndim()).isEqualTo(3);
+      assertThat(p.coords).isEqualTo(ZTensor.vector(1, 2, 3));
+    }
+
+    {
+      var p = new ZPoint(List.of(1, 2, 3));
       assertThat(p.ndim()).isEqualTo(3);
       assertThat(p.coords).isEqualTo(ZTensor.vector(1, 2, 3));
     }

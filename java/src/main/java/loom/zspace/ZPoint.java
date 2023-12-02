@@ -56,6 +56,7 @@ public final class ZPoint implements HasDimension, HasPermute, HasToJsonString {
 
   /**
    * Create a ZPoint of the given coordinates.
+   *
    * @param coords the coordinates.
    * @return a new ZPoint.
    */

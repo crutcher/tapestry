@@ -312,6 +312,14 @@ public class ZTensorTest implements CommonAssertions {
   }
 
   @Test
+  public void test_fill() {
+    var t = ZTensor.zeros(2, 3);
+
+    t.selectDim(0, 0).fill(2);
+    assertThat(t).isEqualTo(ZTensor.from(new int[][] {{2, 2, 2}, {0, 0, 0}}));
+  }
+
+  @Test
   public void test_assign() {
     var t = ZTensor.zeros(2, 3);
 
