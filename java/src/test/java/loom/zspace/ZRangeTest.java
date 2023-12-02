@@ -112,6 +112,14 @@ public class ZRangeTest implements CommonAssertions {
       assertThat(range.ndim()).isEqualTo(2);
       assertThat(range.size).isEqualTo(6);
     }
+
+    {
+      var range = ZRange.fromStartWithShape(new ZPoint(4, 5), new ZPoint(2, 3));
+      assertThat(range.ndim()).isEqualTo(2);
+      assertThat(range.size).isEqualTo(6);
+      assertThat(range.start).isEqualTo(new ZPoint(4, 5));
+      assertThat(range.end).isEqualTo(new ZPoint(6, 8));
+    }
   }
 
   @Test

@@ -1,6 +1,9 @@
 package loom.doozer;
 
 import com.fasterxml.jackson.annotation.*;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import lombok.Builder;
 import lombok.Data;
 import lombok.experimental.SuperBuilder;
@@ -12,10 +15,6 @@ import loom.zspace.ZPoint;
 import net.jimblackler.jsonschemafriend.SchemaStore;
 import net.jimblackler.jsonschemafriend.Validator;
 import org.junit.Test;
-
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 
 @SuppressWarnings("SameNameButDifferent")
 public class DGraphTest extends BaseTestClass {
