@@ -6,9 +6,10 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.google.errorprone.annotations.Immutable;
+import loom.common.HasToJsonString;
+
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.ThreadSafe;
-import loom.common.HasToJsonString;
 
 /**
  * A point in a ZSpace.
@@ -51,6 +52,15 @@ public final class ZPoint implements HasDimension, HasPermute, HasToJsonString {
    */
   public static @Nonnull ZPoint zeros_like(@Nonnull ZPoint ref) {
     return zeros(ref.ndim());
+  }
+
+  /**
+   * Create a ZPoint of the given coordinates.
+   * @param coords the coordinates.
+   * @return a new ZPoint.
+   */
+  public static @Nonnull ZPoint of(@Nonnull int... coords) {
+    return new ZPoint(coords);
   }
 
   // This is asserted to be immutable in the constructor.

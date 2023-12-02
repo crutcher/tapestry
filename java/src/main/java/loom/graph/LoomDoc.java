@@ -3,11 +3,6 @@ package loom.graph;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
-import javax.annotation.CheckReturnValue;
-import javax.annotation.Nullable;
 import lombok.Builder;
 import lombok.Data;
 import lombok.Singular;
@@ -17,6 +12,12 @@ import loom.common.LookupError;
 import loom.common.serialization.JsonUtil;
 import loom.common.serialization.MapValueListUtil;
 import org.jetbrains.annotations.NotNull;
+
+import javax.annotation.CheckReturnValue;
+import javax.annotation.Nullable;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 /**
  * A Loom Graph document.
@@ -62,6 +63,11 @@ public class LoomDoc implements HasToJsonString {
         return this.field(key, JsonUtil.readTree(json));
       }
 
+      /**
+       * Interpret the given object as JSON and add the fields to the node.
+       * @param fields the fields to add.
+       * @return the builder.
+       */
       public NodeDocBuilder asFields(Object fields) {
         JsonUtil.toTree(fields)
             .fields()

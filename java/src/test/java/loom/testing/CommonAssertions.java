@@ -1,12 +1,23 @@
 package loom.testing;
 
-import javax.json.JsonArrayBuilder;
-import javax.json.JsonObjectBuilder;
-import javax.json.JsonValue;
 import loom.common.serialization.JsonUtil;
 import org.assertj.core.api.WithAssertions;
 
+import javax.json.JsonArrayBuilder;
+import javax.json.JsonObjectBuilder;
+import javax.json.JsonValue;
+
 public interface CommonAssertions extends WithAssertions {
+  default void assertEquivalentJson(String json1, String json2) {
+    json1 = JsonUtil.reformatToPrettyJson(json1);
+    json2 = JsonUtil.reformatToPrettyJson(json2);
+
+    // System.out.printf("assertJsonEquals.json1: %s%n", json1);
+    // System.out.printf("assertJsonEquals.json2: %s%n", json2);
+
+    assertThat(json1).describedAs("Json1 != Json2").isEqualTo(json2);
+  }
+
   default void assertJsonEquals(Object obj, String json) {
 
     json = JsonUtil.reformatToPrettyJson(json);
