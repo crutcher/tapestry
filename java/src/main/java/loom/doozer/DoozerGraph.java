@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.Builder;
 import lombok.Data;
+import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 import loom.common.HasToJsonString;
 import loom.common.LookupError;
@@ -25,41 +26,192 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+/** A Loom Graph document. */
 @Data
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public final class DoozerGraph {
+public final class DoozerGraph implements HasToJsonString {
+
+  /**
+   * Base class for a node in the graph.
+   *
+   * @param <NodeType> the node subclass.
+   * @param <BodyType> the node body class.
+   */
   @Data
-  @Builder
-  public static final class Environment {
-    private final Node.NodeMetaFactory nodeMetaFactory;
+  @ToString(of = {"id", "type", "label", "body"})
+  @SuperBuilder
+  @JsonInclude(JsonInclude.Include.NON_NULL)
+  @JsonSerialize(using = Node.JsonSupport.NodeSerializer.class)
+  public abstract static class Node<NodeType extends Node<NodeType, BodyType>, BodyType>
+      implements HasToJsonString {
 
-    public DoozerGraph graphFromJson(String json) {
-      var tree = JsonUtil.readTree(json);
+    @JsonIgnore @Nullable private DoozerGraph graph;
+    @JsonIgnore @Nullable private NodeMeta<NodeType, BodyType> meta;
 
-      var graph = DoozerGraph.builder().env(this).build();
+    @Nonnull private final UUID id;
+    @Nonnull private final String type;
+    @Nullable private String label;
+    @Nonnull private BodyType body;
 
-      for (var entry : tree.properties()) {
-        var key = entry.getKey();
-        if (key.equals("id")) {
-          graph.setId(UUID.fromString(entry.getValue().asText()));
+    /** Get the class type of the node body. */
+    @JsonIgnore
+    @SuppressWarnings("unchecked")
+    public Class<BodyType> getBodyClass() {
+      return (Class<BodyType>) body.getClass();
+    }
 
-        } else if (key.equals("nodes")) {
-          for (var nodeTree : entry.getValue()) {
-            var node = getNodeMetaFactory().nodeFromTree(nodeTree);
-            graph.addNode(node);
+    /**
+     * Get the node body as a JSON string.
+     *
+     * @return the JSON string.
+     */
+    public final String getBodyAsJson() {
+      return JsonUtil.toPrettyJson(getBody());
+    }
+
+    /**
+     * Get the node body as a JSON tree.
+     *
+     * @return the JSON tree.
+     */
+    public final JsonNode getBodyAsJsonNode() {
+      return JsonUtil.toTree(getBody());
+    }
+
+    /** Get the node body as an Object map. */
+    public final Map<String, Object> getBodyAsObjectMap() {
+      return JsonUtil.toMap(getBody());
+    }
+
+    /**
+     * Set the node body from a JSON string.
+     *
+     * @param json the JSON string.
+     */
+    public final void setBodyFromJson(String json) {
+      setBody(JsonUtil.fromJson(json, getBodyClass()));
+    }
+
+    /**
+     * Set the node body from a JSON tree.
+     *
+     * @param tree the JSON tree; either a {@code JsonNode} or a {@code Map<String, Object>}.
+     */
+    public final void setBodyFromTree(Object tree) {
+      setBody(JsonUtil.convertValue(tree, getBodyClass()));
+    }
+
+    /**
+     * Subclass type helper.
+     *
+     * @return this, cast to the subclass {@code NodeType} type.
+     */
+    @SuppressWarnings("unchecked")
+    public final NodeType self() {
+      return (NodeType) this;
+    }
+
+    /** Validate the node against the NodeMeta. */
+    public final void validate() {
+      getMeta().validate(self());
+    }
+
+    public static class JsonSupport {
+      private JsonSupport() {}
+
+      /**
+       * A Jackson serializer for Node. We use a custom serializer because {@code @Delegate} applied
+       * to a method in subclasses to delegate the type methods of {@code body} does not honor
+       * [@code @JsonIgnore}, and we otherwise generate data fields for every getter in the body.
+       *
+       * @param <B> the type of the node body.
+       */
+      public static final class NodeSerializer<N extends Node<N, B>, B>
+          extends JsonSerializer<Node<N, B>> {
+        @Override
+        public void serialize(Node<N, B> value, JsonGenerator gen, SerializerProvider serializers)
+            throws IOException {
+          gen.writeStartObject();
+          gen.writeStringField("id", value.getId().toString());
+          gen.writeStringField("type", value.getType());
+
+          var label = value.getLabel();
+          if (label != null) {
+            gen.writeStringField("label", label);
           }
-        } else {
-          throw new IllegalArgumentException("Unknown property: " + key);
+
+          gen.writeObjectField("body", value.getBody());
+          gen.writeEndObject();
         }
       }
-
-      return graph;
     }
   }
 
-  @JsonIgnore @Builder.Default
-  private final Environment env = new Environment(new GenericNodeMetaFactory());
+  /**
+   * Meta class to attach schema and validation to a node type.
+   *
+   * @param <NodeType> the node class.
+   * @param <BodyType> the node body class.
+   */
+  @Data
+  public abstract static class NodeMeta<NodeType extends Node<NodeType, BodyType>, BodyType> {
+    private final Class<NodeType> nodeTypeClass;
+    private final Class<BodyType> bodyTypeClass;
+    private final String bodySchema;
+
+    public final void validate(NodeType node) {
+      validateNode(node);
+      validateBodySchema(node.getBodyAsJson());
+    }
+
+    public void validateNode(NodeType node) {}
+
+    public final void validateBodySchema(String json) {
+      SchemaStore schemaStore = new SchemaStore();
+      try {
+        var schema = schemaStore.loadSchemaJson(getBodySchema());
+        var validator = new Validator();
+        validator.validateJson(schema, json);
+      } catch (Exception e) {
+        throw new RuntimeException(e);
+      }
+    }
+
+    public final NodeType nodeFromJson(String json) {
+      var node = JsonUtil.fromJson(json, getNodeTypeClass());
+      node.setMeta(this);
+      node.validate();
+      return node;
+    }
+
+    public final NodeType nodeFromTree(Object tree) {
+      var node = JsonUtil.convertValue(tree, getNodeTypeClass());
+      node.setMeta(this);
+      node.validate();
+      return node;
+    }
+  }
+
+  /** Factory to lookup node meta by type. */
+  public abstract static class NodeMetaFactory {
+    public abstract NodeMeta<?, ?> getMeta(String type);
+
+    public final Node<?, ?> nodeFromJson(String json) {
+      return nodeFromTree(JsonUtil.readTree(json));
+    }
+
+    public final Node<?, ?> nodeFromTree(JsonNode tree) {
+      var type = tree.get("type").asText();
+      var meta = getMeta(type);
+      return meta.nodeFromTree(tree);
+    }
+  }
+
+  public static final DoozerEnvironment GENERIC_ENV =
+      DoozerEnvironment.builder().nodeMetaFactory(new GenericNodeMetaFactory()).build();
+
+  @JsonIgnore @Builder.Default private final DoozerEnvironment env = GENERIC_ENV;
 
   @Nullable private UUID id;
 
@@ -130,14 +282,30 @@ public final class DoozerGraph {
    * Add a node to the graph.
    *
    * @param node the node to add.
-   * @return the ID of the node.
+   * @return the added Node.
    */
-  public UUID addNode(Node node) {
+  @SuppressWarnings("unchecked")
+  public <N extends Node> N addNode(N node) {
     if (hasNode(node.getId())) {
       throw new IllegalArgumentException("Node already exists: " + node.getId());
     }
+
+    if (node.getGraph() != null) {
+      throw new IllegalArgumentException("Node already belongs to a graph: " + node.getId());
+    }
+    node.setGraph(this);
+
+    if (node.getMeta() == null) {
+      try {
+        node.setMeta(env.getNodeMetaFactory().getMeta(node.getType()));
+      } catch (Exception e) {
+        throw new IllegalArgumentException("Unknown node type: " + node.getType());
+      }
+    }
+
     nodes.put(node.getId(), node);
-    return node.getId();
+
+    return node;
   }
 
   /**
@@ -148,12 +316,14 @@ public final class DoozerGraph {
    * @param builder a builder for the node to add.
    * @return the ID of the node.
    */
-  public UUID addNode(Node.NodeBuilder builder) {
+  public <N extends Node<N, B>, B> N addNode(Node.NodeBuilder<N, B, ?, ?> builder) {
     if (builder.id == null) {
       builder.id = newUnusedNodeId();
     }
 
-    var node = builder.build();
+    @SuppressWarnings("unchecked")
+    var node = (N) builder.build();
+
     return addNode(node);
   }
 
@@ -167,125 +337,6 @@ public final class DoozerGraph {
       public NodeListToMapDeserializer() {
         super(Node.class, Node::getId, HashMap.class);
       }
-    }
-  }
-
-  @Data
-  @SuperBuilder
-  @JsonInclude(JsonInclude.Include.NON_NULL)
-  @JsonSerialize(using = Node.NodeSerializer.class)
-  public abstract static class Node<NodeType extends Node<NodeType, BodyType>, BodyType>
-      implements HasToJsonString {
-    /**
-     * A Jackson serializer for Node. We use a custom serializer because {@code @Delegate} applied
-     * to a method in subclasses to delegate the type methods of {@code body} does not honor
-     * [@code @JsonIgnore}, and we otherwise generate data fields for every getter in the body.
-     *
-     * @param <B> the type of the node body.
-     */
-    public static final class NodeSerializer<N extends Node<N, B>, B>
-        extends JsonSerializer<Node<N, B>> {
-      @Override
-      public void serialize(Node<N, B> value, JsonGenerator gen, SerializerProvider serializers)
-          throws IOException {
-        gen.writeStartObject();
-        gen.writeStringField("id", value.getId().toString());
-        gen.writeStringField("type", value.getType());
-
-        var label = value.getLabel();
-        if (label != null) {
-          gen.writeStringField("label", label);
-        }
-
-        gen.writeObjectField("body", value.getBody());
-        gen.writeEndObject();
-      }
-    }
-
-    @Data
-    public abstract static class NodeMeta<NodeType extends Node<NodeType, BodyType>, BodyType> {
-      private final Class<NodeType> nodeTypeClass;
-      private final Class<BodyType> bodyTypeClass;
-      private final String bodySchema;
-
-      public final void validate(Node<NodeType, BodyType> node) {
-        validateBody(node.getBody());
-        validateBodySchema(node.bodyAsJson());
-      }
-
-      public void validateBody(BodyType body) {}
-
-      public final void validateBodySchema(String json) {
-        SchemaStore schemaStore = new SchemaStore();
-        try {
-          var schema = schemaStore.loadSchemaJson(getBodySchema());
-          var validator = new Validator();
-          validator.validateJson(schema, json);
-        } catch (Exception e) {
-          throw new RuntimeException(e);
-        }
-      }
-
-      public final NodeType nodeFromJson(String json) {
-        var node = JsonUtil.fromJson(json, getNodeTypeClass());
-        node.setMeta(this);
-        node.validate();
-        return node;
-      }
-
-      public final NodeType nodeFromTree(Object tree) {
-        var node = JsonUtil.convertValue(tree, getNodeTypeClass());
-        node.setMeta(this);
-        node.validate();
-        return node;
-      }
-    }
-
-    public abstract static class NodeMetaFactory {
-      public abstract NodeMeta<?, ?> getMeta(String type);
-
-      public final Node<?, ?> nodeFromJson(String json) {
-        return nodeFromTree(JsonUtil.readTree(json));
-      }
-
-      public final Node<?, ?> nodeFromTree(JsonNode tree) {
-        var type = tree.get("type").asText();
-        var meta = getMeta(type);
-        return meta.nodeFromTree(tree);
-      }
-    }
-
-    @JsonIgnore @Nullable private NodeMeta<NodeType, BodyType> meta;
-
-    @Nonnull private final UUID id;
-    @Nonnull private final String type;
-    @Nullable private String label;
-
-    @Nonnull private BodyType body;
-
-    // TODO: collect body class, schema, and validation into a validator class.
-    // This is to support evolving the schema and validation.
-
-    @JsonIgnore
-    @SuppressWarnings("unchecked")
-    public Class<BodyType> getBodyClass() {
-      return (Class<BodyType>) body.getClass();
-    }
-
-    public final String bodyAsJson() {
-      return JsonUtil.toPrettyJson(getBody());
-    }
-
-    public final Map<String, Object> bodyAsMap() {
-      return JsonUtil.toMap(getBody());
-    }
-
-    public final void setBodyFromJson(String json) {
-      setBody(JsonUtil.fromJson(json, getBodyClass()));
-    }
-
-    public final void validate() {
-      getMeta().validate(this);
     }
   }
 }

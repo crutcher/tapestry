@@ -1,6 +1,5 @@
 package loom.doozer.nodes;
 
-import javax.annotation.Nonnull;
 import lombok.Builder;
 import lombok.Data;
 import lombok.experimental.Delegate;
@@ -8,6 +7,8 @@ import lombok.experimental.SuperBuilder;
 import lombok.extern.jackson.Jacksonized;
 import loom.doozer.DoozerGraph;
 import loom.zspace.ZPoint;
+
+import javax.annotation.Nonnull;
 
 @Jacksonized
 @SuperBuilder
@@ -21,7 +22,12 @@ public final class TensorNode extends DoozerGraph.Node<TensorNode, TensorNode.Bo
     @Nonnull private ZPoint shape;
   }
 
-  public static class Meta extends NodeMeta<TensorNode, Body> {
+  @Override
+  public Class<Body> getBodyClass() {
+    return Body.class;
+  }
+
+  public static class Meta extends DoozerGraph.NodeMeta<TensorNode, Body> {
     public static final String TYPE = "TreeNode";
 
     public static final String BODY_SCHEMA =
@@ -50,10 +56,10 @@ public final class TensorNode extends DoozerGraph.Node<TensorNode, TensorNode.Bo
     }
 
     @Override
-    public void validateBody(Body body) {
-      if (!body.getShape().coords.isStrictlyPositive()) {
+    public void validateNode(TensorNode node) {
+      if (!node.getShape().coords.isStrictlyPositive()) {
         throw new IllegalArgumentException(
-            "shape must be positive and non-empty: " + body.getShape());
+            "shape must be positive and non-empty: " + node.getShape());
       }
     }
   }

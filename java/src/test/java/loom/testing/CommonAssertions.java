@@ -1,12 +1,11 @@
 package loom.testing;
 
-import loom.common.serialization.JsonUtil;
-import loom.common.text.PrettyDiffUtils;
-import org.assertj.core.api.WithAssertions;
-
 import javax.json.JsonArrayBuilder;
 import javax.json.JsonObjectBuilder;
 import javax.json.JsonValue;
+import loom.common.serialization.JsonUtil;
+import loom.common.text.PrettyDiffUtils;
+import org.assertj.core.api.WithAssertions;
 
 public interface CommonAssertions extends WithAssertions {
   default void assertEquivalentJson(

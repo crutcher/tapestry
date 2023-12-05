@@ -1,68 +1,151 @@
 package loom.doozer;
 
+import lombok.Builder;
+import lombok.Data;
+import lombok.experimental.Delegate;
+import lombok.experimental.SuperBuilder;
+import lombok.extern.jackson.Jacksonized;
+import loom.common.LookupError;
+import loom.common.serialization.JsonUtil;
 import loom.doozer.nodes.GenericNode;
 import loom.doozer.nodes.TensorNode;
 import loom.testing.BaseTestClass;
 import loom.zspace.ZPoint;
 import org.junit.Test;
 
+import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-@SuppressWarnings("SameNameButDifferent")
 public class DoozerGraphTest extends BaseTestClass {
+  @Test
+  public void testDefaultGraph() {
+    var id = UUID.randomUUID();
+    var graph = DoozerGraph.builder().id(id).build();
 
-  // Goals:
-  // Given a json fragment:
-  //    > {
-  //    >   "id": <UUID>,
-  //    >   "type": <type>,
-  //    >   "data": {
-  //    >     <type specific fields>
-  //    >   }
-  //    > }
-  //
-  // 1. Match, based upon type, to a Node subclass.
-  // 2. Validate the structure of the data field against a type-specific JSD schema.
-  // 3. Parse the fragment into a type-specific Node subclass instance.
-  // 4. Provide a way to serialize the Node subclass instance back into a json fragment.
-  // 5. Provide 2 type-specific semantic validators:
-  //    *. A validator which checks that the data field is valid against the JSD schema
-  //       and the type specific semantic rules.
-  //    *. A validator which checks that the node is valid in context of the full graph.
-  // 6. Provide a way to read the data field as a generic JSON or Object tree.
-  // 7. Provide a way to read the data field as a generic JSON or Object tree.
-  // 8. Provide a way to read the data field as type-specific data.
-  // 9. Provide a way to write the data field as type-specific data.
-  //
-  // In a validated node containing node references, it should be possible to
-  // read and manipulate the references, and it should also be possible to
-  // transparently traverse the references to read and manipulate the referenced
-  // nodes.
+    assertThat(graph.getId()).isEqualTo(id);
+    assertThat(graph.getEnv()).isSameAs(DoozerGraph.GENERIC_ENV);
+  }
 
   @Test
-  public void testGraph() {
+  public void testNewUnusedNodeId() {
+    var graph = DoozerGraph.GENERIC_ENV.graphBuilder().build();
+
+    for (int i = 0; i < 10; i++) {
+      graph.addNode(
+          GenericNode.builder()
+              .type("test")
+              .body(GenericNode.Body.builder().field("a", 12).build()));
+    }
+
+    var nodeId = graph.newUnusedNodeId();
+    assertThat(graph.hasNode(nodeId)).isFalse();
+  }
+
+  @Test
+  public void testHasAssertAddNode() {
+    var graph = DoozerGraph.builder().build();
+
+    var nodeIdA = UUID.randomUUID();
+
+    assertThat(graph.hasNode(nodeIdA)).isFalse();
+    assertThat(graph.hasNode(nodeIdA.toString())).isFalse();
+    assertThatExceptionOfType(LookupError.class).isThrownBy(() -> graph.assertNode(nodeIdA));
+    assertThatExceptionOfType(LookupError.class)
+        .isThrownBy(() -> graph.assertNode(nodeIdA.toString()));
+
+    var nodeA =
+        graph.addNode(
+            GenericNode.builder()
+                .id(nodeIdA)
+                .type("test")
+                .body(GenericNode.Body.builder().field("a", 12).build()));
+    assertThat(nodeA)
+        .hasFieldOrPropertyWithValue("id", nodeIdA)
+        .hasFieldOrPropertyWithValue("type", "test")
+        .hasFieldOrPropertyWithValue("meta", GenericNode.META)
+        .isInstanceOf(GenericNode.class);
+
+    assertThat(graph.hasNode(nodeIdA)).isTrue();
+    assertThat(graph.hasNode(nodeIdA.toString())).isTrue();
+    assertThat(graph.assertNode(nodeIdA)).isSameAs(nodeA);
+    assertThat(graph.assertNode(nodeIdA.toString())).isSameAs(nodeA);
+  }
+
+  @Test
+  public void testGenericSerializer() {
     var source =
         """
         {
-          "id": "00000000-0000-4000-8000-00000000000A",
-          "nodes": [
-            {
-              "id": "00000000-0000-0000-0000-000000000000",
-              "type": "TreeNode",
-              "label": "foo",
-              "body": {
-                "dtype": "int32",
-                "shape": [2, 3]
+           "id": "00000000-0000-0000-0000-000000000000",
+           "nodes": [
+              {
+                "id": "00000000-0000-0000-0000-000000000001",
+                "type": "TreeNode",
+                "label": "foo",
+                "body": {
+                  "dtype": "int32",
+                  "shape": [2, 3]
+                }
+              },
+              {
+                "id": "00000000-0000-0000-0000-000000000002",
+                "type": "TreeNode",
+                "label": "bar",
+                "body": {
+                  "dtype": "float32",
+                  "shape": [4, 5]
+                }
               }
-            }
-          ]
-         }
+           ]
+        }
         """;
 
+    var env = DoozerGraph.GENERIC_ENV;
+    var graph = env.graphFromJson(source);
+
+    assertThat(graph.assertNode("00000000-0000-0000-0000-000000000001"))
+        .hasFieldOrPropertyWithValue("label", "foo")
+        .isInstanceOf(GenericNode.class);
+    assertThat(graph.assertNode("00000000-0000-0000-0000-000000000002"))
+        .hasFieldOrPropertyWithValue("label", "bar")
+        .isInstanceOf(GenericNode.class);
+
+    assertEquivalentJson(graph.toJsonString(), source);
+  }
+
+  @Test
+  public void testBoundEnvironment() {
+    var source =
+        """
+            {
+               "id": "00000000-0000-0000-0000-000000000000",
+               "nodes": [
+                  {
+                    "id": "00000000-0000-0000-0000-000000000001",
+                    "type": "TreeNode",
+                    "label": "foo",
+                    "body": {
+                      "dtype": "int32",
+                      "shape": [2, 3]
+                    }
+                  },
+                  {
+                    "id": "00000000-0000-0000-0000-000000000002",
+                    "type": "TreeNode",
+                    "label": "bar",
+                    "body": {
+                      "dtype": "float32",
+                      "shape": [4, 5]
+                    }
+                  }
+               ]
+            }
+            """;
+
     var env =
-        DoozerGraph.Environment.builder()
+        DoozerEnvironment.builder()
             .nodeMetaFactory(
                 TypeMapNodeMetaFactory.builder()
                     .typeMapping(TensorNode.Meta.TYPE, new TensorNode.Meta())
@@ -71,12 +154,60 @@ public class DoozerGraphTest extends BaseTestClass {
 
     var graph = env.graphFromJson(source);
 
-    var node = (TensorNode) graph.assertNode("00000000-0000-0000-0000-000000000000");
-    assertThat(node.getDtype()).isEqualTo("int32");
+    assertThat(graph.assertNode("00000000-0000-0000-0000-000000000001"))
+        .hasFieldOrPropertyWithValue("label", "foo")
+        .isInstanceOf(TensorNode.class)
+        .hasFieldOrPropertyWithValue("dtype", "int32")
+        .hasFieldOrPropertyWithValue("shape", ZPoint.of(2, 3));
+    assertThat(graph.assertNode("00000000-0000-0000-0000-000000000002"))
+        .hasFieldOrPropertyWithValue("label", "bar")
+        .isInstanceOf(TensorNode.class)
+        .hasFieldOrPropertyWithValue("dtype", "float32")
+        .hasFieldOrPropertyWithValue("shape", ZPoint.of(4, 5));
+
+    assertEquivalentJson(graph.toJsonString(), source);
   }
 
   @Test
-  public void testNothing() {
+  public void testGenericNodeDelegation() {
+    var source =
+        """
+              {
+                "id": "00000000-0000-0000-0000-000000000000",
+                "type": "TreeNode",
+                "label": "foo",
+                "body": {
+                  "dtype": "int32",
+                  "shape": [2, 3]
+                }
+              }
+              """;
+    var factory = new GenericNodeMetaFactory();
+
+    var node = (GenericNode) factory.nodeFromJson(source);
+
+    assertThat(node.getId()).isEqualTo(UUID.fromString("00000000-0000-0000-0000-000000000000"));
+    assertThat(node.getLabel()).isEqualTo("foo");
+
+    assertThat(node.getFields())
+        .containsExactly(entry("dtype", "int32"), entry("shape", List.of(2, 3)));
+
+    assertJsonEquals(node.getBody(), node.getBodyAsJson());
+
+    assertEquivalentJson(source, node.toJsonString());
+
+    assertEquivalentJson(
+        node.getBodyAsJson(),
+        """
+                  {
+                    "dtype": "int32",
+                    "shape": [2, 3]
+                  }
+                  """);
+  }
+
+  @Test
+  public void testTensorNodeDelegation() {
     var source =
         """
           {
@@ -89,89 +220,155 @@ public class DoozerGraphTest extends BaseTestClass {
             }
           }
           """;
-    {
-      var factory =
-          TypeMapNodeMetaFactory.builder()
-              .typeMapping(TensorNode.Meta.TYPE, new TensorNode.Meta())
-              .build();
 
-      var node = (TensorNode) factory.nodeFromJson(source);
+    var factory =
+        TypeMapNodeMetaFactory.builder()
+            .typeMapping(TensorNode.Meta.TYPE, new TensorNode.Meta())
+            .build();
 
-      assertThat(node.getId()).isEqualTo(UUID.fromString("00000000-0000-0000-0000-000000000000"));
-      assertThat(node.getLabel()).isEqualTo("foo");
+    var node = (TensorNode) factory.nodeFromJson(source);
 
-      assertThat(node.getBody().getShape()).isEqualTo(ZPoint.of(2, 3));
-      assertThat(node.getBody().getDtype()).isEqualTo("int32");
+    assertThat(node.getId()).isEqualTo(UUID.fromString("00000000-0000-0000-0000-000000000000"));
+    assertThat(node.getLabel()).isEqualTo("foo");
 
-      assertThat(node.getShape()).isEqualTo(ZPoint.of(2, 3));
-      assertThat(node.getDtype()).isEqualTo("int32");
+    assertThat(node.getBody().getShape()).isEqualTo(ZPoint.of(2, 3));
+    assertThat(node.getBody().getDtype()).isEqualTo("int32");
 
-      assertJsonEquals(node.getBody(), node.bodyAsJson());
+    assertThat(node.getShape()).isEqualTo(ZPoint.of(2, 3));
+    assertThat(node.getDtype()).isEqualTo("int32");
 
-      assertEquivalentJson(source, node.toJsonString());
+    assertJsonEquals(node.getBody(), node.getBodyAsJson());
 
-      assertEquivalentJson(
-          node.bodyAsJson(),
-          """
+    assertEquivalentJson(source, node.toJsonString());
+
+    assertEquivalentJson(
+        node.getBodyAsJson(),
+        """
               {
                 "dtype": "int32",
                 "shape": [2, 3]
               }
               """);
 
-      assertThat(node.bodyAsMap()).isEqualTo(Map.of("dtype", "int32", "shape", List.of(2, 3)));
+    assertThat(node.getBodyAsObjectMap())
+        .isEqualTo(Map.of("dtype", "int32", "shape", List.of(2, 3)));
 
-      node.setShape(ZPoint.of(3, 4));
-      node.setDtype("float32");
-      assertEquivalentJson(
-          node.bodyAsJson(),
-          """
+    node.setShape(ZPoint.of(3, 4));
+    node.setDtype("float32");
+    assertEquivalentJson(
+        node.getBodyAsJson(),
+        """
               {
                 "dtype": "float32",
                 "shape": [3, 4]
               }
               """);
 
-      node.setBodyFromJson(
-          """
+    node.setBodyFromJson(
+        """
               {
                 "dtype": "float32",
                 "shape": [5, 6]
               }
               """);
-      assertEquivalentJson(
-          node.bodyAsJson(),
-          """
+    assertEquivalentJson(
+        node.getBodyAsJson(),
+        """
               {
                 "dtype": "float32",
                 "shape": [5, 6]
               }
               """);
+  }
+
+  @Jacksonized
+  @SuperBuilder
+  public static class DemoNode extends DoozerGraph.Node<DemoNode, DemoNode.Body> {
+    @Data
+    @Jacksonized
+    @Builder
+    public static class Body {
+      @Nonnull private String foo;
     }
 
+    @Override
+    public Class<Body> getBodyClass() {
+      return Body.class;
+    }
+
+    @Delegate
+    private Body delegateProvider() {
+      return getBody();
+    }
+  }
+
+  public static class DemoNodeMeta extends DoozerGraph.NodeMeta<DemoNode, DemoNode.Body> {
+    public static final String TYPE = "DemoNode";
+
+    public static final String BODY_SCHEMA =
+        """
+            {
+              "type": "object",
+              "properties": {
+                "foo": {
+                  "type": "string",
+                  "enum": ["bar", "baz"]
+                }
+              },
+              "required": ["foo"]
+            }
+            """;
+
+    public DemoNodeMeta() {
+      super(DemoNode.class, DemoNode.Body.class, BODY_SCHEMA);
+    }
+
+    @Override
+    public void validateNode(DemoNode node) {
+      if (!node.getFoo().equals("bar")) {
+        throw new IllegalArgumentException("foo must be bar: " + node.getFoo());
+      }
+    }
+  }
+
+  @Test
+  public void testNodeMeta() {
+    var env =
+        DoozerEnvironment.builder()
+            .nodeMetaFactory(
+                TypeMapNodeMetaFactory.builder()
+                    .typeMapping(DemoNodeMeta.TYPE, new DemoNodeMeta())
+                    .build())
+            .build();
+
+    var graph = env.graphBuilder().build();
+
+    var node =
+        graph.addNode(
+            DemoNode.builder()
+                .type(DemoNodeMeta.TYPE)
+                .body(DemoNode.Body.builder().foo("bar").build()));
+
+    assertThat(node).isInstanceOf(DemoNode.class);
+
+    node.validate();
+
+    var meta = node.getMeta();
+    assertThat(meta).isInstanceOf(DemoNodeMeta.class);
+
     {
-      var factory = new GenericNodeMetaFactory();
-
-      var node = (GenericNode) factory.nodeFromJson(source);
-
-      assertThat(node.getId()).isEqualTo(UUID.fromString("00000000-0000-0000-0000-000000000000"));
-      assertThat(node.getLabel()).isEqualTo("foo");
-
-      assertThat(node.getFields())
-          .containsExactly(entry("dtype", "int32"), entry("shape", List.of(2, 3)));
-
-      assertJsonEquals(node.getBody(), node.bodyAsJson());
-
-      assertEquivalentJson(source, node.toJsonString());
-
-      assertEquivalentJson(
-          node.bodyAsJson(),
-          """
-              {
-                "dtype": "int32",
-                "shape": [2, 3]
-              }
-              """);
+      var parsed = meta.nodeFromJson(node.toJsonString());
+      assertThat(parsed)
+          .isNotSameAs(node)
+          .hasFieldOrPropertyWithValue("id", node.getId())
+          .isInstanceOf(DemoNode.class);
+    }
+    {
+      var parsed = meta.nodeFromTree(JsonUtil.toTree(node));
+      assertThat(parsed)
+          .isNotSameAs(node)
+          .hasFieldOrPropertyWithValue("id", node.getId())
+          .isInstanceOf(DemoNode.class);
     }
   }
 }

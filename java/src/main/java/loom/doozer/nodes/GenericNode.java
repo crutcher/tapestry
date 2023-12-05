@@ -5,7 +5,9 @@ import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 import java.util.Map;
+import lombok.Builder;
 import lombok.Data;
+import lombok.Singular;
 import lombok.experimental.Delegate;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.jackson.Jacksonized;
@@ -13,10 +15,11 @@ import loom.doozer.DoozerGraph;
 
 @Jacksonized
 @SuperBuilder
-public class GenericNode extends DoozerGraph.Node<GenericNode, GenericNode.Body> {
+public final class GenericNode extends DoozerGraph.Node<GenericNode, GenericNode.Body> {
   @Data
+  @Builder
   public static class Body {
-    private Map<String, Object> fields;
+    @Singular private Map<String, Object> fields;
 
     @JsonCreator
     public Body(Map<String, Object> fields) {
@@ -35,7 +38,12 @@ public class GenericNode extends DoozerGraph.Node<GenericNode, GenericNode.Body>
     }
   }
 
-  public static final class Meta extends NodeMeta<GenericNode, Body> {
+  @Override
+  public Class<Body> getBodyClass() {
+    return Body.class;
+  }
+
+  public static final class Meta extends DoozerGraph.NodeMeta<GenericNode, Body> {
     public static final String BODY_SCHEMA =
         """
                 {
@@ -50,7 +58,8 @@ public class GenericNode extends DoozerGraph.Node<GenericNode, GenericNode.Body>
       super(GenericNode.class, Body.class, BODY_SCHEMA);
     }
   }
-  ;
+
+  public static final Meta META = new Meta();
 
   /** Exists to support {@code @Delegate} for {@code getBody()}. */
   @Delegate
