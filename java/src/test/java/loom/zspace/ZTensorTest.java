@@ -142,6 +142,50 @@ public class ZTensorTest implements CommonAssertions {
   @Test
   public void test_clone() {
     assertThat(ZTensor.vector(2, 3).clone()).isEqualTo(ZTensor.vector(2, 3));
+
+    var compactMutableSource = ZTensor.matrix(new int[][] {{2, 3}, {4, 5}});
+    assertThat(compactMutableSource)
+        .isEqualTo(ZTensor.matrix(new int[][] {{2, 3}, {4, 5}}))
+        .hasFieldOrPropertyWithValue("mutable", true)
+        .hasFieldOrPropertyWithValue("compact", true);
+    assertThat(compactMutableSource.clone())
+        .isEqualTo(ZTensor.matrix(new int[][] {{2, 3}, {4, 5}}))
+        .hasFieldOrPropertyWithValue("mutable", true)
+        .hasFieldOrPropertyWithValue("compact", true)
+        .isNotSameAs(compactMutableSource);
+
+    var nonCompactMutableSource = compactMutableSource.selectDim(0, 0);
+    assertThat(nonCompactMutableSource)
+        .isEqualTo(ZTensor.vector(2, 3))
+        .hasFieldOrPropertyWithValue("mutable", true)
+        .hasFieldOrPropertyWithValue("compact", false);
+    assertThat(nonCompactMutableSource.clone())
+        .isEqualTo(ZTensor.vector(2, 3))
+        .hasFieldOrPropertyWithValue("mutable", true)
+        .hasFieldOrPropertyWithValue("compact", true)
+        .isNotSameAs(nonCompactMutableSource);
+
+    var compactImmutableSource = compactMutableSource.immutable();
+    assertThat(compactImmutableSource)
+        .isEqualTo(ZTensor.matrix(new int[][] {{2, 3}, {4, 5}}))
+        .hasFieldOrPropertyWithValue("mutable", false)
+        .hasFieldOrPropertyWithValue("compact", true);
+    assertThat(compactImmutableSource.clone())
+        .isEqualTo(ZTensor.matrix(new int[][] {{2, 3}, {4, 5}}))
+        .hasFieldOrPropertyWithValue("mutable", false)
+        .hasFieldOrPropertyWithValue("compact", true)
+        .isSameAs(compactImmutableSource);
+
+    var nonCompactImmutableSource = compactImmutableSource.selectDim(0, 0);
+    assertThat(nonCompactImmutableSource)
+        .isEqualTo(ZTensor.vector(2, 3))
+        .hasFieldOrPropertyWithValue("mutable", false)
+        .hasFieldOrPropertyWithValue("compact", false);
+    assertThat(nonCompactImmutableSource.clone())
+        .isEqualTo(ZTensor.vector(2, 3))
+        .hasFieldOrPropertyWithValue("mutable", false)
+        .hasFieldOrPropertyWithValue("compact", true)
+        .isNotSameAs(nonCompactMutableSource);
   }
 
   @Test

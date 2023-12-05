@@ -13,17 +13,18 @@ import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.node.IntNode;
 import com.google.common.primitives.Ints;
 import com.google.errorprone.annotations.CheckReturnValue;
+import lombok.Getter;
+import loom.common.HasToJsonString;
+import loom.common.IteratorUtils;
+import loom.common.serialization.JsonUtil;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.lang.reflect.Array;
 import java.util.*;
 import java.util.function.*;
 import java.util.stream.Stream;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import lombok.Getter;
-import loom.common.HasToJsonString;
-import loom.common.IteratorUtils;
-import loom.common.serialization.JsonUtil;
 
 /**
  * Minimal discrete Tensor.
@@ -363,6 +364,8 @@ public final class ZTensor implements HasDimension, HasToJsonString, HasPermute,
    *
    * <p>If this ZTensor is already immutable, returns this; otherwise, returns an immutable clone.
    *
+   * <p>Semantically equivalent to {@code clone(false)}.
+   *
    * <p>A performance oriented Tensor library would track open mutable views of the underlying data,
    * and perform copy-on-write when necessary; as this is a correctness-oriented Tensor library, we
    * simply clone the data to go from mutable to immutable.
@@ -370,10 +373,18 @@ public final class ZTensor implements HasDimension, HasToJsonString, HasPermute,
    * @return an immutable ZTensor.
    */
   public ZTensor immutable() {
-    if (!mutable) {
-      return this;
-    }
     return clone(false);
+  }
+
+  /**
+   * Return if this tensor is compact.
+   *
+   * <p>A tensor is compact if its data array is exactly the size of the tensor.
+   *
+   * @return true if this tensor is compact.
+   */
+  public boolean isCompact() {
+    return data.length == size;
   }
 
   /**
@@ -628,7 +639,13 @@ public final class ZTensor implements HasDimension, HasToJsonString, HasPermute,
   /**
    * Clone this ZTensor.
    *
-   * @return a new ZTensor with the same data.
+   * <p>If this ZTensor is immutable and compact, returns this.
+   *
+   * <p>If this ZTensor is immutable and non-compact, returns a compact clone.
+   *
+   * <p>If this ZTensor is mutable, returns a compact mutable clone.
+   *
+   * @return a ZTensor with the same data.
    */
   @Override
   public ZTensor clone() {
@@ -638,10 +655,18 @@ public final class ZTensor implements HasDimension, HasToJsonString, HasPermute,
   /**
    * Clone this ZTensor.
    *
+   * <p>If this ZTensor is immutable and compact, and mutable is false, returns this.
+   *
+   * <p>Otherwise, returns a new compact ZTensor with the same data and the given mutability.
+   *
    * @param mutable whether the clone should be mutable.
    * @return a new ZTensor with the same data.
    */
   public ZTensor clone(boolean mutable) {
+    if (isReadOnly() && isCompact() && !mutable) {
+      return this;
+    }
+
     var res = new ZTensor(true, shape);
     forEachItem(res::set);
     if (!mutable) {
