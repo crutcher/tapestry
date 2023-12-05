@@ -1,5 +1,6 @@
 package loom.graph;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -24,6 +25,7 @@ import org.jetbrains.annotations.NotNull;
  * <p>This class bears a 1:1 relationship with the JSON representation of a graph.
  */
 @Data
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class LoomDoc implements HasToJsonString {
   /**
    * A node in the graph.

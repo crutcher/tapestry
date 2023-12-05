@@ -9,7 +9,8 @@ import javax.json.JsonObjectBuilder;
 import javax.json.JsonValue;
 
 public interface CommonAssertions extends WithAssertions {
-  default void assertEquivalentJson(String actualName, String actual, String expectedName, String expected) {
+  default void assertEquivalentJson(
+      String actualName, String actual, String expectedName, String expected) {
     // System.out.println("assertEquivalentJson.actual: " + actual);
     // System.out.println("assertEquivalentJson.expected: " + expected);
 
@@ -17,9 +18,14 @@ public interface CommonAssertions extends WithAssertions {
     var prettyExpected = JsonUtil.reformatToPrettyJson(expected);
 
     assertThat(prettyActual)
-            .as(() -> String.format("JSON Comparison Error: %s != %s\n%s\n", actualName, expectedName,
+        .as(
+            () ->
+                String.format(
+                    "JSON Comparison Error: %s != %s\n%s\n",
+                    actualName,
+                    expectedName,
                     PrettyDiffUtils.indentUdiff("> ", prettyExpected, prettyActual)))
-            .isEqualTo(prettyExpected);
+        .isEqualTo(prettyExpected);
   }
 
   default void assertEquivalentJson(String actual, String expected) {
@@ -27,9 +33,6 @@ public interface CommonAssertions extends WithAssertions {
   }
 
   default void assertJsonEquals(Object obj, String json) {
-
-    json = JsonUtil.reformatToPrettyJson(json);
-
     String objJson = JsonUtil.toPrettyJson(obj);
 
     // We establish a 'clean' json by re-serializing the JSON derived object.
@@ -41,7 +44,7 @@ public interface CommonAssertions extends WithAssertions {
     // System.out.printf("assertJsonEquals.objJson: %s%n", objJson);
 
     // Does the serialization of the source object to JSON match the cleaned JSON?
-    assertEquivalentJson("Object Json", objJson, "Source Json", json);
+    assertEquivalentJson("Object Json", objJson, "Source Json", cleanJson);
   }
 
   default void assertJsonEquals(Object obj, JsonValue json) {
