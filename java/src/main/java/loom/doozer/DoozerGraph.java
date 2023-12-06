@@ -54,6 +54,15 @@ public final class DoozerGraph implements HasToJsonString {
     @Nullable private String label;
     @Nonnull private BodyType body;
 
+    /**
+     * Create a deep copy of this node.
+     *
+     * @return the copy.
+     */
+    public final NodeType deepCopy() {
+      return getMeta().nodeFromTree(this);
+    }
+
     /** Get the class type of the node body. */
     @JsonIgnore
     @SuppressWarnings("unchecked")
@@ -76,12 +85,7 @@ public final class DoozerGraph implements HasToJsonString {
      * @return the JSON tree.
      */
     public final JsonNode getBodyAsJsonNode() {
-      return JsonUtil.toTree(getBody());
-    }
-
-    /** Get the node body as an Object map. */
-    public final Map<String, Object> getBodyAsObjectMap() {
-      return JsonUtil.toMap(getBody());
+      return JsonUtil.valueToJsonNodeTree(getBody());
     }
 
     /**
@@ -98,7 +102,7 @@ public final class DoozerGraph implements HasToJsonString {
      *
      * @param tree the JSON tree; either a {@code JsonNode} or a {@code Map<String, Object>}.
      */
-    public final void setBodyFromTree(Object tree) {
+    public final void setBodyFromValue(Object tree) {
       setBody(JsonUtil.convertValue(tree, getBodyClass()));
     }
 
@@ -149,7 +153,7 @@ public final class DoozerGraph implements HasToJsonString {
   }
 
   /**
-   * Meta class to attach schema and validation to a node type.
+   * Metaclass to attach schema and validation to a node type.
    *
    * @param <NodeType> the node class.
    * @param <BodyType> the node body class.
@@ -195,12 +199,30 @@ public final class DoozerGraph implements HasToJsonString {
 
   /** Factory to lookup node meta by type. */
   public abstract static class NodeMetaFactory {
+    /**
+     * Get the node meta for the given type.
+     *
+     * @param type the node type.
+     * @return the node meta, or null if not found.
+     */
     public abstract NodeMeta<?, ?> getMeta(String type);
 
+    /**
+     * Parse a node from a JSON string, using the node type in the JSON.
+     *
+     * @param json the JSON string.
+     * @return the node.
+     */
     public final Node<?, ?> nodeFromJson(String json) {
-      return nodeFromTree(JsonUtil.readTree(json));
+      return nodeFromTree(JsonUtil.parseToJsonNodeTree(json));
     }
 
+    /**
+     * Parse a node from a JSON tree, using the node type in the JSON.
+     *
+     * @param tree the JSON tree.
+     * @return the node.
+     */
     public final Node<?, ?> nodeFromTree(JsonNode tree) {
       var type = tree.get("type").asText();
       var meta = getMeta(type);
@@ -218,6 +240,16 @@ public final class DoozerGraph implements HasToJsonString {
   @JsonSerialize(using = MapValueListUtil.MapSerializer.class)
   @JsonDeserialize(using = JacksonSupport.NodeListToMapDeserializer.class)
   private final Map<UUID, Node> nodes = new HashMap<>();
+
+  public DoozerGraph deepCopy() {
+    var graph = DoozerGraph.builder().env(env).id(id).build();
+
+    for (var node : nodes.values()) {
+      graph.addNode(node.deepCopy());
+    }
+
+    return graph;
+  }
 
   /**
    * Create a new, unused node ID.

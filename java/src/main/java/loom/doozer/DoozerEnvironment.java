@@ -22,7 +22,7 @@ public final class DoozerEnvironment {
    * @return the graph.
    */
   public DoozerGraph graphFromJson(String json) {
-    var tree = JsonUtil.readTree(json);
+    var tree = JsonUtil.parseToJsonNodeTree(json);
 
     var graph = DoozerGraph.builder().env(this).build();
 

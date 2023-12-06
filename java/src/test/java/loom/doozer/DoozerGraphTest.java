@@ -16,6 +16,7 @@ import org.junit.Test;
 import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 public class DoozerGraphTest extends BaseTestClass {
@@ -113,6 +114,13 @@ public class DoozerGraphTest extends BaseTestClass {
         .isInstanceOf(GenericNode.class);
 
     assertEquivalentJson(graph.toJsonString(), source);
+
+    var graphCopy = graph.deepCopy();
+    assertThat(graphCopy).isNotSameAs(graph).hasFieldOrPropertyWithValue("env", graph.getEnv());
+    assertEquivalentJson(graphCopy.toJsonString(), graph.toJsonString());
+    assertThat(graphCopy.assertNode("00000000-0000-0000-0000-000000000001").getBody())
+        .hasFieldOrPropertyWithValue("fields", Map.of("dtype", "int32", "shape", List.of(2, 3)))
+        .isNotSameAs(graph.assertNode("00000000-0000-0000-0000-000000000001").getBody());
   }
 
   @Test
@@ -166,6 +174,13 @@ public class DoozerGraphTest extends BaseTestClass {
         .hasFieldOrPropertyWithValue("shape", ZPoint.of(4, 5));
 
     assertEquivalentJson(graph.toJsonString(), source);
+
+    var graphCopy = graph.deepCopy();
+    assertThat(graphCopy).isNotSameAs(graph).hasFieldOrPropertyWithValue("env", graph.getEnv());
+    assertEquivalentJson(graphCopy.toJsonString(), graph.toJsonString());
+    assertThat(graphCopy.assertNode("00000000-0000-0000-0000-000000000001").getBody())
+        .hasFieldOrPropertyWithValue("dtype", "int32")
+        .isNotSameAs(graph.assertNode("00000000-0000-0000-0000-000000000001").getBody());
   }
 
   @Test
@@ -250,9 +265,6 @@ public class DoozerGraphTest extends BaseTestClass {
               }
               """);
 
-    assertThat(node.getBodyAsObjectMap())
-        .isEqualTo(Map.of("dtype", "int32", "shape", List.of(2, 3)));
-
     node.setShape(ZPoint.of(3, 4));
     node.setDtype("float32");
     assertEquivalentJson(
@@ -323,16 +335,19 @@ public class DoozerGraphTest extends BaseTestClass {
       super(DemoNode.class, DemoNode.Body.class, BODY_SCHEMA);
     }
 
+    public static final Set<String> VALID_FOO_VALUES = Set.of("bar", "baz");
+
     @Override
     public void validateNode(DemoNode node) {
-      if (!node.getFoo().equals("bar")) {
-        throw new IllegalArgumentException("foo must be bar: " + node.getFoo());
+      if (!VALID_FOO_VALUES.contains(node.getFoo())) {
+        throw new IllegalArgumentException(
+            "Invalid foo value: " + node.getFoo() + "; expected one of " + VALID_FOO_VALUES);
       }
     }
   }
 
   @Test
-  public void testNodeMeta() {
+  public void testNode() {
     var env =
         DoozerEnvironment.builder()
             .nodeMetaFactory(
@@ -340,6 +355,86 @@ public class DoozerGraphTest extends BaseTestClass {
                     .typeMapping(DemoNodeMeta.TYPE, new DemoNodeMeta())
                     .build())
             .build();
+
+    var graph = env.graphBuilder().build();
+
+    DemoNode node =
+        graph.addNode(
+            DemoNode.builder()
+                .type(DemoNodeMeta.TYPE)
+                .body(DemoNode.Body.builder().foo("bar").build()));
+
+    assertThat(node).isInstanceOf(DemoNode.class);
+
+    DemoNode selfRef = node.self();
+    assertThat(selfRef).isSameAs(node);
+
+    assertEquivalentJson(
+        node.getBodyAsJson(),
+        """
+                {
+                  "foo": "bar"
+                }
+                """);
+
+    assertThat(node.getBodyAsJsonNode())
+        .isEqualTo(
+            JsonUtil.parseToJsonNodeTree(
+                """
+                    {
+                      "foo": "bar"
+                    }
+                    """));
+
+    node.setBody(DemoNode.Body.builder().foo("baz").build());
+    assertEquivalentJson(
+        node.getBodyAsJson(),
+        """
+                    {
+                      "foo": "baz"
+                    }
+                    """);
+
+    node.setBodyFromJson(
+        """
+                    {
+                      "foo": "bar"
+                    }
+                    """);
+    assertEquivalentJson(
+        node.getBodyAsJson(),
+        """
+                        {
+                          "foo": "bar"
+                        }
+                        """);
+
+    node.setBodyFromValue(Map.of("foo", "baz"));
+    assertEquivalentJson(
+        node.getBodyAsJson(),
+        """
+                        {
+                          "foo": "baz"
+                        }
+                        """);
+
+    var nodeCopy = node.deepCopy();
+    assertThat(nodeCopy)
+        .isNotSameAs(node)
+        .hasFieldOrPropertyWithValue("id", node.getId())
+        .hasFieldOrPropertyWithValue("type", node.getType())
+        .hasFieldOrPropertyWithValue("body", node.getBody())
+        .isInstanceOf(DemoNode.class);
+
+    assertThat(nodeCopy.getBody()).isNotSameAs(node.getBody());
+  }
+
+  @Test
+  public void testNodeMeta() {
+    TypeMapNodeMetaFactory metaFactory =
+        TypeMapNodeMetaFactory.builder().typeMapping(DemoNodeMeta.TYPE, new DemoNodeMeta()).build();
+
+    var env = DoozerEnvironment.builder().nodeMetaFactory(metaFactory).build();
 
     var graph = env.graphBuilder().build();
 
@@ -356,6 +451,12 @@ public class DoozerGraphTest extends BaseTestClass {
     var meta = node.getMeta();
     assertThat(meta).isInstanceOf(DemoNodeMeta.class);
 
+    assertThat(metaFactory.getMeta(DemoNodeMeta.TYPE)).isInstanceOf(DemoNodeMeta.class);
+    assertThat(metaFactory.getMeta(DemoNodeMeta.TYPE).nodeFromJson(node.toJsonString()))
+        .isInstanceOf(DemoNode.class);
+    assertThat(metaFactory.getMeta(DemoNodeMeta.TYPE).nodeFromTree(node))
+        .isInstanceOf(DemoNode.class);
+
     {
       var parsed = meta.nodeFromJson(node.toJsonString());
       assertThat(parsed)
@@ -364,7 +465,7 @@ public class DoozerGraphTest extends BaseTestClass {
           .isInstanceOf(DemoNode.class);
     }
     {
-      var parsed = meta.nodeFromTree(JsonUtil.toTree(node));
+      var parsed = meta.nodeFromTree(JsonUtil.valueToJsonNodeTree(node));
       assertThat(parsed)
           .isNotSameAs(node)
           .hasFieldOrPropertyWithValue("id", node.getId())

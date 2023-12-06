@@ -90,6 +90,6 @@ public class LoomGraphEnvTest extends BaseTestClass {
     var env = CommonLoomGraphEnvironments.createDefault();
     assertJsonEquals(env.wrap(JsonUtil.fromJson(source, LoomDoc.class)).getDoc(), source);
     assertJsonEquals(env.parse(source).getDoc(), source);
-    assertJsonEquals(env.parse(JsonUtil.readTree(source)).getDoc(), source);
+    assertJsonEquals(env.parse(JsonUtil.parseToJsonNodeTree(source)).getDoc(), source);
   }
 }

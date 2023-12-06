@@ -48,7 +48,7 @@ public class LoomDoc implements HasToJsonString {
        * @return the builder.
        */
       public NodeDocBuilder fieldFromObject(String key, Object value) {
-        return this.field(key, JsonUtil.toTree(value));
+        return this.field(key, JsonUtil.valueToJsonNodeTree(value));
       }
 
       /**
@@ -61,7 +61,7 @@ public class LoomDoc implements HasToJsonString {
        * @return the builder.
        */
       public NodeDocBuilder fieldFromString(String key, String json) {
-        return this.field(key, JsonUtil.readTree(json));
+        return this.field(key, JsonUtil.parseToJsonNodeTree(json));
       }
 
       /**
@@ -71,7 +71,7 @@ public class LoomDoc implements HasToJsonString {
        * @return the builder.
        */
       public NodeDocBuilder asFields(Object fields) {
-        JsonUtil.toTree(fields)
+        JsonUtil.valueToJsonNodeTree(fields)
             .fields()
             .forEachRemaining(entry -> this.field(entry.getKey(), entry.getValue()));
         return this;

@@ -1,5 +1,6 @@
 package loom.doozer.nodes;
 
+import javax.annotation.Nonnull;
 import lombok.Builder;
 import lombok.Data;
 import lombok.experimental.Delegate;
@@ -7,8 +8,6 @@ import lombok.experimental.SuperBuilder;
 import lombok.extern.jackson.Jacksonized;
 import loom.doozer.DoozerGraph;
 import loom.zspace.ZPoint;
-
-import javax.annotation.Nonnull;
 
 @Jacksonized
 @SuperBuilder
@@ -32,24 +31,24 @@ public final class TensorNode extends DoozerGraph.Node<TensorNode, TensorNode.Bo
 
     public static final String BODY_SCHEMA =
         """
-                {
-                    "type": "object",
-                    "properties": {
-                    "dtype": {
-                        "type": "string"
-                    },
-                    "shape": {
-                        "type": "array",
-                        "items": {
-                        "type": "integer",
-                        "minimum": 1
-                        },
-                        "minItems": 1
-                    }
-                    },
-                    "required": ["dtype", "shape"]
+        {
+            "type": "object",
+            "properties": {
+              "dtype": {
+                  "type": "string"
+              },
+              "shape": {
+                  "type": "array",
+                  "items": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "minItems": 1
                 }
-                """;
+              },
+            "required": ["dtype", "shape"]
+        }
+        """;
 
     public Meta() {
       super(TensorNode.class, Body.class, BODY_SCHEMA);

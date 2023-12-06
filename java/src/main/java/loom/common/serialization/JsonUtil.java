@@ -57,10 +57,16 @@ public class JsonUtil {
   }
 
   public static String reformatToPrettyJson(String json) {
-    return toPrettyJson(readTree(json));
+    return toPrettyJson(parseToJsonNodeTree(json));
   }
 
-  public static JsonNode readTree(String json) {
+  /**
+   * Parse a JSON string to a Jackson JsonNode tree.
+   *
+   * @param json the JSON string.
+   * @return the JsonNode tree.
+   */
+  public static JsonNode parseToJsonNodeTree(String json) {
     try {
       return getMapper().readTree(json);
     } catch (JsonProcessingException e) {
@@ -68,7 +74,13 @@ public class JsonUtil {
     }
   }
 
-  public static JsonNode toTree(Object obj) {
+  /**
+   * Convert an object to a Jackson JsonNode tree.
+   *
+   * @param obj the object to convert.
+   * @return the JsonNode tree.
+   */
+  public static JsonNode valueToJsonNodeTree(Object obj) {
     return getMapper().valueToTree(obj);
   }
 
@@ -79,7 +91,7 @@ public class JsonUtil {
   }
 
   public static Map<String, Object> parseToMap(String json) {
-    return toMap(readTree(json));
+    return toMap(parseToJsonNodeTree(json));
   }
 
   /**
@@ -133,7 +145,7 @@ public class JsonUtil {
    * @return the simple JSON value tree.
    */
   public static Object toSimpleJson(Object obj) {
-    return treeToSimpleJson(toTree(obj));
+    return treeToSimpleJson(valueToJsonNodeTree(obj));
   }
 
   /**
