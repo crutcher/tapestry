@@ -46,8 +46,8 @@ public final class DoozerGraph implements HasToJsonString {
   public abstract static class Node<NodeType extends Node<NodeType, BodyType>, BodyType>
       implements HasToJsonString {
 
+    @JsonIgnore private NodeMeta<NodeType, BodyType> meta;
     @JsonIgnore @Nullable private DoozerGraph graph;
-    @JsonIgnore @Nullable private NodeMeta<NodeType, BodyType> meta;
 
     @Nonnull private final UUID id;
     @Nonnull private final String type;
@@ -127,7 +127,7 @@ public final class DoozerGraph implements HasToJsonString {
       /**
        * A Jackson serializer for Node. We use a custom serializer because {@code @Delegate} applied
        * to a method in subclasses to delegate the type methods of {@code body} does not honor
-       * [@code @JsonIgnore}, and we otherwise generate data fields for every getter in the body.
+       * {@code @JsonIgnore}, and we otherwise generate data fields for every getter in the body.
        *
        * @param <B> the type of the node body.
        */
@@ -160,9 +160,9 @@ public final class DoozerGraph implements HasToJsonString {
    */
   @Data
   public abstract static class NodeMeta<NodeType extends Node<NodeType, BodyType>, BodyType> {
-    private final Class<NodeType> nodeTypeClass;
-    private final Class<BodyType> bodyTypeClass;
-    private final String bodySchema;
+    @Nonnull private final Class<NodeType> nodeTypeClass;
+    @Nonnull private final Class<BodyType> bodyTypeClass;
+    @Nonnull private final String bodySchema;
 
     public final void validate(NodeType node) {
       validateNode(node);
@@ -239,7 +239,7 @@ public final class DoozerGraph implements HasToJsonString {
 
   @JsonSerialize(using = MapValueListUtil.MapSerializer.class)
   @JsonDeserialize(using = JacksonSupport.NodeListToMapDeserializer.class)
-  private final Map<UUID, Node> nodes = new HashMap<>();
+  private final Map<UUID, Node<?, ?>> nodes = new HashMap<>();
 
   public DoozerGraph deepCopy() {
     var graph = DoozerGraph.builder().env(env).id(id).build();
@@ -291,7 +291,7 @@ public final class DoozerGraph implements HasToJsonString {
    * @return the node.
    * @throws LookupError if the node does not exist.
    */
-  public Node assertNode(UUID id) {
+  public Node<?, ?> assertNode(UUID id) {
     var node = nodes.get(id);
     if (node == null) {
       throw new LookupError("Node not found: " + id);
@@ -306,7 +306,7 @@ public final class DoozerGraph implements HasToJsonString {
    * @return the node.
    * @throws LookupError if the node does not exist.
    */
-  public Node assertNode(String id) {
+  public Node<?, ?> assertNode(String id) {
     return assertNode(UUID.fromString(id));
   }
 
@@ -317,7 +317,8 @@ public final class DoozerGraph implements HasToJsonString {
    * @return the added Node.
    */
   @SuppressWarnings("unchecked")
-  public <N extends Node> N addNode(N node) {
+  public <NodeType extends Node<NodeType, BodyType>, BodyType> NodeType addNode(
+      Node<NodeType, BodyType> node) {
     if (hasNode(node.getId())) {
       throw new IllegalArgumentException("Node already exists: " + node.getId());
     }
@@ -329,7 +330,8 @@ public final class DoozerGraph implements HasToJsonString {
 
     if (node.getMeta() == null) {
       try {
-        node.setMeta(env.getNodeMetaFactory().getMeta(node.getType()));
+        node.setMeta(
+            (NodeMeta<NodeType, BodyType>) env.getNodeMetaFactory().getMeta(node.getType()));
       } catch (Exception e) {
         throw new IllegalArgumentException("Unknown node type: " + node.getType());
       }
@@ -337,7 +339,7 @@ public final class DoozerGraph implements HasToJsonString {
 
     nodes.put(node.getId(), node);
 
-    return node;
+    return (NodeType) node;
   }
 
   /**
@@ -365,9 +367,10 @@ public final class DoozerGraph implements HasToJsonString {
 
     /** Jackson deserializer for {@link DoozerGraph#nodes}. */
     public static class NodeListToMapDeserializer
-        extends MapValueListUtil.MapDeserializer<UUID, Node> {
+        extends MapValueListUtil.MapDeserializer<UUID, Node<?, ?>> {
+      @SuppressWarnings("unchecked")
       public NodeListToMapDeserializer() {
-        super(Node.class, Node::getId, HashMap.class);
+        super((Class<Node<?, ?>>) (Class<?>) Node.class, Node::getId, HashMap.class);
       }
     }
   }
