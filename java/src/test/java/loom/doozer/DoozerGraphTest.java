@@ -308,8 +308,9 @@ public class DoozerGraphTest extends BaseTestClass {
       return Body.class;
     }
 
+    @SuppressWarnings("unused")
     @Delegate
-    private Body delegateProvider() {
+    private Body _delegateProvider() {
       return getBody();
     }
   }
