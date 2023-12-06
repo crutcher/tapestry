@@ -1,5 +1,10 @@
 package loom.doozer;
 
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+import javax.annotation.Nonnull;
 import lombok.Builder;
 import lombok.Data;
 import lombok.experimental.Delegate;
@@ -12,12 +17,6 @@ import loom.doozer.nodes.TensorNode;
 import loom.testing.BaseTestClass;
 import loom.zspace.ZPoint;
 import org.junit.Test;
-
-import javax.annotation.Nonnull;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
 
 public class DoozerGraphTest extends BaseTestClass {
   @Test

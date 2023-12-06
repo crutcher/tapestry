@@ -1,9 +1,11 @@
 package loom.doozer;
 
-import java.util.UUID;
 import lombok.Builder;
 import lombok.Data;
 import loom.common.serialization.JsonUtil;
+import net.jimblackler.jsonschemafriend.SchemaStore;
+
+import java.util.UUID;
 
 /**
  * Loom Graph Environment.
@@ -13,6 +15,7 @@ import loom.common.serialization.JsonUtil;
 @Data
 @Builder
 public final class DoozerEnvironment {
+  private final SchemaStore schemaStore = new SchemaStore(true);
   private final DoozerGraph.NodeMetaFactory nodeMetaFactory;
 
   /**
