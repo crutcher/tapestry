@@ -104,6 +104,7 @@ public class DoozerGraphTest extends BaseTestClass {
 
     var env = DoozerGraph.GENERIC_ENV;
     var graph = env.graphFromJson(source);
+    graph.validate();
 
     assertThat(graph.assertNode("00000000-0000-0000-0000-000000000001"))
         .hasFieldOrPropertyWithValue("label", "foo")
@@ -160,6 +161,7 @@ public class DoozerGraphTest extends BaseTestClass {
             .build();
 
     var graph = env.graphFromJson(source);
+    graph.validate();
 
     assertThat(graph.assertNode("00000000-0000-0000-0000-000000000001"))
         .hasFieldOrPropertyWithValue("label", "foo")

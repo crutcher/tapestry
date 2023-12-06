@@ -1,4 +1,4 @@
-package loom.graph.validation;
+package loom.validation;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,8 +8,9 @@ import loom.common.HasToJsonString;
 import org.jetbrains.annotations.Nullable;
 
 /** Collects ValidationIssues. */
+@Getter
 public class ValidationIssueCollector implements HasToJsonString {
-  @Getter @Nullable private List<ValidationIssue> issues;
+  @Nullable private List<ValidationIssue> issues;
 
   /**
    * Check if the collector is empty.

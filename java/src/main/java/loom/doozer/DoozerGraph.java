@@ -8,12 +8,6 @@ import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import lombok.Builder;
 import lombok.Data;
 import lombok.ToString;
@@ -22,8 +16,14 @@ import loom.common.HasToJsonString;
 import loom.common.LookupError;
 import loom.common.serialization.JsonUtil;
 import loom.common.serialization.MapValueListUtil;
-import net.jimblackler.jsonschemafriend.SchemaStore;
 import net.jimblackler.jsonschemafriend.Validator;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 /** A Loom Graph document. */
 @Data
@@ -52,6 +52,18 @@ public final class DoozerGraph implements HasToJsonString {
     @Nonnull private final String type;
     @Nullable private String label;
     @Nonnull private BodyType body;
+
+    /**
+     * Get the graph that this node belongs to.
+     *
+     * @return the graph.
+     */
+    public DoozerGraph assertGraph() {
+      if (graph == null) {
+        throw new IllegalStateException("Node does not belong to a graph: " + id);
+      }
+      return graph;
+    }
 
     /**
      * Create a deep copy of this node.
@@ -165,15 +177,15 @@ public final class DoozerGraph implements HasToJsonString {
 
     public final void validate(NodeType node) {
       validateNode(node);
-      validateBodySchema(node.getBodyAsJson());
+      var graph = node.assertGraph();
+      validateBodySchema(graph.getEnv(), node.getBodyAsJson());
     }
 
     public void validateNode(NodeType node) {}
 
-    public final void validateBodySchema(String json) {
-      SchemaStore schemaStore = new SchemaStore();
+    public final void validateBodySchema(DoozerEnvironment env, String json) {
       try {
-        var schema = schemaStore.loadSchemaJson(getBodySchema());
+        var schema = env.getSchemaStore().loadSchemaJson(getBodySchema());
         var validator = new Validator();
         validator.validateJson(schema, json);
       } catch (Exception e) {
@@ -181,18 +193,17 @@ public final class DoozerGraph implements HasToJsonString {
       }
     }
 
-    public final NodeType nodeFromJson(String json) {
-      var node = JsonUtil.fromJson(json, getNodeTypeClass());
+    private NodeType adopt(NodeType node) {
       node.setMeta(this);
-      node.validate();
       return node;
     }
 
+    public final NodeType nodeFromJson(String json) {
+      return adopt(JsonUtil.fromJson(json, getNodeTypeClass()));
+    }
+
     public final NodeType nodeFromTree(Object tree) {
-      var node = JsonUtil.convertValue(tree, getNodeTypeClass());
-      node.setMeta(this);
-      node.validate();
-      return node;
+      return adopt(JsonUtil.convertValue(tree, getNodeTypeClass()));
     }
   }
 
@@ -239,6 +250,10 @@ public final class DoozerGraph implements HasToJsonString {
   @JsonSerialize(using = MapValueListUtil.MapSerializer.class)
   @JsonDeserialize(using = JacksonSupport.NodeListToMapDeserializer.class)
   private final Map<UUID, Node<?, ?>> nodes = new HashMap<>();
+
+  public void validate() {
+    env.validateGraph(this);
+  }
 
   public DoozerGraph deepCopy() {
     var graph = DoozerGraph.builder().env(env).id(id).build();

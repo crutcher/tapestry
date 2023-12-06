@@ -8,8 +8,8 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import lombok.Data;
 import loom.common.json.JsonPathUtils;
-import loom.graph.validation.ValidationIssue;
-import loom.graph.validation.ValidationIssueCollector;
+import loom.validation.ValidationIssue;
+import loom.validation.ValidationIssueCollector;
 import net.jimblackler.jsonschemafriend.*;
 
 @Data

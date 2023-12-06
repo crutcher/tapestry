@@ -1,4 +1,4 @@
-package loom.graph.validation;
+package loom.validation;
 
 import java.util.List;
 import java.util.Map;

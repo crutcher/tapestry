@@ -6,16 +6,20 @@ import java.util.HashSet;
 import java.util.Set;
 import lombok.Builder;
 import lombok.Data;
-import lombok.Getter;
+import lombok.EqualsAndHashCode;
+import lombok.Singular;
 import lombok.extern.jackson.Jacksonized;
 import loom.common.json.JsonPathUtils;
 import loom.common.serialization.JsonUtil;
 import loom.graph.Constants;
 import loom.graph.LoomGraph;
 import loom.graph.LoomGraphEnv;
-import loom.graph.validation.ValidationIssue;
-import loom.graph.validation.ValidationIssueCollector;
+import loom.validation.ValidationIssue;
+import loom.validation.ValidationIssueCollector;
 
+@Builder
+@EqualsAndHashCode(callSuper = false)
+@Data
 public class TensorNodeTypeBindings extends NodeTypeBindings {
 
   public static final String TENSOR_TYPE = Constants.LOOM_NS + "#types/tensor";
@@ -49,7 +53,7 @@ public class TensorNodeTypeBindings extends NodeTypeBindings {
     private String dtype;
   }
 
-  @Getter public Set<String> datatypes = new HashSet<>();
+  @Singular private final Set<String> datatypes = new HashSet<>();
 
   public TensorNodeTypeBindings() {
     super(TENSOR_TYPE, TENSOR_FIELD_SCHEMA);

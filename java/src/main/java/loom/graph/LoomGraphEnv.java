@@ -1,6 +1,7 @@
 package loom.graph;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.util.*;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -8,9 +9,9 @@ import lombok.Getter;
 import loom.common.LookupError;
 import loom.common.serialization.JsonUtil;
 import loom.graph.nodes.NodeTypeBindings;
-import loom.graph.validation.LoomValidationError;
-import loom.graph.validation.ValidationIssue;
-import loom.graph.validation.ValidationIssueCollector;
+import loom.validation.LoomValidationError;
+import loom.validation.ValidationIssue;
+import loom.validation.ValidationIssueCollector;
 
 /**
  * LoomGraph environment.
@@ -52,6 +53,7 @@ public class LoomGraphEnv {
    * @return the node type operations.
    * @param <T> the type of the node type operations.
    */
+  @CanIgnoreReturnValue
   public <T extends NodeTypeBindings> T addNodeTypeBindings(T ops) {
     typeOpsMap.put(ops.getType(), ops);
     return ops;
@@ -64,6 +66,7 @@ public class LoomGraphEnv {
    * @return the constraint.`
    * @param <T> the type of the constraint.
    */
+  @CanIgnoreReturnValue
   public <T extends GraphConstraint> T addConstraint(T constraint) {
     constraints.add(constraint);
     return constraint;

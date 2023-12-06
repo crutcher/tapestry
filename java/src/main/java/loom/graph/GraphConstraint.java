@@ -1,6 +1,6 @@
 package loom.graph;
 
-import loom.graph.validation.ValidationIssueCollector;
+import loom.validation.ValidationIssueCollector;
 
 @FunctionalInterface
 public interface GraphConstraint {

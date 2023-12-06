@@ -6,8 +6,8 @@ import lombok.Data;
 import loom.common.serialization.JsonUtil;
 import loom.graph.LoomGraph;
 import loom.graph.LoomGraphEnv;
-import loom.graph.validation.ValidationIssue;
-import loom.graph.validation.ValidationIssueCollector;
+import loom.validation.ValidationIssue;
+import loom.validation.ValidationIssueCollector;
 
 /**
  * Node type operations.

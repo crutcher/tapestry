@@ -12,8 +12,8 @@ import loom.common.serialization.JsonUtil;
 import loom.graph.Constants;
 import loom.graph.LoomGraph;
 import loom.graph.LoomGraphEnv;
-import loom.graph.validation.ValidationIssue;
-import loom.graph.validation.ValidationIssueCollector;
+import loom.validation.ValidationIssue;
+import loom.validation.ValidationIssueCollector;
 
 public class OperationNodeTypeBindings extends NodeTypeBindings {
   public static final String OPERATION_TYPE = Constants.LOOM_NS + "#types/operation";

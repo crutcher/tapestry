@@ -64,6 +64,7 @@ public final class TensorNode extends DoozerGraph.Node<TensorNode, TensorNode.Bo
   }
 
   /** Exists to support {@code @Delegate} for {@code getBody()}. */
+  @SuppressWarnings("unused")
   @Delegate
   private Body delegateProvider() {
     return getBody();

@@ -2,9 +2,13 @@ package loom.doozer;
 
 import lombok.Builder;
 import lombok.Data;
+import lombok.Singular;
 import loom.common.serialization.JsonUtil;
 import net.jimblackler.jsonschemafriend.SchemaStore;
 
+import javax.annotation.Nonnull;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -15,8 +19,16 @@ import java.util.UUID;
 @Data
 @Builder
 public final class DoozerEnvironment {
-  private final SchemaStore schemaStore = new SchemaStore(true);
-  private final DoozerGraph.NodeMetaFactory nodeMetaFactory;
+  @FunctionalInterface
+  public interface Constraint {
+    void check(DoozerEnvironment env, DoozerGraph graph);
+  }
+
+  @Nonnull private final DoozerGraph.NodeMetaFactory nodeMetaFactory;
+
+  @Builder.Default private final SchemaStore schemaStore = new SchemaStore(true);
+
+  @Singular @Nonnull private final List<Constraint> constraints = new ArrayList<>();
 
   /**
    * Load a graph from a JSON string in this environment.
@@ -45,6 +57,16 @@ public final class DoozerEnvironment {
     }
 
     return graph;
+  }
+
+  public void validateGraph(DoozerGraph graph) {
+    for (var node : graph.getNodes().values()) {
+      node.validate();
+    }
+
+    for (var constraint : constraints) {
+      constraint.check(this, graph);
+    }
   }
 
   /**

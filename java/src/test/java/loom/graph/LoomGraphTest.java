@@ -5,9 +5,9 @@ import java.util.List;
 import java.util.Map;
 import loom.common.serialization.JsonUtil;
 import loom.graph.nodes.TensorNodeTypeBindings;
-import loom.graph.validation.LoomValidationError;
-import loom.graph.validation.ValidationIssue;
 import loom.testing.BaseTestClass;
+import loom.validation.LoomValidationError;
+import loom.validation.ValidationIssue;
 import org.junit.Test;
 
 public class LoomGraphTest extends BaseTestClass {

@@ -1,4 +1,4 @@
-package loom.graph.validation;
+package loom.validation;
 
 import loom.testing.BaseTestClass;
 import org.junit.Test;
