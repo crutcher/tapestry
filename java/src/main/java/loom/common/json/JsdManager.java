@@ -1,7 +1,6 @@
 package loom.common.json;
 
 import lombok.Data;
-import loom.graph.Constants;
 import loom.validation.ValidationIssue;
 import loom.validation.ValidationIssueCollector;
 import net.jimblackler.jsonschemafriend.*;
@@ -15,6 +14,7 @@ import java.util.Objects;
 
 @Data
 public class JsdManager {
+  public final String JSD_ERROR = "JSD_ERROR";
   private final SchemaStore schemaStore;
 
   public JsdManager(@Nullable SchemaStore schemaStore) {
@@ -95,7 +95,7 @@ public class JsdManager {
 
       issueCollector.add(
           ValidationIssue.builder()
-              .type(Constants.JSD_ERROR)
+              .type(JSD_ERROR)
               .param("error", error.getClass().getSimpleName())
               .summary(summary)
               .contexts(contextList));
