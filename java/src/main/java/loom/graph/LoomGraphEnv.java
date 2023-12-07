@@ -7,6 +7,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import lombok.Getter;
 import loom.common.LookupError;
+import loom.common.json.JsdManager;
 import loom.common.serialization.JsonUtil;
 import loom.graph.nodes.NodeTypeBindings;
 import loom.validation.LoomValidationError;

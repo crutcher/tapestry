@@ -1,16 +1,17 @@
-package loom.graph;
+package loom.common.json;
 
+import lombok.Data;
+import loom.graph.Constants;
+import loom.validation.ValidationIssue;
+import loom.validation.ValidationIssueCollector;
+import net.jimblackler.jsonschemafriend.*;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import lombok.Data;
-import loom.common.json.JsonPathUtils;
-import loom.validation.ValidationIssue;
-import loom.validation.ValidationIssueCollector;
-import net.jimblackler.jsonschemafriend.*;
 
 @Data
 public class JsdManager {
