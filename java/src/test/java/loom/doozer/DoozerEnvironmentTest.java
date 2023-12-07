@@ -1,12 +1,20 @@
 package loom.doozer;
 
-import static org.junit.Assert.*;
-
 import loom.doozer.nodes.TensorNode;
 import loom.testing.BaseTestClass;
 import org.junit.Test;
 
 public class DoozerEnvironmentTest extends BaseTestClass {
+  @Test
+  public void testCreateGraph() {
+    var env = DoozerGraph.GENERIC_ENV;
+    var graph = env.createGraph();
+
+    assertThat(graph).hasFieldOrPropertyWithValue("env", env).isNotNull();
+
+    assertThat(graph.getId()).isNotNull();
+  }
+
   @Test
   public void testGraphFromJson() {
     var source =

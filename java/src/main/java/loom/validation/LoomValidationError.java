@@ -1,10 +1,9 @@
 package loom.validation;
 
-import lombok.Getter;
-
-import javax.annotation.Nonnull;
 import java.io.Serial;
 import java.util.List;
+import javax.annotation.Nonnull;
+import lombok.Getter;
 
 @Getter
 public final class LoomValidationError extends RuntimeException {

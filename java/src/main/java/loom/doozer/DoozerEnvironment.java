@@ -1,15 +1,14 @@
 package loom.doozer;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+import javax.annotation.Nonnull;
 import lombok.Builder;
 import lombok.Data;
 import lombok.Singular;
 import loom.common.serialization.JsonUtil;
 import net.jimblackler.jsonschemafriend.SchemaStore;
-
-import javax.annotation.Nonnull;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
 
 /**
  * Loom Graph Environment.
@@ -76,5 +75,9 @@ public final class DoozerEnvironment {
    */
   public DoozerGraph.DoozerGraphBuilder graphBuilder() {
     return DoozerGraph.builder().env(this);
+  }
+
+  public DoozerGraph createGraph() {
+    return graphBuilder().id(UUID.randomUUID()).env(this).build();
   }
 }

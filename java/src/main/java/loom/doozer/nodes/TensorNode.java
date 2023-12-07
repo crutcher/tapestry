@@ -1,6 +1,5 @@
 package loom.doozer.nodes;
 
-import javax.annotation.Nonnull;
 import lombok.Builder;
 import lombok.Data;
 import lombok.experimental.Delegate;
@@ -8,6 +7,8 @@ import lombok.experimental.SuperBuilder;
 import lombok.extern.jackson.Jacksonized;
 import loom.doozer.DoozerGraph;
 import loom.zspace.ZPoint;
+
+import javax.annotation.Nonnull;
 
 @Jacksonized
 @SuperBuilder
@@ -62,6 +63,8 @@ public final class TensorNode extends DoozerGraph.Node<TensorNode, TensorNode.Bo
       }
     }
   }
+
+  public static final Meta META = new Meta();
 
   /** Exists to support {@code @Delegate} for {@code getBody()}. */
   @SuppressWarnings("unused")
