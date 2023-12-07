@@ -1,8 +1,8 @@
 package loom.demo;
 
-import loom.doozer.DoozerEnvironment;
-import loom.doozer.TypeMapNodeMetaFactory;
-import loom.doozer.nodes.TensorNode;
+import loom.graph.LoomEnvironment;
+import loom.graph.nodes.TensorNode;
+import loom.graph.nodes.TypeMapNodeMetaFactory;
 import loom.testing.BaseTestClass;
 import loom.zspace.ZPoint;
 import org.junit.Test;
@@ -11,7 +11,7 @@ public class DemoTest extends BaseTestClass {
   @Test
   public void testDemo() {
     var env =
-        DoozerEnvironment.builder()
+        LoomEnvironment.builder()
             .nodeMetaFactory(
                 TypeMapNodeMetaFactory.builder()
                     .typeMapping(TensorNode.Meta.TYPE, TensorNode.META)

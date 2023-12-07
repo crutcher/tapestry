@@ -1,18 +1,18 @@
-package loom.doozer.nodes;
+package loom.graph.nodes;
 
 import lombok.Builder;
 import lombok.Data;
 import lombok.experimental.Delegate;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.jackson.Jacksonized;
-import loom.doozer.DoozerGraph;
+import loom.graph.LoomGraph;
 import loom.zspace.ZPoint;
 
 import javax.annotation.Nonnull;
 
 @Jacksonized
 @SuperBuilder
-public final class TensorNode extends DoozerGraph.Node<TensorNode, TensorNode.Body> {
+public final class TensorNode extends LoomGraph.Node<TensorNode, TensorNode.Body> {
   @Data
   @Jacksonized
   @Builder
@@ -27,7 +27,7 @@ public final class TensorNode extends DoozerGraph.Node<TensorNode, TensorNode.Bo
     return Body.class;
   }
 
-  public static class Meta extends DoozerGraph.NodeMeta<TensorNode, Body> {
+  public static class Meta extends LoomGraph.NodeMeta<TensorNode, Body> {
     public static final String TYPE = "TreeNode";
 
     public static final String BODY_SCHEMA =

@@ -1,21 +1,22 @@
-package loom.doozer.nodes;
+package loom.graph.nodes;
 
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
-import java.util.Map;
 import lombok.Builder;
 import lombok.Data;
 import lombok.Singular;
 import lombok.experimental.Delegate;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.jackson.Jacksonized;
-import loom.doozer.DoozerGraph;
+import loom.graph.LoomGraph;
+
+import java.util.Map;
 
 @Jacksonized
 @SuperBuilder
-public final class GenericNode extends DoozerGraph.Node<GenericNode, GenericNode.Body> {
+public final class GenericNode extends LoomGraph.Node<GenericNode, GenericNode.Body> {
   @Data
   @Builder
   public static class Body {
@@ -43,7 +44,7 @@ public final class GenericNode extends DoozerGraph.Node<GenericNode, GenericNode
     return Body.class;
   }
 
-  public static final class Meta extends DoozerGraph.NodeMeta<GenericNode, Body> {
+  public static final class Meta extends LoomGraph.NodeMeta<GenericNode, Body> {
     public static final String BODY_SCHEMA =
         """
                 {
@@ -62,6 +63,7 @@ public final class GenericNode extends DoozerGraph.Node<GenericNode, GenericNode
   public static final Meta META = new Meta();
 
   /** Exists to support {@code @Delegate} for {@code getBody()}. */
+  @SuppressWarnings("unused")
   @Delegate
   private Body delegateProvider() {
     return getBody();

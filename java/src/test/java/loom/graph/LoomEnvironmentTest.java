@@ -1,13 +1,14 @@
-package loom.doozer;
+package loom.graph;
 
-import loom.doozer.nodes.TensorNode;
+import loom.graph.nodes.TensorNode;
+import loom.graph.nodes.TypeMapNodeMetaFactory;
 import loom.testing.BaseTestClass;
 import org.junit.Test;
 
-public class DoozerEnvironmentTest extends BaseTestClass {
+public class LoomEnvironmentTest extends BaseTestClass {
   @Test
   public void testCreateGraph() {
-    var env = DoozerGraph.GENERIC_ENV;
+    var env = LoomGraph.GENERIC_ENV;
     var graph = env.createGraph();
 
     assertThat(graph).hasFieldOrPropertyWithValue("env", env).isNotNull();
@@ -36,7 +37,7 @@ public class DoozerEnvironmentTest extends BaseTestClass {
                 """;
 
     var env =
-        DoozerEnvironment.builder()
+        LoomEnvironment.builder()
             .nodeMetaFactory(
                 TypeMapNodeMetaFactory.builder()
                     .typeMapping(TensorNode.Meta.TYPE, new TensorNode.Meta())

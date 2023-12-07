@@ -1,4 +1,4 @@
-package loom.doozer;
+package loom.graph;
 
 import java.util.List;
 import java.util.Map;
@@ -12,25 +12,27 @@ import lombok.experimental.SuperBuilder;
 import lombok.extern.jackson.Jacksonized;
 import loom.common.LookupError;
 import loom.common.serialization.JsonUtil;
-import loom.doozer.nodes.GenericNode;
-import loom.doozer.nodes.TensorNode;
+import loom.graph.nodes.GenericNode;
+import loom.graph.nodes.GenericNodeMetaFactory;
+import loom.graph.nodes.TensorNode;
+import loom.graph.nodes.TypeMapNodeMetaFactory;
 import loom.testing.BaseTestClass;
 import loom.zspace.ZPoint;
 import org.junit.Test;
 
-public class DoozerGraphTest extends BaseTestClass {
+public class LoomGraphTest extends BaseTestClass {
   @Test
   public void testDefaultGraph() {
     var id = UUID.randomUUID();
-    var graph = DoozerGraph.builder().id(id).build();
+    var graph = LoomGraph.builder().id(id).build();
 
     assertThat(graph.getId()).isEqualTo(id);
-    assertThat(graph.getEnv()).isSameAs(DoozerGraph.GENERIC_ENV);
+    assertThat(graph.getEnv()).isSameAs(LoomGraph.GENERIC_ENV);
   }
 
   @Test
   public void testNewUnusedNodeId() {
-    var graph = DoozerGraph.GENERIC_ENV.graphBuilder().build();
+    var graph = LoomGraph.GENERIC_ENV.graphBuilder().build();
 
     for (int i = 0; i < 10; i++) {
       graph.addNode(
@@ -45,7 +47,7 @@ public class DoozerGraphTest extends BaseTestClass {
 
   @Test
   public void testHasAssertAddNode() {
-    var graph = DoozerGraph.builder().build();
+    var graph = LoomGraph.builder().build();
 
     var nodeIdA = UUID.randomUUID();
 
@@ -102,7 +104,7 @@ public class DoozerGraphTest extends BaseTestClass {
         }
         """;
 
-    var env = DoozerGraph.GENERIC_ENV;
+    var env = LoomGraph.GENERIC_ENV;
     var graph = env.graphFromJson(source);
     graph.validate();
 
@@ -153,7 +155,7 @@ public class DoozerGraphTest extends BaseTestClass {
             """;
 
     var env =
-        DoozerEnvironment.builder()
+        LoomEnvironment.builder()
             .nodeMetaFactory(
                 TypeMapNodeMetaFactory.builder()
                     .typeMapping(TensorNode.Meta.TYPE, new TensorNode.Meta())
@@ -296,7 +298,7 @@ public class DoozerGraphTest extends BaseTestClass {
 
   @Jacksonized
   @SuperBuilder
-  public static class DemoNode extends DoozerGraph.Node<DemoNode, DemoNode.Body> {
+  public static class DemoNode extends LoomGraph.Node<DemoNode, DemoNode.Body> {
     @Data
     @Jacksonized
     @Builder
@@ -316,7 +318,7 @@ public class DoozerGraphTest extends BaseTestClass {
     }
   }
 
-  public static class DemoNodeMeta extends DoozerGraph.NodeMeta<DemoNode, DemoNode.Body> {
+  public static class DemoNodeMeta extends LoomGraph.NodeMeta<DemoNode, DemoNode.Body> {
     public static final String TYPE = "DemoNode";
 
     public static final String BODY_SCHEMA =
@@ -351,7 +353,7 @@ public class DoozerGraphTest extends BaseTestClass {
   @Test
   public void testNode() {
     var env =
-        DoozerEnvironment.builder()
+        LoomEnvironment.builder()
             .nodeMetaFactory(
                 TypeMapNodeMetaFactory.builder()
                     .typeMapping(DemoNodeMeta.TYPE, new DemoNodeMeta())
@@ -436,7 +438,7 @@ public class DoozerGraphTest extends BaseTestClass {
     TypeMapNodeMetaFactory metaFactory =
         TypeMapNodeMetaFactory.builder().typeMapping(DemoNodeMeta.TYPE, new DemoNodeMeta()).build();
 
-    var env = DoozerEnvironment.builder().nodeMetaFactory(metaFactory).build();
+    var env = LoomEnvironment.builder().nodeMetaFactory(metaFactory).build();
 
     var graph = env.graphBuilder().build();
 

@@ -1,14 +1,15 @@
-package loom.doozer;
+package loom.graph;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
-import javax.annotation.Nonnull;
 import lombok.Builder;
 import lombok.Data;
 import lombok.Singular;
 import loom.common.serialization.JsonUtil;
 import net.jimblackler.jsonschemafriend.SchemaStore;
+
+import javax.annotation.Nonnull;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 /**
  * Loom Graph Environment.
@@ -17,13 +18,13 @@ import net.jimblackler.jsonschemafriend.SchemaStore;
  */
 @Data
 @Builder
-public final class DoozerEnvironment {
+public final class LoomEnvironment {
   @FunctionalInterface
   public interface Constraint {
-    void check(DoozerEnvironment env, DoozerGraph graph);
+    void check(LoomEnvironment env, LoomGraph graph);
   }
 
-  @Nonnull private final DoozerGraph.NodeMetaFactory nodeMetaFactory;
+  @Nonnull private final LoomGraph.NodeMetaFactory nodeMetaFactory;
 
   @Builder.Default private final SchemaStore schemaStore = new SchemaStore(true);
 
@@ -35,10 +36,10 @@ public final class DoozerEnvironment {
    * @param json the JSON string.
    * @return the graph.
    */
-  public DoozerGraph graphFromJson(String json) {
+  public LoomGraph graphFromJson(String json) {
     var tree = JsonUtil.parseToJsonNodeTree(json);
 
-    var graph = DoozerGraph.builder().env(this).build();
+    var graph = LoomGraph.builder().env(this).build();
 
     for (var entry : tree.properties()) {
       var key = entry.getKey();
@@ -58,7 +59,7 @@ public final class DoozerEnvironment {
     return graph;
   }
 
-  public void validateGraph(DoozerGraph graph) {
+  public void validateGraph(LoomGraph graph) {
     for (var node : graph.getNodes().values()) {
       node.validate();
     }
@@ -73,11 +74,11 @@ public final class DoozerEnvironment {
    *
    * @return the builder.
    */
-  public DoozerGraph.DoozerGraphBuilder graphBuilder() {
-    return DoozerGraph.builder().env(this);
+  public LoomGraph.LoomGraphBuilder graphBuilder() {
+    return LoomGraph.builder().env(this);
   }
 
-  public DoozerGraph createGraph() {
+  public LoomGraph createGraph() {
     return graphBuilder().id(UUID.randomUUID()).env(this).build();
   }
 }

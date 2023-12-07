@@ -1,4 +1,4 @@
-package loom.doozer;
+package loom.graph;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -8,12 +8,6 @@ import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import lombok.Builder;
 import lombok.Data;
 import lombok.ToString;
@@ -22,13 +16,21 @@ import loom.common.HasToJsonString;
 import loom.common.LookupError;
 import loom.common.serialization.JsonUtil;
 import loom.common.serialization.MapValueListUtil;
+import loom.graph.nodes.GenericNodeMetaFactory;
 import net.jimblackler.jsonschemafriend.Validator;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 /** A Loom Graph document. */
 @Data
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public final class DoozerGraph implements HasToJsonString {
+public final class LoomGraph implements HasToJsonString {
 
   /**
    * Base class for a node in the graph.
@@ -45,7 +47,7 @@ public final class DoozerGraph implements HasToJsonString {
       implements HasToJsonString {
 
     @JsonIgnore private NodeMeta<NodeType, BodyType> meta;
-    @JsonIgnore @Nullable private DoozerGraph graph;
+    @JsonIgnore @Nullable private LoomGraph graph;
 
     @Nonnull private final UUID id;
     @Nonnull private final String type;
@@ -57,7 +59,7 @@ public final class DoozerGraph implements HasToJsonString {
      *
      * @return the graph.
      */
-    public DoozerGraph assertGraph() {
+    public LoomGraph assertGraph() {
       if (graph == null) {
         throw new IllegalStateException("Node does not belong to a graph: " + id);
       }
@@ -182,7 +184,7 @@ public final class DoozerGraph implements HasToJsonString {
 
     public void validateNode(NodeType node) {}
 
-    public final void validateBodySchema(DoozerEnvironment env, String json) {
+    public final void validateBodySchema(LoomEnvironment env, String json) {
       try {
         var schema = env.getSchemaStore().loadSchemaJson(getBodySchema());
         var validator = new Validator();
@@ -239,10 +241,10 @@ public final class DoozerGraph implements HasToJsonString {
     }
   }
 
-  public static final DoozerEnvironment GENERIC_ENV =
-      DoozerEnvironment.builder().nodeMetaFactory(new GenericNodeMetaFactory()).build();
+  public static final LoomEnvironment GENERIC_ENV =
+      LoomEnvironment.builder().nodeMetaFactory(new GenericNodeMetaFactory()).build();
 
-  @JsonIgnore @Builder.Default private final DoozerEnvironment env = GENERIC_ENV;
+  @JsonIgnore @Builder.Default private final LoomEnvironment env = GENERIC_ENV;
 
   @Nullable private UUID id;
 
@@ -254,8 +256,8 @@ public final class DoozerGraph implements HasToJsonString {
     env.validateGraph(this);
   }
 
-  public DoozerGraph deepCopy() {
-    var graph = DoozerGraph.builder().env(env).id(id).build();
+  public LoomGraph deepCopy() {
+    var graph = LoomGraph.builder().env(env).id(id).build();
 
     for (var node : nodes.values()) {
       graph.addNode(node.deepCopy());
@@ -378,7 +380,7 @@ public final class DoozerGraph implements HasToJsonString {
   public static class JacksonSupport {
     private JacksonSupport() {}
 
-    /** Jackson deserializer for {@link DoozerGraph#nodes}. */
+    /** Jackson deserializer for {@link LoomGraph#nodes}. */
     public static class NodeListToMapDeserializer
         extends MapValueListUtil.MapDeserializer<UUID, Node<?, ?>> {
       @SuppressWarnings("unchecked")
