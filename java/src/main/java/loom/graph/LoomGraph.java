@@ -8,6 +8,12 @@ import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import lombok.Builder;
 import lombok.Data;
 import lombok.ToString;
@@ -19,13 +25,6 @@ import loom.common.serialization.JsonUtil;
 import loom.common.serialization.MapValueListUtil;
 import loom.graph.nodes.GenericNodeMetaFactory;
 import loom.validation.ValidationIssue;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
 
 /** A Loom Graph document. */
 @Data
@@ -302,6 +301,13 @@ public final class LoomGraph implements HasToJsonString {
   @JsonDeserialize(using = JacksonSupport.NodeListToMapDeserializer.class)
   private final Map<UUID, Node<?, ?>> nodes = new HashMap<>();
 
+  /**
+   * Validate the graph.
+   *
+   * <p>Validates the graph against the environment.
+   *
+   * @throws loom.validation.LoomValidationError if the graph is invalid.
+   */
   public void validate() {
     env.validateGraph(this);
   }

@@ -1,14 +1,15 @@
 package loom.graph;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
-import javax.annotation.Nonnull;
 import lombok.Builder;
 import lombok.Data;
 import lombok.Singular;
 import loom.common.json.JsonSchemaManager;
 import loom.common.serialization.JsonUtil;
+
+import javax.annotation.Nonnull;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 /**
  * Loom Graph Environment.
@@ -58,6 +59,12 @@ public final class LoomEnvironment {
     return graph;
   }
 
+  /**
+   * Validate a graph in this environment.
+   *
+   * @param graph the graph to validate.
+   * @throws loom.validation.LoomValidationError if the graph is invalid.
+   */
   public void validateGraph(LoomGraph graph) {
     for (var node : graph.getNodes().values()) {
       node.validate();

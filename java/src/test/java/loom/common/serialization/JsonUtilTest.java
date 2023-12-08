@@ -1,16 +1,17 @@
 package loom.common.serialization;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 import lombok.Value;
 import loom.testing.CommonAssertions;
 import org.junit.Test;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 public class JsonUtilTest implements CommonAssertions {
 
   @Value
-  public static class Example {
+  public static class ExampleClass {
     public String a;
     public int b;
   }
@@ -27,15 +28,15 @@ public class JsonUtilTest implements CommonAssertions {
     assertThat(JsonUtil.toPrettyJson(obj))
         .isEqualTo(
             """
-                                {
-                                  "a" : "a",
-                                  "b" : 1
-                                }""");
+            {
+              "a" : "a",
+              "b" : 1
+            }""");
   }
 
   @Test
   public void testToSimpleJson() {
-    var example = new Example("hello", 3);
+    var example = new ExampleClass("hello", 3);
 
     assertThat(JsonUtil.toSimpleJson(List.of(example)))
         .isEqualTo(List.of(Map.of("a", "hello", "b", 3)));
