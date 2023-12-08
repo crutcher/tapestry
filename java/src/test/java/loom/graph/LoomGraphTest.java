@@ -461,10 +461,10 @@ public class LoomGraphTest extends BaseTestClass {
     var meta = node.getMeta();
     assertThat(meta).isInstanceOf(DemoNodeMeta.class);
 
-    assertThat(metaFactory.getMeta(DemoNodeMeta.TYPE)).isInstanceOf(DemoNodeMeta.class);
-    assertThat(metaFactory.getMeta(DemoNodeMeta.TYPE).nodeFromJson(node.toJsonString()))
+    assertThat(metaFactory.getMetaForType(DemoNodeMeta.TYPE)).isInstanceOf(DemoNodeMeta.class);
+    assertThat(metaFactory.getMetaForType(DemoNodeMeta.TYPE).nodeFromJson(node.toJsonString()))
         .isInstanceOf(DemoNode.class);
-    assertThat(metaFactory.getMeta(DemoNodeMeta.TYPE).nodeFromTree(node))
+    assertThat(metaFactory.getMetaForType(DemoNodeMeta.TYPE).nodeFromTree(node))
         .isInstanceOf(DemoNode.class);
 
     {

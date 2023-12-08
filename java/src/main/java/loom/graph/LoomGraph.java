@@ -8,12 +8,6 @@ import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import lombok.Builder;
 import lombok.Data;
 import lombok.ToString;
@@ -25,6 +19,13 @@ import loom.common.serialization.JsonUtil;
 import loom.common.serialization.MapValueListUtil;
 import loom.graph.nodes.GenericNodeMetaFactory;
 import loom.validation.ValidationIssue;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 /** A Loom Graph document. */
 @Data
@@ -265,7 +266,7 @@ public final class LoomGraph implements HasToJsonString {
      * @param type the node type.
      * @return the node meta, or null if not found.
      */
-    public abstract NodeMeta<?, ?> getMeta(String type);
+    public abstract NodeMeta<?, ?> getMetaForType(String type);
 
     /**
      * Parse a node from a JSON string, using the node type in the JSON.
@@ -285,7 +286,7 @@ public final class LoomGraph implements HasToJsonString {
      */
     public final Node<?, ?> nodeFromTree(JsonNode tree) {
       var type = tree.get("type").asText();
-      var meta = getMeta(type);
+      var meta = getMetaForType(type);
       return meta.nodeFromTree(tree);
     }
   }
@@ -395,7 +396,7 @@ public final class LoomGraph implements HasToJsonString {
     if (node.getMeta() == null) {
       try {
         node.setMeta(
-            (NodeMeta<NodeType, BodyType>) env.getNodeMetaFactory().getMeta(node.getType()));
+            (NodeMeta<NodeType, BodyType>) env.getNodeMetaFactory().getMetaForType(node.getType()));
       } catch (Exception e) {
         throw new IllegalArgumentException("Unknown node type: " + node.getType());
       }

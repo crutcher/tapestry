@@ -14,7 +14,7 @@ public final class TypeMapNodeMetaFactory extends LoomGraph.NodeMetaFactory {
   @Singular private final Map<String, LoomGraph.NodeMeta<?, ?>> typeMappings;
 
   @Override
-  public LoomGraph.NodeMeta<?, ?> getMeta(String type) {
+  public LoomGraph.NodeMeta<?, ?> getMetaForType(String type) {
     return typeMappings.get(type);
   }
 }
