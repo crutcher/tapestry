@@ -84,6 +84,10 @@ public final class LoomEnvironment {
     return LoomGraph.builder().env(this);
   }
 
+  /**
+   * Create a new graph with this environment.
+   * @return the graph.
+   */
   public LoomGraph createGraph() {
     return graphBuilder().id(UUID.randomUUID()).env(this).build();
   }
