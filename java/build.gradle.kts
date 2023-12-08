@@ -4,9 +4,10 @@ plugins {
     java
 
     id("net.ltgt.errorprone") version "3.1.0"
-    id("com.diffplug.spotless") version "6.18.0"
-    id("io.freefair.lombok") version "8.0.1"
+    id("com.diffplug.spotless") version "6.23.3"
+    id("io.freefair.lombok") version "8.4"
     id("me.champeau.jmh") version "0.7.1"
+
 
     id("idea")
 
@@ -30,8 +31,8 @@ repositories {
 }
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_17
-    targetCompatibility = JavaVersion.VERSION_17
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
 
     // toolchain {
     //   languageVersion.set(JavaLanguageVersion.of(17))
@@ -102,7 +103,7 @@ dependencies {
 
 
     // Set up ErrorProne deps for lint.
-    errorprone("com.google.errorprone:error_prone_core:2.20.0")
+    errorprone("com.google.errorprone:error_prone_core:2.23.0")
 
     // Logging.
     implementation("org.slf4j:slf4j-simple:2.0.7")
