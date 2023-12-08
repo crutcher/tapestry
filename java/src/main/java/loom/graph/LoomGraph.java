@@ -8,23 +8,23 @@ import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import lombok.Builder;
 import lombok.Data;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 import loom.common.HasToJsonString;
 import loom.common.LookupError;
+import loom.common.json.JsonPathUtils;
 import loom.common.serialization.JsonUtil;
 import loom.common.serialization.MapValueListUtil;
 import loom.graph.nodes.GenericNodeMetaFactory;
-import net.jimblackler.jsonschemafriend.Validator;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import loom.validation.ValidationIssue;
 
 /** A Loom Graph document. */
 @Data
@@ -53,6 +53,11 @@ public final class LoomGraph implements HasToJsonString {
     @Nonnull private final String type;
     @Nullable private String label;
     @Nonnull private BodyType body;
+
+    @JsonIgnore
+    public String getJsonPath() {
+      return "$.nodes[@.id=='%s']".formatted(getId());
+    }
 
     /**
      * Get the graph that this node belongs to.
@@ -179,20 +184,31 @@ public final class LoomGraph implements HasToJsonString {
     public final void validate(NodeType node) {
       validateNode(node);
       var graph = node.assertGraph();
-      validateBodySchema(graph.getEnv(), node.getBodyAsJson());
+      var env = graph.getEnv();
+
+      var bodySchema = getBodySchema();
+
+      env.getJsonSchemaManager()
+          .issueScan()
+          .type("NodeValidationError")
+          .param("nodeType", node.getType())
+          .jpathPrefix(JsonPathUtils.concatJsonPath(node.getJsonPath() + ".body"))
+          .schemaSource(bodySchema)
+          .json(node.getBodyAsJson())
+          .context(
+              ValidationIssue.Context.builder()
+                  .name("Node")
+                  .jsonpath(node.getJsonPath())
+                  .jsonData(node.toPrettyJsonString())
+                  .build())
+          .context(
+              ValidationIssue.Context.builder().name("Body Schema").jsonData(bodySchema).build())
+          .build()
+          .scan()
+          .check();
     }
 
     public void validateNode(NodeType node) {}
-
-    public final void validateBodySchema(LoomEnvironment env, String json) {
-      try {
-        var schema = env.getSchemaStore().loadSchemaJson(getBodySchema());
-        var validator = new Validator();
-        validator.validateJson(schema, json);
-      } catch (Exception e) {
-        throw new RuntimeException(e);
-      }
-    }
 
     private NodeType adopt(NodeType node) {
       node.setMeta(this);

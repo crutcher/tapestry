@@ -1,5 +1,6 @@
 package loom.graph.nodes;
 
+import javax.annotation.Nonnull;
 import lombok.Builder;
 import lombok.Data;
 import lombok.experimental.Delegate;
@@ -7,8 +8,6 @@ import lombok.experimental.SuperBuilder;
 import lombok.extern.jackson.Jacksonized;
 import loom.graph.LoomGraph;
 import loom.zspace.ZPoint;
-
-import javax.annotation.Nonnull;
 
 @Jacksonized
 @SuperBuilder

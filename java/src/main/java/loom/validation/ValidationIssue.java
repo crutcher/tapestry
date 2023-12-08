@@ -1,5 +1,7 @@
 package loom.validation;
 
+import com.google.common.annotations.VisibleForTesting;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -153,18 +155,11 @@ public final class ValidationIssue {
 
   @Singular private final List<Context> contexts;
 
-  /**
-   * Format the type and params as a string.
-   *
-   * @return the formatted string.
-   */
-  public String typeDescription() {
-    var sb = new StringBuilder();
-    sb.append(type);
-    if (params != null && !params.isEmpty()) {
-      sb.append(new TreeMap<>(params));
-    }
-    return sb.toString();
+  @VisibleForTesting
+  String paramsToString() {
+    var parts = new ArrayList<String>();
+    new TreeMap<>(params).forEach((k, v) -> parts.add("   └> %s: %s".formatted(k, v)));
+    return String.join("\n", parts);
   }
 
   /**
@@ -174,7 +169,10 @@ public final class ValidationIssue {
    */
   public String toDisplayString() {
     var sb = new StringBuilder();
-    sb.append("* Error [").append(typeDescription()).append("]: ").append(summary);
+    sb.append("* Error [").append(type).append("]: ").append(summary);
+    if (params != null && !params.isEmpty()) {
+      sb.append("\n").append(paramsToString()).append("\n");
+    }
 
     if (message != null) {
       sb.append("\n").append(IndentUtils.reindent(2, message));

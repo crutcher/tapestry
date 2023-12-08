@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
+import java.util.Map;
 import lombok.Builder;
 import lombok.Data;
 import lombok.Singular;
@@ -11,8 +12,6 @@ import lombok.experimental.Delegate;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.jackson.Jacksonized;
 import loom.graph.LoomGraph;
-
-import java.util.Map;
 
 @Jacksonized
 @SuperBuilder

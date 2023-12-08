@@ -52,7 +52,10 @@ public class ValidationIssueTest extends BaseTestClass {
 
     var lines =
         List.of(
-            "* Error [foo{foo=bar, type=qux}]: Foo bar",
+            "* Error [foo]: Foo bar",
+            "   └> foo: bar",
+            "   └> type: qux",
+            "",
             "  I like the night life",
             "  I like to boogie",
             "",
