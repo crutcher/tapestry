@@ -82,8 +82,10 @@ public class JsonSchemaManager {
   }
 
   @Builder
-  public static class IssueScan {
-    @Builder.Default private final String type = JSD_ERROR;
+  public static final class IssueScan {
+    @Builder.Default private String type = JSD_ERROR;
+
+    @Builder.Default private String summaryPrefix = null;
 
     @Singular private final Map<String, String> params;
 
@@ -106,8 +108,11 @@ public class JsonSchemaManager {
         builder.param("keyword", problem.getKeyword());
 
         String summary =
-            "%s %s :: %s"
+            "%s [%s] :: %s"
                 .formatted(problem.getPointer(), problem.getKeyword(), problem.getMessage());
+        if (summaryPrefix != null) {
+          summary = summaryPrefix + summary;
+        }
         builder.summary(summary);
 
         String message = "Error Parameters: %s".formatted(problem.parametersAsMap());

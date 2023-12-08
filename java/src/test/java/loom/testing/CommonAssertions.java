@@ -1,8 +1,5 @@
 package loom.testing;
 
-import javax.json.JsonArrayBuilder;
-import javax.json.JsonObjectBuilder;
-import javax.json.JsonValue;
 import loom.common.serialization.JsonUtil;
 import loom.common.text.PrettyDiffUtils;
 import org.assertj.core.api.WithAssertions;
@@ -13,18 +10,21 @@ public interface CommonAssertions extends WithAssertions {
     // System.out.println("assertEquivalentJson.actual: " + actual);
     // System.out.println("assertEquivalentJson.expected: " + expected);
 
-    var prettyActual = JsonUtil.reformatToPrettyJson(actual);
-    var prettyExpected = JsonUtil.reformatToPrettyJson(expected);
+    var actualTree = JsonUtil.parseToJsonNodeTree(actual);
+    var expectedTree = JsonUtil.parseToJsonNodeTree(expected);
 
-    assertThat(prettyActual)
+    assertThat(actualTree)
         .as(
             () ->
                 String.format(
                     "JSON Comparison Error: %s != %s\n%s\n",
                     actualName,
                     expectedName,
-                    PrettyDiffUtils.indentUdiff("> ", prettyExpected, prettyActual)))
-        .isEqualTo(prettyExpected);
+                    PrettyDiffUtils.indentUdiff(
+                        "> ",
+                        JsonUtil.toPrettyJson(expectedTree),
+                        JsonUtil.toPrettyJson(actualTree))))
+        .isEqualTo(expectedTree);
   }
 
   default void assertEquivalentJson(String actual, String expected) {
@@ -46,15 +46,16 @@ public interface CommonAssertions extends WithAssertions {
     assertEquivalentJson("Object Json", objJson, "Source Json", cleanJson);
   }
 
-  default void assertJsonEquals(Object obj, JsonValue json) {
-    assertJsonEquals(obj, json.toString());
-  }
-
-  default void assertJsonEquals(Object obj, JsonObjectBuilder json) {
+  /*
+   default void assertJsonEquals(Object obj, JsonValue json) {
+     assertJsonEquals(obj, json.toString());
+   }
+   default void assertJsonEquals(Object obj, JsonObjectBuilder json) {
     assertJsonEquals(obj, json.build());
   }
 
   default void assertJsonEquals(Object obj, JsonArrayBuilder json) {
     assertJsonEquals(obj, json.build());
   }
+    */
 }

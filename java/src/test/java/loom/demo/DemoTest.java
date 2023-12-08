@@ -14,7 +14,8 @@ public class DemoTest extends BaseTestClass {
         LoomEnvironment.builder()
             .nodeMetaFactory(
                 TypeMapNodeMetaFactory.builder()
-                    .typeMapping(TensorNode.Meta.TYPE, TensorNode.META)
+                    .typeMapping(
+                        TensorNode.Meta.TYPE, TensorNode.Meta.builder().validDType("int32").build())
                     .build())
             .build();
 
@@ -26,9 +27,6 @@ public class DemoTest extends BaseTestClass {
                 .type(TensorNode.Meta.TYPE)
                 .body(TensorNode.Body.builder().dtype("int32").shape(new ZPoint(2, 3)).build()));
 
-    assertThat(tensorA)
-        .isInstanceOf(TensorNode.class)
-        .hasFieldOrPropertyWithValue("graph", graph)
-        .hasFieldOrPropertyWithValue("meta", TensorNode.META);
+    assertThat(tensorA).isInstanceOf(TensorNode.class).hasFieldOrPropertyWithValue("graph", graph);
   }
 }

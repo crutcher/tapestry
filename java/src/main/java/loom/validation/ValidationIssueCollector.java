@@ -90,7 +90,7 @@ public class ValidationIssueCollector implements HasToJsonString {
    *
    * @throws LoomValidationError if there are any issues.
    */
-  public void check() {
+  public void check() throws LoomValidationError {
     if (issues != null && !issues.isEmpty()) {
       throw new LoomValidationError(issues);
     }

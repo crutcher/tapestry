@@ -131,7 +131,7 @@ dependencies {
     implementation("org.glassfish:javax.json:1.1.4")
 
     implementation("org.leadpony.justify:justify:3.1.0")
-    implementation("org.leadpony.joy:joy-classic:2.0.0")
+    implementation("org.leadpony.joy:joy-classic:2.1.0")
 
     // https://mvnrepository.com/artifact/com.jayway.jsonpath/json-path
     implementation("com.jayway.jsonpath:json-path:2.8.0")

@@ -1,5 +1,8 @@
 package loom.common.json;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.UUID;
 import lombok.Data;
 import loom.common.serialization.JsonUtil;
 import loom.testing.BaseTestClass;
@@ -7,10 +10,6 @@ import loom.validation.ValidationIssue;
 import org.junit.Test;
 import org.leadpony.justify.api.JsonSchema;
 import org.leadpony.justify.api.Problem;
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
 
 public class JsonSchemaManagerTest extends BaseTestClass {
 
@@ -101,6 +100,6 @@ public class JsonSchemaManagerTest extends BaseTestClass {
     assertThat(collector.getIssues())
         .hasSize(1)
         .extracting(ValidationIssue::getSummary)
-        .contains("/shape/3 minimum :: The numeric value must be greater than or equal to 1.");
+        .contains("/shape/3 [minimum] :: The numeric value must be greater than or equal to 1.");
   }
 }

@@ -158,7 +158,9 @@ public class LoomGraphTest extends BaseTestClass {
         LoomEnvironment.builder()
             .nodeMetaFactory(
                 TypeMapNodeMetaFactory.builder()
-                    .typeMapping(TensorNode.Meta.TYPE, new TensorNode.Meta())
+                    .typeMapping(
+                        TensorNode.Meta.TYPE,
+                        TensorNode.Meta.builder().validDType("int32").validDType("float32").build())
                     .build())
             .build();
 
@@ -226,22 +228,24 @@ public class LoomGraphTest extends BaseTestClass {
 
   @Test
   public void testTensorNodeDelegation() {
+
     var source =
         """
-          {
-            "id": "00000000-0000-0000-0000-000000000000",
-            "type": "TreeNode",
-            "label": "foo",
-            "body": {
-              "dtype": "int32",
-              "shape": [2, 3]
+            {
+                "id": "00000000-0000-0000-0000-000000000000",
+                "type": "TreeNode",
+                "label": "foo",
+                "body": {
+                  "dtype": "int32",
+                  "shape": [2, 3]
+                }
             }
-          }
-          """;
+            """;
 
     var factory =
         TypeMapNodeMetaFactory.builder()
-            .typeMapping(TensorNode.Meta.TYPE, new TensorNode.Meta())
+            .typeMapping(
+                TensorNode.Meta.TYPE, TensorNode.Meta.builder().validDType("int32").build())
             .build();
 
     var node = (TensorNode) factory.nodeFromJson(source);
@@ -368,7 +372,9 @@ public class LoomGraphTest extends BaseTestClass {
                 .type(DemoNodeMeta.TYPE)
                 .body(DemoNode.Body.builder().foo("bar").build()));
 
-    assertThat(node).isInstanceOf(DemoNode.class);
+    assertThat(node)
+        .isInstanceOf(DemoNode.class)
+        .hasFieldOrPropertyWithValue("jsonPath", "$.nodes[@.id=='" + node.getId() + "']");
 
     DemoNode selfRef = node.self();
     assertThat(selfRef).isSameAs(node);

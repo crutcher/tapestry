@@ -181,6 +181,14 @@ public final class LoomGraph implements HasToJsonString {
     @Nonnull private final Class<BodyType> bodyTypeClass;
     @Nonnull private final String bodySchema;
 
+    /**
+     * Validates the provided node against the NodeMeta's schema. This method checks if the node's
+     * body adheres to the schema defined in the NodeMeta. If the node's body does not adhere to the
+     * schema, it throws a ValidationIssue.
+     *
+     * @param node The node to be validated.
+     * @throws loom.validation.LoomValidationError If the node's body does not adhere to the schema.
+     */
     public final void validate(NodeType node) {
       validateNode(node);
       var graph = node.assertGraph();
@@ -190,8 +198,9 @@ public final class LoomGraph implements HasToJsonString {
 
       env.getJsonSchemaManager()
           .issueScan()
-          .type("NodeValidationError")
+          .type(LoomConstants.Errors.NODE_SCHEMA_ERROR)
           .param("nodeType", node.getType())
+          .summaryPrefix("Body ")
           .jpathPrefix(JsonPathUtils.concatJsonPath(node.getJsonPath() + ".body"))
           .schemaSource(bodySchema)
           .json(node.getBodyAsJson())
@@ -208,17 +217,41 @@ public final class LoomGraph implements HasToJsonString {
           .check();
     }
 
+    /**
+     * Subclass-overridden type validator.
+     *
+     * @param node the node to validate.
+     * @throws loom.validation.LoomValidationError if the node is invalid.
+     */
     public void validateNode(NodeType node) {}
 
+    /**
+     * Adopt a node into this meta.
+     *
+     * @param node the node to adopt.
+     * @return the node.
+     */
     private NodeType adopt(NodeType node) {
       node.setMeta(this);
       return node;
     }
 
+    /**
+     * Create a new node with this meta.
+     *
+     * @param json the JSON string to parse.
+     * @return the node.
+     */
     public final NodeType nodeFromJson(String json) {
       return adopt(JsonUtil.fromJson(json, getNodeTypeClass()));
     }
 
+    /**
+     * Create a new node with this meta.
+     *
+     * @param tree the JSON tree to parse.
+     * @return the node.
+     */
     public final NodeType nodeFromTree(Object tree) {
       return adopt(JsonUtil.convertValue(tree, getNodeTypeClass()));
     }

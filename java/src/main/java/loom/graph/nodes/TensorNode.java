@@ -1,8 +1,13 @@
 package loom.graph.nodes;
 
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
+import java.util.HashSet;
+import java.util.Set;
 import javax.annotation.Nonnull;
 import lombok.Builder;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Singular;
 import lombok.experimental.Delegate;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.jackson.Jacksonized;
@@ -26,6 +31,8 @@ public final class TensorNode extends LoomGraph.Node<TensorNode, TensorNode.Body
     return Body.class;
   }
 
+  @Builder
+  @Getter
   public static class Meta extends LoomGraph.NodeMeta<TensorNode, Body> {
     public static final String TYPE = "TreeNode";
 
@@ -50,8 +57,24 @@ public final class TensorNode extends LoomGraph.Node<TensorNode, TensorNode.Body
         }
         """;
 
-    public Meta() {
+    @Singular private final Set<String> validDTypes;
+
+    @Builder
+    public Meta(Set<String> validDTypes) {
       super(TensorNode.class, Body.class, BODY_SCHEMA);
+      this.validDTypes = new HashSet<>(validDTypes);
+    }
+
+    /**
+     * Add a valid dtype.
+     *
+     * @param validDType the valid dtype.
+     * @return this Meta, for chaining.
+     */
+    @CanIgnoreReturnValue
+    public Meta addValidDType(String validDType) {
+      validDTypes.add(validDType);
+      return this;
     }
 
     @Override
@@ -62,8 +85,6 @@ public final class TensorNode extends LoomGraph.Node<TensorNode, TensorNode.Body
       }
     }
   }
-
-  public static final Meta META = new Meta();
 
   /** Exists to support {@code @Delegate} for {@code getBody()}. */
   @SuppressWarnings("unused")

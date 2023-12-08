@@ -8,6 +8,7 @@ import loom.testing.CommonAssertions;
 import org.junit.Test;
 
 public class JsonUtilTest implements CommonAssertions {
+
   @Value
   public static class Example {
     public String a;

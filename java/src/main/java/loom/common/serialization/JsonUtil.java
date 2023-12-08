@@ -7,9 +7,10 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.NumericNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import java.util.*;
-import javax.annotation.Nullable;
 import lombok.Value;
+
+import javax.annotation.Nullable;
+import java.util.*;
 
 public class JsonUtil {
   // Prevent Construction.
@@ -50,7 +51,10 @@ public class JsonUtil {
    */
   public static String toPrettyJson(Object obj) {
     try {
-      return getMapper().writerWithDefaultPrettyPrinter().writeValueAsString(obj);
+      return getMapper()
+          .writerWithDefaultPrettyPrinter()
+          .with(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS)
+          .writeValueAsString(obj);
     } catch (JsonProcessingException e) {
       throw new IllegalArgumentException(e);
     }
@@ -82,16 +86,6 @@ public class JsonUtil {
    */
   public static JsonNode valueToJsonNodeTree(Object obj) {
     return getMapper().valueToTree(obj);
-  }
-
-  public static Map<String, Object> toMap(Object obj) {
-    @SuppressWarnings("unchecked")
-    Map<String, Object> result = getMapper().convertValue(obj, Map.class);
-    return result;
-  }
-
-  public static Map<String, Object> parseToMap(String json) {
-    return toMap(parseToJsonNodeTree(json));
   }
 
   /**
