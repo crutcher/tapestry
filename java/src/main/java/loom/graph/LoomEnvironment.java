@@ -1,15 +1,14 @@
 package loom.graph;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+import javax.annotation.Nonnull;
 import lombok.Builder;
 import lombok.Data;
 import lombok.Singular;
 import loom.common.json.JsonSchemaManager;
 import loom.common.serialization.JsonUtil;
-
-import javax.annotation.Nonnull;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
 
 /**
  * Loom Graph Environment.
@@ -86,6 +85,7 @@ public final class LoomEnvironment {
 
   /**
    * Create a new graph with this environment.
+   *
    * @return the graph.
    */
   public LoomGraph createGraph() {

@@ -25,7 +25,7 @@ public class LoomEnvironmentTest extends BaseTestClass {
                   "nodes": [
                     {
                       "id": "00000000-0000-0000-0000-000000000000",
-                      "type": "TreeNode",
+                      "type": "TensorNode",
                       "label": "foo",
                       "body": {
                         "dtype": "int32",

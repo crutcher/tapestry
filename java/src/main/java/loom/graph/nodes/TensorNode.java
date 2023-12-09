@@ -34,7 +34,7 @@ public final class TensorNode extends LoomGraph.Node<TensorNode, TensorNode.Body
   @Builder
   @Getter
   public static class Meta extends LoomGraph.NodeMeta<TensorNode, Body> {
-    public static final String TYPE = "TreeNode";
+    public static final String TYPE = "TensorNode";
 
     public static final String BODY_SCHEMA =
         """

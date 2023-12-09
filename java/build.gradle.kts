@@ -6,8 +6,7 @@ plugins {
     id("net.ltgt.errorprone") version "3.1.0"
     id("com.diffplug.spotless") version "6.23.3"
     id("io.freefair.lombok") version "8.4"
-    id("me.champeau.jmh") version "0.7.1"
-
+    id("me.champeau.jmh") version "0.7.2"
 
     id("idea")
 

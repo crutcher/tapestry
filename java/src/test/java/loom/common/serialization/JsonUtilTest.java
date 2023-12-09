@@ -1,12 +1,11 @@
 package loom.common.serialization;
 
-import lombok.Value;
-import loom.testing.CommonAssertions;
-import org.junit.Test;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import lombok.Value;
+import loom.testing.CommonAssertions;
+import org.junit.Test;
 
 public class JsonUtilTest implements CommonAssertions {
 

@@ -1,10 +1,5 @@
 package loom.graph;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
-import javax.annotation.Nonnull;
 import lombok.Builder;
 import lombok.Data;
 import lombok.experimental.Delegate;
@@ -19,6 +14,12 @@ import loom.graph.nodes.TypeMapNodeMetaFactory;
 import loom.testing.BaseTestClass;
 import loom.zspace.ZPoint;
 import org.junit.Test;
+
+import javax.annotation.Nonnull;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 
 public class LoomGraphTest extends BaseTestClass {
   @Test
@@ -84,7 +85,7 @@ public class LoomGraphTest extends BaseTestClass {
            "nodes": [
               {
                 "id": "00000000-0000-0000-0000-000000000001",
-                "type": "TreeNode",
+                "type": "TensorNode",
                 "label": "foo",
                 "body": {
                   "dtype": "int32",
@@ -93,7 +94,7 @@ public class LoomGraphTest extends BaseTestClass {
               },
               {
                 "id": "00000000-0000-0000-0000-000000000002",
-                "type": "TreeNode",
+                "type": "TensorNode",
                 "label": "bar",
                 "body": {
                   "dtype": "float32",
@@ -134,7 +135,7 @@ public class LoomGraphTest extends BaseTestClass {
                "nodes": [
                   {
                     "id": "00000000-0000-0000-0000-000000000001",
-                    "type": "TreeNode",
+                    "type": "TensorNode",
                     "label": "foo",
                     "body": {
                       "dtype": "int32",
@@ -143,7 +144,7 @@ public class LoomGraphTest extends BaseTestClass {
                   },
                   {
                     "id": "00000000-0000-0000-0000-000000000002",
-                    "type": "TreeNode",
+                    "type": "TensorNode",
                     "label": "bar",
                     "body": {
                       "dtype": "float32",
@@ -233,7 +234,7 @@ public class LoomGraphTest extends BaseTestClass {
         """
             {
                 "id": "00000000-0000-0000-0000-000000000000",
-                "type": "TreeNode",
+                "type": "TensorNode",
                 "label": "foo",
                 "body": {
                   "dtype": "int32",
