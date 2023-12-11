@@ -468,6 +468,7 @@ public final class LoomGraph implements HasToJsonString {
     return addNode(node);
   }
 
+
   /** Support classes for Jackson serialization. */
   public static class JacksonSupport {
     private JacksonSupport() {}

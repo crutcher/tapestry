@@ -18,6 +18,43 @@ import java.util.stream.Collectors;
 @Jacksonized
 @SuperBuilder
 public final class OperationNode extends LoomGraph.Node<OperationNode, OperationNode.Body> {
+  @Data
+  @SuperBuilder
+  public static final class Body {
+    @Nonnull private String opName;
+    @Singular @Nonnull private Map<String, List<UUID>> inputs;
+    @Singular @Nonnull private Map<String, List<UUID>> outputs;
+  }
+
+  /**
+   * Create a new OperationNodeBuilder, with the type set to {@link Meta#TYPE}.
+   *
+   * @return the new OperationNodeBuilder.
+   */
+  public static OperationNode.OperationNodeBuilder<OperationNode, ?> builder() {
+    return new OperationNode.OperationNodeBuilderImpl().type(Meta.TYPE);
+  }
+
+  /**
+   * Create a new OperationNodeBuilder, with the type set to {@link Meta#TYPE}.
+   *
+   * @param body the body to use.
+   * @return the new OperationNodeBuilder.
+   */
+  public static OperationNode.OperationNodeBuilder<OperationNode, ?> builder(Body body) {
+    return builder().body(body);
+  }
+
+  /**
+   * Create a new OperationNodeBuilder, with the type set to {@link Meta#TYPE}.
+   *
+   * @param body the body to use.
+   * @return the new OperationNodeBuilder.
+   */
+  public static OperationNode.OperationNodeBuilder<OperationNode, ?> builder(
+      Body.BodyBuilder<?, ?> body) {
+    return builder().body(body.build());
+  }
 
   /**
    * Convert a map of input/output node lists to a map of input/output UUID lists.
@@ -49,14 +86,6 @@ public final class OperationNode extends LoomGraph.Node<OperationNode, Operation
                     e.getValue().stream()
                         .map(id -> graph.assertNode(id, TensorNode.Meta.TYPE, TensorNode.class))
                         .toList()));
-  }
-
-  @Data
-  @SuperBuilder
-  public static final class Body {
-    @Nonnull private String opName;
-    @Singular @Nonnull private Map<String, List<UUID>> inputs;
-    @Singular @Nonnull private Map<String, List<UUID>> outputs;
   }
 
   @Override

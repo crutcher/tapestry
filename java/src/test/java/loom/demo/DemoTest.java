@@ -13,10 +13,7 @@ import java.util.Map;
 
 public class DemoTest extends BaseTestClass {
   public static TensorNode newTensor(LoomGraph graph, String dtype, ZPoint shape) {
-    return graph.addNode(
-        TensorNode.builder()
-            .type(TensorNode.Meta.TYPE)
-            .body(TensorNode.Body.builder().dtype(dtype).shape(shape).build()));
+    return graph.addNode(TensorNode.builder(dtype, shape));
   }
 
   public static OperationNode newOperation(
@@ -25,14 +22,11 @@ public class DemoTest extends BaseTestClass {
       Map<String, List<TensorNode>> inputs,
       Map<String, List<TensorNode>> outputs) {
     return graph.addNode(
-        OperationNode.builder()
-            .type(OperationNode.Meta.TYPE)
-            .body(
-                OperationNode.Body.builder()
-                    .opName(opName)
-                    .inputs(OperationNode.nodeMapToIdMap(inputs))
-                    .outputs(OperationNode.nodeMapToIdMap(outputs))
-                    .build()));
+        OperationNode.builder(
+            OperationNode.Body.builder()
+                .opName(opName)
+                .inputs(OperationNode.nodeMapToIdMap(inputs))
+                .outputs(OperationNode.nodeMapToIdMap(outputs))));
   }
 
   @Test
