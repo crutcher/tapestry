@@ -1,10 +1,5 @@
 package loom.graph;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
-import javax.annotation.Nonnull;
 import lombok.Builder;
 import lombok.Data;
 import lombok.experimental.Delegate;
@@ -20,7 +15,67 @@ import loom.testing.BaseTestClass;
 import loom.zspace.ZPoint;
 import org.junit.Test;
 
+import javax.annotation.Nonnull;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+
 public class LoomGraphTest extends BaseTestClass {
+  @Jacksonized
+  @SuperBuilder
+  public static class DemoNode extends LoomGraph.Node<DemoNode, DemoNode.Body> {
+    @Data
+    @Jacksonized
+    @Builder
+    public static class Body {
+      @Nonnull private String foo;
+    }
+
+    @Override
+    public Class<Body> getBodyClass() {
+      return Body.class;
+    }
+
+    @SuppressWarnings("unused")
+    @Delegate
+    private Body _delegateProvider() {
+      return getBody();
+    }
+  }
+
+  public static class DemoNodeMeta extends LoomGraph.NodeMeta<DemoNode, DemoNode.Body> {
+    public static final String TYPE = "DemoNode";
+
+    public static final String BODY_SCHEMA =
+        """
+                {
+                  "type": "object",
+                  "properties": {
+                    "foo": {
+                      "type": "string",
+                      "enum": ["bar", "baz"]
+                    }
+                  },
+                  "required": ["foo"]
+                }
+                """;
+
+    public DemoNodeMeta() {
+      super(DemoNode.class, DemoNode.Body.class, BODY_SCHEMA);
+    }
+
+    public static final Set<String> VALID_FOO_VALUES = Set.of("bar", "baz");
+
+    @Override
+    public void validateNode(DemoNode node) {
+      if (!VALID_FOO_VALUES.contains(node.getFoo())) {
+        throw new IllegalArgumentException(
+            "Invalid foo value: " + node.getFoo() + "; expected one of " + VALID_FOO_VALUES);
+      }
+    }
+  }
+
   @Test
   public void testDefaultGraph() {
     var id = UUID.randomUUID();
@@ -73,6 +128,16 @@ public class LoomGraphTest extends BaseTestClass {
     assertThat(graph.hasNode(nodeIdA.toString())).isTrue();
     assertThat(graph.assertNode(nodeIdA)).isSameAs(nodeA);
     assertThat(graph.assertNode(nodeIdA.toString())).isSameAs(nodeA);
+
+    // Casting assertions.
+    assertThat(graph.assertNode(nodeIdA, "test", GenericNode.class)).isSameAs(nodeA);
+    assertThat(graph.assertNode(nodeIdA.toString(), "test", GenericNode.class)).isSameAs(nodeA);
+    assertThat(graph.assertNode(nodeIdA, null, GenericNode.class)).isSameAs(nodeA);
+    assertThat(graph.assertNode(nodeIdA.toString(), null, GenericNode.class)).isSameAs(nodeA);
+    assertThatExceptionOfType(LookupError.class)
+        .isThrownBy(() -> graph.assertNode(nodeIdA, "foo", GenericNode.class));
+    assertThatExceptionOfType(LookupError.class)
+        .isThrownBy(() -> graph.assertNode(nodeIdA, "test", DemoNode.class));
   }
 
   @Test
@@ -298,60 +363,6 @@ public class LoomGraphTest extends BaseTestClass {
                 "shape": [5, 6]
               }
               """);
-  }
-
-  @Jacksonized
-  @SuperBuilder
-  public static class DemoNode extends LoomGraph.Node<DemoNode, DemoNode.Body> {
-    @Data
-    @Jacksonized
-    @Builder
-    public static class Body {
-      @Nonnull private String foo;
-    }
-
-    @Override
-    public Class<Body> getBodyClass() {
-      return Body.class;
-    }
-
-    @SuppressWarnings("unused")
-    @Delegate
-    private Body _delegateProvider() {
-      return getBody();
-    }
-  }
-
-  public static class DemoNodeMeta extends LoomGraph.NodeMeta<DemoNode, DemoNode.Body> {
-    public static final String TYPE = "DemoNode";
-
-    public static final String BODY_SCHEMA =
-        """
-            {
-              "type": "object",
-              "properties": {
-                "foo": {
-                  "type": "string",
-                  "enum": ["bar", "baz"]
-                }
-              },
-              "required": ["foo"]
-            }
-            """;
-
-    public DemoNodeMeta() {
-      super(DemoNode.class, DemoNode.Body.class, BODY_SCHEMA);
-    }
-
-    public static final Set<String> VALID_FOO_VALUES = Set.of("bar", "baz");
-
-    @Override
-    public void validateNode(DemoNode node) {
-      if (!VALID_FOO_VALUES.contains(node.getFoo())) {
-        throw new IllegalArgumentException(
-            "Invalid foo value: " + node.getFoo() + "; expected one of " + VALID_FOO_VALUES);
-      }
-    }
   }
 
   @Test

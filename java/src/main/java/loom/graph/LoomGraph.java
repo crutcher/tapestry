@@ -8,12 +8,6 @@ import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import lombok.Builder;
 import lombok.Data;
 import lombok.ToString;
@@ -25,6 +19,13 @@ import loom.common.serialization.JsonUtil;
 import loom.common.serialization.MapValueListUtil;
 import loom.graph.nodes.GenericNodeMetaFactory;
 import loom.validation.ValidationIssue;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 /** A Loom Graph document. */
 @Data
@@ -379,6 +380,41 @@ public final class LoomGraph implements HasToJsonString {
    */
   public Node<?, ?> assertNode(String id) {
     return assertNode(UUID.fromString(id));
+  }
+
+  /**
+   * Get the node with the given ID.
+   *
+   * @param id the ID of the node to get.
+   * @param type the type of the node to get; null to skip type check.
+   * @param nodeClass the class of the node to get.
+   * @return the cast node.
+   * @param <T> the type of the node to get.
+   * @throws LookupError if the node does not exist, or is not of the given type.
+   */
+  public <T extends Node<?, ?>> T assertNode(UUID id, @Nullable String type, Class<T> nodeClass) {
+    var node = assertNode(id);
+    if (type != null && !node.getType().equals(type)) {
+      throw new LookupError("Node is not of type " + type + ": " + id);
+    }
+    if (!nodeClass.isInstance(node)) {
+      throw new LookupError("Node is not of type " + nodeClass.getSimpleName() + ": " + id);
+    }
+    return nodeClass.cast(node);
+  }
+
+  /**
+   * Get the node with the given ID.
+   *
+   * @param id the ID of the node to get.
+   * @param type the type of the node to get; null to skip type check.
+   * @param nodeClass the class of the node to get.
+   * @return the cast node.
+   * @param <T> the type of the node to get.
+   * @throws LookupError if the node does not exist, or is not of the given type.
+   */
+  public <T extends Node<?, ?>> T assertNode(String id, String type, Class<T> nodeClass) {
+    return assertNode(UUID.fromString(id), type, nodeClass);
   }
 
   /**

@@ -20,7 +20,7 @@ public final class TensorNode extends LoomGraph.Node<TensorNode, TensorNode.Body
   @Data
   @Jacksonized
   @Builder
-  public static class Body {
+  public static final class Body {
     @Nonnull private String dtype;
 
     @Nonnull private ZPoint shape;
@@ -33,7 +33,7 @@ public final class TensorNode extends LoomGraph.Node<TensorNode, TensorNode.Body
 
   @Builder
   @Getter
-  public static class Meta extends LoomGraph.NodeMeta<TensorNode, Body> {
+  public static final class Meta extends LoomGraph.NodeMeta<TensorNode, Body> {
     public static final String TYPE = "TensorNode";
 
     public static final String BODY_SCHEMA =

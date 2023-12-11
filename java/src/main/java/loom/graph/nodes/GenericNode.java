@@ -50,7 +50,8 @@ public final class GenericNode extends LoomGraph.Node<GenericNode, GenericNode.B
                   "type": "object",
                   "patternProperties": {
                     "^[a-zA-Z_][a-zA-Z0-9_]*$": {}
-                  }
+                  },
+                  "additionalProperties": false
                 }
                 """;
 

@@ -2,6 +2,7 @@ package loom.graph;
 
 import java.util.Collection;
 import java.util.Set;
+import loom.graph.nodes.OperationNode;
 import loom.graph.nodes.TensorNode;
 import loom.graph.nodes.TypeMapNodeMetaFactory;
 
@@ -16,6 +17,7 @@ public final class CommonEnvironments {
             TypeMapNodeMetaFactory.builder()
                 .typeMapping(
                     TensorNode.Meta.TYPE, TensorNode.Meta.builder().validDTypes(dtypes).build())
+                .typeMapping(OperationNode.Meta.TYPE, OperationNode.Meta.builder().build())
                 .build())
         .build();
   }
