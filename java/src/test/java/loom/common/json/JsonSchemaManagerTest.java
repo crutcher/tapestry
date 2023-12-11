@@ -85,7 +85,7 @@ public class JsonSchemaManagerTest extends BaseTestClass {
             .param("foo", "bar")
             .schemaSource(EXAMPLE_SCHEMA)
             .json(instanceJson)
-            .jpathPrefix("foo.bar[2]")
+            .jsonPathPrefix("foo.bar[2]")
             .context(
                 ValidationIssue.Context.builder()
                     .name("foo")

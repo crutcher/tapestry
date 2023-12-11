@@ -1,8 +1,7 @@
 <?xml version="1.0"?>
 <xsl:stylesheet version="1.0"
-                xmlns:xs="http://www.w3.org/2001/XMLSchema"
                 xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
-                xmlns:eg="http://loom-project.org/schemas/v0.1/ExpressionGraph.core.xsd"
+                xmlns:eg="https://loom-project.org/schemas/v0.1/ExpressionGraph.core.xsd"
                 xmlns:xalan="http://xml.apache.org/xalan"
                 xmlns:func="http://exslt.org/functions"
                 extension-element-prefixes="func"
@@ -192,7 +191,7 @@
                             <xsl:text>]</xsl:text>
                         </xsl:with-param>
                         <xsl:with-param name="expectedNs"
-                                        select="'http://loom-project.org/schemas/v0.1/ExpressionGraph.core.xsd'"/>
+                                        select="'https://loom-project.org/schemas/v0.1/ExpressionGraph.core.xsd'"/>
                         <xsl:with-param name="expectedLocalName" select="'tensor'"/>
                     </xsl:call-template>
 

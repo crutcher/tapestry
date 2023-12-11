@@ -38,7 +38,8 @@ import loom.common.serialization.JsonUtil;
  */
 @JsonSerialize(using = ZTensor.JsonSupport.Serializer.class)
 @JsonDeserialize(using = ZTensor.JsonSupport.Deserializer.class)
-public final class ZTensor implements HasDimension, HasToJsonString, HasPermute, HasSize {
+public final class ZTensor
+    implements Cloneable, HasDimension, HasToJsonString, HasPermute, HasSize {
   private final class CoordsIterator implements Iterator<int[]> {
     // Assuming a non-scalar ZTensor; non-empty ZTensor.
     private int remaining = size();
@@ -647,6 +648,7 @@ public final class ZTensor implements HasDimension, HasToJsonString, HasPermute,
    * @return a ZTensor with the same data.
    */
   @Override
+  @SuppressWarnings("MethodDoesntCallSuperMethod")
   public ZTensor clone() {
     return clone(mutable);
   }

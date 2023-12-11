@@ -7,17 +7,9 @@ package loom.zspace;
  * ArithmeticException}, {@code ArrayIndexOutOfBoundsException}, etc.
  */
 public class ZSpaceError extends RuntimeException {
-  @java.io.Serial static final long serialVersionUID = -8561235984801453952L;
+  @java.io.Serial private static final long serialVersionUID = -8561235984801453952L;
 
   ZSpaceError(String message) {
     super(message);
-  }
-
-  public ZSpaceError(String message, Throwable cause) {
-    super(message, cause);
-  }
-
-  public ZSpaceError(Throwable cause) {
-    super(cause);
   }
 }

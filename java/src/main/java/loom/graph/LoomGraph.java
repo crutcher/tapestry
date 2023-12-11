@@ -201,7 +201,7 @@ public final class LoomGraph implements HasToJsonString {
           .type(LoomConstants.Errors.NODE_SCHEMA_ERROR)
           .param("nodeType", node.getType())
           .summaryPrefix("Body ")
-          .jpathPrefix(JsonPathUtils.concatJsonPath(node.getJsonPath() + ".body"))
+          .jsonPathPrefix(JsonPathUtils.concatJsonPath(node.getJsonPath() + ".body"))
           .schemaSource(bodySchema)
           .json(node.getBodyAsJson())
           .context(

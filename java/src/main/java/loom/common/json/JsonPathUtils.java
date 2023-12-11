@@ -2,7 +2,6 @@ package loom.common.json;
 
 import com.google.common.base.Splitter;
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 public class JsonPathUtils {
   /** No instantiation. */
@@ -44,7 +43,8 @@ public class JsonPathUtils {
    * @return the concatenated JSON path.
    */
   @Nonnull
-  public static String concatJsonPath(@Nullable String... parts) {
+  @SuppressWarnings("ConstantConditions")
+  public static String concatJsonPath(@Nonnull String... parts) {
     var sb = new StringBuilder();
     sb.append("$");
 
