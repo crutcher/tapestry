@@ -1,5 +1,7 @@
 package loom.graph.nodes;
 
+import java.util.List;
+import java.util.Map;
 import loom.demo.DemoTest;
 import loom.graph.CommonEnvironments;
 import loom.graph.NodeApi;
@@ -8,9 +10,6 @@ import loom.validation.ValidationIssue;
 import loom.validation.ValidationIssueCollector;
 import loom.zspace.ZPoint;
 import org.junit.Test;
-
-import java.util.List;
-import java.util.Map;
 
 public class AllTensorsHaveExactlyOneSourceOperationConstraintTest extends BaseTestClass {
   @Test
@@ -50,9 +49,11 @@ public class AllTensorsHaveExactlyOneSourceOperationConstraintTest extends BaseT
     var tensorA = NodeApi.newTensor(graph, "int32", new ZPoint(2, 3));
     tensorA.setLabel("TooManySources");
 
-    var op1 = NodeApi.newOperation(graph, "source", Map.of(), Map.of("pin", List.of(tensorA)));
+    var op1 =
+        NodeApi.newOperation(graph, "source", Map.of(), Map.of("pin", List.of(tensorA)), null);
     op1.setLabel("op1");
-    var op2 = NodeApi.newOperation(graph, "source", Map.of(), Map.of("pin", List.of(tensorA)));
+    var op2 =
+        NodeApi.newOperation(graph, "source", Map.of(), Map.of("pin", List.of(tensorA)), null);
     op2.setLabel("op2");
 
     ValidationIssueCollector issueCollector = new ValidationIssueCollector();

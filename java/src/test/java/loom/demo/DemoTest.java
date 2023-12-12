@@ -31,7 +31,8 @@ public class DemoTest extends BaseTestClass {
     var tensorA = NodeApi.newTensor(graph, "int32", new ZPoint(2, 3));
     tensorA.setLabel("A");
 
-    var op1 = NodeApi.newOperation(graph, "source", Map.of(), Map.of("pin", List.of(tensorA)));
+    var op1 =
+        NodeApi.newOperation(graph, "source", Map.of(), Map.of("pin", List.of(tensorA)), null);
     op1.setLabel("op1");
 
     graph.validate();

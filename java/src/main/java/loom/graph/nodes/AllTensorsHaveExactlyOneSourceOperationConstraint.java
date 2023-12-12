@@ -1,14 +1,13 @@
 package loom.graph.nodes;
 
 import com.google.common.annotations.VisibleForTesting;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 import loom.graph.LoomEnvironment;
 import loom.graph.LoomGraph;
 import loom.validation.ValidationIssue;
 import loom.validation.ValidationIssueCollector;
-
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
 
 /** LoomEnvironment validation rule: All tensors must have exactly one source operation. */
 public class AllTensorsHaveExactlyOneSourceOperationConstraint

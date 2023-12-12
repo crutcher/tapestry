@@ -1,10 +1,5 @@
 package loom.graph.nodes;
 
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.stream.Collectors;
-import javax.annotation.Nonnull;
 import lombok.Builder;
 import lombok.Data;
 import lombok.Getter;
@@ -14,6 +9,13 @@ import lombok.experimental.SuperBuilder;
 import lombok.extern.jackson.Jacksonized;
 import loom.graph.LoomGraph;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
 @Jacksonized
 @SuperBuilder
 public final class OperationNode extends LoomGraph.Node<OperationNode, OperationNode.Body> {
@@ -21,6 +23,7 @@ public final class OperationNode extends LoomGraph.Node<OperationNode, Operation
   @SuperBuilder
   public static final class Body {
     @Nonnull private String opName;
+    @Singular @Nullable private Map<String, Object> params;
     @Singular @Nonnull private Map<String, List<UUID>> inputs;
     @Singular @Nonnull private Map<String, List<UUID>> outputs;
   }
@@ -32,45 +35,55 @@ public final class OperationNode extends LoomGraph.Node<OperationNode, Operation
 
     public static final String BODY_SCHEMA =
         """
-                    {
-                        "type": "object",
-                        "opName": {
-                            "type": "string",
-                            "pattern": "^[a-zA-Z_][a-zA-Z0-9_]*$"
-                        },
-                        "properties": {
-                          "inputs": {
-                              "type": "object",
-                              "patternProperties": {
-                                  "^[a-zA-Z_][a-zA-Z0-9_]*$": {
-                                      "type": "array",
-                                      "items": {
-                                          "type": "string",
-                                          "format": "uuid"
-                                      },
-                                      "minItems": 1
-                                  }
-                              },
-                              "additionalProperties": false
+        {
+            "type": "object",
+            "opName": {
+                "type": "string",
+                "pattern": "^[a-zA-Z_][a-zA-Z0-9_]*$"
+            },
+            "properties": {
+              "params": {
+                  "documentation": "Fixed operation parameters",
+                  "type": "object",
+                  "patternProperties": {
+                      "^[a-zA-Z_][a-zA-Z0-9_]*$": {}
+                  },
+                  "additionalProperties": false
+              },
+              "inputs": {
+                  "documentation": "Input tensors",
+                  "type": "object",
+                  "patternProperties": {
+                      "^[a-zA-Z_][a-zA-Z0-9_]*$": {
+                          "type": "array",
+                          "items": {
+                              "type": "string",
+                              "format": "uuid"
                           },
-                          "outputs": {
-                              "type": "object",
-                              "patternProperties": {
-                                  "^[a-zA-Z_][a-zA-Z0-9_]*$": {
-                                      "type": "array",
-                                      "items": {
-                                          "type": "string",
-                                          "format": "uuid"
-                                      },
-                                      "minItems": 1
-                                  }
-                              },
-                              "additionalProperties": false
-                          }
-                        },
-                        "required": ["opName", "inputs", "outputs"]
-                    }
-                    """;
+                          "minItems": 1
+                      }
+                  },
+                  "additionalProperties": false
+              },
+              "outputs": {
+                  "documentation": "Output tensors",
+                  "type": "object",
+                  "patternProperties": {
+                      "^[a-zA-Z_][a-zA-Z0-9_]*$": {
+                          "type": "array",
+                          "items": {
+                              "type": "string",
+                              "format": "uuid"
+                          },
+                          "minItems": 1
+                      }
+                  },
+                  "additionalProperties": false
+              }
+            },
+            "required": ["opName", "inputs", "outputs"]
+        }
+        """;
 
     @Builder
     public Meta() {
