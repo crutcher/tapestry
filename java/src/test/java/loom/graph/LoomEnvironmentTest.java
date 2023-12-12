@@ -11,7 +11,7 @@ public class LoomEnvironmentTest extends BaseTestClass {
     var env = LoomGraph.GENERIC_ENV;
     var graph = env.createGraph();
 
-    assertThat(graph).hasFieldOrPropertyWithValue("env", env).isNotNull();
+    assertThat(graph.getEnv()).isNotNull();
 
     assertThat(graph.getId()).isNotNull();
   }
@@ -46,6 +46,9 @@ public class LoomEnvironmentTest extends BaseTestClass {
             .build();
 
     var graph = env.graphFromJson(source);
+
+    env.validateGraph(graph);
+    graph.validate();
 
     var node = (TensorNode) graph.assertNode("00000000-0000-0000-0000-000000000000");
     assertThat(node.getDtype()).isEqualTo("int32");

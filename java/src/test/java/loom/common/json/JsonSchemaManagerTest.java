@@ -7,6 +7,7 @@ import lombok.Data;
 import loom.common.serialization.JsonUtil;
 import loom.testing.BaseTestClass;
 import loom.validation.ValidationIssue;
+import loom.validation.ValidationIssueCollector;
 import org.junit.Test;
 import org.leadpony.justify.api.JsonSchema;
 import org.leadpony.justify.api.Problem;
@@ -79,25 +80,26 @@ public class JsonSchemaManagerTest extends BaseTestClass {
 
     final String instanceJson = JsonUtil.toJson(instance);
 
-    var collector =
-        manager
-            .issueScan()
-            .param("foo", "bar")
-            .schemaSource(EXAMPLE_SCHEMA)
-            .json(instanceJson)
-            .jsonPathPrefix("foo.bar[2]")
-            .context(
-                ValidationIssue.Context.builder()
-                    .name("foo")
-                    .jsonpath("$.foo")
-                    .jsonData("{\"foo\": \"bar\"}")
-                    .build())
-            .build()
-            .scan();
+    var issueCollector = new ValidationIssueCollector();
+    manager
+        .issueScan()
+        .issueCollector(issueCollector)
+        .param("foo", "bar")
+        .schemaSource(EXAMPLE_SCHEMA)
+        .json(instanceJson)
+        .jsonPathPrefix("foo.bar[2]")
+        .context(
+            ValidationIssue.Context.builder()
+                .name("foo")
+                .jsonpath("$.foo")
+                .jsonData("{\"foo\": \"bar\"}")
+                .build())
+        .build()
+        .scan();
 
     // System.out.println(collector.toDisplayString());
 
-    assertThat(collector.getIssues())
+    assertThat(issueCollector.getIssues())
         .hasSize(1)
         .extracting(ValidationIssue::getSummary)
         .contains("/shape/3 [minimum] :: The numeric value must be greater than or equal to 1.");

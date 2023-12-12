@@ -17,6 +17,8 @@ import loom.graph.nodes.GenericNodeMetaFactory;
 import loom.graph.nodes.TensorNode;
 import loom.graph.nodes.TypeMapNodeMetaFactory;
 import loom.testing.BaseTestClass;
+import loom.validation.ValidationIssue;
+import loom.validation.ValidationIssueCollector;
 import loom.zspace.ZPoint;
 import org.junit.Test;
 
@@ -67,10 +69,14 @@ public class LoomGraphTest extends BaseTestClass {
     public static final Set<String> VALID_FOO_VALUES = Set.of("bar", "baz");
 
     @Override
-    public void validateNode(DemoNode node) {
+    public void validateNode(DemoNode node, ValidationIssueCollector issueCollector) {
       if (!VALID_FOO_VALUES.contains(node.getFoo())) {
-        throw new IllegalArgumentException(
-            "Invalid foo value: " + node.getFoo() + "; expected one of " + VALID_FOO_VALUES);
+        issueCollector.add(
+            ValidationIssue.builder()
+                .type(DemoNode.NODE_VALIDATION_ERROR)
+                .summary(
+                    "Invalid foo value: " + node.getFoo() + "; expected one of " + VALID_FOO_VALUES)
+                .build());
       }
     }
   }
@@ -182,7 +188,8 @@ public class LoomGraphTest extends BaseTestClass {
     assertEquivalentJson(graph.toJsonString(), source);
 
     var graphCopy = graph.deepCopy();
-    assertThat(graphCopy).isNotSameAs(graph).hasFieldOrPropertyWithValue("env", graph.getEnv());
+    assertThat(graphCopy).isNotSameAs(graph);
+    assertThat(graphCopy.getEnv()).isSameAs(graph.getEnv());
     assertEquivalentJson(graphCopy.toJsonString(), graph.toJsonString());
     assertThat(graphCopy.assertNode("00000000-0000-0000-0000-000000000001").getBody())
         .hasFieldOrPropertyWithValue("fields", Map.of("dtype", "int32", "shape", List.of(2, 3)))
@@ -245,7 +252,8 @@ public class LoomGraphTest extends BaseTestClass {
     assertEquivalentJson(graph.toJsonString(), source);
 
     var graphCopy = graph.deepCopy();
-    assertThat(graphCopy).isNotSameAs(graph).hasFieldOrPropertyWithValue("env", graph.getEnv());
+    assertThat(graphCopy).isNotSameAs(graph);
+    assertThat(graphCopy.getEnv()).isSameAs(graph.getEnv());
     assertEquivalentJson(graphCopy.toJsonString(), graph.toJsonString());
     assertThat(graphCopy.assertNode("00000000-0000-0000-0000-000000000001").getBody())
         .hasFieldOrPropertyWithValue("dtype", "int32")
@@ -466,7 +474,11 @@ public class LoomGraphTest extends BaseTestClass {
 
     assertThat(node).isInstanceOf(DemoNode.class);
 
-    node.validate();
+    {
+      ValidationIssueCollector issueCollector = new ValidationIssueCollector();
+      node.validate(issueCollector);
+      issueCollector.check();
+    }
 
     var meta = node.getMeta();
     assertThat(meta).isInstanceOf(DemoNodeMeta.class);

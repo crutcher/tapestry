@@ -8,16 +8,89 @@ import lombok.Singular;
 import lombok.experimental.Delegate;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.jackson.Jacksonized;
+import loom.graph.LoomEnvironment;
 import loom.graph.LoomGraph;
+import loom.validation.ValidationIssue;
+import loom.validation.ValidationIssueCollector;
 import loom.zspace.ZPoint;
 
 import javax.annotation.Nonnull;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 @Jacksonized
 @SuperBuilder
 public final class TensorNode extends LoomGraph.Node<TensorNode, TensorNode.Body> {
+  /**
+   * LoomEnvironment validation rule: All tensors must have exactly one source operation.
+   *
+   * @param env the LoomEnvironment.
+   * @param graph the LoomGraph.
+   * @param issueCollector the ValidationIssueCollector.
+   */
+  public static void AllTensorsHaveExactlyOneSourceOperationConstraint(
+      @SuppressWarnings("unused") LoomEnvironment env,
+      LoomGraph graph,
+      ValidationIssueCollector issueCollector) {
+    graph.stream(TensorNode.Meta.TYPE, TensorNode.class)
+        .forEach(
+            tensor -> {
+              List<OperationNode> sources = tensor._getSourceOperationNodes();
+              if (sources.size() == 1) {
+                return;
+              }
+
+              String desc = "Tensor";
+              if (tensor.getLabel() != null) {
+                desc = "%s (%s)".formatted(desc, tensor.getLabel());
+              }
+
+              var issueBuilder =
+                  ValidationIssue.builder()
+                      .type(TensorNode.NODE_VALIDATION_ERROR)
+                      .param("nodeType", TensorNode.Meta.TYPE)
+                      .context(
+                          ValidationIssue.Context.builder()
+                              .name("Tensor")
+                              .jsonpath(tensor.getJsonPath())
+                              .jsonData(tensor.toJsonString())
+                              .build());
+
+              if (sources.isEmpty()) {
+                issueBuilder.summary("%s has no Operation source".formatted(desc));
+
+              } else {
+                issueBuilder.summary(
+                    "%s has too many Operation sources: %d".formatted(desc, sources.size()));
+
+                issueBuilder.message("Tensor id: %s".formatted(tensor.getId()));
+
+                // Sort the sources by ID so that the order is deterministic.
+                sources = new ArrayList<>(sources);
+                sources.sort(
+                    Comparator.comparing(
+                        n -> n.getLabel() == null ? n.getId().toString() : n.getLabel()));
+
+                for (int idx = 0; idx < sources.size(); idx++) {
+                  var source = sources.get(idx);
+
+                  var name = "Source Operation #" + idx;
+                  if (source.getLabel() != null) {
+                    name = "%s (%s)".formatted(name, source.getLabel());
+                  }
+
+                  issueBuilder.context(
+                      ValidationIssue.Context.builder()
+                          .name(name)
+                          .jsonpath(source.getJsonPath())
+                          .jsonData(source.toJsonString())
+                          .build());
+                }
+              }
+
+              issueCollector.add(issueBuilder);
+            });
+  }
+
   @Data
   @Jacksonized
   @Builder
@@ -119,10 +192,13 @@ public final class TensorNode extends LoomGraph.Node<TensorNode, TensorNode.Body
     }
 
     @Override
-    public void validateNode(TensorNode node) {
+    public void validateNode(TensorNode node, ValidationIssueCollector issueCollector) {
       if (!node.getShape().coords.isStrictlyPositive()) {
-        throw new IllegalArgumentException(
-            "shape must be positive and non-empty: " + node.getShape());
+        issueCollector.add(
+            ValidationIssue.builder()
+                .type(NODE_VALIDATION_ERROR)
+                .message("shape must be positive and non-empty")
+                .build());
       }
     }
   }
@@ -132,5 +208,35 @@ public final class TensorNode extends LoomGraph.Node<TensorNode, TensorNode.Body
   @Delegate
   private Body delegateProvider() {
     return getBody();
+  }
+
+  List<OperationNode> _getSourceOperationNodes() {
+    var id = getId();
+    return assertGraph().stream(OperationNode.Meta.TYPE, OperationNode.class)
+        .filter(op -> op.getOutputs().values().stream().anyMatch(ids -> ids.contains(id)))
+        .toList();
+  }
+
+  /**
+   * Get the operation node that produces this tensor.
+   *
+   * @return the operation node.
+   */
+  public OperationNode getSourceOperationNode() {
+    var nodes = _getSourceOperationNodes();
+    if (nodes.size() != 1) {
+      throw new IllegalStateException(
+          "Expected exactly one source operation node, but found " + nodes.size());
+    }
+    return nodes.getFirst();
+  }
+
+  /**
+   * Get the operation node ID that produces this tensor.
+   *
+   * @return the operation node ID.
+   */
+  public UUID getSourceOperationId() {
+    return getSourceOperationNode().getId();
   }
 }

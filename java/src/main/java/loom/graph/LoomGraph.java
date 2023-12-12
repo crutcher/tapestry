@@ -8,9 +8,16 @@ import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import lombok.Builder;
-import lombok.Data;
-import lombok.ToString;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.UUID;
+import java.util.stream.Stream;
+import javax.annotation.CheckReturnValue;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 import loom.common.HasToJsonString;
 import loom.common.LookupError;
@@ -19,19 +26,15 @@ import loom.common.serialization.JsonUtil;
 import loom.common.serialization.MapValueListUtil;
 import loom.graph.nodes.GenericNodeMetaFactory;
 import loom.validation.ValidationIssue;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import loom.validation.ValidationIssueCollector;
 
 /** A Loom Graph document. */
-@Data
+@Getter
+@Setter
+@ToString(of = {"id", "nodes"})
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public final class LoomGraph implements HasToJsonString {
+public final class LoomGraph implements Iterable<LoomGraph.Node<?, ?>>, HasToJsonString {
 
   /**
    * Base class for a node in the graph.
@@ -39,7 +42,8 @@ public final class LoomGraph implements HasToJsonString {
    * @param <NodeType> the node subclass.
    * @param <BodyType> the node body class.
    */
-  @Data
+  @Getter
+  @Setter
   @ToString(of = {"id", "type", "label", "body"})
   @SuperBuilder
   @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -47,6 +51,7 @@ public final class LoomGraph implements HasToJsonString {
   public abstract static class Node<NodeType extends Node<NodeType, BodyType>, BodyType>
       implements HasToJsonString {
 
+    public static final String NODE_VALIDATION_ERROR = "NodeValidationError";
     @JsonIgnore private NodeMeta<NodeType, BodyType> meta;
     @JsonIgnore @Nullable private LoomGraph graph;
 
@@ -134,9 +139,13 @@ public final class LoomGraph implements HasToJsonString {
       return (NodeType) this;
     }
 
-    /** Validate the node against the NodeMeta. */
-    public final void validate() {
-      getMeta().validate(self());
+    /**
+     * Validate the node against the NodeMeta.
+     *
+     * @param issueCollector The ValidationIssueCollector to collect any issues.
+     */
+    public final void validate(ValidationIssueCollector issueCollector) {
+      getMeta().validate(self(), issueCollector);
     }
 
     public static class JsonSupport {
@@ -188,10 +197,11 @@ public final class LoomGraph implements HasToJsonString {
      * schema, it throws a ValidationIssue.
      *
      * @param node The node to be validated.
-     * @throws loom.validation.LoomValidationError If the node's body does not adhere to the schema.
+     * @param issueCollector The ValidationIssueCollector to collect any issues.
      */
-    public final void validate(NodeType node) {
-      validateNode(node);
+    public final void validate(NodeType node, ValidationIssueCollector issueCollector) {
+      validateNode(node, issueCollector);
+
       var graph = node.assertGraph();
       var env = graph.getEnv();
 
@@ -199,6 +209,7 @@ public final class LoomGraph implements HasToJsonString {
 
       env.getJsonSchemaManager()
           .issueScan()
+          .issueCollector(issueCollector)
           .type(LoomConstants.Errors.NODE_SCHEMA_ERROR)
           .param("nodeType", node.getType())
           .summaryPrefix("Body ")
@@ -214,17 +225,16 @@ public final class LoomGraph implements HasToJsonString {
           .context(
               ValidationIssue.Context.builder().name("Body Schema").jsonData(bodySchema).build())
           .build()
-          .scan()
-          .check();
+          .scan();
     }
 
     /**
      * Subclass-overridden type validator.
      *
      * @param node the node to validate.
-     * @throws loom.validation.LoomValidationError if the node is invalid.
+     * @param issueCollector the issue collector to collect any issues.
      */
-    public void validateNode(NodeType node) {}
+    public void validateNode(NodeType node, ValidationIssueCollector issueCollector) {}
 
     /**
      * Adopt a node into this meta.
@@ -310,9 +320,21 @@ public final class LoomGraph implements HasToJsonString {
    * @throws loom.validation.LoomValidationError if the graph is invalid.
    */
   public void validate() {
-    env.validateGraph(this);
+    ValidationIssueCollector issueCollector = new ValidationIssueCollector();
+    env.validateGraph(this, issueCollector);
+    issueCollector.check();
   }
 
+  public void validate(ValidationIssueCollector issueCollector) {
+    env.validateGraph(this, issueCollector);
+  }
+
+  /**
+   * Create a deep copy of this graph; all nodes will be deep copied. Shares the same environment.
+   *
+   * @return the copy.
+   */
+  @Nonnull
   public LoomGraph deepCopy() {
     var graph = LoomGraph.builder().env(env).id(id).build();
 
@@ -363,6 +385,7 @@ public final class LoomGraph implements HasToJsonString {
    * @return the node.
    * @throws LookupError if the node does not exist.
    */
+  @Nonnull
   public Node<?, ?> assertNode(UUID id) {
     var node = nodes.get(id);
     if (node == null) {
@@ -378,6 +401,7 @@ public final class LoomGraph implements HasToJsonString {
    * @return the node.
    * @throws LookupError if the node does not exist.
    */
+  @Nonnull
   public Node<?, ?> assertNode(String id) {
     return assertNode(UUID.fromString(id));
   }
@@ -392,6 +416,7 @@ public final class LoomGraph implements HasToJsonString {
    * @param <T> the type of the node to get.
    * @throws LookupError if the node does not exist, or is not of the given type.
    */
+  @Nonnull
   public <T extends Node<?, ?>> T assertNode(UUID id, @Nullable String type, Class<T> nodeClass) {
     var node = assertNode(id);
     if (type != null && !node.getType().equals(type)) {
@@ -413,6 +438,7 @@ public final class LoomGraph implements HasToJsonString {
    * @param <T> the type of the node to get.
    * @throws LookupError if the node does not exist, or is not of the given type.
    */
+  @Nonnull
   public <T extends Node<?, ?>> T assertNode(String id, String type, Class<T> nodeClass) {
     return assertNode(UUID.fromString(id), type, nodeClass);
   }
@@ -423,6 +449,7 @@ public final class LoomGraph implements HasToJsonString {
    * @param node the node to add.
    * @return the added Node.
    */
+  @Nonnull
   @SuppressWarnings("unchecked")
   public <NodeType extends Node<NodeType, BodyType>, BodyType> NodeType addNode(
       Node<NodeType, BodyType> node) {
@@ -457,6 +484,7 @@ public final class LoomGraph implements HasToJsonString {
    * @param builder a builder for the node to add.
    * @return the ID of the node.
    */
+  @Nonnull
   public <N extends Node<N, B>, B> N addNode(Node.NodeBuilder<N, B, ?, ?> builder) {
     if (builder.id == null) {
       builder.id = newUnusedNodeId();
@@ -468,6 +496,41 @@ public final class LoomGraph implements HasToJsonString {
     return addNode(node);
   }
 
+  @Override
+  @Nonnull
+  public Iterator<Node<?, ?>> iterator() {
+    return nodes.values().iterator();
+  }
+
+  /**
+   * Get a stream of all nodes in the graph.
+   *
+   * @return the stream.
+   */
+  @CheckReturnValue
+  @Nonnull
+  public Stream<Node<?, ?>> stream() {
+    return nodes.values().stream();
+  }
+
+  /**
+   * Get a stream of all nodes of class {@code T} the graph, optionally filtered by type.
+   *
+   * @param type the type to filter by; null to skip type filter.
+   * @param nodeClass the class of the nodes to get.
+   * @return the stream.
+   * @param <NodeType> the type of the nodes to get.
+   */
+  @CheckReturnValue
+  @Nonnull
+  public <NodeType> Stream<NodeType> stream(@Nullable String type, Class<NodeType> nodeClass) {
+    var s = stream();
+    if (type != null) {
+      s = s.filter(node -> node.getType().equals(type));
+    }
+
+    return s.filter(nodeClass::isInstance).map(nodeClass::cast);
+  }
 
   /** Support classes for Jackson serialization. */
   public static class JacksonSupport {

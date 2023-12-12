@@ -100,8 +100,9 @@ public class JsonSchemaManager {
 
     @Singular private final List<ValidationIssue.Context> contexts;
 
-    public ValidationIssueCollector scan() {
-      ValidationIssueCollector collector = new ValidationIssueCollector();
+    @Nonnull private final ValidationIssueCollector issueCollector;
+
+    public void scan() {
       for (var problem : manager.validationProblems(schemaSource, json)) {
         var builder = ValidationIssue.builder();
         builder.type(type);
@@ -136,10 +137,8 @@ public class JsonSchemaManager {
           contexts.forEach(builder::context);
         }
 
-        collector.add(builder);
+        issueCollector.add(builder);
       }
-
-      return collector;
     }
   }
 }

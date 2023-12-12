@@ -1,5 +1,10 @@
 package loom.graph.nodes;
 
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.stream.Collectors;
+import javax.annotation.Nonnull;
 import lombok.Builder;
 import lombok.Data;
 import lombok.Getter;
@@ -8,12 +13,6 @@ import lombok.experimental.Delegate;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.jackson.Jacksonized;
 import loom.graph.LoomGraph;
-
-import javax.annotation.Nonnull;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Jacksonized
 @SuperBuilder
@@ -24,6 +23,59 @@ public final class OperationNode extends LoomGraph.Node<OperationNode, Operation
     @Nonnull private String opName;
     @Singular @Nonnull private Map<String, List<UUID>> inputs;
     @Singular @Nonnull private Map<String, List<UUID>> outputs;
+  }
+
+  @Builder
+  @Getter
+  public static final class Meta extends LoomGraph.NodeMeta<OperationNode, Body> {
+    public static final String TYPE = "OperationNode";
+
+    public static final String BODY_SCHEMA =
+        """
+                    {
+                        "type": "object",
+                        "opName": {
+                            "type": "string",
+                            "pattern": "^[a-zA-Z_][a-zA-Z0-9_]*$"
+                        },
+                        "properties": {
+                          "inputs": {
+                              "type": "object",
+                              "patternProperties": {
+                                  "^[a-zA-Z_][a-zA-Z0-9_]*$": {
+                                      "type": "array",
+                                      "items": {
+                                          "type": "string",
+                                          "format": "uuid"
+                                      },
+                                      "minItems": 1
+                                  }
+                              },
+                              "additionalProperties": false
+                          },
+                          "outputs": {
+                              "type": "object",
+                              "patternProperties": {
+                                  "^[a-zA-Z_][a-zA-Z0-9_]*$": {
+                                      "type": "array",
+                                      "items": {
+                                          "type": "string",
+                                          "format": "uuid"
+                                      },
+                                      "minItems": 1
+                                  }
+                              },
+                              "additionalProperties": false
+                          }
+                        },
+                        "required": ["opName", "inputs", "outputs"]
+                    }
+                    """;
+
+    @Builder
+    public Meta() {
+      super(OperationNode.class, Body.class, BODY_SCHEMA);
+    }
   }
 
   /**
@@ -91,59 +143,6 @@ public final class OperationNode extends LoomGraph.Node<OperationNode, Operation
   @Override
   public Class<Body> getBodyClass() {
     return Body.class;
-  }
-
-  @Builder
-  @Getter
-  public static final class Meta extends LoomGraph.NodeMeta<OperationNode, Body> {
-    public static final String TYPE = "OperationNode";
-
-    public static final String BODY_SCHEMA =
-        """
-                {
-                    "type": "object",
-                    "opName": {
-                        "type": "string",
-                        "pattern": "^[a-zA-Z_][a-zA-Z0-9_]*$"
-                    },
-                    "properties": {
-                      "inputs": {
-                          "type": "object",
-                          "patternProperties": {
-                              "^[a-zA-Z_][a-zA-Z0-9_]*$": {
-                                  "type": "array",
-                                  "items": {
-                                      "type": "string",
-                                      "format": "uuid"
-                                  },
-                                  "minItems": 1
-                              }
-                          },
-                          "additionalProperties": false
-                      },
-                      "outputs": {
-                          "type": "object",
-                          "patternProperties": {
-                              "^[a-zA-Z_][a-zA-Z0-9_]*$": {
-                                  "type": "array",
-                                  "items": {
-                                      "type": "string",
-                                      "format": "uuid"
-                                  },
-                                  "minItems": 1
-                              }
-                          },
-                          "additionalProperties": false
-                      }
-                    },
-                    "required": ["opName", "inputs", "outputs"]
-                }
-                """;
-
-    @Builder
-    public Meta() {
-      super(OperationNode.class, Body.class, BODY_SCHEMA);
-    }
   }
 
   /** Exists to support {@code @Delegate} for {@code getBody()}. */

@@ -1,14 +1,16 @@
 package loom.graph;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
-import javax.annotation.Nonnull;
 import lombok.Builder;
 import lombok.Data;
 import lombok.Singular;
 import loom.common.json.JsonSchemaManager;
 import loom.common.serialization.JsonUtil;
+import loom.validation.ValidationIssueCollector;
+
+import javax.annotation.Nonnull;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 /**
  * Loom Graph Environment.
@@ -20,14 +22,14 @@ import loom.common.serialization.JsonUtil;
 public final class LoomEnvironment {
   @FunctionalInterface
   public interface Constraint {
-    void check(LoomEnvironment env, LoomGraph graph);
+    void check(LoomEnvironment env, LoomGraph graph, ValidationIssueCollector issueCollector);
   }
 
   @Nonnull private final LoomGraph.NodeMetaFactory nodeMetaFactory;
 
   @Builder.Default private final JsonSchemaManager jsonSchemaManager = new JsonSchemaManager();
 
-  @Singular @Nonnull private final List<Constraint> constraints = new ArrayList<>();
+  @Singular private final List<Constraint> constraints = new ArrayList<>();
 
   /**
    * Load a graph from a JSON string in this environment.
@@ -65,12 +67,24 @@ public final class LoomEnvironment {
    * @throws loom.validation.LoomValidationError if the graph is invalid.
    */
   public void validateGraph(LoomGraph graph) {
+    ValidationIssueCollector issueCollector = new ValidationIssueCollector();
+    validateGraph(graph, issueCollector);
+    issueCollector.check();
+  }
+
+  /**
+   * Validate a graph in this environment.
+   *
+   * @param graph the graph to validate.
+   * @param issueCollector the ValidationIssueCollector.
+   */
+  public void validateGraph(LoomGraph graph, ValidationIssueCollector issueCollector) {
     for (var node : graph.getNodes().values()) {
-      node.validate();
+      node.validate(issueCollector);
     }
 
     for (var constraint : constraints) {
-      constraint.check(this, graph);
+      constraint.check(this, graph, issueCollector);
     }
   }
 
