@@ -1,14 +1,13 @@
 package loom.zspace;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
-import loom.common.serialization.JsonUtil;
-import loom.testing.CommonAssertions;
-import org.junit.Test;
-
 import java.util.ArrayList;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.function.BinaryOperator;
+import loom.common.serialization.JsonUtil;
+import loom.testing.CommonAssertions;
+import org.junit.Test;
 
 public class ZTensorTest implements CommonAssertions {
   @Test

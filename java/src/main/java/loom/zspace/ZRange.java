@@ -4,20 +4,19 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Splitter;
-import lombok.Getter;
-import loom.common.HasToJsonString;
-import loom.common.IteratorUtils;
-import loom.common.serialization.JsonUtil;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import javax.annotation.concurrent.Immutable;
-import javax.annotation.concurrent.ThreadSafe;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.stream.Stream;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.annotation.concurrent.Immutable;
+import javax.annotation.concurrent.ThreadSafe;
+import lombok.Getter;
+import loom.common.HasToJsonString;
+import loom.common.IteratorUtils;
+import loom.common.serialization.JsonUtil;
 
 /**
  * Represents a range of points in discrete space.
@@ -48,7 +47,7 @@ import java.util.stream.Stream;
  */
 @ThreadSafe
 @Immutable
-public final class ZRange implements HasDimension, HasSize, HasPermute, HasToJsonString {
+public final class ZRange implements HasSize, HasPermute<ZRange>, HasToJsonString {
 
   /** An Iterable view of the coordinates of the range. */
   @Getter

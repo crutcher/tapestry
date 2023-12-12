@@ -20,7 +20,7 @@ import loom.common.HasToJsonString;
 @ThreadSafe
 @Immutable
 @JsonDeserialize(using = ZPoint.Deserializer.class)
-public final class ZPoint implements HasDimension, HasPermute, HasToJsonString {
+public final class ZPoint implements HasPermute<ZPoint>, HasToJsonString {
   static final class Deserializer extends StdDeserializer<ZPoint> {
     public Deserializer() {
       super(ZPoint.class);

@@ -38,8 +38,7 @@ import loom.common.serialization.JsonUtil;
  */
 @JsonSerialize(using = ZTensor.JsonSupport.Serializer.class)
 @JsonDeserialize(using = ZTensor.JsonSupport.Deserializer.class)
-public final class ZTensor
-    implements Cloneable, HasDimension, HasToJsonString, HasPermute, HasSize {
+public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, HasToJsonString {
 
   /**
    * An Iterable view of the coordinates of this tensor.

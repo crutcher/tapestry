@@ -6,18 +6,19 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.google.common.collect.ImmutableList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Objects;
-import javax.annotation.concurrent.Immutable;
-import javax.annotation.concurrent.ThreadSafe;
 import loom.common.HasToJsonString;
 import loom.common.serialization.JsonUtil;
+
+import javax.annotation.concurrent.Immutable;
+import javax.annotation.concurrent.ThreadSafe;
+import java.util.Collections;
+import java.util.Objects;
 
 @Immutable
 @ThreadSafe
 @JsonDeserialize(using = DimensionMap.Deserializer.class)
-public final class DimensionMap implements HasDimension, HasNamedPermute, HasToJsonString {
+public final class DimensionMap
+    implements HasDimension, HasNamedPermute<DimensionMap>, HasToJsonString {
   static final class Deserializer extends StdDeserializer<DimensionMap> {
     public Deserializer() {
       super(ZPoint.class);
@@ -63,11 +64,6 @@ public final class DimensionMap implements HasDimension, HasNamedPermute, HasToJ
     return toJsonString();
   }
 
-  @Override
-  public String toJsonString() {
-    return JsonUtil.toJson(this);
-  }
-
   public static DimensionMap parseDimensionMap(String json) {
     return JsonUtil.fromJson(json, DimensionMap.class);
   }
@@ -77,13 +73,7 @@ public final class DimensionMap implements HasDimension, HasNamedPermute, HasToJ
     return names.size();
   }
 
-  /**
-   * Returns the index of the given dimension name.
-   *
-   * @param name the dimension name
-   * @return the index of the given dimension name.
-   * @throws IndexOutOfBoundsException if the given dimension name is not in this dimension map.
-   */
+  @Override
   public int indexOf(String name) {
     var idx = names.indexOf(name);
     if (idx == -1) {
@@ -92,42 +82,9 @@ public final class DimensionMap implements HasDimension, HasNamedPermute, HasToJ
     return idx;
   }
 
-  /**
-   * Returns the name of the dimension at the given index.
-   *
-   * @param index the index.
-   * @return the name of the dimension at the given index.
-   * @throws IndexOutOfBoundsException if the given index is out of bounds.
-   */
+  @Override
   public String nameOf(int index) {
     return names.get(index);
-  }
-
-  /**
-   * Maps a permutation of names to a permutation of indices.
-   *
-   * @param names the names in the desired order.
-   * @return the permutation of indices.
-   * @throws IndexOutOfBoundsException if the given names are not a permutation of this dimension.
-   */
-  public int[] toPermutation(String... names) {
-    return toPermutation(Arrays.asList(names));
-  }
-
-  /**
-   * Maps a permutation of names to a permutation of indices.
-   *
-   * @param names the names in the desired order.
-   * @return the permutation of indices.
-   * @throws IndexOutOfBoundsException if the given names are not a permutation of this dimension.
-   */
-  public int[] toPermutation(Iterable<String> names) {
-    var perm = new int[ndim()];
-    int i = 0;
-    for (var name : names) {
-      perm[i++] = indexOf(name);
-    }
-    return IndexingFns.resolvePermutation(perm, ndim());
   }
 
   @Override
@@ -140,10 +97,5 @@ public final class DimensionMap implements HasDimension, HasNamedPermute, HasToJ
     }
 
     return new DimensionMap(names);
-  }
-
-  @Override
-  public DimensionMap permute(String... permutation) {
-    return permute(toPermutation(permutation));
   }
 }
