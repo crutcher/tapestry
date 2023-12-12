@@ -1,8 +1,6 @@
 package loom.graph.nodes;
 
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
-import java.util.*;
-import javax.annotation.Nonnull;
 import lombok.Builder;
 import lombok.Data;
 import lombok.Getter;
@@ -15,6 +13,9 @@ import loom.graph.LoomGraph;
 import loom.validation.ValidationIssue;
 import loom.validation.ValidationIssueCollector;
 import loom.zspace.ZPoint;
+
+import javax.annotation.Nonnull;
+import java.util.*;
 
 @Jacksonized
 @SuperBuilder
@@ -31,7 +32,12 @@ public final class TensorNode extends LoomGraph.Node<TensorNode, TensorNode.Body
       LoomGraph graph,
       ValidationIssueCollector issueCollector) {
     for (var tensorNode : graph.iterableNodes(TensorNode.Meta.TYPE, TensorNode.class)) {
-      List<OperationNode> sources = tensorNode._getSourceOperationNodes();
+      var id = tensorNode.getId();
+      List<OperationNode> sources =
+          tensorNode.assertGraph().stream(OperationNode.Meta.TYPE, OperationNode.class)
+              .filter(op -> op.getOutputs().values().stream().anyMatch(ids -> ids.contains(id)))
+              .toList();
+
       if (sources.size() == 1) {
         return;
       }
@@ -56,10 +62,9 @@ public final class TensorNode extends LoomGraph.Node<TensorNode, TensorNode.Body
         issueBuilder.summary("%s has no Operation source".formatted(desc));
 
       } else {
-        issueBuilder.summary(
-            "%s has too many Operation sources: %d".formatted(desc, sources.size()));
-
-        issueBuilder.message("Tensor id: %s".formatted(tensorNode.getId()));
+        issueBuilder
+            .summary("%s has too many Operation sources: %d".formatted(desc, sources.size()))
+            .message("Tensor id: %s".formatted(tensorNode.getId()));
 
         // Sort the sources by ID so that the order is deterministic.
         sources = new ArrayList<>(sources);
@@ -206,25 +211,18 @@ public final class TensorNode extends LoomGraph.Node<TensorNode, TensorNode.Body
     return getBody();
   }
 
-  List<OperationNode> _getSourceOperationNodes() {
-    var id = getId();
-    return assertGraph().stream(OperationNode.Meta.TYPE, OperationNode.class)
-        .filter(op -> op.getOutputs().values().stream().anyMatch(ids -> ids.contains(id)))
-        .toList();
-  }
-
   /**
    * Get the operation node that produces this tensor.
    *
    * @return the operation node.
    */
   public OperationNode getSourceOperationNode() {
-    var nodes = _getSourceOperationNodes();
-    if (nodes.size() != 1) {
-      throw new IllegalStateException(
-          "Expected exactly one source operation node, but found " + nodes.size());
-    }
-    return nodes.getFirst();
+    // This assumes that there is only one source operation node.
+    var id = getId();
+    return assertGraph().stream(OperationNode.Meta.TYPE, OperationNode.class)
+        .filter(op -> op.getOutputs().values().stream().anyMatch(ids -> ids.contains(id)))
+        .findFirst()
+        .orElseThrow();
   }
 
   /**

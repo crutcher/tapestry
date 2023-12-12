@@ -1,10 +1,9 @@
 package loom.common;
 
-import loom.testing.BaseTestClass;
-import org.junit.Test;
-
 import java.util.ArrayList;
 import java.util.List;
+import loom.testing.BaseTestClass;
+import org.junit.Test;
 
 public class IteratorUtilsTest extends BaseTestClass {
   @Test
