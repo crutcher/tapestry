@@ -570,11 +570,12 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
   /**
    * Parse a ZTensor from a string.
    *
-   * @param s the string.
+   * @param str the string.
    * @return the new tensor.
+   * @throws IllegalArgumentException if the string is not a valid ZTensor.
    */
-  public static ZTensor parse(String s) {
-    return JsonUtil.fromJson(s, ZTensor.class);
+  public static @Nonnull ZTensor parse(@Nonnull String str) {
+    return JsonUtil.fromJson(str, ZTensor.class);
   }
 
   /**

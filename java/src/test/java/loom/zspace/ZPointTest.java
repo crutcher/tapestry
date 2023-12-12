@@ -65,6 +65,8 @@ public class ZPointTest implements CommonAssertions {
     assertThat(p).hasToString(str);
     assertThat(ZPoint.parse(str)).isEqualTo(p);
     assertJsonEquals(p, str);
+
+    assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> ZPoint.parse("abc"));
   }
 
   @Test

@@ -126,8 +126,9 @@ public final class ZPoint implements HasPermute<ZPoint>, HasToJsonString {
    *
    * @param source the string to parse.
    * @return the parsed ZPoint.
+   * @throws IllegalArgumentException if the string is not a valid ZPoint.
    */
-  public static ZPoint parse(@Nonnull String source) {
+  public static @Nonnull ZPoint parse(@Nonnull String source) {
     return new ZPoint(ZTensor.parse(source));
   }
 
