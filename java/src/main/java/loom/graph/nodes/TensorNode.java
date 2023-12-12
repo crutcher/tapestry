@@ -12,6 +12,7 @@ import lombok.Singular;
 import lombok.experimental.Delegate;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.jackson.Jacksonized;
+import loom.graph.LoomConstants;
 import loom.graph.LoomGraph;
 import loom.validation.ValidationIssue;
 import loom.validation.ValidationIssueCollector;
@@ -126,7 +127,7 @@ public final class TensorNode extends LoomGraph.Node<TensorNode, TensorNode.Body
       if (!node.getShape().coords.isStrictlyPositive()) {
         issueCollector.add(
             ValidationIssue.builder()
-                .type(NODE_VALIDATION_ERROR)
+                .type(LoomConstants.NODE_VALIDATION_ERROR)
                 .message("shape must be positive and non-empty")
                 .build());
       }

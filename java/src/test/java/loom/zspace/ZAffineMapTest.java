@@ -22,6 +22,12 @@ public class ZAffineMapTest implements CommonAssertions {
             new ZAffineMap(
                 ZTensor.from(new int[][] {{1, 0}, {0, 2}, {1, 2}}), ZTensor.vector(4, 5, 6)));
     assertThat(map).isEqualTo(map);
+
+    assertThatExceptionOfType(IllegalArgumentException.class)
+        .isThrownBy(
+            () ->
+                new ZAffineMap(ZTensor.from(new int[][] {{1, 0}, {0, 2}}), ZTensor.vector(4, 5, 6)))
+        .withMessageContaining("A.shape[1] != b.shape[0]: [2, 2] != [3]");
   }
 
   @Test
@@ -60,5 +66,9 @@ public class ZAffineMapTest implements CommonAssertions {
 
     assertThat(map.apply(new ZPoint(1, 1))).isEqualTo(new ZPoint(5, 7, 9));
     assertThat(map.apply(ZTensor.vector(1, 1))).isEqualTo(ZTensor.vector(5, 7, 9));
+
+    assertThatExceptionOfType(IllegalArgumentException.class)
+        .isThrownBy(() -> map.apply(ZTensor.vector(1, 1, 1)))
+        .withMessageContaining("A.shape[1] != x.shape[0]: [3, 2] != [3]");
   }
 }

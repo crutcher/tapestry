@@ -41,6 +41,13 @@ public class ZRangeTest implements CommonAssertions {
       var range = new ZRange(new ZPoint(1, 2, 3), new ZPoint(4, 5, 6));
       assertThat(range.ndim()).isEqualTo(3);
     }
+
+    assertThatExceptionOfType(IllegalArgumentException.class)
+        .isThrownBy(() -> new ZRange(new ZPoint(1, 2, 3), new ZPoint(4, 5)))
+        .withMessageContaining("shape [3] != expected shape [2]");
+    assertThatExceptionOfType(IllegalArgumentException.class)
+        .isThrownBy(() -> new ZRange(new ZPoint(1, 1), new ZPoint(0, 1)))
+        .withMessageContaining("start [1, 1] must be <= end [0, 1]");
   }
 
   @SuppressWarnings("DuplicateExpressions")
@@ -78,6 +85,10 @@ public class ZRangeTest implements CommonAssertions {
       assertThat(ZRange.parse(pretty)).isEqualTo(range);
       assertThat(ZRange.parse(json)).isEqualTo(range);
     }
+
+    assertThatExceptionOfType(IllegalArgumentException.class)
+        .isThrownBy(() -> ZRange.parse("abc"))
+        .withMessageContaining("Invalid ZRange: \"abc\"");
   }
 
   @Test
@@ -133,6 +144,22 @@ public class ZRangeTest implements CommonAssertions {
       var range = ZRange.of(ZTensor.vector(2, 3), ZTensor.vector(4, 5));
       assertThat(range.ndim()).isEqualTo(2);
       assertThat(range.size).isEqualTo(4);
+    }
+  }
+
+  @Test
+  public void test_inclusiveEnd() {
+    {
+      var range = new ZRange(new ZPoint(2, 3), new ZPoint(4, 5));
+      assertThat(range.isEmpty()).isFalse();
+      assertThat(range.inclusiveEnd()).isEqualTo(new ZPoint(3, 4));
+    }
+    {
+      var range = new ZRange(new ZPoint(2, 3), new ZPoint(2, 3));
+      assertThat(range.isEmpty()).isTrue();
+      assertThatExceptionOfType(IndexOutOfBoundsException.class)
+          .isThrownBy(range::inclusiveEnd)
+          .withMessageContaining("Empty range");
     }
   }
 

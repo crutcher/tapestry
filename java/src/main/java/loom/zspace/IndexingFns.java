@@ -102,9 +102,6 @@ public final class IndexingFns {
     int[] perm = new int[ndim];
     for (int idx = 0; idx < ndim; ++idx) {
       int d = resolveDim(permutation[idx], ndim);
-      if (d < 0 || d >= ndim) {
-        throw new IllegalArgumentException("invalid permutation: " + Arrays.toString(permutation));
-      }
       perm[idx] = d;
       acc += d;
     }
@@ -126,10 +123,14 @@ public final class IndexingFns {
   public static int ravel(@Nonnull int[] shape, @Nonnull int[] stride, @Nonnull int[] coords) {
     var ndim = shape.length;
     if (stride.length != ndim) {
-      throw new IllegalArgumentException("shape and stride must have the same dimensions");
+      throw new IllegalArgumentException(
+          "shape %s and stride %s must have the same dimensions"
+              .formatted(Arrays.toString(shape), Arrays.toString(stride)));
     }
     if (coords.length != ndim) {
-      throw new IllegalArgumentException("shape and coords must have the same dimensions");
+      throw new IllegalArgumentException(
+          "shape %s and coords %s must have the same dimensions"
+              .formatted(Arrays.toString(shape), Arrays.toString(coords)));
     }
 
     int index = 0;
@@ -200,15 +201,14 @@ public final class IndexingFns {
    */
   public static int[] commonBroadcastShape(int[]... shapes) {
     int ndim = 0;
-    for (int i = 0; i < shapes.length; ++i) {
-      ndim = Math.max(ndim, shapes[i].length);
+    for (int[] ints : shapes) {
+      ndim = Math.max(ndim, ints.length);
     }
 
     int[] res = new int[ndim];
     for (int i = 0; i < ndim; ++i) res[i] = -1;
 
-    for (int i = 0; i < shapes.length; ++i) {
-      var shape = shapes[i];
+    for (int[] shape : shapes) {
       int shift = ndim - shape.length;
       for (int d = shift; d < ndim; ++d) {
         var size = shape[d - shift];
@@ -224,9 +224,7 @@ public final class IndexingFns {
 
         throw new IndexOutOfBoundsException(
             "cannot broadcast shapes: "
-                + Arrays.asList(shapes).stream()
-                    .map(Arrays::toString)
-                    .collect(Collectors.joining(", ")));
+                + Arrays.stream(shapes).map(Arrays::toString).collect(Collectors.joining(", ")));
       }
     }
 

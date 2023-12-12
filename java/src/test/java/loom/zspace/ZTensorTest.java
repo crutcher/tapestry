@@ -1,6 +1,8 @@
 package loom.zspace;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import java.util.ArrayList;
+import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.function.BinaryOperator;
 import loom.common.serialization.JsonUtil;
@@ -9,7 +11,75 @@ import org.junit.Test;
 
 public class ZTensorTest implements CommonAssertions {
   @Test
-  public void testAssertShape() {
+  public void test_byCoords() {
+    ZTensor t = ZTensor.from(new int[][] {{2, 3}, {4, 5}});
+
+    {
+      // CoordsBufferMode.SHARED
+
+      ZTensor.IterableCoords coords = t.byCoords(ZTensor.CoordsBufferMode.REUSED);
+      assertThat(coords.getBufferMode()).isEqualTo(ZTensor.CoordsBufferMode.REUSED);
+
+      {
+        ZTensor.CoordsIterator it = coords.iterator();
+        assertThat(it.getBufferMode()).isEqualTo(ZTensor.CoordsBufferMode.REUSED);
+
+        assertThat(it.hasNext()).isTrue();
+        var buf = it.next();
+        assertThat(buf).isEqualTo(new int[] {0, 0});
+        assertThat(it.next()).isSameAs(buf).isEqualTo(new int[] {0, 1});
+        assertThat(it.next()).isSameAs(buf).isEqualTo(new int[] {1, 0});
+        assertThat(it.next()).isSameAs(buf).isEqualTo(new int[] {1, 1});
+        assertThat(it.hasNext()).isFalse();
+
+        assertThatExceptionOfType(NoSuchElementException.class).isThrownBy(it::next);
+      }
+
+      // This is the weird shit, because the buffer is reused.
+      assertThat(coords.stream().toList())
+          .contains(new int[] {1, 1}, new int[] {1, 1}, new int[] {1, 1}, new int[] {1, 1});
+      assertThat(coords.stream().map(int[]::clone).toList())
+          .contains(new int[] {0, 0}, new int[] {0, 1}, new int[] {1, 0}, new int[] {1, 1});
+
+      var items = new ArrayList<int[]>();
+      coords.iterator().forEachRemaining(b -> items.add(b.clone()));
+      assertThat(items)
+          .contains(new int[] {0, 0}, new int[] {0, 1}, new int[] {1, 0}, new int[] {1, 1});
+    }
+
+    {
+      // CoordsBufferMode.OWNED
+
+      ZTensor.IterableCoords coords = t.byCoords(ZTensor.CoordsBufferMode.DISTINCT);
+      assertThat(coords.getBufferMode()).isEqualTo(ZTensor.CoordsBufferMode.DISTINCT);
+
+      {
+        ZTensor.CoordsIterator it = coords.iterator();
+        assertThat(it.getBufferMode()).isEqualTo(ZTensor.CoordsBufferMode.DISTINCT);
+      }
+
+      assertThat(coords.stream().toList())
+          .contains(new int[] {0, 0}, new int[] {0, 1}, new int[] {1, 0}, new int[] {1, 1});
+
+      var items = new ArrayList<int[]>();
+      coords.iterator().forEachRemaining(items::add);
+      assertThat(items)
+          .contains(new int[] {0, 0}, new int[] {0, 1}, new int[] {1, 0}, new int[] {1, 1});
+    }
+  }
+
+  @Test
+  public void test_isStrictlyPositive() {
+    assertThat(ZTensor.scalar(1).isStrictlyPositive()).isTrue();
+    assertThat(ZTensor.scalar(0).isStrictlyPositive()).isFalse();
+
+    assertThat(ZTensor.vector(1, 2, 3).isStrictlyPositive()).isTrue();
+    assertThat(ZTensor.vector(1, 0, 3).isStrictlyPositive()).isFalse();
+    assertThat(ZTensor.vector(1, -0, 3).isStrictlyPositive()).isFalse();
+  }
+
+  @Test
+  public void test_assertShape() {
     ZTensor t = ZTensor.from(new int[][] {{2, 3}, {4, 5}});
 
     assertThat(t.shapeAsArray()).isEqualTo(new int[] {2, 2});
@@ -284,6 +354,13 @@ public class ZTensorTest implements CommonAssertions {
     assertThat(t.shapeAsArray()).isEqualTo(new int[] {1, 2, 3});
 
     {
+      // no-op case.
+      assertThat(t.transpose(1, 1)).isSameAs(t);
+      assertThat(t.transpose(-2, 1)).isSameAs(t);
+      assertThat(t.transpose(-2, -2)).isSameAs(t);
+    }
+
+    {
       // No arguments
       var trans = t.transpose();
       assertThat(trans.shapeAsArray()).isEqualTo(new int[] {3, 2, 1});
@@ -317,8 +394,22 @@ public class ZTensorTest implements CommonAssertions {
 
     assertThat(t.unsqueeze(0)).isEqualTo(ZTensor.from(new int[][] {{2, 3, 4}}));
     assertThat(t.unsqueeze(1)).isEqualTo(ZTensor.from(new int[][] {{2}, {3}, {4}}));
+    assertThat(t.unsqueeze(-1)).isEqualTo(ZTensor.from(new int[][] {{2}, {3}, {4}}));
 
     assertThat(t.unsqueeze(1).squeeze(1)).isEqualTo(t);
+
+    assertThatExceptionOfType(IndexOutOfBoundsException.class).isThrownBy(() -> t.unsqueeze(4));
+    assertThatExceptionOfType(IndexOutOfBoundsException.class).isThrownBy(() -> t.unsqueeze(-3));
+  }
+
+  @Test
+  public void test_squeeze() {
+    ZTensor t = ZTensor.from(new int[][] {{2, 3, 4}});
+
+    assertThat(t.squeeze(0)).isEqualTo(ZTensor.from(new int[] {2, 3, 4}));
+    assertThat(t.squeeze(-2)).isEqualTo(ZTensor.from(new int[] {2, 3, 4}));
+
+    assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> t.squeeze(1));
   }
 
   @Test
@@ -326,6 +417,10 @@ public class ZTensorTest implements CommonAssertions {
     ZTensor t = ZTensor.from(new int[][] {{2, 3}});
 
     assertThat(t.broadcastDim(0, 2)).isEqualTo(ZTensor.from(new int[][] {{2, 3}, {2, 3}}));
+
+    assertThatExceptionOfType(IllegalArgumentException.class)
+        .isThrownBy(() -> t.broadcastDim(1, 2))
+        .withMessageContaining("Cannot broadcast dimension 1 with real-size 2");
   }
 
   @Test
@@ -343,16 +438,14 @@ public class ZTensorTest implements CommonAssertions {
 
     bview.set(new int[] {0, 0}, 1);
     assertThat(bview).isEqualTo(ZTensor.from(new int[][] {{1, 3}, {1, 3}}));
-  }
 
-  @Test
-  public void test_stream() {
-    ZTensor t = ZTensor.matrix(new int[][] {{2, 3}, {4, 5}});
+    assertThatExceptionOfType(IllegalArgumentException.class)
+        .isThrownBy(() -> t.broadcastTo(2))
+        .withMessageContaining("Cannot broadcast shape [1, 2] to [2]");
 
-    var points = t.coordsStream().map(int[]::clone).toList();
-
-    assertThat(points)
-        .contains(new int[] {0, 0}, new int[] {0, 1}, new int[] {1, 0}, new int[] {1, 1});
+    assertThatExceptionOfType(IllegalArgumentException.class)
+        .isThrownBy(() -> t.broadcastTo(2, 3))
+        .withMessageContaining("Cannot broadcast shape [1, 2] to [2, 3]");
   }
 
   @Test
@@ -720,13 +813,22 @@ public class ZTensorTest implements CommonAssertions {
 
     assertThat(tensor.isMutable()).isTrue();
     tensor.assertMutable();
+    assertThatExceptionOfType(IllegalStateException.class)
+        .isThrownBy(tensor::assertReadOnly)
+        .withMessageContaining("mutable");
+
     tensor.set(new int[] {0, 0}, 5);
     assertThat(tensor).isEqualTo(ZTensor.from(new int[][] {{5, 2}, {3, 4}}));
 
     var fixed = tensor.immutable();
     assertThat(fixed.isMutable()).isFalse();
     assertThat(fixed.isReadOnly()).isTrue();
+
     fixed.assertReadOnly();
+    assertThatExceptionOfType(IllegalStateException.class)
+        .isThrownBy(fixed::assertMutable)
+        .withMessageContaining("immutable");
+
     assertThat(fixed).isNotSameAs(tensor).extracting(ZTensor::isMutable).isEqualTo(false);
     assertThat(fixed.immutable()).isSameAs(fixed);
     assertThatExceptionOfType(IllegalStateException.class)

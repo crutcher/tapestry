@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 import loom.demo.DemoTest;
 import loom.graph.CommonEnvironments;
+import loom.graph.LoomConstants;
 import loom.graph.NodeApi;
 import loom.testing.BaseTestClass;
 import loom.validation.ValidationIssue;
@@ -28,7 +29,7 @@ public class AllTensorsHaveExactlyOneSourceOperationConstraintTest extends BaseT
     assertThat(issueCollector.getIssues())
         .contains(
             ValidationIssue.builder()
-                .type(TensorNode.NODE_VALIDATION_ERROR)
+                .type(LoomConstants.NODE_VALIDATION_ERROR)
                 .param("nodeType", TensorNode.Meta.TYPE)
                 .context(
                     ValidationIssue.Context.builder()
@@ -64,7 +65,7 @@ public class AllTensorsHaveExactlyOneSourceOperationConstraintTest extends BaseT
     assertThat(issueCollector.getIssues())
         .contains(
             ValidationIssue.builder()
-                .type(TensorNode.NODE_VALIDATION_ERROR)
+                .type(LoomConstants.NODE_VALIDATION_ERROR)
                 .param("nodeType", TensorNode.Meta.TYPE)
                 .context(
                     ValidationIssue.Context.builder()

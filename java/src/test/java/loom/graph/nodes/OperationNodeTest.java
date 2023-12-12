@@ -1,14 +1,13 @@
 package loom.graph.nodes;
 
+import java.util.List;
+import java.util.Map;
 import loom.demo.DemoTest;
 import loom.graph.CommonEnvironments;
 import loom.graph.NodeApi;
 import loom.testing.BaseTestClass;
 import loom.zspace.ZPoint;
 import org.junit.Test;
-
-import java.util.List;
-import java.util.Map;
 
 public class OperationNodeTest extends BaseTestClass {
   @Test

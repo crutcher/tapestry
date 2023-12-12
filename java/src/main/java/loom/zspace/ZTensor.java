@@ -13,17 +13,18 @@ import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.node.IntNode;
 import com.google.common.primitives.Ints;
 import com.google.errorprone.annotations.CheckReturnValue;
-import java.io.IOException;
+import lombok.Getter;
+import lombok.SneakyThrows;
+import loom.common.HasToJsonString;
+import loom.common.IteratorUtils;
+import loom.common.serialization.JsonUtil;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.lang.reflect.Array;
 import java.util.*;
 import java.util.function.*;
 import java.util.stream.Stream;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import lombok.Getter;
-import loom.common.HasToJsonString;
-import loom.common.IteratorUtils;
-import loom.common.serialization.JsonUtil;
 
 /**
  * Minimal discrete Tensor.
@@ -40,10 +41,56 @@ import loom.common.serialization.JsonUtil;
 @JsonDeserialize(using = ZTensor.JsonSupport.Deserializer.class)
 public final class ZTensor
     implements Cloneable, HasDimension, HasToJsonString, HasPermute, HasSize {
-  private final class CoordsIterator implements Iterator<int[]> {
+
+  public enum CoordsBufferMode {
+    /** The buffer is shared between subsequent calls to {@link Iterator#next()}. */
+    REUSED,
+
+    /** The buffer is not shared between subsequent calls to {@link Iterator#next()}. */
+    DISTINCT,
+  }
+
+  /**
+   * An Iterable view of the coordinates of this tensor.
+   *
+   * <p>The {@link #bufferMode} is passed to each construction of an {@link Iterator}.
+   */
+  @Getter
+  public final class IterableCoords implements Iterable<int[]> {
+    private final CoordsBufferMode bufferMode;
+
+    IterableCoords(CoordsBufferMode bufferMode) {
+      this.bufferMode = bufferMode;
+    }
+
+    @Override
+    public @Nonnull CoordsIterator iterator() {
+      return new CoordsIterator(bufferMode);
+    }
+
+    public @Nonnull Stream<int[]> stream() {
+      return IteratorUtils.iterableToStream(this);
+    }
+  }
+
+  /**
+   * An Iterator over the coordinates of this tensor.
+   *
+   * <p>When the buffer mode is {@link CoordsBufferMode#REUSED}, the buffer is shared between
+   * subsequent calls to {@link Iterator#next()}. When the buffer mode is {@link
+   * CoordsBufferMode#DISTINCT}, the buffer is not shared between subsequent calls to {@link
+   * Iterator#next()}.
+   */
+  public final class CoordsIterator implements Iterator<int[]> {
+    @Getter private final CoordsBufferMode bufferMode;
+
     // Assuming a non-scalar ZTensor; non-empty ZTensor.
     private int remaining = size();
     @Nullable private int[] coords = null;
+
+    CoordsIterator(CoordsBufferMode bufferMode) {
+      this.bufferMode = bufferMode;
+    }
 
     @Override
     public boolean hasNext() {
@@ -70,18 +117,11 @@ public final class ZTensor
         }
       }
 
+      if (bufferMode == CoordsBufferMode.DISTINCT) {
+        return coords.clone();
+      }
+
       return coords;
-    }
-  }
-
-  public final class CoordsIterable implements Iterable<int[]> {
-    @Override
-    public @Nonnull Iterator<int[]> iterator() {
-      return new CoordsIterator();
-    }
-
-    public @Nonnull Stream<int[]> stream() {
-      return IteratorUtils.iterableToStream(this);
     }
   }
 
@@ -282,7 +322,7 @@ public final class ZTensor
       hash = -1;
     } else {
       int acc = Arrays.hashCode(this.shape);
-      for (var coords : byCoords()) {
+      for (var coords : byCoords(CoordsBufferMode.REUSED)) {
         acc = 31 * acc + get(coords);
       }
       hash = acc;
@@ -439,7 +479,7 @@ public final class ZTensor
     int chunkCount = 0;
     int chunkStride = tensor.shape[ndim - 1];
 
-    for (int[] coords : tensor.byCoords()) {
+    for (int[] coords : tensor.byCoords(CoordsBufferMode.REUSED)) {
       if (coords[ndim - 1] != 0) continue;
 
       var it = root;
@@ -483,7 +523,7 @@ public final class ZTensor
       return;
     }
 
-    for (int[] coords : byCoords()) {
+    for (int[] coords : byCoords(CoordsBufferMode.REUSED)) {
       for (int d = ndim - 1; d >= 0; --d) {
         if (coords[d] == 0) {
           startArray.run();
@@ -513,7 +553,7 @@ public final class ZTensor
     var that = (ZTensor) other;
 
     HasDimension.assertSameNDim(this, that);
-    for (var coords : byCoords()) {
+    for (var coords : byCoords(CoordsBufferMode.REUSED)) {
       if (that.get(coords) != get(coords)) {
         return false;
       }
@@ -561,7 +601,7 @@ public final class ZTensor
     Object arr = Array.newInstance(int.class, shape);
 
     var ndim = ndim();
-    for (int[] coords : byCoords()) {
+    for (int[] coords : byCoords(CoordsBufferMode.REUSED)) {
       var it = arr;
       for (int d = 0; d < ndim - 1; ++d) {
         it = Array.get(it, coords[d]);
@@ -739,7 +779,7 @@ public final class ZTensor
 
   /** Are all cells in this tensor > 0? */
   public boolean isStrictlyPositive() {
-    for (var c : byCoords()) {
+    for (var c : byCoords(CoordsBufferMode.REUSED)) {
       if (get(c) <= 0) {
         return false;
       }
@@ -753,7 +793,7 @@ public final class ZTensor
    * @param consumer the consumer.
    */
   public void forEachItem(@Nonnull BiConsumer<int[], Integer> consumer) {
-    for (int[] coords : byCoords()) {
+    for (int[] coords : byCoords(CoordsBufferMode.REUSED)) {
       consumer.accept(coords, get(coords));
     }
   }
@@ -761,18 +801,16 @@ public final class ZTensor
   /**
    * Returns an {@code Iterable<int[]>} over the coordinates of this tensor.
    *
-   * <p>The iterable re-uses the same array for each call to {@link Iterator#next()}. The array
-   * should not be mutated; it is only valid until the next call to {@link Iterator#next()}.
+   * <p>When the buffer mode is {@link CoordsBufferMode#REUSED}, the buffer is shared between
+   * subsequent calls to {@link Iterator#next()}. When the buffer mode is {@link
+   * CoordsBufferMode#DISTINCT}, the buffer is not shared between subsequent calls to {@link
+   * Iterator#next()}.
    *
+   * @param bufferMode the buffer mode.
    * @return an iterable over the coordinates of this tensor.
    */
-  public @Nonnull CoordsIterable byCoords() {
-    return new CoordsIterable();
-  }
-
-  /** Returns a {@code Stream<int[]>} over the coordinates of this tensor. */
-  public @Nonnull Stream<int[]> coordsStream() {
-    return byCoords().stream();
+  public @Nonnull IterableCoords byCoords(CoordsBufferMode bufferMode) {
+    return new IterableCoords(bufferMode);
   }
 
   /**
@@ -874,21 +912,19 @@ public final class ZTensor
    * @return a view of this tensor with an extra dimension added at index `d`.
    */
   public ZTensor unsqueeze(int d) {
-    if (d < 0 || d > ndim()) {
-      throw new IllegalArgumentException("invalid dimension: " + d);
-    }
+    int rD = IndexingFns.resolveDim(d, shape.length + 1);
 
     int[] newShape = new int[ndim() + 1];
     int[] newStride = new int[ndim() + 1];
 
-    System.arraycopy(shape, 0, newShape, 0, d);
-    System.arraycopy(shape, d, newShape, d + 1, ndim() - d);
+    System.arraycopy(shape, 0, newShape, 0, rD);
+    System.arraycopy(shape, rD, newShape, rD + 1, ndim() - rD);
 
-    System.arraycopy(stride, 0, newStride, 0, d);
-    System.arraycopy(stride, d, newStride, d + 1, ndim() - d);
+    System.arraycopy(stride, 0, newStride, 0, rD);
+    System.arraycopy(stride, rD, newStride, rD + 1, ndim() - rD);
 
-    newShape[d] = 1;
-    newStride[d] = 0;
+    newShape[rD] = 1;
+    newStride[rD] = 0;
 
     return new ZTensor(mutable, newShape, newStride, data, data_offset);
   }
@@ -934,7 +970,8 @@ public final class ZTensor
   public ZTensor broadcastDim(int dim, int size) {
     dim = resolveDim(dim);
     if (stride[dim] != 0) {
-      throw new IllegalArgumentException("dimension " + dim + " is not broadcastable");
+      throw new IllegalArgumentException(
+          "Cannot broadcast dimension %d with real-size %d".formatted(dim, shape[dim]));
     }
 
     var new_shape = shape.clone();
@@ -986,7 +1023,7 @@ public final class ZTensor
     var res = this;
     if (res.ndim() > targetShape.length) {
       throw new IllegalArgumentException(
-          "cannot broadcast shape "
+          "Cannot broadcast shape "
               + Arrays.toString(shape)
               + " to "
               + Arrays.toString(targetShape));
@@ -997,8 +1034,8 @@ public final class ZTensor
     for (int i = 0; i < targetShape.length; ++i) {
       if (res.shape[i] > 1 && res.shape[i] != targetShape[i]) {
         throw new IllegalArgumentException(
-            "cannot broadcast shape "
-                + Arrays.toString(res.shape)
+            "Cannot broadcast shape "
+                + Arrays.toString(this.shape)
                 + " to "
                 + Arrays.toString(targetShape));
       }
@@ -1105,7 +1142,7 @@ public final class ZTensor
    */
   public void fill(int fill_value) {
     assertMutable();
-    for (int[] coords : byCoords()) {
+    for (int[] coords : byCoords(CoordsBufferMode.REUSED)) {
       _unchecked_set(coords, fill_value);
     }
   }
@@ -1145,7 +1182,7 @@ public final class ZTensor
     assertMutable();
     lhs = lhs.broadcastLike(this);
     rhs = rhs.broadcastLike(this);
-    for (int[] coords : byCoords()) {
+    for (int[] coords : byCoords(CoordsBufferMode.REUSED)) {
       _unchecked_set(coords, op.apply(lhs.get(coords), rhs.get(coords)));
     }
   }
@@ -1469,29 +1506,30 @@ public final class ZTensor
 
     static final class Serializer extends JsonSerializer<ZTensor> {
       @Override
+      @SuppressWarnings({"Convert2Lambda", "Anonymous2MethodRef"})
       public void serialize(ZTensor value, JsonGenerator gen, SerializerProvider serializers) {
 
         value.toTree(
-            () -> {
-              try {
+            new Runnable() {
+              @Override
+              @SneakyThrows
+              public void run() {
                 gen.writeStartArray();
-              } catch (IOException e) { // coverage: ignore
-                throw new RuntimeException(e);
               }
             },
-            () -> {
-              try {
+            new Runnable() {
+              @Override
+              @SneakyThrows
+              public void run() {
                 gen.writeEndArray();
-              } catch (IOException e) { // coverage: ignore
-                throw new RuntimeException(e);
               }
             },
             () -> {},
-            val -> {
-              try {
+            new Consumer<>() {
+              @Override
+              @SneakyThrows
+              public void accept(Integer val) {
                 gen.writeNumber(val);
-              } catch (IOException e) { // coverage: ignore
-                throw new RuntimeException(e);
               }
             });
       }

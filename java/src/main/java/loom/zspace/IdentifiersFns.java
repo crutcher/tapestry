@@ -1,5 +1,6 @@
 package loom.zspace;
 
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.util.regex.Pattern;
 
 /** Utility functions for identifiers. */
@@ -21,9 +22,10 @@ public final class IdentifiersFns {
    * @return the identifier.
    * @throws IllegalArgumentException if the identifier is invalid.
    */
+  @CanIgnoreReturnValue
   public static String validAtomicIdentifier(String name) {
     if (!ATOMIC_IDENTIFIER_PATTERN.matcher(name).matches()) {
-      throw new IllegalArgumentException("invalid atomic identifier: " + name);
+      throw new IllegalArgumentException("invalid atomic identifier: \"%s\"".formatted(name));
     }
     return name;
   }
@@ -35,9 +37,10 @@ public final class IdentifiersFns {
    * @return the identifier.
    * @throws IllegalArgumentException if the identifier is invalid.
    */
+  @CanIgnoreReturnValue
   public static String validDottedIdentifier(String name) {
     if (!DOTTED_IDENTIFIER_PATTERN.matcher(name).matches()) {
-      throw new IllegalArgumentException("invalid dotted identifier: " + name);
+      throw new IllegalArgumentException("invalid dotted identifier: \"%s\"".formatted(name));
     }
     return name;
   }

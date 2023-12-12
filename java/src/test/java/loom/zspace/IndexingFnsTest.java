@@ -105,6 +105,13 @@ public class IndexingFnsTest implements CommonAssertions {
 
     assertThatExceptionOfType(IndexOutOfBoundsException.class)
         .isThrownBy(() -> IndexingFns.ravel(shape, strides, new int[] {0, 1, 0}));
+
+    assertThatExceptionOfType(IllegalArgumentException.class)
+        .isThrownBy(() -> IndexingFns.ravel(new int[] {2, 3}, new int[] {1}, new int[] {0, 0}))
+        .withMessageContaining("shape [2, 3] and stride [1] must have the same dimensions");
+    assertThatExceptionOfType(IllegalArgumentException.class)
+        .isThrownBy(() -> IndexingFns.ravel(new int[] {2, 3}, new int[] {1, 2}, new int[] {0}))
+        .withMessageContaining("shape [2, 3] and coords [0] must have the same dimensions");
   }
 
   @SuppressWarnings("ResultOfMethodCallIgnored")

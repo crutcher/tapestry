@@ -152,7 +152,7 @@ public final class ZRange implements HasDimension, HasSize, HasPermute, HasToJso
       @Nonnull @JsonProperty(value = "end", required = true) ZPoint end) {
     start.coords.assertMatchingShape(end.coords);
     if (start.gt(end)) {
-      throw new IllegalArgumentException("start must be <= end");
+      throw new IllegalArgumentException("start %s must be <= end %s".formatted(start, end));
     }
     this.start = start;
     this.end = end;
@@ -225,7 +225,7 @@ public final class ZRange implements HasDimension, HasSize, HasPermute, HasToJso
       for (int i = 0; i < parts.size(); ++i) {
         var rangeParts = Splitter.on(':').splitToList(parts.get(i));
         if (rangeParts.size() != 2) {
-          throw new IllegalArgumentException(String.format("invalid range: %s", str));
+          throw new IllegalArgumentException(String.format("Invalid ZRange: \"%s\"", str));
         }
 
         start[i] = Integer.parseInt(rangeParts.get(0).trim());
@@ -235,7 +235,7 @@ public final class ZRange implements HasDimension, HasSize, HasPermute, HasToJso
       return new ZRange(new ZPoint(start), new ZPoint(end));
     }
 
-    throw new IllegalArgumentException(String.format("Invalid ZRange: %s", str));
+    throw new IllegalArgumentException(String.format("Invalid ZRange: \"%s\"", str));
   }
 
   @Override
@@ -329,7 +329,7 @@ public final class ZRange implements HasDimension, HasSize, HasPermute, HasToJso
    */
   public @Nonnull ZPoint inclusiveEnd() {
     if (isEmpty()) {
-      throw new IndexOutOfBoundsException("empty range");
+      throw new IndexOutOfBoundsException("Empty range");
     }
 
     return new ZPoint(end.coords.sub(1));

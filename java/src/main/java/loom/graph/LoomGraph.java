@@ -52,7 +52,6 @@ public final class LoomGraph implements Iterable<LoomGraph.Node<?, ?>>, HasToJso
   public abstract static class Node<NodeType extends Node<NodeType, BodyType>, BodyType>
       implements HasToJsonString {
 
-    public static final String NODE_VALIDATION_ERROR = "NodeValidationError";
     @JsonIgnore private NodeMeta<NodeType, BodyType> meta;
     @JsonIgnore @Nullable private LoomGraph graph;
 
@@ -62,7 +61,7 @@ public final class LoomGraph implements Iterable<LoomGraph.Node<?, ?>>, HasToJso
     @Nonnull private BodyType body;
 
     @JsonIgnore
-    public String getJsonPath() {
+    public final String getJsonPath() {
       return "$.nodes[@.id=='%s']".formatted(getId());
     }
 
@@ -71,7 +70,7 @@ public final class LoomGraph implements Iterable<LoomGraph.Node<?, ?>>, HasToJso
      *
      * @return the graph.
      */
-    public LoomGraph assertGraph() {
+    public final LoomGraph assertGraph() {
       if (graph == null) {
         throw new IllegalStateException("Node does not belong to a graph: " + id);
       }
@@ -149,7 +148,7 @@ public final class LoomGraph implements Iterable<LoomGraph.Node<?, ?>>, HasToJso
       getMeta().validate(self(), issueCollector);
     }
 
-    public static class JsonSupport {
+    public static final class JsonSupport {
       private JsonSupport() {}
 
       /**
@@ -558,11 +557,11 @@ public final class LoomGraph implements Iterable<LoomGraph.Node<?, ?>>, HasToJso
   }
 
   /** Support classes for Jackson serialization. */
-  public static class JacksonSupport {
+  public static final class JacksonSupport {
     private JacksonSupport() {}
 
     /** Jackson deserializer for {@link LoomGraph#nodes}. */
-    public static class NodeListToMapDeserializer
+    public static final class NodeListToMapDeserializer
         extends MapValueListUtil.MapDeserializer<UUID, Node<?, ?>> {
       @SuppressWarnings("unchecked")
       public NodeListToMapDeserializer() {

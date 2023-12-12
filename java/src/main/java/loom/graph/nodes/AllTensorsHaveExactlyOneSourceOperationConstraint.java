@@ -4,6 +4,7 @@ import com.google.common.annotations.VisibleForTesting;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import loom.graph.LoomConstants;
 import loom.graph.LoomEnvironment;
 import loom.graph.LoomGraph;
 import loom.validation.ValidationIssue;
@@ -50,7 +51,7 @@ public class AllTensorsHaveExactlyOneSourceOperationConstraint
 
     var issueBuilder =
         ValidationIssue.builder()
-            .type(TensorNode.NODE_VALIDATION_ERROR)
+            .type(LoomConstants.NODE_VALIDATION_ERROR)
             .param("nodeType", TensorNode.Meta.TYPE)
             .context(
                 ValidationIssue.Context.builder()
