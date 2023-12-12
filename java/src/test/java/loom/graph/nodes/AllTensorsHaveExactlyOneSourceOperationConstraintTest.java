@@ -1,7 +1,5 @@
 package loom.graph.nodes;
 
-import java.util.List;
-import java.util.Map;
 import loom.demo.DemoTest;
 import loom.graph.CommonEnvironments;
 import loom.graph.NodeApi;
@@ -10,6 +8,9 @@ import loom.validation.ValidationIssue;
 import loom.validation.ValidationIssueCollector;
 import loom.zspace.ZPoint;
 import org.junit.Test;
+
+import java.util.List;
+import java.util.Map;
 
 public class AllTensorsHaveExactlyOneSourceOperationConstraintTest extends BaseTestClass {
   @Test
@@ -57,7 +58,7 @@ public class AllTensorsHaveExactlyOneSourceOperationConstraintTest extends BaseT
     ValidationIssueCollector issueCollector = new ValidationIssueCollector();
     graph.validate(issueCollector);
 
-    System.out.println(issueCollector.toDisplayString());
+    // System.out.println(issueCollector.toDisplayString());
 
     assertThat(issueCollector.getIssues())
         .contains(

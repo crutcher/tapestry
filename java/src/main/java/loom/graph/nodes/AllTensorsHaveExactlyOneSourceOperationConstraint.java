@@ -20,7 +20,7 @@ public class AllTensorsHaveExactlyOneSourceOperationConstraint
       LoomGraph graph,
       ValidationIssueCollector issueCollector) {
     for (var tensorNode : graph.iterableNodes(TensorNode.Meta.TYPE, TensorNode.class)) {
-      _CheckTensorSources(tensorNode, issueCollector);
+      checkTensor(tensorNode, issueCollector);
     }
   }
 
@@ -31,7 +31,7 @@ public class AllTensorsHaveExactlyOneSourceOperationConstraint
    * @param issueCollector the ValidationIssueCollector.
    */
   @VisibleForTesting
-  static void _CheckTensorSources(TensorNode tensorNode, ValidationIssueCollector issueCollector) {
+  static void checkTensor(TensorNode tensorNode, ValidationIssueCollector issueCollector) {
     final var nodeId = tensorNode.getId();
 
     List<OperationNode> operationSourceNodes =
