@@ -1,13 +1,6 @@
 package loom.validation;
 
 import com.google.common.annotations.VisibleForTesting;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
-import java.util.stream.Collectors;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import lombok.Builder;
 import lombok.Data;
 import lombok.Singular;
@@ -15,6 +8,14 @@ import loom.common.HasToJsonString;
 import loom.common.json.JsonPathUtils;
 import loom.common.serialization.JsonUtil;
 import loom.common.text.IndentUtils;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 /** A Description of a validation failure. */
 @Data
@@ -126,6 +127,35 @@ public final class ValidationIssue {
     }
   }
 
+  /** Extensions to the ValidationIssueBuilder. */
+  public static final class ValidationIssueBuilder {
+
+    /**
+     * Add a context to the issue.
+     *
+     * @param context the context to add.
+     * @return this builder, for chaining.
+     */
+    public ValidationIssueBuilder context(Context context) {
+      if (this.contexts == null) {
+        this.contexts = new ArrayList<>();
+      }
+
+      this.contexts.add(context);
+      return this;
+    }
+
+    /**
+     * Add a context to the issue.
+     *
+     * @param builder the builder to build a Context from..
+     * @return this builder, for chaining.
+     */
+    public ValidationIssueBuilder context(Context.ContextBuilder builder) {
+      return context(builder.build());
+    }
+  }
+
   /**
    * Create a ValidationIssueBuilder.
    *
@@ -153,7 +183,7 @@ public final class ValidationIssue {
 
   @Nullable private final String message;
 
-  @Singular private final List<Context> contexts;
+  @Nullable private final List<Context> contexts;
 
   @VisibleForTesting
   String paramsToString() {

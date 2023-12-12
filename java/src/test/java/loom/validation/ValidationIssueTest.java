@@ -41,13 +41,11 @@ public class ValidationIssueTest extends BaseTestClass {
                 ValidationIssue.Context.builder("Foo")
                     .message("I like cheese\nand crackers")
                     .jsonpath("$.foo", ".bar")
-                    .dataFromTree(Map.of("foo", 2, "bar", 3))
-                    .build())
+                    .dataFromTree(Map.of("foo", 2, "bar", 3)))
             .context(
                 ValidationIssue.Context.builder("Bar")
                     .message("I like cheese")
-                    .dataFromTree(List.of(12, 13))
-                    .build())
+                    .dataFromTree(List.of(12, 13)))
             .build();
 
     var lines =

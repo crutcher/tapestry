@@ -43,8 +43,7 @@ public class TensorNodeTest extends BaseTestClass {
                     ValidationIssue.Context.builder()
                         .name("Tensor")
                         .jsonpath(tensorA.getJsonPath())
-                        .jsonData(tensorA.toJsonString())
-                        .build())
+                        .jsonData(tensorA.toJsonString()))
                 .summary("Tensor (TooManySources) has no Operation source")
                 .build());
   }
@@ -76,22 +75,19 @@ public class TensorNodeTest extends BaseTestClass {
                     ValidationIssue.Context.builder()
                         .name("Tensor")
                         .jsonpath(tensorA.getJsonPath())
-                        .jsonData(tensorA.toJsonString())
-                        .build())
+                        .jsonData(tensorA.toJsonString()))
                 .summary("Tensor (TooManySources) has too many Operation sources: 2")
                 .message("Tensor id: " + tensorA.getId())
                 .context(
                     ValidationIssue.Context.builder()
                         .name("Source Operation #0 (op1)")
                         .jsonpath(op1.getJsonPath())
-                        .jsonData(op1.toJsonString())
-                        .build())
+                        .jsonData(op1.toJsonString()))
                 .context(
                     ValidationIssue.Context.builder()
                         .name("Source Operation #1 (op2)")
                         .jsonpath(op2.getJsonPath())
-                        .jsonData(op2.toJsonString())
-                        .build())
+                        .jsonData(op2.toJsonString()))
                 .build());
   }
 }

@@ -33,12 +33,12 @@ public final class TensorNode extends LoomGraph.Node<TensorNode, TensorNode.Body
       ValidationIssueCollector issueCollector) {
     for (var tensorNode : graph.iterableNodes(TensorNode.Meta.TYPE, TensorNode.class)) {
       var id = tensorNode.getId();
-      List<OperationNode> sources =
+      List<OperationNode> operationSourceNodes =
           tensorNode.assertGraph().stream(OperationNode.Meta.TYPE, OperationNode.class)
               .filter(op -> op.getOutputs().values().stream().anyMatch(ids -> ids.contains(id)))
               .toList();
 
-      if (sources.size() == 1) {
+      if (operationSourceNodes.size() == 1) {
         return;
       }
 
@@ -55,36 +55,36 @@ public final class TensorNode extends LoomGraph.Node<TensorNode, TensorNode.Body
                   ValidationIssue.Context.builder()
                       .name("Tensor")
                       .jsonpath(tensorNode.getJsonPath())
-                      .jsonData(tensorNode.toJsonString())
-                      .build());
+                      .jsonData(tensorNode.toJsonString()));
 
-      if (sources.isEmpty()) {
+      if (operationSourceNodes.isEmpty()) {
         issueBuilder.summary("%s has no Operation source".formatted(desc));
 
       } else {
         issueBuilder
-            .summary("%s has too many Operation sources: %d".formatted(desc, sources.size()))
+            .summary(
+                "%s has too many Operation sources: %d"
+                    .formatted(desc, operationSourceNodes.size()))
             .message("Tensor id: %s".formatted(tensorNode.getId()));
 
         // Sort the sources by ID so that the order is deterministic.
-        sources = new ArrayList<>(sources);
-        sources.sort(
+        operationSourceNodes = new ArrayList<>(operationSourceNodes);
+        operationSourceNodes.sort(
             Comparator.comparing(n -> n.getLabel() == null ? n.getId().toString() : n.getLabel()));
 
-        for (int idx = 0; idx < sources.size(); idx++) {
-          var source = sources.get(idx);
+        for (int idx = 0; idx < operationSourceNodes.size(); idx++) {
+          var operationNode = operationSourceNodes.get(idx);
 
           var name = "Source Operation #" + idx;
-          if (source.getLabel() != null) {
-            name = "%s (%s)".formatted(name, source.getLabel());
+          if (operationNode.getLabel() != null) {
+            name = "%s (%s)".formatted(name, operationNode.getLabel());
           }
 
           issueBuilder.context(
               ValidationIssue.Context.builder()
                   .name(name)
-                  .jsonpath(source.getJsonPath())
-                  .jsonData(source.toJsonString())
-                  .build());
+                  .jsonpath(operationNode.getJsonPath())
+                  .jsonData(operationNode.toJsonString()));
         }
       }
 
