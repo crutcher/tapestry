@@ -1,6 +1,10 @@
 package loom.graph.nodes;
 
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
+import javax.annotation.Nonnull;
 import lombok.Builder;
 import lombok.Data;
 import lombok.Getter;
@@ -8,89 +12,14 @@ import lombok.Singular;
 import lombok.experimental.Delegate;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.jackson.Jacksonized;
-import loom.graph.LoomEnvironment;
 import loom.graph.LoomGraph;
 import loom.validation.ValidationIssue;
 import loom.validation.ValidationIssueCollector;
 import loom.zspace.ZPoint;
 
-import javax.annotation.Nonnull;
-import java.util.*;
-
 @Jacksonized
 @SuperBuilder
 public final class TensorNode extends LoomGraph.Node<TensorNode, TensorNode.Body> {
-  /**
-   * LoomEnvironment validation rule: All tensors must have exactly one source operation.
-   *
-   * @param env the LoomEnvironment.
-   * @param graph the LoomGraph.
-   * @param issueCollector the ValidationIssueCollector.
-   */
-  public static void AllTensorsHaveExactlyOneSourceOperationConstraint(
-      @SuppressWarnings("unused") LoomEnvironment env,
-      LoomGraph graph,
-      ValidationIssueCollector issueCollector) {
-    for (var tensorNode : graph.iterableNodes(TensorNode.Meta.TYPE, TensorNode.class)) {
-      var id = tensorNode.getId();
-      List<OperationNode> operationSourceNodes =
-          tensorNode.assertGraph().stream(OperationNode.Meta.TYPE, OperationNode.class)
-              .filter(op -> op.getOutputs().values().stream().anyMatch(ids -> ids.contains(id)))
-              .toList();
-
-      if (operationSourceNodes.size() == 1) {
-        return;
-      }
-
-      String desc = "Tensor";
-      if (tensorNode.getLabel() != null) {
-        desc = "%s (%s)".formatted(desc, tensorNode.getLabel());
-      }
-
-      var issueBuilder =
-          ValidationIssue.builder()
-              .type(TensorNode.NODE_VALIDATION_ERROR)
-              .param("nodeType", TensorNode.Meta.TYPE)
-              .context(
-                  ValidationIssue.Context.builder()
-                      .name("Tensor")
-                      .jsonpath(tensorNode.getJsonPath())
-                      .jsonData(tensorNode.toJsonString()));
-
-      if (operationSourceNodes.isEmpty()) {
-        issueBuilder.summary("%s has no Operation source".formatted(desc));
-
-      } else {
-        issueBuilder
-            .summary(
-                "%s has too many Operation sources: %d"
-                    .formatted(desc, operationSourceNodes.size()))
-            .message("Tensor id: %s".formatted(tensorNode.getId()));
-
-        // Sort the sources by ID so that the order is deterministic.
-        operationSourceNodes = new ArrayList<>(operationSourceNodes);
-        operationSourceNodes.sort(
-            Comparator.comparing(n -> n.getLabel() == null ? n.getId().toString() : n.getLabel()));
-
-        for (int idx = 0; idx < operationSourceNodes.size(); idx++) {
-          var operationNode = operationSourceNodes.get(idx);
-
-          var name = "Source Operation #" + idx;
-          if (operationNode.getLabel() != null) {
-            name = "%s (%s)".formatted(name, operationNode.getLabel());
-          }
-
-          issueBuilder.context(
-              ValidationIssue.Context.builder()
-                  .name(name)
-                  .jsonpath(operationNode.getJsonPath())
-                  .jsonData(operationNode.toJsonString()));
-        }
-      }
-
-      issueCollector.add(issueBuilder);
-    }
-  }
 
   @Data
   @Jacksonized

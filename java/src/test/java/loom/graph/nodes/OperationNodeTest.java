@@ -13,7 +13,7 @@ public class OperationNodeTest extends BaseTestClass {
   @Test
   public void testBasic() {
     var env = CommonEnvironments.simpleTensorEnvironment("int32");
-    env.getConstraints().add(TensorNode::AllTensorsHaveExactlyOneSourceOperationConstraint);
+    env.getConstraints().add(new AllTensorsHaveExactlyOneSourceOperationConstraint());
     env.getConstraints().add(DemoTest::CycleCheckConstraint);
     var graph = env.createGraph();
 

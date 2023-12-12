@@ -6,6 +6,7 @@ import loom.graph.CommonEnvironments;
 import loom.graph.LoomEnvironment;
 import loom.graph.LoomGraph;
 import loom.graph.NodeApi;
+import loom.graph.nodes.AllTensorsHaveExactlyOneSourceOperationConstraint;
 import loom.graph.nodes.TensorNode;
 import loom.testing.BaseTestClass;
 import loom.validation.ValidationIssueCollector;
@@ -23,7 +24,7 @@ public class DemoTest extends BaseTestClass {
   @Test
   public void testDemo() {
     var env = CommonEnvironments.simpleTensorEnvironment("int32");
-    env.getConstraints().add(TensorNode::AllTensorsHaveExactlyOneSourceOperationConstraint);
+    env.getConstraints().add(new AllTensorsHaveExactlyOneSourceOperationConstraint());
     env.getConstraints().add(DemoTest::CycleCheckConstraint);
     var graph = env.createGraph();
 
