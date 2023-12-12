@@ -4,14 +4,20 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Splitter;
-import java.util.Arrays;
-import java.util.Objects;
+import lombok.Getter;
+import loom.common.HasToJsonString;
+import loom.common.IteratorUtils;
+import loom.common.serialization.JsonUtil;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import javax.annotation.concurrent.ThreadSafe;
-import loom.common.HasToJsonString;
-import loom.common.serialization.JsonUtil;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
+import java.util.Objects;
+import java.util.stream.Stream;
 
 /**
  * Represents a range of points in discrete space.
@@ -43,6 +49,76 @@ import loom.common.serialization.JsonUtil;
 @ThreadSafe
 @Immutable
 public final class ZRange implements HasDimension, HasSize, HasPermute, HasToJsonString {
+
+  /** An Iterable view of the coordinates of the range. */
+  @Getter
+  public final class IterableCoords implements Iterable<int[]> {
+    private final CoordsBufferMode bufferMode;
+
+    IterableCoords(CoordsBufferMode bufferMode) {
+      this.bufferMode = bufferMode;
+    }
+
+    @Override
+    public @Nonnull CoordsIterator iterator() {
+      return new CoordsIterator(bufferMode);
+    }
+
+    public @Nonnull Stream<int[]> stream() {
+      return IteratorUtils.iterableToStream(this);
+    }
+  }
+
+  /**
+   * An Iterator over the coordinates of this ZRange.
+   *
+   * <p>When the buffer mode is {@link CoordsBufferMode#REUSED}, the buffer is shared between
+   * subsequent calls to {@link Iterator#next()}. When the buffer mode is {@link
+   * CoordsBufferMode#DISTINCT}, the buffer is not shared between subsequent calls to {@link
+   * Iterator#next()}.
+   */
+  public final class CoordsIterator implements Iterator<int[]> {
+    @Getter private final CoordsBufferMode bufferMode;
+
+    private int remaining = size();
+    @Nullable private int[] coords = null;
+
+    public CoordsIterator(CoordsBufferMode bufferMode) {
+      this.bufferMode = bufferMode;
+    }
+
+    @Override
+    public boolean hasNext() {
+      return remaining > 0;
+    }
+
+    @Override
+    @Nonnull
+    public int[] next() {
+      if (!hasNext()) {
+        throw new NoSuchElementException();
+      }
+      remaining--;
+
+      if (coords == null) {
+        coords = start.toArray();
+      } else {
+        coords[coords.length - 1]++;
+        for (int i = coords.length - 1; i >= 0; --i) {
+          if (coords[i] == end.get(i)) {
+            coords[i] = start.get(i);
+            coords[i - 1]++;
+          }
+        }
+      }
+
+      if (bufferMode == CoordsBufferMode.DISTINCT) {
+        return coords.clone();
+      }
+
+      return coords;
+    }
+  }
 
   @Nonnull public final ZPoint start;
 
@@ -246,6 +322,26 @@ public final class ZRange implements HasDimension, HasSize, HasPermute, HasToJso
   @Override
   public int size() {
     return size;
+  }
+
+  /**
+   * Returns an {@code Iterable<int[]>} over the coordinates of this ZRange.
+   *
+   * <p>When the buffer mode is {@link CoordsBufferMode#REUSED}, the buffer is shared between
+   * subsequent calls to {@link Iterator#next()}. When the buffer mode is {@link
+   * CoordsBufferMode#DISTINCT}, the buffer is not shared between subsequent calls to {@link
+   * Iterator#next()}.
+   *
+   * <p>Empty ranges will return an empty iterable.
+   *
+   * <p>Scalar ranges (ranges where the start and end are zero dimensional ZPoints) will return an
+   * iterable with a single empty coordinate array.
+   *
+   * @param bufferMode the buffer mode.
+   * @return an iterable over the coordinates of this tensor.
+   */
+  public @Nonnull IterableCoords byCoords(CoordsBufferMode bufferMode) {
+    return new IterableCoords(bufferMode);
   }
 
   @Override

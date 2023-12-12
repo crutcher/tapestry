@@ -13,18 +13,17 @@ import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.node.IntNode;
 import com.google.common.primitives.Ints;
 import com.google.errorprone.annotations.CheckReturnValue;
+import java.lang.reflect.Array;
+import java.util.*;
+import java.util.function.*;
+import java.util.stream.Stream;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import lombok.Getter;
 import lombok.SneakyThrows;
 import loom.common.HasToJsonString;
 import loom.common.IteratorUtils;
 import loom.common.serialization.JsonUtil;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.lang.reflect.Array;
-import java.util.*;
-import java.util.function.*;
-import java.util.stream.Stream;
 
 /**
  * Minimal discrete Tensor.
@@ -41,14 +40,6 @@ import java.util.stream.Stream;
 @JsonDeserialize(using = ZTensor.JsonSupport.Deserializer.class)
 public final class ZTensor
     implements Cloneable, HasDimension, HasToJsonString, HasPermute, HasSize {
-
-  public enum CoordsBufferMode {
-    /** The buffer is shared between subsequent calls to {@link Iterator#next()}. */
-    REUSED,
-
-    /** The buffer is not shared between subsequent calls to {@link Iterator#next()}. */
-    DISTINCT,
-  }
 
   /**
    * An Iterable view of the coordinates of this tensor.
@@ -805,6 +796,10 @@ public final class ZTensor
    * subsequent calls to {@link Iterator#next()}. When the buffer mode is {@link
    * CoordsBufferMode#DISTINCT}, the buffer is not shared between subsequent calls to {@link
    * Iterator#next()}.
+   *
+   * <p>Empty tensors will return an empty iterable.
+   *
+   * <p>Scalar tensors will return an iterable with a single empty coordinate array.
    *
    * @param bufferMode the buffer mode.
    * @return an iterable over the coordinates of this tensor.

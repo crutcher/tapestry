@@ -148,6 +148,29 @@ public class ZRangeTest implements CommonAssertions {
   }
 
   @Test
+  public void test_byCoords() {
+    var range = new ZRange(new ZPoint(2, 3), new ZPoint(4, 5));
+
+    assertThat(range.byCoords(CoordsBufferMode.DISTINCT).stream().toList())
+        .containsExactly(new int[] {2, 3}, new int[] {2, 4}, new int[] {3, 3}, new int[] {3, 4});
+
+    assertThat(range.byCoords(CoordsBufferMode.REUSED).stream().toList())
+        .containsExactly(new int[] {3, 4}, new int[] {3, 4}, new int[] {3, 4}, new int[] {3, 4});
+    assertThat(range.byCoords(CoordsBufferMode.REUSED).stream().map(int[]::clone).toList())
+        .containsExactly(new int[] {2, 3}, new int[] {2, 4}, new int[] {3, 3}, new int[] {3, 4});
+
+    // Empty ranges.
+    assertThat(ZRange.fromShape(0, 0).byCoords(CoordsBufferMode.DISTINCT).stream().toList())
+        .isEmpty();
+
+    // Scalar ranges.
+    assertThat(
+            new ZRange(new ZPoint(), new ZPoint())
+                .byCoords(CoordsBufferMode.DISTINCT).stream().toList())
+        .containsExactly(new int[] {});
+  }
+
+  @Test
   public void test_inclusiveEnd() {
     {
       var range = new ZRange(new ZPoint(2, 3), new ZPoint(4, 5));

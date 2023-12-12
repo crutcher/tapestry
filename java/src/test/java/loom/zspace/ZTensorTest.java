@@ -1,13 +1,14 @@
 package loom.zspace;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import loom.common.serialization.JsonUtil;
+import loom.testing.CommonAssertions;
+import org.junit.Test;
+
 import java.util.ArrayList;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.function.BinaryOperator;
-import loom.common.serialization.JsonUtil;
-import loom.testing.CommonAssertions;
-import org.junit.Test;
 
 public class ZTensorTest implements CommonAssertions {
   @Test
@@ -17,12 +18,12 @@ public class ZTensorTest implements CommonAssertions {
     {
       // CoordsBufferMode.SHARED
 
-      ZTensor.IterableCoords coords = t.byCoords(ZTensor.CoordsBufferMode.REUSED);
-      assertThat(coords.getBufferMode()).isEqualTo(ZTensor.CoordsBufferMode.REUSED);
+      ZTensor.IterableCoords coords = t.byCoords(CoordsBufferMode.REUSED);
+      assertThat(coords.getBufferMode()).isEqualTo(CoordsBufferMode.REUSED);
 
       {
         ZTensor.CoordsIterator it = coords.iterator();
-        assertThat(it.getBufferMode()).isEqualTo(ZTensor.CoordsBufferMode.REUSED);
+        assertThat(it.getBufferMode()).isEqualTo(CoordsBufferMode.REUSED);
 
         assertThat(it.hasNext()).isTrue();
         var buf = it.next();
@@ -50,12 +51,12 @@ public class ZTensorTest implements CommonAssertions {
     {
       // CoordsBufferMode.OWNED
 
-      ZTensor.IterableCoords coords = t.byCoords(ZTensor.CoordsBufferMode.DISTINCT);
-      assertThat(coords.getBufferMode()).isEqualTo(ZTensor.CoordsBufferMode.DISTINCT);
+      ZTensor.IterableCoords coords = t.byCoords(CoordsBufferMode.DISTINCT);
+      assertThat(coords.getBufferMode()).isEqualTo(CoordsBufferMode.DISTINCT);
 
       {
         ZTensor.CoordsIterator it = coords.iterator();
-        assertThat(it.getBufferMode()).isEqualTo(ZTensor.CoordsBufferMode.DISTINCT);
+        assertThat(it.getBufferMode()).isEqualTo(CoordsBufferMode.DISTINCT);
       }
 
       assertThat(coords.stream().toList())
@@ -66,6 +67,13 @@ public class ZTensorTest implements CommonAssertions {
       assertThat(items)
           .contains(new int[] {0, 0}, new int[] {0, 1}, new int[] {1, 0}, new int[] {1, 1});
     }
+
+    // Empty tensor.
+    assertThat(ZTensor.vector().byCoords(CoordsBufferMode.DISTINCT).stream().toList()).isEmpty();
+
+    // Scalar tensor.
+    assertThat(ZTensor.scalar(2).byCoords(CoordsBufferMode.DISTINCT).stream().toList())
+        .contains(new int[] {});
   }
 
   @Test

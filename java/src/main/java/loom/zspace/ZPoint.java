@@ -171,7 +171,7 @@ public final class ZPoint implements HasDimension, HasPermute, HasToJsonString {
 
       boolean lt = false;
       boolean gt = false;
-      for (int[] coords : lhs.byCoords(ZTensor.CoordsBufferMode.REUSED)) {
+      for (int[] coords : lhs.byCoords(CoordsBufferMode.REUSED)) {
         int cmp = Integer.compare(lhs.get(coords), rhs.get(coords));
         if (cmp < 0) {
           lt = true;
