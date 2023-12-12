@@ -1,6 +1,8 @@
 package loom.graph.nodes;
 
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
+import java.util.*;
+import javax.annotation.Nonnull;
 import lombok.Builder;
 import lombok.Data;
 import lombok.Getter;
@@ -13,9 +15,6 @@ import loom.graph.LoomGraph;
 import loom.validation.ValidationIssue;
 import loom.validation.ValidationIssueCollector;
 import loom.zspace.ZPoint;
-
-import javax.annotation.Nonnull;
-import java.util.*;
 
 @Jacksonized
 @SuperBuilder
@@ -31,64 +30,61 @@ public final class TensorNode extends LoomGraph.Node<TensorNode, TensorNode.Body
       @SuppressWarnings("unused") LoomEnvironment env,
       LoomGraph graph,
       ValidationIssueCollector issueCollector) {
-    graph.stream(TensorNode.Meta.TYPE, TensorNode.class)
-        .forEach(
-            tensor -> {
-              List<OperationNode> sources = tensor._getSourceOperationNodes();
-              if (sources.size() == 1) {
-                return;
-              }
+    for (var tensorNode : graph.iterableNodes(TensorNode.Meta.TYPE, TensorNode.class)) {
+      List<OperationNode> sources = tensorNode._getSourceOperationNodes();
+      if (sources.size() == 1) {
+        return;
+      }
 
-              String desc = "Tensor";
-              if (tensor.getLabel() != null) {
-                desc = "%s (%s)".formatted(desc, tensor.getLabel());
-              }
+      String desc = "Tensor";
+      if (tensorNode.getLabel() != null) {
+        desc = "%s (%s)".formatted(desc, tensorNode.getLabel());
+      }
 
-              var issueBuilder =
-                  ValidationIssue.builder()
-                      .type(TensorNode.NODE_VALIDATION_ERROR)
-                      .param("nodeType", TensorNode.Meta.TYPE)
-                      .context(
-                          ValidationIssue.Context.builder()
-                              .name("Tensor")
-                              .jsonpath(tensor.getJsonPath())
-                              .jsonData(tensor.toJsonString())
-                              .build());
+      var issueBuilder =
+          ValidationIssue.builder()
+              .type(TensorNode.NODE_VALIDATION_ERROR)
+              .param("nodeType", TensorNode.Meta.TYPE)
+              .context(
+                  ValidationIssue.Context.builder()
+                      .name("Tensor")
+                      .jsonpath(tensorNode.getJsonPath())
+                      .jsonData(tensorNode.toJsonString())
+                      .build());
 
-              if (sources.isEmpty()) {
-                issueBuilder.summary("%s has no Operation source".formatted(desc));
+      if (sources.isEmpty()) {
+        issueBuilder.summary("%s has no Operation source".formatted(desc));
 
-              } else {
-                issueBuilder.summary(
-                    "%s has too many Operation sources: %d".formatted(desc, sources.size()));
+      } else {
+        issueBuilder.summary(
+            "%s has too many Operation sources: %d".formatted(desc, sources.size()));
 
-                issueBuilder.message("Tensor id: %s".formatted(tensor.getId()));
+        issueBuilder.message("Tensor id: %s".formatted(tensorNode.getId()));
 
-                // Sort the sources by ID so that the order is deterministic.
-                sources = new ArrayList<>(sources);
-                sources.sort(
-                    Comparator.comparing(
-                        n -> n.getLabel() == null ? n.getId().toString() : n.getLabel()));
+        // Sort the sources by ID so that the order is deterministic.
+        sources = new ArrayList<>(sources);
+        sources.sort(
+            Comparator.comparing(n -> n.getLabel() == null ? n.getId().toString() : n.getLabel()));
 
-                for (int idx = 0; idx < sources.size(); idx++) {
-                  var source = sources.get(idx);
+        for (int idx = 0; idx < sources.size(); idx++) {
+          var source = sources.get(idx);
 
-                  var name = "Source Operation #" + idx;
-                  if (source.getLabel() != null) {
-                    name = "%s (%s)".formatted(name, source.getLabel());
-                  }
+          var name = "Source Operation #" + idx;
+          if (source.getLabel() != null) {
+            name = "%s (%s)".formatted(name, source.getLabel());
+          }
 
-                  issueBuilder.context(
-                      ValidationIssue.Context.builder()
-                          .name(name)
-                          .jsonpath(source.getJsonPath())
-                          .jsonData(source.toJsonString())
-                          .build());
-                }
-              }
+          issueBuilder.context(
+              ValidationIssue.Context.builder()
+                  .name(name)
+                  .jsonpath(source.getJsonPath())
+                  .jsonData(source.toJsonString())
+                  .build());
+        }
+      }
 
-              issueCollector.add(issueBuilder);
-            });
+      issueCollector.add(issueBuilder);
+    }
   }
 
   @Data

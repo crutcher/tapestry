@@ -8,18 +8,10 @@ import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.UUID;
-import java.util.stream.Stream;
-import javax.annotation.CheckReturnValue;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import loom.common.HasToJsonString;
+import loom.common.IteratorUtils;
 import loom.common.LookupError;
 import loom.common.json.JsonPathUtils;
 import loom.common.serialization.JsonUtil;
@@ -27,6 +19,16 @@ import loom.common.serialization.MapValueListUtil;
 import loom.graph.nodes.GenericNodeMetaFactory;
 import loom.validation.ValidationIssue;
 import loom.validation.ValidationIssueCollector;
+
+import javax.annotation.CheckReturnValue;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.UUID;
+import java.util.stream.Stream;
 
 /** A Loom Graph document. */
 @Getter
@@ -499,7 +501,31 @@ public final class LoomGraph implements Iterable<LoomGraph.Node<?, ?>>, HasToJso
   @Override
   @Nonnull
   public Iterator<Node<?, ?>> iterator() {
-    return nodes.values().iterator();
+    return iterableNodes().iterator();
+  }
+
+  /**
+   * Get an iterable of all nodes in the graph.
+   *
+   * @return the iterable.
+   */
+  @Nonnull
+  public Iterable<Node<?, ?>> iterableNodes() {
+    return nodes.values();
+  }
+
+  /**
+   * Get an iterable of all nodes of class {@code T} the graph, optionally filtered by type.
+   *
+   * @param type the type to filter by; null to skip type filter.
+   * @param nodeClass the class of the nodes to get.
+   * @return the iterable.
+   * @param <NodeType> the type of the nodes to get.
+   */
+  @Nonnull
+  public <NodeType extends Node<?, ?>> Iterable<NodeType> iterableNodes(
+      @Nullable String type, Class<NodeType> nodeClass) {
+    return IteratorUtils.supplierToIterable(() -> stream(type, nodeClass).iterator());
   }
 
   /**

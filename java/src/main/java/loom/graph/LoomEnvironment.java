@@ -1,16 +1,15 @@
 package loom.graph;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+import javax.annotation.Nonnull;
 import lombok.Builder;
 import lombok.Data;
 import lombok.Singular;
 import loom.common.json.JsonSchemaManager;
 import loom.common.serialization.JsonUtil;
 import loom.validation.ValidationIssueCollector;
-
-import javax.annotation.Nonnull;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
 
 /**
  * Loom Graph Environment.
