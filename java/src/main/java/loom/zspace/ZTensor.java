@@ -158,7 +158,7 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
    * @param value the scalar value.
    * @return the new tensor.
    */
-  public static @Nonnull ZTensor scalar(int value) {
+  public static @Nonnull ZTensor newScalar(int value) {
     return new ZTensor(true, new int[] {}, new int[] {value});
   }
 
@@ -168,8 +168,8 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
    * @param values the vector values.
    * @return the new tensor.
    */
-  public static @Nonnull ZTensor vector(@Nonnull int... values) {
-    return from(values);
+  public static @Nonnull ZTensor newVector(@Nonnull int... values) {
+    return newFrom(values);
   }
 
   /**
@@ -178,8 +178,8 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
    * @param values the vector values.
    * @return the new tensor.
    */
-  public static @Nonnull ZTensor vector(@Nonnull Iterable<Integer> values) {
-    return vector(IteratorUtils.iterableToStream(values).mapToInt(Integer::intValue).toArray());
+  public static @Nonnull ZTensor newVector(@Nonnull Iterable<Integer> values) {
+    return newVector(IteratorUtils.iterableToStream(values).mapToInt(Integer::intValue).toArray());
   }
 
   /**
@@ -188,7 +188,7 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
    * @param rows the {@code int[][]} values.
    * @return the new tensor.
    */
-  public static @Nonnull ZTensor matrix(@Nonnull int[]... rows) {
+  public static @Nonnull ZTensor newMatrix(@Nonnull int[]... rows) {
     int numRows = rows.length;
 
     int numCols = 0;
@@ -207,7 +207,7 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
    * @param shape the shape of the tensor.
    * @return a new mutable ZTensor.
    */
-  public static @Nonnull ZTensor zeros(@Nonnull int... shape) {
+  public static @Nonnull ZTensor newZeros(@Nonnull int... shape) {
     return new ZTensor(true, shape.clone());
   }
 
@@ -217,7 +217,7 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
    * @param ref the ZTensor to copy the shape from.
    * @return a new mutable ZTensor.
    */
-  public static @Nonnull ZTensor zeros_like(@Nonnull ZTensor ref) {
+  public static @Nonnull ZTensor newZerosLike(@Nonnull ZTensor ref) {
     return new ZTensor(true, ref.shapeAsArray());
   }
 
@@ -228,7 +228,7 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
    * @param fill_value the value to fill the tensor with.
    * @return a new mutable ZTensor.
    */
-  public static @Nonnull ZTensor full(@Nonnull int[] shape, int fill_value) {
+  public static @Nonnull ZTensor newFilled(@Nonnull int[] shape, int fill_value) {
     var size = IndexingFns.shapeToSize(shape);
     var data = new int[size];
     Arrays.fill(data, fill_value);
@@ -242,8 +242,8 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
    * @param fill_value the value to fill the tensor with.
    * @return a new mutable ZTensor.
    */
-  public static @Nonnull ZTensor full_like(@Nonnull ZTensor ref, int fill_value) {
-    return full(ref.shape, fill_value);
+  public static @Nonnull ZTensor newFilledLike(@Nonnull ZTensor ref, int fill_value) {
+    return newFilled(ref.shape, fill_value);
   }
 
   /**
@@ -252,8 +252,8 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
    * @param shape the shape of the tensor.
    * @return a new mutable ZTensor.
    */
-  public static @Nonnull ZTensor ones(@Nonnull int... shape) {
-    return full(shape, 1);
+  public static @Nonnull ZTensor newOnes(@Nonnull int... shape) {
+    return newFilled(shape, 1);
   }
 
   /**
@@ -262,8 +262,8 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
    * @param ref the ZTensor to copy the shape from.
    * @return a new mutable ZTensor.
    */
-  public static @Nonnull ZTensor ones_like(@Nonnull ZTensor ref) {
-    return full_like(ref, 1);
+  public static @Nonnull ZTensor newOnesLike(@Nonnull ZTensor ref) {
+    return newFilledLike(ref, 1);
   }
 
   /**
@@ -272,8 +272,8 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
    * @param diag the values to put on the diagonal.
    * @return a new ZTensor.
    */
-  public static ZTensor diagonal(@Nonnull int... diag) {
-    var tensor = zeros(diag.length, diag.length);
+  public static ZTensor newDiagonal(@Nonnull int... diag) {
+    var tensor = newZeros(diag.length, diag.length);
     for (int i = 0; i < diag.length; ++i) {
       tensor._unchecked_set(new int[] {i, i}, diag[i]);
     }
@@ -286,10 +286,10 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
    * @param n the size of a side of the matrix.
    * @return a new ZTensor.
    */
-  public static ZTensor identity_matrix(int n) {
+  public static ZTensor newIdentityMatrix(int n) {
     int[] diag = new int[n];
     Arrays.fill(diag, 1);
-    return diagonal(diag);
+    return newDiagonal(diag);
   }
 
   /**
@@ -299,7 +299,7 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
    * @param source the source array.
    * @return a new ZTensor.
    */
-  public static @Nonnull ZTensor from(@Nonnull Object source) {
+  public static @Nonnull ZTensor newFrom(@Nonnull Object source) {
     return fromTree(
         source,
         obj -> obj.getClass().isArray(),
@@ -309,12 +309,23 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
         obj -> (int[]) obj);
   }
 
+  /**
+   * Parse a ZTensor from a string.
+   *
+   * @param str the string.
+   * @return the new tensor.
+   * @throws IllegalArgumentException if the string is not a valid ZTensor.
+   */
+  public static @Nonnull ZTensor parse(@Nonnull String str) {
+    return JsonUtil.fromJson(str, ZTensor.class);
+  }
+
   @Getter private final boolean mutable;
   private final int hash;
 
   @Nonnull private final int[] shape;
 
-  private final int size;
+  @Getter private final int size;
 
   @Nonnull private final int[] stride;
 
@@ -399,7 +410,7 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
    *
    * @return a new immutable ZPoint.
    */
-  public ZPoint zpoint() {
+  public ZPoint newZPoint() {
     return new ZPoint(this);
   }
 
@@ -475,7 +486,7 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
       Function<T, int[]> getChunk) {
 
     if (!isArray.test(root)) {
-      return loom.zspace.ZTensor.scalar(scalarValue.apply(root));
+      return loom.zspace.ZTensor.newScalar(scalarValue.apply(root));
     }
 
     List<Integer> shapeList = new ArrayList<>();
@@ -496,7 +507,7 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
 
     if (shapeList.contains(0)) {
       // Handle degenerate tensors.
-      return loom.zspace.ZTensor.zeros(new int[ndim]);
+      return loom.zspace.ZTensor.newZeros(new int[ndim]);
     }
 
     int[] shape = shapeList.stream().mapToInt(i -> i).toArray();
@@ -602,17 +613,6 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
     toTree(() -> sb.append('['), () -> sb.append(']'), () -> sb.append(", "), sb::append);
 
     return sb.toString();
-  }
-
-  /**
-   * Parse a ZTensor from a string.
-   *
-   * @param str the string.
-   * @return the new tensor.
-   * @throws IllegalArgumentException if the string is not a valid ZTensor.
-   */
-  public static @Nonnull ZTensor parse(@Nonnull String str) {
-    return JsonUtil.fromJson(str, ZTensor.class);
   }
 
   /**
@@ -778,7 +778,7 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
    * @return the shape of this tensor as a ZTensor.
    */
   public ZTensor shapeAsTensor() {
-    return ZTensor.vector(shape);
+    return ZTensor.newVector(shape);
   }
 
   @Override
@@ -1264,10 +1264,10 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
    * @param rhs the right-hand side scalar.
    */
   public void binOp_(@Nonnull BinaryOperator<Integer> op, int rhs) {
-    binOp_(op, ZTensor.scalar(rhs));
+    binOp_(op, ZTensor.newScalar(rhs));
   }
 
-  /** Namespace of ZTensor operations. */
+  /** ZTensor math operations. */
   public static final class Ops {
     /** Prevent instantiation. */
     private Ops() {}
@@ -1282,13 +1282,13 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
     @CheckReturnValue
     public static @Nonnull ZTensor uniOp(
         @Nonnull IntFunction<Integer> op, @Nonnull ZTensor tensor) {
-      var result = zeros_like(tensor);
+      var result = newZerosLike(tensor);
       result.assignFromMap(op, tensor);
       return result;
     }
 
     /**
-     * Negate a tensor.
+     * Elementwise negation of a tensor.
      *
      * @param tensor the input tensor.
      * @return a new tensor.
@@ -1298,7 +1298,7 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
     }
 
     /**
-     * An element-wise binary operation.
+     * An element-wise broadcast binary operation.
      *
      * @param op the operation.
      * @param lhs the left-hand side tensor.
@@ -1307,13 +1307,13 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
      */
     public static @Nonnull ZTensor binOp(
         BinaryOperator<Integer> op, @Nonnull ZTensor lhs, @Nonnull ZTensor rhs) {
-      var result = zeros(IndexingFns.commonBroadcastShape(lhs.shape, rhs.shape));
+      var result = newZeros(IndexingFns.commonBroadcastShape(lhs.shape, rhs.shape));
       result.assignFromMap(op, lhs, rhs);
       return result;
     }
 
     /**
-     * An element-wise binary operation.
+     * An element-wise broadcast binary operation.
      *
      * @param op the operation.
      * @param lhs the left-hand side tensor.
@@ -1322,11 +1322,11 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
      */
     public static @Nonnull ZTensor binOp(
         BinaryOperator<Integer> op, @Nonnull ZTensor lhs, int rhs) {
-      return binOp(op, lhs, loom.zspace.ZTensor.scalar(rhs));
+      return binOp(op, lhs, loom.zspace.ZTensor.newScalar(rhs));
     }
 
     /**
-     * An element-wise binary operation.
+     * An element-wise broadcast binary operation.
      *
      * @param op the operation.
      * @param lhs the left-hand side scalar.
@@ -1335,214 +1335,542 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
      */
     public static @Nonnull ZTensor binOp(
         BinaryOperator<Integer> op, int lhs, @Nonnull ZTensor rhs) {
-      return binOp(op, loom.zspace.ZTensor.scalar(lhs), rhs);
+      return binOp(op, loom.zspace.ZTensor.newScalar(lhs), rhs);
     }
 
+    /**
+     * Element-wise broadcast minimum.
+     *
+     * @param lhs the left-hand side.
+     * @param rhs the right-hand side.
+     * @return a new tensor.
+     */
     public static @Nonnull ZTensor min(@Nonnull ZTensor lhs, @Nonnull ZTensor rhs) {
       return binOp(Math::min, lhs, rhs);
     }
 
+    /**
+     * Element-wise broadcast minimum.
+     *
+     * @param lhs the left-hand side.
+     * @param rhs the right-hand side.
+     * @return a new tensor.
+     */
     public static @Nonnull ZTensor min(@Nonnull ZTensor lhs, int rhs) {
       return binOp(Math::min, lhs, rhs);
     }
 
+    /**
+     * Element-wise broadcast minimum.
+     *
+     * @param lhs the left-hand side.
+     * @param rhs the right-hand side.
+     * @return a new tensor.
+     */
     public static @Nonnull ZTensor min(int lhs, @Nonnull ZTensor rhs) {
       return binOp(Math::min, lhs, rhs);
     }
 
+    /**
+     * Element-wise broadcast maximum.
+     *
+     * @param lhs the left-hand side.
+     * @param rhs the right-hand side.
+     * @return a new tensor.
+     */
     public static @Nonnull ZTensor max(@Nonnull ZTensor lhs, @Nonnull ZTensor rhs) {
       return binOp(Math::max, lhs, rhs);
     }
 
+    /**
+     * Element-wise broadcast maximum.
+     *
+     * @param lhs the left-hand side tensor.
+     * @param rhs the right-hand side scalar.
+     * @return a new tensor.
+     */
     public static @Nonnull ZTensor max(@Nonnull ZTensor lhs, int rhs) {
       return binOp(Math::max, lhs, rhs);
     }
 
+    /**
+     * Element-wise broadcast maximum.
+     *
+     * @param lhs the left-hand side tensor.
+     * @param rhs the right-hand side scalar.
+     * @return a new tensor.
+     */
     public static @Nonnull ZTensor max(int lhs, @Nonnull ZTensor rhs) {
       return binOp(Math::max, lhs, rhs);
     }
 
+    /**
+     * Element-wise broadcast addition.
+     *
+     * @param lhs the left-hand side tensor.
+     * @param rhs the right-hand side scalar.
+     * @return a new tensor.
+     */
     public static @Nonnull ZTensor add(@Nonnull ZTensor lhs, @Nonnull ZTensor rhs) {
       return binOp(Integer::sum, lhs, rhs);
     }
 
+    /**
+     * Element-wise broadcast addition.
+     *
+     * @param lhs the left-hand side tensor.
+     * @param rhs the right-hand side scalar.
+     * @return a new tensor.
+     */
     public static @Nonnull ZTensor add(@Nonnull ZTensor lhs, int rhs) {
       return binOp(Integer::sum, lhs, rhs);
     }
 
+    /**
+     * Element-wise broadcast addition.
+     *
+     * @param lhs the left-hand side scalar.
+     * @param rhs the right-hand side tensor.
+     * @return a new tensor.
+     */
     public static @Nonnull ZTensor add(int lhs, @Nonnull ZTensor rhs) {
       return binOp(Integer::sum, lhs, rhs);
     }
 
+    /**
+     * Element-wise broadcast in-place addition on the lhs.
+     *
+     * @param lhs the left-hand side tensor, modified in-place; must be mutable.
+     * @param rhs the right-hand side tensor.
+     */
     public static void add_(@Nonnull ZTensor lhs, @Nonnull ZTensor rhs) {
       lhs.binOp_(Integer::sum, rhs);
     }
 
+    /**
+     * Element-wise broadcast in-place addition on the lhs.
+     *
+     * @param lhs the left-hand side tensor, modified in-place; must be mutable.
+     * @param rhs the right-hand side tensor.
+     */
     public static void add_(@Nonnull ZTensor lhs, int rhs) {
       lhs.binOp_(Integer::sum, rhs);
     }
 
+    /**
+     * Element-wise broadcast subtraction.
+     *
+     * @param lhs the left-hand side scalar.
+     * @param rhs the right-hand side tensor.
+     * @return a new tensor.
+     */
     public static @Nonnull ZTensor sub(@Nonnull ZTensor lhs, @Nonnull ZTensor rhs) {
       return binOp((l, r) -> l - r, lhs, rhs);
     }
 
+    /**
+     * Element-wise broadcast subtraction.
+     *
+     * @param lhs the left-hand side scalar.
+     * @param rhs the right-hand side tensor.
+     * @return a new tensor.
+     */
     public static @Nonnull ZTensor sub(@Nonnull ZTensor lhs, int rhs) {
       return binOp((l, r) -> l - r, lhs, rhs);
     }
 
-    public static void sub_(@Nonnull ZTensor lhs, @Nonnull ZTensor rhs) {
-      lhs.binOp_((l, r) -> l - r, rhs);
-    }
-
-    public static void sub_(@Nonnull ZTensor lhs, int rhs) {
-      lhs.binOp_((l, r) -> l - r, rhs);
-    }
-
+    /**
+     * Element-wise broadcast subtraction.
+     *
+     * @param lhs the left-hand side scalar.
+     * @param rhs the right-hand side tensor.
+     * @return a new tensor.
+     */
     public static @Nonnull ZTensor sub(int lhs, @Nonnull ZTensor rhs) {
       return binOp((l, r) -> l - r, lhs, rhs);
     }
 
+    /**
+     * Element-wise broadcast in-place subtraction on the lhs.
+     *
+     * @param lhs the left-hand side tensor, modified in-place; must be mutable.
+     * @param rhs the right-hand side tensor.
+     */
+    public static void sub_(@Nonnull ZTensor lhs, @Nonnull ZTensor rhs) {
+      lhs.binOp_((l, r) -> l - r, rhs);
+    }
+
+    /**
+     * Element-wise broadcast in-place subtraction on the lhs.
+     *
+     * @param lhs the left-hand side tensor, modified in-place; must be mutable.
+     * @param rhs the right-hand side tensor.
+     */
+    public static void sub_(@Nonnull ZTensor lhs, int rhs) {
+      lhs.binOp_((l, r) -> l - r, rhs);
+    }
+
+    /**
+     * Element-wise broadcast multiplication.
+     *
+     * @param lhs the left-hand side scalar.
+     * @param rhs the right-hand side tensor.
+     * @return a new tensor.
+     */
     public static @Nonnull ZTensor mul(@Nonnull ZTensor lhs, @Nonnull ZTensor rhs) {
       return binOp((l, r) -> l * r, lhs, rhs);
     }
 
+    /**
+     * Element-wise broadcast multiplication.
+     *
+     * @param lhs the left-hand side scalar.
+     * @param rhs the right-hand side tensor.
+     * @return a new tensor.
+     */
     public static @Nonnull ZTensor mul(@Nonnull ZTensor lhs, int rhs) {
       return binOp((l, r) -> l * r, lhs, rhs);
     }
 
+    /**
+     * Element-wise broadcast multiplication.
+     *
+     * @param lhs the left-hand side scalar.
+     * @param rhs the right-hand side tensor.
+     * @return a new tensor.
+     */
     public static @Nonnull ZTensor mul(int lhs, @Nonnull ZTensor rhs) {
       return binOp((l, r) -> l * r, lhs, rhs);
     }
 
+    /**
+     * Element-wise broadcast in-place multiplication on the lhs.
+     *
+     * @param lhs the left-hand side tensor, modified in-place; must be mutable.
+     * @param rhs the right-hand side tensor.
+     */
     public static void mul_(@Nonnull ZTensor lhs, @Nonnull ZTensor rhs) {
       lhs.binOp_((l, r) -> l * r, rhs);
     }
 
+    /**
+     * Element-wise broadcast in-place multiplication on the lhs.
+     *
+     * @param lhs the left-hand side tensor, modified in-place; must be mutable.
+     * @param rhs the right-hand side tensor.
+     */
     public static void mul_(@Nonnull ZTensor lhs, int rhs) {
       lhs.binOp_((l, r) -> l * r, rhs);
     }
 
+    /**
+     * Element-wise broadcast division.
+     *
+     * @param lhs the left-hand side scalar.
+     * @param rhs the right-hand side tensor.
+     * @return a new tensor.
+     */
     public static @Nonnull ZTensor div(@Nonnull ZTensor lhs, @Nonnull ZTensor rhs) {
       return binOp((l, r) -> l / r, lhs, rhs);
     }
 
+    /**
+     * Element-wise broadcast division.
+     *
+     * @param lhs the left-hand side scalar.
+     * @param rhs the right-hand side tensor.
+     * @return a new tensor.
+     */
     public static @Nonnull ZTensor div(@Nonnull ZTensor lhs, int rhs) {
       return binOp((l, r) -> l / r, lhs, rhs);
     }
 
+    /**
+     * Element-wise broadcast division.
+     *
+     * @param lhs the left-hand side scalar.
+     * @param rhs the right-hand side tensor.
+     * @return a new tensor.
+     */
     public static @Nonnull ZTensor div(int lhs, @Nonnull ZTensor rhs) {
       return binOp((l, r) -> l / r, lhs, rhs);
     }
 
+    /**
+     * Element-wise broadcast in-place division on the lhs.
+     *
+     * @param lhs the left-hand side tensor, modified in-place; must be mutable.
+     * @param rhs the right-hand side tensor.
+     */
     public static void div_(@Nonnull ZTensor lhs, @Nonnull ZTensor rhs) {
       lhs.binOp_((l, r) -> l / r, rhs);
     }
 
+    /**
+     * Element-wise broadcast in-place division on the lhs.
+     *
+     * @param lhs the left-hand side tensor, modified in-place; must be mutable.
+     * @param rhs the right-hand side tensor.
+     */
     public static void div_(@Nonnull ZTensor lhs, int rhs) {
       lhs.binOp_((l, r) -> l / r, rhs);
     }
 
+    /**
+     * Element-wise broadcast mod.
+     *
+     * @param lhs the left-hand side scalar.
+     * @param rhs the right-hand side tensor.
+     * @return a new tensor.
+     */
     public static @Nonnull ZTensor mod(@Nonnull ZTensor lhs, @Nonnull ZTensor rhs) {
       return binOp((l, r) -> l % r, lhs, rhs);
     }
 
+    /**
+     * Element-wise broadcast mod.
+     *
+     * @param lhs the left-hand side scalar.
+     * @param rhs the right-hand side tensor.
+     * @return a new tensor.
+     */
     public static @Nonnull ZTensor mod(@Nonnull ZTensor lhs, int rhs) {
       return binOp((l, r) -> l % r, lhs, rhs);
     }
 
+    /**
+     * Element-wise broadcast mod.
+     *
+     * @param lhs the left-hand side scalar.
+     * @param rhs the right-hand side tensor.
+     * @return a new tensor.
+     */
     public static @Nonnull ZTensor mod(int lhs, @Nonnull ZTensor rhs) {
       return binOp((l, r) -> l % r, lhs, rhs);
     }
 
+    /**
+     * Element-wise broadcast in-place mod on the lhs.
+     *
+     * @param lhs the left-hand side tensor, modified in-place; must be mutable.
+     * @param rhs the right-hand side tensor.
+     */
     public static void mod_(@Nonnull ZTensor lhs, @Nonnull ZTensor rhs) {
       lhs.binOp_((l, r) -> l % r, rhs);
     }
 
+    /**
+     * Element-wise broadcast in-place mod on the lhs.
+     *
+     * @param lhs the left-hand side tensor, modified in-place; must be mutable.
+     * @param rhs the right-hand side tensor.
+     */
     public static void mod_(@Nonnull ZTensor lhs, int rhs) {
       lhs.binOp_((l, r) -> l % r, rhs);
     }
   }
 
+  /** Returns a new elementwise negation of this tensor. */
   public @Nonnull ZTensor neg() {
     return Ops.neg(this);
   }
 
+  /** Returns an elementwise broadcast addition with this tensor. */
   public @Nonnull ZTensor add(@Nonnull ZTensor rhs) {
     return Ops.add(this, rhs);
   }
 
+  /** Returns an elementwise broadcast addition with this tensor. */
   public @Nonnull ZTensor add(int rhs) {
     return Ops.add(this, rhs);
   }
 
+  /**
+   * Performs an in-place elementwise broadcast addition on this tensor.
+   *
+   * <p>This tensor must be mutable.
+   *
+   * @param rhs the right-hand side tensor.
+   */
   public void add_(@Nonnull ZTensor rhs) {
     Ops.add_(this, rhs);
   }
 
+  /**
+   * Performs an in-place elementwise broadcast addition on this tensor.
+   *
+   * <p>This tensor must be mutable.
+   *
+   * @param rhs the right-hand side tensor.
+   */
   public void add_(int rhs) {
     Ops.add_(this, rhs);
   }
 
+  /**
+   * Returns an elementwise broadcast subtraction with this tensor.
+   *
+   * @param rhs the right-hand side tensor.
+   * @return a new tensor.
+   */
   public @Nonnull ZTensor sub(@Nonnull ZTensor rhs) {
     return Ops.sub(this, rhs);
   }
 
+  /**
+   * Returns an elementwise broadcast subtraction with this tensor.
+   *
+   * @param rhs the right-hand side tensor.
+   * @return a new tensor.
+   */
   public @Nonnull ZTensor sub(int rhs) {
     return Ops.sub(this, rhs);
   }
 
+  /**
+   * Performs an in-place elementwise broadcast subtraction on this tensor.
+   *
+   * <p>This tensor must be mutable.
+   *
+   * @param rhs the right-hand side tensor.
+   */
   public void sub_(@Nonnull ZTensor rhs) {
     Ops.sub_(this, rhs);
   }
 
+  /**
+   * Performs an in-place elementwise broadcast subtraction on this tensor.
+   *
+   * <p>This tensor must be mutable.
+   *
+   * @param rhs the right-hand side tensor.
+   */
   public void sub_(int rhs) {
     Ops.sub_(this, rhs);
   }
 
+  /**
+   * Returns an elementwise broadcast multiplication with this tensor.
+   *
+   * @param rhs the right-hand side tensor.
+   * @return a new tensor.
+   */
   public @Nonnull ZTensor mul(@Nonnull ZTensor rhs) {
     return Ops.mul(this, rhs);
   }
 
+  /**
+   * Returns an elementwise broadcast multiplication with this tensor.
+   *
+   * @param rhs the right-hand side tensor.
+   * @return a new tensor.
+   */
   public @Nonnull ZTensor mul(int rhs) {
     return Ops.mul(this, rhs);
   }
 
+  /**
+   * Performs an in-place elementwise broadcast multiplication on this tensor.
+   *
+   * <p>This tensor must be mutable.
+   *
+   * @param rhs the right-hand side tensor.
+   */
   public void mul_(@Nonnull ZTensor rhs) {
     Ops.mul_(this, rhs);
   }
 
+  /**
+   * Performs an in-place elementwise broadcast multiplication on this tensor.
+   *
+   * <p>This tensor must be mutable.
+   *
+   * @param rhs the right-hand side tensor.
+   */
   public void mul_(int rhs) {
     Ops.mul_(this, rhs);
   }
 
+  /**
+   * Returns an elementwise broadcast division with this tensor.
+   *
+   * @param rhs the right-hand side tensor.
+   * @return a new tensor.
+   */
   public @Nonnull ZTensor div(@Nonnull ZTensor rhs) {
     return Ops.div(this, rhs);
   }
 
+  /**
+   * Returns an elementwise broadcast division with this tensor.
+   *
+   * @param rhs the right-hand side tensor.
+   * @return a new tensor.
+   */
   public @Nonnull ZTensor div(int rhs) {
     return Ops.div(this, rhs);
   }
 
+  /**
+   * Performs an in-place elementwise broadcast division on this tensor.
+   *
+   * <p>This tensor must be mutable.
+   *
+   * @param rhs the right-hand side tensor.
+   */
   public void div_(@Nonnull ZTensor rhs) {
     Ops.div_(this, rhs);
   }
 
+  /**
+   * Performs an in-place elementwise broadcast division on this tensor.
+   *
+   * <p>This tensor must be mutable.
+   *
+   * @param rhs the right-hand side tensor.
+   */
   public void div_(int rhs) {
     Ops.div_(this, rhs);
   }
 
+  /**
+   * Returns an elementwise broadcast mod with this tensor.
+   *
+   * @param rhs the right-hand side tensor.
+   * @return a new tensor.
+   */
   public @Nonnull ZTensor mod(@Nonnull ZTensor rhs) {
     return Ops.mod(this, rhs);
   }
 
+  /**
+   * Returns an elementwise broadcast mod with this tensor.
+   *
+   * @param rhs the right-hand side tensor.
+   * @return a new tensor.
+   */
   public @Nonnull ZTensor mod(int rhs) {
     return Ops.mod(this, rhs);
   }
 
+  /**
+   * Performs an in-place elementwise broadcast mod on this tensor.
+   *
+   * <p>This tensor must be mutable.
+   *
+   * @param rhs the right-hand side tensor.
+   */
   public void mod_(@Nonnull ZTensor rhs) {
     Ops.mod_(this, rhs);
   }
 
+  /**
+   * Performs an in-place elementwise broadcast mod on this tensor.
+   *
+   * <p>This tensor must be mutable.
+   *
+   * @param rhs the right-hand side tensor.
+   */
   public void mod_(int rhs) {
     Ops.mod_(this, rhs);
   }

@@ -13,7 +13,7 @@ public class ZRangeTest implements CommonAssertions {
     assertThat(range.size).isEqualTo(1);
 
     assertThat(range.isEmpty()).isFalse();
-    assertThat(range.shape).isEqualTo(ZTensor.vector());
+    assertThat(range.shape).isEqualTo(ZTensor.newVector());
 
     String pretty = "zr[]";
     assertThat(range).hasToString(pretty);
@@ -114,7 +114,7 @@ public class ZRangeTest implements CommonAssertions {
       assertThat(range.size).isEqualTo(6);
     }
     {
-      var range = ZRange.fromShape(ZTensor.vector());
+      var range = ZRange.fromShape(ZTensor.newVector());
       assertThat(range.ndim()).isEqualTo(0);
       assertThat(range.size).isEqualTo(1);
     }
@@ -141,7 +141,7 @@ public class ZRangeTest implements CommonAssertions {
       assertThat(range.size).isEqualTo(4);
     }
     {
-      var range = ZRange.of(ZTensor.vector(2, 3), ZTensor.vector(4, 5));
+      var range = ZRange.of(ZTensor.newVector(2, 3), ZTensor.newVector(4, 5));
       assertThat(range.ndim()).isEqualTo(2);
       assertThat(range.size).isEqualTo(4);
     }
@@ -208,20 +208,24 @@ public class ZRangeTest implements CommonAssertions {
       assertThat(empty.contains(empty.start)).isFalse();
       assertThat(range.contains(empty)).isTrue();
       assertThat(range.contains(empty.translate(range.end))).isTrue();
-      assertThat(range.contains(empty.translate(ZTensor.vector(-1, 0)))).isFalse();
+      assertThat(range.contains(empty.translate(ZTensor.newVector(-1, 0)))).isFalse();
     }
 
     assertThat(range.contains(new ZPoint(1, 1))).isTrue();
     assertThat(range.contains(new ZPoint(-2, 1))).isFalse();
 
-    assertThat(range.contains(ZTensor.vector(1, 1))).isTrue();
-    assertThat(range.contains(ZTensor.vector(-2, 1))).isFalse();
+    assertThat(range.contains(ZTensor.newVector(1, 1))).isTrue();
+    assertThat(range.contains(ZTensor.newVector(-2, 1))).isFalse();
 
-    assertThat(range.contains(ZRange.of(ZTensor.vector(0, 0), ZTensor.vector(1, 1)))).isTrue();
-    assertThat(range.contains(ZRange.of(ZTensor.vector(1, 2), ZTensor.vector(2, 3)))).isTrue();
+    assertThat(range.contains(ZRange.of(ZTensor.newVector(0, 0), ZTensor.newVector(1, 1))))
+        .isTrue();
+    assertThat(range.contains(ZRange.of(ZTensor.newVector(1, 2), ZTensor.newVector(2, 3))))
+        .isTrue();
 
-    assertThat(range.contains(ZRange.of(ZTensor.vector(0, -1), ZTensor.vector(1, 1)))).isFalse();
-    assertThat(range.contains(ZRange.of(ZTensor.vector(0, 0), ZTensor.vector(3, 1)))).isFalse();
+    assertThat(range.contains(ZRange.of(ZTensor.newVector(0, -1), ZTensor.newVector(1, 1))))
+        .isFalse();
+    assertThat(range.contains(ZRange.of(ZTensor.newVector(0, 0), ZTensor.newVector(3, 1))))
+        .isFalse();
   }
 
   @Test

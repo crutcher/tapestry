@@ -15,26 +15,26 @@ public class ZPointTest implements CommonAssertions {
     {
       var p = new ZPoint(1, 2, 3);
       assertThat(p.ndim()).isEqualTo(3);
-      assertThat(p.coords).isEqualTo(ZTensor.vector(1, 2, 3));
+      assertThat(p.coords).isEqualTo(ZTensor.newVector(1, 2, 3));
     }
 
     {
-      var p = new ZPoint(ZTensor.vector(1, 2, 3));
+      var p = new ZPoint(ZTensor.newVector(1, 2, 3));
       assertThat(p.ndim()).isEqualTo(3);
-      assertThat(p.coords).isEqualTo(ZTensor.vector(1, 2, 3));
+      assertThat(p.coords).isEqualTo(ZTensor.newVector(1, 2, 3));
     }
 
     {
       var p = new ZPoint(List.of(1, 2, 3));
       assertThat(p.ndim()).isEqualTo(3);
-      assertThat(p.coords).isEqualTo(ZTensor.vector(1, 2, 3));
+      assertThat(p.coords).isEqualTo(ZTensor.newVector(1, 2, 3));
     }
 
     assertThatExceptionOfType(IllegalArgumentException.class)
-        .isThrownBy(() -> new ZPoint(ZTensor.scalar(3)));
+        .isThrownBy(() -> new ZPoint(ZTensor.newScalar(3)));
 
     assertThatExceptionOfType(IllegalArgumentException.class)
-        .isThrownBy(() -> new ZPoint(ZTensor.zeros(2, 3)));
+        .isThrownBy(() -> new ZPoint(ZTensor.newZeros(2, 3)));
   }
 
   @Test

@@ -458,8 +458,8 @@ public final class ZRange implements HasSize, HasPermute<ZRange>, HasToJsonStrin
    * @return the intersection of this range with another, null if there is no intersection.
    */
   public @Nullable ZRange intersection(@Nonnull ZRange other) {
-    var s = ZTensor.Ops.binOp(Math::max, start.coords, other.start.coords).zpoint();
-    var e = ZTensor.Ops.binOp(Math::min, end.coords, other.end.coords).zpoint();
+    var s = ZTensor.Ops.binOp(Math::max, start.coords, other.start.coords).newZPoint();
+    var e = ZTensor.Ops.binOp(Math::min, end.coords, other.end.coords).newZPoint();
     if (s.le(e)) {
       return new ZRange(s, e);
     } else {

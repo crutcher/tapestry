@@ -40,7 +40,7 @@ public final class ZPoint implements HasPermute<ZPoint>, HasToJsonString {
    * @return a new ZPoint.
    */
   public static @Nonnull ZPoint zeros(int ndim) {
-    return new ZPoint(ZTensor.zeros(ndim));
+    return new ZPoint(ZTensor.newZeros(ndim));
   }
 
   /**
@@ -77,11 +77,11 @@ public final class ZPoint implements HasPermute<ZPoint>, HasToJsonString {
   }
 
   public ZPoint(@Nonnull int... coords) {
-    this(ZTensor.vector(coords));
+    this(ZTensor.newVector(coords));
   }
 
   public ZPoint(@Nonnull Iterable<Integer> coords) {
-    this(ZTensor.vector(coords));
+    this(ZTensor.newVector(coords));
   }
 
   @Override
