@@ -1155,7 +1155,7 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
    * @param value the value to set.
    * @throws IndexOutOfBoundsException if the coordinates are out of bounds.
    */
-  void _unchecked_set(@Nonnull int[] coords, int value) {
+  private void _unchecked_set(@Nonnull int[] coords, int value) {
     data[ravel(coords)] = value;
   }
 
