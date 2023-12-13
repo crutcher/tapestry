@@ -1,13 +1,14 @@
 package loom.zspace;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import loom.common.serialization.JsonUtil;
+import loom.testing.CommonAssertions;
+import org.junit.Test;
+
 import java.util.ArrayList;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.function.BinaryOperator;
-import loom.common.serialization.JsonUtil;
-import loom.testing.CommonAssertions;
-import org.junit.Test;
 
 public class ZTensorTest implements CommonAssertions {
   @Test
@@ -491,6 +492,19 @@ public class ZTensorTest implements CommonAssertions {
     assertThat(ZTensor.newScalar(4).neg()).isEqualTo(ZTensor.newScalar(-4));
     assertThat(ZTensor.newVector().neg()).isEqualTo(ZTensor.newVector());
     assertThat(ZTensor.newVector(2, 3).neg()).isEqualTo(ZTensor.newVector(-2, -3));
+  }
+
+  @Test
+  public void test_abs() {
+    assertThat(ZTensor.Ops.abs(ZTensor.newScalar(4))).isEqualTo(ZTensor.newScalar(4));
+    assertThat(ZTensor.Ops.abs(ZTensor.newScalar(-4))).isEqualTo(ZTensor.newScalar(4));
+    assertThat(ZTensor.Ops.abs(ZTensor.newVector())).isEqualTo(ZTensor.newVector());
+    assertThat(ZTensor.Ops.abs(ZTensor.newVector(2, -3))).isEqualTo(ZTensor.newVector(2, 3));
+
+    assertThat(ZTensor.newScalar(4).abs()).isEqualTo(ZTensor.newScalar(4));
+    assertThat(ZTensor.newScalar(-4).abs()).isEqualTo(ZTensor.newScalar(4));
+    assertThat(ZTensor.newVector().abs()).isEqualTo(ZTensor.newVector());
+    assertThat(ZTensor.newVector(2, -3).abs()).isEqualTo(ZTensor.newVector(2, 3));
   }
 
   @Test

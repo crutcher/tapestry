@@ -13,6 +13,12 @@ import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.node.IntNode;
 import com.google.common.primitives.Ints;
 import com.google.errorprone.annotations.CheckReturnValue;
+import java.lang.reflect.Array;
+import java.util.*;
+import java.util.function.*;
+import java.util.stream.Stream;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import lombok.Data;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -20,13 +26,6 @@ import lombok.SneakyThrows;
 import loom.common.HasToJsonString;
 import loom.common.IteratorUtils;
 import loom.common.serialization.JsonUtil;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.lang.reflect.Array;
-import java.util.*;
-import java.util.function.*;
-import java.util.stream.Stream;
 
 /**
  * A multidimensional int array used for numerical operations.
@@ -1298,6 +1297,16 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
     }
 
     /**
+     * Elementwise absolute value of a tensor.
+     *
+     * @param tensor the input tensor.
+     * @return a new tensor.
+     */
+    public static @Nonnull ZTensor abs(@Nonnull ZTensor tensor) {
+      return uniOp(Math::abs, tensor);
+    }
+
+    /**
      * An element-wise broadcast binary operation.
      *
      * @param op the operation.
@@ -1673,6 +1682,11 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
   /** Returns a new elementwise negation of this tensor. */
   public @Nonnull ZTensor neg() {
     return Ops.neg(this);
+  }
+
+  /** Returns a new elementwise absolute value of this tensor. */
+  public @Nonnull ZTensor abs() {
+    return Ops.abs(this);
   }
 
   /** Returns an elementwise broadcast addition with this tensor. */
