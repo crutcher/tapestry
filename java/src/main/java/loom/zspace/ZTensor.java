@@ -13,45 +13,85 @@ import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.node.IntNode;
 import com.google.common.primitives.Ints;
 import com.google.errorprone.annotations.CheckReturnValue;
-import java.lang.reflect.Array;
-import java.util.*;
-import java.util.function.*;
-import java.util.stream.Stream;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import lombok.Data;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import loom.common.HasToJsonString;
 import loom.common.IteratorUtils;
 import loom.common.serialization.JsonUtil;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.lang.reflect.Array;
+import java.util.*;
+import java.util.function.*;
+import java.util.stream.Stream;
+
 /**
- * Minimal discrete Tensor.
+ * A multidimensional int array used for numerical operations.
+ *
+ * <p>ZTensor is a class representing a multidimensional array used for numerical operations,
+ * commonly known as a tensor. Important functionalities of this class include mutability, views,
+ * and cloning. These concepts functionally impact the class's interactions with operators and
+ * storage management.
  *
  * <p>As this tensor exists solely to support discrete space range calculations, C/C++/JNI/CUDA/BLAS
  * accelerations are not needed; the focus is on what permits the block expression index projection
  * math to be as readable as possible; targeting succinctness with range and shape assertions.
  *
+ * <h2>Mutability</h2>
+ *
+ * <p>A ZTensor can be mutable or immutable. A mutable ZTensor permits modifications to its values
+ * after creation. In contrast, an immutable ZTensor guarantees that its values remain fixed
+ * post-creation. This can be advantageous in ensuring consistent state.
+ *
+ * <h2>Views</h2>
+ *
+ * <p>A ZTensor view offers an alternative perspective of the original tensor's data without
+ * duplicating it. It operates on a selected slice or arranged view of the original tensor. Any
+ * updates made to the original tensor are reflected in all of its views and vice versa. Also,
+ * mutating a view mutates the original tensor if both are mutable.
+ *
+ * <h2>Cloning</h2>
+ *
+ * <p>Creating a clone of a ZTensor results in an independent ZTensor instance with the same values
+ * but separate underlying data. Consequently, changes in the cloned tensor will not affect the
+ * original ZTensor - a useful attribute when performing mutating operations without touching the
+ * original tensor. However, cloning may incur additional memory costs, as separate storage for the
+ * clone's data is created.
+ *
+ * <p>Note: The clone of an immutable tensor <b>may</b> return the original tensor; when the
+ * immutable tensor is {@link #isCompact()}.
+ *
+ * <h2>Serialization</h2>
+ *
  * <p>The ZTensor serialization format is a JSON array of integers; and degenerate ZTensors (those
  * with a mix of 0-sized and non-0-sized dimensions) will serialize down to the minimal empty tensor
  * in the given dimension.
+ *
+ * <h2>Shape, Size, and Scalar Tensors</h2>
+ *
+ * <p>The shape of a ZTensor describes the dimensions of the tensor, and the size of a tensor is
+ * defined as the product of those dimensions. For example, a tensor with shape [3, 4, 5] is a
+ * 3-dimensional tensor, with size 3*4*5=60
+ *
+ * <p>A tensor with any dimension of size 0 will have size 0, and thus be an empty tensor.
+ *
+ * <h3>Scalar Tensors</h3>
+ *
+ * <p>A scalar tensor is a tensor with no-dimensions, and shape []. The product of an empty list is
+ * 1, so the size of a scalar tensor is 1. Scalar tensors are often used to represent single
+ * dimensionless values.
  */
 @JsonSerialize(using = ZTensor.JsonSupport.Serializer.class)
 @JsonDeserialize(using = ZTensor.JsonSupport.Deserializer.class)
 public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, HasToJsonString {
 
-  /**
-   * An Iterable view of the coordinates of this tensor.
-   *
-   * <p>The {@link #bufferMode} is passed to each construction of an {@link Iterator}.
-   */
-  @Getter
+  /** An Iterable view of the coordinates of this tensor. */
+  @Data
   public final class IterableCoords implements Iterable<int[]> {
     private final CoordsBufferMode bufferMode;
-
-    IterableCoords(CoordsBufferMode bufferMode) {
-      this.bufferMode = bufferMode;
-    }
 
     @Override
     public @Nonnull CoordsIterator iterator() {
@@ -68,19 +108,16 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
    *
    * <p>When the buffer mode is {@link CoordsBufferMode#REUSED}, the buffer is shared between
    * subsequent calls to {@link Iterator#next()}. When the buffer mode is {@link
-   * CoordsBufferMode#DISTINCT}, the buffer is not shared between subsequent calls to {@link
+   * CoordsBufferMode#SAFE}, the buffer is not shared between subsequent calls to {@link
    * Iterator#next()}.
    */
+  @RequiredArgsConstructor
   public final class CoordsIterator implements Iterator<int[]> {
     @Getter private final CoordsBufferMode bufferMode;
 
     // Assuming a non-scalar ZTensor; non-empty ZTensor.
     private int remaining = size();
     @Nullable private int[] coords = null;
-
-    CoordsIterator(CoordsBufferMode bufferMode) {
-      this.bufferMode = bufferMode;
-    }
 
     @Override
     public boolean hasNext() {
@@ -107,7 +144,7 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
         }
       }
 
-      if (bufferMode == CoordsBufferMode.DISTINCT) {
+      if (bufferMode == CoordsBufferMode.SAFE) {
         return coords.clone();
       }
 
@@ -794,7 +831,7 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
    *
    * <p>When the buffer mode is {@link CoordsBufferMode#REUSED}, the buffer is shared between
    * subsequent calls to {@link Iterator#next()}. When the buffer mode is {@link
-   * CoordsBufferMode#DISTINCT}, the buffer is not shared between subsequent calls to {@link
+   * CoordsBufferMode#SAFE}, the buffer is not shared between subsequent calls to {@link
    * Iterator#next()}.
    *
    * <p>Empty tensors will return an empty iterable.
@@ -808,12 +845,6 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
     return new IterableCoords(bufferMode);
   }
 
-  /**
-   * Returns a permuted view of this tensor.
-   *
-   * @param permutation the permutation (accepts negative indices).
-   * @return a permuted view of this tensor.
-   */
   @Override
   public ZTensor permute(@Nonnull int... permutation) {
     var perm = IndexingFns.resolvePermutation(permutation, ndim());
@@ -829,11 +860,33 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
   }
 
   /**
-   * Create a copy of this tensor with a reordered dimension.
+   * Creates a reordered view of this tensor along a specified dimension.
    *
-   * @param dim the dimension to reorder.
-   * @param permutation the permutation of the dimension.
-   * @return a copy of this tensor with a reordered dimension.
+   * <p>Being a view, mutations in the new tensor affect the original tensor and vice versa.
+   *
+   * <p><b>Example:</b> Suppose we have tensor 't' with shape [2,3]:
+   *
+   * <pre>
+   * t = [[0, 1, 2],
+   *      [3, 4, 5]]
+   * </pre>
+   *
+   * If we call {@code t.reorderDim([1,0,2], 1)}, the returned tensor will look like:
+   *
+   * <pre>
+   * v = [[1, 0, 2],
+   *      [4, 3, 5]]
+   * </pre>
+   *
+   * <p>Supports negative dimension indexing - i.e. -1 represents the last dimension, -2 represents
+   * the second last, and so on.
+   *
+   * @param permutation An array of unique integers representing the new order of indices along the
+   *     specified dimension. Each integer should be a valid index for that dimension.
+   * @param dim Index of the dimension to be reordered. Dimensions are zero-indexed. This must be a
+   *     valid dimension of this tensor.
+   * @return A new ZTensor, a "view" of the original tensor, with the specified dimension reordered.
+   *     This view shares data with the original tensor.
    */
   public ZTensor reorderDim(@Nonnull int[] permutation, int dim) {
     var d = resolveDim(dim);
@@ -846,11 +899,23 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
   }
 
   /**
-   * Transpose two dimensions of this tensor.
+   * Transposes (swaps) two dimensions of this tensor.
    *
-   * @param a the first dimension, accepts negative indices.
-   * @param b the second dimension, accepts negative indices.
-   * @return a transposed view of this tensor.
+   * <p>This method creates a new view of the tensor where the specified dimensions are swapped. The
+   * original tensor remains unchanged. The returned tensor shares data with the original tensor.
+   *
+   * <p>This operation can be useful in scenarios where you need to change the order of two
+   * dimensions in a tensor, for example, when you want to switch rows and columns in a 2D tensor
+   * (matrix).
+   *
+   * <p>Supports negative dimension indexing - i.e. -1 represents the last dimension, -2 represents
+   * the second last, and so on.
+   *
+   * @param a The index of the first dimension to be transposed.
+   * @param b The index of the second dimension to be transposed.
+   * @return A new ZTensor that is a transposed view of the original tensor.
+   * @throws IllegalArgumentException If the provided indices are not valid dimensions of the
+   *     tensor.
    */
   public ZTensor transpose(int a, int b) {
     int rA = resolveDim(a);

@@ -50,12 +50,12 @@ public class ZTensorTest implements CommonAssertions {
     {
       // CoordsBufferMode.OWNED
 
-      ZTensor.IterableCoords coords = t.byCoords(CoordsBufferMode.DISTINCT);
-      assertThat(coords.getBufferMode()).isEqualTo(CoordsBufferMode.DISTINCT);
+      ZTensor.IterableCoords coords = t.byCoords(CoordsBufferMode.SAFE);
+      assertThat(coords.getBufferMode()).isEqualTo(CoordsBufferMode.SAFE);
 
       {
         ZTensor.CoordsIterator it = coords.iterator();
-        assertThat(it.getBufferMode()).isEqualTo(CoordsBufferMode.DISTINCT);
+        assertThat(it.getBufferMode()).isEqualTo(CoordsBufferMode.SAFE);
       }
 
       assertThat(coords.stream().toList())
@@ -68,10 +68,10 @@ public class ZTensorTest implements CommonAssertions {
     }
 
     // Empty tensor.
-    assertThat(ZTensor.vector().byCoords(CoordsBufferMode.DISTINCT).stream().toList()).isEmpty();
+    assertThat(ZTensor.vector().byCoords(CoordsBufferMode.SAFE).stream().toList()).isEmpty();
 
     // Scalar tensor.
-    assertThat(ZTensor.scalar(2).byCoords(CoordsBufferMode.DISTINCT).stream().toList())
+    assertThat(ZTensor.scalar(2).byCoords(CoordsBufferMode.SAFE).stream().toList())
         .contains(new int[] {});
   }
 
