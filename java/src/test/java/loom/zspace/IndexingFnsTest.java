@@ -4,6 +4,14 @@ import loom.testing.CommonAssertions;
 import org.junit.Test;
 
 public class IndexingFnsTest implements CommonAssertions {
+  @Test
+  public void test_arrayContains() {
+    assertThat(IndexingFns.arrayContains(new int[] {}, 0)).isFalse();
+    assertThat(IndexingFns.arrayContains(new int[] {0, 1, 2}, 0)).isTrue();
+    assertThat(IndexingFns.arrayContains(new int[] {0, 1, 2}, 1)).isTrue();
+    assertThat(IndexingFns.arrayContains(new int[] {0, 1, 2}, 2)).isTrue();
+    assertThat(IndexingFns.arrayContains(new int[] {0, 1, 2}, 3)).isFalse();
+  }
 
   @Test
   public void test_iota() {
@@ -62,6 +70,17 @@ public class IndexingFnsTest implements CommonAssertions {
     assertThatExceptionOfType(IndexOutOfBoundsException.class)
         .isThrownBy(() -> IndexingFns.resolveDim(-4, shape))
         .withMessageContaining("invalid dimension: index -4 out of range [0, 3)");
+  }
+
+  @Test
+  public void test_resolveDims() {
+    assertThat(IndexingFns.resolveDims(new int[] {-2, 1}, new int[] {2, 3}))
+        .isEqualTo(new int[] {0, 1});
+
+    assertThatExceptionOfType(IllegalArgumentException.class)
+        .isThrownBy(() -> IndexingFns.resolveDims(new int[] {1, -1}, new int[] {2, 3}))
+        .withMessageContaining(
+            "dims [1, -1] resolve to [1, 1] on shape [2, 3] with duplicate dimensions");
   }
 
   @Test

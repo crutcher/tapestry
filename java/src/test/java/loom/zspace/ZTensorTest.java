@@ -12,6 +12,25 @@ import java.util.function.BinaryOperator;
 
 public class ZTensorTest implements CommonAssertions {
   @Test
+  public void test_equals() {
+    var t = ZTensor.newFrom(new int[][] {{2, 3}, {4, 5}});
+
+    assertThat(t)
+        .isEqualTo(t)
+        .isEqualTo(ZTensor.newFrom(new int[][] {{2, 3}, {4, 5}}))
+        .isNotEqualTo(null)
+        .isNotEqualTo("abc")
+        .isNotEqualTo(ZTensor.newFrom(new int[][] {{2, 3}, {4, 6}}))
+        .isNotEqualTo(ZTensor.newFrom(new int[] {2, 3}));
+  }
+
+  @Test
+  public void test_newIota() {
+    assertThat(ZTensor.newIota(0)).isEqualTo(ZTensor.newZeros(0));
+    assertThat(ZTensor.newIota(3)).isEqualTo(ZTensor.newFrom(new int[] {0, 1, 2}));
+  }
+
+  @Test
   public void test_byCoords() {
     ZTensor t = ZTensor.newFrom(new int[][] {{2, 3}, {4, 5}});
 
@@ -340,6 +359,24 @@ public class ZTensorTest implements CommonAssertions {
   }
 
   @Test
+  public void test_selectDims() {
+    ZTensor t = ZTensor.newFrom(new int[][] {{2, 3}, {4, 5}});
+
+    assertThat(t.selectDims(new int[] {0}, new int[] {0}))
+        .isEqualTo(ZTensor.newFrom(new int[] {2, 3}));
+    assertThat(t.selectDims(new int[] {-2}, new int[] {0}))
+        .isEqualTo(ZTensor.newFrom(new int[] {2, 3}));
+    assertThat(t.selectDims(new int[] {0, 1}, new int[] {1, 0})).isEqualTo(ZTensor.newFrom(4));
+
+    assertThatExceptionOfType(IllegalArgumentException.class)
+        .isThrownBy(() -> t.selectDims(new int[] {0, 1}, new int[] {1, 0, 1}))
+        .withMessageContaining("dims.length (2) != indexes.length (3)");
+    assertThatExceptionOfType(IndexOutOfBoundsException.class)
+        .isThrownBy(() -> t.selectDims(new int[] {3}, new int[] {0}))
+        .withMessageContaining("invalid dimension");
+  }
+
+  @Test
   public void test_permute() {
     ZTensor t = ZTensor.newFrom(new int[][][] {{{2, 3}, {4, 5}}, {{6, 7}, {8, 9}}});
 
@@ -505,6 +542,26 @@ public class ZTensorTest implements CommonAssertions {
     assertThat(ZTensor.newScalar(-4).abs()).isEqualTo(ZTensor.newScalar(4));
     assertThat(ZTensor.newVector().abs()).isEqualTo(ZTensor.newVector());
     assertThat(ZTensor.newVector(2, -3).abs()).isEqualTo(ZTensor.newVector(2, 3));
+  }
+
+  @Test
+  public void test_reduceCells() {
+    var t = ZTensor.newFrom(new int[][][] {{{2, 3}, {4, 5}}, {{6, 7}, {8, 9}}});
+
+    assertThat(t.reduceCellsAsInt(Integer::sum, 0)).isEqualTo(44);
+    assertThat(t.reduceCells(Integer::sum, 0)).isEqualTo(ZTensor.newScalar(44));
+    assertThat(t.reduceCells(Integer::sum, 0, 2))
+        .isEqualTo(ZTensor.newFrom(new int[][] {{5, 9}, {13, 17}}));
+    assertThat(t.reduceCells(Integer::sum, 0, 0, 1, 2)).isEqualTo(ZTensor.newScalar(44));
+  }
+
+  @Test
+  public void test_sum() {
+    var t = ZTensor.newFrom(new int[][][] {{{2, 3}, {4, 5}}, {{6, 7}, {8, 9}}});
+    assertThat(t.sumAsInt()).isEqualTo(44);
+    assertThat(t.sum()).isEqualTo(ZTensor.newScalar(44));
+    assertThat(t.sum(2)).isEqualTo(ZTensor.newFrom(new int[][] {{5, 9}, {13, 17}}));
+    assertThat(t.sum(0, 1, 2)).isEqualTo(ZTensor.newScalar(44));
   }
 
   @Test

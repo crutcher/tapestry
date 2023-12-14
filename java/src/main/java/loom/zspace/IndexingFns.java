@@ -1,8 +1,8 @@
 package loom.zspace;
 
+import javax.annotation.Nonnull;
 import java.util.Arrays;
 import java.util.stream.Collectors;
-import javax.annotation.Nonnull;
 
 /** Utility functions for computing tensor indices. */
 public final class IndexingFns {
@@ -84,6 +84,37 @@ public final class IndexingFns {
    */
   public static int resolveDim(int dim, int[] shape) {
     return resolveDim(dim, shape.length);
+  }
+
+  /**
+   * Resolve dimension indexes.
+   *
+   * <p>Negative dimension indices are resolved relative to the number of dimensions.
+   *
+   * @param dims the dimension indexes.
+   * @param shape the shape of the tensor.
+   * @return the resolved dimension indexes.
+   * @throws IndexOutOfBoundsException if the index is out of range.
+   * @throws IllegalArgumentException if the indexes are duplicated.
+   */
+  public static int[] resolveDims(int[] dims, int[] shape) {
+    int[] res = new int[dims.length];
+    for (int i = 0; i < dims.length; ++i) {
+      var d = resolveDim(dims[i], shape);
+      res[i] = d;
+    }
+    for (int i = 0; i < dims.length; ++i) {
+      var d = res[i];
+      for (int k = 0; k < i; ++k) {
+        if (res[k] == d) {
+          // Duplicate dimensions detected.
+          throw new IllegalArgumentException(
+              "dims %s resolve to %s on shape %s with duplicate dimensions"
+                  .formatted(Arrays.toString(dims), Arrays.toString(res), Arrays.toString(shape)));
+        }
+      }
+    }
+    return res;
   }
 
   /**
@@ -229,5 +260,21 @@ public final class IndexingFns {
     }
 
     return res;
+  }
+
+  /**
+   * Does the given array contain the given value?
+   *
+   * @param array the array.
+   * @param value the value.
+   * @return true if the array contains the value.
+   */
+  public static boolean arrayContains(int[] array, int value) {
+    for (int v : array) {
+      if (v == value) {
+        return true;
+      }
+    }
+    return false;
   }
 }

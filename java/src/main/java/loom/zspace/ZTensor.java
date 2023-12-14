@@ -13,12 +13,6 @@ import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.node.IntNode;
 import com.google.common.primitives.Ints;
 import com.google.errorprone.annotations.CheckReturnValue;
-import java.lang.reflect.Array;
-import java.util.*;
-import java.util.function.*;
-import java.util.stream.Stream;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import lombok.Data;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +20,13 @@ import lombok.SneakyThrows;
 import loom.common.HasToJsonString;
 import loom.common.IteratorUtils;
 import loom.common.serialization.JsonUtil;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.lang.reflect.Array;
+import java.util.*;
+import java.util.function.*;
+import java.util.stream.Stream;
 
 /**
  * A multidimensional int array used for numerical operations.
@@ -179,6 +180,16 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
    */
   public static @Nonnull ZTensor newVector(@Nonnull Iterable<Integer> values) {
     return newVector(IteratorUtils.iterableToStream(values).mapToInt(Integer::intValue).toArray());
+  }
+
+  /**
+   * Construct an iota tensor [0, .., size-1].
+   *
+   * @param size the size of the tensor.
+   * @return the new tensor.
+   */
+  public static @Nonnull ZTensor newIota(int size) {
+    return newVector(IndexingFns.iota(size));
   }
 
   /**
@@ -589,7 +600,10 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
     if (other == null || getClass() != other.getClass()) return false;
     var that = (ZTensor) other;
 
-    HasDimension.assertSameNDim(this, that);
+    if (this.ndim() != that.ndim()) {
+      return false;
+    }
+
     for (var coords : byCoords(CoordsBufferMode.REUSED)) {
       if (that.get(coords) != get(coords)) {
         return false;
@@ -736,7 +750,7 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
     }
 
     var res = new ZTensor(true, shape);
-    forEachItem(res::set);
+    forEachEntry(res::set, CoordsBufferMode.REUSED);
     if (!mutable) {
       return new ZTensor(false, res.shape, res.stride, res.data, 0);
     }
@@ -798,6 +812,18 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
     return IndexingFns.resolveDim(dim, shape);
   }
 
+  /**
+   * Resolve dimension indexes.
+   *
+   * <p>Negative dimension indices are resolved relative to the number of dimensions.
+   *
+   * @param dims the dimension indexes.
+   * @return the resolved dimension indexes.
+   */
+  public int[] resolveDims(int... dims) {
+    return IndexingFns.resolveDims(dims, shape);
+  }
+
   /** Returns the number of elements in this tensor. */
   @Override
   public int size() {
@@ -817,11 +843,28 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
   /**
    * Iterate over the coordinates and values of this tensor.
    *
+   * <p>When the buffer mode is {@link CoordsBufferMode#REUSED}, the buffer is shared between
+   * subsequent calls to {@link TensorEntryConsumer#accept(int[], int)}. When the buffer mode is
+   * {@link CoordsBufferMode#SAFE}, the buffer is not shared between subsequent calls to {@link
+   * TensorEntryConsumer#accept(int[], int)}.
+   *
+   * @param consumer the consumer.
+   * @param bufferMode the buffer mode.
+   */
+  public void forEachEntry(@Nonnull TensorEntryConsumer consumer, CoordsBufferMode bufferMode) {
+    for (int[] coords : byCoords(bufferMode)) {
+      consumer.accept(coords, get(coords));
+    }
+  }
+
+  /**
+   * Iterate over the values of this tensor.
+   *
    * @param consumer the consumer.
    */
-  public void forEachItem(@Nonnull BiConsumer<int[], Integer> consumer) {
+  public void forEachValue(@Nonnull IntConsumer consumer) {
     for (int[] coords : byCoords(CoordsBufferMode.REUSED)) {
-      consumer.accept(coords, get(coords));
+      consumer.accept(get(coords));
     }
   }
 
@@ -941,6 +984,8 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
   /**
    * Transpose this tensor by reversing its dimensions.
    *
+   * <p>Alias for {@link #transpose()}.
+   *
    * @return a transposed view of this tensor.
    */
   public ZTensor T() {
@@ -995,7 +1040,7 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
    * @param index the index to remove.
    * @return a copy of the array with the given index removed.
    */
-  int[] _removeIdx(int[] arr, int index) {
+  private static @Nonnull int[] _removeIdx(int[] arr, int index) {
     int[] res = new int[arr.length - 1];
     System.arraycopy(arr, 0, res, 0, index);
     System.arraycopy(arr, index + 1, res, index, arr.length - index - 1);
@@ -1146,6 +1191,32 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
   }
 
   /**
+   * Return a view of this tensor with the given dimension selected.
+   *
+   * @param dims the dimensions to select.
+   * @param indexes the matching indexes to select.
+   * @return a view of this tensor with the given dimensions selected.
+   */
+  public ZTensor selectDims(int[] dims, int[] indexes) {
+    if (dims.length != indexes.length) {
+      throw new IllegalArgumentException(
+          "dims.length (%d) != indexes.length (%d)".formatted(dims.length, indexes.length));
+    }
+
+    var ds = resolveDims(dims);
+    var is = new int[indexes.length];
+    for (int i = 0; i < indexes.length; ++i) {
+      is[i] = IndexingFns.resolveIndex("index", indexes[i], shape[ds[i]]);
+    }
+
+    var res = this;
+    for (int i = 0; i < ds.length; ++i) {
+      res = res.selectDim(ds[i] - i, is[i]);
+    }
+    return res;
+  }
+
+  /**
    * Set the cell-value at the given coordinates.
    *
    * <p>Assumes the tensor is mutable.
@@ -1213,7 +1284,7 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
    */
   public void assign(@Nonnull ZTensor tensor) {
     assertMutable();
-    tensor.broadcastLike(this).forEachItem(this::_unchecked_set);
+    tensor.broadcastLike(this).forEachEntry(this::_unchecked_set, CoordsBufferMode.REUSED);
   }
 
   /**
@@ -1226,7 +1297,8 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
     assertMutable();
     tensor
         .broadcastLike(this)
-        .forEachItem((coords, value) -> _unchecked_set(coords, op.apply(value)));
+        .forEachEntry(
+            (coords, value) -> _unchecked_set(coords, op.apply(value)), CoordsBufferMode.REUSED);
   }
 
   /**
@@ -1677,6 +1749,184 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
     public static void mod_(@Nonnull ZTensor lhs, int rhs) {
       lhs.binOp_((l, r) -> l % r, rhs);
     }
+
+    /**
+     * Applies the given reduction operation to all values in the given tensor.
+     *
+     * @param tensor the tensor
+     * @param op the reduction operation
+     * @param initial the initial value
+     * @return the int result of the reduction.
+     */
+    public static int reduceCellsAsInt(
+        @Nonnull ZTensor tensor, @Nonnull IntBinaryOperator op, int initial) {
+      var acc =
+          new IntConsumer() {
+            int value = initial;
+
+            @Override
+            public void accept(int value) {
+              this.value = op.applyAsInt(this.value, value);
+            }
+          };
+
+      tensor.forEachValue(acc);
+      return acc.value;
+    }
+
+    /**
+     * Applies the given reduction operation to all values in the given tensor.
+     *
+     * @param tensor the tensor
+     * @param op the reduction operation
+     * @param initial the initial value
+     * @return a new tensor.
+     */
+    public static @Nonnull ZTensor reduceCells(
+        @Nonnull ZTensor tensor, IntBinaryOperator op, int initial) {
+      return newScalar(reduceCellsAsInt(tensor, op, initial));
+    }
+
+    /**
+     * Applies the given reduction operation to all values in the given tensor; grouping by the
+     * specified dimensions.
+     *
+     * <p>The shape of the returned tensor is the same as the shape of the input tensor, except that
+     * the specified dimensions are removed.
+     *
+     * @param tensor the tensor
+     * @param op the reduction operation
+     * @param initial the initial value
+     * @param dims the dimensions to group by.
+     * @return a new tensor.
+     */
+    public static @Nonnull ZTensor reduceCells(
+        @Nonnull ZTensor tensor, IntBinaryOperator op, int initial, int... dims) {
+      var sumDims = tensor.resolveDims(dims);
+
+      var sliceDims = new int[tensor.ndim() - sumDims.length];
+
+      var accShape = new int[tensor.ndim() - sumDims.length];
+      for (int sourceIdx = 0, accIdx = 0; sourceIdx < tensor.ndim(); ++sourceIdx) {
+        if (IndexingFns.arrayContains(sumDims, sourceIdx)) {
+          continue;
+        }
+
+        sliceDims[accIdx] = sourceIdx;
+        accShape[accIdx] = tensor.shape[sourceIdx];
+        accIdx++;
+      }
+
+      var acc = newZeros(accShape);
+      for (var ks : acc.byCoords(CoordsBufferMode.REUSED)) {
+        ZTensor slice = tensor.selectDims(sliceDims, ks);
+        acc.set(ks, reduceCellsAsInt(slice, op, initial));
+      }
+      return acc;
+    }
+
+    /**
+     * Returns the sum of all elements in the tensor.
+     *
+     * @param tensor the tensor.
+     * @return the int sum of all elements in the tensor.
+     */
+    public static int sumAsInt(@Nonnull ZTensor tensor) {
+      return reduceCellsAsInt(tensor, Integer::sum, 0);
+    }
+
+    /**
+     * Returns the sum of all elements in the tensor.
+     *
+     * @param tensor the tensor.
+     * @return the scalar ZTensor sum of all elements in the tensor.
+     */
+    public static @Nonnull ZTensor sum(@Nonnull ZTensor tensor) {
+      return reduceCells(tensor, Integer::sum, 0);
+    }
+
+    /**
+     * Returns the sum of all elements in the tensor, grouped by the specified dimensions.
+     *
+     * <p>The shape of the returned tensor is the same as the shape of the input tensor, except that
+     * the specified dimensions are removed.
+     *
+     * @param tensor the tensor.
+     * @param dims the dimensions to group by.
+     * @return a new tensor.
+     */
+    public static @Nonnull ZTensor sum(@Nonnull ZTensor tensor, int... dims) {
+      return reduceCells(tensor, Integer::sum, 0, dims);
+    }
+  }
+
+  /**
+   * Applies the given reduction operation to all values in the given tensor.
+   *
+   * @param op the reduction operation
+   * @param initial the initial value
+   * @return the int result of the reduction.
+   */
+  public int reduceCellsAsInt(@Nonnull IntBinaryOperator op, int initial) {
+    return Ops.reduceCellsAsInt(this, op, initial);
+  }
+
+  /**
+   * Applies the given reduction operation to all values in the given tensor.
+   *
+   * @param op the reduction operation
+   * @param initial the initial value
+   * @return a new tensor.
+   */
+  public ZTensor reduceCells(@Nonnull IntBinaryOperator op, int initial) {
+    return Ops.reduceCells(this, op, initial);
+  }
+
+  /**
+   * Applies the given reduction operation to all values in the given tensor; grouping by the
+   * specified dimensions.
+   *
+   * <p>The shape of the returned tensor is the same as the shape of the input tensor, except that
+   * the specified dimensions are removed.
+   *
+   * @param op the reduction operation
+   * @param initial the initial value
+   * @param dims the dimensions to group by.
+   * @return a new tensor.
+   */
+  public ZTensor reduceCells(@Nonnull IntBinaryOperator op, int initial, int... dims) {
+    return Ops.reduceCells(this, op, initial, dims);
+  }
+
+  /**
+   * Returns the sum of all elements in the tensor.
+   *
+   * @return the int sum of all elements in the tensor.
+   */
+  public int sumAsInt() {
+    return Ops.sumAsInt(this);
+  }
+
+  /**
+   * Returns the sum of all elements in the tensor.
+   *
+   * @return the scalar ZTensor sum of all elements in the tensor.
+   */
+  public @Nonnull ZTensor sum() {
+    return Ops.sum(this);
+  }
+
+  /**
+   * Returns the sum of all elements in the tensor, grouped by the specified dimensions.
+   *
+   * <p>The shape of the returned tensor is the same as the shape of the input tensor, except that
+   * the specified dimensions are removed.
+   *
+   * @param dims the dimensions to group by.
+   * @return a new tensor.
+   */
+  public @Nonnull ZTensor sum(int... dims) {
+    return Ops.sum(this, dims);
   }
 
   /** Returns a new elementwise negation of this tensor. */
