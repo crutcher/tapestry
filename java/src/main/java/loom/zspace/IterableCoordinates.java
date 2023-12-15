@@ -1,13 +1,12 @@
 package loom.zspace;
 
-import lombok.Getter;
-import loom.common.IteratorUtils;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.stream.Stream;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import lombok.Getter;
+import loom.common.IteratorUtils;
 
 /** An iterable and streamable view over coordinates in a range. */
 public final class IterableCoordinates implements Iterable<int[]> {

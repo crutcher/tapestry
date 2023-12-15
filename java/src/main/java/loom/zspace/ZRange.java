@@ -72,13 +72,7 @@ public final class ZRange implements Cloneable, HasSize, HasPermute<ZRange>, Has
     this.end = end;
 
     shape = end.coords.sub(start.coords).asImmutable();
-    {
-      int acc = 1;
-      for (var coords : shape.toT1()) {
-        acc *= coords;
-      }
-      size = acc;
-    }
+    size = shape.prodAsInt();
   }
 
   /**
@@ -124,6 +118,13 @@ public final class ZRange implements Cloneable, HasSize, HasPermute<ZRange>, Has
     return new ZRange(ZPoint.newZerosLike(shape), shape);
   }
 
+  /**
+   * Build a range from {@code [start, start + shape)}.
+   *
+   * @param start the start point.
+   * @param shape the shape of the range.
+   * @return a new range.
+   */
   @Nonnull
   public static ZRange fromStartWithShape(@Nonnull ZPoint start, @Nonnull ZPoint shape) {
     return fromShape(shape).translate(start);
@@ -172,24 +173,22 @@ public final class ZRange implements Cloneable, HasSize, HasPermute<ZRange>, Has
    */
   @Nonnull
   public static ZRange boundingRange(@Nonnull Iterable<ZRange> ranges) {
-    ZRange first = null;
-    ZTensor start = null;
-    ZTensor end = null;
-
-    for (var r : ranges) {
-      if (start == null) {
-        first = r;
-        start = r.start.coords;
-        end = r.end.coords;
-      } else {
-        HasDimension.assertSameNDim(first, r);
-
-        start = ZTensor.Ops.minimum(start, r.start.coords);
-        end = ZTensor.Ops.maximum(end, r.end.coords);
-      }
+    var it = ranges.iterator();
+    if (!it.hasNext()) {
+      throw new IllegalArgumentException("no ranges");
     }
 
-    assert start != null : "no ranges";
+    var first = it.next();
+    var start = first.start.coords;
+    var end = first.end.coords;
+
+    while (it.hasNext()) {
+      var r = it.next();
+      HasDimension.assertSameNDim(first, r);
+
+      start = ZTensor.Ops.minimum(start, r.start.coords);
+      end = ZTensor.Ops.maximum(end, r.end.coords);
+    }
 
     return new ZRange(start, end);
   }
@@ -418,7 +417,7 @@ public final class ZRange implements Cloneable, HasSize, HasPermute<ZRange>, Has
    * @param other the other range.
    * @return the intersection of this range with another, null if there is no intersection.
    */
-  public @Nullable ZRange intersection(@Nonnull ZRange other) {
+  @Nullable public ZRange intersection(@Nonnull ZRange other) {
     var s = ZTensor.Ops.zipWith(Math::max, start.coords, other.start.coords).newZPoint();
     var e = ZTensor.Ops.zipWith(Math::min, end.coords, other.end.coords).newZPoint();
     if (s.le(e)) {

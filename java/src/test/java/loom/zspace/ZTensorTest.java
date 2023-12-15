@@ -1,13 +1,14 @@
 package loom.zspace;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import loom.common.serialization.JsonUtil;
+import loom.testing.CommonAssertions;
+import org.junit.Test;
+
 import java.util.ArrayList;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.function.IntBinaryOperator;
-import loom.common.serialization.JsonUtil;
-import loom.testing.CommonAssertions;
-import org.junit.Test;
 
 public class ZTensorTest implements CommonAssertions {
   @Test
@@ -590,6 +591,16 @@ public class ZTensorTest implements CommonAssertions {
     assertThat(t.sum(0, 1, 2)).isEqualTo(ZTensor.newScalar(44));
 
     assertThat(t.sum(2)).isEqualTo(ZTensor.fromArray(new int[][] {{5, 9}, {13, 17}}));
+  }
+
+  @Test
+  public void test_prod() {
+    var t = ZTensor.fromArray(new int[][][] {{{2, 3}, {4, 5}}, {{6, 7}, {8, 9}}});
+    assertThat(t.prodAsInt()).isEqualTo(362880);
+    assertThat(t.prod()).isEqualTo(ZTensor.newScalar(362880));
+    assertThat(t.prod(0, 1, 2)).isEqualTo(ZTensor.newScalar(362880));
+
+    assertThat(t.prod(2)).isEqualTo(ZTensor.fromArray(new int[][] {{6, 20}, {42, 72}}));
   }
 
   @Test

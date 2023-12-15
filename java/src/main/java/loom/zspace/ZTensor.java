@@ -1363,6 +1363,39 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
   }
 
   /**
+   * Returns the product of all elements in the tensor.
+   *
+   * @return the int prod of all elements in the tensor.
+   */
+  public int prodAsInt() {
+    return Ops.prodAsInt(this);
+  }
+
+  /**
+   * Returns the product of all elements in the tensor.
+   *
+   * @return the scalar ZTensor prod of all elements in the tensor.
+   */
+  @Nonnull
+  public ZTensor prod() {
+    return Ops.prod(this);
+  }
+
+  /**
+   * Returns the product of all elements in the tensor, grouped by the specified dimensions.
+   *
+   * <p>The shape of the returned tensor is the same as the shape of the input tensor, except that
+   * the specified dimensions are removed.
+   *
+   * @param dims the dimensions to group by.
+   * @return a new tensor.
+   */
+  @Nonnull
+  public ZTensor prod(@Nonnull int... dims) {
+    return Ops.prod(this, dims);
+  }
+
+  /**
    * Returns the minimum of all elements in the tensor.
    *
    * @return the int minimum of all elements in the tensor.
@@ -2202,6 +2235,42 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
     }
 
     /**
+     * Returns the product of all elements in the tensor.
+     *
+     * @param tensor the tensor.
+     * @return the int product of all elements in the tensor.
+     */
+    public static int prodAsInt(@Nonnull ZTensor tensor) {
+      return reduceCellsAsInt(tensor, (a, b) -> a * b, 1);
+    }
+
+    /**
+     * Returns the product of all elements in the tensor.
+     *
+     * @param tensor the tensor.
+     * @return the scalar ZTensor product of all elements in the tensor.
+     */
+    @Nonnull
+    public static ZTensor prod(@Nonnull ZTensor tensor) {
+      return reduceCells(tensor, (a, b) -> a * b, 1);
+    }
+
+    /**
+     * Returns the product of all elements in the tensor, grouped by the specified dimensions.
+     *
+     * <p>The shape of the returned tensor is the same as the shape of the input tensor, except that
+     * the specified dimensions are removed.
+     *
+     * @param tensor the tensor.
+     * @param dims the dimensions to group by.
+     * @return a new tensor.
+     */
+    @Nonnull
+    public static ZTensor prod(@Nonnull ZTensor tensor, @Nonnull int... dims) {
+      return reduceCells(tensor, (a, b) -> a * b, 1, dims);
+    }
+
+    /**
      * Returns the min of all elements in the tensor.
      *
      * @param tensor the tensor.
@@ -2215,7 +2284,7 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
      * Returns the min of all elements in the tensor.
      *
      * @param tensor the tensor.
-     * @return the scalar ZTensor sum of all elements in the tensor.
+     * @return the scalar ZTensor min of all elements in the tensor.
      */
     @Nonnull
     public static ZTensor min(@Nonnull ZTensor tensor) {
@@ -2251,7 +2320,7 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
      * Returns the min of all elements in the tensor.
      *
      * @param tensor the tensor.
-     * @return the scalar ZTensor sum of all elements in the tensor.
+     * @return the scalar ZTensor max of all elements in the tensor.
      */
     @Nonnull
     public static ZTensor max(@Nonnull ZTensor tensor) {
