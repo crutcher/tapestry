@@ -40,16 +40,16 @@ public abstract class AbstractTensor<T extends AbstractTensor<T, ArrayT>, ArrayT
     this.data_offset = data_offset;
   }
 
-  public AbstractTensor(
-      boolean mutable, @Nonnull int[] shape, @Nonnull int[] stride, @Nonnull ArrayT data) {
-    this(mutable, shape, stride, data, 0);
-  }
-
   public AbstractTensor(boolean mutable, @Nonnull int[] shape, @Nonnull ArrayT data) {
     this(mutable, shape, IndexingFns.shapeToLSFStrides(shape), data, 0);
   }
 
-  protected abstract int dataHashCode();
+  /**
+   * Compute the hash code of the data array.
+   *
+   * <p>Used by {@link #hashCode()} for lazy initialization of the hash code.
+   */
+  protected abstract int _dataHashCode();
 
   @Override
   public int hashCode() {
@@ -58,12 +58,17 @@ public abstract class AbstractTensor<T extends AbstractTensor<T, ArrayT>, ArrayT
     }
     if (hash == null) {
       synchronized (this) {
-        hash = dataHashCode();
+        hash = _dataHashCode();
       }
     }
     return hash;
   }
 
+  /**
+   * Return the component type of the data array.
+   *
+   * @return the component type of the data array.
+   */
   public final Class<?> componentType() {
     return data.getClass().getComponentType();
   }

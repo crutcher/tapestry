@@ -105,40 +105,12 @@ public final class ZTensor extends AbstractTensor<ZTensor, int[]> implements Has
   }
 
   /**
-   * Constructs a ZTensor from parts; takes ownership of the arrays.
+   * Construct a mutable 0-filled ZTensor of the given shape; takes ownership of the shape.
    *
-   * <p>Assumes an offset of 0.
-   *
-   * @param mutable whether the ZTensor is mutable.
-   * @param shape the shape.
-   * @param stride the strides.
-   * @param data the data.
-   */
-  ZTensor(boolean mutable, @Nonnull int[] shape, @Nonnull int[] stride, @Nonnull int[] data) {
-    super(mutable, shape, stride, data);
-  }
-
-  /**
-   * Constructs a ZTensor from parts; takes ownership of the arrays.
-   *
-   * <p>Assumes an offset of 0, and default strides.
-   *
-   * @param mutable whether the ZTensor is mutable.
-   * @param shape the shape.
-   * @param data the data.
-   */
-  ZTensor(boolean mutable, @Nonnull int[] shape, @Nonnull int[] data) {
-    super(mutable, shape, data);
-  }
-
-  /**
-   * Construct a 0-filled ZTensor of the given shape; takes ownership of the shape.
-   *
-   * @param mutable whether the ZTensor is mutable.
    * @param shape the shape.
    */
-  ZTensor(boolean mutable, @Nonnull int[] shape) {
-    super(mutable, shape, new int[IndexingFns.shapeToSize(shape)]);
+  ZTensor(@Nonnull int[] shape) {
+    super(true, shape, new int[IndexingFns.shapeToSize(shape)]);
   }
 
   /**
@@ -149,7 +121,7 @@ public final class ZTensor extends AbstractTensor<ZTensor, int[]> implements Has
    */
   @Nonnull
   public static ZTensor newScalar(int value) {
-    return new ZTensor(true, new int[] {}, new int[] {value});
+    return new ZTensor(true, new int[] {}, new int[] {}, new int[] {value}, 0);
   }
 
   /**
@@ -202,7 +174,7 @@ public final class ZTensor extends AbstractTensor<ZTensor, int[]> implements Has
 
     int[] shape = new int[] {numRows, numCols};
     int[] data = Arrays.stream(rows).flatMapToInt(Arrays::stream).toArray();
-    return new ZTensor(true, shape, IndexingFns.shapeToLSFStrides(shape), data);
+    return new ZTensor(true, shape, IndexingFns.shapeToLSFStrides(shape), data, 0);
   }
 
   /**
@@ -213,7 +185,7 @@ public final class ZTensor extends AbstractTensor<ZTensor, int[]> implements Has
    */
   @Nonnull
   public static ZTensor newZeros(@Nonnull int... shape) {
-    return new ZTensor(true, shape.clone());
+    return new ZTensor(shape.clone());
   }
 
   /**
@@ -224,7 +196,7 @@ public final class ZTensor extends AbstractTensor<ZTensor, int[]> implements Has
    */
   @Nonnull
   public static ZTensor newZerosLike(@Nonnull ZTensor ref) {
-    return new ZTensor(true, ref.shapeAsArray());
+    return new ZTensor(ref.shapeAsArray());
   }
 
   /**
@@ -239,7 +211,7 @@ public final class ZTensor extends AbstractTensor<ZTensor, int[]> implements Has
     var size = IndexingFns.shapeToSize(shape);
     var data = new int[size];
     Arrays.fill(data, fill_value);
-    return new ZTensor(true, shape.clone(), data);
+    return new ZTensor(true, shape.clone(), IndexingFns.shapeToLSFStrides(shape), data, 0);
   }
 
   /**
@@ -381,7 +353,7 @@ public final class ZTensor extends AbstractTensor<ZTensor, int[]> implements Has
 
     int[] shape = shapeList.stream().mapToInt(i -> i).toArray();
 
-    var tensor = new ZTensor(true, shape);
+    var tensor = new ZTensor(shape);
 
     int chunkCount = 0;
     int chunkStride = tensor.shape[ndim - 1];
@@ -486,7 +458,7 @@ public final class ZTensor extends AbstractTensor<ZTensor, int[]> implements Has
   }
 
   @Override
-  protected int dataHashCode() {
+  protected int _dataHashCode() {
     return reduceCellsAsInt((a, b) -> 31 * a + b, Arrays.hashCode(shape));
   }
 
@@ -532,7 +504,7 @@ public final class ZTensor extends AbstractTensor<ZTensor, int[]> implements Has
       return this;
     }
 
-    var res = new ZTensor(true, shape);
+    var res = new ZTensor(shape);
     forEachEntry(res::set, BufferMode.REUSED);
     if (!mutable) {
       return new ZTensor(false, res.shape, res.stride, res.data, 0);
