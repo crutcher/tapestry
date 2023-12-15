@@ -15,7 +15,8 @@ public final class IndexingFns {
    * @param n the number of integers to return.
    * @return an array of integers from 0 to n - 1.
    */
-  static int[] iota(int n) {
+  @Nonnull
+  public static int[] iota(int n) {
     int[] result = new int[n];
     for (int i = 0; i < n; ++i) {
       result[i] = i;
@@ -29,7 +30,8 @@ public final class IndexingFns {
    * @param n the number of integers to return.
    * @return an array of integers from n - 1 to 0.
    */
-  static int[] aoti(int n) {
+  @Nonnull
+  public static int[] aoti(int n) {
     int[] result = new int[n];
     for (int i = 0; i < n; ++i) {
       result[i] = n - 1 - i;
@@ -46,7 +48,7 @@ public final class IndexingFns {
    * @return the resolved index.
    * @throws IndexOutOfBoundsException if the index is out of range.
    */
-  static int resolveIndex(String msg, int idx, int size) {
+  public static int resolveIndex(String msg, int idx, int size) {
     var res = idx;
     if (res < 0) {
       res += size;
@@ -82,7 +84,7 @@ public final class IndexingFns {
    * @return the resolved dimension index.
    * @throws IndexOutOfBoundsException if the index is out of range.
    */
-  public static int resolveDim(int dim, int[] shape) {
+  public static int resolveDim(int dim, @Nonnull int[] shape) {
     return resolveDim(dim, shape.length);
   }
 
@@ -97,7 +99,8 @@ public final class IndexingFns {
    * @throws IndexOutOfBoundsException if the index is out of range.
    * @throws IllegalArgumentException if the indexes are duplicated.
    */
-  public static int[] resolveDims(int[] dims, int[] shape) {
+  @Nonnull
+  public static int[] resolveDims(@Nonnull int[] dims, @Nonnull int[] shape) {
     int[] res = new int[dims.length];
     for (int i = 0; i < dims.length; ++i) {
       var d = resolveDim(dims[i], shape);
@@ -126,7 +129,8 @@ public final class IndexingFns {
    * @throws IllegalArgumentException if the permutation is invalid.
    * @throws IndexOutOfBoundsException if a dimension is out of range.
    */
-  public static int[] resolvePermutation(int[] permutation, int ndim) {
+  @Nonnull
+  public static int[] resolvePermutation(@Nonnull int[] permutation, int ndim) {
     ZTensor.assertNdim(permutation.length, ndim);
 
     int acc = 0;
@@ -140,6 +144,51 @@ public final class IndexingFns {
       throw new IllegalArgumentException("invalid permutation: " + Arrays.toString(permutation));
     }
     return perm;
+  }
+
+  /**
+   * Apply a resolved permutation to an array.
+   *
+   * @param arr the array.
+   * @param permutation the permutation.
+   * @return a new array with the permutation applied.
+   * @param <T> the type of the array.
+   */
+  @Nonnull
+  public static <T> T[] applyResolvedPermutation(@Nonnull T[] arr, @Nonnull int[] permutation) {
+    if (arr.length != permutation.length) {
+      throw new IllegalArgumentException(
+          "array length %d and permutation length %d must be equal"
+              .formatted(arr.length, permutation.length));
+    }
+
+    var res = Arrays.copyOf(arr, arr.length);
+    for (int i = 0; i < arr.length; ++i) {
+      res[i] = arr[permutation[i]];
+    }
+    return res;
+  }
+
+  /**
+   * Apply a resolved permutation to an array.
+   *
+   * @param arr the array.
+   * @param permutation the permutation.
+   * @return a new array with the permutation applied.
+   */
+  @Nonnull
+  public static int[] applyResolvedPermutation(@Nonnull int[] arr, @Nonnull int[] permutation) {
+    if (arr.length != permutation.length) {
+      throw new IllegalArgumentException(
+          "array length %d and permutation length %d must be equal"
+              .formatted(arr.length, permutation.length));
+    }
+
+    var res = Arrays.copyOf(arr, arr.length);
+    for (int i = 0; i < arr.length; ++i) {
+      res[i] = arr[permutation[i]];
+    }
+    return res;
   }
 
   /**
@@ -219,7 +268,7 @@ public final class IndexingFns {
    * @param shape the shape.
    * @return the product of the shape; which is 1 for a shape of `[]`.
    */
-  static int shapeToSize(int[] shape) {
+  public static int shapeToSize(@Nonnull int[] shape) {
     return Arrays.stream(shape).reduce(1, (a, b) -> a * b);
   }
 
@@ -230,7 +279,8 @@ public final class IndexingFns {
    * @return the common broadcast shape.
    * @throws IndexOutOfBoundsException if the shapes are not compatible.
    */
-  public static int[] commonBroadcastShape(int[]... shapes) {
+  @Nonnull
+  public static int[] commonBroadcastShape(@Nonnull int[]... shapes) {
     int ndim = 0;
     for (int[] ints : shapes) {
       ndim = Math.max(ndim, ints.length);
@@ -269,12 +319,26 @@ public final class IndexingFns {
    * @param value the value.
    * @return true if the array contains the value.
    */
-  public static boolean arrayContains(int[] array, int value) {
+  public static boolean arrayContains(@Nonnull int[] array, int value) {
     for (int v : array) {
       if (v == value) {
         return true;
       }
     }
     return false;
+  }
+
+  /**
+   * Copy the given array, removing the given index.
+   *
+   * @param arr the array.
+   * @param index the index to remove.
+   * @return a copy of the array with the given index removed.
+   */
+  public static @Nonnull int[] removeIdx(@Nonnull int[] arr, int index) {
+    int[] res = new int[arr.length - 1];
+    System.arraycopy(arr, 0, res, 0, index);
+    System.arraycopy(arr, index + 1, res, index, arr.length - index - 1);
+    return res;
   }
 }

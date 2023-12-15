@@ -14,19 +14,19 @@ public class ZPointTest implements CommonAssertions {
   public void test_constructor() {
     {
       var p = new ZPoint(1, 2, 3);
-      assertThat(p.ndim()).isEqualTo(3);
+      assertThat(p.getNDim()).isEqualTo(3);
       assertThat(p.coords).isEqualTo(ZTensor.newVector(1, 2, 3));
     }
 
     {
       var p = new ZPoint(ZTensor.newVector(1, 2, 3));
-      assertThat(p.ndim()).isEqualTo(3);
+      assertThat(p.getNDim()).isEqualTo(3);
       assertThat(p.coords).isEqualTo(ZTensor.newVector(1, 2, 3));
     }
 
     {
       var p = new ZPoint(List.of(1, 2, 3));
-      assertThat(p.ndim()).isEqualTo(3);
+      assertThat(p.getNDim()).isEqualTo(3);
       assertThat(p.coords).isEqualTo(ZTensor.newVector(1, 2, 3));
     }
 

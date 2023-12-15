@@ -6,12 +6,14 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.google.common.collect.ImmutableList;
-import java.util.Collections;
-import java.util.Objects;
-import javax.annotation.concurrent.Immutable;
-import javax.annotation.concurrent.ThreadSafe;
 import loom.common.HasToJsonString;
 import loom.common.serialization.JsonUtil;
+
+import javax.annotation.Nonnull;
+import javax.annotation.concurrent.Immutable;
+import javax.annotation.concurrent.ThreadSafe;
+import java.util.Collections;
+import java.util.Objects;
 
 @Immutable
 @ThreadSafe
@@ -68,7 +70,7 @@ public final class DimensionMap
   }
 
   @Override
-  public int ndim() {
+  public int getNDim() {
     return names.size();
   }
 
@@ -82,16 +84,17 @@ public final class DimensionMap
   }
 
   @Override
+  @Nonnull
   public String nameOf(int index) {
     return names.get(index);
   }
 
   @Override
   public DimensionMap permute(int... permutation) {
-    var perm = IndexingFns.resolvePermutation(permutation, ndim());
+    var perm = IndexingFns.resolvePermutation(permutation, getNDim());
 
-    var names = new String[ndim()];
-    for (int i = 0; i < ndim(); ++i) {
+    var names = new String[getNDim()];
+    for (int i = 0; i < getNDim(); ++i) {
       names[i] = nameOf(perm[i]);
     }
 

@@ -9,7 +9,7 @@ public class ZRangeTest implements CommonAssertions {
     // A zero-dimensional range is a slightly weird object.
 
     var range = new ZRange(new ZPoint(), new ZPoint());
-    assertThat(range.ndim()).isEqualTo(0);
+    assertThat(range.getNDim()).isEqualTo(0);
     assertThat(range.size).isEqualTo(1);
 
     assertThat(range.isEmpty()).isFalse();
@@ -34,12 +34,12 @@ public class ZRangeTest implements CommonAssertions {
   public void test_constructor() {
     {
       var range = new ZRange(new ZPoint(), new ZPoint());
-      assertThat(range.ndim()).isEqualTo(0);
+      assertThat(range.getNDim()).isEqualTo(0);
       assertThat(range.size).isEqualTo(1);
     }
     {
       var range = new ZRange(new ZPoint(1, 2, 3), new ZPoint(4, 5, 6));
-      assertThat(range.ndim()).isEqualTo(3);
+      assertThat(range.getNDim()).isEqualTo(3);
     }
 
     assertThatExceptionOfType(IllegalArgumentException.class)
@@ -110,23 +110,23 @@ public class ZRangeTest implements CommonAssertions {
   public void test_fromShape() {
     {
       var range = ZRange.fromShape(2, 3);
-      assertThat(range.ndim()).isEqualTo(2);
+      assertThat(range.getNDim()).isEqualTo(2);
       assertThat(range.size).isEqualTo(6);
     }
     {
       var range = ZRange.fromShape(ZTensor.newVector());
-      assertThat(range.ndim()).isEqualTo(0);
+      assertThat(range.getNDim()).isEqualTo(0);
       assertThat(range.size).isEqualTo(1);
     }
     {
       var range = ZRange.fromShape(new ZPoint(2, 3));
-      assertThat(range.ndim()).isEqualTo(2);
+      assertThat(range.getNDim()).isEqualTo(2);
       assertThat(range.size).isEqualTo(6);
     }
 
     {
       var range = ZRange.fromStartWithShape(new ZPoint(4, 5), new ZPoint(2, 3));
-      assertThat(range.ndim()).isEqualTo(2);
+      assertThat(range.getNDim()).isEqualTo(2);
       assertThat(range.size).isEqualTo(6);
       assertThat(range.start).isEqualTo(new ZPoint(4, 5));
       assertThat(range.end).isEqualTo(new ZPoint(6, 8));
@@ -137,12 +137,12 @@ public class ZRangeTest implements CommonAssertions {
   public void test_of() {
     {
       var range = ZRange.of(new ZPoint(2, 3), new ZPoint(4, 5));
-      assertThat(range.ndim()).isEqualTo(2);
+      assertThat(range.getNDim()).isEqualTo(2);
       assertThat(range.size).isEqualTo(4);
     }
     {
       var range = ZRange.of(ZTensor.newVector(2, 3), ZTensor.newVector(4, 5));
-      assertThat(range.ndim()).isEqualTo(2);
+      assertThat(range.getNDim()).isEqualTo(2);
       assertThat(range.size).isEqualTo(4);
     }
   }

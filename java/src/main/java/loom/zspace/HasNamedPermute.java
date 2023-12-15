@@ -1,6 +1,7 @@
 package loom.zspace;
 
 import java.util.Arrays;
+import javax.annotation.Nonnull;
 
 /**
  * Interface for objects that can be permuted by dimension name.
@@ -24,6 +25,7 @@ public interface HasNamedPermute<T extends HasNamedPermute<T>> extends HasPermut
    * @return the name of the dimension at the given index.
    * @throws IndexOutOfBoundsException if the given index is out of bounds.
    */
+  @Nonnull
   String nameOf(int index);
 
   /**
@@ -33,7 +35,8 @@ public interface HasNamedPermute<T extends HasNamedPermute<T>> extends HasPermut
    * @return the permutation of indices.
    * @throws IndexOutOfBoundsException if the given names are not a permutation of this dimension.
    */
-  default int[] toPermutation(String... names) {
+  @Nonnull
+  default int[] toPermutation(@Nonnull String... names) {
     return toPermutation(Arrays.asList(names));
   }
 
@@ -44,13 +47,14 @@ public interface HasNamedPermute<T extends HasNamedPermute<T>> extends HasPermut
    * @return the permutation of indices.
    * @throws IndexOutOfBoundsException if the given names are not a permutation of this dimension.
    */
-  default int[] toPermutation(Iterable<String> names) {
-    var perm = new int[ndim()];
+  @Nonnull
+  default int[] toPermutation(@Nonnull Iterable<String> names) {
+    var perm = new int[getNDim()];
     int i = 0;
     for (var name : names) {
       perm[i++] = indexOf(name);
     }
-    return IndexingFns.resolvePermutation(perm, ndim());
+    return IndexingFns.resolvePermutation(perm, getNDim());
   }
 
   /**
@@ -62,7 +66,8 @@ public interface HasNamedPermute<T extends HasNamedPermute<T>> extends HasPermut
    * @param permutation the permutation to apply.
    * @return the permuted object.
    */
-  default T permute(String... permutation) {
+  @Nonnull
+  default T permute(@Nonnull String... permutation) {
     return permute(toPermutation(permutation));
   }
 
@@ -75,7 +80,8 @@ public interface HasNamedPermute<T extends HasNamedPermute<T>> extends HasPermut
    * @param permutation the permutation to apply.
    * @return the permuted object.
    */
-  default T permute(Iterable<String> permutation) {
+  @Nonnull
+  default T permute(@Nonnull Iterable<String> permutation) {
     return permute(toPermutation(permutation));
   }
 }

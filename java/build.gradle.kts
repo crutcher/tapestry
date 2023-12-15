@@ -48,6 +48,8 @@ spotless {
         googleJavaFormat()
         formatAnnotations()
         trimTrailingWhitespace()
+
+
     }
 }
 
@@ -87,9 +89,11 @@ jmh {
     // a nice fast iteration for now. We can remove the nerfing later,
     // and run stronger benchmarks.
     fork.set(1)
-    iterations.set(1)
-    timeOnIteration.set("2s")
-    warmupIterations.set(1)
+    threads.set(Runtime.getRuntime().availableProcessors() / 2)
+
+    // iterations.set(1)
+    // timeOnIteration.set("3s")
+    warmupIterations.set(3)
     warmupMode.set("BULK")
 }
 

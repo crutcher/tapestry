@@ -14,6 +14,7 @@ import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import javax.annotation.concurrent.ThreadSafe;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import loom.common.HasToJsonString;
 import loom.common.IteratorUtils;
 import loom.common.serialization.JsonUtil;
@@ -51,12 +52,9 @@ public final class ZRange implements HasSize, HasPermute<ZRange>, HasToJsonStrin
 
   /** An Iterable view of the coordinates of the range. */
   @Getter
+  @RequiredArgsConstructor
   public final class IterableCoords implements Iterable<int[]> {
-    private final CoordsBufferMode bufferMode;
-
-    IterableCoords(CoordsBufferMode bufferMode) {
-      this.bufferMode = bufferMode;
-    }
+    @Nonnull private final CoordsBufferMode bufferMode;
 
     @Override
     public @Nonnull CoordsIterator iterator() {
@@ -76,15 +74,12 @@ public final class ZRange implements HasSize, HasPermute<ZRange>, HasToJsonStrin
    * CoordsBufferMode#SAFE}, the buffer is not shared between subsequent calls to {@link
    * Iterator#next()}.
    */
+  @RequiredArgsConstructor
   public final class CoordsIterator implements Iterator<int[]> {
-    @Getter private final CoordsBufferMode bufferMode;
+    @Nonnull @Getter private final CoordsBufferMode bufferMode;
 
     private int remaining = size();
     @Nullable private int[] coords = null;
-
-    public CoordsIterator(CoordsBufferMode bufferMode) {
-      this.bufferMode = bufferMode;
-    }
 
     @Override
     public boolean hasNext() {
@@ -211,8 +206,8 @@ public final class ZRange implements HasSize, HasPermute<ZRange>, HasToJsonStrin
       } else {
         HasDimension.assertSameNDim(first, r);
 
-        start = ZTensor.Ops.min(start, r.start.coords);
-        end = ZTensor.Ops.max(end, r.end.coords);
+        start = ZTensor.Ops.minimum(start, r.start.coords);
+        end = ZTensor.Ops.maximum(end, r.end.coords);
       }
     }
 
@@ -262,7 +257,7 @@ public final class ZRange implements HasSize, HasPermute<ZRange>, HasToJsonStrin
   public String toString() {
     var b = new StringBuilder();
     b.append("zr[");
-    for (int i = 0; i < ndim(); ++i) {
+    for (int i = 0; i < getNDim(); ++i) {
       if (i > 0) {
         b.append(", ");
       }
@@ -315,8 +310,8 @@ public final class ZRange implements HasSize, HasPermute<ZRange>, HasToJsonStrin
   }
 
   @Override
-  public int ndim() {
-    return start.ndim();
+  public int getNDim() {
+    return start.getNDim();
   }
 
   @Override
@@ -340,7 +335,7 @@ public final class ZRange implements HasSize, HasPermute<ZRange>, HasToJsonStrin
    * @param bufferMode the buffer mode.
    * @return an iterable over the coordinates of this tensor.
    */
-  public @Nonnull IterableCoords byCoords(CoordsBufferMode bufferMode) {
+  public @Nonnull IterableCoords byCoords(@Nonnull CoordsBufferMode bufferMode) {
     return new IterableCoords(bufferMode);
   }
 
@@ -386,7 +381,7 @@ public final class ZRange implements HasSize, HasPermute<ZRange>, HasToJsonStrin
    * @return true if this range contains the other range.
    */
   public boolean contains(@Nonnull ZRange other) {
-    return ndim() == 0 || (start.le(other.start) && other.end.le(end));
+    return getNDim() == 0 || (start.le(other.start) && other.end.le(end));
   }
 
   /**
@@ -414,7 +409,7 @@ public final class ZRange implements HasSize, HasPermute<ZRange>, HasToJsonStrin
    * @return true if this range contains the point.
    */
   public boolean contains(@Nonnull ZTensor p) {
-    return !isEmpty() && (ndim() == 0 || (start.le(p) && ZPoint.Ops.lt(p, end)));
+    return !isEmpty() && (getNDim() == 0 || (start.le(p) && ZPoint.Ops.lt(p, end)));
   }
 
   /**
@@ -458,8 +453,8 @@ public final class ZRange implements HasSize, HasPermute<ZRange>, HasToJsonStrin
    * @return the intersection of this range with another, null if there is no intersection.
    */
   public @Nullable ZRange intersection(@Nonnull ZRange other) {
-    var s = ZTensor.Ops.binOp(Math::max, start.coords, other.start.coords).newZPoint();
-    var e = ZTensor.Ops.binOp(Math::min, end.coords, other.end.coords).newZPoint();
+    var s = ZTensor.Ops.zipWith(Math::max, start.coords, other.start.coords).newZPoint();
+    var e = ZTensor.Ops.zipWith(Math::min, end.coords, other.end.coords).newZPoint();
     if (s.le(e)) {
       return new ZRange(s, e);
     } else {

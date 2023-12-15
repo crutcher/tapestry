@@ -10,7 +10,7 @@ import org.openjdk.jmh.infra.Blackhole;
 public class ZRangeBenchmark {
   @Benchmark
   @BenchmarkMode(Mode.SampleTime)
-  @OutputTimeUnit(TimeUnit.MILLISECONDS)
+  @OutputTimeUnit(TimeUnit.MICROSECONDS)
   public void intersection(Blackhole bh) {
     var a = ZRange.fromShape(100, 100, 100);
     var b = ZRange.fromShape(50, 50, 50).translate(new ZPoint(75, 75, 75));

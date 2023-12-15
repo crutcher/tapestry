@@ -50,7 +50,7 @@ public final class ZPoint implements HasPermute<ZPoint>, HasToJsonString {
    * @return a new ZPoint.
    */
   public static @Nonnull ZPoint zeros_like(@Nonnull ZPoint ref) {
-    return zeros(ref.ndim());
+    return zeros(ref.getNDim());
   }
 
   /**
@@ -133,7 +133,7 @@ public final class ZPoint implements HasPermute<ZPoint>, HasToJsonString {
   }
 
   @Override
-  public int ndim() {
+  public int getNDim() {
     return coords.shape(0);
   }
 
@@ -145,9 +145,9 @@ public final class ZPoint implements HasPermute<ZPoint>, HasToJsonString {
    */
   @Override
   public ZPoint permute(@Nonnull int... permutation) {
-    var cs = new int[ndim()];
-    var perm = IndexingFns.resolvePermutation(permutation, ndim());
-    for (int i = 0; i < ndim(); ++i) {
+    var cs = new int[getNDim()];
+    var perm = IndexingFns.resolvePermutation(permutation, getNDim());
+    for (int i = 0; i < getNDim(); ++i) {
       cs[i] = coords.get(perm[i]);
     }
     return new ZPoint(cs);

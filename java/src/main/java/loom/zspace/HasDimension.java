@@ -3,7 +3,9 @@ package loom.zspace;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.Arrays;
 import java.util.stream.Collectors;
+import javax.annotation.Nonnull;
 
+/** Interface for objects that have a number of dimensions. */
 public interface HasDimension {
   /**
    * Assert that the object has the given number of dimensions.
@@ -12,8 +14,9 @@ public interface HasDimension {
    * @throws ZDimMissMatchError if the object does not have the given number of dimensions.
    */
   default void assertNDim(int ndim) {
-    if (ndim() != ndim) {
-      throw new ZDimMissMatchError(String.format("Expected %d dimensions, got %d", ndim, ndim()));
+    if (getNDim() != ndim) {
+      throw new ZDimMissMatchError(
+          String.format("Expected %d dimensions, got %d", ndim, getNDim()));
     }
   }
 
@@ -23,31 +26,25 @@ public interface HasDimension {
    * @param objs the objects to check.
    * @throws ZDimMissMatchError if the objects do not have the same number of dimensions.
    */
-  static void assertSameNDim(HasDimension... objs) throws ZDimMissMatchError {
-    int ndim = objs[0].ndim();
-    boolean same = true;
-    for (HasDimension o : objs) {
-      if (o.ndim() != ndim) {
-        same = false;
+  static void assertSameNDim(@Nonnull HasDimension... objs) throws ZDimMissMatchError {
+    int ndim = objs[0].getNDim();
+    for (int i = 1; i < objs.length; ++i) {
+      if (objs[i].getNDim() != ndim) {
+        throw new ZDimMissMatchError(
+            String.format(
+                "ZDim mismatch: %s",
+                Arrays.stream(objs).map(HasDimension::getNDim).collect(Collectors.toList())));
       }
     }
-
-    if (same) {
-      return;
-    }
-
-    throw new ZDimMissMatchError(
-        String.format(
-            "ZDim mismatch: %s",
-            Arrays.stream(objs).map(HasDimension::ndim).collect(Collectors.toList())));
   }
 
   /** Returns the number of dimensions of this object. */
-  int ndim();
+  @JsonIgnore
+  int getNDim();
 
   /** Is this object a scalar? */
   @JsonIgnore
   default boolean isScalar() {
-    return ndim() == 0;
+    return getNDim() == 0;
   }
 }
