@@ -692,6 +692,13 @@ public class ZTensorTest implements CommonAssertions {
   }
 
   @Test
+  public void test_map_() {
+    var t = ZTensor.fromArray(new int[][] {{3, 2}, {1, 1}});
+    t.map_((x) -> x + 2);
+    assertThat(t).isEqualTo(ZTensor.fromArray(new int[][] {{5, 4}, {3, 3}}));
+  }
+
+  @Test
   public void test_zipWith() {
     var t = ZTensor.fromArray(new int[][] {{3, 2}, {1, 1}});
     assertThat(t.zipWith(Integer::sum, ZTensor.fromArray(new int[][] {{1, 2}, {3, 4}})))

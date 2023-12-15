@@ -1217,6 +1217,37 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
   }
 
   /**
+   * Assign from an element-wise unary operation.
+   *
+   * @param op the operation.
+   * @param tensor the input tensor.
+   */
+  public void assignFromMap(@Nonnull IntUnaryOperator op, @Nonnull ZTensor tensor) {
+    assertMutable();
+    tensor
+        .broadcastLike(this)
+        .forEachEntry(
+            (coords, value) -> _unchecked_set(coords, op.applyAsInt(value)), BufferMode.REUSED);
+  }
+
+  /**
+   * Assign from an element-wise binary operation.
+   *
+   * @param op the operation.
+   * @param lhs the left-hand side tensor.
+   * @param rhs the right-hand side tensor.
+   */
+  public void assignFromZipWith(
+      @Nonnull IntBinaryOperator op, @Nonnull ZTensor lhs, @Nonnull ZTensor rhs) {
+    assertMutable();
+    lhs = lhs.broadcastLike(this);
+    rhs = rhs.broadcastLike(this);
+    for (int[] coords : byCoords(BufferMode.REUSED)) {
+      _unchecked_set(coords, op.applyAsInt(lhs.get(coords), rhs.get(coords)));
+    }
+  }
+
+  /**
    * Create a new tensor by mapping a function over the values of the tensor.
    *
    * @param op the function to apply.
@@ -1225,6 +1256,15 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
   @Nonnull
   public ZTensor map(@Nonnull IntUnaryOperator op) {
     return Ops.map(op, this);
+  }
+
+  /**
+   * An in-place element-wise unary operation.
+   *
+   * @param op the operation.
+   */
+  public void map_(IntUnaryOperator op) {
+    assignFromMap(op, this);
   }
 
   /**
@@ -1240,43 +1280,13 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
   }
 
   /**
-   * Assign from an element-wise unary operation.
-   *
-   * @param op the operation.
-   * @param tensor the input tensor.
-   */
-  public void zipWith_(@Nonnull IntUnaryOperator op, @Nonnull ZTensor tensor) {
-    assertMutable();
-    tensor
-        .broadcastLike(this)
-        .forEachEntry(
-            (coords, value) -> _unchecked_set(coords, op.applyAsInt(value)), BufferMode.REUSED);
-  }
-
-  /**
-   * Assign from an element-wise binary operation.
-   *
-   * @param op the operation.
-   * @param lhs the left-hand side tensor.
-   * @param rhs the right-hand side tensor.
-   */
-  public void zipWith_(@Nonnull IntBinaryOperator op, @Nonnull ZTensor lhs, @Nonnull ZTensor rhs) {
-    assertMutable();
-    lhs = lhs.broadcastLike(this);
-    rhs = rhs.broadcastLike(this);
-    for (int[] coords : byCoords(BufferMode.REUSED)) {
-      _unchecked_set(coords, op.applyAsInt(lhs.get(coords), rhs.get(coords)));
-    }
-  }
-
-  /**
    * An in-place element-wise binary operation.
    *
    * @param op the operation.
    * @param rhs the right-hand side tensor.
    */
   public void zipWith_(@Nonnull IntBinaryOperator op, @Nonnull ZTensor rhs) {
-    zipWith_(op, this, rhs);
+    assignFromZipWith(op, this, rhs);
   }
 
   /**
@@ -1701,7 +1711,7 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
     @Nonnull
     public static ZTensor map(@Nonnull IntUnaryOperator op, @Nonnull ZTensor tensor) {
       var result = newZerosLike(tensor);
-      result.zipWith_(op, tensor);
+      result.assignFromMap(op, tensor);
       return result;
     }
 
@@ -1717,7 +1727,7 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
     public static ZTensor zipWith(
         @Nonnull IntBinaryOperator op, @Nonnull ZTensor lhs, @Nonnull ZTensor rhs) {
       var result = newZeros(IndexingFns.commonBroadcastShape(lhs.shape, rhs.shape));
-      result.zipWith_(op, lhs, rhs);
+      result.assignFromZipWith(op, lhs, rhs);
       return result;
     }
 

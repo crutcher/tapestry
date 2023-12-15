@@ -4,17 +4,16 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Splitter;
-import lombok.Getter;
-import loom.common.HasToJsonString;
-import loom.common.serialization.JsonUtil;
-
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import javax.annotation.concurrent.ThreadSafe;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.Objects;
+import lombok.Getter;
+import loom.common.HasToJsonString;
+import loom.common.serialization.JsonUtil;
 
 /**
  * Represents a range of points in discrete space.
