@@ -15,19 +15,16 @@ import com.fasterxml.jackson.databind.node.IntNode;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.google.common.primitives.Ints;
 import com.google.errorprone.annotations.CheckReturnValue;
-import java.lang.reflect.Array;
-import java.util.*;
-import java.util.function.*;
-import java.util.stream.Stream;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import lombok.Data;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import loom.common.HasToJsonString;
 import loom.common.IteratorUtils;
 import loom.common.serialization.JsonUtil;
+
+import javax.annotation.Nonnull;
+import java.lang.reflect.Array;
+import java.util.*;
+import java.util.function.*;
 
 /**
  * A multidimensional int array used for numerical operations.
@@ -406,7 +403,7 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
     int chunkCount = 0;
     int chunkStride = tensor.shape[ndim - 1];
 
-    for (int[] coords : tensor.byCoords(CoordsBufferMode.REUSED)) {
+    for (int[] coords : tensor.byCoords(BufferMode.REUSED)) {
       if (coords[ndim - 1] != 0) continue;
 
       var it = root;
@@ -516,7 +513,7 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
       return;
     }
 
-    for (int[] coords : byCoords(CoordsBufferMode.REUSED)) {
+    for (int[] coords : byCoords(BufferMode.REUSED)) {
       for (int d = ndim - 1; d >= 0; --d) {
         if (coords[d] == 0) {
           startArray.run();
@@ -549,7 +546,7 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
       return false;
     }
 
-    for (var coords : byCoords(CoordsBufferMode.REUSED)) {
+    for (var coords : byCoords(BufferMode.REUSED)) {
       if (that.get(coords) != get(coords)) {
         return false;
       }
@@ -591,7 +588,7 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
     Object arr = Array.newInstance(int.class, shape);
 
     var ndim = getNDim();
-    for (int[] coords : byCoords(CoordsBufferMode.REUSED)) {
+    for (int[] coords : byCoords(BufferMode.REUSED)) {
       var it = arr;
       for (int d = 0; d < ndim - 1; ++d) {
         it = Array.get(it, coords[d]);
@@ -665,7 +662,7 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
     }
 
     var res = new ZTensor(true, shape);
-    forEachEntry(res::set, CoordsBufferMode.REUSED);
+    forEachEntry(res::set, BufferMode.REUSED);
     if (!mutable) {
       return new ZTensor(false, res.shape, res.stride, res.data, 0);
     }
@@ -743,12 +740,6 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
     return IndexingFns.resolveDims(dims, shape);
   }
 
-  /** Returns the number of elements in this tensor. */
-  @Override
-  public int size() {
-    return size;
-  }
-
   /** Are all cells in this tensor > 0? */
   public boolean isStrictlyPositive() {
     return allMatch(x -> x > 0);
@@ -763,7 +754,7 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
    * @return true if every cell matches the predicate.
    */
   public boolean allMatch(@Nonnull IntPredicate predicate) {
-    return byCoords(CoordsBufferMode.REUSED).stream().allMatch(c -> predicate.test(get(c)));
+    return byCoords(BufferMode.REUSED).stream().allMatch(c -> predicate.test(get(c)));
   }
 
   /**
@@ -775,22 +766,21 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
    * @return true if any cell matches the predicate.
    */
   public boolean anyMatch(@Nonnull IntPredicate predicate) {
-    return byCoords(CoordsBufferMode.REUSED).stream().anyMatch(c -> predicate.test(get(c)));
+    return byCoords(BufferMode.REUSED).stream().anyMatch(c -> predicate.test(get(c)));
   }
 
   /**
    * Iterate over the coordinates and values of this tensor.
    *
-   * <p>When the buffer mode is {@link CoordsBufferMode#REUSED}, the buffer is shared between
-   * subsequent calls to {@link TensorEntryConsumer#accept(int[], int)}. When the buffer mode is
-   * {@link CoordsBufferMode#SAFE}, the buffer is not shared between subsequent calls to {@link
+   * <p>When the buffer mode is {@link BufferMode#REUSED}, the buffer is shared between subsequent
+   * calls to {@link TensorEntryConsumer#accept(int[], int)}. When the buffer mode is {@link
+   * BufferMode#SAFE}, the buffer is not shared between subsequent calls to {@link
    * TensorEntryConsumer#accept(int[], int)}.
    *
    * @param consumer the consumer.
    * @param bufferMode the buffer mode.
    */
-  public void forEachEntry(
-      @Nonnull TensorEntryConsumer consumer, @Nonnull CoordsBufferMode bufferMode) {
+  public void forEachEntry(@Nonnull TensorEntryConsumer consumer, @Nonnull BufferMode bufferMode) {
     for (int[] coords : byCoords(bufferMode)) {
       consumer.accept(coords, get(coords));
     }
@@ -802,7 +792,7 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
    * @param consumer the consumer.
    */
   public void forEachValue(@Nonnull IntConsumer consumer) {
-    for (int[] coords : byCoords(CoordsBufferMode.REUSED)) {
+    for (int[] coords : byCoords(BufferMode.REUSED)) {
       consumer.accept(get(coords));
     }
   }
@@ -810,10 +800,9 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
   /**
    * Returns an {@code Iterable<int[]>} over the coordinates of this tensor.
    *
-   * <p>When the buffer mode is {@link CoordsBufferMode#REUSED}, the buffer is shared between
-   * subsequent calls to {@link Iterator#next()}. When the buffer mode is {@link
-   * CoordsBufferMode#SAFE}, the buffer is not shared between subsequent calls to {@link
-   * Iterator#next()}.
+   * <p>When the buffer mode is {@link BufferMode#REUSED}, the buffer is shared between subsequent
+   * calls to {@link Iterator#next()}. When the buffer mode is {@link BufferMode#SAFE}, the buffer
+   * is not shared between subsequent calls to {@link Iterator#next()}.
    *
    * <p>Empty tensors will return an empty iterable.
    *
@@ -823,8 +812,8 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
    * @return an iterable over the coordinates of this tensor.
    */
   @Nonnull
-  public IterableCoords byCoords(@Nonnull CoordsBufferMode bufferMode) {
-    return new IterableCoords(bufferMode);
+  public IterableCoordinates byCoords(@Nonnull BufferMode bufferMode) {
+    return new IterableCoordinates(bufferMode, shape);
   }
 
   @Override
@@ -934,17 +923,17 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
   /**
    * Returns a view of this tensor with the given dimension reversed.
    *
-   * @param d the dimension to reverse, accepts negative indices.
+   * @param dim the dimension to reverse, accepts negative indices.
    * @return a view of this tensor with the given dimension reversed.
    */
   @Nonnull
-  public ZTensor reverse(int d) {
-    int rD = resolveDim(d);
+  public ZTensor reverse(int dim) {
+    int rDim = resolveDim(dim);
 
     int[] newStride = stride.clone();
-    newStride[rD] *= -1;
+    newStride[rDim] *= -1;
 
-    int newOffset = data_offset + (shape[rD] - 1) * stride[rD];
+    int newOffset = data_offset + (shape[rDim] - 1) * stride[rDim];
 
     return new ZTensor(mutable, shape, newStride, data, newOffset);
   }
@@ -952,24 +941,24 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
   /**
    * Create a view of this tensor with an extra dimension added at index `d`.
    *
-   * @param d the dimension to add.
+   * @param dim the dimension to add.
    * @return a view of this tensor with an extra dimension added at index `d`.
    */
   @Nonnull
-  public ZTensor unsqueeze(int d) {
-    int rD = IndexingFns.resolveDim(d, shape.length + 1);
+  public ZTensor unsqueeze(int dim) {
+    int rDim = IndexingFns.resolveDim(dim, shape.length + 1);
 
     int[] newShape = new int[getNDim() + 1];
     int[] newStride = new int[getNDim() + 1];
 
-    System.arraycopy(shape, 0, newShape, 0, rD);
-    System.arraycopy(shape, rD, newShape, rD + 1, getNDim() - rD);
+    System.arraycopy(shape, 0, newShape, 0, rDim);
+    System.arraycopy(shape, rDim, newShape, rDim + 1, getNDim() - rDim);
 
-    System.arraycopy(stride, 0, newStride, 0, rD);
-    System.arraycopy(stride, rD, newStride, rD + 1, getNDim() - rD);
+    System.arraycopy(stride, 0, newStride, 0, rDim);
+    System.arraycopy(stride, rDim, newStride, rDim + 1, getNDim() - rDim);
 
-    newShape[rD] = 1;
-    newStride[rD] = 0;
+    newShape[rDim] = 1;
+    newStride[rDim] = 0;
 
     return new ZTensor(mutable, newShape, newStride, data, data_offset);
   }
@@ -977,22 +966,22 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
   /**
    * Returns a view of this tensor with a dimensions of size 1 removed.
    *
-   * @param d the dimension to remove; accepts negative indices.
+   * @param dim the dimension to remove; accepts negative indices.
    * @return a view of this tensor with a dimensions of size 1 removed.
    */
   @Nonnull
-  public ZTensor squeeze(int d) {
-    int rD = resolveDim(d);
+  public ZTensor squeeze(int dim) {
+    int rDim = resolveDim(dim);
 
-    if (stride[rD] != 0) {
+    if (stride[rDim] != 0) {
       throw new IllegalArgumentException(
-          "dimension " + rD + ", shape " + shape[rD] + " is not squeezable");
+          "dimension " + rDim + ", shape " + shape[rDim] + " is not squeezable");
     }
 
     return new ZTensor(
         mutable,
-        IndexingFns.removeIdx(shape, rD),
-        IndexingFns.removeIdx(stride, rD),
+        IndexingFns.removeIdx(shape, rDim),
+        IndexingFns.removeIdx(stride, rDim),
         data,
         data_offset);
   }
@@ -1212,7 +1201,7 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
    */
   public void fill(int fill_value) {
     assertMutable();
-    for (int[] coords : byCoords(CoordsBufferMode.REUSED)) {
+    for (int[] coords : byCoords(BufferMode.REUSED)) {
       _unchecked_set(coords, fill_value);
     }
   }
@@ -1224,7 +1213,7 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
    */
   public void assign(@Nonnull ZTensor tensor) {
     assertMutable();
-    tensor.broadcastLike(this).forEachEntry(this::_unchecked_set, CoordsBufferMode.REUSED);
+    tensor.broadcastLike(this).forEachEntry(this::_unchecked_set, BufferMode.REUSED);
   }
 
   /**
@@ -1261,8 +1250,7 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
     tensor
         .broadcastLike(this)
         .forEachEntry(
-            (coords, value) -> _unchecked_set(coords, op.applyAsInt(value)),
-            CoordsBufferMode.REUSED);
+            (coords, value) -> _unchecked_set(coords, op.applyAsInt(value)), BufferMode.REUSED);
   }
 
   /**
@@ -1276,7 +1264,7 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
     assertMutable();
     lhs = lhs.broadcastLike(this);
     rhs = rhs.broadcastLike(this);
-    for (int[] coords : byCoords(CoordsBufferMode.REUSED)) {
+    for (int[] coords : byCoords(BufferMode.REUSED)) {
       _unchecked_set(coords, op.applyAsInt(lhs.get(coords), rhs.get(coords)));
     }
   }
@@ -2170,7 +2158,7 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
       }
 
       var acc = newZeros(accShape);
-      for (var ks : acc.byCoords(CoordsBufferMode.REUSED)) {
+      for (var ks : acc.byCoords(BufferMode.REUSED)) {
         ZTensor slice = tensor.selectDims(sliceDims, ks);
         acc.set(ks, reduceCellsAsInt(slice, op, initial));
       }
@@ -2365,77 +2353,6 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
               return chunk;
             });
       }
-    }
-  }
-
-  /** An Iterable view of the coordinates of this tensor. */
-  @Data
-  public final class IterableCoords implements Iterable<int[]> {
-    private final CoordsBufferMode bufferMode;
-
-    @Override
-    @Nonnull
-    public CoordsIterator iterator() {
-      return new CoordsIterator(bufferMode);
-    }
-
-    @Nonnull
-    public Stream<int[]> stream() {
-      return IteratorUtils.iterableToStream(this);
-    }
-  }
-
-  /**
-   * An Iterator over the coordinates of this tensor.
-   *
-   * <p>When the buffer mode is {@link CoordsBufferMode#REUSED}, the buffer is shared between
-   * subsequent calls to {@link Iterator#next()}. When the buffer mode is {@link
-   * CoordsBufferMode#SAFE}, the buffer is not shared between subsequent calls to {@link
-   * Iterator#next()}.
-   */
-  @RequiredArgsConstructor
-  public final class CoordsIterator implements Iterator<int[]> {
-    @Getter private final CoordsBufferMode bufferMode;
-    private int remaining = size();
-    @Nullable private int[] coords = null;
-
-    @Override
-    public boolean hasNext() {
-      return remaining > 0;
-    }
-
-    @Override
-    @Nonnull
-    public int[] next() {
-      if (!hasNext()) {
-        throw new NoSuchElementException();
-      }
-
-      // Decrement remaining.
-      remaining--;
-
-      if (coords == null) {
-        // First call to next(); initialize coords to all zeros.
-        coords = new int[getNDim()];
-
-      } else {
-        // Increment coords LSD.
-        coords[coords.length - 1]++;
-
-        // Propagate carry.
-        for (int i = coords.length - 1; i >= 0; --i) {
-          if (coords[i] == shape[i]) {
-            coords[i] = 0;
-            coords[i - 1]++;
-          }
-        }
-      }
-
-      if (bufferMode == CoordsBufferMode.SAFE) {
-        return coords.clone();
-      }
-
-      return coords;
     }
   }
 }

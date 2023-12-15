@@ -1,9 +1,9 @@
 package loom.zspace;
 
-import javax.annotation.Nonnull;
 import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.stream.Collectors;
+import javax.annotation.Nonnull;
 
 /** Utility functions for computing tensor indices. */
 public final class IndexingFns {

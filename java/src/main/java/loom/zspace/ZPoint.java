@@ -6,10 +6,9 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.google.errorprone.annotations.Immutable;
-import loom.common.HasToJsonString;
-
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.ThreadSafe;
+import loom.common.HasToJsonString;
 
 /**
  * A point in a ZSpace.
@@ -20,9 +19,8 @@ import javax.annotation.concurrent.ThreadSafe;
  */
 @ThreadSafe
 @Immutable
-@JsonDeserialize(using = ZPoint.Deserializer.class)
-public final class ZPoint implements HasPermute<ZPoint>, HasToJsonString {
-  // This is asserted to be immutable in the constructor.
+@JsonDeserialize(using = ZPoint.Serialization.Deserializer.class)
+public final class ZPoint implements Cloneable, HasPermute<ZPoint>, HasToJsonString {
   @JsonValue
   @Nonnull
   @SuppressWarnings("Immutable")
@@ -104,6 +102,13 @@ public final class ZPoint implements HasPermute<ZPoint>, HasToJsonString {
   }
 
   @Override
+  @SuppressWarnings("MethodDoesntCallSuperMethod")
+  public ZPoint clone() {
+    // Immutable, so no need to clone.
+    return this;
+  }
+
+  @Override
   public boolean equals(Object other) {
     if (this == other) return true;
     if (other == null || getClass() != other.getClass()) return false;
@@ -154,12 +159,8 @@ public final class ZPoint implements HasPermute<ZPoint>, HasToJsonString {
    */
   @Override
   public ZPoint permute(@Nonnull int... permutation) {
-    var cs = new int[getNDim()];
     var perm = IndexingFns.resolvePermutation(permutation, getNDim());
-    for (int i = 0; i < getNDim(); ++i) {
-      cs[i] = coords.get(perm[i]);
-    }
-    return new ZPoint(cs);
+    return new ZPoint(IndexingFns.applyResolvedPermutation(toArray(), perm));
   }
 
   /**
@@ -282,15 +283,19 @@ public final class ZPoint implements HasPermute<ZPoint>, HasToJsonString {
     return ZPoint.Ops.ge(this, rhs);
   }
 
-  static final class Deserializer extends StdDeserializer<ZPoint> {
-    public Deserializer() {
-      super(ZPoint.class);
-    }
+  static final class Serialization {
+    private Serialization() {}
 
-    @Override
-    public ZPoint deserialize(JsonParser p, DeserializationContext context)
-        throws java.io.IOException {
-      return new ZPoint(p.readValueAs(ZTensor.class));
+    static final class Deserializer extends StdDeserializer<ZPoint> {
+      public Deserializer() {
+        super(ZPoint.class);
+      }
+
+      @Override
+      public ZPoint deserialize(JsonParser p, DeserializationContext context)
+          throws java.io.IOException {
+        return new ZPoint(p.readValueAs(ZTensor.class));
+      }
     }
   }
 
@@ -313,7 +318,7 @@ public final class ZPoint implements HasPermute<ZPoint>, HasToJsonString {
 
       boolean lt = false;
       boolean gt = false;
-      for (int[] coords : lhs.byCoords(CoordsBufferMode.REUSED)) {
+      for (int[] coords : lhs.byCoords(BufferMode.REUSED)) {
         int cmp = Integer.compare(lhs.get(coords), rhs.get(coords));
         if (cmp < 0) {
           lt = true;

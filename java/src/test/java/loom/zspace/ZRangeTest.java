@@ -151,21 +151,19 @@ public class ZRangeTest implements CommonAssertions {
   public void test_byCoords() {
     var range = new ZRange(new ZPoint(2, 3), new ZPoint(4, 5));
 
-    assertThat(range.byCoords(CoordsBufferMode.SAFE).stream().toList())
+    assertThat(range.byCoords(BufferMode.SAFE).stream().toList())
         .containsExactly(new int[] {2, 3}, new int[] {2, 4}, new int[] {3, 3}, new int[] {3, 4});
 
-    assertThat(range.byCoords(CoordsBufferMode.REUSED).stream().toList())
+    assertThat(range.byCoords(BufferMode.REUSED).stream().toList())
         .containsExactly(new int[] {3, 4}, new int[] {3, 4}, new int[] {3, 4}, new int[] {3, 4});
-    assertThat(range.byCoords(CoordsBufferMode.REUSED).stream().map(int[]::clone).toList())
+    assertThat(range.byCoords(BufferMode.REUSED).stream().map(int[]::clone).toList())
         .containsExactly(new int[] {2, 3}, new int[] {2, 4}, new int[] {3, 3}, new int[] {3, 4});
 
     // Empty ranges.
-    assertThat(ZRange.fromShape(0, 0).byCoords(CoordsBufferMode.SAFE).stream().toList()).isEmpty();
+    assertThat(ZRange.fromShape(0, 0).byCoords(BufferMode.SAFE).stream().toList()).isEmpty();
 
     // Scalar ranges.
-    assertThat(
-            new ZRange(new ZPoint(), new ZPoint())
-                .byCoords(CoordsBufferMode.SAFE).stream().toList())
+    assertThat(new ZRange(new ZPoint(), new ZPoint()).byCoords(BufferMode.SAFE).stream().toList())
         .containsExactly(new int[] {});
   }
 

@@ -2,7 +2,7 @@ package loom.zspace;
 
 import java.util.Iterator;
 
-public enum CoordsBufferMode {
+public enum BufferMode {
   /**
    * The buffer is shared between subsequent calls to {@link Iterator#next()}.
    *

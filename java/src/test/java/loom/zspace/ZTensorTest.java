@@ -65,12 +65,12 @@ public class ZTensorTest implements CommonAssertions {
     {
       // CoordsBufferMode.SHARED
 
-      ZTensor.IterableCoords coords = t.byCoords(CoordsBufferMode.REUSED);
-      assertThat(coords.getBufferMode()).isEqualTo(CoordsBufferMode.REUSED);
+      IterableCoordinates coords = t.byCoords(BufferMode.REUSED);
+      assertThat(coords.getBufferMode()).isEqualTo(BufferMode.REUSED);
 
       {
-        ZTensor.CoordsIterator it = coords.iterator();
-        assertThat(it.getBufferMode()).isEqualTo(CoordsBufferMode.REUSED);
+        var it = coords.iterator();
+        assertThat(it.getBufferMode()).isEqualTo(BufferMode.REUSED);
 
         assertThat(it.hasNext()).isTrue();
         var buf = it.next();
@@ -96,14 +96,14 @@ public class ZTensorTest implements CommonAssertions {
     }
 
     {
-      // CoordsBufferMode.OWNED
+      // CoordsBufferMode.SAFE
 
-      ZTensor.IterableCoords coords = t.byCoords(CoordsBufferMode.SAFE);
-      assertThat(coords.getBufferMode()).isEqualTo(CoordsBufferMode.SAFE);
+      IterableCoordinates coords = t.byCoords(BufferMode.SAFE);
+      assertThat(coords.getBufferMode()).isEqualTo(BufferMode.SAFE);
 
       {
-        ZTensor.CoordsIterator it = coords.iterator();
-        assertThat(it.getBufferMode()).isEqualTo(CoordsBufferMode.SAFE);
+        var it = coords.iterator();
+        assertThat(it.getBufferMode()).isEqualTo(BufferMode.SAFE);
       }
 
       assertThat(coords.stream().toList())
@@ -116,10 +116,10 @@ public class ZTensorTest implements CommonAssertions {
     }
 
     // Empty tensor.
-    assertThat(ZTensor.newVector().byCoords(CoordsBufferMode.SAFE).stream().toList()).isEmpty();
+    assertThat(ZTensor.newVector().byCoords(BufferMode.SAFE).stream().toList()).isEmpty();
 
     // Scalar tensor.
-    assertThat(ZTensor.newScalar(2).byCoords(CoordsBufferMode.SAFE).stream().toList())
+    assertThat(ZTensor.newScalar(2).byCoords(BufferMode.SAFE).stream().toList())
         .contains(new int[] {});
   }
 
@@ -252,15 +252,15 @@ public class ZTensorTest implements CommonAssertions {
     ZTensor t2 = ZTensor.newMatrix(new int[] {2, 3}, new int[] {4, 5});
 
     assertThat(t0.getNDim()).isEqualTo(0);
-    assertThat(t0.size()).isEqualTo(1);
+    assertThat(t0.getSize()).isEqualTo(1);
     assertThat(t0.item()).isEqualTo(3);
 
     assertThat(t1.getNDim()).isEqualTo(1);
-    assertThat(t1.size()).isEqualTo(3);
+    assertThat(t1.getSize()).isEqualTo(3);
     assertThat(t1.get(1)).isEqualTo(3);
 
     assertThat(t2.getNDim()).isEqualTo(2);
-    assertThat(t2.size()).isEqualTo(4);
+    assertThat(t2.getSize()).isEqualTo(4);
     assertThat(t2.get(1, 0)).isEqualTo(4);
   }
 
@@ -318,7 +318,7 @@ public class ZTensorTest implements CommonAssertions {
     ZTensor t = ZTensor.fromArray(new int[][] {{2, 3}, {4, 5}});
 
     assertThat(t.getNDim()).isEqualTo(2);
-    assertThat(t.size()).isEqualTo(4);
+    assertThat(t.getSize()).isEqualTo(4);
     assertThat(t.get(1, 0)).isEqualTo(4);
 
     ZTensor t2 = t.add(2);
