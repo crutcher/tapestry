@@ -560,7 +560,9 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
       throw new IllegalStateException("Cannot take the hash of a mutable tensor.");
     }
     if (hash == null) {
-      hash = reduceCellsAsInt((a, b) -> 31 * a + b, Arrays.hashCode(shape));
+      synchronized (this) {
+        hash = reduceCellsAsInt((a, b) -> 31 * a + b, Arrays.hashCode(shape));
+      }
     }
     return hash;
   }
