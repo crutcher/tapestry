@@ -575,7 +575,7 @@ public class ZTensorTest implements CommonAssertions {
   public void test_reduceCells() {
     var t = ZTensor.fromArray(new int[][][] {{{2, 3}, {4, 5}}, {{6, 7}, {8, 9}}});
 
-    assertThat(t.reduceCellsAsInt(Integer::sum, 0)).isEqualTo(44);
+    assertThat(t.reduceCellsAtomic(Integer::sum, 0)).isEqualTo(44);
     assertThat(t.reduceCells(Integer::sum, 0)).isEqualTo(ZTensor.newScalar(44));
     assertThat(t.reduceCells(Integer::sum, 0, 2))
         .isEqualTo(ZTensor.fromArray(new int[][] {{5, 9}, {13, 17}}));

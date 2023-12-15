@@ -13,18 +13,17 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.IntNode;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.google.errorprone.annotations.CheckReturnValue;
-import lombok.SneakyThrows;
-import loom.common.HasToJsonString;
-import loom.common.IteratorUtils;
-import loom.common.serialization.JsonUtil;
-
-import javax.annotation.Nonnull;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.function.*;
+import javax.annotation.Nonnull;
+import lombok.SneakyThrows;
+import loom.common.HasToJsonString;
+import loom.common.IteratorUtils;
+import loom.common.serialization.JsonUtil;
 
 /**
  * A multidimensional int array used for numerical operations.
@@ -459,7 +458,7 @@ public final class ZTensor extends AbstractTensor<ZTensor, int[]> implements Has
 
   @Override
   protected int _dataHashCode() {
-    return reduceCellsAsInt((a, b) -> 31 * a + b, Arrays.hashCode(shape));
+    return reduceCellsAtomic((a, b) -> 31 * a + b, Arrays.hashCode(shape));
   }
 
   @Override
@@ -742,8 +741,8 @@ public final class ZTensor extends AbstractTensor<ZTensor, int[]> implements Has
    * @param initial the initial value
    * @return the int result of the reduction.
    */
-  public int reduceCellsAsInt(@Nonnull IntBinaryOperator op, int initial) {
-    return Ops.reduceCellsAsInt(this, op, initial);
+  public int reduceCellsAtomic(@Nonnull IntBinaryOperator op, int initial) {
+    return Ops.reduceCellsAtomic(this, op, initial);
   }
 
   /**
@@ -1632,7 +1631,7 @@ public final class ZTensor extends AbstractTensor<ZTensor, int[]> implements Has
      * @param initial the initial value
      * @return the int result of the reduction.
      */
-    public static int reduceCellsAsInt(
+    public static int reduceCellsAtomic(
         @Nonnull ZTensor tensor, @Nonnull IntBinaryOperator op, int initial) {
       var acc =
           new IntConsumer() {
@@ -1659,7 +1658,7 @@ public final class ZTensor extends AbstractTensor<ZTensor, int[]> implements Has
     @Nonnull
     public static ZTensor reduceCells(
         @Nonnull ZTensor tensor, @Nonnull IntBinaryOperator op, int initial) {
-      return newScalar(reduceCellsAsInt(tensor, op, initial));
+      return newScalar(reduceCellsAtomic(tensor, op, initial));
     }
 
     /**
@@ -1696,7 +1695,7 @@ public final class ZTensor extends AbstractTensor<ZTensor, int[]> implements Has
       var acc = newZeros(accShape);
       for (var ks : acc.byCoords(BufferMode.REUSED)) {
         ZTensor slice = tensor.selectDims(sliceDims, ks);
-        acc.set(ks, reduceCellsAsInt(slice, op, initial));
+        acc.set(ks, reduceCellsAtomic(slice, op, initial));
       }
       return acc;
     }
@@ -1708,7 +1707,7 @@ public final class ZTensor extends AbstractTensor<ZTensor, int[]> implements Has
      * @return the int sum of all elements in the tensor.
      */
     public static int sumAsInt(@Nonnull ZTensor tensor) {
-      return reduceCellsAsInt(tensor, Integer::sum, 0);
+      return reduceCellsAtomic(tensor, Integer::sum, 0);
     }
 
     /**
@@ -1744,7 +1743,7 @@ public final class ZTensor extends AbstractTensor<ZTensor, int[]> implements Has
      * @return the int product of all elements in the tensor.
      */
     public static int prodAsInt(@Nonnull ZTensor tensor) {
-      return reduceCellsAsInt(tensor, (a, b) -> a * b, 1);
+      return reduceCellsAtomic(tensor, (a, b) -> a * b, 1);
     }
 
     /**
@@ -1780,7 +1779,7 @@ public final class ZTensor extends AbstractTensor<ZTensor, int[]> implements Has
      * @return the int min of all elements in the tensor.
      */
     public static int minAsInt(@Nonnull ZTensor tensor) {
-      return reduceCellsAsInt(tensor, Math::min, Integer.MAX_VALUE);
+      return reduceCellsAtomic(tensor, Math::min, Integer.MAX_VALUE);
     }
 
     /**
@@ -1816,7 +1815,7 @@ public final class ZTensor extends AbstractTensor<ZTensor, int[]> implements Has
      * @return the int min of all elements in the tensor.
      */
     public static int maxAsInt(@Nonnull ZTensor tensor) {
-      return reduceCellsAsInt(tensor, Math::max, Integer.MIN_VALUE);
+      return reduceCellsAtomic(tensor, Math::max, Integer.MIN_VALUE);
     }
 
     /**

@@ -96,13 +96,19 @@ public abstract class AbstractTensor<T extends AbstractTensor<T, ArrayT>, ArrayT
     return hash;
   }
 
+  public final Class<ArrayT> getArrayClass() {
+    @SuppressWarnings("unchecked")
+    var arrayTClass = (Class<ArrayT>) data.getClass();
+    return arrayTClass;
+  }
+
   /**
    * Return the component type of the data array.
    *
    * @return the component type of the data array.
    */
   public final Class<?> componentType() {
-    return data.getClass().getComponentType();
+    return getArrayClass().getComponentType();
   }
 
   /**
@@ -176,7 +182,7 @@ public abstract class AbstractTensor<T extends AbstractTensor<T, ArrayT>, ArrayT
    *
    * @param other the other tensor.
    */
-  public final void assertMatchingShape(@Nonnull ZTensor other) {
+  public final void assertMatchingShape(@Nonnull T other) {
     IndexingFns.assertShape(shape, other.shape);
   }
 
@@ -216,14 +222,14 @@ public abstract class AbstractTensor<T extends AbstractTensor<T, ArrayT>, ArrayT
   }
 
   /**
-   * Clone this ZTensor.
+   * Clone this tensor.
    *
-   * <p>If this ZTensor is immutable and compact, and mutable is false, returns this.
+   * <p>If this tensor is immutable and compact, and mutable is false, returns this.
    *
-   * <p>Otherwise, returns a new compact ZTensor with the same data and the given mutability.
+   * <p>Otherwise, returns a new compact tensor with the same data and the given mutability.
    *
    * @param mutable whether the clone should be mutable.
-   * @return a new ZTensor with the same data.
+   * @return a new tensor with the same data.
    */
   @Nonnull
   public abstract T clone(boolean mutable);
@@ -240,7 +246,7 @@ public abstract class AbstractTensor<T extends AbstractTensor<T, ArrayT>, ArrayT
   }
 
   /**
-   * Is this ZTensor read-only / immutable?
+   * Is this tensor read-only / immutable?
    *
    * @return true if read-only / immutable; false otherwise.
    */
@@ -248,17 +254,17 @@ public abstract class AbstractTensor<T extends AbstractTensor<T, ArrayT>, ArrayT
     return !mutable;
   }
 
-  /** Asserts that this ZTensor is mutable. */
+  /** Asserts that this tensor is mutable. */
   public final void assertMutable() {
     if (!mutable) {
-      throw new IllegalStateException("ZTensor is immutable");
+      throw new IllegalStateException("tensor is immutable");
     }
   }
 
-  /** Asserts that this ZTensor is read-only / immutable. */
+  /** Asserts that this tensor is read-only / immutable. */
   public final void assertReadOnly() {
     if (mutable) {
-      throw new IllegalStateException("ZTensor is mutable");
+      throw new IllegalStateException("tensor is mutable");
     }
   }
 
@@ -293,9 +299,9 @@ public abstract class AbstractTensor<T extends AbstractTensor<T, ArrayT>, ArrayT
   }
 
   /**
-   * Returns the shape of this tensor as a ZTensor.
+   * Returns the shape of this tensor as a tensor.
    *
-   * @return the shape of this tensor as a ZTensor.
+   * @return the shape of this tensor as a tensor.
    */
   @Nonnull
   public final ZTensor shapeAsTensor() {
@@ -389,7 +395,7 @@ public abstract class AbstractTensor<T extends AbstractTensor<T, ArrayT>, ArrayT
    *
    * @param a The index of the first dimension to be transposed.
    * @param b The index of the second dimension to be transposed.
-   * @return A new ZTensor that is a transposed view of the original tensor.
+   * @return A new tensor that is a transposed view of the original tensor.
    * @throws IllegalArgumentException If the provided indices are not valid dimensions of the
    *     tensor.
    */
@@ -538,7 +544,7 @@ public abstract class AbstractTensor<T extends AbstractTensor<T, ArrayT>, ArrayT
    * @return a broadcasted view of this tensor.
    */
   @Nonnull
-  public final T broadcastLike(@Nonnull ZTensor ref) {
+  public final T broadcastLike(@Nonnull AbstractTensor<?, ?> ref) {
     return broadcastTo(ref.shape);
   }
 
