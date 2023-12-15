@@ -1,9 +1,9 @@
 package loom.zspace;
 
+import javax.annotation.Nonnull;
 import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.stream.Collectors;
-import javax.annotation.Nonnull;
 
 /** Utility functions for computing tensor indices. */
 public final class IndexingFns {
@@ -148,15 +148,26 @@ public final class IndexingFns {
   }
 
   /**
-   * Apply a resolved permutation to a generic array.
+   * Apply a permutation to an array; resolving negative indexes. Given a permutation with
+   * potentially negative indexes; resolve to positive indexes.
    *
    * @param arr the array.
    * @param permutation the permutation.
    * @return a new array with the permutation applied.
    */
-  @Nonnull
-  private static Object _applyResolvedResolutionGeneric(
-      @Nonnull Object arr, @Nonnull int[] permutation) {
+  public static int[] permute(@Nonnull int[] arr, @Nonnull int[] permutation) {
+    var per = resolvePermutation(permutation, arr.length);
+    return applyResolvedPermutation(arr, per);
+  }
+
+  /**
+   * Check the length of an array and a permutation.
+   *
+   * @param arr the array
+   * @param permutation the permutation
+   * @return the shared length
+   */
+  private static int _checkResolvedPermutation(Object arr, int[] permutation) {
     var length = Array.getLength(arr);
 
     if (length != permutation.length) {
@@ -165,13 +176,7 @@ public final class IndexingFns {
               .formatted(length, permutation.length));
     }
 
-    var componentType = arr.getClass().getComponentType();
-    Object newArray = Array.newInstance(componentType, length);
-
-    for (int i = 0; i < length; ++i) {
-      Array.set(newArray, i, Array.get(arr, permutation[i]));
-    }
-    return newArray;
+    return length;
   }
 
   /**
@@ -183,9 +188,13 @@ public final class IndexingFns {
    * @param <T> the type of the array.
    */
   @Nonnull
-  @SuppressWarnings("unchecked")
   public static <T> T[] applyResolvedPermutation(@Nonnull T[] arr, @Nonnull int[] permutation) {
-    return (T[]) _applyResolvedResolutionGeneric(arr, permutation);
+    int length = _checkResolvedPermutation(arr, permutation);
+    var res = arr.clone();
+    for (int i = 0; i < length; ++i) {
+      res[i] = arr[permutation[i]];
+    }
+    return res;
   }
 
   /**
@@ -197,7 +206,12 @@ public final class IndexingFns {
    */
   @Nonnull
   public static int[] applyResolvedPermutation(@Nonnull int[] arr, @Nonnull int[] permutation) {
-    return (int[]) _applyResolvedResolutionGeneric(arr, permutation);
+    int length = _checkResolvedPermutation(arr, permutation);
+    var res = arr.clone();
+    for (int i = 0; i < length; ++i) {
+      res[i] = arr[permutation[i]];
+    }
+    return res;
   }
 
   /**

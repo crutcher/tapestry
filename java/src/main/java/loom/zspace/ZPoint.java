@@ -159,8 +159,7 @@ public final class ZPoint implements Cloneable, HasPermute<ZPoint>, HasToJsonStr
    */
   @Override
   public ZPoint permute(@Nonnull int... permutation) {
-    var perm = IndexingFns.resolvePermutation(permutation, getNDim());
-    return new ZPoint(IndexingFns.applyResolvedPermutation(toArray(), perm));
+    return new ZPoint(IndexingFns.permute(toArray(), permutation));
   }
 
   /**

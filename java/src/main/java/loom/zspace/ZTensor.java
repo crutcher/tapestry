@@ -821,50 +821,12 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
   @Override
   public ZTensor permute(@Nonnull int... permutation) {
     var perm = IndexingFns.resolvePermutation(permutation, getNDim());
-    var newShape = IndexingFns.applyResolvedPermutation(shape, perm);
-    var newStride = IndexingFns.applyResolvedPermutation(stride, perm);
-
-    return new ZTensor(mutable, newShape, newStride, data, data_offset);
-  }
-
-  /**
-   * Creates a reordered view of this tensor along a specified dimension.
-   *
-   * <p>Being a view, mutations in the new tensor affect the original tensor and vice versa.
-   *
-   * <p><b>Example:</b> Suppose we have tensor "t" with shape [2,3]:
-   *
-   * <pre>
-   * t = [[0, 1, 2],
-   *      [3, 4, 5]]
-   * </pre>
-   *
-   * If we call {@code t.reorderDim([1,0,2], 1)}, the returned tensor will look like:
-   *
-   * <pre>
-   * v = [[1, 0, 2],
-   *      [4, 3, 5]]
-   * </pre>
-   *
-   * <p>Supports negative dimension indexing - i.e. -1 represents the last dimension, -2 represents
-   * the second last, and so on.
-   *
-   * @param permutation An array of unique integers representing the new order of indices along the
-   *     specified dimension. Each integer should be a valid index for that dimension.
-   * @param dim Index of the dimension to be reordered. Dimensions are zero-indexed. This must be a
-   *     valid dimension of this tensor.
-   * @return A new ZTensor, a "view" of the original tensor, with the specified dimension reordered.
-   *     This view shares data with the original tensor.
-   */
-  @Nonnull
-  public ZTensor reorderDim(@Nonnull int[] permutation, int dim) {
-    var d = resolveDim(dim);
-    var perm = IndexingFns.resolvePermutation(permutation, shape[d]);
-    var res = new ZTensor(true, shape);
-    for (int i = 0; i < shape[d]; ++i) {
-      res.selectDim(d, i).assign(this.selectDim(d, perm[i]));
-    }
-    return res;
+    return new ZTensor(
+        mutable,
+        IndexingFns.applyResolvedPermutation(shape, perm),
+        IndexingFns.applyResolvedPermutation(stride, perm),
+        data,
+        data_offset);
   }
 
   /**
