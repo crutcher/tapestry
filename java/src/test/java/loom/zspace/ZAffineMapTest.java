@@ -15,7 +15,7 @@ public class ZAffineMapTest implements CommonAssertions {
     assertThat(map.inputDim()).isEqualTo(2);
     assertThat(map.outputDim()).isEqualTo(3);
 
-    assertThat(map.a.isMutable()).isFalse();
+    assertThat(map.A.isMutable()).isFalse();
     assertThat(map.b.isMutable()).isFalse();
 
     assertThat(map)
@@ -39,7 +39,7 @@ public class ZAffineMapTest implements CommonAssertions {
         new ZAffineMap(
             ZTensor.fromArray(new int[][] {{1, 0}, {0, 2}, {1, 2}}), ZTensor.newVector(4, 5, 6));
 
-    String json = "{\"a\":[[1,0],[0,2],[1,2]],\"b\":[4,5,6]}";
+    String json = "{\"A\":[[1,0],[0,2],[1,2]],\"b\":[4,5,6]}";
 
     assertThat(map).hasToString(json);
     assertThat(map.toJsonString()).isEqualTo(json);

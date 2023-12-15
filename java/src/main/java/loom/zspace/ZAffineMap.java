@@ -18,21 +18,24 @@ import java.util.Objects;
 @Jacksonized
 @SuperBuilder
 public final class ZAffineMap implements HasPermuteInput, HasPermuteOutput, HasToJsonString {
-  public final ZTensor a;
-  public final ZTensor b;
+  @Nonnull
+  @JsonProperty(value = "A")
+  public final ZTensor A;
+
+  @Nonnull public final ZTensor b;
 
   @JsonCreator
   public ZAffineMap(
-      @JsonProperty(value = "a", required = true) ZTensor a,
+      @JsonProperty(value = "A", required = true) ZTensor A,
       @JsonProperty(value = "b", required = true) ZTensor b) {
-    this.a = a.asImmutable();
+    this.A = A.asImmutable();
     this.b = b.asImmutable();
 
-    a.assertNDim(2);
+    A.assertNDim(2);
     b.assertNDim(1);
     if (b.shape(0) != outputDim()) {
       throw new IllegalArgumentException(
-          String.format("A.shape[1] != b.shape[0]: %s != %s", a.shapeAsList(), b.shapeAsList()));
+          String.format("A.shape[1] != b.shape[0]: %s != %s", A.shapeAsList(), b.shapeAsList()));
     }
   }
 
@@ -50,23 +53,23 @@ public final class ZAffineMap implements HasPermuteInput, HasPermuteOutput, HasT
   // This seems like a backwards way to represent this;
   // but `Ax + b` is the standard form.
   public int inputDim() {
-    return a.shape(1);
+    return A.shape(1);
   }
 
   public int outputDim() {
-    return a.shape(0);
+    return A.shape(0);
   }
 
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
     if (!(o instanceof ZAffineMap that)) return false;
-    return a.equals(that.a) && b.equals(that.b);
+    return A.equals(that.A) && b.equals(that.b);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(a, b);
+    return Objects.hash(A, b);
   }
 
   @Override
@@ -76,12 +79,12 @@ public final class ZAffineMap implements HasPermuteInput, HasPermuteOutput, HasT
 
   @Override
   public ZAffineMap permuteInput(@Nonnull int... permutation) {
-    return new ZAffineMap(a.reorderDim(permutation, 1), b);
+    return new ZAffineMap(A.reorderDim(permutation, 1), b);
   }
 
   @Override
   public ZAffineMap permuteOutput(@Nonnull int... permutation) {
-    return new ZAffineMap(a.reorderDim(permutation, 0), b.reorderDim(permutation, 0));
+    return new ZAffineMap(A.reorderDim(permutation, 0), b.reorderDim(permutation, 0));
   }
 
   /**
@@ -96,7 +99,7 @@ public final class ZAffineMap implements HasPermuteInput, HasPermuteOutput, HasT
     x.assertNDim(1);
     if (x.shape(0) != inputDim()) {
       throw new IllegalArgumentException(
-          String.format("A.shape[1] != x.shape[0]: %s != %s", a.shapeAsList(), x.shapeAsList()));
+          String.format("A.shape[1] != x.shape[0]: %s != %s", A.shapeAsList(), x.shapeAsList()));
     }
 
     // denoted in the `out` dim.
@@ -104,7 +107,7 @@ public final class ZAffineMap implements HasPermuteInput, HasPermuteOutput, HasT
 
     for (int j = 0; j < inputDim(); j++) {
       for (int i = 0; i < outputDim(); i++) {
-        res.set(new int[] {i}, res.get(i) + a.get(i, j) * x.get(j));
+        res.set(new int[] {i}, res.get(i) + A.get(i, j) * x.get(j));
       }
     }
     return res;
