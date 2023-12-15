@@ -776,7 +776,7 @@ public final class ZTensor extends AbstractTensor<ZTensor, int[]> implements Has
   }
 
   /**
-   * Matrix multiplication agaist the given rhs tensor.
+   * Matrix multiplication with the given rhs tensor.
    *
    * @param rhs the right-hand side tensor.
    * @return a new tensor.

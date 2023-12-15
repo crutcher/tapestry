@@ -12,6 +12,22 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
+/**
+ * Represents an abstract tensor with common properties and methods.
+ *
+ * <p>The tensor can be mutable or immutable depending on the constructor used. It has fields to
+ * store the shape, size, stride, data, data offset, and hash code.
+ *
+ * <p>AbstractTensor provides methods to compute the hash code of the data array, get the component
+ * type of the data array, create a new subclass instance, assert the number of dimensions, assert
+ * the shape, assert matching shape with another tensor, convert to an immutable tensor, clone the
+ * tensor, check if the tensor is compact or read-only/immutable, get the shape of the tensor,
+ * resolve dimension indices, iterate over the coordinates of the tensor, compute the ravel index
+ * for given coordinates, permute the tensor, transpose dimensions, reverse dimensions, add an extra
+ * dimension, and remove dimensions.
+ *
+ * @param <T> the subtype of the tensor
+ */
 public abstract class AbstractTensor<T extends AbstractTensor<T, ArrayT>, ArrayT>
     implements Cloneable, HasDimension, HasSize, HasPermute<T> {
   @Getter protected final boolean mutable;
@@ -24,6 +40,15 @@ public abstract class AbstractTensor<T extends AbstractTensor<T, ArrayT>, ArrayT
   protected final int data_offset;
   protected Integer hash;
 
+  /**
+   * Initializes a new instance of the AbstractTensor class.
+   *
+   * @param mutable Indicates whether the tensor is mutable or not.
+   * @param shape The shape of the tensor as an array of integers.
+   * @param stride The stride of the tensor as an array of integers.
+   * @param data The underlying data of the tensor.
+   * @param data_offset The offset of the data within the underlying data array.
+   */
   public AbstractTensor(
       boolean mutable,
       @Nonnull int[] shape,
@@ -40,6 +65,13 @@ public abstract class AbstractTensor<T extends AbstractTensor<T, ArrayT>, ArrayT
     this.data_offset = data_offset;
   }
 
+  /**
+   * Constructs a new AbstractTensor object.
+   *
+   * @param mutable a boolean flag indicating whether the tensor is mutable or not
+   * @param shape an array of integers representing the shape of the tensor
+   * @param data an ArrayT object containing the data of the tensor
+   */
   public AbstractTensor(boolean mutable, @Nonnull int[] shape, @Nonnull ArrayT data) {
     this(mutable, shape, IndexingFns.shapeToLSFStrides(shape), data, 0);
   }
