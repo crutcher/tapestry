@@ -1340,6 +1340,16 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
   }
 
   /**
+   * Matrix multiplication agaist the given rhs tensor.
+   *
+   * @param rhs the right-hand side tensor.
+   * @return a new tensor.
+   */
+  public ZTensor matmul(@Nonnull ZTensor rhs) {
+    return Ops.matmul(this, rhs);
+  }
+
+  /**
    * Returns the sum of all elements in the tensor.
    *
    * @return the int sum of all elements in the tensor.
@@ -1699,6 +1709,53 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
   public static final class Ops {
     /** Prevent instantiation. */
     private Ops() {}
+
+    /**
+     * Matrix multiplication of {@code lhs * rhs}.
+     *
+     * @param lhs the left-hand side tensor.
+     * @param rhs the right-hand side tensor.
+     * @return a new tensor.
+     */
+    @Nonnull
+    public static ZTensor matmul(@Nonnull ZTensor lhs, @Nonnull ZTensor rhs) {
+      lhs.assertNDim(2);
+      if (lhs.shape(1) != rhs.shape(0)) {
+        throw new IllegalArgumentException(
+            "lhs shape %s not compatible with rhs shape %s"
+                .formatted(lhs.shapeAsList(), rhs.shapeAsList()));
+      }
+
+      if (rhs.getNDim() > 2 || rhs.getNDim() == 0) {
+        throw new IllegalArgumentException(
+            "rhs must be a 1D or 2D tensor, got %dD".formatted(rhs.getNDim()));
+      }
+
+      boolean rhsIsVector = rhs.getNDim() == 1;
+      if (rhsIsVector) {
+        rhs = rhs.unsqueeze(1);
+      }
+
+      var res = newZeros(lhs.shape(0), rhs.shape(1));
+      var coords = new int[2];
+      for (int i = 0; i < lhs.shape(0); ++i) {
+        coords[0] = i;
+        for (int j = 0; j < rhs.shape(1); ++j) {
+          coords[1] = j;
+          int sum = 0;
+          for (int k = 0; k < lhs.shape(1); ++k) {
+            sum += lhs.get(i, k) * rhs.get(k, j);
+          }
+          res.set(coords, sum);
+        }
+      }
+
+      if (rhsIsVector) {
+        res = res.squeeze(1);
+      }
+
+      return res;
+    }
 
     /**
      * An element-wise unary operation.

@@ -77,6 +77,6 @@ public class ZAffineMapTest implements CommonAssertions {
 
     assertThatExceptionOfType(IllegalArgumentException.class)
         .isThrownBy(() -> map.apply(ZTensor.newVector(1, 1, 1)))
-        .withMessageContaining("A.shape[1] != x.shape[0]: [3, 2] != [3]");
+        .withMessageContaining("lhs shape [3, 2] not compatible with rhs shape [3]");
   }
 }

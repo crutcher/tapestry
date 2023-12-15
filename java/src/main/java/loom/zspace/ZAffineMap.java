@@ -96,20 +96,7 @@ public final class ZAffineMap implements HasPermuteInput, HasPermuteOutput, HasT
   public ZTensor apply(@Nonnull ZTensor x) {
     // denoted in the `in` dim.
     x.assertNDim(1);
-    if (x.shape(0) != inputDim()) {
-      throw new IllegalArgumentException(
-          String.format("A.shape[1] != x.shape[0]: %s != %s", A.shapeAsList(), x.shapeAsList()));
-    }
-
-    // denoted in the `out` dim.
-    var res = b.clone(true);
-
-    for (int j = 0; j < inputDim(); j++) {
-      for (int i = 0; i < outputDim(); i++) {
-        res.set(new int[] {i}, res.get(i) + A.get(i, j) * x.get(j));
-      }
-    }
-    return res;
+    return ZTensor.Ops.matmul(A, x).add(b);
   }
 
   /**

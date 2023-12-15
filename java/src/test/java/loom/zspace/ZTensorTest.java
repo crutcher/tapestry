@@ -1053,4 +1053,15 @@ public class ZTensorTest implements CommonAssertions {
       return Objects.hash(tensor);
     }
   }
+
+  @Test
+  public void test_matmul() {
+    var lhs = ZTensor.fromArray(new int[][] {{1, 2, 3}, {4, 5, 6}});
+    var rhs = ZTensor.fromArray(new int[][] {{10, 11}, {20, 21}, {30, 31}});
+
+    assertThat(lhs.matmul(rhs)).isEqualTo(ZTensor.fromArray(new int[][] {{140, 146}, {320, 335}}));
+
+    assertThat(lhs.matmul(ZTensor.newVector(10, 20, 30)))
+        .isEqualTo(ZTensor.fromArray(new int[] {140, 320}));
+  }
 }
