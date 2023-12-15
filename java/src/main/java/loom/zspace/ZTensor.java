@@ -486,16 +486,8 @@ public final class ZTensor extends AbstractTensor<ZTensor, int[]> implements Has
   }
 
   @Override
-  public int hashCode() {
-    if (mutable) {
-      throw new IllegalStateException("Cannot take the hash of a mutable tensor.");
-    }
-    if (hash == null) {
-      synchronized (this) {
-        hash = reduceCellsAsInt((a, b) -> 31 * a + b, Arrays.hashCode(shape));
-      }
-    }
-    return hash;
+  protected int dataHashCode() {
+    return reduceCellsAsInt((a, b) -> 31 * a + b, Arrays.hashCode(shape));
   }
 
   @Override

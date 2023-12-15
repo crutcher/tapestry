@@ -49,7 +49,22 @@ public abstract class AbstractTensor<T extends AbstractTensor<T, ArrayT>, ArrayT
     this(mutable, shape, IndexingFns.shapeToLSFStrides(shape), data, 0);
   }
 
-  public Class<?> componentType() {
+  protected abstract int dataHashCode();
+
+  @Override
+  public int hashCode() {
+    if (mutable) {
+      throw new IllegalStateException("Cannot take the hash of a mutable tensor.");
+    }
+    if (hash == null) {
+      synchronized (this) {
+        hash = dataHashCode();
+      }
+    }
+    return hash;
+  }
+
+  public final Class<?> componentType() {
     return data.getClass().getComponentType();
   }
 
