@@ -1,15 +1,45 @@
 package loom.zspace;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
-import java.util.ArrayList;
-import java.util.NoSuchElementException;
-import java.util.Objects;
-import java.util.function.IntBinaryOperator;
 import loom.common.serialization.JsonUtil;
 import loom.testing.CommonAssertions;
 import org.junit.Test;
 
+import java.util.ArrayList;
+import java.util.NoSuchElementException;
+import java.util.Objects;
+import java.util.function.IntBinaryOperator;
+
 public class ZTensorTest implements CommonAssertions {
+  @Test
+  public void test_allMatch_anyMatch() {
+    {
+      var t = ZTensor.newScalar(3);
+
+      assertThat(t.allMatch((x) -> x == 3)).isTrue();
+      assertThat(t.allMatch((x) -> x == 4)).isFalse();
+
+      assertThat(t.anyMatch((x) -> x == 3)).isTrue();
+      assertThat(t.anyMatch((x) -> x == 4)).isFalse();
+    }
+
+    {
+      var t = ZTensor.newVector(1, 2, 3);
+      assertThat(t.allMatch((x) -> x == 3)).isFalse();
+      assertThat(t.allMatch((x) -> x > 0)).isTrue();
+
+      assertThat(t.anyMatch((x) -> x == 3)).isTrue();
+      assertThat(t.anyMatch((x) -> x == 4)).isFalse();
+    }
+
+    {
+      var t = ZTensor.newVector();
+      assertThat(t.allMatch((x) -> x == 3)).isTrue();
+
+      assertThat(t.anyMatch((x) -> x == 3)).isFalse();
+    }
+  }
+
   @Test
   public void test_equals() {
     var t = ZTensor.fromArray(new int[][] {{2, 3}, {4, 5}});

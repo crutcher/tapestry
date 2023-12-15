@@ -124,7 +124,7 @@ public final class TensorNode extends LoomGraph.Node<TensorNode, TensorNode.Body
 
     @Override
     public void validateNode(TensorNode node, ValidationIssueCollector issueCollector) {
-      if (!node.getShape().coords.isStrictlyPositive()) {
+      if (!node.getShape().coords.allMatch(x -> x > 0)) {
         issueCollector.add(
             ValidationIssue.builder()
                 .type(LoomConstants.NODE_VALIDATION_ERROR)

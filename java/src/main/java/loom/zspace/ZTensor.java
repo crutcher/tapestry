@@ -13,12 +13,6 @@ import com.fasterxml.jackson.databind.node.IntNode;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.google.common.primitives.Ints;
 import com.google.errorprone.annotations.CheckReturnValue;
-import java.lang.reflect.Array;
-import java.util.*;
-import java.util.function.*;
-import java.util.stream.Stream;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import lombok.Data;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +20,13 @@ import lombok.SneakyThrows;
 import loom.common.HasToJsonString;
 import loom.common.IteratorUtils;
 import loom.common.serialization.JsonUtil;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.lang.reflect.Array;
+import java.util.*;
+import java.util.function.*;
+import java.util.stream.Stream;
 
 /**
  * A multidimensional int array used for numerical operations.
@@ -845,12 +846,31 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
 
   /** Are all cells in this tensor > 0? */
   public boolean isStrictlyPositive() {
-    for (var c : byCoords(CoordsBufferMode.REUSED)) {
-      if (get(c) <= 0) {
-        return false;
-      }
-    }
-    return true;
+    return allMatch(x -> x > 0);
+  }
+
+  /**
+   * Does every cell in this tensor match the given predicate?
+   *
+   * <p>Trivially true for an empty tensor.
+   *
+   * @param predicate the predicate.
+   * @return true if every cell matches the predicate.
+   */
+  public boolean allMatch(@Nonnull IntPredicate predicate) {
+    return byCoords(CoordsBufferMode.REUSED).stream().allMatch(c -> predicate.test(get(c)));
+  }
+
+  /**
+   * Does any cell in this tensor match the given predicate?
+   *
+   * <p>Trivially false for an empty tensor.
+   *
+   * @param predicate the predicate.
+   * @return true if any cell matches the predicate.
+   */
+  public boolean anyMatch(@Nonnull IntPredicate predicate) {
+    return byCoords(CoordsBufferMode.REUSED).stream().anyMatch(c -> predicate.test(get(c)));
   }
 
   /**
