@@ -65,7 +65,8 @@ public final class DimensionMap
     return toJsonString();
   }
 
-  public static DimensionMap parseDimensionMap(String json) {
+  @Nonnull
+  public static DimensionMap parseDimensionMap(@Nonnull String json) {
     return JsonUtil.fromJson(json, DimensionMap.class);
   }
 

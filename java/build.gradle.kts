@@ -48,8 +48,6 @@ spotless {
         googleJavaFormat()
         formatAnnotations()
         trimTrailingWhitespace()
-
-
     }
 }
 
