@@ -1,6 +1,7 @@
 package loom.zspace;
 
 import javax.annotation.Nonnull;
+import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
@@ -147,6 +148,33 @@ public final class IndexingFns {
   }
 
   /**
+   * Apply a resolved permutation to a generic array.
+   *
+   * @param arr the array.
+   * @param permutation the permutation.
+   * @return a new array with the permutation applied.
+   */
+  @Nonnull
+  private static Object _applyResolvedResolutionGeneric(
+      @Nonnull Object arr, @Nonnull int[] permutation) {
+    var length = Array.getLength(arr);
+
+    if (length != permutation.length) {
+      throw new IllegalArgumentException(
+          "array length %d and permutation length %d must be equal"
+              .formatted(length, permutation.length));
+    }
+
+    var componentType = arr.getClass().getComponentType();
+    Object newArray = Array.newInstance(componentType, length);
+
+    for (int i = 0; i < length; ++i) {
+      Array.set(newArray, i, Array.get(arr, permutation[i]));
+    }
+    return newArray;
+  }
+
+  /**
    * Apply a resolved permutation to an array.
    *
    * @param arr the array.
@@ -155,18 +183,9 @@ public final class IndexingFns {
    * @param <T> the type of the array.
    */
   @Nonnull
+  @SuppressWarnings("unchecked")
   public static <T> T[] applyResolvedPermutation(@Nonnull T[] arr, @Nonnull int[] permutation) {
-    if (arr.length != permutation.length) {
-      throw new IllegalArgumentException(
-          "array length %d and permutation length %d must be equal"
-              .formatted(arr.length, permutation.length));
-    }
-
-    var res = Arrays.copyOf(arr, arr.length);
-    for (int i = 0; i < arr.length; ++i) {
-      res[i] = arr[permutation[i]];
-    }
-    return res;
+    return (T[]) _applyResolvedResolutionGeneric(arr, permutation);
   }
 
   /**
@@ -178,17 +197,7 @@ public final class IndexingFns {
    */
   @Nonnull
   public static int[] applyResolvedPermutation(@Nonnull int[] arr, @Nonnull int[] permutation) {
-    if (arr.length != permutation.length) {
-      throw new IllegalArgumentException(
-          "array length %d and permutation length %d must be equal"
-              .formatted(arr.length, permutation.length));
-    }
-
-    var res = Arrays.copyOf(arr, arr.length);
-    for (int i = 0; i < arr.length; ++i) {
-      res[i] = arr[permutation[i]];
-    }
-    return res;
+    return (int[]) _applyResolvedResolutionGeneric(arr, permutation);
   }
 
   /**
