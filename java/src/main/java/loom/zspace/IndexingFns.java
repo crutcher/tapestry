@@ -1,8 +1,8 @@
 package loom.zspace;
 
-import javax.annotation.Nonnull;
 import java.util.Arrays;
 import java.util.stream.Collectors;
+import javax.annotation.Nonnull;
 
 /** Utility functions for computing tensor indices. */
 public final class IndexingFns {
@@ -131,7 +131,7 @@ public final class IndexingFns {
    */
   @Nonnull
   public static int[] resolvePermutation(@Nonnull int[] permutation, int ndim) {
-    ZTensor.assertNdim(permutation.length, ndim);
+    HasDimension.assertNDim(permutation.length, ndim);
 
     int acc = 0;
     int[] perm = new int[ndim];
@@ -340,5 +340,19 @@ public final class IndexingFns {
     System.arraycopy(arr, 0, res, 0, index);
     System.arraycopy(arr, index + 1, res, index, arr.length - index - 1);
     return res;
+  }
+
+  /**
+   * Assert that this tensor has the given shape.
+   *
+   * @param actual the actual shape.
+   * @param expected the expected shape.
+   * @throws IllegalStateException if the shapes do not match.
+   */
+  public static void assertShape(@Nonnull int[] actual, @Nonnull int[] expected) {
+    if (!Arrays.equals(actual, expected)) {
+      throw new IllegalArgumentException(
+          "shape " + Arrays.toString(actual) + " != expected shape " + Arrays.toString(expected));
+    }
   }
 }

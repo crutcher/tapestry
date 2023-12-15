@@ -4,20 +4,21 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Splitter;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.NoSuchElementException;
-import java.util.Objects;
-import java.util.stream.Stream;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import javax.annotation.concurrent.Immutable;
-import javax.annotation.concurrent.ThreadSafe;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import loom.common.HasToJsonString;
 import loom.common.IteratorUtils;
 import loom.common.serialization.JsonUtil;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.annotation.concurrent.Immutable;
+import javax.annotation.concurrent.ThreadSafe;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
+import java.util.Objects;
+import java.util.stream.Stream;
 
 /**
  * Represents a range of points in discrete space.
@@ -50,76 +51,47 @@ import loom.common.serialization.JsonUtil;
 @Immutable
 public final class ZRange implements HasSize, HasPermute<ZRange>, HasToJsonString {
 
-  /** An Iterable view of the coordinates of the range. */
-  @Getter
-  @RequiredArgsConstructor
-  public final class IterableCoords implements Iterable<int[]> {
-    @Nonnull private final CoordsBufferMode bufferMode;
+  @Nonnull public final ZPoint start;
+  @Nonnull public final ZPoint end;
+  @JsonIgnore public final ZTensor shape;
+  @JsonIgnore public final int size;
 
-    @Override
-    public @Nonnull CoordsIterator iterator() {
-      return new CoordsIterator(bufferMode);
+  /**
+   * Construct a new ZRange of {@code [start, end)}.
+   *
+   * @param start the start point.
+   * @param end the exclusive end point.
+   */
+  @JsonCreator
+  public ZRange(
+      @Nonnull @JsonProperty(value = "start", required = true) ZPoint start,
+      @Nonnull @JsonProperty(value = "end", required = true) ZPoint end) {
+    start.coords.assertMatchingShape(end.coords);
+    if (start.gt(end)) {
+      throw new IllegalArgumentException("start %s must be <= end %s".formatted(start, end));
     }
+    this.start = start;
+    this.end = end;
 
-    public @Nonnull Stream<int[]> stream() {
-      return IteratorUtils.iterableToStream(this);
+    shape = end.coords.sub(start.coords).asImmutable();
+    {
+      int acc = 1;
+      for (var coords : shape.toT1()) {
+        acc *= coords;
+      }
+      size = acc;
     }
   }
 
   /**
-   * An Iterator over the coordinates of this ZRange.
+   * Construct a new ZRange of {@code [start, end)}.
    *
-   * <p>When the buffer mode is {@link CoordsBufferMode#REUSED}, the buffer is shared between
-   * subsequent calls to {@link Iterator#next()}. When the buffer mode is {@link
-   * CoordsBufferMode#SAFE}, the buffer is not shared between subsequent calls to {@link
-   * Iterator#next()}.
+   * @param start the start point.
+   * @param end the exclusive end point.
    */
-  @RequiredArgsConstructor
-  public final class CoordsIterator implements Iterator<int[]> {
-    @Nonnull @Getter private final CoordsBufferMode bufferMode;
-
-    private int remaining = size();
-    @Nullable private int[] coords = null;
-
-    @Override
-    public boolean hasNext() {
-      return remaining > 0;
-    }
-
-    @Override
-    @Nonnull
-    public int[] next() {
-      if (!hasNext()) {
-        throw new NoSuchElementException();
-      }
-      remaining--;
-
-      if (coords == null) {
-        coords = start.toArray();
-      } else {
-        coords[coords.length - 1]++;
-        for (int i = coords.length - 1; i >= 0; --i) {
-          if (coords[i] == end.get(i)) {
-            coords[i] = start.get(i);
-            coords[i - 1]++;
-          }
-        }
-      }
-
-      if (bufferMode == CoordsBufferMode.SAFE) {
-        return coords.clone();
-      }
-
-      return coords;
-    }
+  public ZRange(@Nonnull ZTensor start, @Nonnull ZTensor end) {
+    this(new ZPoint(start), new ZPoint(end));
   }
-
-  @Nonnull public final ZPoint start;
-
-  @Nonnull public final ZPoint end;
-
-  @JsonIgnore public final ZTensor shape;
-  @JsonIgnore public final int size;
 
   /**
    * Build a range from {@code [0, shape)}.
@@ -148,7 +120,7 @@ public final class ZRange implements HasSize, HasPermute<ZRange>, HasToJsonStrin
    * @return a new range.
    */
   public static @Nonnull ZRange fromShape(@Nonnull ZPoint shape) {
-    return new ZRange(ZPoint.zeros_like(shape), shape);
+    return new ZRange(ZPoint.newZerosLike(shape), shape);
   }
 
   public static @Nonnull ZRange fromStartWithShape(@Nonnull ZPoint start, @Nonnull ZPoint shape) {
@@ -216,59 +188,6 @@ public final class ZRange implements HasSize, HasPermute<ZRange>, HasToJsonStrin
     return new ZRange(start, end);
   }
 
-  @JsonCreator
-  public ZRange(
-      @Nonnull @JsonProperty(value = "start", required = true) ZPoint start,
-      @Nonnull @JsonProperty(value = "end", required = true) ZPoint end) {
-    start.coords.assertMatchingShape(end.coords);
-    if (start.gt(end)) {
-      throw new IllegalArgumentException("start %s must be <= end %s".formatted(start, end));
-    }
-    this.start = start;
-    this.end = end;
-
-    shape = end.coords.sub(start.coords).immutable();
-    {
-      int acc = 1;
-      for (var coords : shape.toT1()) {
-        acc *= coords;
-      }
-      size = acc;
-    }
-  }
-
-  public ZRange(@Nonnull ZTensor start, @Nonnull ZTensor end) {
-    this(new ZPoint(start), new ZPoint(end));
-  }
-
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
-    if (!(o instanceof ZRange zRange)) return false;
-    return Objects.equals(start, zRange.start) && Objects.equals(end, zRange.end);
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hash(start, end);
-  }
-
-  @Override
-  public String toString() {
-    var b = new StringBuilder();
-    b.append("zr[");
-    for (int i = 0; i < getNDim(); ++i) {
-      if (i > 0) {
-        b.append(", ");
-      }
-      b.append(start.coords.get(i));
-      b.append(":");
-      b.append(end.coords.get(i));
-    }
-    b.append("]");
-    return b.toString();
-  }
-
   /**
    * Parse a range from a string.
    *
@@ -307,6 +226,34 @@ public final class ZRange implements HasSize, HasPermute<ZRange>, HasToJsonStrin
     }
 
     throw new IllegalArgumentException(String.format("Invalid ZRange: \"%s\"", str));
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (!(o instanceof ZRange zRange)) return false;
+    return Objects.equals(start, zRange.start) && Objects.equals(end, zRange.end);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(start, end);
+  }
+
+  @Override
+  public String toString() {
+    var b = new StringBuilder();
+    b.append("zr[");
+    for (int i = 0; i < getNDim(); ++i) {
+      if (i > 0) {
+        b.append(", ");
+      }
+      b.append(start.coords.get(i));
+      b.append(":");
+      b.append(end.coords.get(i));
+    }
+    b.append("]");
+    return b.toString();
   }
 
   @Override
@@ -459,6 +406,70 @@ public final class ZRange implements HasSize, HasPermute<ZRange>, HasToJsonStrin
       return new ZRange(s, e);
     } else {
       return null;
+    }
+  }
+
+  /** An Iterable view of the coordinates of the range. */
+  @Getter
+  @RequiredArgsConstructor
+  public final class IterableCoords implements Iterable<int[]> {
+    @Nonnull private final CoordsBufferMode bufferMode;
+
+    @Override
+    public @Nonnull CoordsIterator iterator() {
+      return new CoordsIterator(bufferMode);
+    }
+
+    public @Nonnull Stream<int[]> stream() {
+      return IteratorUtils.iterableToStream(this);
+    }
+  }
+
+  /**
+   * An Iterator over the coordinates of this ZRange.
+   *
+   * <p>When the buffer mode is {@link CoordsBufferMode#REUSED}, the buffer is shared between
+   * subsequent calls to {@link Iterator#next()}. When the buffer mode is {@link
+   * CoordsBufferMode#SAFE}, the buffer is not shared between subsequent calls to {@link
+   * Iterator#next()}.
+   */
+  @RequiredArgsConstructor
+  public final class CoordsIterator implements Iterator<int[]> {
+    @Nonnull @Getter private final CoordsBufferMode bufferMode;
+
+    private int remaining = size();
+    @Nullable private int[] coords = null;
+
+    @Override
+    public boolean hasNext() {
+      return remaining > 0;
+    }
+
+    @Override
+    @Nonnull
+    public int[] next() {
+      if (!hasNext()) {
+        throw new NoSuchElementException();
+      }
+      remaining--;
+
+      if (coords == null) {
+        coords = start.toArray();
+      } else {
+        coords[coords.length - 1]++;
+        for (int i = coords.length - 1; i >= 0; --i) {
+          if (coords[i] == end.get(i)) {
+            coords[i] = start.get(i);
+            coords[i - 1]++;
+          }
+        }
+      }
+
+      if (bufferMode == CoordsBufferMode.SAFE) {
+        return coords.clone();
+      }
+
+      return coords;
     }
   }
 }

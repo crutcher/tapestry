@@ -8,6 +8,18 @@ import javax.annotation.Nonnull;
 /** Interface for objects that have a number of dimensions. */
 public interface HasDimension {
   /**
+   * Assert that the actual number of dimensions is equal to the expected number of dimensions.
+   *
+   * @param actual the actual number of dimensions.
+   * @param expected the expected number of dimensions.
+   */
+  static void assertNDim(int actual, int expected) {
+    if (actual != expected) {
+      throw new IllegalArgumentException("expected ndim " + expected + ", got " + actual);
+    }
+  }
+
+  /**
    * Assert that the object has the given number of dimensions.
    *
    * @param ndim the expected number of dimensions.

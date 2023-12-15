@@ -2,13 +2,15 @@ package loom.zspace;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import java.util.Objects;
-import javax.annotation.concurrent.Immutable;
-import javax.annotation.concurrent.ThreadSafe;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.jackson.Jacksonized;
 import loom.common.HasToJsonString;
 import loom.common.serialization.JsonUtil;
+
+import javax.annotation.Nonnull;
+import javax.annotation.concurrent.Immutable;
+import javax.annotation.concurrent.ThreadSafe;
+import java.util.Objects;
 
 /** A linear map from {@code Z^inDim} to {@code Z^outDim}. */
 @ThreadSafe
@@ -19,6 +21,32 @@ public final class ZAffineMap implements HasPermuteInput, HasPermuteOutput, HasT
   public final ZTensor a;
   public final ZTensor b;
 
+  @JsonCreator
+  public ZAffineMap(
+      @JsonProperty(value = "a", required = true) ZTensor a,
+      @JsonProperty(value = "b", required = true) ZTensor b) {
+    this.a = a.asImmutable();
+    this.b = b.asImmutable();
+
+    a.assertNDim(2);
+    b.assertNDim(1);
+    if (b.shape(0) != outputDim()) {
+      throw new IllegalArgumentException(
+          String.format("A.shape[1] != b.shape[0]: %s != %s", a.shapeAsList(), b.shapeAsList()));
+    }
+  }
+
+  /**
+   * Parse a ZAffineMap from a string.
+   *
+   * @param str the string to parse.
+   * @return the parsed ZAffineMap.
+   */
+  @Nonnull
+  public static ZAffineMap parse(@Nonnull String str) {
+    return JsonUtil.fromJson(str, ZAffineMap.class);
+  }
+
   // This seems like a backwards way to represent this;
   // but `Ax + b` is the standard form.
   public int inputDim() {
@@ -27,21 +55,6 @@ public final class ZAffineMap implements HasPermuteInput, HasPermuteOutput, HasT
 
   public int outputDim() {
     return a.shape(0);
-  }
-
-  @JsonCreator
-  public ZAffineMap(
-      @JsonProperty(value = "a", required = true) ZTensor a,
-      @JsonProperty(value = "b", required = true) ZTensor b) {
-    this.a = a.immutable();
-    this.b = b.immutable();
-
-    a.assertNdim(2);
-    b.assertNdim(1);
-    if (b.shapeAsList().get(0) != outputDim()) {
-      throw new IllegalArgumentException(
-          String.format("A.shape[1] != b.shape[0]: %s != %s", a.shapeAsList(), b.shapeAsList()));
-    }
   }
 
   @Override
@@ -61,23 +74,13 @@ public final class ZAffineMap implements HasPermuteInput, HasPermuteOutput, HasT
     return toJsonString();
   }
 
-  /**
-   * Parse a ZAffineMap from a string.
-   *
-   * @param str the string to parse.
-   * @return the parsed ZAffineMap.
-   */
-  public static ZAffineMap parse(String str) {
-    return JsonUtil.fromJson(str, ZAffineMap.class);
-  }
-
   @Override
-  public ZAffineMap permuteInput(int... permutation) {
+  public ZAffineMap permuteInput(@Nonnull int... permutation) {
     return new ZAffineMap(a.reorderDim(permutation, 1), b);
   }
 
   @Override
-  public ZAffineMap permuteOutput(int... permutation) {
+  public ZAffineMap permuteOutput(@Nonnull int... permutation) {
     return new ZAffineMap(a.reorderDim(permutation, 0), b.reorderDim(permutation, 0));
   }
 
@@ -87,10 +90,11 @@ public final class ZAffineMap implements HasPermuteInput, HasPermuteOutput, HasT
    * @param x a 1-dim tensor of length `inDim`.
    * @return a 1-dim tensor of length `outDim`.
    */
-  public ZTensor apply(ZTensor x) {
+  @Nonnull
+  public ZTensor apply(@Nonnull ZTensor x) {
     // denoted in the `in` dim.
-    x.assertNdim(1);
-    if (x.shapeAsList().get(0) != inputDim()) {
+    x.assertNDim(1);
+    if (x.shape(0) != inputDim()) {
       throw new IllegalArgumentException(
           String.format("A.shape[1] != x.shape[0]: %s != %s", a.shapeAsList(), x.shapeAsList()));
     }
@@ -112,7 +116,8 @@ public final class ZAffineMap implements HasPermuteInput, HasPermuteOutput, HasT
    * @param x a ZPoint of dim `inDim`.
    * @return a ZPoint of dim `outDim`.
    */
-  public ZPoint apply(ZPoint x) {
+  @Nonnull
+  public ZPoint apply(@Nonnull ZPoint x) {
     return new ZPoint(apply(x.coords));
   }
 }

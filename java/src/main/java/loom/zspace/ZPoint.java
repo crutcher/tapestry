@@ -21,16 +21,38 @@ import loom.common.HasToJsonString;
 @Immutable
 @JsonDeserialize(using = ZPoint.Deserializer.class)
 public final class ZPoint implements HasPermute<ZPoint>, HasToJsonString {
-  static final class Deserializer extends StdDeserializer<ZPoint> {
-    public Deserializer() {
-      super(ZPoint.class);
-    }
+  // This is asserted to be immutable in the constructor.
+  @JsonValue
+  @Nonnull
+  @SuppressWarnings("Immutable")
+  public final ZTensor coords;
 
-    @Override
-    public ZPoint deserialize(JsonParser p, DeserializationContext ctxt)
-        throws java.io.IOException {
-      return new ZPoint(p.readValueAs(ZTensor.class));
-    }
+  /**
+   * Create a ZPoint of the given coordinates.
+   *
+   * @param coord the coordinates.
+   */
+  public ZPoint(@Nonnull ZTensor coord) {
+    coord.assertNDim(1);
+    this.coords = coord.asImmutable();
+  }
+
+  /**
+   * Create a ZPoint of the given coordinates.
+   *
+   * @param coords the coordinates.
+   */
+  public ZPoint(@Nonnull int... coords) {
+    this(ZTensor.newVector(coords));
+  }
+
+  /**
+   * Create a ZPoint of the given coordinates.
+   *
+   * @param coords the coordinates.
+   */
+  public ZPoint(@Nonnull Iterable<Integer> coords) {
+    this(ZTensor.newVector(coords));
   }
 
   /**
@@ -39,7 +61,7 @@ public final class ZPoint implements HasPermute<ZPoint>, HasToJsonString {
    * @param ndim the number of dimensions.
    * @return a new ZPoint.
    */
-  public static @Nonnull ZPoint zeros(int ndim) {
+  public static @Nonnull ZPoint newZeros(int ndim) {
     return new ZPoint(ZTensor.newZeros(ndim));
   }
 
@@ -49,8 +71,8 @@ public final class ZPoint implements HasPermute<ZPoint>, HasToJsonString {
    * @param ref a reference ZPoint.
    * @return a new ZPoint.
    */
-  public static @Nonnull ZPoint zeros_like(@Nonnull ZPoint ref) {
-    return zeros(ref.getNDim());
+  public static @Nonnull ZPoint newZerosLike(@Nonnull ZPoint ref) {
+    return newZeros(ref.getNDim());
   }
 
   /**
@@ -65,23 +87,15 @@ public final class ZPoint implements HasPermute<ZPoint>, HasToJsonString {
     return new ZPoint(coords);
   }
 
-  // This is asserted to be immutable in the constructor.
-  @JsonValue
-  @Nonnull
-  @SuppressWarnings("Immutable")
-  public final ZTensor coords;
-
-  public ZPoint(@Nonnull ZTensor coord) {
-    coord.assertNdim(1);
-    this.coords = coord.immutable();
-  }
-
-  public ZPoint(@Nonnull int... coords) {
-    this(ZTensor.newVector(coords));
-  }
-
-  public ZPoint(@Nonnull Iterable<Integer> coords) {
-    this(ZTensor.newVector(coords));
+  /**
+   * Parse a ZPoint from a string.
+   *
+   * @param source the string to parse.
+   * @return the parsed ZPoint.
+   * @throws IllegalArgumentException if the string is not a valid ZPoint.
+   */
+  public static @Nonnull ZPoint parse(@Nonnull String source) {
+    return new ZPoint(ZTensor.parse(source));
   }
 
   @Override
@@ -117,19 +131,9 @@ public final class ZPoint implements HasPermute<ZPoint>, HasToJsonString {
    *
    * @return the coordinates.
    */
+  @Nonnull
   public int[] toArray() {
     return coords.toT1();
-  }
-
-  /**
-   * Parse a ZPoint from a string.
-   *
-   * @param source the string to parse.
-   * @return the parsed ZPoint.
-   * @throws IllegalArgumentException if the string is not a valid ZPoint.
-   */
-  public static @Nonnull ZPoint parse(@Nonnull String source) {
-    return new ZPoint(ZTensor.parse(source));
   }
 
   @Override
@@ -151,6 +155,138 @@ public final class ZPoint implements HasPermute<ZPoint>, HasToJsonString {
       cs[i] = coords.get(perm[i]);
     }
     return new ZPoint(cs);
+  }
+
+  /**
+   * Is `this == rhs`?
+   *
+   * @param rhs the right-hand side.
+   * @return true or false.
+   */
+  public boolean eq(@Nonnull ZPoint rhs) {
+    return ZPoint.Ops.eq(this, rhs);
+  }
+
+  /**
+   * Is `this == rhs`?
+   *
+   * @param rhs the right-hand side.
+   * @return true or false.
+   */
+  public boolean eq(@Nonnull ZTensor rhs) {
+    return ZPoint.Ops.eq(this, rhs);
+  }
+
+  /**
+   * Is `this != rhs`?
+   *
+   * @param rhs the right-hand side.
+   * @return true or false.
+   */
+  public boolean ne(@Nonnull ZPoint rhs) {
+    return ZPoint.Ops.ne(this, rhs);
+  }
+
+  /**
+   * Is `this != rhs`?
+   *
+   * @param rhs the right-hand side.
+   * @return true or false.
+   */
+  public boolean ne(@Nonnull ZTensor rhs) {
+    return ZPoint.Ops.ne(this, rhs);
+  }
+
+  /**
+   * Is `this < rhs`?
+   *
+   * @param rhs the right-hand side.
+   * @return true or false.
+   */
+  public boolean lt(@Nonnull ZPoint rhs) {
+    return ZPoint.Ops.lt(this, rhs);
+  }
+
+  /**
+   * Is `this < rhs`?
+   *
+   * @param rhs the right-hand side.
+   * @return true or false.
+   */
+  public boolean lt(@Nonnull ZTensor rhs) {
+    return ZPoint.Ops.lt(this, rhs);
+  }
+
+  /**
+   * Is `this <= rhs`?
+   *
+   * @param rhs the right-hand side.
+   * @return true or false.
+   */
+  public boolean le(@Nonnull ZPoint rhs) {
+    return ZPoint.Ops.le(this, rhs);
+  }
+
+  /**
+   * Is `this <= rhs`?
+   *
+   * @param rhs the right-hand side.
+   * @return true or false.
+   */
+  public boolean le(@Nonnull ZTensor rhs) {
+    return ZPoint.Ops.le(this, rhs);
+  }
+
+  /**
+   * Is `this > rhs`?
+   *
+   * @param rhs the right-hand side.
+   * @return true or false.
+   */
+  public boolean gt(@Nonnull ZPoint rhs) {
+    return ZPoint.Ops.gt(this, rhs);
+  }
+
+  /**
+   * Is `this > rhs`?
+   *
+   * @param rhs the right-hand side.
+   * @return true or false.
+   */
+  public boolean gt(@Nonnull ZTensor rhs) {
+    return ZPoint.Ops.gt(this, rhs);
+  }
+
+  /**
+   * Is `this >= rhs`?
+   *
+   * @param rhs the right-hand side.
+   * @return true or false.
+   */
+  public boolean ge(@Nonnull ZPoint rhs) {
+    return ZPoint.Ops.ge(this, rhs);
+  }
+
+  /**
+   * Is `this >= rhs`?
+   *
+   * @param rhs the right-hand side.
+   * @return true or false.
+   */
+  public boolean ge(@Nonnull ZTensor rhs) {
+    return ZPoint.Ops.ge(this, rhs);
+  }
+
+  static final class Deserializer extends StdDeserializer<ZPoint> {
+    public Deserializer() {
+      super(ZPoint.class);
+    }
+
+    @Override
+    public ZPoint deserialize(JsonParser p, DeserializationContext ctxt)
+        throws java.io.IOException {
+      return new ZPoint(p.readValueAs(ZTensor.class));
+    }
   }
 
   /** Namespace of ZPoint operations. */
@@ -208,14 +344,35 @@ public final class ZPoint implements HasPermute<ZPoint>, HasToJsonString {
       return eq(lhs.coords, rhs.coords);
     }
 
+    /**
+     * Are these points equal under partial ordering?
+     *
+     * @param lhs the left-hand side.
+     * @param rhs the right-hand side.
+     * @return true if the points are equal.
+     */
     public static boolean eq(@Nonnull ZTensor lhs, @Nonnull ZPoint rhs) {
       return eq(lhs, rhs.coords);
     }
 
+    /**
+     * Are these points equal under partial ordering?
+     *
+     * @param lhs the left-hand side.
+     * @param rhs the right-hand side.
+     * @return true if the points are equal.
+     */
     public static boolean eq(@Nonnull ZPoint lhs, @Nonnull ZTensor rhs) {
       return eq(lhs.coords, rhs);
     }
 
+    /**
+     * Are these points equal under partial ordering?
+     *
+     * @param lhs the left-hand side.
+     * @param rhs the right-hand side.
+     * @return true if the points are equal.
+     */
     public static boolean eq(@Nonnull ZTensor lhs, @Nonnull ZTensor rhs) {
       return lhs.equals(rhs);
     }
@@ -231,14 +388,35 @@ public final class ZPoint implements HasPermute<ZPoint>, HasToJsonString {
       return !eq(lhs.coords, rhs.coords);
     }
 
+    /**
+     * Are these points non-equal under partial ordering?
+     *
+     * @param lhs the left-hand side.
+     * @param rhs the right-hand side.
+     * @return true if the points are non-equal.
+     */
     public static boolean ne(@Nonnull ZTensor lhs, @Nonnull ZPoint rhs) {
       return !eq(lhs, rhs.coords);
     }
 
+    /**
+     * Are these points non-equal under partial ordering?
+     *
+     * @param lhs the left-hand side.
+     * @param rhs the right-hand side.
+     * @return true if the points are non-equal.
+     */
     public static boolean ne(@Nonnull ZPoint lhs, @Nonnull ZTensor rhs) {
       return !eq(lhs.coords, rhs);
     }
 
+    /**
+     * Are these points non-equal under partial ordering?
+     *
+     * @param lhs the left-hand side.
+     * @param rhs the right-hand side.
+     * @return true if the points are non-equal.
+     */
     public static boolean ne(@Nonnull ZTensor lhs, @Nonnull ZTensor rhs) {
       return !eq(lhs, rhs);
     }
@@ -254,14 +432,35 @@ public final class ZPoint implements HasPermute<ZPoint>, HasToJsonString {
       return lt(lhs.coords, rhs.coords);
     }
 
+    /**
+     * Is `lhs < rhs`?
+     *
+     * @param lhs the left-hand side.
+     * @param rhs the right-hand side.
+     * @return true or false.
+     */
     public static boolean lt(@Nonnull ZTensor lhs, @Nonnull ZPoint rhs) {
       return lt(lhs, rhs.coords);
     }
 
+    /**
+     * Is `lhs < rhs`?
+     *
+     * @param lhs the left-hand side.
+     * @param rhs the right-hand side.
+     * @return true or false.
+     */
     public static boolean lt(@Nonnull ZPoint lhs, @Nonnull ZTensor rhs) {
       return lt(lhs.coords, rhs);
     }
 
+    /**
+     * Is `lhs < rhs`?
+     *
+     * @param lhs the left-hand side.
+     * @param rhs the right-hand side.
+     * @return true or false.
+     */
     public static boolean lt(@Nonnull ZTensor lhs, @Nonnull ZTensor rhs) {
       return partialCompare(lhs, rhs) == PartialOrdering.LESS_THAN;
     }
@@ -277,14 +476,35 @@ public final class ZPoint implements HasPermute<ZPoint>, HasToJsonString {
       return le(lhs.coords, rhs.coords);
     }
 
+    /**
+     * Is `lhs <= rhs`?
+     *
+     * @param lhs the left-hand side.
+     * @param rhs the right-hand side.
+     * @return true or false.
+     */
     public static boolean le(@Nonnull ZPoint lhs, @Nonnull ZTensor rhs) {
       return le(lhs.coords, rhs);
     }
 
+    /**
+     * Is `lhs <= rhs`?
+     *
+     * @param lhs the left-hand side.
+     * @param rhs the right-hand side.
+     * @return true or false.
+     */
     public static boolean le(@Nonnull ZTensor lhs, @Nonnull ZPoint rhs) {
       return le(lhs, rhs.coords);
     }
 
+    /**
+     * Is `lhs <= rhs`?
+     *
+     * @param lhs the left-hand side.
+     * @param rhs the right-hand side.
+     * @return true or false.
+     */
     public static boolean le(@Nonnull ZTensor lhs, @Nonnull ZTensor rhs) {
       return switch (partialCompare(lhs, rhs)) {
         case LESS_THAN, EQUAL -> true;
@@ -303,14 +523,35 @@ public final class ZPoint implements HasPermute<ZPoint>, HasToJsonString {
       return gt(lhs.coords, rhs.coords);
     }
 
+    /**
+     * Is `lhs > rhs`?
+     *
+     * @param lhs the left-hand side.
+     * @param rhs the right-hand side.
+     * @return true or false.
+     */
     public static boolean gt(@Nonnull ZPoint lhs, @Nonnull ZTensor rhs) {
       return gt(lhs.coords, rhs);
     }
 
+    /**
+     * Is `lhs > rhs`?
+     *
+     * @param lhs the left-hand side.
+     * @param rhs the right-hand side.
+     * @return true or false.
+     */
     public static boolean gt(@Nonnull ZTensor lhs, @Nonnull ZPoint rhs) {
       return gt(lhs, rhs.coords);
     }
 
+    /**
+     * Is `lhs > rhs`?
+     *
+     * @param lhs the left-hand side.
+     * @param rhs the right-hand side.
+     * @return true or false.
+     */
     public static boolean gt(@Nonnull ZTensor lhs, @Nonnull ZTensor rhs) {
       return partialCompare(lhs, rhs) == PartialOrdering.GREATER_THAN;
     }
@@ -326,67 +567,40 @@ public final class ZPoint implements HasPermute<ZPoint>, HasToJsonString {
       return ge(lhs.coords, rhs.coords);
     }
 
+    /**
+     * Is `lhs >= rhs`?
+     *
+     * @param lhs the left-hand side.
+     * @param rhs the right-hand side.
+     * @return true or false.
+     */
     public static boolean ge(@Nonnull ZPoint lhs, @Nonnull ZTensor rhs) {
       return ge(lhs.coords, rhs);
     }
 
+    /**
+     * Is `lhs >= rhs`?
+     *
+     * @param lhs the left-hand side.
+     * @param rhs the right-hand side.
+     * @return true or false.
+     */
     public static boolean ge(@Nonnull ZTensor lhs, @Nonnull ZPoint rhs) {
       return ge(lhs, rhs.coords);
     }
 
+    /**
+     * Is `lhs >= rhs`?
+     *
+     * @param lhs the left-hand side.
+     * @param rhs the right-hand side.
+     * @return true or false.
+     */
     public static boolean ge(@Nonnull ZTensor lhs, @Nonnull ZTensor rhs) {
       return switch (partialCompare(lhs, rhs)) {
         case GREATER_THAN, EQUAL -> true;
         default -> false;
       };
     }
-  }
-
-  public boolean eq(@Nonnull ZPoint rhs) {
-    return ZPoint.Ops.eq(this, rhs);
-  }
-
-  public boolean eq(@Nonnull ZTensor rhs) {
-    return ZPoint.Ops.eq(this, rhs);
-  }
-
-  public boolean ne(@Nonnull ZPoint rhs) {
-    return ZPoint.Ops.ne(this, rhs);
-  }
-
-  public boolean ne(@Nonnull ZTensor rhs) {
-    return ZPoint.Ops.ne(this, rhs);
-  }
-
-  public boolean lt(@Nonnull ZPoint rhs) {
-    return ZPoint.Ops.lt(this, rhs);
-  }
-
-  public boolean lt(@Nonnull ZTensor rhs) {
-    return ZPoint.Ops.lt(this, rhs);
-  }
-
-  public boolean le(@Nonnull ZPoint rhs) {
-    return ZPoint.Ops.le(this, rhs);
-  }
-
-  public boolean le(@Nonnull ZTensor rhs) {
-    return ZPoint.Ops.le(this, rhs);
-  }
-
-  public boolean gt(@Nonnull ZPoint rhs) {
-    return ZPoint.Ops.gt(this, rhs);
-  }
-
-  public boolean gt(@Nonnull ZTensor rhs) {
-    return ZPoint.Ops.gt(this, rhs);
-  }
-
-  public boolean ge(@Nonnull ZPoint rhs) {
-    return ZPoint.Ops.ge(this, rhs);
-  }
-
-  public boolean ge(@Nonnull ZTensor rhs) {
-    return ZPoint.Ops.ge(this, rhs);
   }
 }

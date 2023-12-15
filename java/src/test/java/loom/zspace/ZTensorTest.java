@@ -1,14 +1,13 @@
 package loom.zspace;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
-import loom.common.serialization.JsonUtil;
-import loom.testing.CommonAssertions;
-import org.junit.Test;
-
 import java.util.ArrayList;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.function.IntBinaryOperator;
+import loom.common.serialization.JsonUtil;
+import loom.testing.CommonAssertions;
+import org.junit.Test;
 
 public class ZTensorTest implements CommonAssertions {
   @Test
@@ -150,8 +149,8 @@ public class ZTensorTest implements CommonAssertions {
 
   @Test
   public void test_hashCode() {
-    ZTensor t = ZTensor.newVector(1, 2, 3).immutable();
-    assertThat(t).hasSameHashCodeAs(ZTensor.newVector(1, 2, 3).immutable());
+    ZTensor t = ZTensor.newVector(1, 2, 3).asImmutable();
+    assertThat(t).hasSameHashCodeAs(ZTensor.newVector(1, 2, 3).asImmutable());
 
     ZTensor x = ZTensor.newVector(3, 2, 1);
     var view = x.reverse(0);
@@ -159,7 +158,7 @@ public class ZTensorTest implements CommonAssertions {
     //noinspection ResultOfMethodCallIgnored
     assertThatExceptionOfType(IllegalStateException.class).isThrownBy(view::hashCode);
 
-    var t2 = view.immutable();
+    var t2 = view.asImmutable();
 
     assertThat(t).hasSameHashCodeAs(t2);
   }
@@ -291,7 +290,7 @@ public class ZTensorTest implements CommonAssertions {
         .hasFieldOrPropertyWithValue("compact", true)
         .isNotSameAs(nonCompactMutableSource);
 
-    var compactImmutableSource = compactMutableSource.immutable();
+    var compactImmutableSource = compactMutableSource.asImmutable();
     assertThat(compactImmutableSource)
         .isEqualTo(ZTensor.newMatrix(new int[][] {{2, 3}, {4, 5}}))
         .hasFieldOrPropertyWithValue("mutable", false)
@@ -977,7 +976,7 @@ public class ZTensorTest implements CommonAssertions {
     tensor.set(new int[] {0, 0}, 5);
     assertThat(tensor).isEqualTo(ZTensor.fromArray(new int[][] {{5, 2}, {3, 4}}));
 
-    var fixed = tensor.immutable();
+    var fixed = tensor.asImmutable();
     assertThat(fixed.isMutable()).isFalse();
     assertThat(fixed.isReadOnly()).isTrue();
 
@@ -987,7 +986,7 @@ public class ZTensorTest implements CommonAssertions {
         .withMessageContaining("immutable");
 
     assertThat(fixed).isNotSameAs(tensor).extracting(ZTensor::isMutable).isEqualTo(false);
-    assertThat(fixed.immutable()).isSameAs(fixed);
+    assertThat(fixed.asImmutable()).isSameAs(fixed);
     assertThatExceptionOfType(IllegalStateException.class)
         .isThrownBy(() -> fixed.set(new int[] {0, 0}, 5))
         .withMessageContaining("immutable");

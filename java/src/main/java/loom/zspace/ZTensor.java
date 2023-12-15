@@ -13,6 +13,12 @@ import com.fasterxml.jackson.databind.node.IntNode;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.google.common.primitives.Ints;
 import com.google.errorprone.annotations.CheckReturnValue;
+import java.lang.reflect.Array;
+import java.util.*;
+import java.util.function.*;
+import java.util.stream.Stream;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import lombok.Data;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -20,13 +26,6 @@ import lombok.SneakyThrows;
 import loom.common.HasToJsonString;
 import loom.common.IteratorUtils;
 import loom.common.serialization.JsonUtil;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.lang.reflect.Array;
-import java.util.*;
-import java.util.function.*;
-import java.util.stream.Stream;
 
 /**
  * A multidimensional int array used for numerical operations.
@@ -88,68 +87,76 @@ import java.util.stream.Stream;
 @JsonDeserialize(using = ZTensor.JsonSupport.Deserializer.class)
 public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, HasToJsonString {
 
-  /** An Iterable view of the coordinates of this tensor. */
-  @Data
-  public final class IterableCoords implements Iterable<int[]> {
-    private final CoordsBufferMode bufferMode;
+  @Getter private final boolean mutable;
+  private Integer hash;
+  @Nonnull private final int[] shape;
+  @Getter private final int size;
+  @Nonnull private final int[] stride;
+  private final int data_offset;
+  @Nonnull private final int[] data;
 
-    @Override
-    public @Nonnull CoordsIterator iterator() {
-      return new CoordsIterator(bufferMode);
-    }
+  /**
+   * Constructs a ZTensor from parts; takes ownership of the arrays.
+   *
+   * @param mutable whether the ZTensor is mutable.
+   * @param shape the shape.
+   * @param stride the strides.
+   * @param data the data.
+   * @param data_offset the offset in the source data.
+   */
+  private ZTensor(
+      boolean mutable,
+      @Nonnull int[] shape,
+      @Nonnull int[] stride,
+      @Nonnull int[] data,
+      int data_offset) {
+    this.shape = shape;
+    this.size = IndexingFns.shapeToSize(shape);
+    this.stride = stride;
+    this.data_offset = data_offset;
+    this.data = data;
 
-    public @Nonnull Stream<int[]> stream() {
-      return IteratorUtils.iterableToStream(this);
-    }
+    this.mutable = mutable;
+    // Hash is lazy, and only well-defined for immutable ZTensors.
+    this.hash = null;
   }
 
   /**
-   * An Iterator over the coordinates of this tensor.
+   * Constructs a ZTensor from parts; takes ownership of the arrays.
    *
-   * <p>When the buffer mode is {@link CoordsBufferMode#REUSED}, the buffer is shared between
-   * subsequent calls to {@link Iterator#next()}. When the buffer mode is {@link
-   * CoordsBufferMode#SAFE}, the buffer is not shared between subsequent calls to {@link
-   * Iterator#next()}.
+   * <p>Assumes an offset of 0.
+   *
+   * @param mutable whether the ZTensor is mutable.
+   * @param shape the shape.
+   * @param stride the strides.
+   * @param data the data.
    */
-  @RequiredArgsConstructor
-  public final class CoordsIterator implements Iterator<int[]> {
-    @Getter private final CoordsBufferMode bufferMode;
+  private ZTensor(
+      boolean mutable, @Nonnull int[] shape, @Nonnull int[] stride, @Nonnull int[] data) {
+    this(mutable, shape, stride, data, 0);
+  }
 
-    // Assuming a non-scalar ZTensor; non-empty ZTensor.
-    private int remaining = size();
-    @Nullable private int[] coords = null;
+  /**
+   * Constructs a ZTensor from parts; takes ownership of the arrays.
+   *
+   * <p>Assumes an offset of 0, and default strides.
+   *
+   * @param mutable whether the ZTensor is mutable.
+   * @param shape the shape.
+   * @param data the data.
+   */
+  private ZTensor(boolean mutable, @Nonnull int[] shape, @Nonnull int[] data) {
+    this(mutable, shape, IndexingFns.shapeToLSFStrides(shape), data);
+  }
 
-    @Override
-    public boolean hasNext() {
-      return remaining > 0;
-    }
-
-    @Override
-    @Nonnull
-    public int[] next() {
-      if (!hasNext()) {
-        throw new NoSuchElementException();
-      }
-      remaining--;
-
-      if (coords == null) {
-        coords = new int[getNDim()];
-      } else {
-        coords[coords.length - 1]++;
-        for (int i = coords.length - 1; i >= 0; --i) {
-          if (coords[i] == shape[i]) {
-            coords[i] = 0;
-            coords[i - 1]++;
-          }
-        }
-      }
-
-      if (bufferMode == CoordsBufferMode.SAFE) {
-        return coords.clone();
-      }
-
-      return coords;
-    }
+  /**
+   * Construct a 0-filled ZTensor of the given shape; takes ownership of the shape.
+   *
+   * @param mutable whether the ZTensor is mutable.
+   * @param shape the shape.
+   */
+  private ZTensor(boolean mutable, @Nonnull int[] shape) {
+    this(mutable, shape, new int[IndexingFns.shapeToSize(shape)]);
   }
 
   /**
@@ -330,152 +337,6 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
     return JsonUtil.fromJson(str, ZTensor.class);
   }
 
-  @Getter private final boolean mutable;
-  private final int hash;
-
-  @Nonnull private final int[] shape;
-
-  @Getter private final int size;
-
-  @Nonnull private final int[] stride;
-
-  private final int data_offset;
-
-  @Nonnull private final int[] data;
-
-  /**
-   * Constructs a ZTensor from parts; takes ownership of the arrays.
-   *
-   * @param mutable whether the ZTensor is mutable.
-   * @param shape the shape.
-   * @param stride the strides.
-   * @param data the data.
-   * @param data_offset the offset in the source data.
-   */
-  private ZTensor(
-      boolean mutable,
-      @Nonnull int[] shape,
-      @Nonnull int[] stride,
-      @Nonnull int[] data,
-      int data_offset) {
-    this.shape = shape;
-    this.size = IndexingFns.shapeToSize(shape);
-    this.stride = stride;
-    this.data_offset = data_offset;
-    this.data = data;
-
-    this.mutable = mutable;
-    if (mutable) {
-      // Hash is only well-defined for immutable ZTensors.
-      hash = -1;
-    } else {
-      int acc = Arrays.hashCode(this.shape);
-      for (var coords : byCoords(CoordsBufferMode.REUSED)) {
-        acc = 31 * acc + get(coords);
-      }
-      hash = acc;
-    }
-  }
-
-  /**
-   * Constructs a ZTensor from parts; takes ownership of the arrays.
-   *
-   * <p>Assumes an offset of 0.
-   *
-   * @param mutable whether the ZTensor is mutable.
-   * @param shape the shape.
-   * @param stride the strides.
-   * @param data the data.
-   */
-  private ZTensor(
-      boolean mutable, @Nonnull int[] shape, @Nonnull int[] stride, @Nonnull int[] data) {
-    this(mutable, shape, stride, data, 0);
-  }
-
-  /**
-   * Constructs a ZTensor from parts; takes ownership of the arrays.
-   *
-   * <p>Assumes an offset of 0, and default strides.
-   *
-   * @param mutable whether the ZTensor is mutable.
-   * @param shape the shape.
-   * @param data the data.
-   */
-  private ZTensor(boolean mutable, @Nonnull int[] shape, @Nonnull int[] data) {
-    this(mutable, shape, IndexingFns.shapeToLSFStrides(shape), data);
-  }
-
-  /**
-   * Construct a 0-filled ZTensor of the given shape; takes ownership of the shape.
-   *
-   * @param mutable whether the ZTensor is mutable.
-   * @param shape the shape.
-   */
-  private ZTensor(boolean mutable, @Nonnull int[] shape) {
-    this(mutable, shape, new int[IndexingFns.shapeToSize(shape)]);
-  }
-
-  /**
-   * Construct an immutable ZPoint from this ZTensor. Asserts that this is a 1-dim tensor.
-   *
-   * @return a new immutable ZPoint.
-   */
-  public ZPoint newZPoint() {
-    return new ZPoint(this);
-  }
-
-  /**
-   * Is this ZTensor read-only / immutable?
-   *
-   * @return true if read-only / immutable; false otherwise.
-   */
-  public boolean isReadOnly() {
-    return !mutable;
-  }
-
-  /** Asserts that this ZTensor is mutable. */
-  public void assertMutable() {
-    if (!mutable) {
-      throw new IllegalStateException("ZTensor is immutable");
-    }
-  }
-
-  /** Asserts that this ZTensor is read-only / immutable. */
-  public void assertReadOnly() {
-    if (mutable) {
-      throw new IllegalStateException("ZTensor is mutable");
-    }
-  }
-
-  /**
-   * Return an immutable ZTensor with the same data.
-   *
-   * <p>If this ZTensor is already immutable, returns this; otherwise, returns an immutable clone.
-   *
-   * <p>Semantically equivalent to {@code clone(false)}.
-   *
-   * <p>A performance oriented Tensor library would track open mutable views of the underlying data,
-   * and perform copy-on-write when necessary; as this is a correctness-oriented Tensor library, we
-   * simply clone the data to go from mutable to immutable.
-   *
-   * @return an immutable ZTensor.
-   */
-  @Nonnull
-  public ZTensor immutable() {
-    return clone(false);
-  }
-
-  /**
-   * Return if this tensor is compact.
-   *
-   * <p>A tensor is compact if its data array is exactly the size of the tensor.
-   *
-   * @return true if this tensor is compact.
-   */
-  public boolean isCompact() {
-    return data.length == size;
-  }
-
   /**
    * Decode a ZTensor from a tree of type {@code <T>}.
    *
@@ -545,6 +406,67 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
     }
 
     return tensor;
+  }
+
+  /**
+   * Construct an immutable ZPoint from this ZTensor. Asserts that this is a 1-dim tensor.
+   *
+   * @return a new immutable ZPoint.
+   */
+  public ZPoint newZPoint() {
+    return new ZPoint(this);
+  }
+
+  /**
+   * Is this ZTensor read-only / immutable?
+   *
+   * @return true if read-only / immutable; false otherwise.
+   */
+  public boolean isReadOnly() {
+    return !mutable;
+  }
+
+  /** Asserts that this ZTensor is mutable. */
+  public void assertMutable() {
+    if (!mutable) {
+      throw new IllegalStateException("ZTensor is immutable");
+    }
+  }
+
+  /** Asserts that this ZTensor is read-only / immutable. */
+  public void assertReadOnly() {
+    if (mutable) {
+      throw new IllegalStateException("ZTensor is mutable");
+    }
+  }
+
+  /**
+   * Return an immutable ZTensor with the same data.
+   *
+   * <p>If this ZTensor is already immutable, returns this; otherwise, returns an immutable clone.
+   *
+   * <p>Semantically equivalent to {@code clone(false)}.
+   *
+   * <p>A performance oriented Tensor library would track open mutable views of the underlying data,
+   * and perform copy-on-write when necessary; as this is a correctness-oriented Tensor library, we
+   * simply clone the data to go from mutable to immutable.
+   *
+   * @return an immutable ZTensor.
+   */
+  @Nonnull
+  public ZTensor asImmutable() {
+    return clone(false);
+  }
+
+  /**
+   * Return if this tensor is compact.
+   *
+   * <p>A tensor is compact if its data array is exactly the size of the tensor.
+   *
+   * @return true if this tensor is compact.
+   */
+  public boolean isCompact() {
+    return data.length == size;
   }
 
   /**
@@ -625,6 +547,9 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
     if (mutable) {
       throw new IllegalStateException("Cannot take the hash of a mutable tensor.");
     }
+    if (hash == null) {
+      hash = reduceCellsAsInt((a, b) -> 31 * a + b, Arrays.hashCode(shape));
+    }
     return hash;
   }
 
@@ -666,36 +591,11 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
   /**
    * Assert that this tensor has the given number of dimensions.
    *
-   * @param actualNdim the actual number of dimensions.
-   * @param expectedNdim the expected number of dimensions.
-   */
-  public static void assertNdim(int actualNdim, int expectedNdim) {
-    if (actualNdim != expectedNdim) {
-      throw new IllegalArgumentException("expected ndim " + expectedNdim + ", got " + actualNdim);
-    }
-  }
-
-  /**
-   * Assert that this tensor has the given number of dimensions.
-   *
    * @param ndim the number of dimensions.
    */
-  public void assertNdim(int ndim) {
-    assertNdim(ndim, getNDim());
-  }
-
-  /**
-   * Assert that this tensor has the given shape.
-   *
-   * @param actual the actual shape.
-   * @param expected the expected shape.
-   * @throws IllegalStateException if the shapes do not match.
-   */
-  public static void assertShape(@Nonnull int[] actual, @Nonnull int[] expected) {
-    if (!Arrays.equals(actual, expected)) {
-      throw new IllegalArgumentException(
-          "shape " + Arrays.toString(actual) + " != expected shape " + Arrays.toString(expected));
-    }
+  @Override
+  public void assertNDim(int ndim) {
+    HasDimension.assertNDim(ndim, getNDim());
   }
 
   /**
@@ -704,7 +604,7 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
    * @param shape the shape.
    */
   public void assertShape(@Nonnull int... shape) {
-    assertShape(this.shape, shape);
+    IndexingFns.assertShape(this.shape, shape);
   }
 
   /**
@@ -713,17 +613,7 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
    * @param other the other tensor.
    */
   public void assertMatchingShape(@Nonnull ZTensor other) {
-    assertMatchingShapes(this, other);
-  }
-
-  /**
-   * Assert that two tensors have the same shape.
-   *
-   * @param lhs the left-hand side.
-   * @param rhs the right-hand side.
-   */
-  public static void assertMatchingShapes(@Nonnull ZTensor lhs, @Nonnull ZTensor rhs) {
-    assertShape(lhs.shape, rhs.shape);
+    IndexingFns.assertShape(shape, other.shape);
   }
 
   /**
@@ -1281,19 +1171,19 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
 
   /** Convert this structure to a T0 (a scalar) value. Assert that the shape is valid. */
   public int toT0() {
-    assertNdim(0);
+    assertNDim(0);
     return get();
   }
 
   /** Convert this structure to a T1 (a vector) value. Assert that the shape is valid. */
   public @Nonnull int[] toT1() {
-    assertNdim(1);
+    assertNDim(1);
     return (int[]) toArray();
   }
 
   /** Convert this structure to a T2 (a matrix) value. Assert that the shape is valid. */
   public @Nonnull int[][] toT2() {
-    assertNdim(2);
+    assertNDim(2);
     return (int[][]) toArray();
   }
 
@@ -1317,6 +1207,429 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
   public void assign(@Nonnull ZTensor tensor) {
     assertMutable();
     tensor.broadcastLike(this).forEachEntry(this::_unchecked_set, CoordsBufferMode.REUSED);
+  }
+
+  /**
+   * Create a new tensor by mapping a function over the values of the tensor.
+   *
+   * @param op the function to apply.
+   * @return a new tensor.
+   */
+  @Nonnull
+  public ZTensor map(@Nonnull IntUnaryOperator op) {
+    return Ops.map(op, this);
+  }
+
+  /**
+   * Broadcasts two tensors together, and maps a function over the values of the tensors.
+   *
+   * @param op the function to apply.
+   * @param rhs the right-hand side tensor.
+   * @return a new tensor.
+   */
+  @Nonnull
+  public ZTensor zipWith(@Nonnull IntBinaryOperator op, @Nonnull ZTensor rhs) {
+    return Ops.zipWith(op, this, rhs);
+  }
+
+  /**
+   * Assign from an element-wise unary operation.
+   *
+   * @param op the operation.
+   * @param tensor the input tensor.
+   */
+  public void zipWith_(@Nonnull IntUnaryOperator op, @Nonnull ZTensor tensor) {
+    assertMutable();
+    tensor
+        .broadcastLike(this)
+        .forEachEntry(
+            (coords, value) -> _unchecked_set(coords, op.applyAsInt(value)),
+            CoordsBufferMode.REUSED);
+  }
+
+  /**
+   * Assign from an element-wise binary operation.
+   *
+   * @param op the operation.
+   * @param lhs the left-hand side tensor.
+   * @param rhs the right-hand side tensor.
+   */
+  public void zipWith_(@Nonnull IntBinaryOperator op, @Nonnull ZTensor lhs, @Nonnull ZTensor rhs) {
+    assertMutable();
+    lhs = lhs.broadcastLike(this);
+    rhs = rhs.broadcastLike(this);
+    for (int[] coords : byCoords(CoordsBufferMode.REUSED)) {
+      _unchecked_set(coords, op.applyAsInt(lhs.get(coords), rhs.get(coords)));
+    }
+  }
+
+  /**
+   * An in-place element-wise binary operation.
+   *
+   * @param op the operation.
+   * @param rhs the right-hand side tensor.
+   */
+  public void zipWith_(@Nonnull IntBinaryOperator op, @Nonnull ZTensor rhs) {
+    zipWith_(op, this, rhs);
+  }
+
+  /**
+   * An in-place element-wise binary operation.
+   *
+   * @param op the operation.
+   * @param rhs the right-hand side scalar.
+   */
+  public void zipWith_(@Nonnull IntBinaryOperator op, int rhs) {
+    zipWith_(op, ZTensor.newScalar(rhs));
+  }
+
+  /**
+   * Applies the given reduction operation to all values in the given tensor.
+   *
+   * @param op the reduction operation
+   * @param initial the initial value
+   * @return the int result of the reduction.
+   */
+  public int reduceCellsAsInt(@Nonnull IntBinaryOperator op, int initial) {
+    return Ops.reduceCellsAsInt(this, op, initial);
+  }
+
+  /**
+   * Applies the given reduction operation to all values in the given tensor.
+   *
+   * @param op the reduction operation
+   * @param initial the initial value
+   * @return a new tensor.
+   */
+  @Nonnull
+  public ZTensor reduceCells(@Nonnull IntBinaryOperator op, int initial) {
+    return Ops.reduceCells(this, op, initial);
+  }
+
+  /**
+   * Applies the given reduction operation to all values in the given tensor; grouping by the
+   * specified dimensions.
+   *
+   * <p>The shape of the returned tensor is the same as the shape of the input tensor, except that
+   * the specified dimensions are removed.
+   *
+   * @param op the reduction operation
+   * @param initial the initial value
+   * @param dims the dimensions to group by.
+   * @return a new tensor.
+   */
+  @Nonnull
+  public ZTensor reduceCells(@Nonnull IntBinaryOperator op, int initial, @Nonnull int... dims) {
+    return Ops.reduceCells(this, op, initial, dims);
+  }
+
+  /**
+   * Returns the sum of all elements in the tensor.
+   *
+   * @return the int sum of all elements in the tensor.
+   */
+  public int sumAsInt() {
+    return Ops.sumAsInt(this);
+  }
+
+  /**
+   * Returns the sum of all elements in the tensor.
+   *
+   * @return the scalar ZTensor sum of all elements in the tensor.
+   */
+  public @Nonnull ZTensor sum() {
+    return Ops.sum(this);
+  }
+
+  /**
+   * Returns the sum of all elements in the tensor, grouped by the specified dimensions.
+   *
+   * <p>The shape of the returned tensor is the same as the shape of the input tensor, except that
+   * the specified dimensions are removed.
+   *
+   * @param dims the dimensions to group by.
+   * @return a new tensor.
+   */
+  public @Nonnull ZTensor sum(@Nonnull int... dims) {
+    return Ops.sum(this, dims);
+  }
+
+  /**
+   * Returns the minimum of all elements in the tensor.
+   *
+   * @return the int minimum of all elements in the tensor.
+   */
+  public int minAsInt() {
+    return Ops.minAsInt(this);
+  }
+
+  /**
+   * Returns a new scalar ZTensor that contains the minimum value in this ZTensor.
+   *
+   * @return a new ZTensor object containing the minimum value
+   */
+  @Nonnull
+  public ZTensor min() {
+    return Ops.min(this);
+  }
+
+  /**
+   * Returns a new ZTensor that contains the minimum value in this ZTensor, grouped by the specified
+   * dimensions.
+   *
+   * <p>The shape of the returned tensor is the same as the shape of the input tensor, except that
+   * the specified dimensions are removed.
+   *
+   * @param dims the dimensions to group by.
+   * @return a new tensor.
+   */
+  @Nonnull
+  public ZTensor min(@Nonnull int... dims) {
+    return Ops.min(this, dims);
+  }
+
+  /**
+   * Returns the maximum of all elements in the tensor.
+   *
+   * @return the int maximum of all elements in the tensor.
+   */
+  public int maxAsInt() {
+    return Ops.maxAsInt(this);
+  }
+
+  /**
+   * Returns a new scalar ZTensor that contains the maximum value in this ZTensor.
+   *
+   * @return a new ZTensor object containing the maximum value
+   */
+  @Nonnull
+  public ZTensor max() {
+    return Ops.max(this);
+  }
+
+  /**
+   * Returns a new ZTensor that contains the maximum value in this ZTensor, grouped by the specified
+   * dimensions.
+   *
+   * <p>The shape of the returned tensor is the same as the shape of the input tensor, except that
+   * the specified dimensions are removed.
+   *
+   * @param dims the dimensions to group by.
+   * @return a new tensor.
+   */
+  @Nonnull
+  public ZTensor max(@Nonnull int... dims) {
+    return Ops.max(this, dims);
+  }
+
+  /** Returns a new elementwise negation of this tensor. */
+  public @Nonnull ZTensor neg() {
+    return Ops.neg(this);
+  }
+
+  /** Returns a new elementwise absolute value of this tensor. */
+  public @Nonnull ZTensor abs() {
+    return Ops.abs(this);
+  }
+
+  /** Returns an elementwise broadcast addition with this tensor. */
+  public @Nonnull ZTensor add(@Nonnull ZTensor rhs) {
+    return Ops.add(this, rhs);
+  }
+
+  /** Returns an elementwise broadcast addition with this tensor. */
+  public @Nonnull ZTensor add(int rhs) {
+    return Ops.add(this, rhs);
+  }
+
+  /**
+   * Performs an in-place elementwise broadcast addition on this tensor.
+   *
+   * <p>This tensor must be mutable.
+   *
+   * @param rhs the right-hand side tensor.
+   */
+  public void add_(@Nonnull ZTensor rhs) {
+    Ops.add_(this, rhs);
+  }
+
+  /**
+   * Performs an in-place elementwise broadcast addition on this tensor.
+   *
+   * <p>This tensor must be mutable.
+   *
+   * @param rhs the right-hand side tensor.
+   */
+  public void add_(int rhs) {
+    Ops.add_(this, rhs);
+  }
+
+  /**
+   * Returns an elementwise broadcast subtraction with this tensor.
+   *
+   * @param rhs the right-hand side tensor.
+   * @return a new tensor.
+   */
+  public @Nonnull ZTensor sub(@Nonnull ZTensor rhs) {
+    return Ops.sub(this, rhs);
+  }
+
+  /**
+   * Returns an elementwise broadcast subtraction with this tensor.
+   *
+   * @param rhs the right-hand side tensor.
+   * @return a new tensor.
+   */
+  public @Nonnull ZTensor sub(int rhs) {
+    return Ops.sub(this, rhs);
+  }
+
+  /**
+   * Performs an in-place elementwise broadcast subtraction on this tensor.
+   *
+   * <p>This tensor must be mutable.
+   *
+   * @param rhs the right-hand side tensor.
+   */
+  public void sub_(@Nonnull ZTensor rhs) {
+    Ops.sub_(this, rhs);
+  }
+
+  /**
+   * Performs an in-place elementwise broadcast subtraction on this tensor.
+   *
+   * <p>This tensor must be mutable.
+   *
+   * @param rhs the right-hand side tensor.
+   */
+  public void sub_(int rhs) {
+    Ops.sub_(this, rhs);
+  }
+
+  /**
+   * Returns an elementwise broadcast multiplication with this tensor.
+   *
+   * @param rhs the right-hand side tensor.
+   * @return a new tensor.
+   */
+  public @Nonnull ZTensor mul(@Nonnull ZTensor rhs) {
+    return Ops.mul(this, rhs);
+  }
+
+  /**
+   * Returns an elementwise broadcast multiplication with this tensor.
+   *
+   * @param rhs the right-hand side tensor.
+   * @return a new tensor.
+   */
+  public @Nonnull ZTensor mul(int rhs) {
+    return Ops.mul(this, rhs);
+  }
+
+  /**
+   * Performs an in-place elementwise broadcast multiplication on this tensor.
+   *
+   * <p>This tensor must be mutable.
+   *
+   * @param rhs the right-hand side tensor.
+   */
+  public void mul_(@Nonnull ZTensor rhs) {
+    Ops.mul_(this, rhs);
+  }
+
+  /**
+   * Performs an in-place elementwise broadcast multiplication on this tensor.
+   *
+   * <p>This tensor must be mutable.
+   *
+   * @param rhs the right-hand side tensor.
+   */
+  public void mul_(int rhs) {
+    Ops.mul_(this, rhs);
+  }
+
+  /**
+   * Returns an elementwise broadcast division with this tensor.
+   *
+   * @param rhs the right-hand side tensor.
+   * @return a new tensor.
+   */
+  public @Nonnull ZTensor div(@Nonnull ZTensor rhs) {
+    return Ops.div(this, rhs);
+  }
+
+  /**
+   * Returns an elementwise broadcast division with this tensor.
+   *
+   * @param rhs the right-hand side tensor.
+   * @return a new tensor.
+   */
+  public @Nonnull ZTensor div(int rhs) {
+    return Ops.div(this, rhs);
+  }
+
+  /**
+   * Performs an in-place elementwise broadcast division on this tensor.
+   *
+   * <p>This tensor must be mutable.
+   *
+   * @param rhs the right-hand side tensor.
+   */
+  public void div_(@Nonnull ZTensor rhs) {
+    Ops.div_(this, rhs);
+  }
+
+  /**
+   * Performs an in-place elementwise broadcast division on this tensor.
+   *
+   * <p>This tensor must be mutable.
+   *
+   * @param rhs the right-hand side tensor.
+   */
+  public void div_(int rhs) {
+    Ops.div_(this, rhs);
+  }
+
+  /**
+   * Returns an elementwise broadcast mod with this tensor.
+   *
+   * @param rhs the right-hand side tensor.
+   * @return a new tensor.
+   */
+  public @Nonnull ZTensor mod(@Nonnull ZTensor rhs) {
+    return Ops.mod(this, rhs);
+  }
+
+  /**
+   * Returns an elementwise broadcast mod with this tensor.
+   *
+   * @param rhs the right-hand side tensor.
+   * @return a new tensor.
+   */
+  public @Nonnull ZTensor mod(int rhs) {
+    return Ops.mod(this, rhs);
+  }
+
+  /**
+   * Performs an in-place elementwise broadcast mod on this tensor.
+   *
+   * <p>This tensor must be mutable.
+   *
+   * @param rhs the right-hand side tensor.
+   */
+  public void mod_(@Nonnull ZTensor rhs) {
+    Ops.mod_(this, rhs);
+  }
+
+  /**
+   * Performs an in-place elementwise broadcast mod on this tensor.
+   *
+   * <p>This tensor must be mutable.
+   *
+   * @param rhs the right-hand side tensor.
+   */
+  public void mod_(int rhs) {
+    Ops.mod_(this, rhs);
   }
 
   /** ZTensor math operations. */
@@ -1913,429 +2226,6 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
   }
 
   /**
-   * Create a new tensor by mapping a function over the values of the tensor.
-   *
-   * @param op the function to apply.
-   * @return a new tensor.
-   */
-  @Nonnull
-  public ZTensor map(@Nonnull IntUnaryOperator op) {
-    return Ops.map(op, this);
-  }
-
-  /**
-   * Broadcasts two tensors together, and maps a function over the values of the tensors.
-   *
-   * @param op the function to apply.
-   * @param rhs the right-hand side tensor.
-   * @return a new tensor.
-   */
-  @Nonnull
-  public ZTensor zipWith(@Nonnull IntBinaryOperator op, @Nonnull ZTensor rhs) {
-    return Ops.zipWith(op, this, rhs);
-  }
-
-  /**
-   * Assign from an element-wise unary operation.
-   *
-   * @param op the operation.
-   * @param tensor the input tensor.
-   */
-  public void zipWith_(@Nonnull IntUnaryOperator op, @Nonnull ZTensor tensor) {
-    assertMutable();
-    tensor
-        .broadcastLike(this)
-        .forEachEntry(
-            (coords, value) -> _unchecked_set(coords, op.applyAsInt(value)),
-            CoordsBufferMode.REUSED);
-  }
-
-  /**
-   * Assign from an element-wise binary operation.
-   *
-   * @param op the operation.
-   * @param lhs the left-hand side tensor.
-   * @param rhs the right-hand side tensor.
-   */
-  public void zipWith_(@Nonnull IntBinaryOperator op, @Nonnull ZTensor lhs, @Nonnull ZTensor rhs) {
-    assertMutable();
-    lhs = lhs.broadcastLike(this);
-    rhs = rhs.broadcastLike(this);
-    for (int[] coords : byCoords(CoordsBufferMode.REUSED)) {
-      _unchecked_set(coords, op.applyAsInt(lhs.get(coords), rhs.get(coords)));
-    }
-  }
-
-  /**
-   * An in-place element-wise binary operation.
-   *
-   * @param op the operation.
-   * @param rhs the right-hand side tensor.
-   */
-  public void zipWith_(@Nonnull IntBinaryOperator op, @Nonnull ZTensor rhs) {
-    zipWith_(op, this, rhs);
-  }
-
-  /**
-   * An in-place element-wise binary operation.
-   *
-   * @param op the operation.
-   * @param rhs the right-hand side scalar.
-   */
-  public void zipWith_(@Nonnull IntBinaryOperator op, int rhs) {
-    zipWith_(op, ZTensor.newScalar(rhs));
-  }
-
-  /**
-   * Applies the given reduction operation to all values in the given tensor.
-   *
-   * @param op the reduction operation
-   * @param initial the initial value
-   * @return the int result of the reduction.
-   */
-  public int reduceCellsAsInt(@Nonnull IntBinaryOperator op, int initial) {
-    return Ops.reduceCellsAsInt(this, op, initial);
-  }
-
-  /**
-   * Applies the given reduction operation to all values in the given tensor.
-   *
-   * @param op the reduction operation
-   * @param initial the initial value
-   * @return a new tensor.
-   */
-  @Nonnull
-  public ZTensor reduceCells(@Nonnull IntBinaryOperator op, int initial) {
-    return Ops.reduceCells(this, op, initial);
-  }
-
-  /**
-   * Applies the given reduction operation to all values in the given tensor; grouping by the
-   * specified dimensions.
-   *
-   * <p>The shape of the returned tensor is the same as the shape of the input tensor, except that
-   * the specified dimensions are removed.
-   *
-   * @param op the reduction operation
-   * @param initial the initial value
-   * @param dims the dimensions to group by.
-   * @return a new tensor.
-   */
-  @Nonnull
-  public ZTensor reduceCells(@Nonnull IntBinaryOperator op, int initial, @Nonnull int... dims) {
-    return Ops.reduceCells(this, op, initial, dims);
-  }
-
-  /**
-   * Returns the sum of all elements in the tensor.
-   *
-   * @return the int sum of all elements in the tensor.
-   */
-  public int sumAsInt() {
-    return Ops.sumAsInt(this);
-  }
-
-  /**
-   * Returns the sum of all elements in the tensor.
-   *
-   * @return the scalar ZTensor sum of all elements in the tensor.
-   */
-  public @Nonnull ZTensor sum() {
-    return Ops.sum(this);
-  }
-
-  /**
-   * Returns the sum of all elements in the tensor, grouped by the specified dimensions.
-   *
-   * <p>The shape of the returned tensor is the same as the shape of the input tensor, except that
-   * the specified dimensions are removed.
-   *
-   * @param dims the dimensions to group by.
-   * @return a new tensor.
-   */
-  public @Nonnull ZTensor sum(@Nonnull int... dims) {
-    return Ops.sum(this, dims);
-  }
-
-  /**
-   * Returns the minimum of all elements in the tensor.
-   *
-   * @return the int minimum of all elements in the tensor.
-   */
-  public int minAsInt() {
-    return Ops.minAsInt(this);
-  }
-
-  /**
-   * Returns a new scalar ZTensor that contains the minimum value in this ZTensor.
-   *
-   * @return a new ZTensor object containing the minimum value
-   */
-  @Nonnull
-  public ZTensor min() {
-    return Ops.min(this);
-  }
-
-  /**
-   * Returns a new ZTensor that contains the minimum value in this ZTensor, grouped by the specified
-   * dimensions.
-   *
-   * <p>The shape of the returned tensor is the same as the shape of the input tensor, except that
-   * the specified dimensions are removed.
-   *
-   * @param dims the dimensions to group by.
-   * @return a new tensor.
-   */
-  @Nonnull
-  public ZTensor min(@Nonnull int... dims) {
-    return Ops.min(this, dims);
-  }
-
-  /**
-   * Returns the maximum of all elements in the tensor.
-   *
-   * @return the int maximum of all elements in the tensor.
-   */
-  public int maxAsInt() {
-    return Ops.maxAsInt(this);
-  }
-
-  /**
-   * Returns a new scalar ZTensor that contains the maximum value in this ZTensor.
-   *
-   * @return a new ZTensor object containing the maximum value
-   */
-  @Nonnull
-  public ZTensor max() {
-    return Ops.max(this);
-  }
-
-  /**
-   * Returns a new ZTensor that contains the maximum value in this ZTensor, grouped by the specified
-   * dimensions.
-   *
-   * <p>The shape of the returned tensor is the same as the shape of the input tensor, except that
-   * the specified dimensions are removed.
-   *
-   * @param dims the dimensions to group by.
-   * @return a new tensor.
-   */
-  @Nonnull
-  public ZTensor max(@Nonnull int... dims) {
-    return Ops.max(this, dims);
-  }
-
-  /** Returns a new elementwise negation of this tensor. */
-  public @Nonnull ZTensor neg() {
-    return Ops.neg(this);
-  }
-
-  /** Returns a new elementwise absolute value of this tensor. */
-  public @Nonnull ZTensor abs() {
-    return Ops.abs(this);
-  }
-
-  /** Returns an elementwise broadcast addition with this tensor. */
-  public @Nonnull ZTensor add(@Nonnull ZTensor rhs) {
-    return Ops.add(this, rhs);
-  }
-
-  /** Returns an elementwise broadcast addition with this tensor. */
-  public @Nonnull ZTensor add(int rhs) {
-    return Ops.add(this, rhs);
-  }
-
-  /**
-   * Performs an in-place elementwise broadcast addition on this tensor.
-   *
-   * <p>This tensor must be mutable.
-   *
-   * @param rhs the right-hand side tensor.
-   */
-  public void add_(@Nonnull ZTensor rhs) {
-    Ops.add_(this, rhs);
-  }
-
-  /**
-   * Performs an in-place elementwise broadcast addition on this tensor.
-   *
-   * <p>This tensor must be mutable.
-   *
-   * @param rhs the right-hand side tensor.
-   */
-  public void add_(int rhs) {
-    Ops.add_(this, rhs);
-  }
-
-  /**
-   * Returns an elementwise broadcast subtraction with this tensor.
-   *
-   * @param rhs the right-hand side tensor.
-   * @return a new tensor.
-   */
-  public @Nonnull ZTensor sub(@Nonnull ZTensor rhs) {
-    return Ops.sub(this, rhs);
-  }
-
-  /**
-   * Returns an elementwise broadcast subtraction with this tensor.
-   *
-   * @param rhs the right-hand side tensor.
-   * @return a new tensor.
-   */
-  public @Nonnull ZTensor sub(int rhs) {
-    return Ops.sub(this, rhs);
-  }
-
-  /**
-   * Performs an in-place elementwise broadcast subtraction on this tensor.
-   *
-   * <p>This tensor must be mutable.
-   *
-   * @param rhs the right-hand side tensor.
-   */
-  public void sub_(@Nonnull ZTensor rhs) {
-    Ops.sub_(this, rhs);
-  }
-
-  /**
-   * Performs an in-place elementwise broadcast subtraction on this tensor.
-   *
-   * <p>This tensor must be mutable.
-   *
-   * @param rhs the right-hand side tensor.
-   */
-  public void sub_(int rhs) {
-    Ops.sub_(this, rhs);
-  }
-
-  /**
-   * Returns an elementwise broadcast multiplication with this tensor.
-   *
-   * @param rhs the right-hand side tensor.
-   * @return a new tensor.
-   */
-  public @Nonnull ZTensor mul(@Nonnull ZTensor rhs) {
-    return Ops.mul(this, rhs);
-  }
-
-  /**
-   * Returns an elementwise broadcast multiplication with this tensor.
-   *
-   * @param rhs the right-hand side tensor.
-   * @return a new tensor.
-   */
-  public @Nonnull ZTensor mul(int rhs) {
-    return Ops.mul(this, rhs);
-  }
-
-  /**
-   * Performs an in-place elementwise broadcast multiplication on this tensor.
-   *
-   * <p>This tensor must be mutable.
-   *
-   * @param rhs the right-hand side tensor.
-   */
-  public void mul_(@Nonnull ZTensor rhs) {
-    Ops.mul_(this, rhs);
-  }
-
-  /**
-   * Performs an in-place elementwise broadcast multiplication on this tensor.
-   *
-   * <p>This tensor must be mutable.
-   *
-   * @param rhs the right-hand side tensor.
-   */
-  public void mul_(int rhs) {
-    Ops.mul_(this, rhs);
-  }
-
-  /**
-   * Returns an elementwise broadcast division with this tensor.
-   *
-   * @param rhs the right-hand side tensor.
-   * @return a new tensor.
-   */
-  public @Nonnull ZTensor div(@Nonnull ZTensor rhs) {
-    return Ops.div(this, rhs);
-  }
-
-  /**
-   * Returns an elementwise broadcast division with this tensor.
-   *
-   * @param rhs the right-hand side tensor.
-   * @return a new tensor.
-   */
-  public @Nonnull ZTensor div(int rhs) {
-    return Ops.div(this, rhs);
-  }
-
-  /**
-   * Performs an in-place elementwise broadcast division on this tensor.
-   *
-   * <p>This tensor must be mutable.
-   *
-   * @param rhs the right-hand side tensor.
-   */
-  public void div_(@Nonnull ZTensor rhs) {
-    Ops.div_(this, rhs);
-  }
-
-  /**
-   * Performs an in-place elementwise broadcast division on this tensor.
-   *
-   * <p>This tensor must be mutable.
-   *
-   * @param rhs the right-hand side tensor.
-   */
-  public void div_(int rhs) {
-    Ops.div_(this, rhs);
-  }
-
-  /**
-   * Returns an elementwise broadcast mod with this tensor.
-   *
-   * @param rhs the right-hand side tensor.
-   * @return a new tensor.
-   */
-  public @Nonnull ZTensor mod(@Nonnull ZTensor rhs) {
-    return Ops.mod(this, rhs);
-  }
-
-  /**
-   * Returns an elementwise broadcast mod with this tensor.
-   *
-   * @param rhs the right-hand side tensor.
-   * @return a new tensor.
-   */
-  public @Nonnull ZTensor mod(int rhs) {
-    return Ops.mod(this, rhs);
-  }
-
-  /**
-   * Performs an in-place elementwise broadcast mod on this tensor.
-   *
-   * <p>This tensor must be mutable.
-   *
-   * @param rhs the right-hand side tensor.
-   */
-  public void mod_(@Nonnull ZTensor rhs) {
-    Ops.mod_(this, rhs);
-  }
-
-  /**
-   * Performs an in-place elementwise broadcast mod on this tensor.
-   *
-   * <p>This tensor must be mutable.
-   *
-   * @param rhs the right-hand side tensor.
-   */
-  public void mod_(int rhs) {
-    Ops.mod_(this, rhs);
-  }
-
-  /**
    * Jackson Serialization Support namespace.
    *
    * <ul>
@@ -2413,6 +2303,70 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
               return chunk;
             });
       }
+    }
+  }
+
+  /** An Iterable view of the coordinates of this tensor. */
+  @Data
+  public final class IterableCoords implements Iterable<int[]> {
+    private final CoordsBufferMode bufferMode;
+
+    @Override
+    public @Nonnull CoordsIterator iterator() {
+      return new CoordsIterator(bufferMode);
+    }
+
+    public @Nonnull Stream<int[]> stream() {
+      return IteratorUtils.iterableToStream(this);
+    }
+  }
+
+  /**
+   * An Iterator over the coordinates of this tensor.
+   *
+   * <p>When the buffer mode is {@link CoordsBufferMode#REUSED}, the buffer is shared between
+   * subsequent calls to {@link Iterator#next()}. When the buffer mode is {@link
+   * CoordsBufferMode#SAFE}, the buffer is not shared between subsequent calls to {@link
+   * Iterator#next()}.
+   */
+  @RequiredArgsConstructor
+  public final class CoordsIterator implements Iterator<int[]> {
+    @Getter private final CoordsBufferMode bufferMode;
+
+    // Assuming a non-scalar ZTensor; non-empty ZTensor.
+    private int remaining = size();
+    @Nullable private int[] coords = null;
+
+    @Override
+    public boolean hasNext() {
+      return remaining > 0;
+    }
+
+    @Override
+    @Nonnull
+    public int[] next() {
+      if (!hasNext()) {
+        throw new NoSuchElementException();
+      }
+      remaining--;
+
+      if (coords == null) {
+        coords = new int[getNDim()];
+      } else {
+        coords[coords.length - 1]++;
+        for (int i = coords.length - 1; i >= 0; --i) {
+          if (coords[i] == shape[i]) {
+            coords[i] = 0;
+            coords[i - 1]++;
+          }
+        }
+      }
+
+      if (bufferMode == CoordsBufferMode.SAFE) {
+        return coords.clone();
+      }
+
+      return coords;
     }
   }
 }
