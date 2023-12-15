@@ -10,10 +10,10 @@ public class ZRangeTest implements CommonAssertions {
 
     var range = new ZRange(new ZPoint(), new ZPoint());
     assertThat(range.getNDim()).isEqualTo(0);
-    assertThat(range.size).isEqualTo(1);
+    assertThat(range.getSize()).isEqualTo(1);
 
     assertThat(range.isEmpty()).isFalse();
-    assertThat(range.shape).isEqualTo(ZTensor.newVector());
+    assertThat(range.getShape()).isEqualTo(ZTensor.newVector());
 
     String pretty = "zr[]";
     assertThat(range).hasToString(pretty);
@@ -27,7 +27,7 @@ public class ZRangeTest implements CommonAssertions {
 
     // Does a zero-dimensional range contain a zero-dimensional point?
     assertThat(range.contains(new ZPoint())).isTrue();
-    assertThat(range.inclusiveEnd()).isEqualTo(new ZPoint());
+    assertThat(range.getInclusiveEnd()).isEqualTo(new ZPoint());
   }
 
   @Test
@@ -35,7 +35,7 @@ public class ZRangeTest implements CommonAssertions {
     {
       var range = new ZRange(new ZPoint(), new ZPoint());
       assertThat(range.getNDim()).isEqualTo(0);
-      assertThat(range.size).isEqualTo(1);
+      assertThat(range.getSize()).isEqualTo(1);
     }
     {
       var range = new ZRange(new ZPoint(1, 2, 3), new ZPoint(4, 5, 6));
@@ -111,25 +111,25 @@ public class ZRangeTest implements CommonAssertions {
     {
       var range = ZRange.fromShape(2, 3);
       assertThat(range.getNDim()).isEqualTo(2);
-      assertThat(range.size).isEqualTo(6);
+      assertThat(range.getSize()).isEqualTo(6);
     }
     {
       var range = ZRange.fromShape(ZTensor.newVector());
       assertThat(range.getNDim()).isEqualTo(0);
-      assertThat(range.size).isEqualTo(1);
+      assertThat(range.getSize()).isEqualTo(1);
     }
     {
       var range = ZRange.fromShape(new ZPoint(2, 3));
       assertThat(range.getNDim()).isEqualTo(2);
-      assertThat(range.size).isEqualTo(6);
+      assertThat(range.getSize()).isEqualTo(6);
     }
 
     {
       var range = ZRange.fromStartWithShape(new ZPoint(4, 5), new ZPoint(2, 3));
       assertThat(range.getNDim()).isEqualTo(2);
-      assertThat(range.size).isEqualTo(6);
-      assertThat(range.start).isEqualTo(new ZPoint(4, 5));
-      assertThat(range.end).isEqualTo(new ZPoint(6, 8));
+      assertThat(range.getSize()).isEqualTo(6);
+      assertThat(range.getStart()).isEqualTo(new ZPoint(4, 5));
+      assertThat(range.getEnd()).isEqualTo(new ZPoint(6, 8));
     }
   }
 
@@ -138,12 +138,12 @@ public class ZRangeTest implements CommonAssertions {
     {
       var range = ZRange.of(new ZPoint(2, 3), new ZPoint(4, 5));
       assertThat(range.getNDim()).isEqualTo(2);
-      assertThat(range.size).isEqualTo(4);
+      assertThat(range.getSize()).isEqualTo(4);
     }
     {
       var range = ZRange.of(ZTensor.newVector(2, 3), ZTensor.newVector(4, 5));
       assertThat(range.getNDim()).isEqualTo(2);
-      assertThat(range.size).isEqualTo(4);
+      assertThat(range.getSize()).isEqualTo(4);
     }
   }
 
@@ -174,13 +174,13 @@ public class ZRangeTest implements CommonAssertions {
     {
       var range = new ZRange(new ZPoint(2, 3), new ZPoint(4, 5));
       assertThat(range.isEmpty()).isFalse();
-      assertThat(range.inclusiveEnd()).isEqualTo(new ZPoint(3, 4));
+      assertThat(range.getInclusiveEnd()).isEqualTo(new ZPoint(3, 4));
     }
     {
       var range = new ZRange(new ZPoint(2, 3), new ZPoint(2, 3));
       assertThat(range.isEmpty()).isTrue();
       assertThatExceptionOfType(IndexOutOfBoundsException.class)
-          .isThrownBy(range::inclusiveEnd)
+          .isThrownBy(range::getInclusiveEnd)
           .withMessageContaining("Empty range");
     }
   }
@@ -190,24 +190,24 @@ public class ZRangeTest implements CommonAssertions {
     {
       // 0-dim ranges.
       var r0 = new ZRange(new ZPoint(), new ZPoint());
-      assertThat(r0.contains(r0.start)).isTrue();
-      assertThat(r0.contains(r0.end)).isTrue();
+      assertThat(r0.contains(r0.getStart())).isTrue();
+      assertThat(r0.contains(r0.getEnd())).isTrue();
     }
 
     var range = ZRange.fromShape(2, 3);
 
     assertThat(range.contains(range)).isTrue();
-    assertThat(range.contains(range.start)).isTrue();
-    assertThat(range.contains(range.inclusiveEnd())).isTrue();
-    assertThat(range.contains(range.end)).isFalse();
+    assertThat(range.contains(range.getStart())).isTrue();
+    assertThat(range.contains(range.getInclusiveEnd())).isTrue();
+    assertThat(range.contains(range.getEnd())).isFalse();
 
     {
       // Empty Ranges
       ZRange empty = ZRange.fromShape(0, 0);
       assertThat(empty.contains(empty)).isTrue();
-      assertThat(empty.contains(empty.start)).isFalse();
+      assertThat(empty.contains(empty.getStart())).isFalse();
       assertThat(range.contains(empty)).isTrue();
-      assertThat(range.contains(empty.translate(range.end))).isTrue();
+      assertThat(range.contains(empty.translate(range.getEnd()))).isTrue();
       assertThat(range.contains(empty.translate(ZTensor.newVector(-1, 0)))).isFalse();
     }
 

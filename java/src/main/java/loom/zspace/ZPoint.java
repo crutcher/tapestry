@@ -6,9 +6,10 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.google.errorprone.annotations.Immutable;
+import loom.common.HasToJsonString;
+
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.ThreadSafe;
-import loom.common.HasToJsonString;
 
 /**
  * A point in a ZSpace.
@@ -61,7 +62,8 @@ public final class ZPoint implements HasPermute<ZPoint>, HasToJsonString {
    * @param ndim the number of dimensions.
    * @return a new ZPoint.
    */
-  public static @Nonnull ZPoint newZeros(int ndim) {
+  @Nonnull
+  public static ZPoint newZeros(int ndim) {
     return new ZPoint(ZTensor.newZeros(ndim));
   }
 
@@ -71,7 +73,8 @@ public final class ZPoint implements HasPermute<ZPoint>, HasToJsonString {
    * @param ref a reference ZPoint.
    * @return a new ZPoint.
    */
-  public static @Nonnull ZPoint newZerosLike(@Nonnull ZPoint ref) {
+  @Nonnull
+  public static ZPoint newZerosLike(@Nonnull ZPoint ref) {
     return newZeros(ref.getNDim());
   }
 
@@ -83,7 +86,8 @@ public final class ZPoint implements HasPermute<ZPoint>, HasToJsonString {
    * @param coords the coordinates.
    * @return a new ZPoint.
    */
-  public static @Nonnull ZPoint of(@Nonnull int... coords) {
+  @Nonnull
+  public static ZPoint of(@Nonnull int... coords) {
     return new ZPoint(coords);
   }
 
@@ -94,7 +98,8 @@ public final class ZPoint implements HasPermute<ZPoint>, HasToJsonString {
    * @return the parsed ZPoint.
    * @throws IllegalArgumentException if the string is not a valid ZPoint.
    */
-  public static @Nonnull ZPoint parse(@Nonnull String source) {
+  @Nonnull
+  public static ZPoint parse(@Nonnull String source) {
     return new ZPoint(ZTensor.parse(source));
   }
 
@@ -283,7 +288,7 @@ public final class ZPoint implements HasPermute<ZPoint>, HasToJsonString {
     }
 
     @Override
-    public ZPoint deserialize(JsonParser p, DeserializationContext ctxt)
+    public ZPoint deserialize(JsonParser p, DeserializationContext context)
         throws java.io.IOException {
       return new ZPoint(p.readValueAs(ZTensor.class));
     }

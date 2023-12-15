@@ -613,7 +613,7 @@ public class ZTensorTest implements CommonAssertions {
   }
 
   @Test
-  public void test_ops_zipwith() {
+  public void test_ops_zipWith() {
     IntBinaryOperator fn = (x, y) -> x + 2 * y;
 
     {

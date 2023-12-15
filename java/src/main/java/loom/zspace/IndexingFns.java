@@ -1,8 +1,8 @@
 package loom.zspace;
 
+import javax.annotation.Nonnull;
 import java.util.Arrays;
 import java.util.stream.Collectors;
-import javax.annotation.Nonnull;
 
 /** Utility functions for computing tensor indices. */
 public final class IndexingFns {
@@ -48,7 +48,7 @@ public final class IndexingFns {
    * @return the resolved index.
    * @throws IndexOutOfBoundsException if the index is out of range.
    */
-  public static int resolveIndex(String msg, int idx, int size) {
+  public static int resolveIndex(@Nonnull String msg, int idx, int size) {
     var res = idx;
     if (res < 0) {
       res += size;
@@ -237,7 +237,8 @@ public final class IndexingFns {
    * @param shape the shape.
    * @return a new array of strides.
    */
-  public static @Nonnull int[] shapeToLSFStrides(@Nonnull int[] shape) {
+  @Nonnull
+  public static int[] shapeToLSFStrides(@Nonnull int[] shape) {
     var stride = new int[shape.length];
     if (shape.length == 0) {
       return stride;
@@ -335,7 +336,8 @@ public final class IndexingFns {
    * @param index the index to remove.
    * @return a copy of the array with the given index removed.
    */
-  public static @Nonnull int[] removeIdx(@Nonnull int[] arr, int index) {
+  @Nonnull
+  public static int[] removeIdx(@Nonnull int[] arr, int index) {
     int[] res = new int[arr.length - 1];
     System.arraycopy(arr, 0, res, 0, index);
     System.arraycopy(arr, index + 1, res, index, arr.length - index - 1);

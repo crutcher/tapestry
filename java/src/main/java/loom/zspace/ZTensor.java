@@ -5,10 +5,12 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.TreeNode;
 import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.IntNode;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.google.common.primitives.Ints;
@@ -83,8 +85,8 @@ import loom.common.serialization.JsonUtil;
  * 1, so the size of a scalar tensor is 1. Scalar tensors are often used to represent single
  * dimensionless values.
  */
-@JsonSerialize(using = ZTensor.JsonSupport.Serializer.class)
-@JsonDeserialize(using = ZTensor.JsonSupport.Deserializer.class)
+@JsonSerialize(using = ZTensor.Serialization.Serializer.class)
+@JsonDeserialize(using = ZTensor.Serialization.Deserializer.class)
 public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, HasToJsonString {
 
   @Getter private final boolean mutable;
@@ -165,7 +167,8 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
    * @param value the scalar value.
    * @return the new tensor.
    */
-  public static @Nonnull ZTensor newScalar(int value) {
+  @Nonnull
+  public static ZTensor newScalar(int value) {
     return new ZTensor(true, new int[] {}, new int[] {value});
   }
 
@@ -175,7 +178,8 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
    * @param values the vector values.
    * @return the new tensor.
    */
-  public static @Nonnull ZTensor newVector(@Nonnull int... values) {
+  @Nonnull
+  public static ZTensor newVector(@Nonnull int... values) {
     return fromArray(values);
   }
 
@@ -185,17 +189,19 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
    * @param values the vector values.
    * @return the new tensor.
    */
-  public static @Nonnull ZTensor newVector(@Nonnull Iterable<Integer> values) {
+  @Nonnull
+  public static ZTensor newVector(@Nonnull Iterable<Integer> values) {
     return newVector(IteratorUtils.iterableToStream(values).mapToInt(Integer::intValue).toArray());
   }
 
   /**
-   * Construct an iota tensor [0, .., size-1].
+   * Construct an iota tensor [0, ..., size-1].
    *
    * @param size the size of the tensor.
    * @return the new tensor.
    */
-  public static @Nonnull ZTensor newIota(int size) {
+  @Nonnull
+  public static ZTensor newIota(int size) {
     return newVector(IndexingFns.iota(size));
   }
 
@@ -205,7 +211,8 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
    * @param rows the {@code int[][]} values.
    * @return the new tensor.
    */
-  public static @Nonnull ZTensor newMatrix(@Nonnull int[]... rows) {
+  @Nonnull
+  public static ZTensor newMatrix(@Nonnull int[]... rows) {
     int numRows = rows.length;
 
     int numCols = 0;
@@ -224,7 +231,8 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
    * @param shape the shape of the tensor.
    * @return a new mutable ZTensor.
    */
-  public static @Nonnull ZTensor newZeros(@Nonnull int... shape) {
+  @Nonnull
+  public static ZTensor newZeros(@Nonnull int... shape) {
     return new ZTensor(true, shape.clone());
   }
 
@@ -234,7 +242,8 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
    * @param ref the ZTensor to copy the shape from.
    * @return a new mutable ZTensor.
    */
-  public static @Nonnull ZTensor newZerosLike(@Nonnull ZTensor ref) {
+  @Nonnull
+  public static ZTensor newZerosLike(@Nonnull ZTensor ref) {
     return new ZTensor(true, ref.shapeAsArray());
   }
 
@@ -245,7 +254,8 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
    * @param fill_value the value to fill the tensor with.
    * @return a new mutable ZTensor.
    */
-  public static @Nonnull ZTensor newFilled(@Nonnull int[] shape, int fill_value) {
+  @Nonnull
+  public static ZTensor newFilled(@Nonnull int[] shape, int fill_value) {
     var size = IndexingFns.shapeToSize(shape);
     var data = new int[size];
     Arrays.fill(data, fill_value);
@@ -259,7 +269,8 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
    * @param fill_value the value to fill the tensor with.
    * @return a new mutable ZTensor.
    */
-  public static @Nonnull ZTensor newFilledLike(@Nonnull ZTensor ref, int fill_value) {
+  @Nonnull
+  public static ZTensor newFilledLike(@Nonnull ZTensor ref, int fill_value) {
     return newFilled(ref.shape, fill_value);
   }
 
@@ -269,7 +280,8 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
    * @param shape the shape of the tensor.
    * @return a new mutable ZTensor.
    */
-  public static @Nonnull ZTensor newOnes(@Nonnull int... shape) {
+  @Nonnull
+  public static ZTensor newOnes(@Nonnull int... shape) {
     return newFilled(shape, 1);
   }
 
@@ -279,7 +291,8 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
    * @param ref the ZTensor to copy the shape from.
    * @return a new mutable ZTensor.
    */
-  public static @Nonnull ZTensor newOnesLike(@Nonnull ZTensor ref) {
+  @Nonnull
+  public static ZTensor newOnesLike(@Nonnull ZTensor ref) {
     return newFilledLike(ref, 1);
   }
 
@@ -316,7 +329,8 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
    * @param source the source array.
    * @return a new ZTensor.
    */
-  public static @Nonnull ZTensor fromArray(@Nonnull Object source) {
+  @Nonnull
+  public static ZTensor fromArray(@Nonnull Object source) {
     return fromTree(
         source,
         obj -> obj.getClass().isArray(),
@@ -333,7 +347,8 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
    * @return the new tensor.
    * @throws IllegalArgumentException if the string is not a valid ZTensor.
    */
-  public static @Nonnull ZTensor parse(@Nonnull String str) {
+  @Nonnull
+  public static ZTensor parse(@Nonnull String str) {
     return JsonUtil.fromJson(str, ZTensor.class);
   }
 
@@ -807,7 +822,8 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
    * @param bufferMode the buffer mode.
    * @return an iterable over the coordinates of this tensor.
    */
-  public @Nonnull IterableCoords byCoords(@Nonnull CoordsBufferMode bufferMode) {
+  @Nonnull
+  public IterableCoords byCoords(@Nonnull CoordsBufferMode bufferMode) {
     return new IterableCoords(bufferMode);
   }
 
@@ -825,7 +841,7 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
    *
    * <p>Being a view, mutations in the new tensor affect the original tensor and vice versa.
    *
-   * <p><b>Example:</b> Suppose we have tensor 't' with shape [2,3]:
+   * <p><b>Example:</b> Suppose we have tensor "t" with shape [2,3]:
    *
    * <pre>
    * t = [[0, 1, 2],
@@ -1176,13 +1192,15 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
   }
 
   /** Convert this structure to a T1 (a vector) value. Assert that the shape is valid. */
-  public @Nonnull int[] toT1() {
+  @Nonnull
+  public int[] toT1() {
     assertNDim(1);
     return (int[]) toArray();
   }
 
   /** Convert this structure to a T2 (a matrix) value. Assert that the shape is valid. */
-  public @Nonnull int[][] toT2() {
+  @Nonnull
+  public int[][] toT2() {
     assertNDim(2);
     return (int[][]) toArray();
   }
@@ -1337,7 +1355,8 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
    *
    * @return the scalar ZTensor sum of all elements in the tensor.
    */
-  public @Nonnull ZTensor sum() {
+  @Nonnull
+  public ZTensor sum() {
     return Ops.sum(this);
   }
 
@@ -1350,7 +1369,8 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
    * @param dims the dimensions to group by.
    * @return a new tensor.
    */
-  public @Nonnull ZTensor sum(@Nonnull int... dims) {
+  @Nonnull
+  public ZTensor sum(@Nonnull int... dims) {
     return Ops.sum(this, dims);
   }
 
@@ -1423,22 +1443,26 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
   }
 
   /** Returns a new elementwise negation of this tensor. */
-  public @Nonnull ZTensor neg() {
+  @Nonnull
+  public ZTensor neg() {
     return Ops.neg(this);
   }
 
   /** Returns a new elementwise absolute value of this tensor. */
-  public @Nonnull ZTensor abs() {
+  @Nonnull
+  public ZTensor abs() {
     return Ops.abs(this);
   }
 
   /** Returns an elementwise broadcast addition with this tensor. */
-  public @Nonnull ZTensor add(@Nonnull ZTensor rhs) {
+  @Nonnull
+  public ZTensor add(@Nonnull ZTensor rhs) {
     return Ops.add(this, rhs);
   }
 
   /** Returns an elementwise broadcast addition with this tensor. */
-  public @Nonnull ZTensor add(int rhs) {
+  @Nonnull
+  public ZTensor add(int rhs) {
     return Ops.add(this, rhs);
   }
 
@@ -1470,7 +1494,8 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
    * @param rhs the right-hand side tensor.
    * @return a new tensor.
    */
-  public @Nonnull ZTensor sub(@Nonnull ZTensor rhs) {
+  @Nonnull
+  public ZTensor sub(@Nonnull ZTensor rhs) {
     return Ops.sub(this, rhs);
   }
 
@@ -1480,7 +1505,8 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
    * @param rhs the right-hand side tensor.
    * @return a new tensor.
    */
-  public @Nonnull ZTensor sub(int rhs) {
+  @Nonnull
+  public ZTensor sub(int rhs) {
     return Ops.sub(this, rhs);
   }
 
@@ -1512,7 +1538,8 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
    * @param rhs the right-hand side tensor.
    * @return a new tensor.
    */
-  public @Nonnull ZTensor mul(@Nonnull ZTensor rhs) {
+  @Nonnull
+  public ZTensor mul(@Nonnull ZTensor rhs) {
     return Ops.mul(this, rhs);
   }
 
@@ -1522,7 +1549,8 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
    * @param rhs the right-hand side tensor.
    * @return a new tensor.
    */
-  public @Nonnull ZTensor mul(int rhs) {
+  @Nonnull
+  public ZTensor mul(int rhs) {
     return Ops.mul(this, rhs);
   }
 
@@ -1554,7 +1582,8 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
    * @param rhs the right-hand side tensor.
    * @return a new tensor.
    */
-  public @Nonnull ZTensor div(@Nonnull ZTensor rhs) {
+  @Nonnull
+  public ZTensor div(@Nonnull ZTensor rhs) {
     return Ops.div(this, rhs);
   }
 
@@ -1564,7 +1593,8 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
    * @param rhs the right-hand side tensor.
    * @return a new tensor.
    */
-  public @Nonnull ZTensor div(int rhs) {
+  @Nonnull
+  public ZTensor div(int rhs) {
     return Ops.div(this, rhs);
   }
 
@@ -1596,7 +1626,8 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
    * @param rhs the right-hand side tensor.
    * @return a new tensor.
    */
-  public @Nonnull ZTensor mod(@Nonnull ZTensor rhs) {
+  @Nonnull
+  public ZTensor mod(@Nonnull ZTensor rhs) {
     return Ops.mod(this, rhs);
   }
 
@@ -1606,7 +1637,8 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
    * @param rhs the right-hand side tensor.
    * @return a new tensor.
    */
-  public @Nonnull ZTensor mod(int rhs) {
+  @Nonnull
+  public ZTensor mod(int rhs) {
     return Ops.mod(this, rhs);
   }
 
@@ -1645,7 +1677,8 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
      * @return a new tensor.
      */
     @CheckReturnValue
-    public static @Nonnull ZTensor map(@Nonnull IntUnaryOperator op, @Nonnull ZTensor tensor) {
+    @Nonnull
+    public static ZTensor map(@Nonnull IntUnaryOperator op, @Nonnull ZTensor tensor) {
       var result = newZerosLike(tensor);
       result.zipWith_(op, tensor);
       return result;
@@ -1659,7 +1692,8 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
      * @param rhs the right-hand side tensor.
      * @return a new tensor.
      */
-    public static @Nonnull ZTensor zipWith(
+    @Nonnull
+    public static ZTensor zipWith(
         @Nonnull IntBinaryOperator op, @Nonnull ZTensor lhs, @Nonnull ZTensor rhs) {
       var result = newZeros(IndexingFns.commonBroadcastShape(lhs.shape, rhs.shape));
       result.zipWith_(op, lhs, rhs);
@@ -1674,8 +1708,8 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
      * @param rhs the right-hand side scalar.
      * @return a new tensor.
      */
-    public static @Nonnull ZTensor zipWith(
-        @Nonnull IntBinaryOperator op, @Nonnull ZTensor lhs, int rhs) {
+    @Nonnull
+    public static ZTensor zipWith(@Nonnull IntBinaryOperator op, @Nonnull ZTensor lhs, int rhs) {
       return zipWith(op, lhs, loom.zspace.ZTensor.newScalar(rhs));
     }
 
@@ -1687,8 +1721,8 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
      * @param rhs the right-hand side tensor.
      * @return a new tensor.
      */
-    public static @Nonnull ZTensor zipWith(
-        @Nonnull IntBinaryOperator op, int lhs, @Nonnull ZTensor rhs) {
+    @Nonnull
+    public static ZTensor zipWith(@Nonnull IntBinaryOperator op, int lhs, @Nonnull ZTensor rhs) {
       return zipWith(op, loom.zspace.ZTensor.newScalar(lhs), rhs);
     }
 
@@ -1698,7 +1732,8 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
      * @param tensor the input tensor.
      * @return a new tensor.
      */
-    public static @Nonnull ZTensor neg(@Nonnull ZTensor tensor) {
+    @Nonnull
+    public static ZTensor neg(@Nonnull ZTensor tensor) {
       return map(x -> -x, tensor);
     }
 
@@ -1708,7 +1743,8 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
      * @param tensor the input tensor.
      * @return a new tensor.
      */
-    public static @Nonnull ZTensor abs(@Nonnull ZTensor tensor) {
+    @Nonnull
+    public static ZTensor abs(@Nonnull ZTensor tensor) {
       return map(Math::abs, tensor);
     }
 
@@ -1719,7 +1755,8 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
      * @param rhs the right-hand side.
      * @return a new tensor.
      */
-    public static @Nonnull ZTensor minimum(@Nonnull ZTensor lhs, @Nonnull ZTensor rhs) {
+    @Nonnull
+    public static ZTensor minimum(@Nonnull ZTensor lhs, @Nonnull ZTensor rhs) {
       return zipWith(Math::min, lhs, rhs);
     }
 
@@ -1730,7 +1767,8 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
      * @param rhs the right-hand side.
      * @return a new tensor.
      */
-    public static @Nonnull ZTensor minimum(@Nonnull ZTensor lhs, int rhs) {
+    @Nonnull
+    public static ZTensor minimum(@Nonnull ZTensor lhs, int rhs) {
       return zipWith(Math::min, lhs, rhs);
     }
 
@@ -1741,7 +1779,8 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
      * @param rhs the right-hand side.
      * @return a new tensor.
      */
-    public static @Nonnull ZTensor minimum(int lhs, @Nonnull ZTensor rhs) {
+    @Nonnull
+    public static ZTensor minimum(int lhs, @Nonnull ZTensor rhs) {
       return zipWith(Math::min, lhs, rhs);
     }
 
@@ -1752,7 +1791,8 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
      * @param rhs the right-hand side.
      * @return a new tensor.
      */
-    public static @Nonnull ZTensor maximum(@Nonnull ZTensor lhs, @Nonnull ZTensor rhs) {
+    @Nonnull
+    public static ZTensor maximum(@Nonnull ZTensor lhs, @Nonnull ZTensor rhs) {
       return zipWith(Math::max, lhs, rhs);
     }
 
@@ -1763,7 +1803,8 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
      * @param rhs the right-hand side scalar.
      * @return a new tensor.
      */
-    public static @Nonnull ZTensor maximum(@Nonnull ZTensor lhs, int rhs) {
+    @Nonnull
+    public static ZTensor maximum(@Nonnull ZTensor lhs, int rhs) {
       return zipWith(Math::max, lhs, rhs);
     }
 
@@ -1774,7 +1815,8 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
      * @param rhs the right-hand side scalar.
      * @return a new tensor.
      */
-    public static @Nonnull ZTensor maximum(int lhs, @Nonnull ZTensor rhs) {
+    @Nonnull
+    public static ZTensor maximum(int lhs, @Nonnull ZTensor rhs) {
       return zipWith(Math::max, lhs, rhs);
     }
 
@@ -1785,7 +1827,8 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
      * @param rhs the right-hand side scalar.
      * @return a new tensor.
      */
-    public static @Nonnull ZTensor add(@Nonnull ZTensor lhs, @Nonnull ZTensor rhs) {
+    @Nonnull
+    public static ZTensor add(@Nonnull ZTensor lhs, @Nonnull ZTensor rhs) {
       return zipWith(Integer::sum, lhs, rhs);
     }
 
@@ -1796,7 +1839,8 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
      * @param rhs the right-hand side scalar.
      * @return a new tensor.
      */
-    public static @Nonnull ZTensor add(@Nonnull ZTensor lhs, int rhs) {
+    @Nonnull
+    public static ZTensor add(@Nonnull ZTensor lhs, int rhs) {
       return zipWith(Integer::sum, lhs, rhs);
     }
 
@@ -1807,7 +1851,8 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
      * @param rhs the right-hand side tensor.
      * @return a new tensor.
      */
-    public static @Nonnull ZTensor add(int lhs, @Nonnull ZTensor rhs) {
+    @Nonnull
+    public static ZTensor add(int lhs, @Nonnull ZTensor rhs) {
       return zipWith(Integer::sum, lhs, rhs);
     }
 
@@ -1838,7 +1883,8 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
      * @param rhs the right-hand side tensor.
      * @return a new tensor.
      */
-    public static @Nonnull ZTensor sub(@Nonnull ZTensor lhs, @Nonnull ZTensor rhs) {
+    @Nonnull
+    public static ZTensor sub(@Nonnull ZTensor lhs, @Nonnull ZTensor rhs) {
       return zipWith((l, r) -> l - r, lhs, rhs);
     }
 
@@ -1849,7 +1895,8 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
      * @param rhs the right-hand side tensor.
      * @return a new tensor.
      */
-    public static @Nonnull ZTensor sub(@Nonnull ZTensor lhs, int rhs) {
+    @Nonnull
+    public static ZTensor sub(@Nonnull ZTensor lhs, int rhs) {
       return zipWith((l, r) -> l - r, lhs, rhs);
     }
 
@@ -1860,7 +1907,8 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
      * @param rhs the right-hand side tensor.
      * @return a new tensor.
      */
-    public static @Nonnull ZTensor sub(int lhs, @Nonnull ZTensor rhs) {
+    @Nonnull
+    public static ZTensor sub(int lhs, @Nonnull ZTensor rhs) {
       return zipWith((l, r) -> l - r, lhs, rhs);
     }
 
@@ -1891,7 +1939,8 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
      * @param rhs the right-hand side tensor.
      * @return a new tensor.
      */
-    public static @Nonnull ZTensor mul(@Nonnull ZTensor lhs, @Nonnull ZTensor rhs) {
+    @Nonnull
+    public static ZTensor mul(@Nonnull ZTensor lhs, @Nonnull ZTensor rhs) {
       return zipWith((l, r) -> l * r, lhs, rhs);
     }
 
@@ -1902,7 +1951,8 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
      * @param rhs the right-hand side tensor.
      * @return a new tensor.
      */
-    public static @Nonnull ZTensor mul(@Nonnull ZTensor lhs, int rhs) {
+    @Nonnull
+    public static ZTensor mul(@Nonnull ZTensor lhs, int rhs) {
       return zipWith((l, r) -> l * r, lhs, rhs);
     }
 
@@ -1913,7 +1963,8 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
      * @param rhs the right-hand side tensor.
      * @return a new tensor.
      */
-    public static @Nonnull ZTensor mul(int lhs, @Nonnull ZTensor rhs) {
+    @Nonnull
+    public static ZTensor mul(int lhs, @Nonnull ZTensor rhs) {
       return zipWith((l, r) -> l * r, lhs, rhs);
     }
 
@@ -1944,7 +1995,8 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
      * @param rhs the right-hand side tensor.
      * @return a new tensor.
      */
-    public static @Nonnull ZTensor div(@Nonnull ZTensor lhs, @Nonnull ZTensor rhs) {
+    @Nonnull
+    public static ZTensor div(@Nonnull ZTensor lhs, @Nonnull ZTensor rhs) {
       return zipWith((l, r) -> l / r, lhs, rhs);
     }
 
@@ -1955,7 +2007,8 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
      * @param rhs the right-hand side tensor.
      * @return a new tensor.
      */
-    public static @Nonnull ZTensor div(@Nonnull ZTensor lhs, int rhs) {
+    @Nonnull
+    public static ZTensor div(@Nonnull ZTensor lhs, int rhs) {
       return zipWith((l, r) -> l / r, lhs, rhs);
     }
 
@@ -1966,7 +2019,8 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
      * @param rhs the right-hand side tensor.
      * @return a new tensor.
      */
-    public static @Nonnull ZTensor div(int lhs, @Nonnull ZTensor rhs) {
+    @Nonnull
+    public static ZTensor div(int lhs, @Nonnull ZTensor rhs) {
       return zipWith((l, r) -> l / r, lhs, rhs);
     }
 
@@ -1997,7 +2051,8 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
      * @param rhs the right-hand side tensor.
      * @return a new tensor.
      */
-    public static @Nonnull ZTensor mod(@Nonnull ZTensor lhs, @Nonnull ZTensor rhs) {
+    @Nonnull
+    public static ZTensor mod(@Nonnull ZTensor lhs, @Nonnull ZTensor rhs) {
       return zipWith((l, r) -> l % r, lhs, rhs);
     }
 
@@ -2008,7 +2063,8 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
      * @param rhs the right-hand side tensor.
      * @return a new tensor.
      */
-    public static @Nonnull ZTensor mod(@Nonnull ZTensor lhs, int rhs) {
+    @Nonnull
+    public static ZTensor mod(@Nonnull ZTensor lhs, int rhs) {
       return zipWith((l, r) -> l % r, lhs, rhs);
     }
 
@@ -2019,7 +2075,8 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
      * @param rhs the right-hand side tensor.
      * @return a new tensor.
      */
-    public static @Nonnull ZTensor mod(int lhs, @Nonnull ZTensor rhs) {
+    @Nonnull
+    public static ZTensor mod(int lhs, @Nonnull ZTensor rhs) {
       return zipWith((l, r) -> l % r, lhs, rhs);
     }
 
@@ -2075,7 +2132,8 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
      * @param initial the initial value
      * @return a new tensor.
      */
-    public static @Nonnull ZTensor reduceCells(
+    @Nonnull
+    public static ZTensor reduceCells(
         @Nonnull ZTensor tensor, @Nonnull IntBinaryOperator op, int initial) {
       return newScalar(reduceCellsAsInt(tensor, op, initial));
     }
@@ -2093,7 +2151,8 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
      * @param dims the dimensions to group by.
      * @return a new tensor.
      */
-    public static @Nonnull ZTensor reduceCells(
+    @Nonnull
+    public static ZTensor reduceCells(
         @Nonnull ZTensor tensor, @Nonnull IntBinaryOperator op, int initial, @Nonnull int... dims) {
       var sumDims = tensor.resolveDims(dims);
 
@@ -2134,7 +2193,8 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
      * @param tensor the tensor.
      * @return the scalar ZTensor sum of all elements in the tensor.
      */
-    public static @Nonnull ZTensor sum(@Nonnull ZTensor tensor) {
+    @Nonnull
+    public static ZTensor sum(@Nonnull ZTensor tensor) {
       return reduceCells(tensor, Integer::sum, 0);
     }
 
@@ -2148,7 +2208,8 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
      * @param dims the dimensions to group by.
      * @return a new tensor.
      */
-    public static @Nonnull ZTensor sum(@Nonnull ZTensor tensor, @Nonnull int... dims) {
+    @Nonnull
+    public static ZTensor sum(@Nonnull ZTensor tensor, @Nonnull int... dims) {
       return reduceCells(tensor, Integer::sum, 0, dims);
     }
 
@@ -2226,7 +2287,7 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
   }
 
   /**
-   * Jackson Serialization Support namespace.
+   * Serialization Support namespace.
    *
    * <ul>
    *   <li>scalars are serialized as a single number;
@@ -2238,9 +2299,9 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
    * <p>All empty tensors serialize to nested "[...]"; so all degenerate tensors (empty tensors with
    * non-zero shapes) are serialized as empty tensors.
    */
-  static final class JsonSupport {
+  static final class Serialization {
     /** Private constructor to prevent instantiation. */
-    private JsonSupport() {}
+    private Serialization() {}
 
     static final class Serializer extends StdSerializer<ZTensor> {
       public Serializer() {
@@ -2286,7 +2347,7 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
       }
 
       @Override
-      public ZTensor deserialize(@Nonnull JsonParser p, @Nonnull DeserializationContext ctxt)
+      public ZTensor deserialize(@Nonnull JsonParser p, @Nonnull DeserializationContext context)
           throws java.io.IOException {
 
         return fromTree(
@@ -2297,8 +2358,9 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
             node -> ((IntNode) node).intValue(),
             node -> {
               int[] chunk = new int[node.size()];
+              Iterator<JsonNode> it = ((ArrayNode) node).elements();
               for (int i = 0; i < chunk.length; ++i) {
-                chunk[i] = ((IntNode) node.get(i)).intValue();
+                chunk[i] = it.next().intValue();
               }
               return chunk;
             });
@@ -2312,11 +2374,13 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
     private final CoordsBufferMode bufferMode;
 
     @Override
-    public @Nonnull CoordsIterator iterator() {
+    @Nonnull
+    public CoordsIterator iterator() {
       return new CoordsIterator(bufferMode);
     }
 
-    public @Nonnull Stream<int[]> stream() {
+    @Nonnull
+    public Stream<int[]> stream() {
       return IteratorUtils.iterableToStream(this);
     }
   }
@@ -2332,8 +2396,6 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
   @RequiredArgsConstructor
   public final class CoordsIterator implements Iterator<int[]> {
     @Getter private final CoordsBufferMode bufferMode;
-
-    // Assuming a non-scalar ZTensor; non-empty ZTensor.
     private int remaining = size();
     @Nullable private int[] coords = null;
 
@@ -2348,12 +2410,19 @@ public final class ZTensor implements Cloneable, HasSize, HasPermute<ZTensor>, H
       if (!hasNext()) {
         throw new NoSuchElementException();
       }
+
+      // Decrement remaining.
       remaining--;
 
       if (coords == null) {
+        // First call to next(); initialize coords to all zeros.
         coords = new int[getNDim()];
+
       } else {
+        // Increment coords LSD.
         coords[coords.length - 1]++;
+
+        // Propagate carry.
         for (int i = coords.length - 1; i >= 0; --i) {
           if (coords[i] == shape[i]) {
             coords[i] = 0;

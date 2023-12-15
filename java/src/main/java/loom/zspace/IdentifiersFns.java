@@ -2,6 +2,7 @@ package loom.zspace;
 
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.util.regex.Pattern;
+import javax.annotation.Nonnull;
 
 /** Utility functions for identifiers. */
 public final class IdentifiersFns {
@@ -23,7 +24,8 @@ public final class IdentifiersFns {
    * @throws IllegalArgumentException if the identifier is invalid.
    */
   @CanIgnoreReturnValue
-  public static String validAtomicIdentifier(String name) {
+  @Nonnull
+  public static String validAtomicIdentifier(@Nonnull String name) {
     if (!ATOMIC_IDENTIFIER_PATTERN.matcher(name).matches()) {
       throw new IllegalArgumentException("invalid atomic identifier: \"%s\"".formatted(name));
     }
@@ -38,7 +40,8 @@ public final class IdentifiersFns {
    * @throws IllegalArgumentException if the identifier is invalid.
    */
   @CanIgnoreReturnValue
-  public static String validDottedIdentifier(String name) {
+  @Nonnull
+  public static String validDottedIdentifier(@Nonnull String name) {
     if (!DOTTED_IDENTIFIER_PATTERN.matcher(name).matches()) {
       throw new IllegalArgumentException("invalid dotted identifier: \"%s\"".formatted(name));
     }
@@ -51,7 +54,8 @@ public final class IdentifiersFns {
    * @param name the identifier to split.
    * @return the components of the identifier.
    */
-  public static String[] splitDottedIdentifier(String name) {
+  @Nonnull
+  public static String[] splitDottedIdentifier(@Nonnull String name) {
     validDottedIdentifier(name);
     return name.split("\\.");
   }

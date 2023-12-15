@@ -4,21 +4,20 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Splitter;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import loom.common.HasToJsonString;
-import loom.common.IteratorUtils;
-import loom.common.serialization.JsonUtil;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import javax.annotation.concurrent.Immutable;
-import javax.annotation.concurrent.ThreadSafe;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.stream.Stream;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.annotation.concurrent.Immutable;
+import javax.annotation.concurrent.ThreadSafe;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import loom.common.HasToJsonString;
+import loom.common.IteratorUtils;
+import loom.common.serialization.JsonUtil;
 
 /**
  * Represents a range of points in discrete space.
@@ -49,12 +48,14 @@ import java.util.stream.Stream;
  */
 @ThreadSafe
 @Immutable
+@Getter
 public final class ZRange implements HasSize, HasPermute<ZRange>, HasToJsonString {
 
-  @Nonnull public final ZPoint start;
-  @Nonnull public final ZPoint end;
-  @JsonIgnore public final ZTensor shape;
-  @JsonIgnore public final int size;
+  @Nonnull private final ZPoint start;
+  @Nonnull private final ZPoint end;
+
+  @JsonIgnore @Nonnull private final ZTensor shape;
+  @JsonIgnore private final int size;
 
   /**
    * Construct a new ZRange of {@code [start, end)}.
@@ -99,7 +100,8 @@ public final class ZRange implements HasSize, HasPermute<ZRange>, HasToJsonStrin
    * @param shape the shape of the range.
    * @return a new range.
    */
-  public static @Nonnull ZRange fromShape(@Nonnull int... shape) {
+  @Nonnull
+  public static ZRange fromShape(@Nonnull int... shape) {
     return fromShape(new ZPoint(shape));
   }
 
@@ -109,7 +111,8 @@ public final class ZRange implements HasSize, HasPermute<ZRange>, HasToJsonStrin
    * @param shape the shape of the range.
    * @return a new range.
    */
-  public static @Nonnull ZRange fromShape(@Nonnull ZTensor shape) {
+  @Nonnull
+  public static ZRange fromShape(@Nonnull ZTensor shape) {
     return fromShape(new ZPoint(shape));
   }
 
@@ -119,11 +122,13 @@ public final class ZRange implements HasSize, HasPermute<ZRange>, HasToJsonStrin
    * @param shape the shape of the range.
    * @return a new range.
    */
-  public static @Nonnull ZRange fromShape(@Nonnull ZPoint shape) {
+  @Nonnull
+  public static ZRange fromShape(@Nonnull ZPoint shape) {
     return new ZRange(ZPoint.newZerosLike(shape), shape);
   }
 
-  public static @Nonnull ZRange fromStartWithShape(@Nonnull ZPoint start, @Nonnull ZPoint shape) {
+  @Nonnull
+  public static ZRange fromStartWithShape(@Nonnull ZPoint start, @Nonnull ZPoint shape) {
     return fromShape(shape).translate(start);
   }
 
@@ -134,7 +139,8 @@ public final class ZRange implements HasSize, HasPermute<ZRange>, HasToJsonStrin
    * @param end the exclusive end point.
    * @return a new range.
    */
-  public static @Nonnull ZRange of(@Nonnull ZPoint start, @Nonnull ZPoint end) {
+  @Nonnull
+  public static ZRange of(@Nonnull ZPoint start, @Nonnull ZPoint end) {
     return new ZRange(start, end);
   }
 
@@ -145,7 +151,8 @@ public final class ZRange implements HasSize, HasPermute<ZRange>, HasToJsonStrin
    * @param end the exclusive end point.
    * @return a new range.
    */
-  public static @Nonnull ZRange of(@Nonnull ZTensor start, @Nonnull ZTensor end) {
+  @Nonnull
+  public static ZRange of(@Nonnull ZTensor start, @Nonnull ZTensor end) {
     return new ZRange(start, end);
   }
 
@@ -155,7 +162,8 @@ public final class ZRange implements HasSize, HasPermute<ZRange>, HasToJsonStrin
    * @param ranges the ranges to bound.
    * @return the minimum bounding range.
    */
-  public static @Nonnull ZRange boundingRange(@Nonnull ZRange... ranges) {
+  @Nonnull
+  public static ZRange boundingRange(@Nonnull ZRange... ranges) {
     return boundingRange(Arrays.asList(ranges));
   }
 
@@ -165,7 +173,8 @@ public final class ZRange implements HasSize, HasPermute<ZRange>, HasToJsonStrin
    * @param ranges the ranges to bound.
    * @return the minimum bounding range.
    */
-  public static @Nonnull ZRange boundingRange(@Nonnull Iterable<ZRange> ranges) {
+  @Nonnull
+  public static ZRange boundingRange(@Nonnull Iterable<ZRange> ranges) {
     ZRange first = null;
     ZTensor start = null;
     ZTensor end = null;
@@ -197,7 +206,8 @@ public final class ZRange implements HasSize, HasPermute<ZRange>, HasToJsonStrin
    * @return the parsed range.
    * @throws IllegalArgumentException if the string is not a valid range.
    */
-  public static @Nonnull ZRange parse(@Nonnull String str) {
+  @Nonnull
+  public static ZRange parse(@Nonnull String str) {
     if (str.startsWith("{")) {
       return JsonUtil.fromJson(str, ZRange.class);
     }
@@ -282,12 +292,14 @@ public final class ZRange implements HasSize, HasPermute<ZRange>, HasToJsonStrin
    * @param bufferMode the buffer mode.
    * @return an iterable over the coordinates of this tensor.
    */
-  public @Nonnull IterableCoords byCoords(@Nonnull CoordsBufferMode bufferMode) {
+  @Nonnull
+  public IterableCoords byCoords(@Nonnull CoordsBufferMode bufferMode) {
     return new IterableCoords(bufferMode);
   }
 
   @Override
-  public @Nonnull ZRange permute(@Nonnull int... permutation) {
+  @Nonnull
+  public ZRange permute(@Nonnull int... permutation) {
     return new ZRange(start.permute(permutation), end.permute(permutation));
   }
 
@@ -365,7 +377,9 @@ public final class ZRange implements HasSize, HasPermute<ZRange>, HasToJsonStrin
    * @return the greatest point in the range.
    * @throws IndexOutOfBoundsException if the range is empty.
    */
-  public @Nonnull ZPoint inclusiveEnd() {
+  @JsonIgnore
+  @Nonnull
+  public ZPoint getInclusiveEnd() {
     if (isEmpty()) {
       throw new IndexOutOfBoundsException("Empty range");
     }
@@ -379,7 +393,8 @@ public final class ZRange implements HasSize, HasPermute<ZRange>, HasToJsonStrin
    * @param delta the delta to shift by.
    * @return the shifted range.
    */
-  public @Nonnull ZRange translate(@Nonnull ZPoint delta) {
+  @Nonnull
+  public ZRange translate(@Nonnull ZPoint delta) {
     return translate(delta.coords);
   }
 
@@ -389,7 +404,8 @@ public final class ZRange implements HasSize, HasPermute<ZRange>, HasToJsonStrin
    * @param delta the delta to shift by.
    * @return the shifted range.
    */
-  public @Nonnull ZRange translate(@Nonnull ZTensor delta) {
+  @Nonnull
+  public ZRange translate(@Nonnull ZTensor delta) {
     return ZRange.of(start.coords.add(delta), end.coords.add(delta));
   }
 
@@ -416,11 +432,13 @@ public final class ZRange implements HasSize, HasPermute<ZRange>, HasToJsonStrin
     @Nonnull private final CoordsBufferMode bufferMode;
 
     @Override
-    public @Nonnull CoordsIterator iterator() {
+    @Nonnull
+    public CoordsIterator iterator() {
       return new CoordsIterator(bufferMode);
     }
 
-    public @Nonnull Stream<int[]> stream() {
+    @Nonnull
+    public Stream<int[]> stream() {
       return IteratorUtils.iterableToStream(this);
     }
   }
