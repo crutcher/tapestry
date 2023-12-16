@@ -22,11 +22,15 @@ public class DemoTest extends BaseTestClass {
     // verify that there are no cycles in the graph.
   }
 
+  public static LoomEnvironment demoEnvironment() {
+    return CommonEnvironments.simpleTensorEnvironment("int32")
+        .addConstraint(new AllTensorsHaveExactlyOneSourceOperationConstraint())
+        .addConstraint(DemoTest::CycleCheckConstraint);
+  }
+
   @Test
   public void testDemo() {
-    var env = CommonEnvironments.simpleTensorEnvironment("int32");
-    env.getConstraints().add(new AllTensorsHaveExactlyOneSourceOperationConstraint());
-    env.getConstraints().add(DemoTest::CycleCheckConstraint);
+    var env = demoEnvironment();
     var graph = env.createGraph();
 
     var tensorA =

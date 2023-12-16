@@ -1,15 +1,16 @@
 package loom.graph;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
-import javax.annotation.Nonnull;
 import lombok.Builder;
 import lombok.Data;
 import lombok.Singular;
 import loom.common.json.JsonSchemaManager;
 import loom.common.serialization.JsonUtil;
 import loom.validation.ValidationIssueCollector;
+
+import javax.annotation.Nonnull;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 /**
  * Loom Graph Environment.
@@ -29,6 +30,17 @@ public final class LoomEnvironment {
   @Builder.Default private final JsonSchemaManager jsonSchemaManager = new JsonSchemaManager();
 
   @Singular private final List<Constraint> constraints = new ArrayList<>();
+
+  /**
+   * Add a constraint to the LoomEnvironment.
+   *
+   * @param constraint the constraint to add.
+   * @return the modified LoomEnvironment with the added constraint.
+   */
+  public LoomEnvironment addConstraint(Constraint constraint) {
+    constraints.add(constraint);
+    return this;
+  }
 
   /**
    * Load a graph from a JSON string in this environment.
