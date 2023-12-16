@@ -199,12 +199,12 @@ public final class ZRange implements Cloneable, HasSize, HasPermute<ZRange>, Has
         return new ZRange(new ZPoint(), new ZPoint());
       }
 
-      var parts = Splitter.on(",").splitToList(t);
+      var parts = COMMA_SPLITTER.splitToList(t);
       var start = new int[parts.size()];
       var end = new int[parts.size()];
 
       for (int i = 0; i < parts.size(); ++i) {
-        var rangeParts = Splitter.on(':').splitToList(parts.get(i));
+        var rangeParts = COLON_SPLITTER.splitToList(parts.get(i));
         if (rangeParts.size() != 2) {
           throw new IllegalArgumentException(String.format("Invalid ZRange: \"%s\"", str));
         }
@@ -218,6 +218,9 @@ public final class ZRange implements Cloneable, HasSize, HasPermute<ZRange>, Has
 
     throw new IllegalArgumentException(String.format("Invalid ZRange: \"%s\"", str));
   }
+
+  private static final Splitter COMMA_SPLITTER = Splitter.on(",");
+  private static final Splitter COLON_SPLITTER = Splitter.on(':');
 
   @Nonnull private final ZPoint start;
   @Nonnull private final ZPoint end;
