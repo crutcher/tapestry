@@ -398,8 +398,7 @@ public class LoomGraphTest extends BaseTestClass {
         .isInstanceOf(DemoNode.class)
         .hasFieldOrPropertyWithValue("jsonPath", "$.nodes[@.id=='" + node.getId() + "']");
 
-    assertThat(node)
-        .hasToString("DemoNode(id=" + node.getId() + ", type=DemoNode, body={\"foo\":\"bar\"})");
+    assertThat(node).hasToString("DemoNode" + node.toJsonString());
 
     DemoNode selfRef = node.self();
     assertThat(selfRef).isSameAs(node);

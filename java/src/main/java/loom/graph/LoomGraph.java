@@ -70,21 +70,7 @@ public final class LoomGraph implements Iterable<LoomGraph.Node<?, ?>>, HasToJso
 
     @Override
     public final String toString() {
-      var sb =
-          new StringBuilder()
-              .append(getClass().getSimpleName())
-              .append("(id=")
-              .append(getId())
-              .append(", type=")
-              .append(getType());
-
-      if (getLabel() != null) {
-        sb.append(", label=").append(getLabel());
-      }
-
-      sb.append(", body=").append(JsonUtil.toJson(getBody())).append(")");
-
-      return sb.toString();
+      return "%s%s".formatted(getClass().getSimpleName(), toJsonString());
     }
 
     /**

@@ -1,9 +1,8 @@
 package loom.graph.nodes;
 
+import java.util.Map;
 import loom.testing.BaseTestClass;
 import org.junit.Test;
-
-import java.util.Map;
 
 public class GenericNodeTest extends BaseTestClass {
   @Test
