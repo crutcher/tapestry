@@ -6,11 +6,10 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.google.errorprone.annotations.Immutable;
-import lombok.NoArgsConstructor;
-import loom.common.HasToJsonString;
-
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.ThreadSafe;
+import lombok.NoArgsConstructor;
+import loom.common.HasToJsonString;
 
 /**
  * A point in a ZSpace.

@@ -13,19 +13,18 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.IntNode;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.google.errorprone.annotations.CheckReturnValue;
-import lombok.NoArgsConstructor;
-import lombok.SneakyThrows;
-import loom.common.HasToJsonString;
-import loom.common.IteratorUtils;
-import loom.common.serialization.JsonUtil;
-
-import javax.annotation.Nonnull;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.function.*;
+import javax.annotation.Nonnull;
+import lombok.NoArgsConstructor;
+import lombok.SneakyThrows;
+import loom.common.HasToJsonString;
+import loom.common.IteratorUtils;
+import loom.common.serialization.JsonUtil;
 
 /**
  * A multidimensional int array used for numerical operations.
@@ -1394,13 +1393,22 @@ public final class ZTensor extends AbstractTensor<ZTensor, int[]> implements Has
     Object arr = Array.newInstance(int.class, shape);
 
     var ndim = getNDim();
+    int[] chunk = null;
     for (int[] coords : byCoords(BufferMode.REUSED)) {
-      var it = arr;
-      for (int d = 0; d < ndim - 1; ++d) {
-        it = Array.get(it, coords[d]);
+      int lsd = coords[ndim - 1];
+
+      // Find the chunk to write to in the target array;
+      // only recompute if the last stride dimension is 0.
+      if (lsd == 0) {
+        var it = arr;
+        for (int d = 0; d < ndim - 1; ++d) {
+          it = Array.get(it, coords[d]);
+        }
+        chunk = (int[]) it;
       }
-      int[] chunk = (int[]) it;
-      chunk[coords[ndim - 1]] = get(coords);
+
+      assert chunk != null;
+      chunk[lsd] = get(coords);
     }
 
     return arr;
