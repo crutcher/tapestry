@@ -85,7 +85,6 @@ public final class LoomGraph implements Iterable<LoomGraph.Node<?, ?>>, HasToJso
 
     @Nonnull private final UUID id;
     @Nonnull private final String type;
-    @JsonIgnore private NodePrototype<NodeType, BodyType> prototype;
     @JsonIgnore @Nullable private LoomGraph graph;
     @Nullable private String label;
 
@@ -109,15 +108,6 @@ public final class LoomGraph implements Iterable<LoomGraph.Node<?, ?>>, HasToJso
         throw new IllegalStateException("Node does not belong to a graph: " + id);
       }
       return graph;
-    }
-
-    /**
-     * Create a deep copy of this node.
-     *
-     * @return the copy.
-     */
-    public final NodeType deepCopy() {
-      return getPrototype().nodeFromTree(this);
     }
 
     /**
@@ -169,15 +159,6 @@ public final class LoomGraph implements Iterable<LoomGraph.Node<?, ?>>, HasToJso
     }
 
     /**
-     * Validate the node against the NodePrototype.
-     *
-     * @param issueCollector The ValidationIssueCollector to collect any issues.
-     */
-    public final void validate(ValidationIssueCollector issueCollector) {
-      getPrototype().validate(self(), issueCollector);
-    }
-
-    /**
      * Subclass type helper.
      *
      * @return this, cast to the subclass {@code NodeType} type.
@@ -208,8 +189,8 @@ public final class LoomGraph implements Iterable<LoomGraph.Node<?, ?>>, HasToJso
      * @param node The node to be validated.
      * @param issueCollector The ValidationIssueCollector to collect any issues.
      */
-    public final void validate(NodeType node, ValidationIssueCollector issueCollector) {
-      validateNode(node, issueCollector);
+    public final void validate(Node<?, ?> node, ValidationIssueCollector issueCollector) {
+      validateNode(nodeTypeClass.cast(node), issueCollector);
 
       var graph = node.assertGraph();
       var env = graph.getEnv();
@@ -252,18 +233,7 @@ public final class LoomGraph implements Iterable<LoomGraph.Node<?, ?>>, HasToJso
      * @return the node.
      */
     public final NodeType nodeFromJson(String json) {
-      return adopt(JsonUtil.fromJson(json, getNodeTypeClass()));
-    }
-
-    /**
-     * Adopt a node into this meta.
-     *
-     * @param node the node to adopt.
-     * @return the node.
-     */
-    private NodeType adopt(NodeType node) {
-      node.setPrototype(this);
-      return node;
+      return JsonUtil.fromJson(json, getNodeTypeClass());
     }
 
     /**
@@ -273,7 +243,7 @@ public final class LoomGraph implements Iterable<LoomGraph.Node<?, ?>>, HasToJso
      * @return the node.
      */
     public final NodeType nodeFromTree(Object tree) {
-      return adopt(JsonUtil.convertValue(tree, getNodeTypeClass()));
+      return JsonUtil.convertValue(tree, getNodeTypeClass());
     }
   }
 
@@ -349,22 +319,6 @@ public final class LoomGraph implements Iterable<LoomGraph.Node<?, ?>>, HasToJso
   }
 
   /**
-   * Create a deep copy of this graph; all nodes will be deep copied. Shares the same environment.
-   *
-   * @return the copy.
-   */
-  @Nonnull
-  public LoomGraph deepCopy() {
-    var graph = LoomGraph.builder().env(env).id(id).build();
-
-    for (var node : nodes.values()) {
-      graph.addNode(node.deepCopy());
-    }
-
-    return graph;
-  }
-
-  /**
    * Add a node to the graph.
    *
    * @param node the node to add.
@@ -383,15 +337,7 @@ public final class LoomGraph implements Iterable<LoomGraph.Node<?, ?>>, HasToJso
     }
     node.setGraph(this);
 
-    if (node.getPrototype() == null) {
-      try {
-        node.setPrototype(
-            (NodePrototype<NodeType, BodyType>)
-                env.getNodeMetaFactory().getMetaForType(node.getType()));
-      } catch (Exception e) {
-        throw new IllegalArgumentException("Unknown node type: " + node.getType());
-      }
-    }
+    env.getNodeMetaFactory().getMetaForType(node.getType());
 
     nodes.put(node.getId(), node);
 

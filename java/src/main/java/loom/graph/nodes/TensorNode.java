@@ -31,7 +31,6 @@ public final class TensorNode extends LoomGraph.Node<TensorNode, TensorNode.Body
   public static final class TensorNodeBuilderImpl
       extends TensorNodeBuilder<TensorNode, TensorNodeBuilderImpl> {
     {
-      prototype(Prototype.builder().build());
       type(Prototype.TYPE);
     }
   }

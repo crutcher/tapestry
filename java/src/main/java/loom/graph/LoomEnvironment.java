@@ -79,7 +79,8 @@ public final class LoomEnvironment {
    */
   public void validateGraph(LoomGraph graph, ValidationIssueCollector issueCollector) {
     for (var node : graph.getNodes().values()) {
-      node.validate(issueCollector);
+      var prototype = nodeMetaFactory.getMetaForType(node.getType());
+      prototype.validate(node, issueCollector);
     }
 
     for (var constraint : constraints) {

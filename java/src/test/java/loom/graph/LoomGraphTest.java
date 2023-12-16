@@ -1,10 +1,5 @@
 package loom.graph;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
-import javax.annotation.Nonnull;
 import lombok.Builder;
 import lombok.Data;
 import lombok.Getter;
@@ -23,6 +18,12 @@ import loom.validation.ValidationIssue;
 import loom.validation.ValidationIssueCollector;
 import loom.zspace.ZPoint;
 import org.junit.Test;
+
+import javax.annotation.Nonnull;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 
 public class LoomGraphTest extends BaseTestClass {
   @Jacksonized
@@ -126,7 +127,6 @@ public class LoomGraphTest extends BaseTestClass {
     assertThat(nodeA)
         .hasFieldOrPropertyWithValue("id", nodeIdA)
         .hasFieldOrPropertyWithValue("type", "test")
-        .hasFieldOrPropertyWithValue("prototype", GenericNode.PROTOTYPE)
         .isInstanceOf(GenericNode.class);
 
     assertThat(graph.hasNode(nodeIdA)).isTrue();
@@ -186,14 +186,6 @@ public class LoomGraphTest extends BaseTestClass {
         .isInstanceOf(GenericNode.class);
 
     assertEquivalentJson(graph.toJsonString(), source);
-
-    var graphCopy = graph.deepCopy();
-    assertThat(graphCopy).isNotSameAs(graph);
-    assertThat(graphCopy.getEnv()).isSameAs(graph.getEnv());
-    assertEquivalentJson(graphCopy.toJsonString(), graph.toJsonString());
-    assertThat(graphCopy.assertNode("00000000-0000-0000-0000-000000000001").getBody())
-        .hasFieldOrPropertyWithValue("fields", Map.of("dtype", "int32", "shape", List.of(2, 3)))
-        .isNotSameAs(graph.assertNode("00000000-0000-0000-0000-000000000001").getBody());
   }
 
   @Test
@@ -253,14 +245,6 @@ public class LoomGraphTest extends BaseTestClass {
         .hasFieldOrPropertyWithValue("shape", ZPoint.of(4, 5));
 
     assertEquivalentJson(graph.toJsonString(), source);
-
-    var graphCopy = graph.deepCopy();
-    assertThat(graphCopy).isNotSameAs(graph);
-    assertThat(graphCopy.getEnv()).isSameAs(graph.getEnv());
-    assertEquivalentJson(graphCopy.toJsonString(), graph.toJsonString());
-    assertThat(graphCopy.assertNode("00000000-0000-0000-0000-000000000001").getBody())
-        .hasFieldOrPropertyWithValue("dtype", "int32")
-        .isNotSameAs(graph.assertNode("00000000-0000-0000-0000-000000000001").getBody());
   }
 
   @Test
@@ -450,24 +434,13 @@ public class LoomGraphTest extends BaseTestClass {
                           "foo": "baz"
                         }
                         """);
-
-    var nodeCopy = node.deepCopy();
-    assertThat(nodeCopy)
-        .isNotSameAs(node)
-        .hasFieldOrPropertyWithValue("id", node.getId())
-        .hasFieldOrPropertyWithValue("type", node.getType())
-        .hasFieldOrPropertyWithValue("body", node.getBody())
-        .isInstanceOf(DemoNode.class);
-
-    assertThat(nodeCopy.getBody()).isNotSameAs(node.getBody());
   }
 
   @Test
   public void testNodeMeta() {
+    DemoNodePrototype prototype = new DemoNodePrototype();
     TypeMapNodeMetaFactory metaFactory =
-        TypeMapNodeMetaFactory.builder()
-            .typeMapping(DemoNodePrototype.TYPE, new DemoNodePrototype())
-            .build();
+        TypeMapNodeMetaFactory.builder().typeMapping(DemoNodePrototype.TYPE, prototype).build();
 
     var env = LoomEnvironment.builder().nodeMetaFactory(metaFactory).build();
 
@@ -481,15 +454,6 @@ public class LoomGraphTest extends BaseTestClass {
 
     assertThat(node).isInstanceOf(DemoNode.class);
 
-    {
-      ValidationIssueCollector issueCollector = new ValidationIssueCollector();
-      node.validate(issueCollector);
-      issueCollector.check();
-    }
-
-    var meta = node.getPrototype();
-    assertThat(meta).isInstanceOf(DemoNodePrototype.class);
-
     assertThat(metaFactory.getMetaForType(DemoNodePrototype.TYPE))
         .isInstanceOf(DemoNodePrototype.class);
     assertThat(metaFactory.getMetaForType(DemoNodePrototype.TYPE).nodeFromJson(node.toJsonString()))
@@ -498,14 +462,14 @@ public class LoomGraphTest extends BaseTestClass {
         .isInstanceOf(DemoNode.class);
 
     {
-      var parsed = meta.nodeFromJson(node.toJsonString());
+      var parsed = prototype.nodeFromJson(node.toJsonString());
       assertThat(parsed)
           .isNotSameAs(node)
           .hasFieldOrPropertyWithValue("id", node.getId())
           .isInstanceOf(DemoNode.class);
     }
     {
-      var parsed = meta.nodeFromTree(JsonUtil.valueToJsonNodeTree(node));
+      var parsed = prototype.nodeFromTree(JsonUtil.valueToJsonNodeTree(node));
       assertThat(parsed)
           .isNotSameAs(node)
           .hasFieldOrPropertyWithValue("id", node.getId())
