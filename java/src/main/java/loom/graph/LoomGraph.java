@@ -51,11 +51,12 @@ public final class LoomGraph implements Iterable<LoomGraph.Node<?, ?>>, HasToJso
   @Setter
   @SuperBuilder
   @JsonInclude(JsonInclude.Include.NON_NULL)
-  @JsonSerialize(using = Node.JsonSupport.NodeSerializer.class)
+  @JsonSerialize(using = Node.Serialization.NodeSerializer.class)
   public abstract static class Node<NodeType extends Node<NodeType, BodyType>, BodyType>
       implements HasToJsonString {
 
-    public static final class JsonSupport {
+    @NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
+    public static final class Serialization {
       /**
        * A Jackson serializer for Node. We use a custom serializer because {@code @Delegate} applied
        * to a method in subclasses to delegate the type methods of {@code body} does not honor
@@ -81,8 +82,6 @@ public final class LoomGraph implements Iterable<LoomGraph.Node<?, ?>>, HasToJso
           gen.writeEndObject();
         }
       }
-
-      private JsonSupport() {}
     }
 
     @Nonnull private final UUID id;
