@@ -44,16 +44,40 @@ public final class ZPoint implements Cloneable, HasPermute<ZPoint>, HasToJsonStr
     /**
      * Compute the partial ordering of two points.
      *
+     * <p>Only tensors of the same dimension are comparable.
+     *
+     * <p>Two tensors are equal if they have the same coordinates.
+     *
+     * <p>A tensor is less than another if it has a coordinate less than the other; and no
+     * coordinates greater than the other.
+     *
+     * <p>A tensor is greater than another if it has a coordinate greater than the other; and no
+     * coordinates less than the other.
+     *
+     * <p>Otherwise, the tensors are unordered.
+     *
      * @param lhs the left-hand side.
      * @param rhs the right-hand side.
      * @return the partial ordering.
      */
-    public static PartialOrdering partialCompare(@Nonnull ZPoint lhs, @Nonnull ZPoint rhs) {
-      return partialCompare(lhs.coords, rhs.coords);
+    public static PartialOrdering partialOrderByGrid(@Nonnull ZPoint lhs, @Nonnull ZPoint rhs) {
+      return partialOrderByGrid(lhs.coords, rhs.coords);
     }
 
     /**
      * Compute the partial ordering of two tensors as coordinates in distance from 0.
+     *
+     * <p>Only tensors of the same dimension are comparable.
+     *
+     * <p>Two tensors are equal if they have the same coordinates.
+     *
+     * <p>A tensor is less than another if it has a coordinate less than the other; and no
+     * coordinates greater than the other.
+     *
+     * <p>A tensor is greater than another if it has a coordinate greater than the other; and no
+     * coordinates less than the other.
+     *
+     * <p>Otherwise, the tensors are unordered.
      *
      * <p>This ordering is defined to be useful for {@code [start, end)} ranges.
      *
@@ -61,7 +85,7 @@ public final class ZPoint implements Cloneable, HasPermute<ZPoint>, HasToJsonStr
      * @param rhs the right-hand side.
      * @return the partial ordering.
      */
-    public static PartialOrdering partialCompare(@Nonnull ZTensor lhs, @Nonnull ZTensor rhs) {
+    public static PartialOrdering partialOrderByGrid(@Nonnull ZTensor lhs, @Nonnull ZTensor rhs) {
       HasDimension.assertSameNDim(lhs, rhs);
 
       boolean lt = false;
@@ -187,7 +211,7 @@ public final class ZPoint implements Cloneable, HasPermute<ZPoint>, HasToJsonStr
      * @return true or false.
      */
     public static boolean lt(@Nonnull ZTensor lhs, @Nonnull ZTensor rhs) {
-      return partialCompare(lhs, rhs) == PartialOrdering.LESS_THAN;
+      return partialOrderByGrid(lhs, rhs) == PartialOrdering.LESS_THAN;
     }
 
     /**
@@ -231,7 +255,7 @@ public final class ZPoint implements Cloneable, HasPermute<ZPoint>, HasToJsonStr
      * @return true or false.
      */
     public static boolean le(@Nonnull ZTensor lhs, @Nonnull ZTensor rhs) {
-      return switch (partialCompare(lhs, rhs)) {
+      return switch (partialOrderByGrid(lhs, rhs)) {
         case LESS_THAN, EQUAL -> true;
         default -> false;
       };
@@ -278,7 +302,7 @@ public final class ZPoint implements Cloneable, HasPermute<ZPoint>, HasToJsonStr
      * @return true or false.
      */
     public static boolean gt(@Nonnull ZTensor lhs, @Nonnull ZTensor rhs) {
-      return partialCompare(lhs, rhs) == PartialOrdering.GREATER_THAN;
+      return partialOrderByGrid(lhs, rhs) == PartialOrdering.GREATER_THAN;
     }
 
     /**
@@ -322,7 +346,7 @@ public final class ZPoint implements Cloneable, HasPermute<ZPoint>, HasToJsonStr
      * @return true or false.
      */
     public static boolean ge(@Nonnull ZTensor lhs, @Nonnull ZTensor rhs) {
-      return switch (partialCompare(lhs, rhs)) {
+      return switch (partialOrderByGrid(lhs, rhs)) {
         case GREATER_THAN, EQUAL -> true;
         default -> false;
       };

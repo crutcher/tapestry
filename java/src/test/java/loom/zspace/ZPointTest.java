@@ -82,7 +82,7 @@ public class ZPointTest implements CommonAssertions {
     var p10 = new ZPoint(1, 0);
     var p01 = new ZPoint(0, 1);
 
-    assertThat(ZPoint.Ops.partialCompare(zeros, zeros)).isEqualTo(PartialOrdering.EQUAL);
+    assertThat(ZPoint.Ops.partialOrderByGrid(zeros, zeros)).isEqualTo(PartialOrdering.EQUAL);
     assertThat(ZPoint.Ops.lt(zeros, zeros)).isFalse();
     assertThat(ZPoint.Ops.le(zeros, zeros)).isTrue();
     assertThat(ZPoint.Ops.eq(zeros, zeros)).isTrue();
@@ -125,7 +125,7 @@ public class ZPointTest implements CommonAssertions {
     assertThat(zeros.ge(zeros.coords)).isTrue();
     assertThat(zeros.gt(zeros.coords)).isFalse();
 
-    assertThat(ZPoint.Ops.partialCompare(zeros, p01)).isEqualTo(PartialOrdering.LESS_THAN);
+    assertThat(ZPoint.Ops.partialOrderByGrid(zeros, p01)).isEqualTo(PartialOrdering.LESS_THAN);
     assertThat(ZPoint.Ops.lt(zeros, p01)).isTrue();
     assertThat(ZPoint.Ops.le(zeros, p01)).isTrue();
     assertThat(ZPoint.Ops.eq(zeros, p01)).isFalse();
@@ -139,7 +139,7 @@ public class ZPointTest implements CommonAssertions {
     assertThat(zeros.ge(p01)).isFalse();
     assertThat(zeros.gt(p01)).isFalse();
 
-    assertThat(ZPoint.Ops.partialCompare(p01, zeros)).isEqualTo(PartialOrdering.GREATER_THAN);
+    assertThat(ZPoint.Ops.partialOrderByGrid(p01, zeros)).isEqualTo(PartialOrdering.GREATER_THAN);
     assertThat(ZPoint.Ops.lt(p01, zeros)).isFalse();
     assertThat(ZPoint.Ops.le(p01, zeros)).isFalse();
     assertThat(ZPoint.Ops.eq(p01, zeros)).isFalse();
@@ -153,7 +153,7 @@ public class ZPointTest implements CommonAssertions {
     assertThat(p01.ge(zeros)).isTrue();
     assertThat(p01.gt(zeros)).isTrue();
 
-    assertThat(ZPoint.Ops.partialCompare(zeros, p10)).isEqualTo(PartialOrdering.LESS_THAN);
+    assertThat(ZPoint.Ops.partialOrderByGrid(zeros, p10)).isEqualTo(PartialOrdering.LESS_THAN);
     assertThat(ZPoint.Ops.lt(zeros, p10)).isTrue();
     assertThat(ZPoint.Ops.le(zeros, p10)).isTrue();
     assertThat(ZPoint.Ops.eq(zeros, p10)).isFalse();
@@ -167,7 +167,7 @@ public class ZPointTest implements CommonAssertions {
     assertThat(zeros.ge(p10)).isFalse();
     assertThat(zeros.gt(p10)).isFalse();
 
-    assertThat(ZPoint.Ops.partialCompare(p01, p10)).isEqualTo(PartialOrdering.INCOMPARABLE);
+    assertThat(ZPoint.Ops.partialOrderByGrid(p01, p10)).isEqualTo(PartialOrdering.INCOMPARABLE);
     assertThat(ZPoint.Ops.lt(p01, p10)).isFalse();
     assertThat(ZPoint.Ops.le(p01, p10)).isFalse();
     assertThat(ZPoint.Ops.eq(p01, p10)).isFalse();

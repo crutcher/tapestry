@@ -2,15 +2,14 @@ package loom.zspace;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.primitives.Ints;
-import lombok.Getter;
-
-import javax.annotation.Nonnull;
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import javax.annotation.Nonnull;
+import lombok.Getter;
 
 /**
  * Represents an abstract tensor with common properties and methods.
