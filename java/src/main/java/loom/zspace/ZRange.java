@@ -4,16 +4,17 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Splitter;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.Objects;
+import lombok.Getter;
+import loom.common.HasToJsonString;
+import loom.common.serialization.JsonUtil;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import javax.annotation.concurrent.ThreadSafe;
-import lombok.Getter;
-import loom.common.HasToJsonString;
-import loom.common.serialization.JsonUtil;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.Objects;
 
 /**
  * Represents a range of points in discrete space.
@@ -416,10 +417,10 @@ public final class ZRange implements Cloneable, HasSize, HasPermute<ZRange>, Has
    * @return the intersection of this range with another, null if there is no intersection.
    */
   @Nullable public ZRange intersection(@Nonnull ZRange other) {
-    var s = ZTensor.Ops.zipWith(Math::max, start.coords, other.start.coords).newZPoint();
-    var e = ZTensor.Ops.zipWith(Math::min, end.coords, other.end.coords).newZPoint();
-    if (s.le(e)) {
-      return new ZRange(s, e);
+    var iStart = ZTensor.Ops.maximum(start.coords, other.start.coords).newZPoint();
+    var iEnd = ZTensor.Ops.minimum(end.coords, other.end.coords).newZPoint();
+    if (iStart.le(iEnd)) {
+      return new ZRange(iStart, iEnd);
     } else {
       return null;
     }
