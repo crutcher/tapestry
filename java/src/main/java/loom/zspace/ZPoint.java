@@ -23,8 +23,10 @@ import javax.annotation.concurrent.ThreadSafe;
 @Immutable
 @JsonDeserialize(using = ZPoint.Serialization.Deserializer.class)
 public final class ZPoint implements Cloneable, HasPermute<ZPoint>, HasToJsonString {
+  /** Jackson serialization support. */
   @NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
   static final class Serialization {
+    /** Custom deserializer for ZPoint. */
     static final class Deserializer extends StdDeserializer<ZPoint> {
       public Deserializer() {
         super(ZPoint.class);
