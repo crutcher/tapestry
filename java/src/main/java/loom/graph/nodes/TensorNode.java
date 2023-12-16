@@ -1,9 +1,6 @@
 package loom.graph.nodes;
 
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
-import java.util.HashSet;
-import java.util.Set;
-import javax.annotation.Nonnull;
 import lombok.*;
 import lombok.experimental.Delegate;
 import lombok.experimental.SuperBuilder;
@@ -14,12 +11,16 @@ import loom.validation.ValidationIssue;
 import loom.validation.ValidationIssueCollector;
 import loom.zspace.ZPoint;
 
+import javax.annotation.Nonnull;
+import java.util.HashSet;
+import java.util.Set;
+
 @Jacksonized
 @SuperBuilder
 @Getter
 @Setter
 public final class TensorNode extends LoomGraph.Node<TensorNode, TensorNode.Body> {
-  @Nonnull private Body body;
+  @Delegate @Nonnull private Body body;
 
   /**
    * Create a new TensorNodeBuilder, with the type set to {@link Prototype#TYPE}.
@@ -59,13 +60,6 @@ public final class TensorNode extends LoomGraph.Node<TensorNode, TensorNode.Body
    */
   public static TensorNodeBuilder<TensorNode, ?> builder(String dtype, ZPoint shape) {
     return builder().body(Body.builder().dtype(dtype).shape(shape).build());
-  }
-
-  /** Exists to support {@code @Delegate} for {@code getBody()}. */
-  @SuppressWarnings("unused")
-  @Delegate
-  private Body delegateProvider() {
-    return getBody();
   }
 
   @Data

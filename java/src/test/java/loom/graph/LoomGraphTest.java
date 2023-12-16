@@ -31,7 +31,7 @@ public class LoomGraphTest extends BaseTestClass {
   @Getter
   @Setter
   public static class DemoNode extends LoomGraph.Node<DemoNode, DemoNode.Body> {
-    @Nonnull private Body body;
+    @Delegate @Nonnull private Body body;
 
     @Data
     @Jacksonized
@@ -43,12 +43,6 @@ public class LoomGraphTest extends BaseTestClass {
     @Override
     public Class<Body> getBodyClass() {
       return Body.class;
-    }
-
-    @SuppressWarnings("unused")
-    @Delegate
-    private Body _delegateProvider() {
-      return getBody();
     }
   }
 

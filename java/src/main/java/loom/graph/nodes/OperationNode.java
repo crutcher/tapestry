@@ -1,23 +1,24 @@
 package loom.graph.nodes;
 
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.stream.Collectors;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import lombok.*;
 import lombok.experimental.Delegate;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.jackson.Jacksonized;
 import loom.graph.LoomGraph;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
 @Jacksonized
 @SuperBuilder
 @Getter
 @Setter
 public final class OperationNode extends LoomGraph.Node<OperationNode, OperationNode.Body> {
-  @Nonnull private Body body;
+  @Delegate @Nonnull private Body body;
 
   @Data
   @SuperBuilder
@@ -152,13 +153,6 @@ public final class OperationNode extends LoomGraph.Node<OperationNode, Operation
                         .map(
                             id -> graph.assertNode(id, TensorNode.Prototype.TYPE, TensorNode.class))
                         .toList()));
-  }
-
-  /** Exists to support {@code @Delegate} for {@code getBody()}. */
-  @SuppressWarnings("unused")
-  @Delegate
-  private Body delegateProvider() {
-    return getBody();
   }
 
   /**

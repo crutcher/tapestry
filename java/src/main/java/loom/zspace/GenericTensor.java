@@ -1,14 +1,14 @@
 package loom.zspace;
 
 import com.google.errorprone.annotations.CheckReturnValue;
-import org.jetbrains.annotations.ApiStatus;
-
-import javax.annotation.Nonnull;
 import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.function.*;
+import javax.annotation.Nonnull;
+import org.jetbrains.annotations.ApiStatus;
 
 @ApiStatus.Experimental
+@SuppressWarnings("unused")
 public final class GenericTensor<T> extends AbstractTensor<GenericTensor<T>, T[]> {
   /**
    * Constructs a Tensor from parts; takes ownership of the arrays.
