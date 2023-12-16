@@ -8,15 +8,7 @@ import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.UUID;
-import java.util.stream.Stream;
-import javax.annotation.CheckReturnValue;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import loom.common.HasToJsonString;
@@ -28,6 +20,16 @@ import loom.common.serialization.MapValueListUtil;
 import loom.graph.nodes.GenericNodeMetaFactory;
 import loom.validation.ValidationIssue;
 import loom.validation.ValidationIssueCollector;
+
+import javax.annotation.CheckReturnValue;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.UUID;
+import java.util.stream.Stream;
 
 /** A Loom Graph document. */
 @Getter
@@ -345,6 +347,48 @@ public final class LoomGraph implements Iterable<LoomGraph.Node<?, ?>>, HasToJso
   }
 
   /**
+   * Add a node to the graph.
+   *
+   * <p>If the node builder does not have an ID, a new ID will be generated.
+   *
+   * @param builder a builder for the node to add.
+   * @return the ID of the node.
+   */
+  @Nonnull
+  public <N extends Node<N, B>, B> N addNode(Node.NodeBuilder<N, B, ?, ?> builder) {
+    if (builder.id == null) {
+      builder.id = newUnusedNodeId();
+    }
+
+    @SuppressWarnings("unchecked")
+    var node = (N) builder.build();
+
+    return addNode(node);
+  }
+
+  @Nonnull
+  public Node<?, ?> addNodeFromBodyJson(String type, String json) {
+    var nodeTree = JsonNodeFactory.instance.objectNode();
+    nodeTree.put("id", newUnusedNodeId().toString());
+    nodeTree.put("type", type);
+    nodeTree.set("body", JsonUtil.parseToJsonNodeTree(json));
+
+    var prototype = env.getNodeMetaFactory().getMetaForType(type);
+    return addNode(prototype.nodeFromTree(nodeTree));
+  }
+
+  @Nonnull
+  public Node<?, ?> addNodeFromBodyValue(String type, Object body) {
+    var nodeTree = JsonNodeFactory.instance.objectNode();
+    nodeTree.put("id", newUnusedNodeId().toString());
+    nodeTree.put("type", type);
+    nodeTree.set("body", JsonUtil.valueToJsonNodeTree(body));
+
+    var prototype = env.getNodeMetaFactory().getMetaForType(type);
+    return addNode(prototype.nodeFromTree(nodeTree));
+  }
+
+  /**
    * Does this graph contain a node with the given ID?
    *
    * @param id the ID to check.
@@ -427,26 +471,6 @@ public final class LoomGraph implements Iterable<LoomGraph.Node<?, ?>>, HasToJso
       throw new LookupError("Node is not of type " + nodeClass.getSimpleName() + ": " + id);
     }
     return nodeClass.cast(node);
-  }
-
-  /**
-   * Add a node to the graph.
-   *
-   * <p>If the node builder does not have an ID, a new ID will be generated.
-   *
-   * @param builder a builder for the node to add.
-   * @return the ID of the node.
-   */
-  @Nonnull
-  public <N extends Node<N, B>, B> N addNode(Node.NodeBuilder<N, B, ?, ?> builder) {
-    if (builder.id == null) {
-      builder.id = newUnusedNodeId();
-    }
-
-    @SuppressWarnings("unchecked")
-    var node = (N) builder.build();
-
-    return addNode(node);
   }
 
   /**
