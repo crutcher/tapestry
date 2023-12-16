@@ -145,7 +145,7 @@ public final class LoomGraph implements Iterable<LoomGraph.Node<?, ?>>, HasToJso
     /** Get the class type of the node body. */
     @JsonIgnore
     @SuppressWarnings("unchecked")
-    public Class<BodyType> getBodyClass() {
+    public final Class<BodyType> getBodyClass() {
       return (Class<BodyType>) getBody().getClass();
     }
 

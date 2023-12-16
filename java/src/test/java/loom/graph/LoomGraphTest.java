@@ -1,10 +1,5 @@
 package loom.graph;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
-import javax.annotation.Nonnull;
 import lombok.Builder;
 import lombok.Data;
 import lombok.Getter;
@@ -24,6 +19,12 @@ import loom.validation.ValidationIssueCollector;
 import loom.zspace.ZPoint;
 import org.junit.Test;
 
+import javax.annotation.Nonnull;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+
 public class LoomGraphTest extends BaseTestClass {
   @Jacksonized
   @SuperBuilder
@@ -37,11 +38,6 @@ public class LoomGraphTest extends BaseTestClass {
     @Builder
     public static class Body {
       @Nonnull private String foo;
-    }
-
-    @Override
-    public Class<Body> getBodyClass() {
-      return Body.class;
     }
   }
 
