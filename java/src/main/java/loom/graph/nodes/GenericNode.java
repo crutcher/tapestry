@@ -4,18 +4,22 @@ import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
-import java.util.Map;
-import lombok.Builder;
-import lombok.Data;
-import lombok.Singular;
+import lombok.*;
 import lombok.experimental.Delegate;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.jackson.Jacksonized;
 import loom.graph.LoomGraph;
 
+import javax.annotation.Nonnull;
+import java.util.Map;
+
 @Jacksonized
 @SuperBuilder
+@Getter
+@Setter
 public final class GenericNode extends LoomGraph.Node<GenericNode, GenericNode.Body> {
+  @Nonnull private Body body;
+
   @Data
   @Builder
   public static class Body {
@@ -38,12 +42,7 @@ public final class GenericNode extends LoomGraph.Node<GenericNode, GenericNode.B
     }
   }
 
-  @Override
-  public Class<Body> getBodyClass() {
-    return Body.class;
-  }
-
-  public static final class Meta extends LoomGraph.NodeMeta<GenericNode, Body> {
+  public static final class Prototype extends LoomGraph.NodePrototype<GenericNode, Body> {
     public static final String BODY_SCHEMA =
         """
                 {
@@ -55,12 +54,12 @@ public final class GenericNode extends LoomGraph.Node<GenericNode, GenericNode.B
                 }
                 """;
 
-    public Meta() {
+    public Prototype() {
       super(GenericNode.class, Body.class, BODY_SCHEMA);
     }
   }
 
-  public static final Meta META = new Meta();
+  public static final Prototype PROTOTYPE = new Prototype();
 
   /** Exists to support {@code @Delegate} for {@code getBody()}. */
   @SuppressWarnings("unused")

@@ -1,12 +1,9 @@
 package loom.graph;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
-import javax.annotation.Nonnull;
 import lombok.Builder;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.experimental.Delegate;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.jackson.Jacksonized;
@@ -22,10 +19,20 @@ import loom.validation.ValidationIssueCollector;
 import loom.zspace.ZPoint;
 import org.junit.Test;
 
+import javax.annotation.Nonnull;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+
 public class LoomGraphTest extends BaseTestClass {
   @Jacksonized
   @SuperBuilder
+  @Getter
+  @Setter
   public static class DemoNode extends LoomGraph.Node<DemoNode, DemoNode.Body> {
+    @Nonnull private Body body;
+
     @Data
     @Jacksonized
     @Builder
@@ -45,7 +52,7 @@ public class LoomGraphTest extends BaseTestClass {
     }
   }
 
-  public static class DemoNodeMeta extends LoomGraph.NodeMeta<DemoNode, DemoNode.Body> {
+  public static class DemoNodePrototype extends LoomGraph.NodePrototype<DemoNode, DemoNode.Body> {
     public static final String TYPE = "DemoNode";
 
     public static final String BODY_SCHEMA =
@@ -62,7 +69,7 @@ public class LoomGraphTest extends BaseTestClass {
                 }
                 """;
 
-    public DemoNodeMeta() {
+    public DemoNodePrototype() {
       super(DemoNode.class, DemoNode.Body.class, BODY_SCHEMA);
     }
 
@@ -126,7 +133,7 @@ public class LoomGraphTest extends BaseTestClass {
     assertThat(nodeA)
         .hasFieldOrPropertyWithValue("id", nodeIdA)
         .hasFieldOrPropertyWithValue("type", "test")
-        .hasFieldOrPropertyWithValue("meta", GenericNode.META)
+        .hasFieldOrPropertyWithValue("prototype", GenericNode.PROTOTYPE)
         .isInstanceOf(GenericNode.class);
 
     assertThat(graph.hasNode(nodeIdA)).isTrue();
@@ -230,8 +237,11 @@ public class LoomGraphTest extends BaseTestClass {
             .nodeMetaFactory(
                 TypeMapNodeMetaFactory.builder()
                     .typeMapping(
-                        TensorNode.Meta.TYPE,
-                        TensorNode.Meta.builder().validDType("int32").validDType("float32").build())
+                        TensorNode.Prototype.TYPE,
+                        TensorNode.Prototype.builder()
+                            .validDType("int32")
+                            .validDType("float32")
+                            .build())
                     .build())
             .build();
 
@@ -317,7 +327,8 @@ public class LoomGraphTest extends BaseTestClass {
     var factory =
         TypeMapNodeMetaFactory.builder()
             .typeMapping(
-                TensorNode.Meta.TYPE, TensorNode.Meta.builder().validDType("int32").build())
+                TensorNode.Prototype.TYPE,
+                TensorNode.Prototype.builder().validDType("int32").build())
             .build();
 
     var node = (TensorNode) factory.nodeFromJson(source);
@@ -378,7 +389,7 @@ public class LoomGraphTest extends BaseTestClass {
         LoomEnvironment.builder()
             .nodeMetaFactory(
                 TypeMapNodeMetaFactory.builder()
-                    .typeMapping(DemoNodeMeta.TYPE, new DemoNodeMeta())
+                    .typeMapping(DemoNodePrototype.TYPE, new DemoNodePrototype())
                     .build())
             .build();
 
@@ -387,12 +398,15 @@ public class LoomGraphTest extends BaseTestClass {
     DemoNode node =
         graph.addNode(
             DemoNode.builder()
-                .type(DemoNodeMeta.TYPE)
+                .type(DemoNodePrototype.TYPE)
                 .body(DemoNode.Body.builder().foo("bar").build()));
 
     assertThat(node)
         .isInstanceOf(DemoNode.class)
         .hasFieldOrPropertyWithValue("jsonPath", "$.nodes[@.id=='" + node.getId() + "']");
+
+    assertThat(node)
+        .hasToString("DemoNode(id=" + node.getId() + ", type=DemoNode, body={\"foo\":\"bar\"})");
 
     DemoNode selfRef = node.self();
     assertThat(selfRef).isSameAs(node);
@@ -460,7 +474,9 @@ public class LoomGraphTest extends BaseTestClass {
   @Test
   public void testNodeMeta() {
     TypeMapNodeMetaFactory metaFactory =
-        TypeMapNodeMetaFactory.builder().typeMapping(DemoNodeMeta.TYPE, new DemoNodeMeta()).build();
+        TypeMapNodeMetaFactory.builder()
+            .typeMapping(DemoNodePrototype.TYPE, new DemoNodePrototype())
+            .build();
 
     var env = LoomEnvironment.builder().nodeMetaFactory(metaFactory).build();
 
@@ -469,7 +485,7 @@ public class LoomGraphTest extends BaseTestClass {
     var node =
         graph.addNode(
             DemoNode.builder()
-                .type(DemoNodeMeta.TYPE)
+                .type(DemoNodePrototype.TYPE)
                 .body(DemoNode.Body.builder().foo("bar").build()));
 
     assertThat(node).isInstanceOf(DemoNode.class);
@@ -480,13 +496,14 @@ public class LoomGraphTest extends BaseTestClass {
       issueCollector.check();
     }
 
-    var meta = node.getMeta();
-    assertThat(meta).isInstanceOf(DemoNodeMeta.class);
+    var meta = node.getPrototype();
+    assertThat(meta).isInstanceOf(DemoNodePrototype.class);
 
-    assertThat(metaFactory.getMetaForType(DemoNodeMeta.TYPE)).isInstanceOf(DemoNodeMeta.class);
-    assertThat(metaFactory.getMetaForType(DemoNodeMeta.TYPE).nodeFromJson(node.toJsonString()))
+    assertThat(metaFactory.getMetaForType(DemoNodePrototype.TYPE))
+        .isInstanceOf(DemoNodePrototype.class);
+    assertThat(metaFactory.getMetaForType(DemoNodePrototype.TYPE).nodeFromJson(node.toJsonString()))
         .isInstanceOf(DemoNode.class);
-    assertThat(metaFactory.getMetaForType(DemoNodeMeta.TYPE).nodeFromTree(node))
+    assertThat(metaFactory.getMetaForType(DemoNodePrototype.TYPE).nodeFromTree(node))
         .isInstanceOf(DemoNode.class);
 
     {

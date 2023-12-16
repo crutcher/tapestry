@@ -6,10 +6,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import lombok.Builder;
-import lombok.Data;
-import lombok.Getter;
-import lombok.Singular;
+import lombok.*;
 import lombok.experimental.Delegate;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.jackson.Jacksonized;
@@ -17,7 +14,11 @@ import loom.graph.LoomGraph;
 
 @Jacksonized
 @SuperBuilder
+@Getter
+@Setter
 public final class OperationNode extends LoomGraph.Node<OperationNode, OperationNode.Body> {
+  @Nonnull private Body body;
+
   @Data
   @SuperBuilder
   public static final class Body {
@@ -29,7 +30,7 @@ public final class OperationNode extends LoomGraph.Node<OperationNode, Operation
 
   @Builder
   @Getter
-  public static final class Meta extends LoomGraph.NodeMeta<OperationNode, Body> {
+  public static final class Prototype extends LoomGraph.NodePrototype<OperationNode, Body> {
     public static final String TYPE = "OperationNode";
 
     public static final String BODY_SCHEMA =
@@ -85,22 +86,22 @@ public final class OperationNode extends LoomGraph.Node<OperationNode, Operation
         """;
 
     @Builder
-    public Meta() {
+    public Prototype() {
       super(OperationNode.class, Body.class, BODY_SCHEMA);
     }
   }
 
   /**
-   * Create a new OperationNodeBuilder, with the type set to {@link Meta#TYPE}.
+   * Create a new OperationNodeBuilder, with the type set to {@link Prototype#TYPE}.
    *
    * @return the new OperationNodeBuilder.
    */
   public static OperationNode.OperationNodeBuilder<OperationNode, ?> builder() {
-    return new OperationNode.OperationNodeBuilderImpl().type(Meta.TYPE);
+    return new OperationNode.OperationNodeBuilderImpl().type(Prototype.TYPE);
   }
 
   /**
-   * Create a new OperationNodeBuilder, with the type set to {@link Meta#TYPE}.
+   * Create a new OperationNodeBuilder, with the type set to {@link Prototype#TYPE}.
    *
    * @param body the body to use.
    * @return the new OperationNodeBuilder.
@@ -110,7 +111,7 @@ public final class OperationNode extends LoomGraph.Node<OperationNode, Operation
   }
 
   /**
-   * Create a new OperationNodeBuilder, with the type set to {@link Meta#TYPE}.
+   * Create a new OperationNodeBuilder, with the type set to {@link Prototype#TYPE}.
    *
    * @param body the body to use.
    * @return the new OperationNodeBuilder.
@@ -148,13 +149,9 @@ public final class OperationNode extends LoomGraph.Node<OperationNode, Operation
                 Map.Entry::getKey,
                 e ->
                     e.getValue().stream()
-                        .map(id -> graph.assertNode(id, TensorNode.Meta.TYPE, TensorNode.class))
+                        .map(
+                            id -> graph.assertNode(id, TensorNode.Prototype.TYPE, TensorNode.class))
                         .toList()));
-  }
-
-  @Override
-  public Class<Body> getBodyClass() {
-    return Body.class;
   }
 
   /** Exists to support {@code @Delegate} for {@code getBody()}. */
@@ -180,5 +177,32 @@ public final class OperationNode extends LoomGraph.Node<OperationNode, Operation
    */
   public Map<String, List<TensorNode>> getOutputNodes() {
     return idMapToNodeMap(getGraph(), getOutputs());
+  }
+
+  public static final class GraphOps {
+    private GraphOps() {}
+
+    /**
+     * Get the operation node that produces this tensor.
+     *
+     * @return the operation node.
+     */
+    public static OperationNode getSourceNode(TensorNode tensorNode) {
+      // This assumes that there is only one source operation node.
+      var id = tensorNode.getId();
+      return tensorNode.assertGraph().stream(OperationNode.Prototype.TYPE, OperationNode.class)
+          .filter(op -> op.getOutputs().values().stream().anyMatch(ids -> ids.contains(id)))
+          .findFirst()
+          .orElseThrow();
+    }
+
+    /**
+     * Get the operation node ID that produces this tensor.
+     *
+     * @return the operation node ID.
+     */
+    public static UUID getSourceId(TensorNode tensorNode) {
+      return getSourceNode(tensorNode).getId();
+    }
   }
 }

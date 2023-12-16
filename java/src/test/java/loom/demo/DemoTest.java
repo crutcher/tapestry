@@ -7,6 +7,7 @@ import loom.graph.LoomEnvironment;
 import loom.graph.LoomGraph;
 import loom.graph.NodeApi;
 import loom.graph.nodes.AllTensorsHaveExactlyOneSourceOperationConstraint;
+import loom.graph.nodes.OperationNode;
 import loom.graph.nodes.TensorNode;
 import loom.testing.BaseTestClass;
 import loom.validation.ValidationIssueCollector;
@@ -40,7 +41,7 @@ public class DemoTest extends BaseTestClass {
     assertThat(tensorA).isInstanceOf(TensorNode.class).hasFieldOrPropertyWithValue("graph", graph);
 
     assertThat(op1.getOutputNodes()).containsEntry("pin", List.of(tensorA));
-    assertThat(tensorA.getSourceOperationNode()).isSameAs(op1);
-    assertThat(tensorA.getSourceOperationId()).isSameAs(op1.getId());
+    assertThat(OperationNode.GraphOps.getSourceNode(tensorA)).isSameAs(op1);
+    assertThat(OperationNode.GraphOps.getSourceId(tensorA)).isSameAs(op1.getId());
   }
 }

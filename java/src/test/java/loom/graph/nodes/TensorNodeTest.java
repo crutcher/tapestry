@@ -6,7 +6,7 @@ import org.junit.Test;
 public class TensorNodeTest extends BaseTestClass {
   @Test
   public void testMeta() {
-    var meta = TensorNode.Meta.builder().validDType("int32").build();
+    var meta = TensorNode.Prototype.builder().validDType("int32").build();
 
     meta.addValidDType("float32");
 

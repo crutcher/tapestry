@@ -19,7 +19,7 @@ public class AllTensorsHaveExactlyOneSourceOperationConstraint
       @SuppressWarnings("unused") LoomEnvironment env,
       LoomGraph graph,
       ValidationIssueCollector issueCollector) {
-    for (var tensorNode : graph.iterableNodes(TensorNode.Meta.TYPE, TensorNode.class)) {
+    for (var tensorNode : graph.iterableNodes(TensorNode.Prototype.TYPE, TensorNode.class)) {
       checkTensor(tensorNode, issueCollector);
     }
   }
@@ -35,7 +35,7 @@ public class AllTensorsHaveExactlyOneSourceOperationConstraint
     final var nodeId = tensorNode.getId();
 
     List<OperationNode> operationSourceNodes =
-        tensorNode.assertGraph().stream(OperationNode.Meta.TYPE, OperationNode.class)
+        tensorNode.assertGraph().stream(OperationNode.Prototype.TYPE, OperationNode.class)
             .filter(op -> op.getOutputs().values().stream().anyMatch(ids -> ids.contains(nodeId)))
             .toList();
 
@@ -52,7 +52,7 @@ public class AllTensorsHaveExactlyOneSourceOperationConstraint
     var issueBuilder =
         ValidationIssue.builder()
             .type(LoomConstants.NODE_VALIDATION_ERROR)
-            .param("nodeType", TensorNode.Meta.TYPE)
+            .param("nodeType", TensorNode.Prototype.TYPE)
             .context(
                 ValidationIssue.Context.builder()
                     .name("Tensor")

@@ -11,10 +11,10 @@ import loom.graph.LoomGraph;
 @EqualsAndHashCode(callSuper = true)
 @Builder
 public final class TypeMapNodeMetaFactory extends LoomGraph.NodeMetaFactory {
-  @Singular private final Map<String, LoomGraph.NodeMeta<?, ?>> typeMappings;
+  @Singular private final Map<String, LoomGraph.NodePrototype<?, ?>> typeMappings;
 
   @Override
-  public LoomGraph.NodeMeta<?, ?> getMetaForType(String type) {
+  public LoomGraph.NodePrototype<?, ?> getMetaForType(String type) {
     return typeMappings.get(type);
   }
 }

@@ -45,24 +45,46 @@ public final class LoomGraph implements Iterable<LoomGraph.Node<?, ?>>, HasToJso
    */
   @Getter
   @Setter
-  @ToString(of = {"id", "type", "label", "body"})
   @SuperBuilder
   @JsonInclude(JsonInclude.Include.NON_NULL)
   @JsonSerialize(using = Node.JsonSupport.NodeSerializer.class)
   public abstract static class Node<NodeType extends Node<NodeType, BodyType>, BodyType>
       implements HasToJsonString {
 
-    @JsonIgnore private NodeMeta<NodeType, BodyType> meta;
+    @JsonIgnore private NodePrototype<NodeType, BodyType> prototype;
     @JsonIgnore @Nullable private LoomGraph graph;
 
     @Nonnull private final UUID id;
     @Nonnull private final String type;
     @Nullable private String label;
-    @Nonnull private BodyType body;
+
+    @Nonnull
+    public abstract BodyType getBody();
+
+    public abstract void setBody(@Nonnull BodyType body);
 
     @JsonIgnore
     public final String getJsonPath() {
       return "$.nodes[@.id=='%s']".formatted(getId());
+    }
+
+    @Override
+    public final String toString() {
+      var sb =
+          new StringBuilder()
+              .append(getClass().getSimpleName())
+              .append("(id=")
+              .append(getId())
+              .append(", type=")
+              .append(getType());
+
+      if (getLabel() != null) {
+        sb.append(", label=").append(getLabel());
+      }
+
+      sb.append(", body=").append(JsonUtil.toJson(getBody())).append(")");
+
+      return sb.toString();
     }
 
     /**
@@ -83,14 +105,14 @@ public final class LoomGraph implements Iterable<LoomGraph.Node<?, ?>>, HasToJso
      * @return the copy.
      */
     public final NodeType deepCopy() {
-      return getMeta().nodeFromTree(this);
+      return getPrototype().nodeFromTree(this);
     }
 
     /** Get the class type of the node body. */
     @JsonIgnore
     @SuppressWarnings("unchecked")
     public Class<BodyType> getBodyClass() {
-      return (Class<BodyType>) body.getClass();
+      return (Class<BodyType>) getBody().getClass();
     }
 
     /**
@@ -140,12 +162,12 @@ public final class LoomGraph implements Iterable<LoomGraph.Node<?, ?>>, HasToJso
     }
 
     /**
-     * Validate the node against the NodeMeta.
+     * Validate the node against the NodePrototype.
      *
      * @param issueCollector The ValidationIssueCollector to collect any issues.
      */
     public final void validate(ValidationIssueCollector issueCollector) {
-      getMeta().validate(self(), issueCollector);
+      getPrototype().validate(self(), issueCollector);
     }
 
     public static final class JsonSupport {
@@ -186,7 +208,7 @@ public final class LoomGraph implements Iterable<LoomGraph.Node<?, ?>>, HasToJso
    * @param <BodyType> the node body class.
    */
   @Data
-  public abstract static class NodeMeta<NodeType extends Node<NodeType, BodyType>, BodyType> {
+  public abstract static class NodePrototype<NodeType extends Node<NodeType, BodyType>, BodyType> {
     @Nonnull private final Class<NodeType> nodeTypeClass;
     @Nonnull private final Class<BodyType> bodyTypeClass;
     @Nonnull private final String bodySchema;
@@ -243,7 +265,7 @@ public final class LoomGraph implements Iterable<LoomGraph.Node<?, ?>>, HasToJso
      * @return the node.
      */
     private NodeType adopt(NodeType node) {
-      node.setMeta(this);
+      node.setPrototype(this);
       return node;
     }
 
@@ -276,7 +298,7 @@ public final class LoomGraph implements Iterable<LoomGraph.Node<?, ?>>, HasToJso
      * @param type the node type.
      * @return the node meta, or null if not found.
      */
-    public abstract NodeMeta<?, ?> getMetaForType(String type);
+    public abstract NodePrototype<?, ?> getMetaForType(String type);
 
     /**
      * Parse a node from a JSON string, using the node type in the JSON.
@@ -462,10 +484,11 @@ public final class LoomGraph implements Iterable<LoomGraph.Node<?, ?>>, HasToJso
     }
     node.setGraph(this);
 
-    if (node.getMeta() == null) {
+    if (node.getPrototype() == null) {
       try {
-        node.setMeta(
-            (NodeMeta<NodeType, BodyType>) env.getNodeMetaFactory().getMetaForType(node.getType()));
+        node.setPrototype(
+            (NodePrototype<NodeType, BodyType>)
+                env.getNodeMetaFactory().getMetaForType(node.getType()));
       } catch (Exception e) {
         throw new IllegalArgumentException("Unknown node type: " + node.getType());
       }

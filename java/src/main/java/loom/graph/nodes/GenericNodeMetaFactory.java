@@ -4,7 +4,7 @@ import loom.graph.LoomGraph;
 
 public final class GenericNodeMetaFactory extends LoomGraph.NodeMetaFactory {
   @Override
-  public LoomGraph.NodeMeta<?, ?> getMetaForType(String type) {
-    return GenericNode.META;
+  public LoomGraph.NodePrototype<?, ?> getMetaForType(String type) {
+    return GenericNode.PROTOTYPE;
   }
 }

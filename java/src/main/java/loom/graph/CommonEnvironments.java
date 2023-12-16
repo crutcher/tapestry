@@ -16,8 +16,10 @@ public final class CommonEnvironments {
         .nodeMetaFactory(
             TypeMapNodeMetaFactory.builder()
                 .typeMapping(
-                    TensorNode.Meta.TYPE, TensorNode.Meta.builder().validDTypes(dtypes).build())
-                .typeMapping(OperationNode.Meta.TYPE, OperationNode.Meta.builder().build())
+                    TensorNode.Prototype.TYPE,
+                    TensorNode.Prototype.builder().validDTypes(dtypes).build())
+                .typeMapping(
+                    OperationNode.Prototype.TYPE, OperationNode.Prototype.builder().build())
                 .build())
         .build();
   }

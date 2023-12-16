@@ -41,7 +41,8 @@ public class LoomEnvironmentTest extends BaseTestClass {
             .nodeMetaFactory(
                 TypeMapNodeMetaFactory.builder()
                     .typeMapping(
-                        TensorNode.Meta.TYPE, TensorNode.Meta.builder().validDType("int32").build())
+                        TensorNode.Prototype.TYPE,
+                        TensorNode.Prototype.builder().validDType("int32").build())
                     .build())
             .build();
 
