@@ -88,20 +88,20 @@ public final class LoomEnvironment {
   }
 
   /**
-   * Create a new graph builder with this environment.
-   *
-   * @return the builder.
-   */
-  public LoomGraph.LoomGraphBuilder graphBuilder() {
-    return LoomGraph.builder().env(this);
-  }
-
-  /**
    * Create a new graph with this environment.
    *
    * @return the graph.
    */
   public LoomGraph createGraph() {
     return graphBuilder().id(UUID.randomUUID()).env(this).build();
+  }
+
+  /**
+   * Create a new graph builder with this environment.
+   *
+   * @return the builder.
+   */
+  public LoomGraph.LoomGraphBuilder graphBuilder() {
+    return LoomGraph.builder().env(this);
   }
 }

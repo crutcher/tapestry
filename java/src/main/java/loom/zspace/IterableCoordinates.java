@@ -10,53 +10,6 @@ import loom.common.IteratorUtils;
 
 /** An iterable and streamable view over coordinates in a range. */
 public final class IterableCoordinates implements Iterable<int[]> {
-  @Nonnull @Getter private final BufferMode bufferMode;
-  @Nonnull private final int[] start;
-  @Nonnull private final int[] end;
-
-  @Getter private final int size;
-
-  /**
-   * Construct an iterable view over coordinates in a range.
-   *
-   * @param bufferMode the buffer mode.
-   * @param start the start coordinates.
-   * @param end the end coordinates.
-   */
-  public IterableCoordinates(
-      @Nonnull BufferMode bufferMode, @Nonnull int[] start, @Nonnull int[] end) {
-    this.bufferMode = bufferMode;
-    this.start = start;
-    this.end = end;
-
-    int acc = 1;
-    for (int i = 0; i < start.length; ++i) {
-      acc *= end[i] - start[i];
-    }
-    this.size = acc;
-  }
-
-  /**
-   * Construct an iterable view over coordinates in a range.
-   *
-   * @param bufferMode the buffer mode.
-   * @param end the end coordinates.
-   */
-  public IterableCoordinates(@Nonnull BufferMode bufferMode, @Nonnull int[] end) {
-    this(bufferMode, new int[end.length], end);
-  }
-
-  @Override
-  @Nonnull
-  public CoordIterator iterator() {
-    return new CoordIterator();
-  }
-
-  @Nonnull
-  public Stream<int[]> stream() {
-    return IteratorUtils.iterableToStream(this);
-  }
-
   /**
    * An Iterator over coordinates.
    *
@@ -111,5 +64,51 @@ public final class IterableCoordinates implements Iterable<int[]> {
 
       return current;
     }
+  }
+
+  @Nonnull @Getter private final BufferMode bufferMode;
+  @Nonnull private final int[] start;
+  @Nonnull private final int[] end;
+  @Getter private final int size;
+
+  /**
+   * Construct an iterable view over coordinates in a range.
+   *
+   * @param bufferMode the buffer mode.
+   * @param end the end coordinates.
+   */
+  public IterableCoordinates(@Nonnull BufferMode bufferMode, @Nonnull int[] end) {
+    this(bufferMode, new int[end.length], end);
+  }
+
+  /**
+   * Construct an iterable view over coordinates in a range.
+   *
+   * @param bufferMode the buffer mode.
+   * @param start the start coordinates.
+   * @param end the end coordinates.
+   */
+  public IterableCoordinates(
+      @Nonnull BufferMode bufferMode, @Nonnull int[] start, @Nonnull int[] end) {
+    this.bufferMode = bufferMode;
+    this.start = start;
+    this.end = end;
+
+    int acc = 1;
+    for (int i = 0; i < start.length; ++i) {
+      acc *= end[i] - start[i];
+    }
+    this.size = acc;
+  }
+
+  @Override
+  @Nonnull
+  public CoordIterator iterator() {
+    return new CoordIterator();
+  }
+
+  @Nonnull
+  public Stream<int[]> stream() {
+    return IteratorUtils.iterableToStream(this);
   }
 }

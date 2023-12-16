@@ -2,14 +2,15 @@ package loom.zspace;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.primitives.Ints;
+import lombok.Getter;
+
+import javax.annotation.Nonnull;
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import javax.annotation.Nonnull;
-import lombok.Getter;
 
 /**
  * Represents an abstract tensor with common properties and methods.
@@ -40,6 +41,17 @@ public abstract class AbstractTensor<T extends AbstractTensor<T, ArrayT>, ArrayT
   protected Integer hash;
 
   /**
+   * Constructs a new AbstractTensor object.
+   *
+   * @param mutable a boolean flag indicating whether the tensor is mutable or not
+   * @param shape an array of integers representing the shape of the tensor
+   * @param data an ArrayT object containing the data of the tensor
+   */
+  public AbstractTensor(boolean mutable, @Nonnull int[] shape, @Nonnull ArrayT data) {
+    this(mutable, shape, IndexingFns.shapeToLSFStrides(shape), data, 0);
+  }
+
+  /**
    * Initializes a new instance of the AbstractTensor class.
    *
    * @param mutable Indicates whether the tensor is mutable or not.
@@ -64,24 +76,6 @@ public abstract class AbstractTensor<T extends AbstractTensor<T, ArrayT>, ArrayT
     this.data_offset = data_offset;
   }
 
-  /**
-   * Constructs a new AbstractTensor object.
-   *
-   * @param mutable a boolean flag indicating whether the tensor is mutable or not
-   * @param shape an array of integers representing the shape of the tensor
-   * @param data an ArrayT object containing the data of the tensor
-   */
-  public AbstractTensor(boolean mutable, @Nonnull int[] shape, @Nonnull ArrayT data) {
-    this(mutable, shape, IndexingFns.shapeToLSFStrides(shape), data, 0);
-  }
-
-  /**
-   * Compute the hash code of the data array.
-   *
-   * <p>Used by {@link #hashCode()} for lazy initialization of the hash code.
-   */
-  protected abstract int _dataHashCode();
-
   @Override
   public int hashCode() {
     if (mutable) {
@@ -93,6 +87,30 @@ public abstract class AbstractTensor<T extends AbstractTensor<T, ArrayT>, ArrayT
       }
     }
     return hash;
+  }
+
+  /**
+   * Compute the hash code of the data array.
+   *
+   * <p>Used by {@link #hashCode()} for lazy initialization of the hash code.
+   */
+  protected abstract int _dataHashCode();
+
+  /**
+   * Clone this tensor.
+   *
+   * <p>If this tensor is immutable and compact, returns this.
+   *
+   * <p>If this tensor is immutable and non-compact, returns a compact clone.
+   *
+   * <p>If this tensor is mutable, returns a compact mutable clone.
+   *
+   * @return a tensor with the same data.
+   */
+  @Override
+  @SuppressWarnings("MethodDoesntCallSuperMethod")
+  public final T clone() {
+    return clone(mutable);
   }
 
   public final Class<ArrayT> getArrayClass() {
@@ -111,53 +129,6 @@ public abstract class AbstractTensor<T extends AbstractTensor<T, ArrayT>, ArrayT
   }
 
   /**
-   * Return this cast to the subclass type.
-   *
-   * @return this cast to the subclass type.
-   */
-  private T self() {
-    @SuppressWarnings("unchecked")
-    var self = (T) this;
-    return self;
-  }
-
-  private Class<T> selfClass() {
-    @SuppressWarnings("unchecked")
-    var selfClass = (Class<T>) getClass();
-    return selfClass;
-  }
-
-  /**
-   * Create a new subclass instance.
-   *
-   * @param mutable whether the new instance should be mutable.
-   * @param shape the shape of the new instance.
-   * @param stride the stride of the new instance.
-   * @param data the data of the new instance.
-   * @param data_offset the data offset of the new instance.
-   * @return the new instance.
-   */
-  private T create(
-      boolean mutable,
-      @Nonnull int[] shape,
-      @Nonnull int[] stride,
-      @Nonnull ArrayT data,
-      int data_offset) {
-    try {
-      return selfClass()
-          .getDeclaredConstructor(
-              boolean.class, int[].class, int[].class, data.getClass(), int.class)
-          .newInstance(mutable, shape, stride, data, data_offset);
-
-    } catch (NoSuchMethodException
-        | InstantiationException
-        | IllegalAccessException
-        | InvocationTargetException e) {
-      throw new RuntimeException(e);
-    }
-  }
-
-  /**
    * Assert that this tensor has the given number of dimensions.
    *
    * @param ndim the number of dimensions.
@@ -165,6 +136,11 @@ public abstract class AbstractTensor<T extends AbstractTensor<T, ArrayT>, ArrayT
   @Override
   public final void assertNDim(int ndim) {
     HasDimension.assertNDim(ndim, getNDim());
+  }
+
+  @Override
+  public final int getNDim() {
+    return shape.length;
   }
 
   /**
@@ -201,23 +177,6 @@ public abstract class AbstractTensor<T extends AbstractTensor<T, ArrayT>, ArrayT
   @Nonnull
   public final T asImmutable() {
     return clone(false);
-  }
-
-  /**
-   * Clone this tensor.
-   *
-   * <p>If this tensor is immutable and compact, returns this.
-   *
-   * <p>If this tensor is immutable and non-compact, returns a compact clone.
-   *
-   * <p>If this tensor is mutable, returns a compact mutable clone.
-   *
-   * @return a tensor with the same data.
-   */
-  @Override
-  @SuppressWarnings("MethodDoesntCallSuperMethod")
-  public final T clone() {
-    return clone(mutable);
   }
 
   /**
@@ -278,6 +237,19 @@ public abstract class AbstractTensor<T extends AbstractTensor<T, ArrayT>, ArrayT
   }
 
   /**
+   * Resolve a dimension index.
+   *
+   * <p>Negative dimension indices are resolved relative to the number of dimensions.
+   *
+   * @param dim the dimension index.
+   * @return the resolved dimension index.
+   * @throws IndexOutOfBoundsException if the index is out of range.
+   */
+  public final int resolveDim(int dim) {
+    return IndexingFns.resolveDim(dim, shape);
+  }
+
+  /**
    * Returns the shape of this tensor.
    *
    * @return a copy of the shape array.
@@ -305,24 +277,6 @@ public abstract class AbstractTensor<T extends AbstractTensor<T, ArrayT>, ArrayT
   @Nonnull
   public final ZTensor shapeAsTensor() {
     return ZTensor.newVector(shape);
-  }
-
-  @Override
-  public final int getNDim() {
-    return shape.length;
-  }
-
-  /**
-   * Resolve a dimension index.
-   *
-   * <p>Negative dimension indices are resolved relative to the number of dimensions.
-   *
-   * @param dim the dimension index.
-   * @return the resolved dimension index.
-   * @throws IndexOutOfBoundsException if the index is out of range.
-   */
-  public final int resolveDim(int dim) {
-    return IndexingFns.resolveDim(dim, shape);
   }
 
   /**
@@ -367,18 +321,6 @@ public abstract class AbstractTensor<T extends AbstractTensor<T, ArrayT>, ArrayT
     return data_offset + IndexingFns.ravel(shape, stride, coords);
   }
 
-  @Override
-  public final T permute(@Nonnull int... permutation) {
-    var perm = IndexingFns.resolvePermutation(permutation, getNDim());
-
-    return create(
-        mutable,
-        IndexingFns.applyResolvedPermutation(shape, perm),
-        IndexingFns.applyResolvedPermutation(stride, perm),
-        data,
-        data_offset);
-  }
-
   /**
    * Transposes (swaps) two dimensions of this tensor.
    *
@@ -413,13 +355,62 @@ public abstract class AbstractTensor<T extends AbstractTensor<T, ArrayT>, ArrayT
   }
 
   /**
-   * Transpose this tensor by reversing its dimensions.
+   * Return this cast to the subclass type.
    *
-   * @return a transposed view of this tensor.
+   * @return this cast to the subclass type.
    */
-  @Nonnull
-  public final T transpose() {
-    return permute(IndexingFns.aoti(getNDim()));
+  private T self() {
+    @SuppressWarnings("unchecked")
+    var self = (T) this;
+    return self;
+  }
+
+  @Override
+  public final T permute(@Nonnull int... permutation) {
+    var perm = IndexingFns.resolvePermutation(permutation, getNDim());
+
+    return create(
+        mutable,
+        IndexingFns.applyResolvedPermutation(shape, perm),
+        IndexingFns.applyResolvedPermutation(stride, perm),
+        data,
+        data_offset);
+  }
+
+  /**
+   * Create a new subclass instance.
+   *
+   * @param mutable whether the new instance should be mutable.
+   * @param shape the shape of the new instance.
+   * @param stride the stride of the new instance.
+   * @param data the data of the new instance.
+   * @param data_offset the data offset of the new instance.
+   * @return the new instance.
+   */
+  private T create(
+      boolean mutable,
+      @Nonnull int[] shape,
+      @Nonnull int[] stride,
+      @Nonnull ArrayT data,
+      int data_offset) {
+    try {
+      return selfClass()
+          .getDeclaredConstructor(
+              boolean.class, int[].class, int[].class, data.getClass(), int.class)
+          .newInstance(mutable, shape, stride, data, data_offset);
+
+    } catch (NoSuchMethodException
+        | InstantiationException
+        | IllegalAccessException
+        | InvocationTargetException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  private Class<T> selfClass() {
+    @SuppressWarnings("unchecked")
+    var selfClass = (Class<T>) getClass();
+    return selfClass;
   }
 
   /**
@@ -432,6 +423,16 @@ public abstract class AbstractTensor<T extends AbstractTensor<T, ArrayT>, ArrayT
   @Nonnull
   public final T T() {
     return transpose();
+  }
+
+  /**
+   * Transpose this tensor by reversing its dimensions.
+   *
+   * @return a transposed view of this tensor.
+   */
+  @Nonnull
+  public final T transpose() {
+    return permute(IndexingFns.aoti(getNDim()));
   }
 
   /**

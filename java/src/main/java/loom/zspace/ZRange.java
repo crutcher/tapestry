@@ -47,43 +47,6 @@ import loom.common.serialization.JsonUtil;
 @Getter
 public final class ZRange implements Cloneable, HasSize, HasPermute<ZRange>, HasToJsonString {
 
-  @Nonnull private final ZPoint start;
-  @Nonnull private final ZPoint end;
-
-  @JsonIgnore @Nonnull private final ZTensor shape;
-  @JsonIgnore private final int size;
-
-  /**
-   * Construct a new ZRange of {@code [start, end)}.
-   *
-   * @param start the start point.
-   * @param end the exclusive end point.
-   */
-  @JsonCreator
-  public ZRange(
-      @Nonnull @JsonProperty(value = "start") ZPoint start,
-      @Nonnull @JsonProperty(value = "end") ZPoint end) {
-    start.coords.assertMatchingShape(end.coords);
-    if (start.gt(end)) {
-      throw new IllegalArgumentException("start %s must be <= end %s".formatted(start, end));
-    }
-    this.start = start;
-    this.end = end;
-
-    shape = end.coords.sub(start.coords).asImmutable();
-    size = shape.prodAsInt();
-  }
-
-  /**
-   * Construct a new ZRange of {@code [start, end)}.
-   *
-   * @param start the start point.
-   * @param end the exclusive end point.
-   */
-  public ZRange(@Nonnull ZTensor start, @Nonnull ZTensor end) {
-    this(new ZPoint(start), new ZPoint(end));
-  }
-
   /**
    * Build a range from {@code [0, shape)}.
    *
@@ -102,8 +65,8 @@ public final class ZRange implements Cloneable, HasSize, HasPermute<ZRange>, Has
    * @return a new range.
    */
   @Nonnull
-  public static ZRange fromShape(@Nonnull ZTensor shape) {
-    return fromShape(new ZPoint(shape));
+  public static ZRange fromShape(@Nonnull ZPoint shape) {
+    return new ZRange(ZPoint.newZerosLike(shape), shape);
   }
 
   /**
@@ -113,8 +76,8 @@ public final class ZRange implements Cloneable, HasSize, HasPermute<ZRange>, Has
    * @return a new range.
    */
   @Nonnull
-  public static ZRange fromShape(@Nonnull ZPoint shape) {
-    return new ZRange(ZPoint.newZerosLike(shape), shape);
+  public static ZRange fromShape(@Nonnull ZTensor shape) {
+    return fromShape(new ZPoint(shape));
   }
 
   /**
@@ -130,15 +93,25 @@ public final class ZRange implements Cloneable, HasSize, HasPermute<ZRange>, Has
   }
 
   /**
-   * Construct a new ZRange of {@code [start, end)}.
+   * Shift the entire range by the given delta.
    *
-   * @param start the start point.
-   * @param end the exclusive end point.
-   * @return a new range.
+   * @param delta the delta to shift by.
+   * @return the shifted range.
    */
   @Nonnull
-  public static ZRange of(@Nonnull ZPoint start, @Nonnull ZPoint end) {
-    return new ZRange(start, end);
+  public ZRange translate(@Nonnull ZPoint delta) {
+    return translate(delta.coords);
+  }
+
+  /**
+   * Shift the entire range by the given delta.
+   *
+   * @param delta the delta to shift by.
+   * @return the shifted range.
+   */
+  @Nonnull
+  public ZRange translate(@Nonnull ZTensor delta) {
+    return ZRange.of(start.coords.add(delta), end.coords.add(delta));
   }
 
   /**
@@ -150,6 +123,18 @@ public final class ZRange implements Cloneable, HasSize, HasPermute<ZRange>, Has
    */
   @Nonnull
   public static ZRange of(@Nonnull ZTensor start, @Nonnull ZTensor end) {
+    return new ZRange(start, end);
+  }
+
+  /**
+   * Construct a new ZRange of {@code [start, end)}.
+   *
+   * @param start the start point.
+   * @param end the exclusive end point.
+   * @return a new range.
+   */
+  @Nonnull
+  public static ZRange of(@Nonnull ZPoint start, @Nonnull ZPoint end) {
     return new ZRange(start, end);
   }
 
@@ -233,11 +218,45 @@ public final class ZRange implements Cloneable, HasSize, HasPermute<ZRange>, Has
     throw new IllegalArgumentException(String.format("Invalid ZRange: \"%s\"", str));
   }
 
+  @Nonnull private final ZPoint start;
+  @Nonnull private final ZPoint end;
+  @JsonIgnore @Nonnull private final ZTensor shape;
+  @JsonIgnore private final int size;
+
+  /**
+   * Construct a new ZRange of {@code [start, end)}.
+   *
+   * @param start the start point.
+   * @param end the exclusive end point.
+   */
+  public ZRange(@Nonnull ZTensor start, @Nonnull ZTensor end) {
+    this(new ZPoint(start), new ZPoint(end));
+  }
+
+  /**
+   * Construct a new ZRange of {@code [start, end)}.
+   *
+   * @param start the start point.
+   * @param end the exclusive end point.
+   */
+  @JsonCreator
+  public ZRange(
+      @Nonnull @JsonProperty(value = "start") ZPoint start,
+      @Nonnull @JsonProperty(value = "end") ZPoint end) {
+    start.coords.assertMatchingShape(end.coords);
+    if (start.gt(end)) {
+      throw new IllegalArgumentException("start %s must be <= end %s".formatted(start, end));
+    }
+    this.start = start;
+    this.end = end;
+
+    shape = end.coords.sub(start.coords).asImmutable();
+    size = shape.prodAsInt();
+  }
+
   @Override
-  @SuppressWarnings("MethodDoesntCallSuperMethod")
-  public ZRange clone() {
-    // ZRange is immutable, so we can just return this.
-    return this;
+  public int hashCode() {
+    return Objects.hash(start, end);
   }
 
   @Override
@@ -248,8 +267,10 @@ public final class ZRange implements Cloneable, HasSize, HasPermute<ZRange>, Has
   }
 
   @Override
-  public int hashCode() {
-    return Objects.hash(start, end);
+  @SuppressWarnings("MethodDoesntCallSuperMethod")
+  public ZRange clone() {
+    // ZRange is immutable, so we can just return this.
+    return this;
   }
 
   @Override
@@ -386,28 +407,6 @@ public final class ZRange implements Cloneable, HasSize, HasPermute<ZRange>, Has
     }
 
     return new ZPoint(end.coords.sub(1));
-  }
-
-  /**
-   * Shift the entire range by the given delta.
-   *
-   * @param delta the delta to shift by.
-   * @return the shifted range.
-   */
-  @Nonnull
-  public ZRange translate(@Nonnull ZPoint delta) {
-    return translate(delta.coords);
-  }
-
-  /**
-   * Shift the entire range by the given delta.
-   *
-   * @param delta the delta to shift by.
-   * @return the shifted range.
-   */
-  @Nonnull
-  public ZRange translate(@Nonnull ZTensor delta) {
-    return ZRange.of(start.coords.add(delta), end.coords.add(delta));
   }
 
   /**

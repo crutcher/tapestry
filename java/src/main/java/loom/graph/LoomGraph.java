@@ -8,15 +8,6 @@ import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.UUID;
-import java.util.stream.Stream;
-import javax.annotation.CheckReturnValue;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import loom.common.HasToJsonString;
@@ -29,6 +20,16 @@ import loom.graph.nodes.GenericNodeMetaFactory;
 import loom.validation.ValidationIssue;
 import loom.validation.ValidationIssueCollector;
 
+import javax.annotation.CheckReturnValue;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.UUID;
+import java.util.stream.Stream;
+
 /** A Loom Graph document. */
 @Getter
 @Setter
@@ -36,6 +37,9 @@ import loom.validation.ValidationIssueCollector;
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public final class LoomGraph implements Iterable<LoomGraph.Node<?, ?>>, HasToJsonString {
+
+  public static final LoomEnvironment GENERIC_ENV =
+      LoomEnvironment.builder().nodeMetaFactory(new GenericNodeMetaFactory()).build();
 
   /**
    * Base class for a node in the graph.
@@ -51,17 +55,41 @@ public final class LoomGraph implements Iterable<LoomGraph.Node<?, ?>>, HasToJso
   public abstract static class Node<NodeType extends Node<NodeType, BodyType>, BodyType>
       implements HasToJsonString {
 
-    @JsonIgnore private NodePrototype<NodeType, BodyType> prototype;
-    @JsonIgnore @Nullable private LoomGraph graph;
+    public static final class JsonSupport {
+      /**
+       * A Jackson serializer for Node. We use a custom serializer because {@code @Delegate} applied
+       * to a method in subclasses to delegate the type methods of {@code body} does not honor
+       * {@code @JsonIgnore}, and we otherwise generate data fields for every getter in the body.
+       *
+       * @param <B> the type of the node body.
+       */
+      public static final class NodeSerializer<N extends Node<N, B>, B>
+          extends JsonSerializer<Node<N, B>> {
+        @Override
+        public void serialize(Node<N, B> value, JsonGenerator gen, SerializerProvider serializers)
+            throws IOException {
+          gen.writeStartObject();
+          gen.writeStringField("id", value.getId().toString());
+          gen.writeStringField("type", value.getType());
+
+          var label = value.getLabel();
+          if (label != null) {
+            gen.writeStringField("label", label);
+          }
+
+          gen.writeObjectField("body", value.getBody());
+          gen.writeEndObject();
+        }
+      }
+
+      private JsonSupport() {}
+    }
 
     @Nonnull private final UUID id;
     @Nonnull private final String type;
+    @JsonIgnore private NodePrototype<NodeType, BodyType> prototype;
+    @JsonIgnore @Nullable private LoomGraph graph;
     @Nullable private String label;
-
-    @Nonnull
-    public abstract BodyType getBody();
-
-    public abstract void setBody(@Nonnull BodyType body);
 
     @JsonIgnore
     public final String getJsonPath() {
@@ -94,13 +122,6 @@ public final class LoomGraph implements Iterable<LoomGraph.Node<?, ?>>, HasToJso
       return getPrototype().nodeFromTree(this);
     }
 
-    /** Get the class type of the node body. */
-    @JsonIgnore
-    @SuppressWarnings("unchecked")
-    public Class<BodyType> getBodyClass() {
-      return (Class<BodyType>) getBody().getClass();
-    }
-
     /**
      * Get the node body as a JSON string.
      *
@@ -109,6 +130,11 @@ public final class LoomGraph implements Iterable<LoomGraph.Node<?, ?>>, HasToJso
     public final String getBodyAsJson() {
       return JsonUtil.toPrettyJson(getBody());
     }
+
+    @Nonnull
+    public abstract BodyType getBody();
+
+    public abstract void setBody(@Nonnull BodyType body);
 
     /**
      * Get the node body as a JSON tree.
@@ -128,6 +154,13 @@ public final class LoomGraph implements Iterable<LoomGraph.Node<?, ?>>, HasToJso
       setBody(JsonUtil.fromJson(json, getBodyClass()));
     }
 
+    /** Get the class type of the node body. */
+    @JsonIgnore
+    @SuppressWarnings("unchecked")
+    public Class<BodyType> getBodyClass() {
+      return (Class<BodyType>) getBody().getClass();
+    }
+
     /**
      * Set the node body from a JSON tree.
      *
@@ -135,16 +168,6 @@ public final class LoomGraph implements Iterable<LoomGraph.Node<?, ?>>, HasToJso
      */
     public final void setBodyFromValue(Object tree) {
       setBody(JsonUtil.convertValue(tree, getBodyClass()));
-    }
-
-    /**
-     * Subclass type helper.
-     *
-     * @return this, cast to the subclass {@code NodeType} type.
-     */
-    @SuppressWarnings("unchecked")
-    public final NodeType self() {
-      return (NodeType) this;
     }
 
     /**
@@ -156,34 +179,14 @@ public final class LoomGraph implements Iterable<LoomGraph.Node<?, ?>>, HasToJso
       getPrototype().validate(self(), issueCollector);
     }
 
-    public static final class JsonSupport {
-      private JsonSupport() {}
-
-      /**
-       * A Jackson serializer for Node. We use a custom serializer because {@code @Delegate} applied
-       * to a method in subclasses to delegate the type methods of {@code body} does not honor
-       * {@code @JsonIgnore}, and we otherwise generate data fields for every getter in the body.
-       *
-       * @param <B> the type of the node body.
-       */
-      public static final class NodeSerializer<N extends Node<N, B>, B>
-          extends JsonSerializer<Node<N, B>> {
-        @Override
-        public void serialize(Node<N, B> value, JsonGenerator gen, SerializerProvider serializers)
-            throws IOException {
-          gen.writeStartObject();
-          gen.writeStringField("id", value.getId().toString());
-          gen.writeStringField("type", value.getType());
-
-          var label = value.getLabel();
-          if (label != null) {
-            gen.writeStringField("label", label);
-          }
-
-          gen.writeObjectField("body", value.getBody());
-          gen.writeEndObject();
-        }
-      }
+    /**
+     * Subclass type helper.
+     *
+     * @return this, cast to the subclass {@code NodeType} type.
+     */
+    @SuppressWarnings("unchecked")
+    public final NodeType self() {
+      return (NodeType) this;
     }
   }
 
@@ -245,6 +248,16 @@ public final class LoomGraph implements Iterable<LoomGraph.Node<?, ?>>, HasToJso
     public void validateNode(NodeType node, ValidationIssueCollector issueCollector) {}
 
     /**
+     * Create a new node with this meta.
+     *
+     * @param json the JSON string to parse.
+     * @return the node.
+     */
+    public final NodeType nodeFromJson(String json) {
+      return adopt(JsonUtil.fromJson(json, getNodeTypeClass()));
+    }
+
+    /**
      * Adopt a node into this meta.
      *
      * @param node the node to adopt.
@@ -253,16 +266,6 @@ public final class LoomGraph implements Iterable<LoomGraph.Node<?, ?>>, HasToJso
     private NodeType adopt(NodeType node) {
       node.setPrototype(this);
       return node;
-    }
-
-    /**
-     * Create a new node with this meta.
-     *
-     * @param json the JSON string to parse.
-     * @return the node.
-     */
-    public final NodeType nodeFromJson(String json) {
-      return adopt(JsonUtil.fromJson(json, getNodeTypeClass()));
     }
 
     /**
@@ -278,14 +281,6 @@ public final class LoomGraph implements Iterable<LoomGraph.Node<?, ?>>, HasToJso
 
   /** Factory to lookup node meta by type. */
   public abstract static class NodeMetaFactory {
-    /**
-     * Get the node meta for the given type.
-     *
-     * @param type the node type.
-     * @return the node meta, or null if not found.
-     */
-    public abstract NodePrototype<?, ?> getMetaForType(String type);
-
     /**
      * Parse a node from a JSON string, using the node type in the JSON.
      *
@@ -307,18 +302,36 @@ public final class LoomGraph implements Iterable<LoomGraph.Node<?, ?>>, HasToJso
       var meta = getMetaForType(type);
       return meta.nodeFromTree(tree);
     }
+
+    /**
+     * Get the node meta for the given type.
+     *
+     * @param type the node type.
+     * @return the node meta, or null if not found.
+     */
+    public abstract NodePrototype<?, ?> getMetaForType(String type);
   }
 
-  public static final LoomEnvironment GENERIC_ENV =
-      LoomEnvironment.builder().nodeMetaFactory(new GenericNodeMetaFactory()).build();
+  /** Support classes for Jackson serialization. */
+  @NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
+  public static final class Serialization {
+    /** Jackson deserializer for {@link LoomGraph#nodes}. */
+    public static final class NodeListToMapDeserializer
+        extends MapValueListUtil.MapDeserializer<UUID, Node<?, ?>> {
+      @SuppressWarnings("unchecked")
+      public NodeListToMapDeserializer() {
+        super((Class<Node<?, ?>>) (Class<?>) Node.class, Node::getId, HashMap.class);
+      }
+    }
+  }
 
   @JsonIgnore @Builder.Default private final LoomEnvironment env = GENERIC_ENV;
 
-  @Nullable private UUID id;
-
   @JsonSerialize(using = MapValueListUtil.MapSerializer.class)
-  @JsonDeserialize(using = JacksonSupport.NodeListToMapDeserializer.class)
+  @JsonDeserialize(using = Serialization.NodeListToMapDeserializer.class)
   private final Map<UUID, Node<?, ?>> nodes = new HashMap<>();
+
+  @Nullable private UUID id;
 
   /**
    * Validate the graph.
@@ -351,104 +364,6 @@ public final class LoomGraph implements Iterable<LoomGraph.Node<?, ?>>, HasToJso
     }
 
     return graph;
-  }
-
-  /**
-   * Create a new, unused node ID.
-   *
-   * @return the new ID.
-   */
-  public UUID newUnusedNodeId() {
-    UUID id;
-    do {
-      id = UUID.randomUUID();
-    } while (hasNode(id));
-    return id;
-  }
-
-  /**
-   * Does this graph contain a node with the given ID?
-   *
-   * @param id the ID to check.
-   * @return true if the graph contains a node with the given ID.
-   */
-  public boolean hasNode(UUID id) {
-    return nodes.containsKey(id);
-  }
-
-  /**
-   * Does this graph contain a node with the given ID?
-   *
-   * @param id the ID to check.
-   * @return true if the graph contains a node with the given ID.
-   */
-  public boolean hasNode(String id) {
-    return hasNode(UUID.fromString(id));
-  }
-
-  /**
-   * Get the node with the given ID.
-   *
-   * @param id the ID of the node to get.
-   * @return the node.
-   * @throws LookupError if the node does not exist.
-   */
-  @Nonnull
-  public Node<?, ?> assertNode(UUID id) {
-    var node = nodes.get(id);
-    if (node == null) {
-      throw new LookupError("Node not found: " + id);
-    }
-    return node;
-  }
-
-  /**
-   * Get the node with the given ID.
-   *
-   * @param id the ID of the node to get.
-   * @return the node.
-   * @throws LookupError if the node does not exist.
-   */
-  @Nonnull
-  public Node<?, ?> assertNode(String id) {
-    return assertNode(UUID.fromString(id));
-  }
-
-  /**
-   * Get the node with the given ID.
-   *
-   * @param id the ID of the node to get.
-   * @param type the type of the node to get; null to skip type check.
-   * @param nodeClass the class of the node to get.
-   * @return the cast node.
-   * @param <T> the type of the node to get.
-   * @throws LookupError if the node does not exist, or is not of the given type.
-   */
-  @Nonnull
-  public <T extends Node<?, ?>> T assertNode(UUID id, @Nullable String type, Class<T> nodeClass) {
-    var node = assertNode(id);
-    if (type != null && !node.getType().equals(type)) {
-      throw new LookupError("Node is not of type " + type + ": " + id);
-    }
-    if (!nodeClass.isInstance(node)) {
-      throw new LookupError("Node is not of type " + nodeClass.getSimpleName() + ": " + id);
-    }
-    return nodeClass.cast(node);
-  }
-
-  /**
-   * Get the node with the given ID.
-   *
-   * @param id the ID of the node to get.
-   * @param type the type of the node to get; null to skip type check.
-   * @param nodeClass the class of the node to get.
-   * @return the cast node.
-   * @param <T> the type of the node to get.
-   * @throws LookupError if the node does not exist, or is not of the given type.
-   */
-  @Nonnull
-  public <T extends Node<?, ?>> T assertNode(String id, String type, Class<T> nodeClass) {
-    return assertNode(UUID.fromString(id), type, nodeClass);
   }
 
   /**
@@ -486,6 +401,91 @@ public final class LoomGraph implements Iterable<LoomGraph.Node<?, ?>>, HasToJso
   }
 
   /**
+   * Does this graph contain a node with the given ID?
+   *
+   * @param id the ID to check.
+   * @return true if the graph contains a node with the given ID.
+   */
+  public boolean hasNode(UUID id) {
+    return nodes.containsKey(id);
+  }
+
+  /**
+   * Does this graph contain a node with the given ID?
+   *
+   * @param id the ID to check.
+   * @return true if the graph contains a node with the given ID.
+   */
+  public boolean hasNode(String id) {
+    return hasNode(UUID.fromString(id));
+  }
+
+  /**
+   * Get the node with the given ID.
+   *
+   * @param id the ID of the node to get.
+   * @return the node.
+   * @throws LookupError if the node does not exist.
+   */
+  @Nonnull
+  public Node<?, ?> assertNode(String id) {
+    return assertNode(UUID.fromString(id));
+  }
+
+  /**
+   * Get the node with the given ID.
+   *
+   * @param id the ID of the node to get.
+   * @return the node.
+   * @throws LookupError if the node does not exist.
+   */
+  @Nonnull
+  public Node<?, ?> assertNode(UUID id) {
+    var node = nodes.get(id);
+    if (node == null) {
+      throw new LookupError("Node not found: " + id);
+    }
+    return node;
+  }
+
+  /**
+   * Get the node with the given ID.
+   *
+   * @param id the ID of the node to get.
+   * @param type the type of the node to get; null to skip type check.
+   * @param nodeClass the class of the node to get.
+   * @return the cast node.
+   * @param <T> the type of the node to get.
+   * @throws LookupError if the node does not exist, or is not of the given type.
+   */
+  @Nonnull
+  public <T extends Node<?, ?>> T assertNode(String id, String type, Class<T> nodeClass) {
+    return assertNode(UUID.fromString(id), type, nodeClass);
+  }
+
+  /**
+   * Get the node with the given ID.
+   *
+   * @param id the ID of the node to get.
+   * @param type the type of the node to get; null to skip type check.
+   * @param nodeClass the class of the node to get.
+   * @return the cast node.
+   * @param <T> the type of the node to get.
+   * @throws LookupError if the node does not exist, or is not of the given type.
+   */
+  @Nonnull
+  public <T extends Node<?, ?>> T assertNode(UUID id, @Nullable String type, Class<T> nodeClass) {
+    var node = assertNode(id);
+    if (type != null && !node.getType().equals(type)) {
+      throw new LookupError("Node is not of type " + type + ": " + id);
+    }
+    if (!nodeClass.isInstance(node)) {
+      throw new LookupError("Node is not of type " + nodeClass.getSimpleName() + ": " + id);
+    }
+    return nodeClass.cast(node);
+  }
+
+  /**
    * Add a node to the graph.
    *
    * <p>If the node builder does not have an ID, a new ID will be generated.
@@ -503,6 +503,19 @@ public final class LoomGraph implements Iterable<LoomGraph.Node<?, ?>>, HasToJso
     var node = (N) builder.build();
 
     return addNode(node);
+  }
+
+  /**
+   * Create a new, unused node ID.
+   *
+   * @return the new ID.
+   */
+  public UUID newUnusedNodeId() {
+    UUID id;
+    do {
+      id = UUID.randomUUID();
+    } while (hasNode(id));
+    return id;
   }
 
   @Override
@@ -536,17 +549,6 @@ public final class LoomGraph implements Iterable<LoomGraph.Node<?, ?>>, HasToJso
   }
 
   /**
-   * Get a stream of all nodes in the graph.
-   *
-   * @return the stream.
-   */
-  @CheckReturnValue
-  @Nonnull
-  public Stream<Node<?, ?>> stream() {
-    return nodes.values().stream();
-  }
-
-  /**
    * Get a stream of all nodes of class {@code T} the graph, optionally filtered by type.
    *
    * @param type the type to filter by; null to skip type filter.
@@ -565,17 +567,14 @@ public final class LoomGraph implements Iterable<LoomGraph.Node<?, ?>>, HasToJso
     return s.filter(nodeClass::isInstance).map(nodeClass::cast);
   }
 
-  /** Support classes for Jackson serialization. */
-  public static final class JacksonSupport {
-    private JacksonSupport() {}
-
-    /** Jackson deserializer for {@link LoomGraph#nodes}. */
-    public static final class NodeListToMapDeserializer
-        extends MapValueListUtil.MapDeserializer<UUID, Node<?, ?>> {
-      @SuppressWarnings("unchecked")
-      public NodeListToMapDeserializer() {
-        super((Class<Node<?, ?>>) (Class<?>) Node.class, Node::getId, HashMap.class);
-      }
-    }
+  /**
+   * Get a stream of all nodes in the graph.
+   *
+   * @return the stream.
+   */
+  @CheckReturnValue
+  @Nonnull
+  public Stream<Node<?, ?>> stream() {
+    return nodes.values().stream();
   }
 }

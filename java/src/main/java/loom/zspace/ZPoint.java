@@ -6,9 +6,11 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.google.errorprone.annotations.Immutable;
+import lombok.NoArgsConstructor;
+import loom.common.HasToJsonString;
+
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.ThreadSafe;
-import loom.common.HasToJsonString;
 
 /**
  * A point in a ZSpace.
@@ -21,37 +23,343 @@ import loom.common.HasToJsonString;
 @Immutable
 @JsonDeserialize(using = ZPoint.Serialization.Deserializer.class)
 public final class ZPoint implements Cloneable, HasPermute<ZPoint>, HasToJsonString {
-  @JsonValue
+  @NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
+  static final class Serialization {
+    static final class Deserializer extends StdDeserializer<ZPoint> {
+      public Deserializer() {
+        super(ZPoint.class);
+      }
+
+      @Override
+      public ZPoint deserialize(JsonParser p, DeserializationContext context)
+          throws java.io.IOException {
+        return new ZPoint(p.readValueAs(ZTensor.class));
+      }
+    }
+  }
+
+  /** Namespace of ZPoint operations. */
+  @NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
+  public static final class Ops {
+    /**
+     * Compute the partial ordering of two points.
+     *
+     * @param lhs the left-hand side.
+     * @param rhs the right-hand side.
+     * @return the partial ordering.
+     */
+    public static PartialOrdering partialCompare(@Nonnull ZPoint lhs, @Nonnull ZPoint rhs) {
+      return partialCompare(lhs.coords, rhs.coords);
+    }
+
+    /**
+     * Compute the partial ordering of two tensors as coordinates in distance from 0.
+     *
+     * <p>This ordering is defined to be useful for {@code [start, end)} ranges.
+     *
+     * @param lhs the left-hand side.
+     * @param rhs the right-hand side.
+     * @return the partial ordering.
+     */
+    public static PartialOrdering partialCompare(@Nonnull ZTensor lhs, @Nonnull ZTensor rhs) {
+      HasDimension.assertSameNDim(lhs, rhs);
+
+      boolean lt = false;
+      boolean gt = false;
+      for (int[] coords : lhs.byCoords(BufferMode.REUSED)) {
+        int cmp = Integer.compare(lhs.get(coords), rhs.get(coords));
+        if (cmp < 0) {
+          lt = true;
+        } else if (cmp > 0) {
+          gt = true;
+        }
+      }
+      if (lt && gt) return PartialOrdering.INCOMPARABLE;
+      if (lt) return PartialOrdering.LESS_THAN;
+      if (gt) return PartialOrdering.GREATER_THAN;
+      return PartialOrdering.EQUAL;
+    }
+
+    /**
+     * Are these points equal under partial ordering?
+     *
+     * @param lhs the left-hand side.
+     * @param rhs the right-hand side.
+     * @return true if the points are equal.
+     */
+    public static boolean eq(@Nonnull ZPoint lhs, @Nonnull ZPoint rhs) {
+      return eq(lhs.coords, rhs.coords);
+    }
+
+    /**
+     * Are these points equal under partial ordering?
+     *
+     * @param lhs the left-hand side.
+     * @param rhs the right-hand side.
+     * @return true if the points are equal.
+     */
+    public static boolean eq(@Nonnull ZTensor lhs, @Nonnull ZTensor rhs) {
+      return lhs.equals(rhs);
+    }
+
+    /**
+     * Are these points equal under partial ordering?
+     *
+     * @param lhs the left-hand side.
+     * @param rhs the right-hand side.
+     * @return true if the points are equal.
+     */
+    public static boolean eq(@Nonnull ZTensor lhs, @Nonnull ZPoint rhs) {
+      return eq(lhs, rhs.coords);
+    }
+
+    /**
+     * Are these points equal under partial ordering?
+     *
+     * @param lhs the left-hand side.
+     * @param rhs the right-hand side.
+     * @return true if the points are equal.
+     */
+    public static boolean eq(@Nonnull ZPoint lhs, @Nonnull ZTensor rhs) {
+      return eq(lhs.coords, rhs);
+    }
+
+    /**
+     * Are these points non-equal under partial ordering?
+     *
+     * @param lhs the left-hand side.
+     * @param rhs the right-hand side.
+     * @return true if the points are non-equal.
+     */
+    public static boolean ne(@Nonnull ZPoint lhs, @Nonnull ZPoint rhs) {
+      return !eq(lhs.coords, rhs.coords);
+    }
+
+    /**
+     * Are these points non-equal under partial ordering?
+     *
+     * @param lhs the left-hand side.
+     * @param rhs the right-hand side.
+     * @return true if the points are non-equal.
+     */
+    public static boolean ne(@Nonnull ZTensor lhs, @Nonnull ZPoint rhs) {
+      return !eq(lhs, rhs.coords);
+    }
+
+    /**
+     * Are these points non-equal under partial ordering?
+     *
+     * @param lhs the left-hand side.
+     * @param rhs the right-hand side.
+     * @return true if the points are non-equal.
+     */
+    public static boolean ne(@Nonnull ZPoint lhs, @Nonnull ZTensor rhs) {
+      return !eq(lhs.coords, rhs);
+    }
+
+    /**
+     * Are these points non-equal under partial ordering?
+     *
+     * @param lhs the left-hand side.
+     * @param rhs the right-hand side.
+     * @return true if the points are non-equal.
+     */
+    public static boolean ne(@Nonnull ZTensor lhs, @Nonnull ZTensor rhs) {
+      return !eq(lhs, rhs);
+    }
+
+    /**
+     * Is `lhs < rhs`?
+     *
+     * @param lhs the left-hand side.
+     * @param rhs the right-hand side.
+     * @return true or false.
+     */
+    public static boolean lt(@Nonnull ZPoint lhs, @Nonnull ZPoint rhs) {
+      return lt(lhs.coords, rhs.coords);
+    }
+
+    /**
+     * Is `lhs < rhs`?
+     *
+     * @param lhs the left-hand side.
+     * @param rhs the right-hand side.
+     * @return true or false.
+     */
+    public static boolean lt(@Nonnull ZTensor lhs, @Nonnull ZTensor rhs) {
+      return partialCompare(lhs, rhs) == PartialOrdering.LESS_THAN;
+    }
+
+    /**
+     * Is `lhs < rhs`?
+     *
+     * @param lhs the left-hand side.
+     * @param rhs the right-hand side.
+     * @return true or false.
+     */
+    public static boolean lt(@Nonnull ZTensor lhs, @Nonnull ZPoint rhs) {
+      return lt(lhs, rhs.coords);
+    }
+
+    /**
+     * Is `lhs < rhs`?
+     *
+     * @param lhs the left-hand side.
+     * @param rhs the right-hand side.
+     * @return true or false.
+     */
+    public static boolean lt(@Nonnull ZPoint lhs, @Nonnull ZTensor rhs) {
+      return lt(lhs.coords, rhs);
+    }
+
+    /**
+     * Is `lhs <= rhs`?
+     *
+     * @param lhs the left-hand side.
+     * @param rhs the right-hand side.
+     * @return true or false.
+     */
+    public static boolean le(@Nonnull ZPoint lhs, @Nonnull ZPoint rhs) {
+      return le(lhs.coords, rhs.coords);
+    }
+
+    /**
+     * Is `lhs <= rhs`?
+     *
+     * @param lhs the left-hand side.
+     * @param rhs the right-hand side.
+     * @return true or false.
+     */
+    public static boolean le(@Nonnull ZTensor lhs, @Nonnull ZTensor rhs) {
+      return switch (partialCompare(lhs, rhs)) {
+        case LESS_THAN, EQUAL -> true;
+        default -> false;
+      };
+    }
+
+    /**
+     * Is `lhs <= rhs`?
+     *
+     * @param lhs the left-hand side.
+     * @param rhs the right-hand side.
+     * @return true or false.
+     */
+    public static boolean le(@Nonnull ZPoint lhs, @Nonnull ZTensor rhs) {
+      return le(lhs.coords, rhs);
+    }
+
+    /**
+     * Is `lhs <= rhs`?
+     *
+     * @param lhs the left-hand side.
+     * @param rhs the right-hand side.
+     * @return true or false.
+     */
+    public static boolean le(@Nonnull ZTensor lhs, @Nonnull ZPoint rhs) {
+      return le(lhs, rhs.coords);
+    }
+
+    /**
+     * Is `lhs > rhs`?
+     *
+     * @param lhs the left-hand side.
+     * @param rhs the right-hand side.
+     * @return true or false.
+     */
+    public static boolean gt(@Nonnull ZPoint lhs, @Nonnull ZPoint rhs) {
+      return gt(lhs.coords, rhs.coords);
+    }
+
+    /**
+     * Is `lhs > rhs`?
+     *
+     * @param lhs the left-hand side.
+     * @param rhs the right-hand side.
+     * @return true or false.
+     */
+    public static boolean gt(@Nonnull ZTensor lhs, @Nonnull ZTensor rhs) {
+      return partialCompare(lhs, rhs) == PartialOrdering.GREATER_THAN;
+    }
+
+    /**
+     * Is `lhs > rhs`?
+     *
+     * @param lhs the left-hand side.
+     * @param rhs the right-hand side.
+     * @return true or false.
+     */
+    public static boolean gt(@Nonnull ZPoint lhs, @Nonnull ZTensor rhs) {
+      return gt(lhs.coords, rhs);
+    }
+
+    /**
+     * Is `lhs > rhs`?
+     *
+     * @param lhs the left-hand side.
+     * @param rhs the right-hand side.
+     * @return true or false.
+     */
+    public static boolean gt(@Nonnull ZTensor lhs, @Nonnull ZPoint rhs) {
+      return gt(lhs, rhs.coords);
+    }
+
+    /**
+     * Is `lhs >= rhs`?
+     *
+     * @param lhs the left-hand side.
+     * @param rhs the right-hand side.
+     * @return true or false.
+     */
+    public static boolean ge(@Nonnull ZPoint lhs, @Nonnull ZPoint rhs) {
+      return ge(lhs.coords, rhs.coords);
+    }
+
+    /**
+     * Is `lhs >= rhs`?
+     *
+     * @param lhs the left-hand side.
+     * @param rhs the right-hand side.
+     * @return true or false.
+     */
+    public static boolean ge(@Nonnull ZTensor lhs, @Nonnull ZTensor rhs) {
+      return switch (partialCompare(lhs, rhs)) {
+        case GREATER_THAN, EQUAL -> true;
+        default -> false;
+      };
+    }
+
+    /**
+     * Is `lhs >= rhs`?
+     *
+     * @param lhs the left-hand side.
+     * @param rhs the right-hand side.
+     * @return true or false.
+     */
+    public static boolean ge(@Nonnull ZPoint lhs, @Nonnull ZTensor rhs) {
+      return ge(lhs.coords, rhs);
+    }
+
+    /**
+     * Is `lhs >= rhs`?
+     *
+     * @param lhs the left-hand side.
+     * @param rhs the right-hand side.
+     * @return true or false.
+     */
+    public static boolean ge(@Nonnull ZTensor lhs, @Nonnull ZPoint rhs) {
+      return ge(lhs, rhs.coords);
+    }
+  }
+
+  /**
+   * Create a ZPoint of all zeros in the same ZSpace as a reference ZPoint.
+   *
+   * @param ref a reference ZPoint.
+   * @return a new ZPoint.
+   */
   @Nonnull
-  @SuppressWarnings("Immutable")
-  public final ZTensor coords;
-
-  /**
-   * Create a ZPoint of the given coordinates.
-   *
-   * @param coord the coordinates.
-   */
-  public ZPoint(@Nonnull ZTensor coord) {
-    coord.assertNDim(1);
-    this.coords = coord.asImmutable();
-  }
-
-  /**
-   * Create a ZPoint of the given coordinates.
-   *
-   * @param coords the coordinates.
-   */
-  public ZPoint(@Nonnull int... coords) {
-    this(ZTensor.newVector(coords));
-  }
-
-  /**
-   * Create a ZPoint of the given coordinates.
-   *
-   * @param coords the coordinates.
-   */
-  public ZPoint(@Nonnull Iterable<Integer> coords) {
-    this(ZTensor.newVector(coords));
+  public static ZPoint newZerosLike(@Nonnull ZPoint ref) {
+    return newZeros(ref.getNDim());
   }
 
   /**
@@ -65,15 +373,9 @@ public final class ZPoint implements Cloneable, HasPermute<ZPoint>, HasToJsonStr
     return new ZPoint(ZTensor.newZeros(ndim));
   }
 
-  /**
-   * Create a ZPoint of all zeros in the same ZSpace as a reference ZPoint.
-   *
-   * @param ref a reference ZPoint.
-   * @return a new ZPoint.
-   */
-  @Nonnull
-  public static ZPoint newZerosLike(@Nonnull ZPoint ref) {
-    return newZeros(ref.getNDim());
+  @Override
+  public int getNDim() {
+    return coords.shape(0);
   }
 
   /**
@@ -101,11 +403,42 @@ public final class ZPoint implements Cloneable, HasPermute<ZPoint>, HasToJsonStr
     return new ZPoint(ZTensor.parse(source));
   }
 
+  @JsonValue
+  @Nonnull
+  @SuppressWarnings("Immutable")
+  public final ZTensor coords;
+
+  /**
+   * Create a ZPoint of the given coordinates.
+   *
+   * @param coords the coordinates.
+   */
+  public ZPoint(@Nonnull int... coords) {
+    this(ZTensor.newVector(coords));
+  }
+
+  /**
+   * Create a ZPoint of the given coordinates.
+   *
+   * @param coord the coordinates.
+   */
+  public ZPoint(@Nonnull ZTensor coord) {
+    coord.assertNDim(1);
+    this.coords = coord.asImmutable();
+  }
+
+  /**
+   * Create a ZPoint of the given coordinates.
+   *
+   * @param coords the coordinates.
+   */
+  public ZPoint(@Nonnull Iterable<Integer> coords) {
+    this(ZTensor.newVector(coords));
+  }
+
   @Override
-  @SuppressWarnings("MethodDoesntCallSuperMethod")
-  public ZPoint clone() {
-    // Immutable, so no need to clone.
-    return this;
+  public int hashCode() {
+    return coords.hashCode();
   }
 
   @Override
@@ -117,13 +450,25 @@ public final class ZPoint implements Cloneable, HasPermute<ZPoint>, HasToJsonStr
   }
 
   @Override
-  public int hashCode() {
-    return coords.hashCode();
+  @SuppressWarnings("MethodDoesntCallSuperMethod")
+  public ZPoint clone() {
+    // Immutable, so no need to clone.
+    return this;
   }
 
   @Override
   public String toString() {
     return coords.toString();
+  }
+
+  /**
+   * Is `this == rhs`?
+   *
+   * @param rhs the right-hand side.
+   * @return true or false.
+   */
+  public boolean eq(@Nonnull ZPoint rhs) {
+    return ZPoint.Ops.eq(this, rhs);
   }
 
   /**
@@ -134,21 +479,6 @@ public final class ZPoint implements Cloneable, HasPermute<ZPoint>, HasToJsonStr
    */
   public int get(int i) {
     return coords.get(i);
-  }
-
-  /**
-   * Get the coordinates as an array.
-   *
-   * @return the coordinates.
-   */
-  @Nonnull
-  public int[] toArray() {
-    return coords.toT1();
-  }
-
-  @Override
-  public int getNDim() {
-    return coords.shape(0);
   }
 
   /**
@@ -163,13 +493,13 @@ public final class ZPoint implements Cloneable, HasPermute<ZPoint>, HasToJsonStr
   }
 
   /**
-   * Is `this == rhs`?
+   * Get the coordinates as an array.
    *
-   * @param rhs the right-hand side.
-   * @return true or false.
+   * @return the coordinates.
    */
-  public boolean eq(@Nonnull ZPoint rhs) {
-    return ZPoint.Ops.eq(this, rhs);
+  @Nonnull
+  public int[] toArray() {
+    return coords.toT1();
   }
 
   /**
@@ -280,336 +610,5 @@ public final class ZPoint implements Cloneable, HasPermute<ZPoint>, HasToJsonStr
    */
   public boolean ge(@Nonnull ZTensor rhs) {
     return ZPoint.Ops.ge(this, rhs);
-  }
-
-  static final class Serialization {
-    private Serialization() {}
-
-    static final class Deserializer extends StdDeserializer<ZPoint> {
-      public Deserializer() {
-        super(ZPoint.class);
-      }
-
-      @Override
-      public ZPoint deserialize(JsonParser p, DeserializationContext context)
-          throws java.io.IOException {
-        return new ZPoint(p.readValueAs(ZTensor.class));
-      }
-    }
-  }
-
-  /** Namespace of ZPoint operations. */
-  public static final class Ops {
-    // Prevent instantiation.
-    private Ops() {}
-
-    /**
-     * Compute the partial ordering of two tensors as coordinates in distance from 0.
-     *
-     * <p>This ordering is defined to be useful for {@code [start, end)} ranges.
-     *
-     * @param lhs the left-hand side.
-     * @param rhs the right-hand side.
-     * @return the partial ordering.
-     */
-    public static PartialOrdering partialCompare(@Nonnull ZTensor lhs, @Nonnull ZTensor rhs) {
-      HasDimension.assertSameNDim(lhs, rhs);
-
-      boolean lt = false;
-      boolean gt = false;
-      for (int[] coords : lhs.byCoords(BufferMode.REUSED)) {
-        int cmp = Integer.compare(lhs.get(coords), rhs.get(coords));
-        if (cmp < 0) {
-          lt = true;
-        } else if (cmp > 0) {
-          gt = true;
-        }
-      }
-      if (lt && gt) return PartialOrdering.INCOMPARABLE;
-      if (lt) return PartialOrdering.LESS_THAN;
-      if (gt) return PartialOrdering.GREATER_THAN;
-      return PartialOrdering.EQUAL;
-    }
-
-    /**
-     * Compute the partial ordering of two points.
-     *
-     * @param lhs the left-hand side.
-     * @param rhs the right-hand side.
-     * @return the partial ordering.
-     */
-    public static PartialOrdering partialCompare(@Nonnull ZPoint lhs, @Nonnull ZPoint rhs) {
-      return partialCompare(lhs.coords, rhs.coords);
-    }
-
-    /**
-     * Are these points equal under partial ordering?
-     *
-     * @param lhs the left-hand side.
-     * @param rhs the right-hand side.
-     * @return true if the points are equal.
-     */
-    public static boolean eq(@Nonnull ZPoint lhs, @Nonnull ZPoint rhs) {
-      return eq(lhs.coords, rhs.coords);
-    }
-
-    /**
-     * Are these points equal under partial ordering?
-     *
-     * @param lhs the left-hand side.
-     * @param rhs the right-hand side.
-     * @return true if the points are equal.
-     */
-    public static boolean eq(@Nonnull ZTensor lhs, @Nonnull ZPoint rhs) {
-      return eq(lhs, rhs.coords);
-    }
-
-    /**
-     * Are these points equal under partial ordering?
-     *
-     * @param lhs the left-hand side.
-     * @param rhs the right-hand side.
-     * @return true if the points are equal.
-     */
-    public static boolean eq(@Nonnull ZPoint lhs, @Nonnull ZTensor rhs) {
-      return eq(lhs.coords, rhs);
-    }
-
-    /**
-     * Are these points equal under partial ordering?
-     *
-     * @param lhs the left-hand side.
-     * @param rhs the right-hand side.
-     * @return true if the points are equal.
-     */
-    public static boolean eq(@Nonnull ZTensor lhs, @Nonnull ZTensor rhs) {
-      return lhs.equals(rhs);
-    }
-
-    /**
-     * Are these points non-equal under partial ordering?
-     *
-     * @param lhs the left-hand side.
-     * @param rhs the right-hand side.
-     * @return true if the points are non-equal.
-     */
-    public static boolean ne(@Nonnull ZPoint lhs, @Nonnull ZPoint rhs) {
-      return !eq(lhs.coords, rhs.coords);
-    }
-
-    /**
-     * Are these points non-equal under partial ordering?
-     *
-     * @param lhs the left-hand side.
-     * @param rhs the right-hand side.
-     * @return true if the points are non-equal.
-     */
-    public static boolean ne(@Nonnull ZTensor lhs, @Nonnull ZPoint rhs) {
-      return !eq(lhs, rhs.coords);
-    }
-
-    /**
-     * Are these points non-equal under partial ordering?
-     *
-     * @param lhs the left-hand side.
-     * @param rhs the right-hand side.
-     * @return true if the points are non-equal.
-     */
-    public static boolean ne(@Nonnull ZPoint lhs, @Nonnull ZTensor rhs) {
-      return !eq(lhs.coords, rhs);
-    }
-
-    /**
-     * Are these points non-equal under partial ordering?
-     *
-     * @param lhs the left-hand side.
-     * @param rhs the right-hand side.
-     * @return true if the points are non-equal.
-     */
-    public static boolean ne(@Nonnull ZTensor lhs, @Nonnull ZTensor rhs) {
-      return !eq(lhs, rhs);
-    }
-
-    /**
-     * Is `lhs < rhs`?
-     *
-     * @param lhs the left-hand side.
-     * @param rhs the right-hand side.
-     * @return true or false.
-     */
-    public static boolean lt(@Nonnull ZPoint lhs, @Nonnull ZPoint rhs) {
-      return lt(lhs.coords, rhs.coords);
-    }
-
-    /**
-     * Is `lhs < rhs`?
-     *
-     * @param lhs the left-hand side.
-     * @param rhs the right-hand side.
-     * @return true or false.
-     */
-    public static boolean lt(@Nonnull ZTensor lhs, @Nonnull ZPoint rhs) {
-      return lt(lhs, rhs.coords);
-    }
-
-    /**
-     * Is `lhs < rhs`?
-     *
-     * @param lhs the left-hand side.
-     * @param rhs the right-hand side.
-     * @return true or false.
-     */
-    public static boolean lt(@Nonnull ZPoint lhs, @Nonnull ZTensor rhs) {
-      return lt(lhs.coords, rhs);
-    }
-
-    /**
-     * Is `lhs < rhs`?
-     *
-     * @param lhs the left-hand side.
-     * @param rhs the right-hand side.
-     * @return true or false.
-     */
-    public static boolean lt(@Nonnull ZTensor lhs, @Nonnull ZTensor rhs) {
-      return partialCompare(lhs, rhs) == PartialOrdering.LESS_THAN;
-    }
-
-    /**
-     * Is `lhs <= rhs`?
-     *
-     * @param lhs the left-hand side.
-     * @param rhs the right-hand side.
-     * @return true or false.
-     */
-    public static boolean le(@Nonnull ZPoint lhs, @Nonnull ZPoint rhs) {
-      return le(lhs.coords, rhs.coords);
-    }
-
-    /**
-     * Is `lhs <= rhs`?
-     *
-     * @param lhs the left-hand side.
-     * @param rhs the right-hand side.
-     * @return true or false.
-     */
-    public static boolean le(@Nonnull ZPoint lhs, @Nonnull ZTensor rhs) {
-      return le(lhs.coords, rhs);
-    }
-
-    /**
-     * Is `lhs <= rhs`?
-     *
-     * @param lhs the left-hand side.
-     * @param rhs the right-hand side.
-     * @return true or false.
-     */
-    public static boolean le(@Nonnull ZTensor lhs, @Nonnull ZPoint rhs) {
-      return le(lhs, rhs.coords);
-    }
-
-    /**
-     * Is `lhs <= rhs`?
-     *
-     * @param lhs the left-hand side.
-     * @param rhs the right-hand side.
-     * @return true or false.
-     */
-    public static boolean le(@Nonnull ZTensor lhs, @Nonnull ZTensor rhs) {
-      return switch (partialCompare(lhs, rhs)) {
-        case LESS_THAN, EQUAL -> true;
-        default -> false;
-      };
-    }
-
-    /**
-     * Is `lhs > rhs`?
-     *
-     * @param lhs the left-hand side.
-     * @param rhs the right-hand side.
-     * @return true or false.
-     */
-    public static boolean gt(@Nonnull ZPoint lhs, @Nonnull ZPoint rhs) {
-      return gt(lhs.coords, rhs.coords);
-    }
-
-    /**
-     * Is `lhs > rhs`?
-     *
-     * @param lhs the left-hand side.
-     * @param rhs the right-hand side.
-     * @return true or false.
-     */
-    public static boolean gt(@Nonnull ZPoint lhs, @Nonnull ZTensor rhs) {
-      return gt(lhs.coords, rhs);
-    }
-
-    /**
-     * Is `lhs > rhs`?
-     *
-     * @param lhs the left-hand side.
-     * @param rhs the right-hand side.
-     * @return true or false.
-     */
-    public static boolean gt(@Nonnull ZTensor lhs, @Nonnull ZPoint rhs) {
-      return gt(lhs, rhs.coords);
-    }
-
-    /**
-     * Is `lhs > rhs`?
-     *
-     * @param lhs the left-hand side.
-     * @param rhs the right-hand side.
-     * @return true or false.
-     */
-    public static boolean gt(@Nonnull ZTensor lhs, @Nonnull ZTensor rhs) {
-      return partialCompare(lhs, rhs) == PartialOrdering.GREATER_THAN;
-    }
-
-    /**
-     * Is `lhs >= rhs`?
-     *
-     * @param lhs the left-hand side.
-     * @param rhs the right-hand side.
-     * @return true or false.
-     */
-    public static boolean ge(@Nonnull ZPoint lhs, @Nonnull ZPoint rhs) {
-      return ge(lhs.coords, rhs.coords);
-    }
-
-    /**
-     * Is `lhs >= rhs`?
-     *
-     * @param lhs the left-hand side.
-     * @param rhs the right-hand side.
-     * @return true or false.
-     */
-    public static boolean ge(@Nonnull ZPoint lhs, @Nonnull ZTensor rhs) {
-      return ge(lhs.coords, rhs);
-    }
-
-    /**
-     * Is `lhs >= rhs`?
-     *
-     * @param lhs the left-hand side.
-     * @param rhs the right-hand side.
-     * @return true or false.
-     */
-    public static boolean ge(@Nonnull ZTensor lhs, @Nonnull ZPoint rhs) {
-      return ge(lhs, rhs.coords);
-    }
-
-    /**
-     * Is `lhs >= rhs`?
-     *
-     * @param lhs the left-hand side.
-     * @param rhs the right-hand side.
-     * @return true or false.
-     */
-    public static boolean ge(@Nonnull ZTensor lhs, @Nonnull ZTensor rhs) {
-      return switch (partialCompare(lhs, rhs)) {
-        case GREATER_THAN, EQUAL -> true;
-        default -> false;
-      };
-    }
   }
 }
