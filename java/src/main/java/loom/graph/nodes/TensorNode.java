@@ -1,9 +1,6 @@
 package loom.graph.nodes;
 
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
-import java.util.HashSet;
-import java.util.Set;
-import javax.annotation.Nonnull;
 import lombok.*;
 import lombok.experimental.Delegate;
 import lombok.experimental.SuperBuilder;
@@ -13,6 +10,10 @@ import loom.graph.LoomGraph;
 import loom.validation.ValidationIssue;
 import loom.validation.ValidationIssueCollector;
 import loom.zspace.ZPoint;
+
+import javax.annotation.Nonnull;
+import java.util.HashSet;
+import java.util.Set;
 
 @Jacksonized
 @SuperBuilder
@@ -120,17 +121,6 @@ public final class TensorNode extends LoomGraph.Node<TensorNode, TensorNode.Body
    */
   public static TensorNodeBuilder<TensorNode, ?> builder(Body.BodyBuilder body) {
     return builder().body(body.build());
-  }
-
-  /**
-   * Create a new TensorNodeBuilder, with the type set to {@link Prototype#TYPE}.
-   *
-   * @param dtype the dtype.
-   * @param shape the shape.
-   * @return the new TensorNodeBuilder.
-   */
-  public static TensorNodeBuilder<TensorNode, ?> builder(String dtype, ZPoint shape) {
-    return builder().body(Body.builder().dtype(dtype).shape(shape).build());
   }
 
   @Delegate @Nonnull private Body body;
