@@ -285,8 +285,7 @@ public class LoomGraphTest extends BaseTestClass {
     assertThat(node.getId()).isEqualTo(UUID.fromString("00000000-0000-0000-0000-000000000000"));
     assertThat(node.getLabel()).isEqualTo("foo");
 
-    assertThat(node.getFields())
-        .containsExactly(entry("dtype", "int32"), entry("shape", List.of(2, 3)));
+    assertThat(node.getFields()).contains(entry("dtype", "int32"), entry("shape", List.of(2, 3)));
 
     assertJsonEquals(node.getBody(), node.getBodyAsJson());
 

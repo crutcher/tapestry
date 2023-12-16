@@ -4,13 +4,15 @@ import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
-import java.util.Map;
-import javax.annotation.Nonnull;
 import lombok.*;
 import lombok.experimental.Delegate;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.jackson.Jacksonized;
 import loom.graph.LoomGraph;
+
+import javax.annotation.Nonnull;
+import java.util.HashMap;
+import java.util.Map;
 
 @Jacksonized
 @SuperBuilder
@@ -26,7 +28,7 @@ public final class GenericNode extends LoomGraph.Node<GenericNode, GenericNode.B
 
     @JsonCreator
     public Body(Map<String, Object> fields) {
-      this.fields = fields;
+      setFields(fields);
     }
 
     @JsonAnySetter
@@ -34,10 +36,18 @@ public final class GenericNode extends LoomGraph.Node<GenericNode, GenericNode.B
       fields.put(name, value);
     }
 
+    public Object getField(String name) {
+      return fields.get(name);
+    }
+
     @JsonValue
     @JsonAnyGetter
     public Map<String, Object> getFields() {
       return fields;
+    }
+
+    public void setFields(Map<String, Object> fields) {
+      this.fields = new HashMap<>(fields);
     }
   }
 
