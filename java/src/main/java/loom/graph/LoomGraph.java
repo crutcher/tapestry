@@ -98,7 +98,7 @@ public final class LoomGraph implements Iterable<LoomGraph.Node<?, ?>>, HasToJso
           ValidationIssue.Context.builder()
               .name(name)
               .jsonpath(getJsonPath())
-              .jsonData(toPrettyJsonString());
+              .dataFromJson(toPrettyJsonString());
 
       if (message != null) {
         builder.message(message);
@@ -280,10 +280,10 @@ public final class LoomGraph implements Iterable<LoomGraph.Node<?, ?>>, HasToJso
               ValidationIssue.Context.builder()
                   .name("Node")
                   .jsonpath(node.getJsonPath())
-                  .jsonData(node.toPrettyJsonString())
+                  .dataFromJson(node.toPrettyJsonString())
                   .build())
           .context(
-              ValidationIssue.Context.builder().name("Body Schema").jsonData(bodySchema).build())
+              ValidationIssue.Context.builder().name("Body Schema").dataFromJson(bodySchema).build())
           .build()
           .scan();
     }

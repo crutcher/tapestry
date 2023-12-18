@@ -129,7 +129,7 @@ public class JsonSchemaManager {
               ValidationIssue.Context.builder()
                   .name("Data")
                   .jsonpath(path)
-                  .jsonData(JsonUtil.toJson(problem.parametersAsMap().get("actual")))
+                  .dataFromJson(JsonUtil.toJson(problem.parametersAsMap().get("actual")))
                   .build());
         }
 

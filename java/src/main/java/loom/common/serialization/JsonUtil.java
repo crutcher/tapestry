@@ -7,10 +7,9 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.NumericNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import lombok.Value;
-
-import javax.annotation.Nullable;
 import java.util.*;
+import javax.annotation.Nullable;
+import lombok.Value;
 
 public class JsonUtil {
   // Prevent Construction.

@@ -81,7 +81,7 @@ public class OperationNodesSourcesAndResultsAreTensors implements LoomEnvironmen
                           .name("Reference")
                           .message("Invalid reference to non-existent node.")
                           .jsonpath(opNode.getJsonPath(), relItemPath.get())
-                          .withData(itemId.toString()))
+                          .dataFromValue(itemId.toString()))
                   .withContexts(contextsSupplier.get()));
           continue;
         }

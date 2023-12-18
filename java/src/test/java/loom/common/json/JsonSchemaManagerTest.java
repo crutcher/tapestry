@@ -92,7 +92,7 @@ public class JsonSchemaManagerTest extends BaseTestClass {
             ValidationIssue.Context.builder()
                 .name("foo")
                 .jsonpath("$.foo")
-                .jsonData("{\"foo\": \"bar\"}")
+                .dataFromJson("{\"foo\": \"bar\"}")
                 .build())
         .build()
         .scan();

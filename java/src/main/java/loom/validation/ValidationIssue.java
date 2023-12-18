@@ -1,13 +1,7 @@
 package loom.validation;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.annotations.VisibleForTesting;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
-import java.util.stream.Collectors;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import lombok.Builder;
 import lombok.Data;
 import lombok.Singular;
@@ -15,6 +9,14 @@ import loom.common.HasToJsonString;
 import loom.common.json.JsonPathUtils;
 import loom.common.serialization.JsonUtil;
 import loom.common.text.IndentUtils;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 /** A Description of a validation failure. */
 @Data
@@ -60,16 +62,23 @@ public final class ValidationIssue {
       }
 
       /**
-       * Set the jsonData for the context.
+       * Set the data for the context by converting an object to JsonNode.
        *
-       * <p>Converts the data to pretty json.
-       *
-       * @param data the data to set.
+       * @param value the object to convert.
        * @return the builder.
        */
-      public ContextBuilder withData(Object data) {
-        this.jsonData = JsonUtil.toPrettyJson(data);
-        return this;
+      public ContextBuilder dataFromValue(Object value) {
+        return data(JsonUtil.valueToJsonNodeTree(value));
+      }
+
+      /**
+       * Set the data for the context by parsing a JSON string.
+       *
+       * @param json the string to parse.
+       * @return the builder.
+       */
+      public ContextBuilder dataFromJson(String json) {
+        return data(JsonUtil.parseToJsonNodeTree(json));
       }
     }
 
@@ -98,7 +107,7 @@ public final class ValidationIssue {
 
     @Nullable private final String jsonpath;
 
-    @Nullable private final String jsonData;
+    @Nullable private final JsonNode data;
 
     /**
      * Format the context as a string.
@@ -120,9 +129,8 @@ public final class ValidationIssue {
               .append(IndentUtils.indent(2, IndentUtils.splitAndRemoveCommonIndent(m)));
       }
 
-      if (jsonData != null) {
-        sb.append("\n\n")
-            .append(IndentUtils.indent("  |> ", JsonUtil.reformatToPrettyJson(jsonData)));
+      if (data != null) {
+        sb.append("\n\n").append(IndentUtils.indent("  |> ", JsonUtil.toPrettyJson(data)));
       }
 
       return sb.toString();

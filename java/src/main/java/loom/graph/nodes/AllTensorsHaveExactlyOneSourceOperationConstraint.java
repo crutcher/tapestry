@@ -57,7 +57,7 @@ public class AllTensorsHaveExactlyOneSourceOperationConstraint
                 ValidationIssue.Context.builder()
                     .name("Tensor")
                     .jsonpath(tensorNode.getJsonPath())
-                    .jsonData(tensorNode.toJsonString()));
+                    .dataFromJson(tensorNode.toJsonString()));
 
     if (operationSourceNodes.isEmpty()) {
       issueBuilder.summary("%s has no Operation source".formatted(desc));
@@ -85,7 +85,7 @@ public class AllTensorsHaveExactlyOneSourceOperationConstraint
             ValidationIssue.Context.builder()
                 .name(name)
                 .jsonpath(operationNode.getJsonPath())
-                .jsonData(operationNode.toJsonString()));
+                .dataFromJson(operationNode.toJsonString()));
       }
     }
 

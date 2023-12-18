@@ -12,7 +12,7 @@ public class ValidationIssueTest extends BaseTestClass {
         ValidationIssue.Context.builder("Foo")
             .message("I like cheese\nand crackers")
             .jsonpath("$.foo", ".bar")
-            .withData(Map.of("foo", 2, "bar", 3))
+            .dataFromValue(Map.of("foo", 2, "bar", 3))
             .build();
 
     var lines =
@@ -43,11 +43,11 @@ public class ValidationIssueTest extends BaseTestClass {
                 ValidationIssue.Context.builder("Foo")
                     .message("I like cheese\nand crackers")
                     .jsonpath("$.foo", ".bar")
-                    .withData(Map.of("foo", 2, "bar", 3)))
+                    .dataFromValue(Map.of("foo", 2, "bar", 3)))
             .context(
                 ValidationIssue.Context.builder("Bar")
                     .message("I like cheese")
-                    .withData(List.of(12, 13)))
+                    .dataFromValue(List.of(12, 13)))
             .build();
 
     var lines =
