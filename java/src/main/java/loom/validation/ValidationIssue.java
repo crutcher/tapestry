@@ -1,10 +1,10 @@
 package loom.validation;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.annotations.VisibleForTesting;
 import lombok.Builder;
 import lombok.Data;
 import lombok.Singular;
+import lombok.extern.jackson.Jacksonized;
 import loom.common.HasToJsonString;
 import loom.common.json.JsonPathUtils;
 import loom.common.serialization.JsonUtil;
@@ -43,11 +43,23 @@ public final class ValidationIssue {
 
   /** A named Context for a ValidationIssue. */
   @Data
+  @Jacksonized
   @Builder
   public static final class Context implements HasToJsonString {
 
     /** Extensions to the ContextBuilder. */
     public static class ContextBuilder {
+      /**
+       * Set the jsonpath for the context.
+       *
+       * @param jsonpath the jsonpath.
+       * @return the builder.
+       */
+      public ContextBuilder jsonpath(String jsonpath) {
+        this.jsonpath = jsonpath;
+        return this;
+      }
+
       /**
        * Set the jsonpath for the context.
        *
@@ -57,18 +69,20 @@ public final class ValidationIssue {
        * @return the builder.
        */
       public ContextBuilder jsonpath(String... parts) {
-        this.jsonpath = JsonPathUtils.concatJsonPath(parts);
-        return this;
+        return jsonpath(JsonPathUtils.concatJsonPath(parts));
       }
 
       /**
        * Set the data for the context by converting an object to JsonNode.
        *
+       * <p>Deep-copies the value.
+       *
        * @param value the object to convert.
        * @return the builder.
        */
-      public ContextBuilder dataFromValue(Object value) {
-        return data(JsonUtil.valueToJsonNodeTree(value));
+      public ContextBuilder data(Object value) {
+        this.data = JsonUtil.treeToSimpleJson(JsonUtil.valueToJsonNodeTree(value));
+        return this;
       }
 
       /**
@@ -78,7 +92,7 @@ public final class ValidationIssue {
        * @return the builder.
        */
       public ContextBuilder dataFromJson(String json) {
-        return data(JsonUtil.parseToJsonNodeTree(json));
+        return data(JsonUtil.fromJson(json, Object.class));
       }
     }
 
@@ -107,7 +121,8 @@ public final class ValidationIssue {
 
     @Nullable private final String jsonpath;
 
-    @Nullable private final JsonNode data;
+    /** This should always be a simple JSON Java value. */
+    @Nullable private final Object data;
 
     /**
      * Format the context as a string.

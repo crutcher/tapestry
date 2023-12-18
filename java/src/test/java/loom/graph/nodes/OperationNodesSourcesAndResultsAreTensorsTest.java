@@ -80,7 +80,7 @@ public class OperationNodesSourcesAndResultsAreTensorsTest extends BaseTestClass
                     .name("Reference")
                     .message("Invalid reference to non-existent node.")
                     .jsonpath(op.getJsonPath(), ".body.inputs.sources[2]")
-                    .dataFromValue(badId))
+                    .data(badId))
             .withContexts(injectedContexts)
             .build(),
         ValidationIssue.builder()

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.BooleanNode;
 import com.fasterxml.jackson.databind.node.NumericNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.*;
@@ -151,6 +152,8 @@ public class JsonUtil {
   public static Object treeToSimpleJson(JsonNode node) {
     if (node.isNull()) {
       return null;
+    } else if (node instanceof BooleanNode) {
+      return node.booleanValue();
     } else if (node instanceof NumericNode n) {
       return n.numberValue();
     } else if (node.isTextual()) {

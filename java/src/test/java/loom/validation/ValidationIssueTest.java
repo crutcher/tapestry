@@ -7,12 +7,26 @@ import org.junit.Test;
 
 public class ValidationIssueTest extends BaseTestClass {
   @Test
+  public void testContextJson() {
+    var context =
+        ValidationIssue.Context.builder("Foo")
+            .message("I like cheese\nand crackers")
+            .jsonpath("$.foo", ".bar")
+            .data(Map.of("foo", 2, "bar", 3))
+            .build();
+
+    var expectedJson = context.toJsonString();
+
+    assertJsonEquals(context, expectedJson);
+  }
+
+  @Test
   public void testContextFormat() {
     var context =
         ValidationIssue.Context.builder("Foo")
             .message("I like cheese\nand crackers")
             .jsonpath("$.foo", ".bar")
-            .dataFromValue(Map.of("foo", 2, "bar", 3))
+            .data(Map.of("foo", 2, "bar", 3))
             .build();
 
     var lines =
@@ -43,11 +57,11 @@ public class ValidationIssueTest extends BaseTestClass {
                 ValidationIssue.Context.builder("Foo")
                     .message("I like cheese\nand crackers")
                     .jsonpath("$.foo", ".bar")
-                    .dataFromValue(Map.of("foo", 2, "bar", 3)))
+                    .data(Map.of("foo", 2, "bar", 3)))
             .context(
                 ValidationIssue.Context.builder("Bar")
                     .message("I like cheese")
-                    .dataFromValue(List.of(12, 13)))
+                    .data(List.of(12, 13)))
             .build();
 
     var lines =

@@ -283,7 +283,10 @@ public final class LoomGraph implements Iterable<LoomGraph.Node<?, ?>>, HasToJso
                   .dataFromJson(node.toPrettyJsonString())
                   .build())
           .context(
-              ValidationIssue.Context.builder().name("Body Schema").dataFromJson(bodySchema).build())
+              ValidationIssue.Context.builder()
+                  .name("Body Schema")
+                  .dataFromJson(bodySchema)
+                  .build())
           .build()
           .scan();
     }
