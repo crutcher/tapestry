@@ -94,11 +94,7 @@ public final class LoomGraph implements Iterable<LoomGraph.Node<?, ?>>, HasToJso
      * @return the context.
      */
     public ValidationIssue.Context asContext(String name, @Nullable String message) {
-      var builder =
-          ValidationIssue.Context.builder()
-              .name(name)
-              .jsonpath(getJsonPath())
-              .dataFromJson(toPrettyJsonString());
+      var builder = ValidationIssue.Context.builder().name(name).jsonpath(getJsonPath()).data(this);
 
       if (message != null) {
         builder.message(message);
@@ -276,12 +272,7 @@ public final class LoomGraph implements Iterable<LoomGraph.Node<?, ?>>, HasToJso
           .jsonPathPrefix(JsonPathUtils.concatJsonPath(node.getJsonPath() + ".body"))
           .schemaSource(bodySchema)
           .json(node.getBodyAsJson())
-          .context(
-              ValidationIssue.Context.builder()
-                  .name("Node")
-                  .jsonpath(node.getJsonPath())
-                  .dataFromJson(node.toPrettyJsonString())
-                  .build())
+          .context(node.asContext("Node"))
           .context(
               ValidationIssue.Context.builder()
                   .name("Body Schema")

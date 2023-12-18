@@ -53,11 +53,7 @@ public class AllTensorsHaveExactlyOneSourceOperationConstraint
         ValidationIssue.builder()
             .type(LoomConstants.NODE_VALIDATION_ERROR)
             .param("nodeType", TensorNode.TYPE)
-            .context(
-                ValidationIssue.Context.builder()
-                    .name("Tensor")
-                    .jsonpath(tensorNode.getJsonPath())
-                    .dataFromJson(tensorNode.toJsonString()));
+            .context(tensorNode.asContext("Tensor"));
 
     if (operationSourceNodes.isEmpty()) {
       issueBuilder.summary("%s has no Operation source".formatted(desc));
@@ -81,11 +77,7 @@ public class AllTensorsHaveExactlyOneSourceOperationConstraint
           name = "%s (%s)".formatted(name, operationNode.getLabel());
         }
 
-        issueBuilder.context(
-            ValidationIssue.Context.builder()
-                .name(name)
-                .jsonpath(operationNode.getJsonPath())
-                .dataFromJson(operationNode.toJsonString()));
+        issueBuilder.context(operationNode.asContext(name));
       }
     }
 

@@ -1,6 +1,5 @@
 package loom.graph.nodes;
 
-import com.google.common.annotations.VisibleForTesting;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -14,7 +13,7 @@ import loom.validation.ValidationIssue;
 import loom.validation.ValidationIssueCollector;
 
 /** Constraint that verifies that all inputs and outputs of OperationNodes are TensorNodes. */
-public class OperationNodesSourcesAndResultsAreTensors implements LoomEnvironment.Constraint {
+public final class OperationNodesSourcesAndResultsAreTensors implements LoomEnvironment.Constraint {
   @Override
   public void check(
       @SuppressWarnings("unused") LoomEnvironment env,
@@ -33,8 +32,7 @@ public class OperationNodesSourcesAndResultsAreTensors implements LoomEnvironmen
    * @param opNode the OperationNode to scan.
    * @param issueCollector the ValidationIssueCollector to add issues to.
    */
-  @VisibleForTesting
-  void checkOperation(
+  private static void checkOperation(
       LoomGraph graph, OperationNode opNode, ValidationIssueCollector issueCollector) {
     var lazyContexts = Thunk.of(() -> List.of(opNode.asContext("Operation")));
     checkIOMap(graph, opNode, "inputs", opNode.getInputs(), lazyContexts, issueCollector);
@@ -51,8 +49,7 @@ public class OperationNodesSourcesAndResultsAreTensors implements LoomEnvironmen
    * @param contextsSupplier a Supplier of a list of ValidationIssue.Contexts to add to each issue.
    * @param issueCollector the ValidationIssueCollector to add issues to.
    */
-  @VisibleForTesting
-  void checkIOMap(
+  private static void checkIOMap(
       LoomGraph graph,
       OperationNode opNode,
       String ioMapName,

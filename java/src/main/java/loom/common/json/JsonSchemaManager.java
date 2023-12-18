@@ -12,7 +12,6 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import lombok.Builder;
 import lombok.Singular;
-import loom.common.serialization.JsonUtil;
 import loom.validation.ValidationIssue;
 import loom.validation.ValidationIssueCollector;
 import org.leadpony.justify.api.JsonSchema;
@@ -129,7 +128,7 @@ public class JsonSchemaManager {
               ValidationIssue.Context.builder()
                   .name("Data")
                   .jsonpath(path)
-                  .dataFromJson(JsonUtil.toJson(problem.parametersAsMap().get("actual")))
+                  .data(problem.parametersAsMap().get("actual"))
                   .build());
         }
 
