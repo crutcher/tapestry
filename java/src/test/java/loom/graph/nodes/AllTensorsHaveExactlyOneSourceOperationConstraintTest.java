@@ -15,10 +15,9 @@ import java.util.Map;
 
 public class AllTensorsHaveExactlyOneSourceOperationConstraintTest extends BaseTestClass {
   public LoomEnvironment createEnvironment() {
-    var env = CommonEnvironments.simpleTensorEnvironment("int32");
-    env.getConstraints().add(new AllTensorsHaveExactlyOneSourceOperationConstraint());
-    env.getConstraints().add(DemoTest::CycleCheckConstraint);
-    return env;
+    return CommonEnvironments.simpleTensorEnvironment("int32")
+        .addConstraint(new AllTensorsHaveExactlyOneSourceOperationConstraint())
+        .addConstraint(DemoTest::CycleCheckConstraint);
   }
 
   @Test
