@@ -1,13 +1,6 @@
 package loom.validation;
 
 import com.google.common.annotations.VisibleForTesting;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
-import java.util.stream.Collectors;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import lombok.Builder;
 import lombok.Data;
 import lombok.Singular;
@@ -15,6 +8,14 @@ import loom.common.HasToJsonString;
 import loom.common.json.JsonPathUtils;
 import loom.common.serialization.JsonUtil;
 import loom.common.text.IndentUtils;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 /** A Description of a validation failure. */
 @Data
@@ -200,17 +201,18 @@ public final class ValidationIssue {
     var sb = new StringBuilder();
     sb.append("* Error [").append(type).append("]: ").append(summary);
     if (params != null && !params.isEmpty()) {
-      sb.append("\n").append(paramsToString()).append("\n");
+      sb.append("\n").append(paramsToString());
     }
 
     if (message != null) {
-      sb.append("\n").append(IndentUtils.reindent(2, message));
+      sb.append("\n\n").append(IndentUtils.reindent(2, message));
     }
 
-    if (contexts != null)
+    if (contexts != null) {
       for (var context : contexts) {
         sb.append("\n\n").append(IndentUtils.reindent(2, context.toDisplayString()));
       }
+    }
 
     return sb.toString();
   }
