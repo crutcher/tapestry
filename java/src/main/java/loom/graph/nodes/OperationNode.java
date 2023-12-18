@@ -155,8 +155,7 @@ public final class OperationNode extends LoomGraph.Node<OperationNode, Operation
                 Map.Entry::getKey,
                 e ->
                     e.getValue().stream()
-                        .map(
-                            id -> graph.assertNode(id, TensorNode.Prototype.TYPE, TensorNode.class))
+                        .map(id -> graph.assertNode(id, TensorNode.TYPE, TensorNode.class))
                         .toList()));
   }
 

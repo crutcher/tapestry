@@ -1,5 +1,7 @@
 package loom.demo;
 
+import java.util.List;
+import java.util.Map;
 import loom.graph.CommonEnvironments;
 import loom.graph.LoomEnvironment;
 import loom.graph.LoomGraph;
@@ -10,9 +12,6 @@ import loom.testing.BaseTestClass;
 import loom.validation.ValidationIssueCollector;
 import loom.zspace.ZPoint;
 import org.junit.Test;
-
-import java.util.List;
-import java.util.Map;
 
 public class DemoTest extends BaseTestClass {
 
@@ -33,18 +32,41 @@ public class DemoTest extends BaseTestClass {
     var env = demoEnvironment();
     var graph = env.createGraph();
 
-    var tensorA =
+    TensorNode tensorA =
         graph.addNode(
             TensorNode.builder()
                 .label("A")
                 .body(TensorNode.Body.builder().dtype("int32").shape(new ZPoint(2, 3)).build()));
 
-    var tensorB =
+    TensorNode tensorB =
         (TensorNode)
-            graph.addNodeFromBodyValue(
-                TensorNode.Prototype.TYPE, Map.of("dtype", "int32", "shape", List.of(2, 3)));
+            graph.buildNode(TensorNode.TYPE, "B", Map.of("dtype", "int32", "shape", List.of(2, 3)));
 
-    // TODO: .addNode() which takes a class, and walks an annotation to find the TYPE.
+    TensorNode tensorC =
+        (TensorNode) graph.buildNode(TensorNode.TYPE, "{\"dtype\": \"int32\", \"shape\": [2, 3]}");
+
+    TensorNode tensorF =
+        TensorNode.withBody(
+                TensorNode.Body.builder().dtype("int32").shape(new ZPoint(2, 3)).build())
+            .label("F")
+            .buildOn(graph);
+
+    TensorNode tensorG =
+        TensorNode.withBody(TensorNode.Body.builder().dtype("int32").shape(new ZPoint(2, 3)))
+            .label("G")
+            .buildOn(graph);
+
+    TensorNode tensorI =
+        TensorNode.withBody(
+                b -> {
+                  b.dtype("int32");
+                  b.shape(new ZPoint(2, 3));
+                })
+            .label("I")
+            .buildOn(graph);
+
+    var tensors = List.of(tensorA, tensorB, tensorC, tensorF, tensorG, tensorI);
+    var tensorIds = tensors.stream().map(LoomGraph.Node::getId).toList();
 
     var op1 =
         graph.addNode(
@@ -53,14 +75,22 @@ public class DemoTest extends BaseTestClass {
                 .body(
                     OperationNode.Body.builder()
                         .opName("source")
-                        .outputs(Map.of("pin", List.of(tensorA.getId(), tensorB.getId())))
+                        .outputs(Map.of("pin", tensorIds))
                         .build()));
+
+    {
+      assertThat(tensorA.getDtype()).isEqualTo("int32");
+      assertThat(tensorA.getShape()).isEqualTo(new ZPoint(2, 3));
+    }
+
+    // System.out.println(graph.toPrettyJsonString());
 
     graph.validate();
 
     assertThat(tensorA).isInstanceOf(TensorNode.class).hasFieldOrPropertyWithValue("graph", graph);
 
-    assertThat(op1.getOutputNodes()).containsEntry("pin", List.of(tensorA, tensorB));
+    assertThat(op1.getOutputs()).containsEntry("pin", tensorIds);
+    assertThat(op1.getOutputNodes()).containsEntry("pin", tensors);
 
     assertThat(OperationNode.GraphOps.getSourceNode(tensorA)).isSameAs(op1);
     assertThat(OperationNode.GraphOps.getSourceId(tensorA)).isSameAs(op1.getId());

@@ -1,19 +1,18 @@
 package loom.graph;
 
-import loom.graph.nodes.OperationNode;
-import loom.graph.nodes.TensorNode;
-import loom.zspace.ZPoint;
-
-import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.annotation.Nullable;
+import loom.graph.nodes.OperationNode;
+import loom.graph.nodes.TensorNode;
+import loom.zspace.ZPoint;
 
 public class NodeApi {
   private NodeApi() {}
 
   public static TensorNode newTensor(LoomGraph graph, String dtype, ZPoint shape) {
-    return graph.addNode(TensorNode.builder(TensorNode.Body.builder().dtype(dtype).shape(shape)));
+    return graph.addNode(TensorNode.withBody(TensorNode.Body.builder().dtype(dtype).shape(shape)));
   }
 
   public static OperationNode newOperation(

@@ -4,17 +4,22 @@ import java.util.List;
 import java.util.Map;
 import loom.demo.DemoTest;
 import loom.graph.CommonEnvironments;
+import loom.graph.LoomEnvironment;
 import loom.graph.NodeApi;
 import loom.testing.BaseTestClass;
 import loom.zspace.ZPoint;
 import org.junit.Test;
 
 public class OperationNodeTest extends BaseTestClass {
+  public LoomEnvironment demoEnvironment() {
+    return CommonEnvironments.simpleTensorEnvironment("int32")
+        .addConstraint(new AllTensorsHaveExactlyOneSourceOperationConstraint())
+        .addConstraint(DemoTest::CycleCheckConstraint);
+  }
+
   @Test
   public void testBasic() {
-    var env = CommonEnvironments.simpleTensorEnvironment("int32");
-    env.getConstraints().add(new AllTensorsHaveExactlyOneSourceOperationConstraint());
-    env.getConstraints().add(DemoTest::CycleCheckConstraint);
+    var env = demoEnvironment();
     var graph = env.createGraph();
 
     var tensorA = NodeApi.newTensor(graph, "int32", new ZPoint(2, 3));

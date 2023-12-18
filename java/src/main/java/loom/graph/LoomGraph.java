@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import loom.common.HasToJsonString;
@@ -55,6 +56,16 @@ public final class LoomGraph implements Iterable<LoomGraph.Node<?, ?>>, HasToJso
   @JsonSerialize(using = Node.Serialization.NodeSerializer.class)
   public abstract static class Node<NodeType extends Node<NodeType, BodyType>, BodyType>
       implements HasToJsonString {
+
+    public abstract static class NodeBuilder<
+        NodeType extends LoomGraph.Node<NodeType, BodyType>,
+        BodyType,
+        C extends LoomGraph.Node<NodeType, BodyType>,
+        B extends LoomGraph.Node.NodeBuilder<NodeType, BodyType, C, B>> {
+      public NodeType buildOn(LoomGraph graph) {
+        return graph.addNode(this);
+      }
+    }
 
     @NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
     public static final class Serialization {
@@ -366,26 +377,44 @@ public final class LoomGraph implements Iterable<LoomGraph.Node<?, ?>>, HasToJso
     return addNode(node);
   }
 
+  /**
+   * Add a node to the graph.
+   *
+   * <p>If the node does not have an ID, a new ID will be added to the tree.
+   *
+   * @param jsonNode the json node tree to build from.
+   * @return the added Node.
+   */
   @Nonnull
-  public Node<?, ?> addNodeFromBodyJson(String type, String json) {
-    var nodeTree = JsonNodeFactory.instance.objectNode();
-    nodeTree.put("id", newUnusedNodeId().toString());
-    nodeTree.put("type", type);
-    nodeTree.set("body", JsonUtil.parseToJsonNodeTree(json));
-
-    var prototype = env.getNodeMetaFactory().getMetaForType(type);
-    return addNode(prototype.nodeFromTree(nodeTree));
+  public Node<?, ?> addNode(@Nonnull JsonNode jsonNode) {
+    ObjectNode obj = (ObjectNode) jsonNode;
+    var prototype = env.getNodeMetaFactory().getMetaForType(obj.get("type").asText());
+    if (obj.get("id") == null) {
+      obj.put("id", newUnusedNodeId().toString());
+    }
+    return addNode(prototype.nodeFromTree(jsonNode));
   }
 
   @Nonnull
-  public Node<?, ?> addNodeFromBodyValue(String type, Object body) {
-    var nodeTree = JsonNodeFactory.instance.objectNode();
-    nodeTree.put("id", newUnusedNodeId().toString());
-    nodeTree.put("type", type);
-    nodeTree.set("body", JsonUtil.valueToJsonNodeTree(body));
+  public Node<?, ?> buildNode(@Nonnull String type, @Nonnull Object body) {
+    return buildNode(type, null, body);
+  }
 
-    var prototype = env.getNodeMetaFactory().getMetaForType(type);
-    return addNode(prototype.nodeFromTree(nodeTree));
+  @Nonnull
+  public Node<?, ?> buildNode(@Nonnull String type, @Nullable String label, @Nonnull Object body) {
+    var nodeTree = JsonNodeFactory.instance.objectNode();
+    nodeTree.put("type", type);
+    if (label != null) {
+      nodeTree.put("label", label);
+    }
+    if (body instanceof String) {
+      nodeTree.set("body", JsonUtil.parseToJsonNodeTree((String) body));
+    } else if (body instanceof ObjectNode bodyNode) {
+      nodeTree.set("body", bodyNode);
+    } else {
+      nodeTree.set("body", JsonUtil.valueToJsonNodeTree(body));
+    }
+    return addNode(nodeTree);
   }
 
   /**

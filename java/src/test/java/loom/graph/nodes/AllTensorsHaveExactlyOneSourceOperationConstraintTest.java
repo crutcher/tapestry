@@ -30,7 +30,7 @@ public class AllTensorsHaveExactlyOneSourceOperationConstraintTest extends BaseT
         .contains(
             ValidationIssue.builder()
                 .type(LoomConstants.NODE_VALIDATION_ERROR)
-                .param("nodeType", TensorNode.Prototype.TYPE)
+                .param("nodeType", TensorNode.TYPE)
                 .context(
                     ValidationIssue.Context.builder()
                         .name("Tensor")
@@ -66,7 +66,7 @@ public class AllTensorsHaveExactlyOneSourceOperationConstraintTest extends BaseT
         .contains(
             ValidationIssue.builder()
                 .type(LoomConstants.NODE_VALIDATION_ERROR)
-                .param("nodeType", TensorNode.Prototype.TYPE)
+                .param("nodeType", TensorNode.TYPE)
                 .context(
                     ValidationIssue.Context.builder()
                         .name("Tensor")

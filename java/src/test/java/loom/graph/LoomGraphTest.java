@@ -216,7 +216,7 @@ public class LoomGraphTest extends BaseTestClass {
             .nodeMetaFactory(
                 TypeMapNodeMetaFactory.builder()
                     .typeMapping(
-                        TensorNode.Prototype.TYPE,
+                        TensorNode.TYPE,
                         TensorNode.Prototype.builder()
                             .validDType("int32")
                             .validDType("float32")
@@ -297,8 +297,7 @@ public class LoomGraphTest extends BaseTestClass {
     var factory =
         TypeMapNodeMetaFactory.builder()
             .typeMapping(
-                TensorNode.Prototype.TYPE,
-                TensorNode.Prototype.builder().validDType("int32").build())
+                TensorNode.TYPE, TensorNode.Prototype.builder().validDType("int32").build())
             .build();
 
     var node = (TensorNode) factory.nodeFromJson(source);
