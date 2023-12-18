@@ -12,14 +12,16 @@ public class ValidationIssueTest extends BaseTestClass {
         ValidationIssue.Context.builder("Foo")
             .message("I like cheese\nand crackers")
             .jsonpath("$.foo", ".bar")
-            .dataFromTree(Map.of("foo", 2, "bar", 3))
+            .withData(Map.of("foo", 2, "bar", 3))
             .build();
 
     var lines =
         List.of(
             "- Foo:: $.foo.bar",
+            "",
             "  I like cheese",
             "  and crackers",
+            "",
             "  |> {",
             "  |>   \"bar\" : 3,",
             "  |>   \"foo\" : 2",
@@ -41,11 +43,11 @@ public class ValidationIssueTest extends BaseTestClass {
                 ValidationIssue.Context.builder("Foo")
                     .message("I like cheese\nand crackers")
                     .jsonpath("$.foo", ".bar")
-                    .dataFromTree(Map.of("foo", 2, "bar", 3)))
+                    .withData(Map.of("foo", 2, "bar", 3)))
             .context(
                 ValidationIssue.Context.builder("Bar")
                     .message("I like cheese")
-                    .dataFromTree(List.of(12, 13)))
+                    .withData(List.of(12, 13)))
             .build();
 
     var lines =
@@ -58,15 +60,19 @@ public class ValidationIssueTest extends BaseTestClass {
             "  I like to boogie",
             "",
             "  - Foo:: $.foo.bar",
+            "",
             "    I like cheese",
             "    and crackers",
+            "",
             "    |> {",
             "    |>   \"bar\" : 3,",
             "    |>   \"foo\" : 2",
             "    |> }",
             "",
             "  - Bar::",
+            "",
             "    I like cheese",
+            "",
             "    |> [ 12, 13 ]");
 
     assertThat(issue.toDisplayString()).isEqualTo(String.join("\n", lines));

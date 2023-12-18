@@ -1,19 +1,19 @@
 package loom.graph.nodes;
 
-import static loom.graph.LoomConstants.NODE_VALIDATION_ERROR;
-
 import com.google.common.annotations.VisibleForTesting;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.function.Function;
 import java.util.function.Supplier;
-import loom.common.json.JsonPathUtils;
+import loom.common.runtime.LazyString;
+import loom.common.runtime.Thunk;
+import loom.graph.LoomConstants;
 import loom.graph.LoomEnvironment;
 import loom.graph.LoomGraph;
 import loom.validation.ValidationIssue;
 import loom.validation.ValidationIssueCollector;
 
+/** Constraint that verifies that all inputs and outputs of OperationNodes are TensorNodes. */
 public class OperationNodesSourcesAndResultsAreTensors implements LoomEnvironment.Constraint {
   @Override
   public void check(
@@ -22,84 +22,82 @@ public class OperationNodesSourcesAndResultsAreTensors implements LoomEnvironmen
       ValidationIssueCollector issueCollector) {
 
     for (var opNode : graph.iterableNodes(OperationNode.TYPE, OperationNode.class)) {
-      checkOperation(opNode, issueCollector);
+      checkOperation(graph, opNode, issueCollector);
     }
   }
 
-  static void checkIOMap(
-      OperationNode opNode,
-      String field,
-      Map<String, List<UUID>> ioMap,
-      ValidationIssueCollector issueCollector,
-      List<ValidationIssue.Context> contexts) {
-    final var graph = opNode.assertGraph();
+  /**
+   * Scan a single OperationNode for errors.
+   *
+   * @param graph the LoomGraph.
+   * @param opNode the OperationNode to scan.
+   * @param issueCollector the ValidationIssueCollector to add issues to.
+   */
+  @VisibleForTesting
+  void checkOperation(
+      LoomGraph graph, OperationNode opNode, ValidationIssueCollector issueCollector) {
+    var lazyContexts = Thunk.of(() -> List.of(opNode.asContext("Operation")));
+    checkIOMap(graph, opNode, "inputs", opNode.getInputs(), lazyContexts, issueCollector);
+    checkIOMap(graph, opNode, "outputs", opNode.getOutputs(), lazyContexts, issueCollector);
+  }
 
+  /**
+   * Scan a single input/output map for errors.
+   *
+   * @param graph the LoomGraph.
+   * @param opNode the OperationNode that owns the map.
+   * @param ioMapName the name of the map.
+   * @param ioMap the map itself.
+   * @param contextsSupplier a Supplier of a list of ValidationIssue.Contexts to add to each issue.
+   * @param issueCollector the ValidationIssueCollector to add issues to.
+   */
+  @VisibleForTesting
+  void checkIOMap(
+      LoomGraph graph,
+      OperationNode opNode,
+      String ioMapName,
+      Map<String, List<UUID>> ioMap,
+      Supplier<List<ValidationIssue.Context>> contextsSupplier,
+      ValidationIssueCollector issueCollector) {
     for (var entry : ioMap.entrySet()) {
       final var ioName = entry.getKey();
       final var refIds = entry.getValue();
 
-      Supplier<String> description = () -> "Operation .%s/%s".formatted(field, ioName);
+      var relativeFieldPath = LazyString.format(".body.%s.%s", ioMapName, ioName);
 
-      for (int idx = 0; idx < refIds.size(); ++idx) {
-        var refId = refIds.get(idx);
+      for (int itemIdx = 0; itemIdx < refIds.size(); ++itemIdx) {
+        var itemId = refIds.get(itemIdx);
 
-        Function<Integer, ValidationIssue.Context> reference =
-            (i) ->
-                ValidationIssue.Context.builder()
-                    .name("Reference")
-                    .jsonpath(
-                        JsonPathUtils.concatJsonPath(
-                            opNode.getJsonPath(), field, "%s[%d]".formatted(ioName, i)))
-                    .dataFromTree(refId.toString())
-                    .build();
+        var relItemPath = LazyString.format("%s[%d]", relativeFieldPath, itemIdx);
 
-        if (!graph.hasNode(refId)) {
-          ValidationIssue.ValidationIssueBuilder issue =
+        if (!graph.hasNode(itemId)) {
+          issueCollector.add(
               ValidationIssue.builder()
-                  .type(NODE_VALIDATION_ERROR)
+                  .type(LoomConstants.MISSING_NODE_ERROR)
                   .param("nodeType", OperationNode.TYPE)
-                  .summary("%s references nonexistent node".formatted(description.get()))
-                  .context(reference.apply(idx));
-
-          contexts.forEach(issue::context);
-
-          issueCollector.add(issue);
+                  .summary("Operation %s references non-existent node.".formatted(relItemPath))
+                  .context(
+                      ValidationIssue.Context.builder()
+                          .name("Reference")
+                          .message("Invalid reference to non-existent node.")
+                          .jsonpath(opNode.getJsonPath(), relItemPath.get())
+                          .withData(itemId.toString()))
+                  .withContexts(contextsSupplier.get()));
           continue;
         }
 
-        var ioNode = graph.assertNode(refId);
+        var ioNode = graph.assertNode(itemId);
         if (!(ioNode instanceof TensorNode)) {
-          var issue =
+          issueCollector.add(
               ValidationIssue.builder()
-                  .type(NODE_VALIDATION_ERROR)
-                  .param("nodeType", OperationNode.TYPE)
-                  .summary("%s references non-tensor node %s".formatted(description.get(), refId))
-                  .context(reference.apply(idx))
+                  .type(LoomConstants.NODE_VALIDATION_ERROR)
+                  .summary("Operation %s references non-tensor node.".formatted(relItemPath))
                   .context(
-                      ValidationIssue.Context.builder()
-                          .name("Reference Node")
-                          .jsonpath(ioNode.getJsonPath())
-                          .dataFromTree(ioNode)
-                          .build());
-
-          contexts.forEach(issue::context);
-          issueCollector.add(issue);
+                      ioNode.asContext(
+                          "Reference Node", "The node referenced by %s".formatted(relItemPath)))
+                  .withContexts(contextsSupplier.get()));
         }
       }
     }
-  }
-
-  @VisibleForTesting
-  static void checkOperation(OperationNode opNode, ValidationIssueCollector issueCollector) {
-    List<ValidationIssue.Context> contexts =
-        List.of(
-            ValidationIssue.Context.builder()
-                .name("Operation")
-                .jsonpath(opNode.getJsonPath())
-                .dataFromTree(opNode)
-                .build());
-
-    checkIOMap(opNode, "inputs", opNode.getInputs(), issueCollector, contexts);
-    checkIOMap(opNode, "outputs", opNode.getOutputs(), issueCollector, contexts);
   }
 }

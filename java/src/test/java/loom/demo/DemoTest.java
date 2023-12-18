@@ -5,9 +5,7 @@ import java.util.Map;
 import loom.graph.CommonEnvironments;
 import loom.graph.LoomEnvironment;
 import loom.graph.LoomGraph;
-import loom.graph.nodes.AllTensorsHaveExactlyOneSourceOperationConstraint;
 import loom.graph.nodes.OperationNode;
-import loom.graph.nodes.OperationNodesSourcesAndResultsAreTensors;
 import loom.graph.nodes.TensorNode;
 import loom.testing.BaseTestClass;
 import loom.validation.ValidationIssueCollector;
@@ -23,10 +21,7 @@ public class DemoTest extends BaseTestClass {
   }
 
   public static LoomEnvironment demoEnvironment() {
-    return CommonEnvironments.simpleTensorEnvironment("int32")
-        .addConstraint(new AllTensorsHaveExactlyOneSourceOperationConstraint())
-        .addConstraint(new OperationNodesSourcesAndResultsAreTensors())
-        .addConstraint(DemoTest::CycleCheckConstraint);
+    return CommonEnvironments.expressionEnvironment().addConstraint(DemoTest::CycleCheckConstraint);
   }
 
   @Test
@@ -48,7 +43,11 @@ public class DemoTest extends BaseTestClass {
         (TensorNode) graph.buildNode(TensorNode.TYPE, "{\"dtype\": \"int32\", \"shape\": [2, 3]}");
 
     TensorNode tensorI =
-        TensorNode.withBody(b -> b.dtype("int32").shape(new ZPoint(2, 3)))
+        TensorNode.withBody(
+                b -> {
+                  b.dtype("int32");
+                  b.shape(new ZPoint(2, 3));
+                })
             .label("I")
             .buildOn(graph);
 

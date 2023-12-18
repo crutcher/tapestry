@@ -5,6 +5,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class IndentUtils {
+
+  public static final Splitter NEWLINE_SPLITTER = Splitter.on("\n");
+
   private IndentUtils() {}
 
   /**
@@ -30,7 +33,7 @@ public class IndentUtils {
    * @return the list of lines.
    */
   public static List<String> splitAndRemoveCommonIndent(String text) {
-    var lines = Splitter.on("\n").splitToList(text.stripTrailing());
+    var lines = NEWLINE_SPLITTER.splitToList(text.stripTrailing());
 
     var prefixLen = lines.stream().mapToInt(IndentUtils::whitespacePrefixLength).min();
     if (prefixLen.isPresent()) {
@@ -51,7 +54,9 @@ public class IndentUtils {
    * @return the indented text.
    */
   public static String indent(String prefix, List<String> lines) {
-    return lines.stream().map(line -> prefix + line).collect(Collectors.joining("\n"));
+    return lines.stream()
+        .map(line -> (prefix + line).stripTrailing())
+        .collect(Collectors.joining("\n"));
   }
 
   /**
@@ -73,7 +78,7 @@ public class IndentUtils {
    * @return the indented text.
    */
   public static String indent(String prefix, String text) {
-    return indent(prefix, Splitter.on("\n").splitToList(text));
+    return indent(prefix, NEWLINE_SPLITTER.splitToList(text));
   }
 
   /**

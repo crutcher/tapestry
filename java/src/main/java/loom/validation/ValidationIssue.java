@@ -1,6 +1,13 @@
 package loom.validation;
 
 import com.google.common.annotations.VisibleForTesting;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+import java.util.stream.Collectors;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import lombok.Builder;
 import lombok.Data;
 import lombok.Singular;
@@ -8,14 +15,6 @@ import loom.common.HasToJsonString;
 import loom.common.json.JsonPathUtils;
 import loom.common.serialization.JsonUtil;
 import loom.common.text.IndentUtils;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
-import java.util.stream.Collectors;
 
 /** A Description of a validation failure. */
 @Data
@@ -44,6 +43,7 @@ public final class ValidationIssue {
   @Data
   @Builder
   public static final class Context implements HasToJsonString {
+
     /** Extensions to the ContextBuilder. */
     public static class ContextBuilder {
       /**
@@ -67,7 +67,7 @@ public final class ValidationIssue {
        * @param data the data to set.
        * @return the builder.
        */
-      public ContextBuilder dataFromTree(Object data) {
+      public ContextBuilder withData(Object data) {
         this.jsonData = JsonUtil.toPrettyJson(data);
         return this;
       }
@@ -114,12 +114,14 @@ public final class ValidationIssue {
       }
 
       if (message != null) {
-        sb.append("\n")
-            .append(IndentUtils.indent(2, IndentUtils.splitAndRemoveCommonIndent(message)));
+        var m = message.trim();
+        if (!m.isEmpty())
+          sb.append("\n\n")
+              .append(IndentUtils.indent(2, IndentUtils.splitAndRemoveCommonIndent(m)));
       }
 
       if (jsonData != null) {
-        sb.append("\n")
+        sb.append("\n\n")
             .append(IndentUtils.indent("  |> ", JsonUtil.reformatToPrettyJson(jsonData)));
       }
 
@@ -153,6 +155,17 @@ public final class ValidationIssue {
      */
     public ValidationIssueBuilder context(Context.ContextBuilder builder) {
       return context(builder.build());
+    }
+
+    /**
+     * Add each context to the issue.
+     *
+     * @param contexts the contexts to add.
+     * @return this builder, for chaining.
+     */
+    public ValidationIssueBuilder withContexts(Iterable<Context> contexts) {
+      contexts.forEach(this::context);
+      return this;
     }
   }
 

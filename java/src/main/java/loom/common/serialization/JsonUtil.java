@@ -7,9 +7,10 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.NumericNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import java.util.*;
-import javax.annotation.Nullable;
 import lombok.Value;
+
+import javax.annotation.Nullable;
+import java.util.*;
 
 public class JsonUtil {
   // Prevent Construction.
@@ -21,9 +22,7 @@ public class JsonUtil {
    * @return the ObjectMapper.
    */
   static ObjectMapper getMapper() {
-    var mapper = new ObjectMapper();
-    mapper.configure(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS, true);
-    return mapper;
+    return new ObjectMapper().configure(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS, true);
   }
 
   /**

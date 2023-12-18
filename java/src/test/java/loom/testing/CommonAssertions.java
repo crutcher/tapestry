@@ -2,29 +2,37 @@ package loom.testing;
 
 import loom.common.serialization.JsonUtil;
 import loom.common.text.PrettyDiffUtils;
+import loom.validation.ValidationIssue;
+import loom.validation.ValidationIssueCollector;
 import org.assertj.core.api.WithAssertions;
 
 public interface CommonAssertions extends WithAssertions {
+  default void assertValidationIssues(
+      ValidationIssueCollector issueCollector, ValidationIssue... expected) {
+    assertEquivalentJson(JsonUtil.toJson(issueCollector.getIssues()), JsonUtil.toJson(expected));
+  }
+
   default void assertEquivalentJson(
       String actualName, String actual, String expectedName, String expected) {
     // System.out.println("assertEquivalentJson.actual: " + actual);
     // System.out.println("assertEquivalentJson.expected: " + expected);
 
-    var actualTree = JsonUtil.parseToJsonNodeTree(actual);
-    var expectedTree = JsonUtil.parseToJsonNodeTree(expected);
+    var actualNode = JsonUtil.parseToJsonNodeTree(actual);
+    var expectedNode = JsonUtil.parseToJsonNodeTree(expected);
+    if (actualNode.equals(expectedNode)) {
+      return;
+    }
 
-    assertThat(actualTree)
-        .as(
-            () ->
-                String.format(
-                    "JSON Comparison Error: %s != %s\n%s\n",
-                    actualName,
-                    expectedName,
-                    PrettyDiffUtils.indentUdiff(
-                        "> ",
-                        JsonUtil.toPrettyJson(expectedTree),
-                        JsonUtil.toPrettyJson(actualTree))))
-        .isEqualTo(expectedTree);
+    var prettyActual = JsonUtil.reformatToPrettyJson(actual);
+    var prettyExpected = JsonUtil.reformatToPrettyJson(expected);
+    var diff =
+        String.format(
+            "JSON Comparison Error: %s != %s\n%s\n",
+            actualName,
+            expectedName,
+            PrettyDiffUtils.indentUdiff("> ", prettyExpected, prettyActual));
+
+    assertThat(prettyActual).as(diff).isEqualTo(prettyExpected);
   }
 
   default void assertEquivalentJson(String actual, String expected) {

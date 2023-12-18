@@ -76,6 +76,37 @@ public final class LoomGraph implements Iterable<LoomGraph.Node<?, ?>>, HasToJso
       }
     }
 
+    /**
+     * Build a {@link ValidationIssue.Context} for this node.
+     *
+     * @param name the name of the context.
+     * @return the context.
+     */
+    public ValidationIssue.Context asContext(String name) {
+      return asContext(name, null);
+    }
+
+    /**
+     * Build a {@link ValidationIssue.Context} for this node.
+     *
+     * @param name the name of the context.
+     * @param message the message of the context.
+     * @return the context.
+     */
+    public ValidationIssue.Context asContext(String name, @Nullable String message) {
+      var builder =
+          ValidationIssue.Context.builder()
+              .name(name)
+              .jsonpath(getJsonPath())
+              .jsonData(toPrettyJsonString());
+
+      if (message != null) {
+        builder.message(message);
+      }
+
+      return builder.build();
+    }
+
     @NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
     public static final class Serialization {
       /**
