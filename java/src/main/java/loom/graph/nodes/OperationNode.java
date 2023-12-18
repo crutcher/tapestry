@@ -23,8 +23,8 @@ public final class OperationNode extends LoomGraph.Node<OperationNode, Operation
   @Delegate @Nonnull private Body body;
 
   public abstract static class OperationNodeBuilder<
-          C extends OperationNode, B extends OperationNode.OperationNodeBuilder<OperationNode, B>>
-      extends LoomGraph.Node.NodeBuilder<OperationNode, OperationNode.Body, OperationNode, B> {
+          C extends OperationNode, B extends OperationNodeBuilder<C, B>>
+      extends NodeBuilder<OperationNode, Body, C, B> {
     {
       type(TYPE);
     }
@@ -183,7 +183,7 @@ public final class OperationNode extends LoomGraph.Node<OperationNode, Operation
     }
   }
 
-  public static OperationNodeBuilder<OperationNode, ?> withBody(Consumer<Body.BodyBuilder> cb) {
+  public static OperationNodeBuilder<?, ?> withBody(Consumer<Body.BodyBuilder> cb) {
     var bodyBuilder = Body.builder();
     cb.accept(bodyBuilder);
     return builder().body(bodyBuilder.build());

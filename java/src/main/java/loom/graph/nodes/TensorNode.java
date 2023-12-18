@@ -55,8 +55,8 @@ public final class TensorNode extends LoomGraph.Node<TensorNode, TensorNode.Body
   }
 
   public abstract static class TensorNodeBuilder<
-          C extends TensorNode, B extends TensorNode.TensorNodeBuilder<TensorNode, B>>
-      extends LoomGraph.Node.NodeBuilder<TensorNode, Body, TensorNode, B> {
+          C extends TensorNode, B extends TensorNodeBuilder<C, B>>
+      extends NodeBuilder<TensorNode, Body, C, B> {
     {
       type(TYPE);
     }
@@ -105,7 +105,7 @@ public final class TensorNode extends LoomGraph.Node<TensorNode, TensorNode.Body
     }
   }
 
-  public static TensorNodeBuilder<TensorNode, ?> withBody(Consumer<Body.BodyBuilder> cb) {
+  public static TensorNodeBuilder<?, ?> withBody(Consumer<Body.BodyBuilder> cb) {
     var bodyBuilder = Body.builder();
     cb.accept(bodyBuilder);
     return builder().body(bodyBuilder.build());
