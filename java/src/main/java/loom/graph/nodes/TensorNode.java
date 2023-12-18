@@ -1,6 +1,10 @@
 package loom.graph.nodes;
 
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.function.Consumer;
+import javax.annotation.Nonnull;
 import lombok.*;
 import lombok.experimental.Delegate;
 import lombok.experimental.SuperBuilder;
@@ -10,11 +14,6 @@ import loom.graph.LoomGraph;
 import loom.validation.ValidationIssue;
 import loom.validation.ValidationIssueCollector;
 import loom.zspace.ZPoint;
-
-import javax.annotation.Nonnull;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.function.Consumer;
 
 @Jacksonized
 @SuperBuilder
@@ -106,30 +105,10 @@ public final class TensorNode extends LoomGraph.Node<TensorNode, TensorNode.Body
     }
   }
 
-  /**
-   * Create a new TensorNodeBuilder, with the type set to {@link TensorNode#TYPE}.
-   *
-   * @param body the body to use.
-   * @return the new TensorNodeBuilder.
-   */
-  public static TensorNodeBuilder<TensorNode, ?> withBody(Body body) {
-    return builder().body(body);
-  }
-
-  /**
-   * Create a new TensorNodeBuilder, with the type set to {@link TensorNode#TYPE}.
-   *
-   * @param body the body to use.
-   * @return the new TensorNodeBuilder.
-   */
-  public static TensorNodeBuilder<TensorNode, ?> withBody(Body.BodyBuilder body) {
-    return withBody(body.build());
-  }
-
   public static TensorNodeBuilder<TensorNode, ?> withBody(Consumer<Body.BodyBuilder> cb) {
     var bodyBuilder = Body.builder();
     cb.accept(bodyBuilder);
-    return withBody(bodyBuilder);
+    return builder().body(bodyBuilder.build());
   }
 
   /* TODO: Node template BodyBuilderType, reflection annotation?

@@ -35,7 +35,7 @@ public class AllTensorsHaveExactlyOneSourceOperationConstraint
     final var nodeId = tensorNode.getId();
 
     List<OperationNode> operationSourceNodes =
-        tensorNode.assertGraph().stream(OperationNode.Prototype.TYPE, OperationNode.class)
+        tensorNode.assertGraph().stream(OperationNode.TYPE, OperationNode.class)
             .filter(op -> op.getOutputs().values().stream().anyMatch(ids -> ids.contains(nodeId)))
             .toList();
 

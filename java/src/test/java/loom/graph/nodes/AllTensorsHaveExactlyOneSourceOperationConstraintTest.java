@@ -5,7 +5,6 @@ import java.util.Map;
 import loom.demo.DemoTest;
 import loom.graph.CommonEnvironments;
 import loom.graph.LoomConstants;
-import loom.graph.NodeApi;
 import loom.testing.BaseTestClass;
 import loom.validation.ValidationIssue;
 import loom.validation.ValidationIssueCollector;
@@ -20,8 +19,14 @@ public class AllTensorsHaveExactlyOneSourceOperationConstraintTest extends BaseT
     env.getConstraints().add(DemoTest::CycleCheckConstraint);
     var graph = env.createGraph();
 
-    var tensorA = NodeApi.newTensor(graph, "int32", new ZPoint(2, 3));
-    tensorA.setLabel("TooManySources");
+    var tensorA =
+        TensorNode.withBody(
+                b -> {
+                  b.dtype("int32");
+                  b.shape(new ZPoint(2, 3));
+                })
+            .label("TooManySources")
+            .buildOn(graph);
 
     ValidationIssueCollector issueCollector = new ValidationIssueCollector();
     graph.validate(issueCollector);
@@ -47,14 +52,32 @@ public class AllTensorsHaveExactlyOneSourceOperationConstraintTest extends BaseT
     env.getConstraints().add(DemoTest::CycleCheckConstraint);
     var graph = env.createGraph();
 
-    var tensorA = NodeApi.newTensor(graph, "int32", new ZPoint(2, 3));
-    tensorA.setLabel("TooManySources");
+    var tensorA =
+        TensorNode.withBody(
+                b -> {
+                  b.dtype("int32");
+                  b.shape(new ZPoint(2, 3));
+                })
+            .label("TooManySources")
+            .buildOn(graph);
 
     var op1 =
-        NodeApi.newOperation(graph, "source", Map.of(), Map.of("pin", List.of(tensorA)), null);
+        OperationNode.withBody(
+                b1 -> {
+                  b1.opName("source");
+                  b1.inputs(OperationNode.nodeMapToIdMap(Map.of()));
+                  b1.outputs(OperationNode.nodeMapToIdMap(Map.of("pin", List.of(tensorA))));
+                })
+            .buildOn(graph);
     op1.setLabel("op1");
     var op2 =
-        NodeApi.newOperation(graph, "source", Map.of(), Map.of("pin", List.of(tensorA)), null);
+        OperationNode.withBody(
+                b -> {
+                  b.opName("source");
+                  b.inputs(OperationNode.nodeMapToIdMap(Map.of()));
+                  b.outputs(OperationNode.nodeMapToIdMap(Map.of("pin", List.of(tensorA))));
+                })
+            .buildOn(graph);
     op2.setLabel("op2");
 
     ValidationIssueCollector issueCollector = new ValidationIssueCollector();

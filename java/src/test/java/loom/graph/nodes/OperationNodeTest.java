@@ -1,14 +1,14 @@
 package loom.graph.nodes;
 
-import java.util.List;
-import java.util.Map;
 import loom.demo.DemoTest;
 import loom.graph.CommonEnvironments;
 import loom.graph.LoomEnvironment;
-import loom.graph.NodeApi;
 import loom.testing.BaseTestClass;
 import loom.zspace.ZPoint;
 import org.junit.Test;
+
+import java.util.List;
+import java.util.Map;
 
 public class OperationNodeTest extends BaseTestClass {
   public LoomEnvironment demoEnvironment() {
@@ -22,16 +22,28 @@ public class OperationNodeTest extends BaseTestClass {
     var env = demoEnvironment();
     var graph = env.createGraph();
 
-    var tensorA = NodeApi.newTensor(graph, "int32", new ZPoint(2, 3));
-    tensorA.setLabel("A");
+    var tensorA =
+        TensorNode.withBody(b -> b.dtype("int32").shape(new ZPoint(2, 3)))
+            .label("A")
+            .buildOn(graph);
 
     var op1 =
-        NodeApi.newOperation(graph, "source", Map.of(), Map.of("pin", List.of(tensorA)), null);
+        OperationNode.withBody(
+                b1 ->
+                    b1.opName("source")
+                        .inputs(OperationNode.nodeMapToIdMap(Map.of()))
+                        .outputs(OperationNode.nodeMapToIdMap(Map.of("pin", List.of(tensorA)))))
+            .buildOn(graph);
     op1.setLabel("op1");
 
     var op2 =
-        NodeApi.newOperation(
-            graph, "sink", Map.of("inputs", List.of(tensorA)), Map.of(), Map.of("xyz", 123));
+        OperationNode.withBody(
+                b ->
+                    b.opName("sink")
+                        .inputs(OperationNode.nodeMapToIdMap(Map.of("inputs", List.of(tensorA))))
+                        .outputs(OperationNode.nodeMapToIdMap(Map.of()))
+                        .param("xyz", 123))
+            .buildOn(graph);
     op2.setLabel("op2");
 
     assertThat(op2.getParams()).containsEntry("xyz", 123);

@@ -45,27 +45,12 @@ public class DemoTest extends BaseTestClass {
     TensorNode tensorC =
         (TensorNode) graph.buildNode(TensorNode.TYPE, "{\"dtype\": \"int32\", \"shape\": [2, 3]}");
 
-    TensorNode tensorF =
-        TensorNode.withBody(
-                TensorNode.Body.builder().dtype("int32").shape(new ZPoint(2, 3)).build())
-            .label("F")
-            .buildOn(graph);
-
-    TensorNode tensorG =
-        TensorNode.withBody(TensorNode.Body.builder().dtype("int32").shape(new ZPoint(2, 3)))
-            .label("G")
-            .buildOn(graph);
-
     TensorNode tensorI =
-        TensorNode.withBody(
-                b -> {
-                  b.dtype("int32");
-                  b.shape(new ZPoint(2, 3));
-                })
+        TensorNode.withBody(b -> b.dtype("int32").shape(new ZPoint(2, 3)))
             .label("I")
             .buildOn(graph);
 
-    var tensors = List.of(tensorA, tensorB, tensorC, tensorF, tensorG, tensorI);
+    var tensors = List.of(tensorA, tensorB, tensorC, tensorI);
     var tensorIds = tensors.stream().map(LoomGraph.Node::getId).toList();
 
     var op1 =
