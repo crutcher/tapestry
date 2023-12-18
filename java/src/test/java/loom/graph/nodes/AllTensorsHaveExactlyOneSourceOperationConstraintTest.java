@@ -21,17 +21,17 @@ public class AllTensorsHaveExactlyOneSourceOperationConstraintTest extends BaseT
   }
 
   @Test
-  public void test_NoSource() {
+  public void test() {
     var env = createEnvironment();
     var graph = env.createGraph();
 
-    var tensorA =
+    var noSources =
         TensorNode.withBody(
                 b -> {
                   b.dtype("int32");
                   b.shape(new ZPoint(2, 3));
                 })
-            .label("TooManySources")
+            .label("NoSources")
             .buildOn(graph);
 
     ValidationIssueCollector issueCollector = new ValidationIssueCollector();
@@ -45,9 +45,9 @@ public class AllTensorsHaveExactlyOneSourceOperationConstraintTest extends BaseT
                 .context(
                     ValidationIssue.Context.builder()
                         .name("Tensor")
-                        .jsonpath(tensorA.getJsonPath())
-                        .dataFromJson(tensorA.toJsonString()))
-                .summary("Tensor (TooManySources) has no Operation source")
+                        .jsonpath(noSources.getJsonPath())
+                        .dataFromJson(noSources.toJsonString()))
+                .summary("Tensor (NoSources) has no Operation source")
                 .build());
   }
 
@@ -56,7 +56,7 @@ public class AllTensorsHaveExactlyOneSourceOperationConstraintTest extends BaseT
     var env = createEnvironment();
     var graph = env.createGraph();
 
-    var tensorNode =
+    var tooManySources =
         TensorNode.withBody(
                 b -> {
                   b.dtype("int32");
@@ -69,7 +69,7 @@ public class AllTensorsHaveExactlyOneSourceOperationConstraintTest extends BaseT
         OperationNode.withBody(
                 b1 -> {
                   b1.opName("source");
-                  b1.outputs(Map.of("pin", List.of(tensorNode.getId())));
+                  b1.outputs(Map.of("pin", List.of(tooManySources.getId())));
                 })
             .label("op1")
             .buildOn(graph);
@@ -78,7 +78,7 @@ public class AllTensorsHaveExactlyOneSourceOperationConstraintTest extends BaseT
         OperationNode.withBody(
                 b -> {
                   b.opName("source");
-                  b.outputs(Map.of("pin", List.of(tensorNode.getId())));
+                  b.outputs(Map.of("pin", List.of(tooManySources.getId())));
                 })
             .label("op2")
             .buildOn(graph);
@@ -91,8 +91,8 @@ public class AllTensorsHaveExactlyOneSourceOperationConstraintTest extends BaseT
                 .type(LoomConstants.NODE_VALIDATION_ERROR)
                 .param("nodeType", TensorNode.TYPE)
                 .summary("Tensor (TooManySources) has too many Operation sources: 2")
-                .message("Tensor id: " + tensorNode.getId())
-                .context(tensorNode.asContext("Tensor"))
+                .message("Tensor id: " + tooManySources.getId())
+                .context(tooManySources.asContext("Tensor"))
                 .context(opNode1.asContext("Source Operation #0 (op1)"))
                 .context(opNode2.asContext("Source Operation #1 (op2)"))
                 .build());
