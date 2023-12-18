@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -177,6 +178,18 @@ public final class ValidationIssue {
      */
     public ValidationIssueBuilder context(Context.ContextBuilder builder) {
       return context(builder.build());
+    }
+
+    /**
+     * Add a context to the issue.
+     *
+     * @param consumer the consumer to fill in the ContextBuilder.
+     * @return this builder, for chaining.
+     */
+    public ValidationIssueBuilder context(Consumer<Context.ContextBuilder> consumer) {
+      var builder = Context.builder();
+      consumer.accept(builder);
+      return context(builder);
     }
 
     /**

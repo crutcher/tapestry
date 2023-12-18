@@ -8,20 +8,13 @@ import loom.graph.LoomGraph;
 import loom.graph.nodes.OperationNode;
 import loom.graph.nodes.TensorNode;
 import loom.testing.BaseTestClass;
-import loom.validation.ValidationIssueCollector;
 import loom.zspace.ZPoint;
 import org.junit.Test;
 
 public class DemoTest extends BaseTestClass {
 
-  public static void CycleCheckConstraint(
-      LoomEnvironment env, LoomGraph graph, ValidationIssueCollector issueCollector) {
-    // Assuming TensorNode::AllTensorsHaveExactlyOneSourceOperation has already been run;
-    // verify that there are no cycles in the graph.
-  }
-
   public static LoomEnvironment demoEnvironment() {
-    return CommonEnvironments.expressionEnvironment().addConstraint(DemoTest::CycleCheckConstraint);
+    return CommonEnvironments.expressionEnvironment();
   }
 
   @Test

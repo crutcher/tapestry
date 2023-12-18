@@ -1,6 +1,7 @@
 package loom.graph.nodes;
 
-import loom.demo.DemoTest;
+import java.util.List;
+import java.util.Map;
 import loom.graph.CommonEnvironments;
 import loom.graph.LoomConstants;
 import loom.graph.LoomEnvironment;
@@ -10,14 +11,9 @@ import loom.validation.ValidationIssueCollector;
 import loom.zspace.ZPoint;
 import org.junit.Test;
 
-import java.util.List;
-import java.util.Map;
-
 public class AllTensorsHaveExactlyOneSourceOperationConstraintTest extends BaseTestClass {
   public LoomEnvironment createEnvironment() {
-    return CommonEnvironments.simpleTensorEnvironment("int32")
-        .addConstraint(new AllTensorsHaveExactlyOneSourceOperationConstraint())
-        .addConstraint(DemoTest::CycleCheckConstraint);
+    return CommonEnvironments.expressionEnvironment();
   }
 
   @Test

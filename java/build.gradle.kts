@@ -102,6 +102,9 @@ dependencies {
     // Jetbrains annotations
     implementation("org.jetbrains:annotations:24.0.1")
 
+    // JGraphT
+    // implementation("org.jgrapht:jgrapht:1.5.2")
+    implementation("org.jgrapht:jgrapht-core:1.5.2")
 
     // Set up ErrorProne deps for lint.
     errorprone("com.google.errorprone:error_prone_core:2.23.0")

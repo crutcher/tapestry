@@ -2,7 +2,6 @@ package loom.graph.nodes;
 
 import java.util.List;
 import java.util.Map;
-import loom.demo.DemoTest;
 import loom.graph.CommonEnvironments;
 import loom.graph.LoomEnvironment;
 import loom.testing.BaseTestClass;
@@ -13,7 +12,8 @@ public class OperationNodeTest extends BaseTestClass {
   public LoomEnvironment demoEnvironment() {
     return CommonEnvironments.simpleTensorEnvironment("int32")
         .addConstraint(new AllTensorsHaveExactlyOneSourceOperationConstraint())
-        .addConstraint(DemoTest::CycleCheckConstraint);
+        .addConstraint(new OperationNodesSourcesAndResultsAreTensors())
+        .addConstraint(new ThereAreNoTensorOperationReferenceCyclesConstraint());
   }
 
   @Test
