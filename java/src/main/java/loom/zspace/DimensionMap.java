@@ -6,13 +6,12 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.google.common.collect.ImmutableList;
-import loom.common.json.HasToJsonString;
-import loom.common.json.JsonUtil;
-
+import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.Immutable;
 import javax.annotation.concurrent.ThreadSafe;
-import java.util.Objects;
+import loom.common.json.HasToJsonString;
+import loom.common.json.JsonUtil;
 
 @Immutable
 @ThreadSafe

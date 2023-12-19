@@ -8,11 +8,10 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.BooleanNode;
 import com.fasterxml.jackson.databind.node.NumericNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import java.util.*;
+import javax.annotation.Nullable;
 import lombok.NoArgsConstructor;
 import lombok.Value;
-
-import javax.annotation.Nullable;
-import java.util.*;
 
 @NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
 public final class JsonUtil {

@@ -1,5 +1,9 @@
 package loom.graph;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
 import lombok.NoArgsConstructor;
 import loom.graph.nodes.*;
 import org.jetbrains.annotations.NotNull;
@@ -7,11 +11,6 @@ import org.jgrapht.Graph;
 import org.jgrapht.alg.cycle.TarjanSimpleCycles;
 import org.jgrapht.graph.DefaultDirectedGraph;
 import org.jgrapht.graph.DefaultEdge;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
 
 @NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
 public final class CommonEnvironments {
