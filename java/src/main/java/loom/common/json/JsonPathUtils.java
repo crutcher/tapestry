@@ -67,12 +67,9 @@ public class JsonPathUtils {
       if (start >= k) {
         continue;
       }
-
       if (start > 0) part = part.substring(start);
+      // Guaranteed to be non-empty, start < k.
 
-      if (part.isEmpty()) {
-        continue;
-      }
       if (part.charAt(0) != '[') {
         sb.append(".");
       }

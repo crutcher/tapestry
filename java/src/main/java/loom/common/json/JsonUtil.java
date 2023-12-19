@@ -8,10 +8,11 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.BooleanNode;
 import com.fasterxml.jackson.databind.node.NumericNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import java.util.*;
-import javax.annotation.Nullable;
 import lombok.NoArgsConstructor;
 import lombok.Value;
+
+import javax.annotation.Nullable;
+import java.util.*;
 
 @NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
 public final class JsonUtil {
@@ -177,39 +178,56 @@ public final class JsonUtil {
 
   /** Traversal context for the validateSimpleJson method. */
   @Value
-  protected static class ValidatorPathContext {
-    @Nullable ValidatorPathContext parent;
+  protected static class SelectionPath {
+    @Nullable SelectionPath parent;
     @Nullable Object selector;
     @Nullable Object target;
+
+    public SelectionPath(@Nullable Object target) {
+      this.parent = null;
+      this.selector = null;
+      this.target = target;
+    }
+
+    public SelectionPath(
+        @Nullable SelectionPath parent, @Nullable String selector, @Nullable Object target) {
+      this.parent = parent;
+      this.selector = selector;
+      this.target = target;
+    }
+
+    public SelectionPath(
+        @Nullable SelectionPath parent, @Nullable Integer selector, @Nullable Object target) {
+      this.parent = parent;
+      this.selector = selector;
+      this.target = target;
+    }
 
     /**
      * Selector path from the root to this context location.
      *
      * @return a string representing the path.
      */
-    String path() {
+    @Override
+    public String toString() {
       if (selector == null) {
         return "";
       }
-      var prefix = (parent == null) ? "" : parent.path();
-      if (!prefix.isEmpty()) {
-        prefix += ".";
-      }
+      var prefix = (parent == null) ? "" : parent.toString();
 
       if (selector instanceof String s) {
         if (!prefix.isEmpty()) {
-          return prefix + "/" + s;
+          return "%s.%s".formatted(prefix, s);
         } else {
           return s;
         }
-      } else if (selector instanceof Number n) {
-        if (!prefix.isEmpty()) {
-          return prefix + "[" + n + "]";
-        } else {
-          throw new IllegalStateException("Unexpected value: " + selector);
-        }
       } else {
-        throw new IllegalStateException("Unexpected value: " + selector);
+        var n = (Integer) selector;
+        if (!prefix.isEmpty()) {
+          return "%s[%d]".formatted(prefix, n);
+        } else {
+          throw new IllegalArgumentException("Unexpected value: " + selector);
+        }
       }
     }
 
@@ -218,7 +236,7 @@ public final class JsonUtil {
      *
      * @return true if there is a cycle.
      */
-    boolean isCycle() {
+    public boolean isCycle() {
       var h = parent;
       while (h != null) {
         if (h.target == target) {
@@ -237,14 +255,14 @@ public final class JsonUtil {
    * @throws IllegalArgumentException if the object is not a simple JSON value tree.
    */
   public static void validateSimpleJson(Object tree) {
-    var scheduled = new ArrayDeque<ValidatorPathContext>();
-    scheduled.add(new ValidatorPathContext(null, null, tree));
+    var scheduled = new ArrayDeque<SelectionPath>();
+    scheduled.add(new SelectionPath(tree));
 
     while (!scheduled.isEmpty()) {
       var item = scheduled.pop();
 
       if (item.isCycle()) {
-        throw new IllegalArgumentException("Cycle detected at " + item.path());
+        throw new IllegalArgumentException("Cycle detected at " + item);
       }
 
       final var target = item.getTarget();
@@ -260,11 +278,12 @@ public final class JsonUtil {
       if (target instanceof Map<?, ?> map) {
         map.forEach(
             (k, v) -> {
-              if (!(k instanceof String)) {
-                throw new IllegalArgumentException("Unexpected key: " + k + " at " + item.path());
+              if (k instanceof String s) {
+                // Valid if all children are valid.
+                scheduled.add(new SelectionPath(item, s, v));
+              } else {
+                throw new IllegalArgumentException("Unexpected key: " + k + " at " + item);
               }
-              // Valid if all children are valid.
-              scheduled.add(new ValidatorPathContext(item, k, v));
             });
         continue;
       }
@@ -272,12 +291,13 @@ public final class JsonUtil {
       if (target instanceof List<?> list) {
         for (int i = 0; i < list.size(); i++) {
           // Valid if all children are valid.
-          scheduled.add(new ValidatorPathContext(item, i, list.get(i)));
+          scheduled.add(new SelectionPath(item, i, list.get(i)));
         }
         continue;
       }
 
-      throw new IllegalArgumentException("Unexpected value type: " + target + " at " + item.path());
+      throw new IllegalArgumentException(
+          "Unexpected value type (%s) at %s".formatted(target.getClass().getSimpleName(), item));
     }
   }
 }

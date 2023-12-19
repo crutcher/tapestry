@@ -28,7 +28,7 @@ public class MapValueListUtilTest extends BaseTestClass {
     public static class NodeListToMapDeserializer
         extends MapValueListUtil.MapDeserializer<UUID, Node> {
       public NodeListToMapDeserializer() {
-        super(Node.class, Node::getId, HashMap.class);
+        super(Node.class, Node::getId, HashMap::new);
       }
     }
   }
@@ -59,6 +59,5 @@ public class MapValueListUtilTest extends BaseTestClass {
     var deserializer = new TestDoc.NodeListToMapDeserializer();
 
     assertThat(deserializer.arrayType()).isEqualTo(TestDoc.Node[].class);
-    assertThat(deserializer.newMap()).isInstanceOf(HashMap.class);
   }
 }

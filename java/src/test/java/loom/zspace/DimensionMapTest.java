@@ -5,6 +5,17 @@ import org.junit.Test;
 
 public class DimensionMapTest implements CommonAssertions {
   @Test
+  public void test_equals_hash() {
+    var dm = new DimensionMap("x", "y", "z");
+    var dm2 = new DimensionMap("x", "y", "z");
+    var dm3 = new DimensionMap("a", "b", "c");
+
+    assertThat(dm).isEqualTo(dm2).isNotEqualTo(dm3).hasSameHashCodeAs(dm2);
+
+    assertThat(dm.hashCode()).isNotEqualTo(dm3.hashCode());
+  }
+
+  @Test
   public void test_string_parse_json() {
     var dm = new DimensionMap("x", "y", "z");
 
@@ -17,6 +28,12 @@ public class DimensionMapTest implements CommonAssertions {
 
   @Test
   public void test_bad_names() {
+    assertThatExceptionOfType(IllegalArgumentException.class)
+        .isThrownBy(() -> new DimensionMap(new String[] {"x", null}));
+
+    assertThatExceptionOfType(IllegalArgumentException.class)
+        .isThrownBy(() -> new DimensionMap(new String[] {"x", "x"}));
+
     assertThatExceptionOfType(IllegalArgumentException.class)
         .isThrownBy(() -> new DimensionMap(new String[] {"x", "9"}));
 

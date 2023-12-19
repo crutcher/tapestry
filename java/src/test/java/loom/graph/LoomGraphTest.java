@@ -1,9 +1,6 @@
 package loom.graph;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import javax.annotation.Nonnull;
 import lombok.Builder;
 import lombok.Data;
@@ -353,7 +350,7 @@ public class LoomGraphTest extends BaseTestClass {
   }
 
   @Test
-  public void testNode() {
+  public void test_buildNode() {
     var env =
         LoomEnvironment.builder()
             .nodeMetaFactory(
@@ -364,11 +361,73 @@ public class LoomGraphTest extends BaseTestClass {
 
     var graph = env.graphBuilder().build();
 
+    var a =
+        (DemoNode)
+            graph.buildNode(DemoNodePrototype.TYPE, DemoNode.Body.builder().foo("a").build());
+
+    var b = (DemoNode) graph.buildNode(DemoNodePrototype.TYPE, Map.of("foo", "b"));
+
+    var c = (DemoNode) graph.buildNode(DemoNodePrototype.TYPE, "{\"foo\": \"c\"}");
+
+    var d =
+        (DemoNode)
+            graph.buildNode(
+                DemoNodePrototype.TYPE, JsonUtil.parseToJsonNodeTree("{\"foo\": \"d\"}"));
+
+    assertThat(a.getFoo()).isEqualTo("a");
+    assertThat(b.getFoo()).isEqualTo("b");
+    assertThat(c.getFoo()).isEqualTo("c");
+    assertThat(d.getFoo()).isEqualTo("d");
+  }
+
+  @Test
+  public void testNode() {
+    var env =
+        LoomEnvironment.builder()
+            .nodeMetaFactory(
+                TypeMapNodeMetaFactory.builder()
+                    .typeMapping(DemoNodePrototype.TYPE, new DemoNodePrototype())
+                    .build())
+            .build();
+
+    var graph = env.graphBuilder().build();
+    graph.setId(UUID.randomUUID());
+
+    {
+      DemoNode orphan =
+          DemoNode.builder()
+              .id(UUID.randomUUID())
+              .type(DemoNodePrototype.TYPE)
+              .body(DemoNode.Body.builder().foo("bar").build())
+              .build();
+      assertThat(orphan.getGraph()).isNull();
+      assertThatExceptionOfType(IllegalStateException.class).isThrownBy(orphan::assertGraph);
+    }
+
     DemoNode node =
         graph.addNode(
             DemoNode.builder()
                 .type(DemoNodePrototype.TYPE)
                 .body(DemoNode.Body.builder().foo("bar").build()));
+
+    assertThat(graph.toString()).contains("id=" + graph.getId());
+
+    {
+      var nodeList = new ArrayList<>();
+      graph.iterator().forEachRemaining(nodeList::add);
+      assertThat(nodeList).containsExactly(node);
+    }
+
+    {
+      var otherGraph = env.graphBuilder().build();
+      assertThatExceptionOfType(IllegalArgumentException.class)
+          .isThrownBy(() -> otherGraph.addNode(node))
+          .withMessageContaining("Node already belongs to a graph");
+    }
+
+    assertThatExceptionOfType(IllegalArgumentException.class)
+        .isThrownBy(() -> graph.addNode(node))
+        .withMessageContaining("Graph already has node with id: " + node.getId());
 
     assertThat(node)
         .isInstanceOf(DemoNode.class)

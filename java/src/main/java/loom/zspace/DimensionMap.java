@@ -6,13 +6,13 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.google.common.collect.ImmutableList;
-import java.util.Collections;
-import java.util.Objects;
+import loom.common.json.HasToJsonString;
+import loom.common.json.JsonUtil;
+
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.Immutable;
 import javax.annotation.concurrent.ThreadSafe;
-import loom.common.json.HasToJsonString;
-import loom.common.json.JsonUtil;
+import java.util.Objects;
 
 @Immutable
 @ThreadSafe
@@ -34,17 +34,19 @@ public final class DimensionMap
   @JsonValue public final ImmutableList<String> names;
 
   public DimensionMap(String... names) {
-    this.names = ImmutableList.copyOf(names);
-    for (var name : names) {
+    for (int i = 0; i < names.length; ++i) {
+      var name = names[i];
       if (name == null) {
         throw new IllegalArgumentException("name cannot be null");
       }
-      if (Collections.frequency(this.names, name) != 1) {
-        throw new IllegalArgumentException("duplicate name: " + name);
+      for (int j = 0; j < i; ++j) {
+        if (names[j].equals(name)) {
+          throw new IllegalArgumentException("duplicate name: " + name);
+        }
       }
-
       IdentifiersFns.validAtomicIdentifier(name);
     }
+    this.names = ImmutableList.copyOf(names);
   }
 
   @Override

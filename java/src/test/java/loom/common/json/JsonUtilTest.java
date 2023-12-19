@@ -37,7 +37,7 @@ public class JsonUtilTest implements CommonAssertions {
 
   @Test
   @SuppressWarnings("unused")
-  public void toJsonString() {
+  public void test_toJsonString() {
     var obj =
         new Object() {
           public final String a = "a";
@@ -54,7 +54,7 @@ public class JsonUtilTest implements CommonAssertions {
   }
 
   @Test
-  public void testToSimpleJson() {
+  public void test_ToSimpleJson() {
     var example = new ExampleClass("hello", 3);
 
     assertThat(JsonUtil.toSimpleJson(List.of(example)))
@@ -75,6 +75,28 @@ public class JsonUtilTest implements CommonAssertions {
         .isEqualTo(Map.of("a", "hello", "b", 3));
     assertThatExceptionOfType(IllegalArgumentException.class)
         .isThrownBy(() -> JsonUtil.treeToSimpleJson(JsonNodeFactory.instance.missingNode()));
+  }
+
+  @Test
+  public void test_parseToJsonNodeTree() {
+    assertThat(JsonUtil.parseToJsonNodeTree("null")).isEqualTo(JsonNodeFactory.instance.nullNode());
+    assertThat(
+            JsonUtil.parseToJsonNodeTree(
+                """
+                {
+                  "a" : "hello",
+                  "b" : 3
+                }"""))
+        .isEqualTo(
+            JsonUtil.parseToJsonNodeTree(
+                """
+                {
+                  "b" : 3,
+                  "a" : "hello"
+                }"""));
+
+    assertThatExceptionOfType(IllegalArgumentException.class)
+        .isThrownBy(() -> JsonUtil.parseToJsonNodeTree("abc"));
   }
 
   @Test
@@ -113,8 +135,23 @@ public class JsonUtilTest implements CommonAssertions {
             "h",
             Map.of("a", 1, "b", 2.0)));
 
+    JsonUtil.validateSimpleJson(List.of(Map.of("a", List.of("x", "y", Map.of("z", 1)))));
+
+    assertThatExceptionOfType(IllegalArgumentException.class)
+        .isThrownBy(
+            () ->
+                JsonUtil.validateSimpleJson(
+                    Map.of("abc", Map.of("xyz", List.of("a", "b", new Object())))))
+        .withMessageContaining("Unexpected value type (Object) at abc.xyz[2]");
+
     assertThatExceptionOfType(IllegalArgumentException.class)
         .isThrownBy(() -> JsonUtil.validateSimpleJson(new Object()));
+
+    assertThatExceptionOfType(IllegalArgumentException.class)
+        .isThrownBy(() -> JsonUtil.validateSimpleJson(List.of(new Object())));
+
+    assertThatExceptionOfType(IllegalArgumentException.class)
+        .isThrownBy(() -> JsonUtil.validateSimpleJson(Map.of(2, "abc")));
 
     var cycle = new ArrayList<>();
     //noinspection CollectionAddedToSelf

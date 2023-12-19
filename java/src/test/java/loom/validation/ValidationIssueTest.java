@@ -1,10 +1,9 @@
 package loom.validation;
 
-import loom.testing.BaseTestClass;
-import org.junit.Test;
-
 import java.util.List;
 import java.util.Map;
+import loom.testing.BaseTestClass;
+import org.junit.Test;
 
 public class ValidationIssueTest extends BaseTestClass {
   @Test

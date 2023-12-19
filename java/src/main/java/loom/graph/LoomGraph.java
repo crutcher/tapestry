@@ -64,13 +64,6 @@ public final class LoomGraph implements Iterable<LoomGraph.Node<?, ?>>, HasToJso
         C extends Node<NodeType, BodyType>,
         B extends NodeBuilder<NodeType, BodyType, C, B>> {
 
-      public Class<NodeType> getNodeTypeClass() {
-        var cls = (ParameterizedType) getClass().getGenericSuperclass();
-        @SuppressWarnings("unchecked")
-        var nodeTypeClass = (Class<NodeType>) cls.getActualTypeArguments()[0];
-        return nodeTypeClass;
-      }
-
       public NodeType buildOn(LoomGraph graph) {
         return graph.addNode(this);
       }
@@ -352,7 +345,7 @@ public final class LoomGraph implements Iterable<LoomGraph.Node<?, ?>>, HasToJso
         extends MapValueListUtil.MapDeserializer<UUID, Node<?, ?>> {
       @SuppressWarnings("unchecked")
       public NodeListToMapDeserializer() {
-        super((Class<Node<?, ?>>) (Class<?>) Node.class, Node::getId, HashMap.class);
+        super((Class<Node<?, ?>>) (Class<?>) Node.class, Node::getId, HashMap::new);
       }
     }
   }
@@ -425,7 +418,7 @@ public final class LoomGraph implements Iterable<LoomGraph.Node<?, ?>>, HasToJso
   @SuppressWarnings("unchecked")
   public <NodeType extends Node<NodeType, ?>> NodeType addNode(Node<NodeType, ?> node) {
     if (hasNode(node.getId())) {
-      throw new IllegalArgumentException("Node already exists: " + node.getId());
+      throw new IllegalArgumentException("Graph already has node with id: " + node.getId());
     }
 
     if (node.getGraph() != null) {

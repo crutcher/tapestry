@@ -6,9 +6,9 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import lombok.NoArgsConstructor;
 
 /**
@@ -63,19 +63,13 @@ public class MapValueListUtil {
   public static class MapDeserializer<K, V> extends JsonDeserializer<Map<K, V>> {
     private final Class<V> valueClass;
     private final Function<V, K> keyExtractor;
-
-    private final Class<? extends Map<K, V>> mapClass;
+    private final Supplier<Map<K, V>> mapBuilder;
 
     public MapDeserializer(
-        Class<V> valueClass,
-        Function<V, K> keyExtractor,
-        @SuppressWarnings("rawtypes") Class<? extends Map> mapClass) {
+        Class<V> valueClass, Function<V, K> keyExtractor, Supplier<Map<K, V>> mapBuilder) {
       this.valueClass = valueClass;
       this.keyExtractor = keyExtractor;
-
-      @SuppressWarnings("unchecked")
-      var tmp = (Class<? extends Map<K, V>>) mapClass;
-      this.mapClass = tmp;
+      this.mapBuilder = mapBuilder;
     }
 
     Class<V[]> arrayType() {
@@ -84,21 +78,10 @@ public class MapValueListUtil {
       return typ;
     }
 
-    Map<K, V> newMap() {
-      try {
-        return mapClass.getDeclaredConstructor().newInstance();
-      } catch (NoSuchMethodException
-          | InvocationTargetException
-          | InstantiationException
-          | IllegalAccessException e) {
-        throw new RuntimeException(e);
-      }
-    }
-
     @Override
     public Map<K, V> deserialize(
         com.fasterxml.jackson.core.JsonParser p, DeserializationContext ctxt) throws IOException {
-      var map = newMap();
+      var map = mapBuilder.get();
       for (var v : p.readValueAs(arrayType())) {
         map.put(keyExtractor.apply(v), v);
       }

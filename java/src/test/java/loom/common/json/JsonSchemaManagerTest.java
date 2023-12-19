@@ -85,6 +85,7 @@ public class JsonSchemaManagerTest extends BaseTestClass {
         .issueCollector(issueCollector)
         .param("foo", "bar")
         .schemaSource(EXAMPLE_SCHEMA)
+        .summaryPrefix("[qqq] ")
         .json(instanceJson)
         .jsonPathPrefix("foo.bar[2]")
         .context(
@@ -101,6 +102,7 @@ public class JsonSchemaManagerTest extends BaseTestClass {
     assertThat(issueCollector.getIssues())
         .hasSize(1)
         .extracting(ValidationIssue::getSummary)
-        .contains("/shape/3 [minimum] :: The numeric value must be greater than or equal to 1.");
+        .contains(
+            "[qqq] /shape/3 [minimum] :: The numeric value must be greater than or equal to 1.");
   }
 }
