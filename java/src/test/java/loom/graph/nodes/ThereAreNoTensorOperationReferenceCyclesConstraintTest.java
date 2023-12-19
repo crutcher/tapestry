@@ -74,6 +74,8 @@ public class ThereAreNoTensorOperationReferenceCyclesConstraintTest extends Base
     var issueCollector = new ValidationIssueCollector();
     constraint.checkConstraint(env, graph, issueCollector);
 
+    System.out.println(issueCollector.toDisplayString());
+
     assertThat(issueCollector.getIssues())
         .containsOnly(
             ValidationIssue.builder()

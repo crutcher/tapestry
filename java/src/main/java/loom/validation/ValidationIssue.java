@@ -1,5 +1,6 @@
 package loom.validation;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.google.common.annotations.VisibleForTesting;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,6 +22,7 @@ import loom.common.text.IndentUtils;
 /** A Description of a validation failure. */
 @Data
 @Builder(toBuilder = true)
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
 public final class ValidationIssue {
 
   /**
@@ -173,7 +175,7 @@ public final class ValidationIssue {
     /**
      * Add a context to the issue.
      *
-     * @param builder the builder to build a Context from..
+     * @param builder the builder to build a Context from.
      * @return this builder, for chaining.
      */
     public ValidationIssueBuilder context(Context.ContextBuilder builder) {

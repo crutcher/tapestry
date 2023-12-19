@@ -1,5 +1,6 @@
 package loom.validation;
 
+import com.fasterxml.jackson.annotation.JsonValue;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
@@ -10,7 +11,7 @@ import org.jetbrains.annotations.Nullable;
 /** Collects ValidationIssues. */
 @Getter
 public class ValidationIssueCollector implements HasToJsonString {
-  @Nullable private List<ValidationIssue> issues;
+  @JsonValue @Nullable private List<ValidationIssue> issues;
 
   /**
    * Check if the collector is empty.

@@ -5,9 +5,10 @@ import java.util.function.Supplier;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 import javax.annotation.Nonnull;
+import lombok.NoArgsConstructor;
 
+@NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
 public final class IteratorUtils {
-  private IteratorUtils() {}
 
   /**
    * Convert an Iterable to a Stream.

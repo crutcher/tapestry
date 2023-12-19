@@ -1,5 +1,6 @@
 package loom.common.json;
 
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -13,6 +14,25 @@ public class JsonUtilTest implements CommonAssertions {
   public static class ExampleClass {
     public String a;
     public int b;
+  }
+
+  @Test
+  public void test_toJson_Bad() {
+    assertThatExceptionOfType(IllegalArgumentException.class)
+        .isThrownBy(() -> JsonUtil.toJson(new Object()));
+    assertThatExceptionOfType(IllegalArgumentException.class)
+        .isThrownBy(() -> JsonUtil.toPrettyJson(new Object()));
+  }
+
+  @Test
+  public void test_reformatToPrettyJson() {
+    assertThat(JsonUtil.reformatToPrettyJson("{\"a\":\"a\",\"b\":1}"))
+        .isEqualTo(
+            """
+            {
+              "a" : "a",
+              "b" : 1
+            }""");
   }
 
   @Test
@@ -39,6 +59,22 @@ public class JsonUtilTest implements CommonAssertions {
 
     assertThat(JsonUtil.toSimpleJson(List.of(example)))
         .isEqualTo(List.of(Map.of("a", "hello", "b", 3)));
+  }
+
+  @Test
+  public void test_treeToSimpleJson() {
+    assertThat(JsonUtil.treeToSimpleJson(JsonNodeFactory.instance.nullNode())).isNull();
+    assertThat(
+            JsonUtil.treeToSimpleJson(
+                JsonUtil.parseToJsonNodeTree(
+                    """
+                    {
+                      "a" : "hello",
+                      "b" : 3
+                    }""")))
+        .isEqualTo(Map.of("a", "hello", "b", 3));
+    assertThatExceptionOfType(IllegalArgumentException.class)
+        .isThrownBy(() -> JsonUtil.treeToSimpleJson(JsonNodeFactory.instance.missingNode()));
   }
 
   @Test

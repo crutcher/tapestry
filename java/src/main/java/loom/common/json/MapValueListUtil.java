@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
 import java.util.function.Function;
+import lombok.NoArgsConstructor;
 
 /**
  * Utilities for serializing and deserializing a {@code Map<K, T>} as a json {@code [T]}.
@@ -38,8 +39,8 @@ import java.util.function.Function;
  * }
  * }</pre>
  */
+@NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
 public class MapValueListUtil {
-  private MapValueListUtil() {}
 
   /** Serializer to write a {@code Map<K, T>} as a json {@code [T]}. */
   public static final class MapSerializer<K extends Comparable<K>, V>

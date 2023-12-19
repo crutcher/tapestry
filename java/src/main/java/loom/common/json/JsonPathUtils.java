@@ -2,11 +2,10 @@ package loom.common.json;
 
 import com.google.common.base.Splitter;
 import javax.annotation.Nonnull;
+import lombok.NoArgsConstructor;
 
+@NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
 public class JsonPathUtils {
-  /** No instantiation. */
-  private JsonPathUtils() {}
-
   /**
    * Convert a JSON pointer to a JSON path.
    *

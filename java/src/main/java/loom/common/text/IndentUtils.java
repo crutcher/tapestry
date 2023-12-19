@@ -3,12 +3,12 @@ package loom.common.text;
 import com.google.common.base.Splitter;
 import java.util.List;
 import java.util.stream.Collectors;
+import lombok.NoArgsConstructor;
 
+@NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
 public class IndentUtils {
 
   public static final Splitter NEWLINE_SPLITTER = Splitter.on("\n");
-
-  private IndentUtils() {}
 
   /**
    * Get the length of the whitespace prefix of a string.
