@@ -12,8 +12,8 @@ import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import javax.annotation.concurrent.ThreadSafe;
 import lombok.Getter;
-import loom.common.HasToJsonString;
-import loom.common.serialization.JsonUtil;
+import loom.common.json.HasToJsonString;
+import loom.common.json.JsonUtil;
 
 /**
  * Represents a range of points in discrete space.

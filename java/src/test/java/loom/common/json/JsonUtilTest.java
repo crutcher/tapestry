@@ -1,4 +1,4 @@
-package loom.common.serialization;
+package loom.common.json;
 
 import java.util.ArrayList;
 import java.util.List;

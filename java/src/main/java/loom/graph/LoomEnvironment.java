@@ -8,7 +8,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.Singular;
 import loom.common.json.JsonSchemaManager;
-import loom.common.serialization.JsonUtil;
+import loom.common.json.JsonUtil;
 import loom.validation.ValidationIssueCollector;
 
 /**

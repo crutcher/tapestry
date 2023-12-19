@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.function.IntBinaryOperator;
-import loom.common.serialization.JsonUtil;
+import loom.common.json.JsonUtil;
 import loom.testing.CommonAssertions;
 import org.junit.Test;
 

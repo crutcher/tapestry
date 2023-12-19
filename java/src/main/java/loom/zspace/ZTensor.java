@@ -22,9 +22,9 @@ import java.util.function.*;
 import javax.annotation.Nonnull;
 import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
-import loom.common.HasToJsonString;
-import loom.common.IteratorUtils;
-import loom.common.serialization.JsonUtil;
+import loom.common.collections.IteratorUtils;
+import loom.common.json.HasToJsonString;
+import loom.common.json.JsonUtil;
 
 /**
  * A multidimensional int array used for numerical operations.

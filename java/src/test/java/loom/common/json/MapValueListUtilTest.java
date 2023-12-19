@@ -1,4 +1,4 @@
-package loom.common.serialization;
+package loom.common.json;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -34,7 +34,7 @@ public class MapValueListUtilTest extends BaseTestClass {
   }
 
   @Test
-  public void testBasic() throws Exception {
+  public void testBasic() {
     String json =
         """
                 {
@@ -55,7 +55,7 @@ public class MapValueListUtilTest extends BaseTestClass {
   }
 
   @Test
-  public void testTypes() throws Exception {
+  public void testTypes() {
     var deserializer = new TestDoc.NodeListToMapDeserializer();
 
     assertThat(deserializer.arrayType()).isEqualTo(TestDoc.Node[].class);

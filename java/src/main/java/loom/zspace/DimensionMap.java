@@ -11,8 +11,8 @@ import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.Immutable;
 import javax.annotation.concurrent.ThreadSafe;
-import loom.common.HasToJsonString;
-import loom.common.serialization.JsonUtil;
+import loom.common.json.HasToJsonString;
+import loom.common.json.JsonUtil;
 
 @Immutable
 @ThreadSafe

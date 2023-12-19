@@ -1,6 +1,6 @@
 package loom.testing;
 
-import loom.common.serialization.JsonUtil;
+import loom.common.json.JsonUtil;
 import loom.common.text.PrettyDiffUtils;
 import loom.validation.ValidationIssue;
 import loom.validation.ValidationIssueCollector;

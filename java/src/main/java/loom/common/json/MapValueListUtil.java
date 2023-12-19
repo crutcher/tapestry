@@ -1,4 +1,4 @@
-package loom.common.serialization;
+package loom.common.json;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.DeserializationContext;
@@ -63,13 +63,18 @@ public class MapValueListUtil {
     private final Class<V> valueClass;
     private final Function<V, K> keyExtractor;
 
-    private final Class<? extends Map> mapClass;
+    private final Class<? extends Map<K, V>> mapClass;
 
     public MapDeserializer(
-        Class<V> valueClass, Function<V, K> keyExtractor, Class<? extends Map> mapClass) {
+        Class<V> valueClass,
+        Function<V, K> keyExtractor,
+        @SuppressWarnings("rawtypes") Class<? extends Map> mapClass) {
       this.valueClass = valueClass;
       this.keyExtractor = keyExtractor;
-      this.mapClass = mapClass;
+
+      @SuppressWarnings("unchecked")
+      var tmp = (Class<? extends Map<K, V>>) mapClass;
+      this.mapClass = tmp;
     }
 
     Class<V[]> arrayType() {
@@ -80,9 +85,7 @@ public class MapValueListUtil {
 
     Map<K, V> newMap() {
       try {
-        @SuppressWarnings("unchecked")
-        Map<K, V> map = mapClass.getDeclaredConstructor().newInstance();
-        return map;
+        return mapClass.getDeclaredConstructor().newInstance();
       } catch (NoSuchMethodException
           | InvocationTargetException
           | InstantiationException

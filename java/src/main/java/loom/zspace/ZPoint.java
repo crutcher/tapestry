@@ -9,7 +9,7 @@ import com.google.errorprone.annotations.Immutable;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.ThreadSafe;
 import lombok.NoArgsConstructor;
-import loom.common.HasToJsonString;
+import loom.common.json.HasToJsonString;
 
 /**
  * A point in a ZSpace.

@@ -1,4 +1,4 @@
-package loom.common;
+package loom.common.collections;
 
 import java.util.ArrayList;
 import java.util.List;

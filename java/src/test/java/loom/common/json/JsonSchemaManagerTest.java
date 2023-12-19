@@ -4,7 +4,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import lombok.Data;
-import loom.common.serialization.JsonUtil;
 import loom.testing.BaseTestClass;
 import loom.validation.ValidationIssue;
 import loom.validation.ValidationIssueCollector;

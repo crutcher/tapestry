@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 import lombok.Getter;
-import loom.common.HasToJsonString;
+import loom.common.json.HasToJsonString;
 import org.jetbrains.annotations.Nullable;
 
 /** Collects ValidationIssues. */

@@ -1,4 +1,4 @@
-package loom.common.runtime;
+package loom.common.lazy;
 
 import com.google.errorprone.annotations.FormatMethod;
 import java.util.function.Supplier;

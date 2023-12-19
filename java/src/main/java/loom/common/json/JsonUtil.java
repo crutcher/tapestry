@@ -1,4 +1,4 @@
-package loom.common.serialization;
+package loom.common.json;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;

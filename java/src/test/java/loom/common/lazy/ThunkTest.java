@@ -1,4 +1,4 @@
-package loom.common.runtime;
+package loom.common.lazy;
 
 import loom.testing.BaseTestClass;
 import org.junit.Test;

@@ -1,6 +1,4 @@
-package loom.common;
-
-import loom.common.serialization.JsonUtil;
+package loom.common.json;
 
 /** An object that can be converted to a JSON string. */
 public interface HasToJsonString {
@@ -9,6 +7,11 @@ public interface HasToJsonString {
     return JsonUtil.toJson(this);
   }
 
+  /**
+   * Convert this object to a pretty JSON string.
+   *
+   * @return the pretty JSON string.
+   */
   default String toPrettyJsonString() {
     return JsonUtil.toPrettyJson(this);
   }

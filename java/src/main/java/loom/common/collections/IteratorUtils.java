@@ -1,4 +1,4 @@
-package loom.common;
+package loom.common.collections;
 
 import java.util.Iterator;
 import java.util.function.Supplier;

@@ -1,4 +1,4 @@
-package loom.common.runtime;
+package loom.common.lazy;
 
 import java.util.function.Supplier;
 import javax.annotation.Nonnull;

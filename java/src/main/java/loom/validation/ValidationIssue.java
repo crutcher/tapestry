@@ -13,9 +13,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.Singular;
 import lombok.extern.jackson.Jacksonized;
-import loom.common.HasToJsonString;
+import loom.common.json.HasToJsonString;
 import loom.common.json.JsonPathUtils;
-import loom.common.serialization.JsonUtil;
+import loom.common.json.JsonUtil;
 import loom.common.text.IndentUtils;
 
 /** A Description of a validation failure. */
