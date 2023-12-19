@@ -3,10 +3,11 @@ package loom.zspace;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.util.regex.Pattern;
 import javax.annotation.Nonnull;
+import lombok.NoArgsConstructor;
 
 /** Utility functions for identifiers. */
+@NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
 public final class IdentifiersFns {
-  private IdentifiersFns() {}
 
   public static final Pattern ATOMIC_IDENTIFIER_PATTERN = Pattern.compile("[a-zA-Z][a-zA-Z0-9_]*");
 

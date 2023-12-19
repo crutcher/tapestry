@@ -4,11 +4,11 @@ import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
+import lombok.NoArgsConstructor;
 
 /** Utility functions for computing tensor indices. */
+@NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
 public final class IndexingFns {
-  // Prevent instantiation.
-  private IndexingFns() {}
 
   /**
    * Return an array of integers from 0 to n - 1.

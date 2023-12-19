@@ -6,6 +6,12 @@ import org.junit.Test;
 
 public class ZPointTest implements CommonAssertions {
   @Test
+  public void test_clone() {
+    var p = new ZPoint(1, 2, 3);
+    assertThat(p.clone()).isEqualTo(p).isSameAs(p);
+  }
+
+  @Test
   public void test_of() {
     assertThat(ZPoint.of(1, 2, 3)).isEqualTo(new ZPoint(1, 2, 3));
   }

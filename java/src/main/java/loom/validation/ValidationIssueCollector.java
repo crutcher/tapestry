@@ -3,7 +3,6 @@ package loom.validation;
 import com.fasterxml.jackson.annotation.JsonValue;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Function;
 import lombok.Getter;
 import loom.common.json.HasToJsonString;
 import org.jetbrains.annotations.Nullable;
@@ -50,40 +49,6 @@ public class ValidationIssueCollector implements HasToJsonString {
    */
   public void add(ValidationIssue.ValidationIssueBuilder issueBuilder) {
     add(issueBuilder.build());
-  }
-
-  /**
-   * Collect issues from a runnable.
-   *
-   * <p>Captures any LoomValidationErrors thrown by the runnable; and adds the issues to the
-   * collector.
-   *
-   * @param runnable the runnable to run.
-   */
-  public void collect(Runnable runnable) {
-    collect(runnable, null);
-  }
-
-  /**
-   * Collect issues from a runnable.
-   *
-   * <p>Captures any LoomValidationErrors thrown by the runnable;
-   *
-   * @param runnable the runnable to run.
-   * @param issueMap a function to map issues.
-   */
-  public void collect(
-      Runnable runnable, @Nullable Function<ValidationIssue, ValidationIssue> issueMap) {
-    try {
-      runnable.run();
-    } catch (LoomValidationError e) {
-      for (var issue : e.getIssues()) {
-        if (issueMap != null) {
-          issue = issueMap.apply(issue);
-        }
-        add(issue);
-      }
-    }
   }
 
   /**

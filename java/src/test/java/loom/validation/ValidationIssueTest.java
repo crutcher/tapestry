@@ -1,11 +1,17 @@
 package loom.validation;
 
-import java.util.List;
-import java.util.Map;
 import loom.testing.BaseTestClass;
 import org.junit.Test;
 
+import java.util.List;
+import java.util.Map;
+
 public class ValidationIssueTest extends BaseTestClass {
+  @Test
+  public void test_issuesToDisplayString() {
+    assertThat(ValidationIssue.issuesToDisplayString(List.of())).isEqualTo("No Validation Issues");
+  }
+
   @Test
   public void testContextJson() {
     var context =

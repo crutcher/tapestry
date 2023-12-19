@@ -107,7 +107,8 @@ public final class ZTensor extends AbstractTensor<ZTensor, int[]> implements Has
 
       if (rhs.getNDim() > 2 || rhs.getNDim() == 0) {
         throw new IllegalArgumentException(
-            "rhs must be a 1D or 2D tensor, got %dD".formatted(rhs.getNDim()));
+            "rhs must be a 1D or 2D tensor, got %dD: %s"
+                .formatted(rhs.getNDim(), rhs.shapeAsList()));
       }
 
       boolean rhsIsVector = rhs.getNDim() == 1;

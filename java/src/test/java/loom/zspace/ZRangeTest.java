@@ -1,9 +1,16 @@
 package loom.zspace;
 
+import java.util.List;
 import loom.testing.CommonAssertions;
 import org.junit.Test;
 
 public class ZRangeTest implements CommonAssertions {
+  @Test
+  public void test_clone() {
+    var r = new ZRange(new ZPoint(1, 2, 3), new ZPoint(4, 5, 6));
+    assertThat(r.clone()).isEqualTo(r).isSameAs(r);
+  }
+
   @Test
   public void test_0dim_range() {
     // A zero-dimensional range is a slightly weird object.
@@ -98,6 +105,10 @@ public class ZRangeTest implements CommonAssertions {
                 new ZRange(new ZPoint(1, 2, 3), new ZPoint(4, 10, 6)),
                 new ZRange(new ZPoint(2, 0, 4), new ZPoint(5, 6, 7))))
         .isEqualTo(new ZRange(new ZPoint(1, 0, 3), new ZPoint(5, 10, 7)));
+
+    assertThatExceptionOfType(IllegalArgumentException.class)
+        .isThrownBy(() -> ZRange.boundingRange(List.of()))
+        .withMessageContaining("no ranges");
   }
 
   @Test

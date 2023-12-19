@@ -10,6 +10,7 @@ import java.util.Iterator;
 import java.util.List;
 import javax.annotation.Nonnull;
 import lombok.Getter;
+import loom.common.runtime.ExcludeFromJacocoGeneratedReport;
 
 /**
  * Represents an abstract tensor with common properties and methods.
@@ -386,6 +387,7 @@ public abstract class AbstractTensor<T extends AbstractTensor<T, ArrayT>, ArrayT
    * @param data_offset the data offset of the new instance.
    * @return the new instance.
    */
+  @ExcludeFromJacocoGeneratedReport
   private T create(
       boolean mutable,
       @Nonnull int[] shape,

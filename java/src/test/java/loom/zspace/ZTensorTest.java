@@ -1062,5 +1062,13 @@ public class ZTensorTest implements CommonAssertions {
 
     assertThat(lhs.matmul(ZTensor.newVector(10, 20, 30)))
         .isEqualTo(ZTensor.fromArray(new int[] {140, 320}));
+
+    assertThatExceptionOfType(IllegalArgumentException.class)
+        .isThrownBy(() -> lhs.matmul(ZTensor.newVector(10, 20, 30, 40)))
+        .withMessageContaining("lhs shape [2, 3] not compatible with rhs shape [4]");
+
+    assertThatExceptionOfType(IllegalArgumentException.class)
+        .isThrownBy(() -> lhs.matmul(ZTensor.newZeros(3, 4, 5)))
+        .withMessageContaining("rhs must be a 1D or 2D tensor, got 3D: [3, 4, 5]");
   }
 }

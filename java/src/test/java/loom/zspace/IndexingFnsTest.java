@@ -94,6 +94,13 @@ public class IndexingFnsTest implements CommonAssertions {
     assertThat(IndexingFns.resolvePermutation(new int[] {-3, -2, -1}, 3))
         .isEqualTo(new int[] {0, 1, 2});
 
+    assertThat(IndexingFns.applyResolvedPermutation(new int[] {0, 1, 2}, new int[] {0, 1, 2}))
+        .isEqualTo(new int[] {0, 1, 2});
+    assertThatExceptionOfType(IllegalArgumentException.class)
+        .isThrownBy(
+            () -> IndexingFns.applyResolvedPermutation(new int[] {0, 1, 2}, new int[] {0, 1}))
+        .withMessageContaining("array length 3 and permutation length 2 must be equal");
+
     assertThatExceptionOfType(IndexOutOfBoundsException.class)
         .isThrownBy(() -> IndexingFns.resolvePermutation(new int[] {3, 4, 5}, 3))
         .withMessageContaining("invalid dimension: index 3 out of range [0, 3)");
