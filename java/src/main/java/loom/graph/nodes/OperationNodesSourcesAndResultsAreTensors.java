@@ -1,9 +1,5 @@
 package loom.graph.nodes;
 
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.function.Supplier;
 import loom.common.lazy.LazyString;
 import loom.common.lazy.Thunk;
 import loom.graph.LoomConstants;
@@ -12,8 +8,31 @@ import loom.graph.LoomGraph;
 import loom.validation.ValidationIssue;
 import loom.validation.ValidationIssueCollector;
 
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.function.Supplier;
+
 /** Constraint that verifies that all inputs and outputs of OperationNodes are TensorNodes. */
 public final class OperationNodesSourcesAndResultsAreTensors implements LoomEnvironment.Constraint {
+  @Override
+  public void checkRequirements(LoomEnvironment env) {
+    if (!env.getNodeMetaFactory()
+        .getMetaForType(TensorNode.TYPE)
+        .getNodeTypeClass()
+        .equals(TensorNode.class)) {
+      throw new IllegalStateException(
+          "OperationNodesSourcesAndResultsAreTensors requires TensorNode.");
+    }
+    if (!env.getNodeMetaFactory()
+        .getMetaForType(OperationNode.TYPE)
+        .getNodeTypeClass()
+        .equals(OperationNode.class)) {
+      throw new IllegalStateException(
+          "OperationNodesSourcesAndResultsAreTensors requires OperationNode.");
+    }
+  }
+
   @Override
   public void checkConstraint(
       @SuppressWarnings("unused") LoomEnvironment env,
