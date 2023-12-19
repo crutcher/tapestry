@@ -15,7 +15,7 @@ public interface HasDimension {
    */
   static void assertNDim(int actual, int expected) {
     if (actual != expected) {
-      throw new IllegalArgumentException("expected ndim " + expected + ", got " + actual);
+      throw new ZDimMissMatchError("Expected ndim " + expected + ", got " + actual);
     }
   }
 
@@ -26,10 +26,7 @@ public interface HasDimension {
    * @throws ZDimMissMatchError if the object does not have the given number of dimensions.
    */
   default void assertNDim(int ndim) {
-    if (getNDim() != ndim) {
-      throw new ZDimMissMatchError(
-          String.format("Expected %d dimensions, got %d", ndim, getNDim()));
-    }
+    assertNDim(getNDim(), ndim);
   }
 
   /**

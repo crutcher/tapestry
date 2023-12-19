@@ -52,7 +52,7 @@ public class HasNamedPermuteTest extends BaseTestClass {
     example.assertNDim(3);
     assertThatExceptionOfType(ZDimMissMatchError.class)
         .isThrownBy(() -> example.assertNDim(2))
-        .withMessageContaining("Expected 2 dimensions, got 3");
+        .withMessageContaining("Expected ndim 2, got 3");
   }
 
   @Test

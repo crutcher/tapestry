@@ -36,10 +36,10 @@ public class ZPointTest implements CommonAssertions {
       assertThat(p.coords).isEqualTo(ZTensor.newVector(1, 2, 3));
     }
 
-    assertThatExceptionOfType(IllegalArgumentException.class)
+    assertThatExceptionOfType(ZDimMissMatchError.class)
         .isThrownBy(() -> new ZPoint(ZTensor.newScalar(3)));
 
-    assertThatExceptionOfType(IllegalArgumentException.class)
+    assertThatExceptionOfType(ZDimMissMatchError.class)
         .isThrownBy(() -> new ZPoint(ZTensor.newZeros(2, 3)));
   }
 

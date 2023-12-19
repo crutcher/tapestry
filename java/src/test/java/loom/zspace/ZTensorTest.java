@@ -181,7 +181,7 @@ public class ZTensorTest implements CommonAssertions {
 
     assertThat(tensor.add(ZTensor.newScalar(2))).extracting(ZTensor::item).isEqualTo(5);
 
-    assertThatExceptionOfType(IllegalArgumentException.class)
+    assertThatExceptionOfType(ZDimMissMatchError.class)
         .isThrownBy(() -> ZTensor.newVector(2, 3).toT0());
   }
 
@@ -201,7 +201,7 @@ public class ZTensorTest implements CommonAssertions {
 
     assertThat(tensor.toT1()).isEqualTo(new int[] {3, 7});
 
-    assertThatExceptionOfType(IllegalArgumentException.class)
+    assertThatExceptionOfType(ZDimMissMatchError.class)
         .isThrownBy(() -> ZTensor.newScalar(3).toT1());
   }
 
@@ -221,7 +221,7 @@ public class ZTensorTest implements CommonAssertions {
 
     assertThat(tensor.toT2()).isEqualTo(new int[][] {{3, 7}, {8, 9}});
 
-    assertThatExceptionOfType(IllegalArgumentException.class)
+    assertThatExceptionOfType(ZDimMissMatchError.class)
         .isThrownBy(() -> ZTensor.newScalar(3).toT2());
   }
 

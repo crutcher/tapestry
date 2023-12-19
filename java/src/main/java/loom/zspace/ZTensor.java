@@ -1,5 +1,6 @@
 package loom.zspace;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.TreeNode;
@@ -12,19 +13,19 @@ import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.IntNode;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
+import com.google.common.primitives.Ints;
 import com.google.errorprone.annotations.CheckReturnValue;
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
-import java.util.function.*;
-import javax.annotation.Nonnull;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
 import loom.common.collections.IteratorUtils;
 import loom.common.json.HasToJsonString;
 import loom.common.json.JsonUtil;
+
+import javax.annotation.Nonnull;
+import java.lang.reflect.Array;
+import java.util.*;
+import java.util.function.*;
 
 /**
  * A multidimensional int array used for numerical operations.
@@ -84,7 +85,8 @@ import loom.common.json.JsonUtil;
  */
 @JsonSerialize(using = ZTensor.Serialization.Serializer.class)
 @JsonDeserialize(using = ZTensor.Serialization.Deserializer.class)
-public final class ZTensor extends AbstractTensor<ZTensor, int[]> implements HasToJsonString {
+public final class ZTensor
+    implements HasToJsonString, Cloneable, HasDimension, HasSize, HasPermute<ZTensor> {
 
   /** ZTensor math operations. */
   @NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
@@ -1004,6 +1006,25 @@ public final class ZTensor extends AbstractTensor<ZTensor, int[]> implements Has
   }
 
   /**
+   * Returns an {@code Iterable<int[]>} over the coordinates of this tensor.
+   *
+   * <p>When the buffer mode is {@link BufferMode#REUSED}, the buffer is shared between subsequent
+   * calls to {@link Iterator#next()}. When the buffer mode is {@link BufferMode#SAFE}, the buffer
+   * is not shared between subsequent calls to {@link Iterator#next()}.
+   *
+   * <p>Empty tensors will return an empty iterable.
+   *
+   * <p>Scalar tensors will return an iterable with a single empty coordinate array.
+   *
+   * @param bufferMode the buffer mode.
+   * @return an iterable over the coordinates of this tensor.
+   */
+  @Nonnull
+  public IterableCoordinates byCoords(@Nonnull BufferMode bufferMode) {
+    return new IterableCoordinates(bufferMode, shape);
+  }
+
+  /**
    * Construct an iota tensor [0, ..., size-1].
    *
    * @param size the size of the tensor.
@@ -1043,6 +1064,16 @@ public final class ZTensor extends AbstractTensor<ZTensor, int[]> implements Has
   @Nonnull
   public static ZTensor newZerosLike(@Nonnull ZTensor ref) {
     return new ZTensor(ref.shapeAsArray());
+  }
+
+  /**
+   * Returns the shape of this tensor.
+   *
+   * @return a copy of the shape array.
+   */
+  @Nonnull
+  public int[] shapeAsArray() {
+    return shape.clone();
   }
 
   /**
@@ -1134,6 +1165,16 @@ public final class ZTensor extends AbstractTensor<ZTensor, int[]> implements Has
   }
 
   /**
+   * Compute the ravel index into the data array for the given coordinates.
+   *
+   * @param coords the coordinates.
+   * @return the ravel index.
+   */
+  private int ravel(@Nonnull int... coords) {
+    return data_offset + IndexingFns.ravel(shape, stride, coords);
+  }
+
+  /**
    * Parse a ZTensor from a string.
    *
    * @param str the string.
@@ -1143,6 +1184,28 @@ public final class ZTensor extends AbstractTensor<ZTensor, int[]> implements Has
   @Nonnull
   public static ZTensor parse(@Nonnull String str) {
     return JsonUtil.fromJson(str, ZTensor.class);
+  }
+
+  @Getter private final boolean mutable;
+  @Nonnull private final int[] shape;
+  @Getter private final int size;
+  @Nonnull private final int[] stride;
+  @Nonnull private final int[] data;
+  private final int data_offset;
+  private Integer hash;
+
+  /**
+   * Construct a mutable 0-filled ZTensor of the given shape; takes ownership of the shape.
+   *
+   * @param shape the shape.
+   */
+  ZTensor(@Nonnull int[] shape) {
+    this(
+        true,
+        shape,
+        IndexingFns.shapeToLSFStrides(shape),
+        new int[IndexingFns.shapeToSize(shape)],
+        0);
   }
 
   /**
@@ -1160,16 +1223,14 @@ public final class ZTensor extends AbstractTensor<ZTensor, int[]> implements Has
       @Nonnull int[] stride,
       @Nonnull int[] data,
       int data_offset) {
-    super(mutable, shape, stride, data, data_offset);
-  }
+    this.mutable = mutable;
 
-  /**
-   * Construct a mutable 0-filled ZTensor of the given shape; takes ownership of the shape.
-   *
-   * @param shape the shape.
-   */
-  ZTensor(@Nonnull int[] shape) {
-    super(true, shape, new int[IndexingFns.shapeToSize(shape)]);
+    this.shape = shape;
+    this.size = IndexingFns.shapeToSize(shape);
+    this.stride = stride;
+
+    this.data = data;
+    this.data_offset = data_offset;
   }
 
   /**
@@ -1179,158 +1240,6 @@ public final class ZTensor extends AbstractTensor<ZTensor, int[]> implements Has
    */
   public ZPoint newZPoint() {
     return new ZPoint(this);
-  }
-
-  @Override
-  public boolean equals(Object other) {
-    if (this == other) return true;
-    if (other == null || getClass() != other.getClass()) return false;
-    var that = (ZTensor) other;
-
-    if (this.getNDim() != that.getNDim()) {
-      return false;
-    }
-
-    for (var coords : byCoords(BufferMode.REUSED)) {
-      if (that.get(coords) != get(coords)) {
-        return false;
-      }
-    }
-    return true;
-  }
-
-  @Override
-  public String toString() {
-    StringBuilder sb = new StringBuilder();
-    toTree(() -> sb.append('['), () -> sb.append(']'), () -> sb.append(", "), sb::append);
-
-    return sb.toString();
-  }
-
-  /**
-   * Serialize this tensor to a tree data structure.
-   *
-   * <p>This is common code used by the Jackson serializer and the {@link #toArray} method.
-   *
-   * @param startArray start an array.
-   * @param endArray end an array.
-   * @param elemSep write an element separator.
-   * @param writeNumber write a number.
-   */
-  public void toTree(
-      @Nonnull Runnable startArray,
-      @Nonnull Runnable endArray,
-      @Nonnull Runnable elemSep,
-      @Nonnull Consumer<Integer> writeNumber) {
-    if (isScalar()) {
-      writeNumber.accept(get());
-      return;
-    }
-
-    int ndim = getNDim();
-
-    if (isEmpty()) {
-      for (int d = 0; d < ndim; ++d) {
-        startArray.run();
-      }
-      for (int d = 0; d < ndim; ++d) {
-        endArray.run();
-      }
-      return;
-    }
-
-    for (int[] coords : byCoords(BufferMode.REUSED)) {
-      for (int d = ndim - 1; d >= 0; --d) {
-        if (coords[d] == 0) {
-          startArray.run();
-        } else {
-          break;
-        }
-      }
-
-      writeNumber.accept(get(coords));
-
-      for (int d = ndim - 1; d >= 0; --d) {
-        if (coords[d] != shape[d] - 1) {
-          elemSep.run();
-          break;
-
-        } else {
-          endArray.run();
-        }
-      }
-    }
-  }
-
-  /**
-   * Get the cell-value at the given coordinates.
-   *
-   * @param coords the coordinates.
-   * @return the cell value.
-   */
-  public int get(@Nonnull int... coords) {
-    return data[ravel(coords)];
-  }
-
-  @Override
-  protected int _dataHashCode() {
-    return reduceCellsAtomic((a, b) -> 31 * a + b, Arrays.hashCode(shape));
-  }
-
-  @Override
-  @Nonnull
-  public ZTensor clone(boolean mutable) {
-    if (isReadOnly() && isCompact() && !mutable) {
-      return this;
-    }
-
-    var res = new ZTensor(shape);
-    forEachEntry(res::set, BufferMode.REUSED);
-    if (!mutable) {
-      return new ZTensor(false, res.shape, res.stride, res.data, 0);
-    }
-    return res;
-  }
-
-  /**
-   * Iterate over the coordinates and values of this tensor.
-   *
-   * <p>When the buffer mode is {@link BufferMode#REUSED}, the buffer is shared between subsequent
-   * calls to {@link TensorEntryConsumer#accept(int[], int)}. When the buffer mode is {@link
-   * BufferMode#SAFE}, the buffer is not shared between subsequent calls to {@link
-   * TensorEntryConsumer#accept(int[], int)}.
-   *
-   * @param consumer the consumer.
-   * @param bufferMode the buffer mode.
-   */
-  public void forEachEntry(@Nonnull TensorEntryConsumer consumer, @Nonnull BufferMode bufferMode) {
-    for (int[] coords : byCoords(bufferMode)) {
-      consumer.accept(coords, get(coords));
-    }
-  }
-
-  /**
-   * Set the cell-value at the given coordinates.
-   *
-   * @param coords the coordinates.
-   * @param value the value to set.
-   * @throws IndexOutOfBoundsException if the coordinates are out of bounds.
-   * @throws IllegalStateException if the tensor is read-only.
-   */
-  public void set(@Nonnull int[] coords, int value) {
-    assertMutable();
-    _unchecked_set(coords, value);
-  }
-
-  /**
-   * Applies the given reduction operation to all values in the given tensor.
-   *
-   * @param op the reduction operation
-   * @param initial the initial value
-   * @return the int result of the reduction.
-   */
-  public int reduceCellsAtomic(@Nonnull IntBinaryOperator op, int initial) {
-    return Ops.reduceCellsAtomic(this, op, initial);
   }
 
   /** Are all cells in this tensor > 0? */
@@ -1348,6 +1257,16 @@ public final class ZTensor extends AbstractTensor<ZTensor, int[]> implements Has
    */
   public boolean allMatch(@Nonnull IntPredicate predicate) {
     return byCoords(BufferMode.REUSED).stream().allMatch(c -> predicate.test(get(c)));
+  }
+
+  /**
+   * Get the cell-value at the given coordinates.
+   *
+   * @param coords the coordinates.
+   * @return the cell value.
+   */
+  public int get(@Nonnull int... coords) {
+    return data[ravel(coords)];
   }
 
   /**
@@ -1445,6 +1364,13 @@ public final class ZTensor extends AbstractTensor<ZTensor, int[]> implements Has
     }
   }
 
+  /** Asserts that this tensor is mutable. */
+  public void assertMutable() {
+    if (!mutable) {
+      throw new IllegalStateException("tensor is immutable");
+    }
+  }
+
   /**
    * Assign from a tensor.
    *
@@ -1453,6 +1379,144 @@ public final class ZTensor extends AbstractTensor<ZTensor, int[]> implements Has
   public void assign(@Nonnull ZTensor tensor) {
     assertMutable();
     tensor.broadcastLike(this).forEachEntry(this::_unchecked_set, BufferMode.REUSED);
+  }
+
+  /**
+   * Iterate over the coordinates and values of this tensor.
+   *
+   * <p>When the buffer mode is {@link BufferMode#REUSED}, the buffer is shared between subsequent
+   * calls to {@link TensorEntryConsumer#accept(int[], int)}. When the buffer mode is {@link
+   * BufferMode#SAFE}, the buffer is not shared between subsequent calls to {@link
+   * TensorEntryConsumer#accept(int[], int)}.
+   *
+   * @param consumer the consumer.
+   * @param bufferMode the buffer mode.
+   */
+  public void forEachEntry(@Nonnull TensorEntryConsumer consumer, @Nonnull BufferMode bufferMode) {
+    for (int[] coords : byCoords(bufferMode)) {
+      consumer.accept(coords, get(coords));
+    }
+  }
+
+  /**
+   * Return a view of this tensor broadcasted like the reference tensor.
+   *
+   * @param ref the reference tensor.
+   * @return a broadcasted view of this tensor.
+   */
+  @Nonnull
+  public ZTensor broadcastLike(@Nonnull ZTensor ref) {
+    return broadcastTo(ref.shape);
+  }
+
+  /**
+   * Return a view of this tensor broadcasted to the given shape.
+   *
+   * @param targetShape the target shape.
+   * @return a broadcasted view of this tensor.
+   */
+  @Nonnull
+  public ZTensor broadcastTo(@Nonnull int... targetShape) {
+    if (Arrays.equals(shape, targetShape)) {
+      return this;
+    }
+
+    if (isScalar() && IndexingFns.shapeToSize(targetShape) == 0) {
+      return new ZTensor(
+          mutable, targetShape, IndexingFns.shapeToLSFStrides(targetShape), new int[0], 0);
+    }
+
+    var res = this;
+    if (res.getNDim() > targetShape.length) {
+      throw new IllegalArgumentException(
+          "Cannot broadcast shape "
+              + Arrays.toString(shape)
+              + " to "
+              + Arrays.toString(targetShape));
+    }
+    while (res.getNDim() < targetShape.length) {
+      res = res.unsqueeze(0);
+    }
+    for (int i = 0; i < targetShape.length; ++i) {
+      if (res.shape[i] > 1 && res.shape[i] != targetShape[i]) {
+        throw new IllegalArgumentException(
+            "Cannot broadcast shape "
+                + Arrays.toString(this.shape)
+                + " to "
+                + Arrays.toString(targetShape));
+      }
+      if (res.shape[i] == 1 && targetShape[i] > 1) {
+        res = res.broadcastDim(i, targetShape[i]);
+      }
+    }
+    return res;
+  }
+
+  /**
+   * Create a view of this tensor with an extra dimension added at index `d`.
+   *
+   * @param dim the dimension to add.
+   * @return a view of this tensor with an extra dimension added at index `d`.
+   */
+  @Nonnull
+  public ZTensor unsqueeze(int dim) {
+    int rDim = IndexingFns.resolveDim(dim, getNDim() + 1);
+
+    int[] newShape = new int[getNDim() + 1];
+    int[] newStride = new int[getNDim() + 1];
+
+    System.arraycopy(shape, 0, newShape, 0, rDim);
+    System.arraycopy(shape, rDim, newShape, rDim + 1, getNDim() - rDim);
+
+    System.arraycopy(stride, 0, newStride, 0, rDim);
+    System.arraycopy(stride, rDim, newStride, rDim + 1, getNDim() - rDim);
+
+    newShape[rDim] = 1;
+    newStride[rDim] = 0;
+
+    return new ZTensor(mutable, newShape, newStride, data, data_offset);
+  }
+
+  /**
+   * Return a view of this tensor with a broadcastable dimension expanded.
+   *
+   * @param dim the dimension to expand (must be size 1, or a previously broadcasted dimension).
+   * @param size the new size of the dimension.
+   * @return a view of this tensor with a broadcastable dimension expanded.
+   */
+  @Nonnull
+  public ZTensor broadcastDim(int dim, int size) {
+    dim = resolveDim(dim);
+    if (stride[dim] != 0) {
+      throw new IllegalArgumentException(
+          "Cannot broadcast dimension %d with real-size %d".formatted(dim, shape[dim]));
+    }
+
+    var new_shape = shapeAsArray();
+    new_shape[dim] = size;
+
+    var new_stride = stride.clone();
+    new_stride[dim] = 0;
+
+    return new ZTensor(mutable, new_shape, new_stride, data, data_offset);
+  }
+
+  /**
+   * Resolve a dimension index.
+   *
+   * <p>Negative dimension indices are resolved relative to the number of dimensions.
+   *
+   * @param dim the dimension index.
+   * @return the resolved dimension index.
+   * @throws IndexOutOfBoundsException if the index is out of range.
+   */
+  public int resolveDim(int dim) {
+    return IndexingFns.resolveDim(dim, shape);
+  }
+
+  @Override
+  public int getNDim() {
+    return shape.length;
   }
 
   /**
@@ -1931,5 +1995,426 @@ public final class ZTensor extends AbstractTensor<ZTensor, int[]> implements Has
    */
   public void mod_(int rhs) {
     Ops.mod_(this, rhs);
+  }
+
+  @Override
+  public int hashCode() {
+    if (mutable) {
+      throw new IllegalStateException("Cannot take the hash of a mutable tensor.");
+    }
+    if (hash == null) {
+      synchronized (this) {
+        hash = _dataHashCode();
+      }
+    }
+    return hash;
+  }
+
+  @Override
+  public boolean equals(Object other) {
+    if (this == other) return true;
+    if (other == null || getClass() != other.getClass()) return false;
+    var that = (ZTensor) other;
+
+    if (this.getNDim() != that.getNDim()) {
+      return false;
+    }
+
+    for (var coords : byCoords(BufferMode.REUSED)) {
+      if (that.get(coords) != get(coords)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  /**
+   * Clone this tensor.
+   *
+   * <p>If this tensor is immutable and compact, returns this.
+   *
+   * <p>If this tensor is immutable and non-compact, returns a compact clone.
+   *
+   * <p>If this tensor is mutable, returns a compact mutable clone.
+   *
+   * @return a tensor with the same data.
+   */
+  @Override
+  @SuppressWarnings("MethodDoesntCallSuperMethod")
+  public ZTensor clone() {
+    return clone(mutable);
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder sb = new StringBuilder();
+    toTree(() -> sb.append('['), () -> sb.append(']'), () -> sb.append(", "), sb::append);
+
+    return sb.toString();
+  }
+
+  /**
+   * Serialize this tensor to a tree data structure.
+   *
+   * <p>This is common code used by the Jackson serializer and the {@link #toArray} method.
+   *
+   * @param startArray start an array.
+   * @param endArray end an array.
+   * @param elemSep write an element separator.
+   * @param writeNumber write a number.
+   */
+  public void toTree(
+      @Nonnull Runnable startArray,
+      @Nonnull Runnable endArray,
+      @Nonnull Runnable elemSep,
+      @Nonnull Consumer<Integer> writeNumber) {
+    if (isScalar()) {
+      writeNumber.accept(get());
+      return;
+    }
+
+    int ndim = getNDim();
+
+    if (isEmpty()) {
+      for (int d = 0; d < ndim; ++d) {
+        startArray.run();
+      }
+      for (int d = 0; d < ndim; ++d) {
+        endArray.run();
+      }
+      return;
+    }
+
+    for (int[] coords : byCoords(BufferMode.REUSED)) {
+      for (int d = ndim - 1; d >= 0; --d) {
+        if (coords[d] == 0) {
+          startArray.run();
+        } else {
+          break;
+        }
+      }
+
+      writeNumber.accept(get(coords));
+
+      for (int d = ndim - 1; d >= 0; --d) {
+        if (coords[d] != shape[d] - 1) {
+          elemSep.run();
+          break;
+
+        } else {
+          endArray.run();
+        }
+      }
+    }
+  }
+
+  @Nonnull
+  public ZTensor clone(boolean mutable) {
+    if (isReadOnly() && isCompact() && !mutable) {
+      return this;
+    }
+
+    var res = new ZTensor(shape);
+    forEachEntry(res::set, BufferMode.REUSED);
+    if (!mutable) {
+      return new ZTensor(false, res.shape, res.stride, res.data, 0);
+    }
+    return res;
+  }
+
+  /**
+   * Is this tensor read-only / immutable?
+   *
+   * @return true if read-only / immutable; false otherwise.
+   */
+  public boolean isReadOnly() {
+    return !mutable;
+  }
+
+  /**
+   * Return if this tensor is compact.
+   *
+   * <p>A tensor is compact if its data array is exactly the size of the tensor.
+   *
+   * @return true if this tensor is compact.
+   */
+  public boolean isCompact() {
+    return Array.getLength(data) == size;
+  }
+
+  /**
+   * Set the cell-value at the given coordinates.
+   *
+   * @param coords the coordinates.
+   * @param value the value to set.
+   * @throws IndexOutOfBoundsException if the coordinates are out of bounds.
+   * @throws IllegalStateException if the tensor is read-only.
+   */
+  public void set(@Nonnull int[] coords, int value) {
+    assertMutable();
+    _unchecked_set(coords, value);
+  }
+
+  private int _dataHashCode() {
+    return reduceCellsAtomic((a, b) -> 31 * a + b, Arrays.hashCode(shape));
+  }
+
+  /**
+   * Applies the given reduction operation to all values in the given tensor.
+   *
+   * @param op the reduction operation
+   * @param initial the initial value
+   * @return the int result of the reduction.
+   */
+  public int reduceCellsAtomic(@Nonnull IntBinaryOperator op, int initial) {
+    return Ops.reduceCellsAtomic(this, op, initial);
+  }
+
+  /**
+   * Assert that this tensor has the given shape.
+   *
+   * @param shape the shape.
+   */
+  public void assertShape(@Nonnull int... shape) {
+    IndexingFns.assertShape(this.shape, shape);
+  }
+
+  /**
+   * Assert that this tensor has the same shape as another.
+   *
+   * @param other the other tensor.
+   */
+  public void assertMatchingShape(@Nonnull ZTensor other) {
+    IndexingFns.assertShape(shape, other.shape);
+  }
+
+  /**
+   * Return an immutable tensor with the same data.
+   *
+   * <p>If this tensor is already immutable, returns this; otherwise, returns an immutable clone.
+   *
+   * <p>Semantically equivalent to {@code clone(false)}.
+   *
+   * <p>A performance oriented Tensor library would track open mutable views of the underlying data,
+   * and perform copy-on-write when necessary; as this is a correctness-oriented Tensor library, we
+   * simply clone the data to go from mutable to immutable.
+   *
+   * @return an immutable tensor.
+   */
+  @Nonnull
+  public ZTensor asImmutable() {
+    return clone(false);
+  }
+
+  /** Asserts that this tensor is read-only / immutable. */
+  public void assertReadOnly() {
+    if (mutable) {
+      throw new IllegalStateException("tensor is mutable");
+    }
+  }
+
+  /**
+   * Get the shape of this tensor along a given dimension.
+   *
+   * @param dim the dimension; supports negative indexing.
+   * @return the size of the dimension.
+   */
+  public int shape(int dim) {
+    return shape[resolveDim(dim)];
+  }
+
+  /**
+   * Returns the shape of this tensor as a list.
+   *
+   * @return an immutable shape list.
+   */
+  @Nonnull
+  public List<Integer> shapeAsList() {
+    return Collections.unmodifiableList(Ints.asList(shape));
+  }
+
+  /**
+   * Returns the shape of this tensor as a tensor.
+   *
+   * @return the shape of this tensor as a tensor.
+   */
+  @Nonnull
+  public ZTensor shapeAsTensor() {
+    return ZTensor.newVector(shape);
+  }
+
+  /**
+   * Transposes (swaps) two dimensions of this tensor.
+   *
+   * <p>This method creates a new view of the tensor where the specified dimensions are swapped. The
+   * original tensor remains unchanged. The returned tensor shares data with the original tensor.
+   *
+   * <p>This operation can be useful in scenarios where you need to change the order of two
+   * dimensions in a tensor, for example, when you want to switch rows and columns in a 2D tensor
+   * (matrix).
+   *
+   * <p>Supports negative dimension indexing - i.e. -1 represents the last dimension, -2 represents
+   * the second last, and so on.
+   *
+   * @param a The index of the first dimension to be transposed.
+   * @param b The index of the second dimension to be transposed.
+   * @return A new tensor that is a transposed view of the original tensor.
+   * @throws IllegalArgumentException If the provided indices are not valid dimensions of the
+   *     tensor.
+   */
+  @Nonnull
+  public ZTensor transpose(int a, int b) {
+    int rA = resolveDim(a);
+    int rB = resolveDim(b);
+    if (rA == rB) {
+      return this;
+    }
+
+    int[] perm = IndexingFns.iota(getNDim());
+    perm[rA] = rB;
+    perm[rB] = rA;
+    return permute(perm);
+  }
+
+  @Override
+  public ZTensor permute(@Nonnull int... permutation) {
+    var perm = IndexingFns.resolvePermutation(permutation, getNDim());
+
+    int[] shape1 = IndexingFns.applyResolvedPermutation(shape, perm);
+    int[] stride1 = IndexingFns.applyResolvedPermutation(stride, perm);
+    return new ZTensor(mutable, shape1, stride1, data, data_offset);
+  }
+
+  /**
+   * Transpose this tensor by reversing its dimensions.
+   *
+   * <p>Alias for {@link #transpose()}.
+   *
+   * @return a transposed view of this tensor.
+   */
+  @Nonnull
+  public ZTensor T() {
+    return transpose();
+  }
+
+  /**
+   * Transpose this tensor by reversing its dimensions.
+   *
+   * @return a transposed view of this tensor.
+   */
+  @Nonnull
+  public ZTensor transpose() {
+    return permute(IndexingFns.aoti(getNDim()));
+  }
+
+  /**
+   * Returns a view of this tensor with the given dimension reversed.
+   *
+   * @param dim the dimension to reverse, accepts negative indices.
+   * @return a view of this tensor with the given dimension reversed.
+   */
+  @Nonnull
+  public ZTensor reverse(int dim) {
+    int rDim = resolveDim(dim);
+
+    int[] newStride = stride.clone();
+    newStride[rDim] *= -1;
+
+    int newOffset = data_offset + (shape[rDim] - 1) * stride[rDim];
+
+    return new ZTensor(mutable, shape, newStride, data, newOffset);
+  }
+
+  /**
+   * Is this dimension broadcasted (i.e. has stride 0 but a shape > 1)?
+   *
+   * @param dim the dimension to check; supports negative indices.
+   * @return true if the dimension is broadcasted.
+   */
+  @JsonIgnore
+  public boolean isBroadcastDim(int dim) {
+    dim = resolveDim(dim);
+    return shape[dim] > 1 && stride[dim] == 0;
+  }
+
+  /**
+   * Return a view of this tensor with the given dimension selected.
+   *
+   * @param dims the dimensions to select.
+   * @param indexes the matching indexes to select.
+   * @return a view of this tensor with the given dimensions selected.
+   */
+  @Nonnull
+  public ZTensor selectDims(@Nonnull int[] dims, @Nonnull int[] indexes) {
+    if (dims.length != indexes.length) {
+      throw new IllegalArgumentException(
+          "dims.length (%d) != indexes.length (%d)".formatted(dims.length, indexes.length));
+    }
+
+    var ds = resolveDims(dims);
+    var is = new int[indexes.length];
+    for (int i = 0; i < indexes.length; ++i) {
+      is[i] = IndexingFns.resolveIndex("index", indexes[i], shape[ds[i]]);
+    }
+
+    var res = this;
+    for (int i = 0; i < ds.length; ++i) {
+      res = res.selectDim(ds[i] - i, is[i]);
+    }
+    return res;
+  }
+
+  /**
+   * Resolve dimension indexes.
+   *
+   * <p>Negative dimension indices are resolved relative to the number of dimensions.
+   *
+   * @param dims the dimension indexes.
+   * @return the resolved dimension indexes.
+   */
+  @Nonnull
+  public int[] resolveDims(int... dims) {
+    return IndexingFns.resolveDims(dims, shape);
+  }
+
+  /**
+   * Return a view of this tensor with the given dimension selected.
+   *
+   * @param dim the dimension to select.
+   * @param index the index to select.
+   * @return a view of this tensor with the given dimension selected.
+   */
+  @Nonnull
+  public ZTensor selectDim(int dim, int index) {
+    var d = resolveDim(dim);
+    var i = IndexingFns.resolveIndex("index", index, shape[d]);
+
+    var new_shape = shapeAsArray();
+    new_shape[d] = 1;
+    var new_stride = stride.clone();
+    new_stride[d] = 0;
+    int new_offset = data_offset + i * stride[d];
+
+    return new ZTensor(mutable, new_shape, new_stride, data, new_offset).squeeze(d);
+  }
+
+  /**
+   * Returns a view of this tensor with a dimensions of size 1 removed.
+   *
+   * @param dim the dimension to remove; accepts negative indices.
+   * @return a view of this tensor with a dimensions of size 1 removed.
+   */
+  @Nonnull
+  public ZTensor squeeze(int dim) {
+    int rDim = resolveDim(dim);
+
+    if (stride[rDim] != 0) {
+      throw new IllegalArgumentException(
+          "dimension " + rDim + ", shape " + shape[rDim] + " is not squeezable");
+    }
+
+    int[] shape1 = IndexingFns.removeIdx(shape, rDim);
+    int[] stride1 = IndexingFns.removeIdx(stride, rDim);
+    return new ZTensor(mutable, shape1, stride1, data, data_offset);
   }
 }
