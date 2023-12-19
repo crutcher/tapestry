@@ -12,7 +12,11 @@ import java.util.*;
 import javax.annotation.Nullable;
 import lombok.Value;
 
-public class JsonUtil {
+public final class JsonUtil {
+
+  private static final ObjectMapper COMMON_MAPPER =
+      new ObjectMapper().configure(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS, true);
+
   // Prevent Construction.
   private JsonUtil() {}
 
@@ -22,7 +26,7 @@ public class JsonUtil {
    * @return the ObjectMapper.
    */
   static ObjectMapper getMapper() {
-    return new ObjectMapper().configure(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS, true);
+    return COMMON_MAPPER;
   }
 
   /**
@@ -49,10 +53,7 @@ public class JsonUtil {
    */
   public static String toPrettyJson(Object obj) {
     try {
-      return getMapper()
-          .writerWithDefaultPrettyPrinter()
-          .with(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS)
-          .writeValueAsString(obj);
+      return getMapper().writerWithDefaultPrettyPrinter().writeValueAsString(obj);
     } catch (JsonProcessingException e) {
       throw new IllegalArgumentException(e);
     }
