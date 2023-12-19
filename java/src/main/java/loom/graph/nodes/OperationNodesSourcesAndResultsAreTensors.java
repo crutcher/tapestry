@@ -15,7 +15,7 @@ import loom.validation.ValidationIssueCollector;
 /** Constraint that verifies that all inputs and outputs of OperationNodes are TensorNodes. */
 public final class OperationNodesSourcesAndResultsAreTensors implements LoomEnvironment.Constraint {
   @Override
-  public void check(
+  public void checkConstraint(
       @SuppressWarnings("unused") LoomEnvironment env,
       LoomGraph graph,
       ValidationIssueCollector issueCollector) {

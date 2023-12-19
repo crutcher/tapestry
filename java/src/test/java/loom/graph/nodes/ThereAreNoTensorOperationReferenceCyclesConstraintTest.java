@@ -25,7 +25,7 @@ public class ThereAreNoTensorOperationReferenceCyclesConstraintTest extends Base
     var graph = env.createGraph();
 
     var issueCollector = new ValidationIssueCollector();
-    constraint.check(env, graph, issueCollector);
+    constraint.checkConstraint(env, graph, issueCollector);
     assertThat(issueCollector.isEmpty()).isTrue();
   }
 
@@ -72,7 +72,7 @@ public class ThereAreNoTensorOperationReferenceCyclesConstraintTest extends Base
             .buildOn(graph);
 
     var issueCollector = new ValidationIssueCollector();
-    constraint.check(env, graph, issueCollector);
+    constraint.checkConstraint(env, graph, issueCollector);
 
     assertThat(issueCollector.getIssues())
         .containsOnly(

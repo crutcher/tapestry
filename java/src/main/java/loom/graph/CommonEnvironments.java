@@ -30,8 +30,8 @@ public final class CommonEnvironments {
 
   public static LoomEnvironment expressionEnvironment() {
     return simpleTensorEnvironment("int32", "float32")
-        .addConstraint(new AllTensorsHaveExactlyOneSourceOperationConstraint())
         .addConstraint(new OperationNodesSourcesAndResultsAreTensors())
+        .addConstraint(new AllTensorsHaveExactlyOneSourceOperationConstraint())
         .addConstraint(new ThereAreNoTensorOperationReferenceCyclesConstraint());
   }
 

@@ -15,7 +15,15 @@ public class AllTensorsHaveExactlyOneSourceOperationConstraint
     implements LoomEnvironment.Constraint {
 
   @Override
-  public void check(
+  public void checkRequirements(LoomEnvironment env) {
+    if (env.lookupConstraint(OperationNodesSourcesAndResultsAreTensors.class) == null) {
+      throw new IllegalStateException(
+          "AllTensorsHaveExactlyOneSourceOperation requires OperationNodesSourcesAndResultsAreTensors");
+    }
+  }
+
+  @Override
+  public void checkConstraint(
       @SuppressWarnings("unused") LoomEnvironment env,
       LoomGraph graph,
       ValidationIssueCollector issueCollector) {

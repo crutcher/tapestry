@@ -12,7 +12,16 @@ public class ThereAreNoTensorOperationReferenceCyclesConstraint
     implements LoomEnvironment.Constraint {
 
   @Override
-  public void check(LoomEnvironment env, LoomGraph graph, ValidationIssueCollector issueCollector) {
+  public void checkRequirements(LoomEnvironment env) {
+    if (env.lookupConstraint(AllTensorsHaveExactlyOneSourceOperationConstraint.class) == null) {
+      throw new IllegalStateException(
+          "ThereAreNoTensorOperationReferenceCyclesConstraint requires AllTensorsHaveExactlyOneSourceOperation");
+    }
+  }
+
+  @Override
+  public void checkConstraint(
+      LoomEnvironment env, LoomGraph graph, ValidationIssueCollector issueCollector) {
     // Assuming TensorNode::AllTensorsHaveExactlyOneSourceOperation has already been run;
     // verify that there are no cycles in the graph.
     checkForCycles(graph, issueCollector);

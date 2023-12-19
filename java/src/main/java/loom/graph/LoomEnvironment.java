@@ -21,7 +21,10 @@ import loom.validation.ValidationIssueCollector;
 public final class LoomEnvironment {
   @FunctionalInterface
   public interface Constraint {
-    void check(LoomEnvironment env, LoomGraph graph, ValidationIssueCollector issueCollector);
+    default void checkRequirements(LoomEnvironment env) {}
+
+    void checkConstraint(
+        LoomEnvironment env, LoomGraph graph, ValidationIssueCollector issueCollector);
   }
 
   @Nonnull private final LoomGraph.NodeMetaFactory nodeMetaFactory;
@@ -37,8 +40,24 @@ public final class LoomEnvironment {
    * @return the modified LoomEnvironment with the added constraint.
    */
   public LoomEnvironment addConstraint(Constraint constraint) {
+    constraint.checkRequirements(this);
     constraints.add(constraint);
     return this;
+  }
+
+  /**
+   * Lookup a constraint in this environment by class.
+   *
+   * @param constraintClass the constraint class.
+   * @return the constraint, or null if not found.
+   */
+  public Constraint lookupConstraint(Class<? extends Constraint> constraintClass) {
+    for (var constraint : constraints) {
+      if (constraint.getClass().equals(constraintClass)) {
+        return constraint;
+      }
+    }
+    return null;
   }
 
   /**
@@ -95,7 +114,7 @@ public final class LoomEnvironment {
     }
 
     for (var constraint : constraints) {
-      constraint.check(this, graph, issueCollector);
+      constraint.checkConstraint(this, graph, issueCollector);
     }
   }
 
