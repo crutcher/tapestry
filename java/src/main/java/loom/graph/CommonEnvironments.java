@@ -9,13 +9,6 @@ public final class CommonEnvironments {
     return simpleTensorEnvironment(Set.of(dtypes));
   }
 
-  public static LoomEnvironment expressionEnvironment() {
-    return simpleTensorEnvironment("int32", "float32")
-        .addConstraint(new AllTensorsHaveExactlyOneSourceOperationConstraint())
-        .addConstraint(new OperationNodesSourcesAndResultsAreTensors())
-        .addConstraint(new ThereAreNoTensorOperationReferenceCyclesConstraint());
-  }
-
   public static LoomEnvironment simpleTensorEnvironment(Collection<String> dtypes) {
     return LoomEnvironment.builder()
         .nodeMetaFactory(
@@ -26,6 +19,13 @@ public final class CommonEnvironments {
                 .typeMapping(NoteNode.TYPE, NoteNode.Prototype.builder().build())
                 .build())
         .build();
+  }
+
+  public static LoomEnvironment expressionEnvironment() {
+    return simpleTensorEnvironment("int32", "float32")
+        .addConstraint(new AllTensorsHaveExactlyOneSourceOperationConstraint())
+        .addConstraint(new OperationNodesSourcesAndResultsAreTensors())
+        .addConstraint(new ThereAreNoTensorOperationReferenceCyclesConstraint());
   }
 
   private CommonEnvironments() {}
