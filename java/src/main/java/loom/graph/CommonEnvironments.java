@@ -1,9 +1,6 @@
 package loom.graph;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
+import lombok.NoArgsConstructor;
 import loom.graph.nodes.*;
 import org.jetbrains.annotations.NotNull;
 import org.jgrapht.Graph;
@@ -11,6 +8,12 @@ import org.jgrapht.alg.cycle.TarjanSimpleCycles;
 import org.jgrapht.graph.DefaultDirectedGraph;
 import org.jgrapht.graph.DefaultEdge;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
+
+@NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
 public final class CommonEnvironments {
   public static LoomEnvironment simpleTensorEnvironment(String... dtypes) {
     return simpleTensorEnvironment(Set.of(dtypes));
@@ -79,6 +82,4 @@ public final class CommonEnvironments {
     // Tarjan will place all non-cycle nodes in their own cycles, so filter those out.
     return simpleCycles.stream().filter(cycle -> cycle.size() > 1).toList();
   }
-
-  private CommonEnvironments() {}
 }

@@ -1,10 +1,6 @@
 package loom.graph.nodes;
 
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.function.Consumer;
-import javax.annotation.Nonnull;
 import lombok.*;
 import lombok.experimental.Delegate;
 import lombok.experimental.SuperBuilder;
@@ -14,6 +10,11 @@ import loom.graph.LoomGraph;
 import loom.validation.ValidationIssue;
 import loom.validation.ValidationIssueCollector;
 import loom.zspace.ZPoint;
+
+import javax.annotation.Nonnull;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.function.Consumer;
 
 @Jacksonized
 @SuperBuilder
