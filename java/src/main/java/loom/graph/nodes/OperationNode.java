@@ -156,9 +156,8 @@ public final class OperationNode extends LoomGraph.Node<OperationNode, Operation
     return idMapToNodeMap(getGraph(), getOutputs());
   }
 
+  @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
   public static final class GraphOps {
-    private GraphOps() {}
-
     /**
      * Get the operation node that produces this tensor.
      *

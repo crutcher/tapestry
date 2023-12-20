@@ -7,29 +7,18 @@ import java.util.function.Supplier;
 import loom.common.lazy.LazyString;
 import loom.common.lazy.Thunk;
 import loom.graph.LoomConstants;
+import loom.graph.LoomConstraint;
 import loom.graph.LoomEnvironment;
 import loom.graph.LoomGraph;
 import loom.validation.ValidationIssue;
 import loom.validation.ValidationIssueCollector;
 
 /** Constraint that verifies that all inputs and outputs of OperationNodes are TensorNodes. */
-public final class OperationNodesSourcesAndResultsAreTensors implements LoomEnvironment.Constraint {
+public final class OperationNodesSourcesAndResultsAreTensors implements LoomConstraint {
   @Override
   public void checkRequirements(LoomEnvironment env) {
-    if (!env.getNodeMetaFactory()
-        .getMetaForType(TensorNode.TYPE)
-        .getNodeTypeClass()
-        .equals(TensorNode.class)) {
-      throw new IllegalStateException(
-          "OperationNodesSourcesAndResultsAreTensors requires TensorNode.");
-    }
-    if (!env.getNodeMetaFactory()
-        .getMetaForType(OperationNode.TYPE)
-        .getNodeTypeClass()
-        .equals(OperationNode.class)) {
-      throw new IllegalStateException(
-          "OperationNodesSourcesAndResultsAreTensors requires OperationNode.");
-    }
+    env.assertNodeTypeClass(TensorNode.TYPE, TensorNode.class);
+    env.assertNodeTypeClass(OperationNode.TYPE, OperationNode.class);
   }
 
   @Override

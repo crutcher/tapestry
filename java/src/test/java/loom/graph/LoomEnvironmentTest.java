@@ -1,11 +1,18 @@
 package loom.graph;
 
-import loom.graph.nodes.TensorNode;
-import loom.graph.nodes.TypeMapNodeMetaFactory;
+import loom.graph.nodes.*;
 import loom.testing.BaseTestClass;
+import loom.validation.ValidationIssueCollector;
 import org.junit.Test;
 
 public class LoomEnvironmentTest extends BaseTestClass {
+  @Test
+  public void test_toString() {
+    var env = CommonEnvironments.simpleTensorEnvironment("int32");
+
+    assertThat(env.toString()).contains("LoomEnvironment");
+  }
+
   @Test
   public void testCreateGraph() {
     var env = LoomGraph.GENERIC_ENV;
@@ -52,5 +59,53 @@ public class LoomEnvironmentTest extends BaseTestClass {
 
     var node = (TensorNode) graph.assertNode("00000000-0000-0000-0000-000000000000");
     assertThat(node.getDtype()).isEqualTo("int32");
+
+    assertThatExceptionOfType(IllegalArgumentException.class)
+        .isThrownBy(() -> env.graphFromJson("{\"foo\": 2}"))
+        .withMessageContaining("Unknown property: foo");
+  }
+
+  @Test
+  public void test_assertNodeTypeClass() {
+    var env = CommonEnvironments.simpleTensorEnvironment("int32");
+
+    env.assertNodeTypeClass(TensorNode.TYPE, TensorNode.class);
+    assertThatExceptionOfType(IllegalStateException.class)
+        .isThrownBy(() -> env.assertNodeTypeClass(TensorNode.TYPE, OperationNode.class));
+  }
+
+  @Test
+  public void test_constraints() {
+    var constraint =
+        new LoomConstraint() {
+          @Override
+          public void checkRequirements(LoomEnvironment env) {
+            env.assertConstraint(AllTensorsHaveExactlyOneSourceOperationConstraint.class);
+          }
+
+          @Override
+          public void checkConstraint(
+              @SuppressWarnings("unused") LoomEnvironment env,
+              LoomGraph graph,
+              ValidationIssueCollector issueCollector) {
+            // pass
+
+          }
+        };
+
+    var env = CommonEnvironments.simpleTensorEnvironment("int32");
+
+    assertThatExceptionOfType(IllegalStateException.class)
+        .isThrownBy(() -> env.addConstraint(constraint));
+
+    env.addConstraint(new OperationNodesSourcesAndResultsAreTensors())
+        .addConstraint(new AllTensorsHaveExactlyOneSourceOperationConstraint());
+
+    assertThatExceptionOfType(IllegalStateException.class)
+        .isThrownBy(() -> env.assertConstraint(constraint.getClass()));
+
+    env.addConstraint(constraint);
+
+    env.assertConstraint(constraint.getClass());
   }
 }

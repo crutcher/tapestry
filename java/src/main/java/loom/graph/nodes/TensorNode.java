@@ -1,10 +1,6 @@
 package loom.graph.nodes;
 
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.function.Consumer;
-import javax.annotation.Nonnull;
 import lombok.*;
 import lombok.experimental.Delegate;
 import lombok.experimental.SuperBuilder;
@@ -14,6 +10,11 @@ import loom.graph.LoomGraph;
 import loom.validation.ValidationIssue;
 import loom.validation.ValidationIssueCollector;
 import loom.zspace.ZPoint;
+
+import javax.annotation.Nonnull;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.function.Consumer;
 
 @Jacksonized
 @SuperBuilder
@@ -88,18 +89,18 @@ public final class TensorNode extends LoomGraph.Node<TensorNode, TensorNode.Body
 
     @Override
     public void validateNode(TensorNode node, ValidationIssueCollector issueCollector) {
-      if (!node.getShape().coords.allMatch(x -> x > 0)) {
-        issueCollector.add(
-            ValidationIssue.builder()
-                .type(LoomConstants.NODE_VALIDATION_ERROR)
-                .message("shape must be positive and non-empty")
-                .build());
-      }
       if (!validDTypes.contains(node.getDtype())) {
         issueCollector.add(
             ValidationIssue.builder()
                 .type(LoomConstants.NODE_VALIDATION_ERROR)
-                .message("dtype must be one of " + validDTypes)
+                .summary("dtype (%s) must be one of %s".formatted(node.getDtype(), validDTypes))
+                .build());
+      }
+      if (!node.getShape().coords.isStrictlyPositive()) {
+        issueCollector.add(
+            ValidationIssue.builder()
+                .type(LoomConstants.NODE_VALIDATION_ERROR)
+                .summary("shape must be positive and non-empty: %s".formatted(node.getShape()))
                 .build());
       }
     }

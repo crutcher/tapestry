@@ -5,21 +5,18 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import loom.graph.LoomConstants;
+import loom.graph.LoomConstraint;
 import loom.graph.LoomEnvironment;
 import loom.graph.LoomGraph;
 import loom.validation.ValidationIssue;
 import loom.validation.ValidationIssueCollector;
 
 /** LoomEnvironment validation rule: All tensors must have exactly one source operation. */
-public class AllTensorsHaveExactlyOneSourceOperationConstraint
-    implements LoomEnvironment.Constraint {
+public class AllTensorsHaveExactlyOneSourceOperationConstraint implements LoomConstraint {
 
   @Override
   public void checkRequirements(LoomEnvironment env) {
-    if (env.lookupConstraint(OperationNodesSourcesAndResultsAreTensors.class) == null) {
-      throw new IllegalStateException(
-          "AllTensorsHaveExactlyOneSourceOperation requires OperationNodesSourcesAndResultsAreTensors");
-    }
+    env.assertConstraint(OperationNodesSourcesAndResultsAreTensors.class);
   }
 
   @Override

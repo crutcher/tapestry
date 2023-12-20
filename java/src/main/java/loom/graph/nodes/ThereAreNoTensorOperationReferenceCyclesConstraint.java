@@ -1,22 +1,17 @@
 package loom.graph.nodes;
 
 import java.util.HashMap;
-import loom.graph.CommonEnvironments;
-import loom.graph.LoomConstants;
-import loom.graph.LoomEnvironment;
-import loom.graph.LoomGraph;
+import loom.graph.*;
 import loom.validation.ValidationIssue;
 import loom.validation.ValidationIssueCollector;
 
-public class ThereAreNoTensorOperationReferenceCyclesConstraint
-    implements LoomEnvironment.Constraint {
+public class ThereAreNoTensorOperationReferenceCyclesConstraint implements LoomConstraint {
 
   @Override
   public void checkRequirements(LoomEnvironment env) {
-    if (env.lookupConstraint(AllTensorsHaveExactlyOneSourceOperationConstraint.class) == null) {
-      throw new IllegalStateException(
-          "ThereAreNoTensorOperationReferenceCyclesConstraint requires AllTensorsHaveExactlyOneSourceOperation");
-    }
+    env.assertConstraint(AllTensorsHaveExactlyOneSourceOperationConstraint.class);
+    env.assertNodeTypeClass(TensorNode.TYPE, TensorNode.class);
+    env.assertNodeTypeClass(OperationNode.TYPE, OperationNode.class);
   }
 
   @Override
