@@ -1152,19 +1152,6 @@ public final class ZTensor
   }
 
   /**
-   * Set the cell-value at the given coordinates.
-   *
-   * <p>Assumes the tensor is mutable.
-   *
-   * @param coords the coordinates.
-   * @param value the value to set.
-   * @throws IndexOutOfBoundsException if the coordinates are out of bounds.
-   */
-  private void _unchecked_set(@Nonnull int[] coords, int value) {
-    data[ravel(coords)] = value;
-  }
-
-  /**
    * Compute the ravel index into the data array for the given coordinates.
    *
    * @param coords the coordinates.
@@ -1234,12 +1221,201 @@ public final class ZTensor
   }
 
   /**
+   * Is this tensor read-only / immutable?
+   *
+   * @return true if read-only / immutable; false otherwise.
+   */
+  public boolean isReadOnly() {
+    return !mutable;
+  }
+
+  /** Asserts that this tensor is mutable. */
+  public void assertMutable() {
+    if (!mutable) {
+      throw new IllegalStateException("tensor is immutable");
+    }
+  }
+
+  /**
+   * Return if this tensor is compact.
+   *
+   * <p>A tensor is compact if its data array is exactly the size of the tensor.
+   *
+   * @return true if this tensor is compact.
+   */
+  public boolean isCompact() {
+    return Array.getLength(data) == size;
+  }
+
+  @Override
+  public int hashCode() {
+    if (mutable) {
+      throw new IllegalStateException("Cannot take the hash of a mutable tensor.");
+    }
+    if (hash == null) {
+      synchronized (this) {
+        hash = reduceCellsAtomic((a, b) -> 31 * a + b, Arrays.hashCode(shape));
+      }
+    }
+    return hash;
+  }
+
+  @Override
+  public boolean equals(Object other) {
+    if (this == other) return true;
+    if (other == null || getClass() != other.getClass()) return false;
+    var that = (ZTensor) other;
+
+    if (this.getNDim() != that.getNDim()) {
+      return false;
+    }
+
+    for (var coords : byCoords(BufferMode.REUSED)) {
+      if (that.get(coords) != get(coords)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder sb = new StringBuilder();
+    toTree(() -> sb.append('['), () -> sb.append(']'), () -> sb.append(", "), sb::append);
+
+    return sb.toString();
+  }
+
+  @Override
+  public int getNDim() {
+    return shape.length;
+  }
+
+  /**
+   * Clone this tensor.
+   *
+   * <p>If this tensor is immutable and compact, returns this.
+   *
+   * <p>If this tensor is immutable and non-compact, returns a compact clone.
+   *
+   * <p>If this tensor is mutable, returns a compact mutable clone.
+   *
+   * @return a tensor with the same data.
+   */
+  @Override
+  @SuppressWarnings("MethodDoesntCallSuperMethod")
+  public ZTensor clone() {
+    return clone(mutable);
+  }
+
+  @Nonnull
+  public ZTensor clone(boolean mutable) {
+    if (isReadOnly() && isCompact() && !mutable) {
+      return this;
+    }
+
+    var res = new ZTensor(shape);
+    forEachEntry(res::set, BufferMode.REUSED);
+    if (!mutable) {
+      return new ZTensor(false, res.shape, res.stride, res.data, 0);
+    }
+    return res;
+  }
+
+  /**
    * Construct an immutable ZPoint from this ZTensor. Asserts that this is a 1-dim tensor.
    *
    * @return a new immutable ZPoint.
    */
   public ZPoint newZPoint() {
     return new ZPoint(this);
+  }
+
+  /**
+   * Get the cell-value at the given coordinates.
+   *
+   * @param coords the coordinates.
+   * @return the cell value.
+   */
+  public int get(@Nonnull int... coords) {
+
+    return data[ravel(coords)];
+  }
+
+  /**
+   * Set the cell-value at the given coordinates.
+   *
+   * @param coords the coordinates.
+   * @param value the value to set.
+   * @throws IndexOutOfBoundsException if the coordinates are out of bounds.
+   * @throws IllegalStateException if the tensor is read-only.
+   */
+  public void set(@Nonnull int[] coords, int value) {
+    assertMutable();
+    _unchecked_set(coords, value);
+  }
+
+  /**
+   * Set the cell-value at the given coordinates.
+   *
+   * <p>Assumes the tensor is mutable.
+   *
+   * @param coords the coordinates.
+   * @param value the value to set.
+   * @throws IndexOutOfBoundsException if the coordinates are out of bounds.
+   */
+  private void _unchecked_set(@Nonnull int[] coords, int value) {
+    data[ravel(coords)] = value;
+  }
+
+  /**
+   * Assign from a tensor.
+   *
+   * @param tensor the input tensor.
+   */
+  public void assign(@Nonnull ZTensor tensor) {
+    assertMutable();
+    tensor.broadcastLike(this).forEachEntry(this::_unchecked_set, BufferMode.REUSED);
+  }
+
+  /**
+   * Fill the tensor with a value.
+   *
+   * @param fill_value the value to fill with.
+   */
+  public void fill(int fill_value) {
+    assertMutable();
+    for (int[] coords : byCoords(BufferMode.REUSED)) {
+      _unchecked_set(coords, fill_value);
+    }
+  }
+
+  /**
+   * Iterate over the coordinates and values of this tensor.
+   *
+   * <p>When the buffer mode is {@link BufferMode#REUSED}, the buffer is shared between subsequent
+   * calls to {@link TensorEntryConsumer#accept(int[], int)}. When the buffer mode is {@link
+   * BufferMode#SAFE}, the buffer is not shared between subsequent calls to {@link
+   * TensorEntryConsumer#accept(int[], int)}.
+   *
+   * @param consumer the consumer.
+   * @param bufferMode the buffer mode.
+   */
+  public void forEachEntry(@Nonnull TensorEntryConsumer consumer, @Nonnull BufferMode bufferMode) {
+    for (int[] coords : byCoords(bufferMode)) {
+      consumer.accept(coords, get(coords));
+    }
+  }
+
+  /**
+   * Iterate over the values of this tensor.
+   *
+   * @param consumer the consumer.
+   */
+  public void forEachValue(@Nonnull IntConsumer consumer) {
+    for (int[] coords : byCoords(BufferMode.REUSED)) {
+      consumer.accept(get(coords));
+    }
   }
 
   /** Are all cells in this tensor > 0? */
@@ -1260,16 +1436,6 @@ public final class ZTensor
   }
 
   /**
-   * Get the cell-value at the given coordinates.
-   *
-   * @param coords the coordinates.
-   * @return the cell value.
-   */
-  public int get(@Nonnull int... coords) {
-    return data[ravel(coords)];
-  }
-
-  /**
    * Does any cell in this tensor match the given predicate?
    *
    * <p>Trivially false for an empty tensor.
@@ -1282,13 +1448,57 @@ public final class ZTensor
   }
 
   /**
-   * Iterate over the values of this tensor.
+   * Serialize this tensor to a tree data structure.
    *
-   * @param consumer the consumer.
+   * <p>This is common code used by the Jackson serializer and the {@link #toArray} method.
+   *
+   * @param startArray start an array.
+   * @param endArray end an array.
+   * @param elemSep write an element separator.
+   * @param writeNumber write a number.
    */
-  public void forEachValue(@Nonnull IntConsumer consumer) {
+  public void toTree(
+      @Nonnull Runnable startArray,
+      @Nonnull Runnable endArray,
+      @Nonnull Runnable elemSep,
+      @Nonnull Consumer<Integer> writeNumber) {
+    if (isScalar()) {
+      writeNumber.accept(get());
+      return;
+    }
+
+    int ndim = getNDim();
+
+    if (isEmpty()) {
+      for (int d = 0; d < ndim; ++d) {
+        startArray.run();
+      }
+      for (int d = 0; d < ndim; ++d) {
+        endArray.run();
+      }
+      return;
+    }
+
     for (int[] coords : byCoords(BufferMode.REUSED)) {
-      consumer.accept(get(coords));
+      for (int d = ndim - 1; d >= 0; --d) {
+        if (coords[d] == 0) {
+          startArray.run();
+        } else {
+          break;
+        }
+      }
+
+      writeNumber.accept(get(coords));
+
+      for (int d = ndim - 1; d >= 0; --d) {
+        if (coords[d] != shape[d] - 1) {
+          elemSep.run();
+          break;
+
+        } else {
+          endArray.run();
+        }
+      }
     }
   }
 
@@ -1350,52 +1560,6 @@ public final class ZTensor
   public int[][] toT2() {
     assertNDim(2);
     return (int[][]) toArray();
-  }
-
-  /**
-   * Fill the tensor with a value.
-   *
-   * @param fill_value the value to fill with.
-   */
-  public void fill(int fill_value) {
-    assertMutable();
-    for (int[] coords : byCoords(BufferMode.REUSED)) {
-      _unchecked_set(coords, fill_value);
-    }
-  }
-
-  /** Asserts that this tensor is mutable. */
-  public void assertMutable() {
-    if (!mutable) {
-      throw new IllegalStateException("tensor is immutable");
-    }
-  }
-
-  /**
-   * Assign from a tensor.
-   *
-   * @param tensor the input tensor.
-   */
-  public void assign(@Nonnull ZTensor tensor) {
-    assertMutable();
-    tensor.broadcastLike(this).forEachEntry(this::_unchecked_set, BufferMode.REUSED);
-  }
-
-  /**
-   * Iterate over the coordinates and values of this tensor.
-   *
-   * <p>When the buffer mode is {@link BufferMode#REUSED}, the buffer is shared between subsequent
-   * calls to {@link TensorEntryConsumer#accept(int[], int)}. When the buffer mode is {@link
-   * BufferMode#SAFE}, the buffer is not shared between subsequent calls to {@link
-   * TensorEntryConsumer#accept(int[], int)}.
-   *
-   * @param consumer the consumer.
-   * @param bufferMode the buffer mode.
-   */
-  public void forEachEntry(@Nonnull TensorEntryConsumer consumer, @Nonnull BufferMode bufferMode) {
-    for (int[] coords : byCoords(bufferMode)) {
-      consumer.accept(coords, get(coords));
-    }
   }
 
   /**
@@ -1478,6 +1642,26 @@ public final class ZTensor
   }
 
   /**
+   * Returns a view of this tensor with a dimensions of size 1 removed.
+   *
+   * @param dim the dimension to remove; accepts negative indices.
+   * @return a view of this tensor with a dimensions of size 1 removed.
+   */
+  @Nonnull
+  public ZTensor squeeze(int dim) {
+    int rDim = resolveDim(dim);
+
+    if (stride[rDim] != 0) {
+      throw new IllegalArgumentException(
+          "dimension " + rDim + ", shape " + shape[rDim] + " is not squeezable");
+    }
+
+    int[] shape1 = IndexingFns.removeIdx(shape, rDim);
+    int[] stride1 = IndexingFns.removeIdx(stride, rDim);
+    return new ZTensor(mutable, shape1, stride1, data, data_offset);
+  }
+
+  /**
    * Return a view of this tensor with a broadcastable dimension expanded.
    *
    * @param dim the dimension to expand (must be size 1, or a previously broadcasted dimension).
@@ -1512,11 +1696,6 @@ public final class ZTensor
    */
   public int resolveDim(int dim) {
     return IndexingFns.resolveDim(dim, shape);
-  }
-
-  @Override
-  public int getNDim() {
-    return shape.length;
   }
 
   /**
@@ -1997,168 +2176,6 @@ public final class ZTensor
     Ops.mod_(this, rhs);
   }
 
-  @Override
-  public int hashCode() {
-    if (mutable) {
-      throw new IllegalStateException("Cannot take the hash of a mutable tensor.");
-    }
-    if (hash == null) {
-      synchronized (this) {
-        hash = _dataHashCode();
-      }
-    }
-    return hash;
-  }
-
-  @Override
-  public boolean equals(Object other) {
-    if (this == other) return true;
-    if (other == null || getClass() != other.getClass()) return false;
-    var that = (ZTensor) other;
-
-    if (this.getNDim() != that.getNDim()) {
-      return false;
-    }
-
-    for (var coords : byCoords(BufferMode.REUSED)) {
-      if (that.get(coords) != get(coords)) {
-        return false;
-      }
-    }
-    return true;
-  }
-
-  /**
-   * Clone this tensor.
-   *
-   * <p>If this tensor is immutable and compact, returns this.
-   *
-   * <p>If this tensor is immutable and non-compact, returns a compact clone.
-   *
-   * <p>If this tensor is mutable, returns a compact mutable clone.
-   *
-   * @return a tensor with the same data.
-   */
-  @Override
-  @SuppressWarnings("MethodDoesntCallSuperMethod")
-  public ZTensor clone() {
-    return clone(mutable);
-  }
-
-  @Override
-  public String toString() {
-    StringBuilder sb = new StringBuilder();
-    toTree(() -> sb.append('['), () -> sb.append(']'), () -> sb.append(", "), sb::append);
-
-    return sb.toString();
-  }
-
-  /**
-   * Serialize this tensor to a tree data structure.
-   *
-   * <p>This is common code used by the Jackson serializer and the {@link #toArray} method.
-   *
-   * @param startArray start an array.
-   * @param endArray end an array.
-   * @param elemSep write an element separator.
-   * @param writeNumber write a number.
-   */
-  public void toTree(
-      @Nonnull Runnable startArray,
-      @Nonnull Runnable endArray,
-      @Nonnull Runnable elemSep,
-      @Nonnull Consumer<Integer> writeNumber) {
-    if (isScalar()) {
-      writeNumber.accept(get());
-      return;
-    }
-
-    int ndim = getNDim();
-
-    if (isEmpty()) {
-      for (int d = 0; d < ndim; ++d) {
-        startArray.run();
-      }
-      for (int d = 0; d < ndim; ++d) {
-        endArray.run();
-      }
-      return;
-    }
-
-    for (int[] coords : byCoords(BufferMode.REUSED)) {
-      for (int d = ndim - 1; d >= 0; --d) {
-        if (coords[d] == 0) {
-          startArray.run();
-        } else {
-          break;
-        }
-      }
-
-      writeNumber.accept(get(coords));
-
-      for (int d = ndim - 1; d >= 0; --d) {
-        if (coords[d] != shape[d] - 1) {
-          elemSep.run();
-          break;
-
-        } else {
-          endArray.run();
-        }
-      }
-    }
-  }
-
-  @Nonnull
-  public ZTensor clone(boolean mutable) {
-    if (isReadOnly() && isCompact() && !mutable) {
-      return this;
-    }
-
-    var res = new ZTensor(shape);
-    forEachEntry(res::set, BufferMode.REUSED);
-    if (!mutable) {
-      return new ZTensor(false, res.shape, res.stride, res.data, 0);
-    }
-    return res;
-  }
-
-  /**
-   * Is this tensor read-only / immutable?
-   *
-   * @return true if read-only / immutable; false otherwise.
-   */
-  public boolean isReadOnly() {
-    return !mutable;
-  }
-
-  /**
-   * Return if this tensor is compact.
-   *
-   * <p>A tensor is compact if its data array is exactly the size of the tensor.
-   *
-   * @return true if this tensor is compact.
-   */
-  public boolean isCompact() {
-    return Array.getLength(data) == size;
-  }
-
-  /**
-   * Set the cell-value at the given coordinates.
-   *
-   * @param coords the coordinates.
-   * @param value the value to set.
-   * @throws IndexOutOfBoundsException if the coordinates are out of bounds.
-   * @throws IllegalStateException if the tensor is read-only.
-   */
-  public void set(@Nonnull int[] coords, int value) {
-    assertMutable();
-    _unchecked_set(coords, value);
-  }
-
-  private int _dataHashCode() {
-    return reduceCellsAtomic((a, b) -> 31 * a + b, Arrays.hashCode(shape));
-  }
-
   /**
    * Applies the given reduction operation to all values in the given tensor.
    *
@@ -2396,25 +2413,5 @@ public final class ZTensor
     int new_offset = data_offset + i * stride[d];
 
     return new ZTensor(mutable, new_shape, new_stride, data, new_offset).squeeze(d);
-  }
-
-  /**
-   * Returns a view of this tensor with a dimensions of size 1 removed.
-   *
-   * @param dim the dimension to remove; accepts negative indices.
-   * @return a view of this tensor with a dimensions of size 1 removed.
-   */
-  @Nonnull
-  public ZTensor squeeze(int dim) {
-    int rDim = resolveDim(dim);
-
-    if (stride[rDim] != 0) {
-      throw new IllegalArgumentException(
-          "dimension " + rDim + ", shape " + shape[rDim] + " is not squeezable");
-    }
-
-    int[] shape1 = IndexingFns.removeIdx(shape, rDim);
-    int[] stride1 = IndexingFns.removeIdx(stride, rDim);
-    return new ZTensor(mutable, shape1, stride1, data, data_offset);
   }
 }
