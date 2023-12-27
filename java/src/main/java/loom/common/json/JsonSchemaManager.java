@@ -2,7 +2,7 @@ package loom.common.json;
 
 import com.fasterxml.jackson.databind.util.LRUMap;
 import com.fasterxml.jackson.databind.util.LookupCache;
-import com.google.common.annotations.VisibleForTesting;
+import jakarta.json.stream.JsonParsingException;
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -48,12 +48,16 @@ public class JsonSchemaManager {
    * @param schemaJson The JSON string.
    * @return The schema.
    */
-  @VisibleForTesting
-  JsonSchema getSchema(String schemaJson) {
+  public JsonSchema getSchema(String schemaJson) {
     var schema = schemaCache.get(schemaJson);
     if (schema == null) {
-      schema =
-          service.readSchema(new ByteArrayInputStream(schemaJson.getBytes(StandardCharsets.UTF_8)));
+      try {
+        schema =
+            service.readSchema(
+                new ByteArrayInputStream(schemaJson.getBytes(StandardCharsets.UTF_8)));
+      } catch (JsonParsingException e) {
+        throw new RuntimeException("Error parsing schema JSON: " + schemaJson, e);
+      }
       schemaCache.put(schemaJson, schema);
     }
     return schema;
@@ -62,16 +66,16 @@ public class JsonSchemaManager {
   /**
    * Validate a JSON string against a schema.
    *
-   * @param schemaSource The schema source.
+   * @param schema The schema.
    * @param json The JSON string.
    * @return A list of problems.
    */
-  public List<Problem> validationProblems(String schemaSource, String json) {
+  public List<Problem> validationProblems(JsonSchema schema, String json) {
     var problems = new ArrayList<Problem>();
     var reader =
         service.createReader(
             new ByteArrayInputStream(json.getBytes(StandardCharsets.UTF_8)),
-            getSchema(schemaSource),
+            schema,
             ProblemHandler.collectingTo(problems));
     reader.readValue();
     return problems;
@@ -91,7 +95,7 @@ public class JsonSchemaManager {
 
     @Nonnull private final JsonSchemaManager manager;
 
-    @Nonnull private final String schemaSource;
+    @Nonnull private final JsonSchema schema;
 
     @Nonnull private final String json;
 
@@ -102,7 +106,7 @@ public class JsonSchemaManager {
     @Nonnull private final ValidationIssueCollector issueCollector;
 
     public void scan() {
-      for (var problem : manager.validationProblems(schemaSource, json)) {
+      for (var problem : manager.validationProblems(schema, json)) {
         var builder = ValidationIssue.builder();
         builder.type(type);
         params.forEach(builder::param);

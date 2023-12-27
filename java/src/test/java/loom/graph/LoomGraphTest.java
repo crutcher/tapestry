@@ -321,17 +321,6 @@ public class LoomGraphTest extends BaseTestClass {
               }
               """);
 
-    node.setShape(ZPoint.of(3, 4));
-    node.setDtype("float32");
-    assertEquivalentJson(
-        node.getBodyAsJson(),
-        """
-              {
-                "dtype": "float32",
-                "shape": [3, 4]
-              }
-              """);
-
     node.setBodyFromJson(
         """
               {

@@ -1,15 +1,14 @@
 package loom.testing;
 
+import java.util.List;
 import loom.common.json.JsonUtil;
 import loom.common.text.PrettyDiffUtils;
 import loom.validation.ValidationIssue;
-import loom.validation.ValidationIssueCollector;
 import org.assertj.core.api.WithAssertions;
 
 public interface CommonAssertions extends WithAssertions {
-  default void assertValidationIssues(
-      ValidationIssueCollector issueCollector, ValidationIssue... expected) {
-    assertEquivalentJson(JsonUtil.toJson(issueCollector.getIssues()), JsonUtil.toJson(expected));
+  default void assertValidationIssues(List<ValidationIssue> issues, ValidationIssue... expected) {
+    assertEquivalentJson(JsonUtil.toJson(issues), JsonUtil.toJson(expected));
   }
 
   default void assertEquivalentJson(

@@ -6,7 +6,7 @@ import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.Immutable;
 import javax.annotation.concurrent.ThreadSafe;
-import lombok.experimental.SuperBuilder;
+import lombok.Builder;
 import lombok.extern.jackson.Jacksonized;
 import loom.common.json.HasToJsonString;
 import loom.common.json.JsonUtil;
@@ -15,7 +15,7 @@ import loom.common.json.JsonUtil;
 @ThreadSafe
 @Immutable
 @Jacksonized
-@SuperBuilder
+@Builder
 public final class ZAffineMap implements HasPermuteInput, HasPermuteOutput, HasToJsonString {
   /**
    * Parse a ZAffineMap from a string.

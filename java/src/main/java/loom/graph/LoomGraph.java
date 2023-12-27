@@ -29,6 +29,7 @@ import loom.common.json.JsonPathUtils;
 import loom.common.json.JsonUtil;
 import loom.common.json.MapValueListUtil;
 import loom.graph.nodes.GenericNodeMetaFactory;
+import loom.validation.ListValidationIssueCollector;
 import loom.validation.ValidationIssue;
 import loom.validation.ValidationIssueCollector;
 
@@ -254,7 +255,9 @@ public final class LoomGraph implements Iterable<LoomGraph.Node<?, ?>>, HasToJso
       var graph = node.assertGraph();
       var env = graph.getEnv();
 
-      var bodySchema = getBodySchema();
+      var bodySchemaJson = getBodySchema();
+
+      var bodySchema = env.getJsonSchemaManager().getSchema(bodySchemaJson);
 
       env.getJsonSchemaManager()
           .issueScan()
@@ -263,13 +266,13 @@ public final class LoomGraph implements Iterable<LoomGraph.Node<?, ?>>, HasToJso
           .param("nodeType", node.getType())
           .summaryPrefix("Body ")
           .jsonPathPrefix(JsonPathUtils.concatJsonPath(node.getJsonPath() + ".body"))
-          .schemaSource(bodySchema)
+          .schema(bodySchema)
           .json(node.getBodyAsJson())
           .context(node.asContext("Node"))
           .context(
               ValidationIssue.Context.builder()
                   .name("Body Schema")
-                  .dataFromJson(bodySchema)
+                  .dataFromJson(bodySchemaJson)
                   .build())
           .build()
           .scan();
@@ -366,9 +369,9 @@ public final class LoomGraph implements Iterable<LoomGraph.Node<?, ?>>, HasToJso
    * @throws loom.validation.LoomValidationError if the graph is invalid.
    */
   public void validate() {
-    ValidationIssueCollector issueCollector = new ValidationIssueCollector();
-    env.validateGraph(this, issueCollector);
-    issueCollector.check();
+    var collector = new ListValidationIssueCollector();
+    env.validateGraph(this, collector);
+    collector.check();
   }
 
   public void validate(ValidationIssueCollector issueCollector) {

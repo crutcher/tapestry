@@ -1,17 +1,17 @@
 package loom.graph;
 
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+import javax.annotation.Nonnull;
 import lombok.Builder;
 import lombok.Data;
 import lombok.Singular;
 import loom.common.json.JsonSchemaManager;
 import loom.common.json.JsonUtil;
+import loom.validation.ListValidationIssueCollector;
 import loom.validation.ValidationIssueCollector;
-
-import javax.annotation.Nonnull;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
 
 /**
  * Loom Graph Environment.
@@ -123,9 +123,9 @@ public final class LoomEnvironment {
    * @throws loom.validation.LoomValidationError if the graph is invalid.
    */
   public void validateGraph(LoomGraph graph) {
-    ValidationIssueCollector issueCollector = new ValidationIssueCollector();
-    validateGraph(graph, issueCollector);
-    issueCollector.check();
+    var listCollector = new ListValidationIssueCollector();
+    validateGraph(graph, listCollector);
+    listCollector.check();
   }
 
   /**

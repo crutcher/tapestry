@@ -6,8 +6,8 @@ import loom.graph.CommonEnvironments;
 import loom.graph.LoomConstants;
 import loom.graph.LoomEnvironment;
 import loom.testing.BaseTestClass;
+import loom.validation.ListValidationIssueCollector;
 import loom.validation.ValidationIssue;
-import loom.validation.ValidationIssueCollector;
 import loom.zspace.ZPoint;
 import org.junit.Test;
 
@@ -30,10 +30,10 @@ public class AllTensorsHaveExactlyOneSourceOperationConstraintTest extends BaseT
             .label("NoSources")
             .buildOn(graph);
 
-    ValidationIssueCollector issueCollector = new ValidationIssueCollector();
-    graph.validate(issueCollector);
+    var collector = new ListValidationIssueCollector();
+    graph.validate(collector);
 
-    assertThat(issueCollector.getIssues())
+    assertThat(collector.getIssues())
         .contains(
             ValidationIssue.builder()
                 .type(LoomConstants.NODE_VALIDATION_ERROR)
@@ -79,9 +79,9 @@ public class AllTensorsHaveExactlyOneSourceOperationConstraintTest extends BaseT
             .label("op2")
             .buildOn(graph);
 
-    var issueCollector = new ValidationIssueCollector();
-    graph.validate(issueCollector);
-    assertThat(issueCollector.getIssues())
+    var collector = new ListValidationIssueCollector();
+    graph.validate(collector);
+    assertThat(collector.getIssues())
         .contains(
             ValidationIssue.builder()
                 .type(LoomConstants.NODE_VALIDATION_ERROR)

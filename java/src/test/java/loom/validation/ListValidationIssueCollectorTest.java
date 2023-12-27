@@ -3,19 +3,19 @@ package loom.validation;
 import loom.testing.BaseTestClass;
 import org.junit.Test;
 
-public class ValidationIssueCollectorTest extends BaseTestClass {
+public class ListValidationIssueCollectorTest extends BaseTestClass {
   @Test
   public void testEmpty() {
-    var collector = new ValidationIssueCollector();
+    var collector = new ListValidationIssueCollector();
     assertThat(collector.getIssues()).isNull();
     collector.check();
   }
 
   @Test
   public void testAdd() {
-    var collector = new ValidationIssueCollector();
+    var collector = new ListValidationIssueCollector();
     collector.add(ValidationIssue.builder("foo").summary("a test").build());
-    collector.add(ValidationIssue.builder("bar").summary("xyz").build());
+    collector.add(ValidationIssue.builder("bar").summary("xyz"));
 
     assertThat(collector.getIssues()).hasSize(2);
 

@@ -1,18 +1,19 @@
 package loom.graph.nodes;
 
-import static loom.graph.LoomConstants.MISSING_NODE_ERROR;
-import static loom.graph.LoomConstants.NODE_VALIDATION_ERROR;
+import loom.graph.CommonEnvironments;
+import loom.graph.LoomGraph;
+import loom.testing.BaseTestClass;
+import loom.validation.ListValidationIssueCollector;
+import loom.validation.ValidationIssue;
+import loom.zspace.ZPoint;
+import org.junit.Test;
 
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import loom.graph.CommonEnvironments;
-import loom.graph.LoomGraph;
-import loom.testing.BaseTestClass;
-import loom.validation.ValidationIssue;
-import loom.validation.ValidationIssueCollector;
-import loom.zspace.ZPoint;
-import org.junit.Test;
+
+import static loom.graph.LoomConstants.MISSING_NODE_ERROR;
+import static loom.graph.LoomConstants.NODE_VALIDATION_ERROR;
 
 public class OperationNodesSourcesAndResultsAreTensorsTest extends BaseTestClass {
   private final OperationNodesSourcesAndResultsAreTensors constraint =
@@ -50,11 +51,11 @@ public class OperationNodesSourcesAndResultsAreTensorsTest extends BaseTestClass
 
     var commonContexts = List.of(op.asContext("Operation"));
 
-    var issueCollector = new ValidationIssueCollector();
-    constraint.checkConstraint(graph.getEnv(), graph, issueCollector);
+    var collector = new ListValidationIssueCollector();
+    constraint.checkConstraint(graph.getEnv(), graph, collector);
 
     assertValidationIssues(
-        issueCollector,
+        collector.getIssues(),
         ValidationIssue.builder()
             .type(NODE_VALIDATION_ERROR)
             .summary("Operation .body.inputs.sources[0] references non-tensor node.")

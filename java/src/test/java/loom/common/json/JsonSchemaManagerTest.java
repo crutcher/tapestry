@@ -5,8 +5,8 @@ import java.util.List;
 import java.util.UUID;
 import lombok.Data;
 import loom.testing.BaseTestClass;
+import loom.validation.ListValidationIssueCollector;
 import loom.validation.ValidationIssue;
-import loom.validation.ValidationIssueCollector;
 import org.junit.Test;
 import org.leadpony.justify.api.JsonSchema;
 import org.leadpony.justify.api.Problem;
@@ -61,7 +61,9 @@ public class JsonSchemaManagerTest extends BaseTestClass {
 
     final String instanceJson = JsonUtil.toJson(instance);
 
-    var problems = manager.validationProblems(EXAMPLE_SCHEMA, instanceJson);
+    var schema = manager.getSchema(EXAMPLE_SCHEMA);
+
+    var problems = manager.validationProblems(schema, instanceJson);
 
     assertThat(problems)
         .hasSize(1)
@@ -79,12 +81,14 @@ public class JsonSchemaManagerTest extends BaseTestClass {
 
     final String instanceJson = JsonUtil.toJson(instance);
 
-    var issueCollector = new ValidationIssueCollector();
+    var schema = manager.getSchema(EXAMPLE_SCHEMA);
+
+    var issueCollector = new ListValidationIssueCollector();
     manager
         .issueScan()
         .issueCollector(issueCollector)
         .param("foo", "bar")
-        .schemaSource(EXAMPLE_SCHEMA)
+        .schema(schema)
         .summaryPrefix("[qqq] ")
         .json(instanceJson)
         .jsonPathPrefix("foo.bar[2]")
