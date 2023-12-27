@@ -10,6 +10,7 @@ import lombok.extern.jackson.Jacksonized;
 import loom.common.json.HasToJsonString;
 import loom.graph.LoomConstants;
 import loom.graph.LoomGraph;
+import loom.validation.HasValidate;
 import loom.validation.ListValidationIssueCollector;
 import loom.validation.ValidationIssue;
 import loom.validation.ValidationIssueCollector;
@@ -59,10 +60,6 @@ public final class TensorNode extends LoomGraph.Node<TensorNode, TensorNode.Body
           "required": ["dtype", "shape"]
       }
       """;
-
-  public interface HasValidate {
-    void validate(ValidationIssueCollector issueCollector);
-  }
 
   @Data
   @ToString(onlyExplicitlyIncluded = true)
