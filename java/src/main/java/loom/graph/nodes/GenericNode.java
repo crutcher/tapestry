@@ -11,7 +11,9 @@ import lombok.*;
 import lombok.experimental.Delegate;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.jackson.Jacksonized;
+import loom.common.json.HasToJsonString;
 import loom.graph.LoomGraph;
+import loom.graph.WithSchema;
 
 /**
  * The GenericNode class represents a generic node in a graph. It extends the LoomGraph.Node class,
@@ -22,12 +24,21 @@ import loom.graph.LoomGraph;
 @Getter
 @Setter
 public final class GenericNode extends LoomGraph.Node<GenericNode, GenericNode.Body> {
-  @Delegate @Nonnull private Body body;
 
   /** The Body class represents the body of a GenericNode. It contains a map of fields. */
   @Data
   @Builder
-  public static class Body {
+  @WithSchema(
+      """
+  {
+    "type": "object",
+    "patternProperties": {
+      "^[a-zA-Z_][a-zA-Z0-9_]*$": {}
+    },
+    "additionalProperties": false
+  }
+  """)
+  public static class Body implements HasToJsonString {
     @Singular private Map<String, Object> fields;
 
     /**
@@ -88,19 +99,9 @@ public final class GenericNode extends LoomGraph.Node<GenericNode, GenericNode.B
    * LoomGraph.NodePrototype class and provides a schema for the body of the node.
    */
   public static final class Prototype extends LoomGraph.NodePrototype<GenericNode, Body> {
-    public static final String BODY_SCHEMA =
-        """
-                {
-                  "type": "object",
-                  "patternProperties": {
-                    "^[a-zA-Z_][a-zA-Z0-9_]*$": {}
-                  },
-                  "additionalProperties": false
-                }
-                """;
 
     public Prototype() {
-      super(GenericNode.class, Body.class, BODY_SCHEMA);
+      super(GenericNode.class, Body.class);
     }
   }
 
@@ -109,4 +110,8 @@ public final class GenericNode extends LoomGraph.Node<GenericNode, GenericNode.B
    * LoomGraph.NodePrototype class and provides a schema for the body of the node.
    */
   public static final Prototype PROTOTYPE = new Prototype();
+
+  @Delegate(excludes = {HasToJsonString.class})
+  @Nonnull
+  private Body body;
 }

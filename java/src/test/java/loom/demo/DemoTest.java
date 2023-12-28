@@ -5,6 +5,7 @@ import java.util.Map;
 import loom.graph.CommonEnvironments;
 import loom.graph.LoomEnvironment;
 import loom.graph.LoomGraph;
+import loom.graph.nodes.GraphUtils;
 import loom.graph.nodes.OperationNode;
 import loom.graph.nodes.TensorNode;
 import loom.testing.BaseTestClass;
@@ -69,9 +70,9 @@ public class DemoTest extends BaseTestClass {
     assertThat(tensorA).isInstanceOf(TensorNode.class).hasFieldOrPropertyWithValue("graph", graph);
 
     assertThat(op1.getOutputs()).containsEntry("pin", tensorIds);
-    assertThat(op1.getOutputNodes()).containsEntry("pin", tensors);
+    assertThat(op1.getOutputNodeListMap()).containsEntry("pin", tensors);
 
-    assertThat(OperationNode.GraphOps.getSourceNode(tensorA)).isSameAs(op1);
-    assertThat(OperationNode.GraphOps.getSourceId(tensorA)).isSameAs(op1.getId());
+    assertThat(GraphUtils.getSourceNode(tensorA)).isSameAs(op1);
+    assertThat(GraphUtils.getSourceId(tensorA)).isSameAs(op1.getId());
   }
 }

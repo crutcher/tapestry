@@ -50,14 +50,14 @@ public final class CommonEnvironments {
     for (var opNode : graph.iterableNodes(OperationNode.TYPE, OperationNode.class)) {
       linkGraph.addVertex(opNode);
 
-      for (var entry : opNode.getInputNodes().entrySet()) {
+      for (var entry : opNode.getInputNodeListMap().entrySet()) {
         for (var refNode : entry.getValue()) {
           linkGraph.addVertex(refNode);
           linkGraph.addEdge(refNode, opNode);
         }
       }
 
-      for (var entry : opNode.getOutputNodes().entrySet()) {
+      for (var entry : opNode.getOutputNodeListMap().entrySet()) {
         for (var refNode : entry.getValue()) {
           linkGraph.addVertex(refNode);
           linkGraph.addEdge(opNode, refNode);

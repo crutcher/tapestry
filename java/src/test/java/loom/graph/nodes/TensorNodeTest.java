@@ -1,5 +1,6 @@
 package loom.graph.nodes;
 
+import java.util.UUID;
 import loom.testing.BaseTestClass;
 import loom.validation.ListValidationIssueCollector;
 import loom.validation.LoomValidationError;
@@ -7,8 +8,6 @@ import loom.validation.ValidationIssue;
 import loom.zspace.ZPoint;
 import loom.zspace.ZRange;
 import org.junit.Test;
-
-import java.util.UUID;
 
 public class TensorNodeTest extends BaseTestClass {
   @Test

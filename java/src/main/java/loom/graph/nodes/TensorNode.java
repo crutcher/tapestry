@@ -3,6 +3,11 @@ package loom.graph.nodes;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.function.Consumer;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import lombok.*;
 import lombok.experimental.Delegate;
 import lombok.experimental.SuperBuilder;
@@ -10,6 +15,7 @@ import lombok.extern.jackson.Jacksonized;
 import loom.common.json.HasToJsonString;
 import loom.graph.LoomConstants;
 import loom.graph.LoomGraph;
+import loom.graph.WithSchema;
 import loom.validation.HasValidate;
 import loom.validation.ListValidationIssueCollector;
 import loom.validation.ValidationIssue;
@@ -20,12 +26,6 @@ import loom.zspace.ZPoint;
 import loom.zspace.ZRange;
 import org.apache.commons.lang3.builder.HashCodeExclude;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.function.Consumer;
-
 @Jacksonized
 @SuperBuilder
 @Getter
@@ -33,39 +33,46 @@ import java.util.function.Consumer;
 public final class TensorNode extends LoomGraph.Node<TensorNode, TensorNode.Body> {
   public static final String TYPE = "TensorNode";
 
-  // TODO: body schema attached to Body, TensorNode via annotation links?
-  public static final String BODY_SCHEMA =
-      """
-      {
-          "type": "object",
-          "properties": {
-            "dtype": {
-                "type": "string"
-            },
-            "shape": {
-              "type": "array",
-              "items": {
-                "type": "integer",
-                "minimum": 1
-              }
-            },
-            "origin": {
-              "documentation": "The origin is optional, and defaults to zeros. The dimensions of origin must match the dimensions of shape.",
-              "type": "array",
-              "items": {
-                "type": "integer"
-              }
-            }
-          },
-          "required": ["dtype", "shape"]
-      }
-      """;
+  public abstract static class TensorNodeBuilder<
+          C extends TensorNode, B extends TensorNodeBuilder<C, B>>
+      extends NodeBuilder<TensorNode, Body, C, B> {
+    {
+      // Set the node type.
+      type(TYPE);
+    }
+  }
 
   @Data
   @ToString(onlyExplicitlyIncluded = true)
   @Jacksonized
   @Builder
   @JsonInclude(JsonInclude.Include.NON_NULL)
+  @WithSchema(
+      """
+  {
+      "type": "object",
+      "properties": {
+        "dtype": {
+            "type": "string"
+        },
+        "shape": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "minimum": 1
+          }
+        },
+        "origin": {
+          "documentation": "The origin is optional, and defaults to zeros. The dimensions of origin must match the dimensions of shape.",
+          "type": "array",
+          "items": {
+            "type": "integer"
+          }
+        }
+      },
+      "required": ["dtype", "shape"]
+  }
+  """)
   public static final class Body implements HasValidate, HasDimension, HasToJsonString, HasSize {
     public static class BodyBuilder {
       public Body build() {
@@ -133,14 +140,6 @@ public final class TensorNode extends LoomGraph.Node<TensorNode, TensorNode.Body
     }
   }
 
-  public abstract static class TensorNodeBuilder<
-          C extends TensorNode, B extends TensorNodeBuilder<C, B>>
-      extends NodeBuilder<TensorNode, Body, C, B> {
-    {
-      type(TYPE);
-    }
-  }
-
   @Builder
   @Getter
   public static final class Prototype extends LoomGraph.NodePrototype<TensorNode, Body> {
@@ -149,7 +148,7 @@ public final class TensorNode extends LoomGraph.Node<TensorNode, TensorNode.Body
 
     @Builder
     public Prototype(Set<String> validDTypes) {
-      super(TensorNode.class, Body.class, BODY_SCHEMA);
+      super(TensorNode.class, Body.class);
       this.validDTypes = new HashSet<>(validDTypes);
     }
 

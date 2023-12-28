@@ -1,5 +1,5 @@
 package loom.validation;
 
 public interface HasValidate {
-    void validate(ValidationIssueCollector issueCollector);
+  void validate(ValidationIssueCollector issueCollector);
 }

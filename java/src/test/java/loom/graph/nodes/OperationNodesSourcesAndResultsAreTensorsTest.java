@@ -1,5 +1,11 @@
 package loom.graph.nodes;
 
+import static loom.graph.LoomConstants.MISSING_NODE_ERROR;
+import static loom.graph.LoomConstants.NODE_VALIDATION_ERROR;
+
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import loom.graph.CommonEnvironments;
 import loom.graph.LoomGraph;
 import loom.testing.BaseTestClass;
@@ -7,13 +13,6 @@ import loom.validation.ListValidationIssueCollector;
 import loom.validation.ValidationIssue;
 import loom.zspace.ZPoint;
 import org.junit.Test;
-
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-
-import static loom.graph.LoomConstants.MISSING_NODE_ERROR;
-import static loom.graph.LoomConstants.NODE_VALIDATION_ERROR;
 
 public class OperationNodesSourcesAndResultsAreTensorsTest extends BaseTestClass {
   private final OperationNodesSourcesAndResultsAreTensors constraint =

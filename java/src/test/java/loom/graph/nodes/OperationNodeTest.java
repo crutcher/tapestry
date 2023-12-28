@@ -27,8 +27,9 @@ public class OperationNodeTest extends BaseTestClass {
         OperationNode.withBody(
                 b1 ->
                     b1.opName("source")
-                        .inputs(OperationNode.nodeMapToIdMap(Map.of()))
-                        .outputs(OperationNode.nodeMapToIdMap(Map.of("pin", List.of(tensorA)))))
+                        .inputs(GraphUtils.nodeListMapToIdListMap(Map.of()))
+                        .outputs(
+                            GraphUtils.nodeListMapToIdListMap(Map.of("pin", List.of(tensorA)))))
             .buildOn(graph);
     op1.setLabel("op1");
 
@@ -36,8 +37,9 @@ public class OperationNodeTest extends BaseTestClass {
         OperationNode.withBody(
                 b ->
                     b.opName("sink")
-                        .inputs(OperationNode.nodeMapToIdMap(Map.of("inputs", List.of(tensorA))))
-                        .outputs(OperationNode.nodeMapToIdMap(Map.of()))
+                        .inputs(
+                            GraphUtils.nodeListMapToIdListMap(Map.of("inputs", List.of(tensorA))))
+                        .outputs(GraphUtils.nodeListMapToIdListMap(Map.of()))
                         .param("xyz", 123))
             .buildOn(graph);
     op2.setLabel("op2");
@@ -46,7 +48,7 @@ public class OperationNodeTest extends BaseTestClass {
 
     graph.validate();
 
-    assertThat(op1.getOutputNodes()).containsEntry("pin", List.of(tensorA));
-    assertThat(op2.getInputNodes()).containsEntry("inputs", List.of(tensorA));
+    assertThat(op1.getOutputNodeListMap()).containsEntry("pin", List.of(tensorA));
+    assertThat(op2.getInputNodeListMap()).containsEntry("inputs", List.of(tensorA));
   }
 }
