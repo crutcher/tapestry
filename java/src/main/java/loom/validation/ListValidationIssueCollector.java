@@ -17,7 +17,7 @@ public class ListValidationIssueCollector implements ValidationIssueCollector, H
   }
 
   @Override
-  public void add(ValidationIssue issue) {
+  public void addIssue(ValidationIssue issue) {
     synchronized (this) {
       if (issues == null) {
         issues = new ArrayList<>();

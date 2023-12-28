@@ -10,16 +10,6 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import java.io.IOException;
-import java.lang.reflect.ParameterizedType;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.UUID;
-import java.util.stream.Stream;
-import javax.annotation.CheckReturnValue;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import loom.common.collections.IteratorUtils;
@@ -32,6 +22,17 @@ import loom.graph.nodes.GenericNodeMetaFactory;
 import loom.validation.ListValidationIssueCollector;
 import loom.validation.ValidationIssue;
 import loom.validation.ValidationIssueCollector;
+
+import javax.annotation.CheckReturnValue;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.io.IOException;
+import java.lang.reflect.ParameterizedType;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.UUID;
+import java.util.stream.Stream;
 
 /** A Loom Graph document. */
 @Getter
@@ -271,7 +272,7 @@ public final class LoomGraph implements Iterable<LoomGraph.Node<?, ?>>, HasToJso
 
       var bodySchemaJson = getBodySchema();
 
-      var bodySchema = env.getJsonSchemaManager().getSchema(bodySchemaJson);
+      var bodySchema = env.getJsonSchemaManager().loadSchema(bodySchemaJson);
 
       env.getJsonSchemaManager()
           .issueScan()
@@ -508,6 +509,26 @@ public final class LoomGraph implements Iterable<LoomGraph.Node<?, ?>>, HasToJso
    */
   public boolean hasNode(String id) {
     return hasNode(UUID.fromString(id));
+  }
+
+  /**
+   * Get the node with the given ID.
+   *
+   * @param id the ID of the node to get.
+   * @return the node, or null if not found.
+   */
+  @Nullable public Node<?, ?> getNode(UUID id) {
+    return nodes.get(id);
+  }
+
+  /**
+   * Get the node with the given ID.
+   *
+   * @param id the ID of the node to get.
+   * @return the node, or null if not found.
+   */
+  @Nullable public Node<?, ?> getNode(String id) {
+    return getNode(UUID.fromString(id));
   }
 
   /**

@@ -2,6 +2,17 @@ package loom.validation;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.google.common.annotations.VisibleForTesting;
+import com.google.errorprone.annotations.FormatMethod;
+import lombok.Builder;
+import lombok.Data;
+import lombok.extern.jackson.Jacksonized;
+import loom.common.json.HasToJsonString;
+import loom.common.json.JsonPathUtils;
+import loom.common.json.JsonUtil;
+import loom.common.text.IndentUtils;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -9,16 +20,6 @@ import java.util.TreeMap;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import lombok.Builder;
-import lombok.Data;
-import lombok.Singular;
-import lombok.extern.jackson.Jacksonized;
-import loom.common.json.HasToJsonString;
-import loom.common.json.JsonPathUtils;
-import loom.common.json.JsonUtil;
-import loom.common.text.IndentUtils;
 
 /** A Description of a validation failure. */
 @Data
@@ -48,6 +49,7 @@ public final class ValidationIssue {
   @Data
   @Jacksonized
   @Builder
+  @JsonInclude(JsonInclude.Include.NON_NULL)
   public static final class Context implements HasToJsonString {
 
     /** Extensions to the ContextBuilder. */
@@ -157,6 +159,81 @@ public final class ValidationIssue {
 
   /** Extensions to the ValidationIssueBuilder. */
   public static final class ValidationIssueBuilder {
+    /**
+     * Add each param to the issue.
+     *
+     * @param params the params to add.
+     * @return this builder, for chaining.
+     */
+    public ValidationIssueBuilder params(@Nullable Map<String, String> params) {
+      if (params != null) {
+        params.forEach(this::param);
+      }
+      return this;
+    }
+
+    /**
+     * Add a param to the issue.
+     *
+     * @param key the key of the param.
+     * @param value the value of the param.
+     * @return this builder, for chaining.
+     */
+    public ValidationIssueBuilder param(String key, Object value) {
+      if (this.params == null) {
+        this.params = new TreeMap<>();
+      }
+      this.params.put(key, value.toString());
+      return this;
+    }
+
+    /**
+     * Set the summary for the issue.
+     *
+     * @param summary the summary.
+     * @return this builder, for chaining.
+     */
+    public ValidationIssueBuilder summary(String summary) {
+      this.summary = summary;
+      return this;
+    }
+
+    /**
+     * Set the summary for the issue.
+     *
+     * @param format the format string.
+     * @param args the arguments.
+     * @return this builder, for chaining.
+     */
+    @FormatMethod
+    public ValidationIssueBuilder summary(String format, Object... args) {
+      this.summary = String.format(format, args);
+      return this;
+    }
+
+    /**
+     * Set the message for the issue.
+     *
+     * @param message the message.
+     * @return this builder, for chaining.
+     */
+    public ValidationIssueBuilder message(String message) {
+      this.message = message;
+      return this;
+    }
+
+    /**
+     * Set the message for the issue.
+     *
+     * @param format the format string.
+     * @param args the arguments.
+     * @return this builder, for chaining.
+     */
+    @FormatMethod
+    public ValidationIssueBuilder message(String format, Object... args) {
+      this.message = String.format(format, args);
+      return this;
+    }
 
     /**
      * Add a context to the issue.
@@ -263,7 +340,7 @@ public final class ValidationIssue {
 
   @Nonnull private final String type;
 
-  @Nullable @Singular private final Map<String, String> params;
+  @Nullable private final Map<String, String> params;
 
   @Nonnull private final String summary;
 
@@ -273,6 +350,9 @@ public final class ValidationIssue {
 
   @VisibleForTesting
   String paramsToString() {
+    if (params == null || params.isEmpty()) {
+      return "";
+    }
     var parts = new ArrayList<String>();
     new TreeMap<>(params).forEach((k, v) -> parts.add("   └> %s: %s".formatted(k, v)));
     return String.join("\n", parts);

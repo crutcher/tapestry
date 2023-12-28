@@ -20,7 +20,7 @@ public class AllTensorsHaveExactlyOneSourceOperationConstraint implements LoomCo
   }
 
   @Override
-  public void checkConstraint(
+  public void validateConstraint(
       @SuppressWarnings("unused") LoomEnvironment env,
       LoomGraph graph,
       ValidationIssueCollector issueCollector) {
@@ -86,6 +86,6 @@ public class AllTensorsHaveExactlyOneSourceOperationConstraint implements LoomCo
       }
     }
 
-    issueCollector.add(issueBuilder);
+    issueCollector.addIssue(issueBuilder);
   }
 }

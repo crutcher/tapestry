@@ -2,7 +2,6 @@ package loom.common.lazy;
 
 import com.google.errorprone.annotations.FormatMethod;
 import java.util.function.Supplier;
-import lombok.experimental.Delegate;
 
 /**
  * {@code Thunk<String>} subclass which provides {@link #toString}.
@@ -24,11 +23,5 @@ public final class LazyString extends Thunk<String> {
 
   public LazyString(Supplier<String> supplier) {
     super(supplier);
-  }
-
-  @Delegate
-  @Override
-  public String toString() {
-    return get();
   }
 }

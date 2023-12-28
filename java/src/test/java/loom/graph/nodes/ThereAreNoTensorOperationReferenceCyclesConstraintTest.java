@@ -1,7 +1,5 @@
 package loom.graph.nodes;
 
-import java.util.List;
-import java.util.Map;
 import loom.graph.CommonEnvironments;
 import loom.graph.LoomConstants;
 import loom.graph.LoomEnvironment;
@@ -10,6 +8,9 @@ import loom.validation.ListValidationIssueCollector;
 import loom.validation.ValidationIssue;
 import loom.zspace.ZPoint;
 import org.junit.Test;
+
+import java.util.List;
+import java.util.Map;
 
 public class ThereAreNoTensorOperationReferenceCyclesConstraintTest extends BaseTestClass {
   private final ThereAreNoTensorOperationReferenceCyclesConstraint constraint =
@@ -25,7 +26,7 @@ public class ThereAreNoTensorOperationReferenceCyclesConstraintTest extends Base
     var graph = env.createGraph();
 
     var collector = new ListValidationIssueCollector();
-    constraint.checkConstraint(env, graph, collector);
+    constraint.validateConstraint(env, graph, collector);
     assertThat(collector.hasFailed()).isFalse();
   }
 
@@ -72,9 +73,7 @@ public class ThereAreNoTensorOperationReferenceCyclesConstraintTest extends Base
             .buildOn(graph);
 
     var issueCollector = new ListValidationIssueCollector();
-    constraint.checkConstraint(env, graph, issueCollector);
-
-    System.out.println(issueCollector.toDisplayString());
+    constraint.validateConstraint(env, graph, issueCollector);
 
     assertThat(issueCollector.getIssues())
         .containsOnly(

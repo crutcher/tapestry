@@ -24,6 +24,7 @@ public interface CommonAssertions extends WithAssertions {
 
     var prettyActual = JsonUtil.reformatToPrettyJson(actual);
     var prettyExpected = JsonUtil.reformatToPrettyJson(expected);
+
     var diff =
         String.format(
             "JSON Comparison Error: %s != %s\n%s\n",

@@ -51,7 +51,7 @@ public class OperationNodesSourcesAndResultsAreTensorsTest extends BaseTestClass
     var commonContexts = List.of(op.asContext("Operation"));
 
     var collector = new ListValidationIssueCollector();
-    constraint.checkConstraint(graph.getEnv(), graph, collector);
+    constraint.validateConstraint(graph.getEnv(), graph, collector);
 
     assertValidationIssues(
         collector.getIssues(),

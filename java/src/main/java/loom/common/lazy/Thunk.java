@@ -42,4 +42,9 @@ public class Thunk<T> implements Supplier<T> {
     }
     return value;
   }
+
+  @Override
+  public String toString() {
+    return get().toString();
+  }
 }

@@ -14,8 +14,8 @@ public class ListValidationIssueCollectorTest extends BaseTestClass {
   @Test
   public void testAdd() {
     var collector = new ListValidationIssueCollector();
-    collector.add(ValidationIssue.builder("foo").summary("a test").build());
-    collector.add(ValidationIssue.builder("bar").summary("xyz"));
+    collector.addIssue(ValidationIssue.builder("foo").summary("a test").build());
+    collector.addIssue(ValidationIssue.builder("bar").summary("xyz"));
 
     assertThat(collector.getIssues()).hasSize(2);
 

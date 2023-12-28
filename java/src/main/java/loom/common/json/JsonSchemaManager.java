@@ -2,14 +2,8 @@ package loom.common.json;
 
 import com.fasterxml.jackson.databind.util.LRUMap;
 import com.fasterxml.jackson.databind.util.LookupCache;
+import com.google.common.base.Splitter;
 import jakarta.json.stream.JsonParsingException;
-import java.io.ByteArrayInputStream;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import lombok.Builder;
 import lombok.Singular;
 import loom.validation.ValidationIssue;
@@ -18,6 +12,14 @@ import org.leadpony.justify.api.JsonSchema;
 import org.leadpony.justify.api.JsonValidationService;
 import org.leadpony.justify.api.Problem;
 import org.leadpony.justify.api.ProblemHandler;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.io.ByteArrayInputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Manages JSON schemas and provides validation services.
@@ -43,12 +45,42 @@ public class JsonSchemaManager {
   }
 
   /**
+   * Format a parse error.
+   *
+   * @param e The exception.
+   * @param source The source string.
+   * @return The formatted error.
+   */
+  private String formatParseError(JsonParsingException e, String source) {
+    StringBuilder sb = new StringBuilder();
+    sb.append(e.getMessage()).append("\n");
+
+    var location = e.getLocation();
+    if (location == null) {
+      sb.append(source);
+    } else {
+      var k = location.getLineNumber() - 1;
+      var lines = Splitter.on("\n").splitToList(source);
+      for (int i = 0; i < lines.size(); i++) {
+        if (i == k) {
+          sb.append(">>> ");
+        } else {
+          sb.append("    ");
+        }
+        sb.append(lines.get(i)).append("\n");
+      }
+    }
+
+    return sb.toString();
+  }
+
+  /**
    * Get a cached schema from a JSON string.
    *
    * @param schemaJson The JSON string.
    * @return The schema.
    */
-  public JsonSchema getSchema(String schemaJson) {
+  public JsonSchema loadSchema(String schemaJson) {
     var schema = schemaCache.get(schemaJson);
     if (schema == null) {
       try {
@@ -56,7 +88,9 @@ public class JsonSchemaManager {
             service.readSchema(
                 new ByteArrayInputStream(schemaJson.getBytes(StandardCharsets.UTF_8)));
       } catch (JsonParsingException e) {
-        throw new RuntimeException("Error parsing schema JSON: " + schemaJson, e);
+          String sb = "Error parsing schema JSON:\n" +
+                      formatParseError(e, schemaJson);
+        throw new IllegalArgumentException(sb, e);
       }
       schemaCache.put(schemaJson, schema);
     }
@@ -140,7 +174,7 @@ public class JsonSchemaManager {
           contexts.forEach(builder::context);
         }
 
-        issueCollector.add(builder);
+        issueCollector.addIssue(builder);
       }
     }
   }

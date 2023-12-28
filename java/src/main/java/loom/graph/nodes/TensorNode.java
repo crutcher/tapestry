@@ -3,6 +3,13 @@ package loom.graph.nodes;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import lombok.*;
 import lombok.experimental.Delegate;
 import lombok.experimental.SuperBuilder;
@@ -21,14 +28,6 @@ import loom.zspace.HasSize;
 import loom.zspace.ZPoint;
 import loom.zspace.ZRange;
 import org.apache.commons.lang3.builder.HashCodeExclude;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 @Jacksonized
 @SuperBuilder
@@ -132,7 +131,7 @@ public final class TensorNode extends LoomGraph.Node<TensorNode, TensorNode.Body
                       .build());
 
       if (!getShape().coords.isStrictlyPositive()) {
-        issueCollector.add(
+        issueCollector.addIssue(
             ValidationIssue.builder()
                 .type(LoomConstants.NODE_VALIDATION_ERROR)
                 .summary("shape must be positive and non-empty: %s".formatted(getShape()))
@@ -142,7 +141,7 @@ public final class TensorNode extends LoomGraph.Node<TensorNode, TensorNode.Body
       }
 
       if (getOrigin() != null && getOrigin().getNDim() != getShape().getNDim()) {
-        issueCollector.add(
+        issueCollector.addIssue(
             ValidationIssue.builder()
                 .type(LoomConstants.NODE_VALIDATION_ERROR)
                 .summary(
@@ -182,7 +181,7 @@ public final class TensorNode extends LoomGraph.Node<TensorNode, TensorNode.Body
     @Override
     public void validateNode(TensorNode node, ValidationIssueCollector issueCollector) {
       if (!validDTypes.contains(node.getDtype())) {
-        issueCollector.add(
+        issueCollector.addIssue(
             ValidationIssue.builder()
                 .type(LoomConstants.NODE_VALIDATION_ERROR)
                 .summary("dtype (%s) must be one of %s".formatted(node.getDtype(), validDTypes))

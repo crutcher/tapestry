@@ -141,7 +141,7 @@ public final class LoomEnvironment {
     }
 
     for (var constraint : constraints) {
-      constraint.checkConstraint(this, graph, issueCollector);
+      constraint.validateConstraint(this, graph, issueCollector);
     }
   }
 

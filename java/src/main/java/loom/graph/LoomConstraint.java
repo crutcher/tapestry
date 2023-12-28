@@ -8,6 +8,6 @@ public interface LoomConstraint {
   @ExcludeFromJacocoGeneratedReport
   default void checkRequirements(LoomEnvironment env) {}
 
-  void checkConstraint(
+  void validateConstraint(
       LoomEnvironment env, LoomGraph graph, ValidationIssueCollector issueCollector);
 }

@@ -2,6 +2,9 @@ package loom.graph;
 
 public final class LoomConstants {
   public static final String NODE_VALIDATION_ERROR = "NodeValidationError";
+
+  public static final String NODE_REFERENCE_ERROR = "NodeReferenceError";
+
   public static final String MISSING_NODE_ERROR = "MissingNodeError";
   public static final String REFERENCE_CYCLE_ERROR = "ReferenceCycle";
 

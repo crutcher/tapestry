@@ -128,7 +128,7 @@ dependencies {
 
 
     // Guava.
-    implementation("com.google.guava:guava:31.1-jre")
+    implementation("com.google.guava:guava:32.0.0-jre")
 
     // ================
     // JSON Stuff
@@ -137,6 +137,11 @@ dependencies {
 
     implementation("org.leadpony.justify:justify:3.1.0")
     implementation("org.leadpony.joy:joy-classic:2.1.0")
+
+    /*
+    implementation("net.javacrumbs.json-unit:json-unit:3.2.2")
+    implementation("net.javacrumbs.json-unit:json-unit-assertj:3.2.2")
+     */
 
     // https://mvnrepository.com/artifact/com.jayway.jsonpath/json-path
     implementation("com.jayway.jsonpath:json-path:2.8.0")

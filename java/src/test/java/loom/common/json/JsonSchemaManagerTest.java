@@ -46,9 +46,9 @@ public class JsonSchemaManagerTest extends BaseTestClass {
   public void testCache() {
     var manager = new JsonSchemaManager();
 
-    var schema = manager.getSchema(EXAMPLE_SCHEMA);
+    var schema = manager.loadSchema(EXAMPLE_SCHEMA);
     assertThat(schema).isInstanceOf(JsonSchema.class);
-    assertThat(manager.getSchema(EXAMPLE_SCHEMA)).isSameAs(schema);
+    assertThat(manager.loadSchema(EXAMPLE_SCHEMA)).isSameAs(schema);
   }
 
   @Test
@@ -61,7 +61,7 @@ public class JsonSchemaManagerTest extends BaseTestClass {
 
     final String instanceJson = JsonUtil.toJson(instance);
 
-    var schema = manager.getSchema(EXAMPLE_SCHEMA);
+    var schema = manager.loadSchema(EXAMPLE_SCHEMA);
 
     var problems = manager.validationProblems(schema, instanceJson);
 
@@ -81,7 +81,7 @@ public class JsonSchemaManagerTest extends BaseTestClass {
 
     final String instanceJson = JsonUtil.toJson(instance);
 
-    var schema = manager.getSchema(EXAMPLE_SCHEMA);
+    var schema = manager.loadSchema(EXAMPLE_SCHEMA);
 
     var issueCollector = new ListValidationIssueCollector();
     manager

@@ -84,7 +84,7 @@ public class LoomEnvironmentTest extends BaseTestClass {
           }
 
           @Override
-          public void checkConstraint(
+          public void validateConstraint(
               @SuppressWarnings("unused") LoomEnvironment env,
               LoomGraph graph,
               ValidationIssueCollector issueCollector) {

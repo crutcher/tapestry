@@ -12,7 +12,7 @@ public class LazyStringTest extends BaseTestClass {
     assertThat(lazyString).hasToString("Hello World");
     assertThat(lazyString.get()).isSameAs(str);
 
-    assertThat(lazyString.length()).isEqualTo(str.length());
-    assertThat(lazyString.replace("World", "Banana")).isEqualTo("Hello Banana");
+    assertThat(String.format("%s", lazyString)).isEqualTo("Hello World");
+    assertThat("%s".formatted(lazyString)).isEqualTo("Hello World");
   }
 }

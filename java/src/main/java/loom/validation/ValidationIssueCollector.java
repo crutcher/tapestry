@@ -11,14 +11,14 @@ public interface ValidationIssueCollector {
    *
    * @param issue the issue to add.
    */
-  void add(ValidationIssue issue);
+  void addIssue(ValidationIssue issue);
 
   /**
    * Add an issue to the collector.
    *
    * @param issueBuilder the issue builder to add.
    */
-  default void add(ValidationIssue.ValidationIssueBuilder issueBuilder) {
-    add(issueBuilder.build());
+  default void addIssue(ValidationIssue.ValidationIssueBuilder issueBuilder) {
+    addIssue(issueBuilder.build());
   }
 }

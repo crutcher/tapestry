@@ -63,7 +63,7 @@ public class LoomGraphTest extends BaseTestClass {
     @Override
     public void validateNode(DemoNode node, ValidationIssueCollector issueCollector) {
       if (!VALID_FOO_VALUES.contains(node.getFoo())) {
-        issueCollector.add(
+        issueCollector.addIssue(
             ValidationIssue.builder()
                 .type(LoomConstants.NODE_VALIDATION_ERROR)
                 .summary(

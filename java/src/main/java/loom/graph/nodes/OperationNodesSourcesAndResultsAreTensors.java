@@ -22,7 +22,7 @@ public final class OperationNodesSourcesAndResultsAreTensors implements LoomCons
   }
 
   @Override
-  public void checkConstraint(
+  public void validateConstraint(
       @SuppressWarnings("unused") LoomEnvironment env,
       LoomGraph graph,
       ValidationIssueCollector issueCollector) {
@@ -75,7 +75,7 @@ public final class OperationNodesSourcesAndResultsAreTensors implements LoomCons
         var relItemPath = LazyString.format("%s[%d]", relativeFieldPath, itemIdx);
 
         if (!graph.hasNode(itemId)) {
-          issueCollector.add(
+          issueCollector.addIssue(
               ValidationIssue.builder()
                   .type(LoomConstants.MISSING_NODE_ERROR)
                   .param("nodeType", OperationNode.TYPE)
@@ -92,7 +92,7 @@ public final class OperationNodesSourcesAndResultsAreTensors implements LoomCons
 
         var ioNode = graph.assertNode(itemId);
         if (!(ioNode instanceof TensorNode)) {
-          issueCollector.add(
+          issueCollector.addIssue(
               ValidationIssue.builder()
                   .type(LoomConstants.NODE_VALIDATION_ERROR)
                   .summary("Operation %s references non-tensor node.".formatted(relItemPath))

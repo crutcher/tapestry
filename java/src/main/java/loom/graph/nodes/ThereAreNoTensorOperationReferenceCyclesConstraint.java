@@ -15,7 +15,7 @@ public class ThereAreNoTensorOperationReferenceCyclesConstraint implements LoomC
   }
 
   @Override
-  public void checkConstraint(
+  public void validateConstraint(
       LoomEnvironment env, LoomGraph graph, ValidationIssueCollector issueCollector) {
     // Assuming TensorNode::AllTensorsHaveExactlyOneSourceOperation has already been run;
     // verify that there are no cycles in the graph.
@@ -38,7 +38,7 @@ public class ThereAreNoTensorOperationReferenceCyclesConstraint implements LoomC
                   })
               .toList();
 
-      issueCollector.add(
+      issueCollector.addIssue(
           ValidationIssue.builder()
               .type(LoomConstants.REFERENCE_CYCLE_ERROR)
               .summary("Reference Cycle detected")
