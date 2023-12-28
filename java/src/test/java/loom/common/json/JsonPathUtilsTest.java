@@ -24,11 +24,11 @@ public class JsonPathUtilsTest extends BaseTestClass {
 
   @Test
   public void testConcatJsonPath() {
-    List<Pair<String[], String>> examples =
+    List<Pair<Object[], String>> examples =
         List.of(
-            Pair.of(new String[] {"$", "$.foo[2]", "", ".", "$.bar"}, "$.foo[2].bar"),
-            Pair.of(new String[] {"$.", "", null, "foo", "[2]", "$.bar"}, "$.foo[2].bar"),
-            Pair.of(new String[] {".foo[2]", "$.bar"}, "$.foo[2].bar"));
+            Pair.of(new Object[] {"$", "$.foo[2]", "", ".", "$.bar"}, "$.foo[2].bar"),
+            Pair.of(new Object[] {"$.", "", null, "foo", "[2]", "$.bar"}, "$.foo[2].bar"),
+            Pair.of(new Object[] {".foo[2]", "$.bar"}, "$.foo[2].bar"));
 
     for (var example : examples) {
       assertThat(JsonPathUtils.concatJsonPath(example.getLeft())).isEqualTo(example.getRight());

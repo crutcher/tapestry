@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -70,7 +71,7 @@ public final class ValidationIssue {
        * @param parts the parts of the jsonpath.
        * @return the builder.
        */
-      public ContextBuilder jsonpath(String... parts) {
+      public ContextBuilder jsonpath(Object... parts) {
         return jsonpath(JsonPathUtils.concatJsonPath(parts));
       }
 
@@ -163,7 +164,10 @@ public final class ValidationIssue {
      * @param context the context to add.
      * @return this builder, for chaining.
      */
-    public ValidationIssueBuilder context(Context context) {
+    public ValidationIssueBuilder context(@Nullable Context context) {
+      if (context == null) {
+        return this;
+      }
       if (this.contexts == null) {
         this.contexts = new ArrayList<>();
       }
@@ -175,11 +179,27 @@ public final class ValidationIssue {
     /**
      * Add a context to the issue.
      *
+     * @param supplier the supplier to get the context from.
+     * @return this builder, for chaining.
+     */
+    public ValidationIssueBuilder context(@Nullable Supplier<Context> supplier) {
+      if (supplier == null) {
+        return this;
+      }
+      return context(supplier.get());
+    }
+
+    /**
+     * Add a context to the issue.
+     *
      * @param builder the builder to build a Context from.
      * @return this builder, for chaining.
      */
-    public ValidationIssueBuilder context(Context.ContextBuilder builder) {
-      return context(builder.build());
+    public ValidationIssueBuilder context(@Nullable Context.ContextBuilder builder) {
+      if (builder == null) {
+        return this;
+      }
+      return context(builder::build);
     }
 
     /**
@@ -188,7 +208,7 @@ public final class ValidationIssue {
      * @param consumer the consumer to fill in the ContextBuilder.
      * @return this builder, for chaining.
      */
-    public ValidationIssueBuilder context(Consumer<Context.ContextBuilder> consumer) {
+    public ValidationIssueBuilder context(@Nonnull Consumer<Context.ContextBuilder> consumer) {
       var builder = Context.builder();
       consumer.accept(builder);
       return context(builder);
@@ -200,9 +220,25 @@ public final class ValidationIssue {
      * @param contexts the contexts to add.
      * @return this builder, for chaining.
      */
-    public ValidationIssueBuilder withContexts(Iterable<Context> contexts) {
+    public ValidationIssueBuilder withContexts(@Nullable List<Context> contexts) {
+      if (contexts == null) {
+        return this;
+      }
       contexts.forEach(this::context);
       return this;
+    }
+
+    /**
+     * Add each context to the issue.
+     *
+     * @param supplier the supplier to get the contexts from.
+     * @return this builder, for chaining.
+     */
+    public ValidationIssueBuilder withContexts(@Nullable Supplier<List<Context>> supplier) {
+      if (supplier == null) {
+        return this;
+      }
+      return withContexts(supplier.get());
     }
   }
 

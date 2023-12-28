@@ -43,12 +43,17 @@ public class JsonPathUtils {
    */
   @Nonnull
   @SuppressWarnings("ConstantConditions")
-  public static String concatJsonPath(@Nonnull String... parts) {
+  public static String concatJsonPath(@Nonnull Object... parts) {
     var sb = new StringBuilder();
     sb.append("$");
 
-    for (var part : parts) {
-      if (part == null || part.isEmpty()) {
+    for (var obj : parts) {
+      if (obj == null) {
+        continue;
+      }
+
+      var part = obj.toString();
+      if (part.isEmpty()) {
         continue;
       }
 

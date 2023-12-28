@@ -1,5 +1,11 @@
 package loom.graph.nodes;
 
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.function.Consumer;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import lombok.*;
 import lombok.experimental.Delegate;
 import lombok.experimental.SuperBuilder;
@@ -7,13 +13,6 @@ import lombok.extern.jackson.Jacksonized;
 import loom.common.json.HasToJsonString;
 import loom.graph.LoomGraph;
 import loom.graph.WithSchema;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.function.Consumer;
 
 /** Represents a node in the LoomGraph that represents an operation. */
 @Jacksonized

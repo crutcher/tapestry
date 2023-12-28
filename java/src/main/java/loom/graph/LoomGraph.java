@@ -10,6 +10,16 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import java.io.IOException;
+import java.lang.reflect.ParameterizedType;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.UUID;
+import java.util.stream.Stream;
+import javax.annotation.CheckReturnValue;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import loom.common.collections.IteratorUtils;
@@ -22,17 +32,6 @@ import loom.graph.nodes.GenericNodeMetaFactory;
 import loom.validation.ListValidationIssueCollector;
 import loom.validation.ValidationIssue;
 import loom.validation.ValidationIssueCollector;
-
-import javax.annotation.CheckReturnValue;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.io.IOException;
-import java.lang.reflect.ParameterizedType;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.UUID;
-import java.util.stream.Stream;
 
 /** A Loom Graph document. */
 @Getter
@@ -370,11 +369,11 @@ public final class LoomGraph implements Iterable<LoomGraph.Node<?, ?>>, HasToJso
 
   @JsonIgnore @Builder.Default private final LoomEnvironment env = GENERIC_ENV;
 
+  @Nullable private UUID id;
+
   @JsonSerialize(using = MapValueListUtil.MapSerializer.class)
   @JsonDeserialize(using = Serialization.NodeListToMapDeserializer.class)
   private final Map<UUID, Node<?, ?>> nodes = new HashMap<>();
-
-  @Nullable private UUID id;
 
   /**
    * Validate the graph.

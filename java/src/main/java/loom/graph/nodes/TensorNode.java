@@ -3,21 +3,17 @@ package loom.graph.nodes;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.function.Consumer;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import lombok.*;
 import lombok.experimental.Delegate;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.jackson.Jacksonized;
 import loom.common.json.HasToJsonString;
+import loom.common.lazy.LazyString;
+import loom.common.lazy.Thunk;
 import loom.graph.LoomConstants;
 import loom.graph.LoomGraph;
 import loom.graph.WithSchema;
 import loom.validation.HasValidate;
-import loom.validation.ListValidationIssueCollector;
 import loom.validation.ValidationIssue;
 import loom.validation.ValidationIssueCollector;
 import loom.zspace.HasDimension;
@@ -25,6 +21,14 @@ import loom.zspace.HasSize;
 import loom.zspace.ZPoint;
 import loom.zspace.ZRange;
 import org.apache.commons.lang3.builder.HashCodeExclude;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 @Jacksonized
 @SuperBuilder
@@ -73,26 +77,21 @@ public final class TensorNode extends LoomGraph.Node<TensorNode, TensorNode.Body
       "required": ["dtype", "shape"]
   }
   """)
-  public static final class Body implements HasValidate, HasDimension, HasToJsonString, HasSize {
+  public static final class Body
+      implements HasValidate<Body>, HasDimension, HasToJsonString, HasSize {
     public static class BodyBuilder {
       public Body build() {
-        var body = new Body(dtype, shape, origin);
-        var collector = new ListValidationIssueCollector();
-        body.validate(collector);
-        collector.check();
-        return body;
+        return new Body(dtype, shape, origin).checkValid();
       }
     }
 
     @ToString.Include @Nonnull private final String dtype;
-
     @ToString.Include @Nonnull private final ZPoint shape;
-
     @ToString.Include @Nullable private final ZPoint origin;
 
     @Override
     public int getNDim() {
-      return shape.getNDim();
+      return getShape().getNDim();
     }
 
     @Override
@@ -119,12 +118,26 @@ public final class TensorNode extends LoomGraph.Node<TensorNode, TensorNode.Body
     }
 
     @Override
-    public void validate(ValidationIssueCollector issueCollector) {
+    public void validate(
+        @Nullable LazyString jsonPathPrefix,
+        ValidationIssueCollector issueCollector,
+        @Nullable Supplier<List<ValidationIssue.Context>> contextSupplier) {
+      var lazyContext =
+          Thunk.of(
+              () ->
+                  ValidationIssue.Context.builder()
+                      .name("Body")
+                      .jsonpath(jsonPathPrefix, "body")
+                      .data(this)
+                      .build());
+
       if (!getShape().coords.isStrictlyPositive()) {
         issueCollector.add(
             ValidationIssue.builder()
                 .type(LoomConstants.NODE_VALIDATION_ERROR)
                 .summary("shape must be positive and non-empty: %s".formatted(getShape()))
+                .context(lazyContext)
+                .withContexts(contextSupplier)
                 .build());
       }
 
@@ -135,6 +148,8 @@ public final class TensorNode extends LoomGraph.Node<TensorNode, TensorNode.Body
                 .summary(
                     "origin %s dimensions != shape %s dimensions"
                         .formatted(getOrigin(), getShape()))
+                .context(lazyContext)
+                .withContexts(contextSupplier)
                 .build());
       }
     }
@@ -173,7 +188,7 @@ public final class TensorNode extends LoomGraph.Node<TensorNode, TensorNode.Body
                 .summary("dtype (%s) must be one of %s".formatted(node.getDtype(), validDTypes))
                 .build());
       }
-      node.getBody().validate(issueCollector);
+      node.getBody().validate(null, issueCollector, null);
     }
   }
 
