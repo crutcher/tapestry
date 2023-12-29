@@ -12,6 +12,13 @@ public class ThunkTest extends BaseTestClass {
   }
 
   @Test
+  public void test_fixed() {
+    var t = Thunk.fixed("abc");
+    var v = t.get();
+    assertThat(t.get()).isEqualTo("abc").isSameAs(v);
+  }
+
+  @Test
   public void test_error() {
     var t =
         new Thunk<>(

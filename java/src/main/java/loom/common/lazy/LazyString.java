@@ -21,6 +21,10 @@ public final class LazyString extends Thunk<String> {
     return new LazyString(() -> String.format(format, args));
   }
 
+  public static LazyString fixed(String value) {
+    return new LazyString(() -> value);
+  }
+
   public LazyString(Supplier<String> supplier) {
     super(supplier);
   }

@@ -2,6 +2,7 @@ package loom.common.json;
 
 import com.fasterxml.jackson.databind.util.LRUMap;
 import com.fasterxml.jackson.databind.util.LookupCache;
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Splitter;
 import jakarta.json.stream.JsonParsingException;
 import java.io.ByteArrayInputStream;
@@ -50,24 +51,21 @@ public class JsonSchemaManager {
    * @param source The source string.
    * @return The formatted error.
    */
-  private String formatParseError(JsonParsingException e, String source) {
+  @VisibleForTesting
+  static String formatParseError(JsonParsingException e, String source) {
     StringBuilder sb = new StringBuilder();
     sb.append(e.getMessage()).append("\n");
 
     var location = e.getLocation();
-    if (location == null) {
-      sb.append(source);
-    } else {
-      var k = location.getLineNumber() - 1;
-      var lines = Splitter.on("\n").splitToList(source);
-      for (int i = 0; i < lines.size(); i++) {
-        if (i == k) {
-          sb.append(">>> ");
-        } else {
-          sb.append("    ");
-        }
-        sb.append(lines.get(i)).append("\n");
+    var k = location.getLineNumber() - 1;
+    var lines = Splitter.on("\n").splitToList(source);
+    for (int i = 0; i < lines.size(); i++) {
+      if (i == k) {
+        sb.append(">>> ");
+      } else {
+        sb.append("    ");
       }
+      sb.append(lines.get(i)).append("\n");
     }
 
     return sb.toString();
@@ -87,7 +85,7 @@ public class JsonSchemaManager {
             service.readSchema(
                 new ByteArrayInputStream(schemaJson.getBytes(StandardCharsets.UTF_8)));
       } catch (JsonParsingException e) {
-        String sb = "Error parsing schema JSON:\n" + formatParseError(e, schemaJson);
+        String sb = "Error parsing JSON schema:\n" + formatParseError(e, schemaJson);
         throw new IllegalArgumentException(sb, e);
       }
       schemaCache.put(schemaJson, schema);

@@ -109,4 +109,25 @@ public class JsonSchemaManagerTest extends BaseTestClass {
         .contains(
             "[qqq] /shape/3 [minimum] :: The numeric value must be greater than or equal to 1.");
   }
+
+  @Test
+  public void test_formatParseError() {
+    var manager = new JsonSchemaManager();
+
+    assertThatExceptionOfType(IllegalArgumentException.class)
+        .isThrownBy(
+            () ->
+                manager.loadSchema("""
+        {
+          "type": "object",
+        }
+        """))
+        .withMessageContaining("Error parsing JSON schema")
+        .withMessageContaining(
+            """
+                       {
+                         "type": "object",
+                   >>> }
+                       """);
+  }
 }

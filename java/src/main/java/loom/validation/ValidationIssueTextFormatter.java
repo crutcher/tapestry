@@ -1,12 +1,11 @@
 package loom.validation;
 
-import loom.common.json.JsonUtil;
-import loom.common.text.IndentUtils;
-
-import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import javax.annotation.Nullable;
+import loom.common.json.JsonUtil;
+import loom.common.text.IndentUtils;
 
 public class ValidationIssueTextFormatter implements ValidationIssueFormatter {
   @Override

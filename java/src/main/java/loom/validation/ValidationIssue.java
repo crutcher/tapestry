@@ -2,21 +2,20 @@ package loom.validation;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.google.errorprone.annotations.FormatMethod;
-import lombok.Builder;
-import lombok.Data;
-import lombok.extern.jackson.Jacksonized;
-import loom.common.json.HasToJsonString;
-import loom.common.json.JsonPathUtils;
-import loom.common.json.JsonUtil;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import lombok.Builder;
+import lombok.Data;
+import lombok.extern.jackson.Jacksonized;
+import loom.common.json.HasToJsonString;
+import loom.common.json.JsonPathUtils;
+import loom.common.json.JsonUtil;
 
 /** A Description of a validation failure. */
 @Data

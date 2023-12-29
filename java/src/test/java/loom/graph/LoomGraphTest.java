@@ -399,6 +399,11 @@ public class LoomGraphTest extends BaseTestClass {
                 .type(DemoNodePrototype.TYPE)
                 .body(DemoNode.Body.builder().foo("bar").build()));
 
+    assertThat(graph.hasNode(node.getId())).isTrue();
+    assertThat(graph.hasNode(node.getId().toString())).isTrue();
+    assertThat(graph.getNode(node.getId())).isSameAs(node);
+    assertThat(graph.getNode(node.getId().toString())).isSameAs(node);
+
     assertThat(graph.toString()).contains("id=" + graph.getId());
 
     {
