@@ -1,11 +1,11 @@
 package loom.zspace;
 
-public interface HasPermuteOutput {
+public interface HasPermuteOutput<T extends HasPermuteOutput<T>> {
   /**
    * Permute the output dimensions of this object.
    *
    * @param permutation the permutation to apply.
    * @return a new permuted object.
    */
-  HasPermuteOutput permuteOutput(int... permutation);
+  T permuteOutput(int... permutation);
 }

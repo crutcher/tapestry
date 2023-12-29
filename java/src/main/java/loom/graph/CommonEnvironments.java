@@ -1,10 +1,9 @@
 package loom.graph;
 
+import java.util.Set;
 import lombok.NoArgsConstructor;
 import loom.graph.constraints.*;
 import loom.graph.nodes.*;
-
-import java.util.Set;
 
 @NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
 public final class CommonEnvironments {
