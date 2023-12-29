@@ -1,5 +1,7 @@
 package loom.graph.nodes;
 
+import java.util.List;
+import java.util.Map;
 import loom.graph.CommonEnvironments;
 import loom.graph.LoomConstants;
 import loom.graph.LoomEnvironment;
@@ -8,9 +10,6 @@ import loom.validation.ListValidationIssueCollector;
 import loom.validation.ValidationIssue;
 import loom.zspace.ZPoint;
 import org.junit.Test;
-
-import java.util.List;
-import java.util.Map;
 
 public class ThereAreNoTensorOperationReferenceCyclesConstraintTest extends BaseTestClass {
   private final ThereAreNoTensorOperationReferenceCyclesConstraint constraint =

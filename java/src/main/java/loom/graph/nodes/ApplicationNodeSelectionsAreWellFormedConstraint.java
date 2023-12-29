@@ -1,5 +1,8 @@
 package loom.graph.nodes;
 
+import java.util.List;
+import java.util.Map;
+import java.util.function.Supplier;
 import loom.common.json.JsonPathUtils;
 import loom.common.lazy.LazyString;
 import loom.common.lazy.Thunk;
@@ -9,10 +12,6 @@ import loom.graph.LoomEnvironment;
 import loom.graph.LoomGraph;
 import loom.validation.ValidationIssue;
 import loom.validation.ValidationIssueCollector;
-
-import java.util.List;
-import java.util.Map;
-import java.util.function.Supplier;
 
 public final class ApplicationNodeSelectionsAreWellFormedConstraint implements LoomConstraint {
   @Override

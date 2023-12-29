@@ -1,5 +1,9 @@
 package loom.graph.nodes;
 
+import static loom.graph.LoomConstants.NODE_REFERENCE_ERROR;
+
+import java.util.List;
+import java.util.UUID;
 import loom.graph.LoomConstants;
 import loom.graph.LoomEnvironment;
 import loom.graph.LoomGraph;
@@ -9,11 +13,6 @@ import loom.validation.ValidationIssue;
 import loom.zspace.ZPoint;
 import loom.zspace.ZRange;
 import org.junit.Test;
-
-import java.util.List;
-import java.util.UUID;
-
-import static loom.graph.LoomConstants.NODE_REFERENCE_ERROR;
 
 public class ApplicationNodeSelectionsAreWellFormedConstraintTest extends BaseTestClass {
   public LoomEnvironment createEnv() {

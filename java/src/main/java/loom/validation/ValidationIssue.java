@@ -1,7 +1,6 @@
 package loom.validation;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.google.common.annotations.VisibleForTesting;
 import com.google.errorprone.annotations.FormatMethod;
 import lombok.Builder;
 import lombok.Data;
@@ -9,7 +8,6 @@ import lombok.extern.jackson.Jacksonized;
 import loom.common.json.HasToJsonString;
 import loom.common.json.JsonPathUtils;
 import loom.common.json.JsonUtil;
-import loom.common.text.IndentUtils;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -19,31 +17,12 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 /** A Description of a validation failure. */
 @Data
 @Builder(toBuilder = true)
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public final class ValidationIssue {
-
-  /**
-   * Format a list of issues as a string.
-   *
-   * @param issues the issues.
-   * @return the formatted string.
-   */
-  public static String issuesToDisplayString(@Nullable List<ValidationIssue> issues) {
-    if (issues == null || issues.isEmpty()) {
-      return "No Validation Issues";
-    }
-
-    return "Validation failed with "
-        + issues.size()
-        + " issues:\n\n"
-        + issues.stream().map(ValidationIssue::toDisplayString).collect(Collectors.joining("\n\n"))
-        + "\n";
-  }
 
   /** A named Context for a ValidationIssue. */
   @Data
@@ -128,33 +107,6 @@ public final class ValidationIssue {
 
     /** This should always be a simple JSON Java value. */
     @Nullable private final Object data;
-
-    /**
-     * Format the context as a string.
-     *
-     * @return the formatted string.
-     */
-    public String toDisplayString() {
-      var sb = new StringBuilder();
-
-      sb.append("- %s::".formatted(name));
-      if (jsonpath != null) {
-        sb.append(" ").append(jsonpath);
-      }
-
-      if (message != null) {
-        var m = message.trim();
-        if (!m.isEmpty())
-          sb.append("\n\n")
-              .append(IndentUtils.indent(2, IndentUtils.splitAndRemoveCommonIndent(m)));
-      }
-
-      if (data != null) {
-        sb.append("\n\n").append(IndentUtils.indent("  |> ", JsonUtil.toPrettyJson(data)));
-      }
-
-      return sb.toString();
-    }
   }
 
   /** Extensions to the ValidationIssueBuilder. */
@@ -347,39 +299,4 @@ public final class ValidationIssue {
   @Nullable private final String message;
 
   @Nullable private final List<Context> contexts;
-
-  @VisibleForTesting
-  String paramsToString() {
-    if (params == null || params.isEmpty()) {
-      return "";
-    }
-    var parts = new ArrayList<String>();
-    new TreeMap<>(params).forEach((k, v) -> parts.add("   └> %s: %s".formatted(k, v)));
-    return String.join("\n", parts);
-  }
-
-  /**
-   * Format the issue as a string.
-   *
-   * @return the formatted string.
-   */
-  public String toDisplayString() {
-    var sb = new StringBuilder();
-    sb.append("* Error [").append(type).append("]: ").append(summary);
-    if (params != null && !params.isEmpty()) {
-      sb.append("\n").append(paramsToString());
-    }
-
-    if (message != null) {
-      sb.append("\n\n").append(IndentUtils.reindent(2, message));
-    }
-
-    if (contexts != null) {
-      for (var context : contexts) {
-        sb.append("\n\n").append(IndentUtils.reindent(2, context.toDisplayString()));
-      }
-    }
-
-    return sb.toString();
-  }
 }

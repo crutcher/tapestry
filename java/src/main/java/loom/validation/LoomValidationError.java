@@ -12,7 +12,7 @@ public final class LoomValidationError extends RuntimeException {
   @Nonnull private final List<ValidationIssue> issues;
 
   public LoomValidationError(@Nonnull List<ValidationIssue> issues) {
-    super(ValidationIssue.issuesToDisplayString(issues));
+    super(new ValidationIssueTextFormatter().formatIssueList(issues));
     this.issues = List.copyOf(issues);
   }
 

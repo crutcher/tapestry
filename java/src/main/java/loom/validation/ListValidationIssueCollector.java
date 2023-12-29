@@ -32,7 +32,7 @@ public class ListValidationIssueCollector implements ValidationIssueCollector, H
    * @return the formatted issues.
    */
   public String toDisplayString() {
-    return ValidationIssue.issuesToDisplayString(issues);
+    return new ValidationIssueTextFormatter().formatIssueList(issues);
   }
 
   /**

@@ -4,6 +4,13 @@ import com.fasterxml.jackson.databind.util.LRUMap;
 import com.fasterxml.jackson.databind.util.LookupCache;
 import com.google.common.base.Splitter;
 import jakarta.json.stream.JsonParsingException;
+import java.io.ByteArrayInputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import lombok.Builder;
 import lombok.Singular;
 import loom.validation.ValidationIssue;
@@ -12,14 +19,6 @@ import org.leadpony.justify.api.JsonSchema;
 import org.leadpony.justify.api.JsonValidationService;
 import org.leadpony.justify.api.Problem;
 import org.leadpony.justify.api.ProblemHandler;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.io.ByteArrayInputStream;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Manages JSON schemas and provides validation services.
@@ -88,8 +87,7 @@ public class JsonSchemaManager {
             service.readSchema(
                 new ByteArrayInputStream(schemaJson.getBytes(StandardCharsets.UTF_8)));
       } catch (JsonParsingException e) {
-          String sb = "Error parsing schema JSON:\n" +
-                      formatParseError(e, schemaJson);
+        String sb = "Error parsing schema JSON:\n" + formatParseError(e, schemaJson);
         throw new IllegalArgumentException(sb, e);
       }
       schemaCache.put(schemaJson, schema);
