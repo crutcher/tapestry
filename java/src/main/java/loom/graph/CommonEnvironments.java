@@ -1,7 +1,6 @@
 package loom.graph;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import lombok.NoArgsConstructor;
@@ -18,16 +17,16 @@ public final class CommonEnvironments {
     return simpleTensorEnvironment(Set.of(dtypes));
   }
 
-  public static LoomEnvironment simpleTensorEnvironment(Collection<String> dtypes) {
+  public static LoomEnvironment simpleTensorEnvironment(Set<String> dtypes) {
     return LoomEnvironment.builder()
         .nodeMetaFactory(
             TypeMapNodeMetaFactory.builder()
-                .typeMapping(
-                    TensorNode.TYPE, TensorNode.Prototype.builder().validDTypes(dtypes).build())
+                .typeMapping(TensorNode.TYPE, TensorNode.Prototype.builder().build())
                 .typeMapping(OperationNode.TYPE, OperationNode.Prototype.builder().build())
                 .typeMapping(NoteNode.TYPE, NoteNode.Prototype.builder().build())
                 .build())
-        .build();
+        .build()
+        .addConstraint(TensorDTypesAreValidConstraint.builder().validDTypes(dtypes).build());
   }
 
   public static LoomEnvironment expressionEnvironment() {

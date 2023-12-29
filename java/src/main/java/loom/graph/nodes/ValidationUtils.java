@@ -1,15 +1,14 @@
 package loom.graph.nodes;
 
+import java.util.List;
+import java.util.UUID;
+import java.util.function.Supplier;
 import loom.common.lazy.LazyString;
 import loom.common.lazy.Thunk;
 import loom.graph.LoomConstants;
 import loom.graph.LoomGraph;
 import loom.validation.ValidationIssue;
 import loom.validation.ValidationIssueCollector;
-
-import java.util.List;
-import java.util.UUID;
-import java.util.function.Supplier;
 
 public class ValidationUtils {
   public static <T> T validateNodeReference(

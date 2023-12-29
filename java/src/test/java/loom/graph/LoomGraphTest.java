@@ -1,6 +1,9 @@
 package loom.graph;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import javax.annotation.Nonnull;
 import lombok.Builder;
 import lombok.Data;
@@ -16,8 +19,6 @@ import loom.graph.nodes.GenericNodeMetaFactory;
 import loom.graph.nodes.TensorNode;
 import loom.graph.nodes.TypeMapNodeMetaFactory;
 import loom.testing.BaseTestClass;
-import loom.validation.ValidationIssue;
-import loom.validation.ValidationIssueCollector;
 import loom.zspace.ZPoint;
 import org.junit.Test;
 
@@ -56,20 +57,6 @@ public class LoomGraphTest extends BaseTestClass {
 
     public DemoNodePrototype() {
       super(DemoNode.class, DemoNode.Body.class, BODY_SCHEMA);
-    }
-
-    public static final Set<String> VALID_FOO_VALUES = Set.of("bar", "baz");
-
-    @Override
-    public void validateNode(DemoNode node, ValidationIssueCollector issueCollector) {
-      if (!VALID_FOO_VALUES.contains(node.getFoo())) {
-        issueCollector.addIssue(
-            ValidationIssue.builder()
-                .type(LoomConstants.NODE_VALIDATION_ERROR)
-                .summary(
-                    "Invalid foo value: " + node.getFoo() + "; expected one of " + VALID_FOO_VALUES)
-                .build());
-      }
     }
   }
 
@@ -212,12 +199,7 @@ public class LoomGraphTest extends BaseTestClass {
         LoomEnvironment.builder()
             .nodeMetaFactory(
                 TypeMapNodeMetaFactory.builder()
-                    .typeMapping(
-                        TensorNode.TYPE,
-                        TensorNode.Prototype.builder()
-                            .validDType("int32")
-                            .validDType("float32")
-                            .build())
+                    .typeMapping(TensorNode.TYPE, TensorNode.Prototype.builder().build())
                     .build())
             .build();
 
@@ -293,8 +275,7 @@ public class LoomGraphTest extends BaseTestClass {
 
     var factory =
         TypeMapNodeMetaFactory.builder()
-            .typeMapping(
-                TensorNode.TYPE, TensorNode.Prototype.builder().validDType("int32").build())
+            .typeMapping(TensorNode.TYPE, TensorNode.Prototype.builder().build())
             .build();
 
     var node = (TensorNode) factory.nodeFromJson(source);

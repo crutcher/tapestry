@@ -105,7 +105,9 @@ public final class LoomEnvironment {
 
       } else if (key.equals("nodes")) {
         for (var nodeTree : entry.getValue()) {
-          var node = getNodeMetaFactory().nodeFromTree(nodeTree);
+          var type = nodeTree.get("type").asText();
+          var meta = getNodeMetaFactory().getMetaForType(type);
+          var node = JsonUtil.convertValue(nodeTree, meta.getNodeTypeClass());
           graph.addNode(node);
         }
       } else {

@@ -264,8 +264,6 @@ public final class LoomGraph implements Iterable<LoomGraph.Node<?, ?>>, HasToJso
      * @param issueCollector The ValidationIssueCollector to collect any issues.
      */
     public final void validate(Node<?, ?> node, ValidationIssueCollector issueCollector) {
-      validateNode(nodeTypeClass.cast(node), issueCollector);
-
       var graph = node.assertGraph();
       var env = graph.getEnv();
 
@@ -291,14 +289,6 @@ public final class LoomGraph implements Iterable<LoomGraph.Node<?, ?>>, HasToJso
           .build()
           .scan();
     }
-
-    /**
-     * Subclass-overridden type validator.
-     *
-     * @param node the node to validate.
-     * @param issueCollector the issue collector to collect any issues.
-     */
-    public void validateNode(NodeType node, ValidationIssueCollector issueCollector) {}
 
     /**
      * Create a new node with this meta.

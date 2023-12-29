@@ -2,10 +2,7 @@ package loom.graph.nodes;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.google.errorprone.annotations.CanIgnoreReturnValue;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import javax.annotation.Nonnull;
@@ -155,39 +152,11 @@ public final class TensorNode extends LoomGraph.Node<TensorNode, TensorNode.Body
   }
 
   @Builder
-  @Getter
   public static final class Prototype extends LoomGraph.NodePrototype<TensorNode, Body> {
 
-    @Singular private final Set<String> validDTypes;
-
     @Builder
-    public Prototype(Set<String> validDTypes) {
+    public Prototype() {
       super(TensorNode.class, Body.class);
-      this.validDTypes = new HashSet<>(validDTypes);
-    }
-
-    /**
-     * Add a valid dtype.
-     *
-     * @param validDType the valid dtype.
-     * @return this Meta, for chaining.
-     */
-    @CanIgnoreReturnValue
-    public Prototype addValidDType(String validDType) {
-      validDTypes.add(validDType);
-      return this;
-    }
-
-    @Override
-    public void validateNode(TensorNode node, ValidationIssueCollector issueCollector) {
-      if (!validDTypes.contains(node.getDtype())) {
-        issueCollector.addIssue(
-            ValidationIssue.builder()
-                .type(LoomConstants.NODE_VALIDATION_ERROR)
-                .summary("dtype (%s) must be one of %s".formatted(node.getDtype(), validDTypes))
-                .build());
-      }
-      node.getBody().validate(null, issueCollector, null);
     }
   }
 

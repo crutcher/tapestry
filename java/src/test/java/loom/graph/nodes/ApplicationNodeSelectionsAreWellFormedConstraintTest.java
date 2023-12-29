@@ -19,8 +19,7 @@ public class ApplicationNodeSelectionsAreWellFormedConstraintTest extends BaseTe
     return LoomEnvironment.builder()
         .nodeMetaFactory(
             TypeMapNodeMetaFactory.builder()
-                .typeMapping(
-                    TensorNode.TYPE, TensorNode.Prototype.builder().validDType("int32").build())
+                .typeMapping(TensorNode.TYPE, TensorNode.Prototype.builder().build())
                 .typeMapping(ApplicationNode.TYPE, ApplicationNode.Prototype.builder().build())
                 .typeMapping(NoteNode.TYPE, NoteNode.Prototype.builder().build())
                 .build())

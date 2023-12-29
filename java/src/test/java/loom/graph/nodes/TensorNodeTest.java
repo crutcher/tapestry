@@ -1,10 +1,7 @@
 package loom.graph.nodes;
 
-import java.util.UUID;
 import loom.testing.BaseTestClass;
-import loom.validation.ListValidationIssueCollector;
 import loom.validation.LoomValidationError;
-import loom.validation.ValidationIssue;
 import loom.zspace.ZPoint;
 import loom.zspace.ZRange;
 import org.junit.Test;
@@ -129,30 +126,6 @@ public class TensorNodeTest extends BaseTestClass {
       assertThat(body.getEffectiveOrigin()).isEqualTo(ZPoint.of(-1, 2));
       assertThat(body.getEffectiveRange())
           .isEqualTo(ZRange.fromStartWithShape(ZPoint.of(-1, 2), ZPoint.of(2, 3)));
-    }
-  }
-
-  @Test
-  public void test_protoType() {
-    var proto = TensorNode.Prototype.builder().validDType("int32").build();
-
-    proto.addValidDType("float32");
-
-    assertThat(proto.getValidDTypes()).contains("int32", "float32");
-
-    {
-      var issueCollector = new ListValidationIssueCollector();
-      var tensor =
-          TensorNode.withBody(b -> b.dtype("xyz").shape(ZPoint.of(2, 3)))
-              .id(UUID.randomUUID())
-              .build();
-      proto.validateNode(tensor, issueCollector);
-      assertThat(issueCollector.getIssues())
-          .containsOnly(
-              ValidationIssue.builder()
-                  .type("NodeValidationError")
-                  .summary("dtype (xyz) must be one of [int32, float32]")
-                  .build());
     }
   }
 }
