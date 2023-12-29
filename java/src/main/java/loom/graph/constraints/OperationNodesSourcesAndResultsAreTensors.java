@@ -1,5 +1,9 @@
 package loom.graph.constraints;
 
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.function.Supplier;
 import loom.common.lazy.LazyString;
 import loom.common.lazy.Thunk;
 import loom.graph.LoomConstants;
@@ -10,11 +14,6 @@ import loom.graph.nodes.OperationNode;
 import loom.graph.nodes.TensorNode;
 import loom.validation.ValidationIssue;
 import loom.validation.ValidationIssueCollector;
-
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.function.Supplier;
 
 /** Constraint that verifies that all inputs and outputs of OperationNodes are TensorNodes. */
 public final class OperationNodesSourcesAndResultsAreTensors implements LoomConstraint {

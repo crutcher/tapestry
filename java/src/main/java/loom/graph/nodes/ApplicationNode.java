@@ -11,8 +11,8 @@ import lombok.experimental.Delegate;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.jackson.Jacksonized;
 import loom.common.json.HasToJsonString;
+import loom.common.json.WithSchema;
 import loom.graph.LoomGraph;
-import loom.graph.WithSchema;
 import loom.zspace.ZRange;
 
 @Jacksonized

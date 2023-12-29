@@ -1,4 +1,4 @@
-package loom.graph;
+package loom.common.json;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

@@ -12,8 +12,8 @@ import lombok.experimental.Delegate;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.jackson.Jacksonized;
 import loom.common.json.HasToJsonString;
+import loom.common.json.WithSchema;
 import loom.graph.LoomGraph;
-import loom.graph.WithSchema;
 
 /**
  * The GenericNode class represents a generic node in a graph. It extends the LoomGraph.Node class,

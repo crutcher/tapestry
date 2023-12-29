@@ -1,5 +1,6 @@
 package loom.graph.constraints;
 
+import java.util.Set;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Singular;
@@ -10,8 +11,6 @@ import loom.graph.LoomGraph;
 import loom.graph.nodes.TensorNode;
 import loom.validation.ValidationIssue;
 import loom.validation.ValidationIssueCollector;
-
-import java.util.Set;
 
 @Getter
 @Builder

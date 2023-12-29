@@ -2,18 +2,17 @@ package loom.graph.constraints;
 
 import java.util.HashMap;
 import loom.graph.*;
-import loom.graph.nodes.OperationNode;
+import loom.graph.nodes.ApplicationNode;
 import loom.graph.nodes.TensorNode;
 import loom.validation.ValidationIssue;
 import loom.validation.ValidationIssueCollector;
 
-public class ThereAreNoTensorOperationReferenceCyclesConstraint implements LoomConstraint {
+public class ThereAreNoApplicationReferenceCyclesConstraint implements LoomConstraint {
 
   @Override
   public void checkRequirements(LoomEnvironment env) {
-    env.assertConstraint(AllTensorsHaveExactlyOneSourceOperationConstraint.class);
     env.assertNodeTypeClass(TensorNode.TYPE, TensorNode.class);
-    env.assertNodeTypeClass(OperationNode.TYPE, OperationNode.class);
+    env.assertNodeTypeClass(ApplicationNode.TYPE, ApplicationNode.class);
   }
 
   @Override
@@ -25,7 +24,7 @@ public class ThereAreNoTensorOperationReferenceCyclesConstraint implements LoomC
   }
 
   public static void checkForCycles(LoomGraph graph, ValidationIssueCollector issueCollector) {
-    for (var cycle : TraversalUtils.findOperationSimpleCycles(graph)) {
+    for (var cycle : TraversalUtils.findApplicationSimpleCycles(graph)) {
       var cycleDesc =
           cycle.stream()
               .map(
