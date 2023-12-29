@@ -15,16 +15,17 @@ import com.fasterxml.jackson.databind.node.IntNode;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.google.common.primitives.Ints;
 import com.google.errorprone.annotations.CheckReturnValue;
-import java.lang.reflect.Array;
-import java.util.*;
-import java.util.function.*;
-import javax.annotation.Nonnull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
 import loom.common.collections.IteratorUtils;
 import loom.common.json.HasToJsonString;
 import loom.common.json.JsonUtil;
+
+import javax.annotation.Nonnull;
+import java.lang.reflect.Array;
+import java.util.*;
+import java.util.function.*;
 
 /**
  * A multidimensional int array used for numerical operations.
@@ -2412,5 +2413,43 @@ public final class ZTensor
     int new_offset = data_offset + i * stride[d];
 
     return new ZTensor(mutable, new_shape, new_stride, data, new_offset).squeeze(d);
+  }
+
+  /**
+   * Creates a reordered view of this tensor along a specified dimension.
+   *
+   * <p><b>Example:</b> Suppose we have tensor "t" with shape [2,3]:
+   *
+   * <pre>
+   * t = [[0, 1, 2],
+   *      [3, 4, 5]]
+   * </pre>
+   *
+   * If we call {@code t.reorderDim([1,0,2], 1)}, the returned tensor will look like:
+   *
+   * <pre>
+   * v = [[1, 0, 2],
+   *      [4, 3, 5]]
+   * </pre>
+   *
+   * <p>Supports negative dimension indexing - i.e. -1 represents the last dimension, -2 represents
+   * the second last, and so on.
+   *
+   * @param permutation An array of unique integers representing the new order of indices along the
+   *     specified dimension. Each integer should be a valid index for that dimension.
+   * @param dim Index of the dimension to be reordered. Dimensions are zero-indexed. This must be a
+   *     valid dimension of this tensor.
+   * @return A new ZTensor, with the specified dimension reordered.
+   */
+  @Nonnull
+  public ZTensor reorderedDimCopy(@Nonnull int[] permutation, int dim) {
+    var d = resolveDim(dim);
+    var shape = shapeAsArray();
+    var perm = IndexingFns.resolvePermutation(permutation, shape[d]);
+    var res = newZeros(shape);
+    for (int i = 0; i < shape[d]; ++i) {
+      res.selectDim(d, i).assign(selectDim(d, perm[i]));
+    }
+    return res;
   }
 }
