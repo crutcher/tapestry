@@ -1,4 +1,4 @@
-package loom.graph.nodes;
+package loom.graph.constraints;
 
 import static loom.graph.LoomConstants.NODE_REFERENCE_ERROR;
 
@@ -7,6 +7,10 @@ import java.util.UUID;
 import loom.graph.LoomConstants;
 import loom.graph.LoomEnvironment;
 import loom.graph.LoomGraph;
+import loom.graph.nodes.ApplicationNode;
+import loom.graph.nodes.NoteNode;
+import loom.graph.nodes.TensorNode;
+import loom.graph.nodes.TypeMapNodeMetaFactory;
 import loom.testing.BaseTestClass;
 import loom.validation.ListValidationIssueCollector;
 import loom.validation.ValidationIssue;

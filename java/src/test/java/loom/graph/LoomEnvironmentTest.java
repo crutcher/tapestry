@@ -1,5 +1,7 @@
 package loom.graph;
 
+import loom.graph.constraints.AllTensorsHaveExactlyOneSourceOperationConstraint;
+import loom.graph.constraints.OperationNodesSourcesAndResultsAreTensors;
 import loom.graph.nodes.*;
 import loom.testing.BaseTestClass;
 import loom.validation.ValidationIssueCollector;

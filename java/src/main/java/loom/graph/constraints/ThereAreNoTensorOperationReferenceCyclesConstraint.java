@@ -1,7 +1,9 @@
-package loom.graph.nodes;
+package loom.graph.constraints;
 
 import java.util.HashMap;
 import loom.graph.*;
+import loom.graph.nodes.OperationNode;
+import loom.graph.nodes.TensorNode;
 import loom.validation.ValidationIssue;
 import loom.validation.ValidationIssueCollector;
 

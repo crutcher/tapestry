@@ -1,15 +1,17 @@
-package loom.graph.nodes;
+package loom.graph.constraints;
 
+import java.util.Set;
 import loom.graph.LoomConstants;
 import loom.graph.LoomEnvironment;
 import loom.graph.LoomGraph;
+import loom.graph.nodes.NoteNode;
+import loom.graph.nodes.TensorNode;
+import loom.graph.nodes.TypeMapNodeMetaFactory;
 import loom.testing.BaseTestClass;
 import loom.validation.ListValidationIssueCollector;
 import loom.validation.ValidationIssue;
 import loom.zspace.ZPoint;
 import org.junit.Test;
-
-import java.util.Set;
 
 public class TensorDTypesAreValidConstraintTest extends BaseTestClass {
   public LoomEnvironment createEnv() {

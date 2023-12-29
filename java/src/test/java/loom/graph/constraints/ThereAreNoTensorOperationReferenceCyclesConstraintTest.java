@@ -1,10 +1,12 @@
-package loom.graph.nodes;
+package loom.graph.constraints;
 
 import java.util.List;
 import java.util.Map;
 import loom.graph.CommonEnvironments;
 import loom.graph.LoomConstants;
 import loom.graph.LoomEnvironment;
+import loom.graph.nodes.OperationNode;
+import loom.graph.nodes.TensorNode;
 import loom.testing.BaseTestClass;
 import loom.validation.ListValidationIssueCollector;
 import loom.validation.ValidationIssue;

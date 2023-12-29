@@ -1,4 +1,4 @@
-package loom.graph.nodes;
+package loom.graph.constraints;
 
 import static loom.graph.LoomConstants.MISSING_NODE_ERROR;
 import static loom.graph.LoomConstants.NODE_VALIDATION_ERROR;
@@ -8,6 +8,9 @@ import java.util.Map;
 import java.util.UUID;
 import loom.graph.CommonEnvironments;
 import loom.graph.LoomGraph;
+import loom.graph.nodes.NoteNode;
+import loom.graph.nodes.OperationNode;
+import loom.graph.nodes.TensorNode;
 import loom.testing.BaseTestClass;
 import loom.validation.ListValidationIssueCollector;
 import loom.validation.ValidationIssue;

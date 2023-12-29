@@ -1,4 +1,4 @@
-package loom.graph.nodes;
+package loom.graph.constraints;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -7,6 +7,7 @@ import loom.graph.LoomConstants;
 import loom.graph.LoomConstraint;
 import loom.graph.LoomEnvironment;
 import loom.graph.LoomGraph;
+import loom.graph.nodes.TensorNode;
 import loom.validation.ValidationIssue;
 import loom.validation.ValidationIssueCollector;
 
