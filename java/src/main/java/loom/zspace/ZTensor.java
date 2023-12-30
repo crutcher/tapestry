@@ -15,17 +15,16 @@ import com.fasterxml.jackson.databind.node.IntNode;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.google.common.primitives.Ints;
 import com.google.errorprone.annotations.CheckReturnValue;
+import java.lang.reflect.Array;
+import java.util.*;
+import java.util.function.*;
+import javax.annotation.Nonnull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
 import loom.common.collections.IteratorUtils;
 import loom.common.json.HasToJsonString;
 import loom.common.json.JsonUtil;
-
-import javax.annotation.Nonnull;
-import java.lang.reflect.Array;
-import java.util.*;
-import java.util.function.*;
 
 /**
  * A multidimensional int array used for numerical operations.

@@ -1,9 +1,10 @@
 package loom.graph;
 
-import java.util.Set;
 import lombok.NoArgsConstructor;
 import loom.graph.constraints.*;
 import loom.graph.nodes.*;
+
+import java.util.Set;
 
 @NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
 public final class CommonEnvironments {
@@ -21,6 +22,21 @@ public final class CommonEnvironments {
                 .typeMapping(NoteNode.TYPE, NoteNode.Prototype.builder().build())
                 .build())
         .build()
+        .addConstraint(
+            NodeBodySchemaConstraint.builder()
+                .nodeType(TensorNode.TYPE)
+                .withSchemaFrom(TensorNode.Body.class)
+                .build())
+        .addConstraint(
+            NodeBodySchemaConstraint.builder()
+                .nodeType(ApplicationNode.TYPE)
+                .withSchemaFrom(ApplicationNode.Body.class)
+                .build())
+        .addConstraint(
+            NodeBodySchemaConstraint.builder()
+                .nodeType(NoteNode.TYPE)
+                .withSchemaFrom(NoteNode.Body.class)
+                .build())
         .addConstraint(TensorDTypesAreValidConstraint.builder().validDTypes(dtypes).build());
   }
 

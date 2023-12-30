@@ -11,9 +11,9 @@ public class ThereAreNoTensorOperationReferenceCyclesConstraint implements LoomC
 
   @Override
   public void checkRequirements(LoomEnvironment env) {
-    env.assertConstraint(AllTensorsHaveExactlyOneSourceOperationConstraint.class);
     env.assertNodeTypeClass(TensorNode.TYPE, TensorNode.class);
     env.assertNodeTypeClass(OperationNode.TYPE, OperationNode.class);
+    env.assertConstraint(AllTensorsHaveExactlyOneSourceOperationConstraint.class);
   }
 
   @Override

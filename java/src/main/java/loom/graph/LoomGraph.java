@@ -24,7 +24,9 @@ import lombok.*;
 import lombok.experimental.SuperBuilder;
 import loom.common.collections.IteratorUtils;
 import loom.common.exceptions.LookupError;
-import loom.common.json.*;
+import loom.common.json.HasToJsonString;
+import loom.common.json.JsonUtil;
+import loom.common.json.MapValueListUtil;
 import loom.graph.nodes.GenericNodeMetaFactory;
 import loom.validation.ListValidationIssueCollector;
 import loom.validation.ValidationIssue;
@@ -236,55 +238,11 @@ public final class LoomGraph implements Iterable<LoomGraph.Node<?, ?>>, HasToJso
   public abstract static class NodePrototype<NodeType extends Node<NodeType, BodyType>, BodyType> {
     @Nonnull private final Class<NodeType> nodeTypeClass;
     @Nonnull private final Class<BodyType> bodyTypeClass;
-    @Nonnull private final String bodySchema;
 
     public NodePrototype(
         @Nonnull Class<NodeType> nodeTypeClass, @Nonnull Class<BodyType> bodyTypeClass) {
-      this(nodeTypeClass, bodyTypeClass, bodyTypeClass.getAnnotation(WithSchema.class).value());
-    }
-
-    public NodePrototype(
-        @Nonnull Class<NodeType> nodeTypeClass,
-        @Nonnull Class<BodyType> bodyTypeClass,
-        @Nonnull String bodySchema) {
       this.nodeTypeClass = nodeTypeClass;
       this.bodyTypeClass = bodyTypeClass;
-      this.bodySchema = bodySchema;
-    }
-
-    /**
-     * Validates the provided node against the NodeMeta's schema. This method checks if the node's
-     * body adheres to the schema defined in the NodeMeta. If the node's body does not adhere to the
-     * schema, it throws a ValidationIssue.
-     *
-     * @param node The node to be validated.
-     * @param issueCollector The ValidationIssueCollector to collect any issues.
-     */
-    public final void validate(Node<?, ?> node, ValidationIssueCollector issueCollector) {
-      var graph = node.assertGraph();
-      var env = graph.getEnv();
-
-      var bodySchemaJson = getBodySchema();
-
-      var bodySchema = env.getJsonSchemaManager().loadSchema(bodySchemaJson);
-
-      env.getJsonSchemaManager()
-          .issueScan()
-          .issueCollector(issueCollector)
-          .type(LoomConstants.Errors.NODE_SCHEMA_ERROR)
-          .param("nodeType", node.getType())
-          .summaryPrefix("Body ")
-          .jsonPathPrefix(JsonPathUtils.concatJsonPath(node.getJsonPath() + ".body"))
-          .schema(bodySchema)
-          .json(node.getBodyAsJson())
-          .context(node.asContext("Node"))
-          .context(
-              ValidationIssue.Context.builder()
-                  .name("Body Schema")
-                  .dataFromJson(bodySchemaJson)
-                  .build())
-          .build()
-          .scan();
     }
 
     /**
@@ -328,7 +286,7 @@ public final class LoomGraph implements Iterable<LoomGraph.Node<?, ?>>, HasToJso
      */
     public final Node<?, ?> nodeFromTree(JsonNode tree) {
       var type = tree.get("type").asText();
-      var meta = getMetaForType(type);
+      var meta = getPrototypeForType(type);
       return meta.nodeFromTree(tree);
     }
 
@@ -338,7 +296,7 @@ public final class LoomGraph implements Iterable<LoomGraph.Node<?, ?>>, HasToJso
      * @param type the node type.
      * @return the node meta, or null if not found.
      */
-    public abstract NodePrototype<?, ?> getMetaForType(String type);
+    public abstract NodePrototype<?, ?> getPrototypeForType(String type);
   }
 
   /** Support classes for Jackson serialization. */
@@ -430,7 +388,7 @@ public final class LoomGraph implements Iterable<LoomGraph.Node<?, ?>>, HasToJso
     }
     node.setGraph(this);
 
-    env.getNodeMetaFactory().getMetaForType(node.getType());
+    env.getNodeMetaFactory().getPrototypeForType(node.getType());
 
     nodes.put(node.getId(), node);
 
@@ -480,7 +438,7 @@ public final class LoomGraph implements Iterable<LoomGraph.Node<?, ?>>, HasToJso
   @Nonnull
   public Node<?, ?> addNode(@Nonnull JsonNode jsonNode) {
     ObjectNode obj = (ObjectNode) jsonNode;
-    var prototype = env.getNodeMetaFactory().getMetaForType(obj.get("type").asText());
+    var prototype = env.getNodeMetaFactory().getPrototypeForType(obj.get("type").asText());
     if (obj.get("id") == null) {
       obj.put("id", newUnusedNodeId().toString());
     }

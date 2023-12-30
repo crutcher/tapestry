@@ -14,6 +14,7 @@ import lombok.experimental.SuperBuilder;
 import lombok.extern.jackson.Jacksonized;
 import loom.common.exceptions.LookupError;
 import loom.common.json.JsonUtil;
+import loom.common.json.WithSchema;
 import loom.graph.nodes.GenericNode;
 import loom.graph.nodes.GenericNodeMetaFactory;
 import loom.graph.nodes.TensorNode;
@@ -33,6 +34,19 @@ public class LoomGraphTest extends BaseTestClass {
     @Data
     @Jacksonized
     @Builder
+    @WithSchema(
+        """
+    {
+      "type": "object",
+      "properties": {
+        "foo": {
+          "type": "string",
+          "enum": ["bar", "baz"]
+        }
+      },
+      "required": ["foo"]
+    }
+    """)
     public static class Body {
       @Nonnull private String foo;
     }
@@ -41,22 +55,8 @@ public class LoomGraphTest extends BaseTestClass {
   public static class DemoNodePrototype extends LoomGraph.NodePrototype<DemoNode, DemoNode.Body> {
     public static final String TYPE = "DemoNode";
 
-    public static final String BODY_SCHEMA =
-        """
-                {
-                  "type": "object",
-                  "properties": {
-                    "foo": {
-                      "type": "string",
-                      "enum": ["bar", "baz"]
-                    }
-                  },
-                  "required": ["foo"]
-                }
-                """;
-
     public DemoNodePrototype() {
-      super(DemoNode.class, DemoNode.Body.class, BODY_SCHEMA);
+      super(DemoNode.class, DemoNode.Body.class);
     }
   }
 
@@ -481,11 +481,14 @@ public class LoomGraphTest extends BaseTestClass {
 
     assertThat(node).isInstanceOf(DemoNode.class);
 
-    assertThat(metaFactory.getMetaForType(DemoNodePrototype.TYPE))
+    assertThat(metaFactory.getPrototypeForType(DemoNodePrototype.TYPE))
         .isInstanceOf(DemoNodePrototype.class);
-    assertThat(metaFactory.getMetaForType(DemoNodePrototype.TYPE).nodeFromJson(node.toJsonString()))
+    assertThat(
+            metaFactory
+                .getPrototypeForType(DemoNodePrototype.TYPE)
+                .nodeFromJson(node.toJsonString()))
         .isInstanceOf(DemoNode.class);
-    assertThat(metaFactory.getMetaForType(DemoNodePrototype.TYPE).nodeFromTree(node))
+    assertThat(metaFactory.getPrototypeForType(DemoNodePrototype.TYPE).nodeFromTree(node))
         .isInstanceOf(DemoNode.class);
 
     {

@@ -70,9 +70,10 @@ public class JsonUtilTest implements CommonAssertions {
                     """
                     {
                       "a" : "hello",
-                      "b" : 3
+                      "b" : 3,
+                      "bool" : true
                     }""")))
-        .isEqualTo(Map.of("a", "hello", "b", 3));
+        .isEqualTo(Map.of("a", "hello", "b", 3, "bool", true));
     assertThatExceptionOfType(IllegalArgumentException.class)
         .isThrownBy(() -> JsonUtil.treeToSimpleJson(JsonNodeFactory.instance.missingNode()));
   }

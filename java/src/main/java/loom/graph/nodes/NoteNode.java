@@ -9,6 +9,7 @@ import lombok.Setter;
 import lombok.experimental.Delegate;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.jackson.Jacksonized;
+import loom.common.json.WithSchema;
 import loom.graph.LoomGraph;
 
 @Jacksonized
@@ -18,22 +19,21 @@ import loom.graph.LoomGraph;
 public final class NoteNode extends LoomGraph.Node<NoteNode, NoteNode.Body> {
   public static final String TYPE = "NoteNode";
 
-  public static final String BODY_SCHEMA =
-      """
-      {
-          "type": "object",
-          "properties": {
-            "message": {
-                "type": "string"
-            }
-          },
-          "required": ["message"]
-      }
-      """;
-
   @Data
   @Jacksonized
   @Builder
+  @WithSchema(
+      """
+  {
+      "type": "object",
+      "properties": {
+        "message": {
+            "type": "string"
+        }
+      },
+      "required": ["message"]
+  }
+  """)
   public static final class Body {
 
     @Nonnull private String message;
@@ -52,7 +52,7 @@ public final class NoteNode extends LoomGraph.Node<NoteNode, NoteNode.Body> {
 
     @Builder
     public Prototype() {
-      super(NoteNode.class, Body.class, BODY_SCHEMA);
+      super(NoteNode.class, Body.class);
     }
   }
 

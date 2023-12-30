@@ -72,6 +72,28 @@ public final class LoomEnvironment {
   }
 
   /**
+   * Does this environment support the given node type?
+   *
+   * @param type the node type.
+   * @return true if the node type is supported.
+   */
+  public boolean supportsNodeType(String type) {
+    return nodeMetaFactory.getPrototypeForType(type) != null;
+  }
+
+  /**
+   * Assert that this environment supports the given node type.
+   *
+   * @param type the node type.
+   * @throws IllegalArgumentException if the node type is not supported.
+   */
+  public void assertSupportsNodeType(String type) {
+    if (!supportsNodeType(type)) {
+      throw new IllegalArgumentException("Unsupported node type: " + type);
+    }
+  }
+
+  /**
    * Assert that a node type class is present in this environment.
    *
    * @param type the node type.
@@ -80,7 +102,7 @@ public final class LoomEnvironment {
    */
   public void assertNodeTypeClass(
       String type, Class<? extends LoomGraph.Node<?, ?>> nodeTypeClass) {
-    var meta = nodeMetaFactory.getMetaForType(type);
+    var meta = nodeMetaFactory.getPrototypeForType(type);
     if (!meta.getNodeTypeClass().equals(nodeTypeClass)) {
       throw new IllegalStateException(
           "Node type class mismatch: " + type + " is " + meta.getNodeTypeClass());
@@ -106,7 +128,7 @@ public final class LoomEnvironment {
       } else if (key.equals("nodes")) {
         for (var nodeTree : entry.getValue()) {
           var type = nodeTree.get("type").asText();
-          var meta = getNodeMetaFactory().getMetaForType(type);
+          var meta = getNodeMetaFactory().getPrototypeForType(type);
           var node = JsonUtil.convertValue(nodeTree, meta.getNodeTypeClass());
           graph.addNode(node);
         }
@@ -137,11 +159,6 @@ public final class LoomEnvironment {
    * @param issueCollector the ValidationIssueCollector.
    */
   public void validateGraph(LoomGraph graph, ValidationIssueCollector issueCollector) {
-    for (var node : graph.getNodes().values()) {
-      var prototype = nodeMetaFactory.getMetaForType(node.getType());
-      prototype.validate(node, issueCollector);
-    }
-
     for (var constraint : constraints) {
       constraint.validateConstraint(this, graph, issueCollector);
     }

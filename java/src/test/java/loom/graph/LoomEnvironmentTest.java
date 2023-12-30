@@ -73,6 +73,13 @@ public class LoomEnvironmentTest extends BaseTestClass {
     env.assertNodeTypeClass(TensorNode.TYPE, TensorNode.class);
     assertThatExceptionOfType(IllegalStateException.class)
         .isThrownBy(() -> env.assertNodeTypeClass(TensorNode.TYPE, OperationNode.class));
+
+    assertThat(env.supportsNodeType(TensorNode.TYPE)).isTrue();
+    env.assertSupportsNodeType(TensorNode.TYPE);
+
+    assertThat(env.supportsNodeType("foo")).isFalse();
+    assertThatExceptionOfType(IllegalArgumentException.class)
+        .isThrownBy(() -> env.assertSupportsNodeType("foo"));
   }
 
   @Test
