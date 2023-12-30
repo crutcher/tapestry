@@ -20,10 +20,10 @@ import org.junit.Test;
 public class ApplicationNodeSelectionsAreWellFormedConstraintTest extends BaseTestClass {
   public LoomEnvironment createEnv() {
     return LoomEnvironment.builder()
-        .nodeTypeClass(NoteNode.TYPE, NoteNode.class)
-        .nodeTypeClass(TensorNode.TYPE, TensorNode.class)
-        .nodeTypeClass(ApplicationNode.TYPE, ApplicationNode.class)
         .build()
+        .addNodeTypeClass(NoteNode.TYPE, NoteNode.class)
+        .addNodeTypeClass(TensorNode.TYPE, TensorNode.class)
+        .addNodeTypeClass(ApplicationNode.TYPE, ApplicationNode.class)
         .addConstraint(new ApplicationNodeSelectionsAreWellFormedConstraint());
   }
 

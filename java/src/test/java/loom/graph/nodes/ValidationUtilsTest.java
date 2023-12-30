@@ -13,9 +13,9 @@ import org.junit.Test;
 public class ValidationUtilsTest extends BaseTestClass {
   public LoomEnvironment createEnv() {
     return LoomEnvironment.builder()
-        .nodeTypeClass(NoteNode.TYPE, NoteNode.class)
-        .nodeTypeClass(TensorNode.TYPE, TensorNode.class)
-        .build();
+        .build()
+        .addNodeTypeClass(NoteNode.TYPE, NoteNode.class)
+        .addNodeTypeClass(TensorNode.TYPE, TensorNode.class);
   }
 
   public LoomGraph createGraph() {

@@ -17,11 +17,11 @@ public final class CommonEnvironments {
 
   public static LoomEnvironment simpleTensorEnvironment(Set<String> dtypes) {
     return LoomEnvironment.builder()
-        .nodeTypeClass(NoteNode.TYPE, NoteNode.class)
-        .nodeTypeClass(TensorNode.TYPE, TensorNode.class)
-        .nodeTypeClass(OperationNode.TYPE, OperationNode.class)
-        .nodeTypeClass(ApplicationNode.TYPE, ApplicationNode.class)
         .build()
+        .addNodeTypeClass(NoteNode.TYPE, NoteNode.class)
+        .addNodeTypeClass(TensorNode.TYPE, TensorNode.class)
+        .addNodeTypeClass(OperationNode.TYPE, OperationNode.class)
+        .addNodeTypeClass(ApplicationNode.TYPE, ApplicationNode.class)
         .addConstraint(
             NodeBodySchemaConstraint.builder()
                 .nodeType(TensorNode.TYPE)

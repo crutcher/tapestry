@@ -1,10 +1,5 @@
 package loom.graph;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import javax.annotation.Nonnull;
 import lombok.Builder;
 import lombok.Data;
 import lombok.Getter;
@@ -20,6 +15,12 @@ import loom.graph.nodes.TensorNode;
 import loom.testing.BaseTestClass;
 import loom.zspace.ZPoint;
 import org.junit.Test;
+
+import javax.annotation.Nonnull;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 public class LoomGraphTest extends BaseTestClass {
   @Jacksonized
@@ -179,7 +180,7 @@ public class LoomGraphTest extends BaseTestClass {
             }
             """;
 
-    var env = LoomEnvironment.builder().nodeTypeClass(TensorNode.TYPE, TensorNode.class).build();
+    var env = LoomEnvironment.builder().build().addNodeTypeClass(TensorNode.TYPE, TensorNode.class);
 
     var graph = env.graphFromJson(source);
     graph.validate();
@@ -293,7 +294,7 @@ public class LoomGraphTest extends BaseTestClass {
 
   @Test
   public void test_buildNode() {
-    var env = LoomEnvironment.builder().nodeTypeClass(DemoNode.TYPE, DemoNode.class).build();
+    var env = LoomEnvironment.builder().build().addNodeTypeClass(DemoNode.TYPE, DemoNode.class);
 
     var graph = env.graphBuilder().build();
 
@@ -314,7 +315,7 @@ public class LoomGraphTest extends BaseTestClass {
 
   @Test
   public void testNode() {
-    var env = LoomEnvironment.builder().nodeTypeClass(DemoNode.TYPE, DemoNode.class).build();
+    var env = LoomEnvironment.builder().build().addNodeTypeClass(DemoNode.TYPE, DemoNode.class);
 
     var graph = env.graphBuilder().build();
     graph.setId(UUID.randomUUID());

@@ -330,15 +330,14 @@ public final class LoomGraph implements Iterable<LoomGraph.Node<?, ?>>, HasToJso
    * @return the added Node.
    */
   @Nonnull
-  public <T extends Node<?, ?>> T addNode(@Nonnull JsonNode jsonNode) {
+  public Node<?, ?> addNode(@Nonnull JsonNode jsonNode) {
     ObjectNode obj = (ObjectNode) jsonNode;
     String type = obj.get("type").asText();
     var nodeClass = env.assertClassForType(type);
     if (obj.get("id") == null) {
       obj.put("id", newUnusedNodeId().toString());
     }
-    @SuppressWarnings("unchecked")
-    var node = (T) JsonUtil.convertValue(obj, nodeClass);
+    var node = JsonUtil.convertValue(obj, nodeClass);
     return addNode(node);
   }
 

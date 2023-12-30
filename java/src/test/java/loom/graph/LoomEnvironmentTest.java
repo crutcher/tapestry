@@ -9,6 +9,18 @@ import org.junit.Test;
 
 public class LoomEnvironmentTest extends BaseTestClass {
   @Test
+  public void test_builder() {
+    var env =
+        LoomEnvironment.builder()
+            .build()
+            .addNodeTypeClass(TensorNode.TYPE, TensorNode.class)
+            .addNodeTypeClass(NoteNode.TYPE, NoteNode.class);
+
+    assertThat(env.supportsNodeType(TensorNode.TYPE)).isTrue();
+    assertThat(env.supportsNodeType(NoteNode.TYPE)).isTrue();
+  }
+
+  @Test
   public void test_toString() {
     var env = CommonEnvironments.simpleTensorEnvironment("int32");
 
@@ -45,7 +57,7 @@ public class LoomEnvironmentTest extends BaseTestClass {
                  }
                 """;
 
-    var env = LoomEnvironment.builder().nodeTypeClass(TensorNode.TYPE, TensorNode.class).build();
+    var env = LoomEnvironment.builder().build().addNodeTypeClass(TensorNode.TYPE, TensorNode.class);
 
     var graph = env.graphFromJson(source);
 

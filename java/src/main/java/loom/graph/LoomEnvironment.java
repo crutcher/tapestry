@@ -1,15 +1,11 @@
 package loom.graph;
 
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import lombok.Builder;
 import lombok.Data;
-import lombok.Singular;
 import loom.common.json.JsonSchemaManager;
 import loom.common.json.JsonUtil;
 import loom.validation.ListValidationIssueCollector;
@@ -23,15 +19,14 @@ import loom.validation.ValidationIssueCollector;
 @Data
 @Builder
 public final class LoomEnvironment {
-
-  @Nullable private Class<? extends LoomGraph.Node<?, ?>> defaultNodeTypeClass;
-  @Singular private final Map<String, Class<? extends LoomGraph.Node<?, ?>>> nodeTypeClasses;
-
   @Builder.Default private final JsonSchemaManager jsonSchemaManager = new JsonSchemaManager();
 
-  @Singular private final List<LoomConstraint> constraints = new ArrayList<>();
+  @Nullable private Class<? extends LoomGraph.Node<?, ?>> defaultNodeTypeClass;
+  private final Map<String, Class<? extends LoomGraph.Node<?, ?>>> nodeTypeClasses =
+      new HashMap<>();
+  private final List<LoomConstraint> constraints = new ArrayList<>();
 
-  public LoomEnvironment registerNodeTypeClass(
+  public LoomEnvironment addNodeTypeClass(
       String type, Class<? extends LoomGraph.Node<?, ?>> nodeTypeClass) {
     this.nodeTypeClasses.put(type, nodeTypeClass);
     return this;

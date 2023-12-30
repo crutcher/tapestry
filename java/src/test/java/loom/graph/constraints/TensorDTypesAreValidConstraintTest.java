@@ -15,9 +15,9 @@ import org.junit.Test;
 public class TensorDTypesAreValidConstraintTest extends BaseTestClass {
   public LoomEnvironment createEnv() {
     return LoomEnvironment.builder()
-        .nodeTypeClass(NoteNode.TYPE, NoteNode.class)
-        .nodeTypeClass(TensorNode.TYPE, TensorNode.class)
         .build()
+        .addNodeTypeClass(NoteNode.TYPE, NoteNode.class)
+        .addNodeTypeClass(TensorNode.TYPE, TensorNode.class)
         .addConstraint(new TensorDTypesAreValidConstraint(Set.of("int32", "float32")));
   }
 
