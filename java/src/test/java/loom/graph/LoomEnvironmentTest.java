@@ -17,7 +17,7 @@ public class LoomEnvironmentTest extends BaseTestClass {
 
   @Test
   public void testCreateGraph() {
-    var env = LoomGraph.GENERIC_ENV;
+    var env = CommonEnvironments.genericEnvironment();
     var graph = env.createGraph();
 
     assertThat(graph.getEnv()).isNotNull();
@@ -45,13 +45,7 @@ public class LoomEnvironmentTest extends BaseTestClass {
                  }
                 """;
 
-    var env =
-        LoomEnvironment.builder()
-            .nodeMetaFactory(
-                TypeMapNodeMetaFactory.builder()
-                    .typeMapping(TensorNode.TYPE, TensorNode.Prototype.builder().build())
-                    .build())
-            .build();
+    var env = LoomEnvironment.builder().nodeTypeClass(TensorNode.TYPE, TensorNode.class).build();
 
     var graph = env.graphFromJson(source);
 

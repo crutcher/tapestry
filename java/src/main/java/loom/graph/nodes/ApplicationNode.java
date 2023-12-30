@@ -22,16 +22,6 @@ import loom.zspace.ZRange;
 public class ApplicationNode extends LoomGraph.Node<ApplicationNode, ApplicationNode.Body> {
   public static final String TYPE = "ApplicationNode";
 
-  @Builder
-  @Getter
-  public static final class Prototype
-      extends LoomGraph.NodePrototype<ApplicationNode, ApplicationNode.Body> {
-    @Builder
-    public Prototype() {
-      super(ApplicationNode.class, Body.class);
-    }
-  }
-
   public abstract static class ApplicationNodeBuilder<
           C extends ApplicationNode, B extends ApplicationNodeBuilder<C, B>>
       extends NodeBuilder<ApplicationNode, Body, C, B> {

@@ -13,11 +13,8 @@ import org.junit.Test;
 public class ValidationUtilsTest extends BaseTestClass {
   public LoomEnvironment createEnv() {
     return LoomEnvironment.builder()
-        .nodeMetaFactory(
-            TypeMapNodeMetaFactory.builder()
-                .typeMapping(TensorNode.TYPE, TensorNode.Prototype.builder().build())
-                .typeMapping(NoteNode.TYPE, NoteNode.Prototype.builder().build())
-                .build())
+        .nodeTypeClass(NoteNode.TYPE, NoteNode.class)
+        .nodeTypeClass(TensorNode.TYPE, TensorNode.class)
         .build();
   }
 

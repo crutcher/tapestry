@@ -10,7 +10,6 @@ import loom.graph.LoomGraph;
 import loom.graph.nodes.ApplicationNode;
 import loom.graph.nodes.NoteNode;
 import loom.graph.nodes.TensorNode;
-import loom.graph.nodes.TypeMapNodeMetaFactory;
 import loom.testing.BaseTestClass;
 import loom.validation.ListValidationIssueCollector;
 import loom.validation.ValidationIssue;
@@ -21,12 +20,9 @@ import org.junit.Test;
 public class ApplicationNodeSelectionsAreWellFormedConstraintTest extends BaseTestClass {
   public LoomEnvironment createEnv() {
     return LoomEnvironment.builder()
-        .nodeMetaFactory(
-            TypeMapNodeMetaFactory.builder()
-                .typeMapping(TensorNode.TYPE, TensorNode.Prototype.builder().build())
-                .typeMapping(ApplicationNode.TYPE, ApplicationNode.Prototype.builder().build())
-                .typeMapping(NoteNode.TYPE, NoteNode.Prototype.builder().build())
-                .build())
+        .nodeTypeClass(NoteNode.TYPE, NoteNode.class)
+        .nodeTypeClass(TensorNode.TYPE, TensorNode.class)
+        .nodeTypeClass(ApplicationNode.TYPE, ApplicationNode.class)
         .build()
         .addConstraint(new ApplicationNodeSelectionsAreWellFormedConstraint());
   }

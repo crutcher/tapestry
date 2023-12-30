@@ -151,15 +151,6 @@ public final class TensorNode extends LoomGraph.Node<TensorNode, TensorNode.Body
     }
   }
 
-  @Builder
-  public static final class Prototype extends LoomGraph.NodePrototype<TensorNode, Body> {
-
-    @Builder
-    public Prototype() {
-      super(TensorNode.class, Body.class);
-    }
-  }
-
   public static TensorNodeBuilder<?, ?> withBody(Consumer<Body.BodyBuilder> cb) {
     var bodyBuilder = Body.builder();
     cb.accept(bodyBuilder);

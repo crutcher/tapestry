@@ -3,8 +3,10 @@ package loom.graph;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import lombok.Builder;
 import lombok.Data;
 import lombok.Singular;
@@ -22,11 +24,76 @@ import loom.validation.ValidationIssueCollector;
 @Builder
 public final class LoomEnvironment {
 
-  @Nonnull private final LoomGraph.NodeMetaFactory nodeMetaFactory;
+  @Nullable private Class<? extends LoomGraph.Node<?, ?>> defaultNodeTypeClass;
+  @Singular private final Map<String, Class<? extends LoomGraph.Node<?, ?>>> nodeTypeClasses;
 
   @Builder.Default private final JsonSchemaManager jsonSchemaManager = new JsonSchemaManager();
 
   @Singular private final List<LoomConstraint> constraints = new ArrayList<>();
+
+  public LoomEnvironment registerNodeTypeClass(
+      String type, Class<? extends LoomGraph.Node<?, ?>> nodeTypeClass) {
+    this.nodeTypeClasses.put(type, nodeTypeClass);
+    return this;
+  }
+
+  /**
+   * Does this environment support the given node type?
+   *
+   * @param type the node type.
+   * @return true if the node type is supported.
+   */
+  public boolean supportsNodeType(String type) {
+    return defaultNodeTypeClass != null || nodeTypeClasses.containsKey(type);
+  }
+
+  /**
+   * Assert that this environment supports the given node type.
+   *
+   * @param type the node type.
+   * @throws IllegalArgumentException if the node type is not supported.
+   */
+  public void assertSupportsNodeType(String type) {
+    if (!supportsNodeType(type)) {
+      throw new IllegalArgumentException("Unsupported node type: " + type);
+    }
+  }
+
+  @Nullable public Class<? extends LoomGraph.Node<?, ?>> classForType(String type) {
+    var nodeTypeClass = nodeTypeClasses.get(type);
+    if (nodeTypeClass == null) {
+      nodeTypeClass = defaultNodeTypeClass;
+    }
+    return nodeTypeClass;
+  }
+
+  @Nonnull
+  public Class<? extends LoomGraph.Node<?, ?>> assertClassForType(String type) {
+    var nodeTypeClass = classForType(type);
+    if (nodeTypeClass == null) {
+      throw new IllegalArgumentException("Unknown node type: " + type);
+    }
+    return nodeTypeClass;
+  }
+
+  /**
+   * Assert that a node type class is present in this environment.
+   *
+   * @param type the node type.
+   * @param nodeTypeClass the node type class.
+   * @throws IllegalStateException if the node type class is not present.
+   */
+  public void assertNodeTypeClass(
+      String type, Class<? extends LoomGraph.Node<?, ?>> nodeTypeClass) {
+    var registeredClass = classForType(type);
+    if (registeredClass == null) {
+      throw new IllegalStateException("Required node type class not found: " + type);
+    }
+    if (registeredClass != nodeTypeClass) {
+      throw new IllegalStateException(
+          "Node type class mismatch: " + type + " is " + registeredClass);
+    }
+  }
 
   /**
    * Add a constraint to the LoomEnvironment.
@@ -72,44 +139,6 @@ public final class LoomEnvironment {
   }
 
   /**
-   * Does this environment support the given node type?
-   *
-   * @param type the node type.
-   * @return true if the node type is supported.
-   */
-  public boolean supportsNodeType(String type) {
-    return nodeMetaFactory.getPrototypeForType(type) != null;
-  }
-
-  /**
-   * Assert that this environment supports the given node type.
-   *
-   * @param type the node type.
-   * @throws IllegalArgumentException if the node type is not supported.
-   */
-  public void assertSupportsNodeType(String type) {
-    if (!supportsNodeType(type)) {
-      throw new IllegalArgumentException("Unsupported node type: " + type);
-    }
-  }
-
-  /**
-   * Assert that a node type class is present in this environment.
-   *
-   * @param type the node type.
-   * @param nodeTypeClass the node type class.
-   * @throws IllegalStateException if the node type class is not present.
-   */
-  public void assertNodeTypeClass(
-      String type, Class<? extends LoomGraph.Node<?, ?>> nodeTypeClass) {
-    var meta = nodeMetaFactory.getPrototypeForType(type);
-    if (!meta.getNodeTypeClass().equals(nodeTypeClass)) {
-      throw new IllegalStateException(
-          "Node type class mismatch: " + type + " is " + meta.getNodeTypeClass());
-    }
-  }
-
-  /**
    * Load a graph from a JSON string in this environment.
    *
    * @param json the JSON string.
@@ -127,10 +156,7 @@ public final class LoomEnvironment {
 
       } else if (key.equals("nodes")) {
         for (var nodeTree : entry.getValue()) {
-          var type = nodeTree.get("type").asText();
-          var meta = getNodeMetaFactory().getPrototypeForType(type);
-          var node = JsonUtil.convertValue(nodeTree, meta.getNodeTypeClass());
-          graph.addNode(node);
+          graph.addNode(nodeTree);
         }
       } else {
         throw new IllegalArgumentException("Unknown property: " + key);

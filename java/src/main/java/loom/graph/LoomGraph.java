@@ -10,16 +10,6 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import java.io.IOException;
-import java.lang.reflect.ParameterizedType;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.UUID;
-import java.util.stream.Stream;
-import javax.annotation.CheckReturnValue;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import loom.common.collections.IteratorUtils;
@@ -27,10 +17,20 @@ import loom.common.exceptions.LookupError;
 import loom.common.json.HasToJsonString;
 import loom.common.json.JsonUtil;
 import loom.common.json.MapValueListUtil;
-import loom.graph.nodes.GenericNodeMetaFactory;
 import loom.validation.ListValidationIssueCollector;
 import loom.validation.ValidationIssue;
 import loom.validation.ValidationIssueCollector;
+
+import javax.annotation.CheckReturnValue;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.io.IOException;
+import java.lang.reflect.ParameterizedType;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.UUID;
+import java.util.stream.Stream;
 
 /** A Loom Graph document. */
 @Getter
@@ -39,9 +39,6 @@ import loom.validation.ValidationIssueCollector;
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public final class LoomGraph implements Iterable<LoomGraph.Node<?, ?>>, HasToJsonString {
-
-  public static final LoomEnvironment GENERIC_ENV =
-      LoomEnvironment.builder().nodeMetaFactory(new GenericNodeMetaFactory()).build();
 
   /**
    * Base class for a node in the graph.
@@ -228,77 +225,6 @@ public final class LoomGraph implements Iterable<LoomGraph.Node<?, ?>>, HasToJso
     }
   }
 
-  /**
-   * Metaclass to attach schema and validation to a node type.
-   *
-   * @param <NodeType> the node class.
-   * @param <BodyType> the node body class.
-   */
-  @Data
-  public abstract static class NodePrototype<NodeType extends Node<NodeType, BodyType>, BodyType> {
-    @Nonnull private final Class<NodeType> nodeTypeClass;
-    @Nonnull private final Class<BodyType> bodyTypeClass;
-
-    public NodePrototype(
-        @Nonnull Class<NodeType> nodeTypeClass, @Nonnull Class<BodyType> bodyTypeClass) {
-      this.nodeTypeClass = nodeTypeClass;
-      this.bodyTypeClass = bodyTypeClass;
-    }
-
-    /**
-     * Create a new node with this meta.
-     *
-     * @param json the JSON string to parse.
-     * @return the node.
-     */
-    public final NodeType nodeFromJson(String json) {
-      return JsonUtil.fromJson(json, getNodeTypeClass());
-    }
-
-    /**
-     * Create a new node with this meta.
-     *
-     * @param tree the JSON tree to parse.
-     * @return the node.
-     */
-    public final NodeType nodeFromTree(Object tree) {
-      return JsonUtil.convertValue(tree, getNodeTypeClass());
-    }
-  }
-
-  /** Factory to lookup node meta by type. */
-  public abstract static class NodeMetaFactory {
-    /**
-     * Parse a node from a JSON string, using the node type in the JSON.
-     *
-     * @param json the JSON string.
-     * @return the node.
-     */
-    public final Node<?, ?> nodeFromJson(String json) {
-      return nodeFromTree(JsonUtil.parseToJsonNodeTree(json));
-    }
-
-    /**
-     * Parse a node from a JSON tree, using the node type in the JSON.
-     *
-     * @param tree the JSON tree.
-     * @return the node.
-     */
-    public final Node<?, ?> nodeFromTree(JsonNode tree) {
-      var type = tree.get("type").asText();
-      var meta = getPrototypeForType(type);
-      return meta.nodeFromTree(tree);
-    }
-
-    /**
-     * Get the node meta for the given type.
-     *
-     * @param type the node type.
-     * @return the node meta, or null if not found.
-     */
-    public abstract NodePrototype<?, ?> getPrototypeForType(String type);
-  }
-
   /** Support classes for Jackson serialization. */
   @NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
   public static final class Serialization {
@@ -312,7 +238,7 @@ public final class LoomGraph implements Iterable<LoomGraph.Node<?, ?>>, HasToJso
     }
   }
 
-  @JsonIgnore @Builder.Default private final LoomEnvironment env = GENERIC_ENV;
+  @JsonIgnore @Nonnull private final LoomEnvironment env;
 
   @Nullable private UUID id;
 
@@ -378,7 +304,7 @@ public final class LoomGraph implements Iterable<LoomGraph.Node<?, ?>>, HasToJso
    */
   @Nonnull
   @SuppressWarnings("unchecked")
-  public <NodeType extends Node<NodeType, ?>> NodeType addNode(Node<NodeType, ?> node) {
+  public <T extends Node<?, ?>> T addNode(T node) {
     if (hasNode(node.getId())) {
       throw new IllegalArgumentException("Graph already has node with id: " + node.getId());
     }
@@ -388,11 +314,32 @@ public final class LoomGraph implements Iterable<LoomGraph.Node<?, ?>>, HasToJso
     }
     node.setGraph(this);
 
-    env.getNodeMetaFactory().getPrototypeForType(node.getType());
+    env.assertNodeTypeClass(node.getType(), (Class<T>) node.getClass());
 
     nodes.put(node.getId(), node);
 
-    return (NodeType) node;
+    return node;
+  }
+
+  /**
+   * Add a node to the graph.
+   *
+   * <p>If the node does not have an ID, a new ID will be added to the tree.
+   *
+   * @param jsonNode the json node tree to build from.
+   * @return the added Node.
+   */
+  @Nonnull
+  public <T extends Node<?, ?>> T addNode(@Nonnull JsonNode jsonNode) {
+    ObjectNode obj = (ObjectNode) jsonNode;
+    String type = obj.get("type").asText();
+    var nodeClass = env.assertClassForType(type);
+    if (obj.get("id") == null) {
+      obj.put("id", newUnusedNodeId().toString());
+    }
+    @SuppressWarnings("unchecked")
+    var node = (T) JsonUtil.convertValue(obj, nodeClass);
+    return addNode(node);
   }
 
   /**
@@ -425,24 +372,6 @@ public final class LoomGraph implements Iterable<LoomGraph.Node<?, ?>>, HasToJso
       nodeTree.set("body", JsonUtil.valueToJsonNodeTree(body));
     }
     return addNode(nodeTree);
-  }
-
-  /**
-   * Add a node to the graph.
-   *
-   * <p>If the node does not have an ID, a new ID will be added to the tree.
-   *
-   * @param jsonNode the json node tree to build from.
-   * @return the added Node.
-   */
-  @Nonnull
-  public Node<?, ?> addNode(@Nonnull JsonNode jsonNode) {
-    ObjectNode obj = (ObjectNode) jsonNode;
-    var prototype = env.getNodeMetaFactory().getPrototypeForType(obj.get("type").asText());
-    if (obj.get("id") == null) {
-      obj.put("id", newUnusedNodeId().toString());
-    }
-    return addNode(prototype.nodeFromTree(jsonNode));
   }
 
   /**

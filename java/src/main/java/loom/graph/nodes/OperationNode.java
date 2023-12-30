@@ -90,16 +90,6 @@ public final class OperationNode extends LoomGraph.Node<OperationNode, Operation
     @Singular @Nonnull private Map<String, List<UUID>> outputs;
   }
 
-  @Builder
-  @Getter
-  public static final class Prototype extends LoomGraph.NodePrototype<OperationNode, Body> {
-
-    @Builder
-    public Prototype() {
-      super(OperationNode.class, Body.class);
-    }
-  }
-
   /**
    * Get a resolved input nodes map.
    *

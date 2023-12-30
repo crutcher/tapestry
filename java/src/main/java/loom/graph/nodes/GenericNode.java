@@ -94,23 +94,6 @@ public final class GenericNode extends LoomGraph.Node<GenericNode, GenericNode.B
     }
   }
 
-  /**
-   * The Prototype class represents a node prototype for the GenericNode class. It extends the
-   * LoomGraph.NodePrototype class and provides a schema for the body of the node.
-   */
-  public static final class Prototype extends LoomGraph.NodePrototype<GenericNode, Body> {
-
-    public Prototype() {
-      super(GenericNode.class, Body.class);
-    }
-  }
-
-  /**
-   * The Prototype class represents a node prototype for the GenericNode class. It extends the
-   * LoomGraph.NodePrototype class and provides a schema for the body of the node.
-   */
-  public static final Prototype PROTOTYPE = new Prototype();
-
   @Delegate(excludes = {HasToJsonString.class})
   @Nonnull
   private Body body;

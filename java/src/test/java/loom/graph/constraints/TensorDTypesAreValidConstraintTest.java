@@ -6,7 +6,6 @@ import loom.graph.LoomEnvironment;
 import loom.graph.LoomGraph;
 import loom.graph.nodes.NoteNode;
 import loom.graph.nodes.TensorNode;
-import loom.graph.nodes.TypeMapNodeMetaFactory;
 import loom.testing.BaseTestClass;
 import loom.validation.ListValidationIssueCollector;
 import loom.validation.ValidationIssue;
@@ -16,11 +15,8 @@ import org.junit.Test;
 public class TensorDTypesAreValidConstraintTest extends BaseTestClass {
   public LoomEnvironment createEnv() {
     return LoomEnvironment.builder()
-        .nodeMetaFactory(
-            TypeMapNodeMetaFactory.builder()
-                .typeMapping(TensorNode.TYPE, TensorNode.Prototype.builder().build())
-                .typeMapping(NoteNode.TYPE, NoteNode.Prototype.builder().build())
-                .build())
+        .nodeTypeClass(NoteNode.TYPE, NoteNode.class)
+        .nodeTypeClass(TensorNode.TYPE, TensorNode.class)
         .build()
         .addConstraint(new TensorDTypesAreValidConstraint(Set.of("int32", "float32")));
   }

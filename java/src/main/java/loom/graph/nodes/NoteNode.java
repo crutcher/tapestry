@@ -46,16 +46,6 @@ public final class NoteNode extends LoomGraph.Node<NoteNode, NoteNode.Body> {
     }
   }
 
-  @Builder
-  @Getter
-  public static final class Prototype extends LoomGraph.NodePrototype<NoteNode, Body> {
-
-    @Builder
-    public Prototype() {
-      super(NoteNode.class, Body.class);
-    }
-  }
-
   public static NoteNodeBuilder<?, ?> withBody(Consumer<Body.BodyBuilder> cb) {
     var bodyBuilder = Body.builder();
     cb.accept(bodyBuilder);
