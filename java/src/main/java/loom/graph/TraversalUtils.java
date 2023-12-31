@@ -1,15 +1,14 @@
 package loom.graph;
 
+import java.util.ArrayList;
+import java.util.List;
+import javax.annotation.Nonnull;
 import lombok.NoArgsConstructor;
 import loom.graph.nodes.ApplicationNode;
 import org.jgrapht.Graph;
 import org.jgrapht.alg.cycle.TarjanSimpleCycles;
 import org.jgrapht.graph.DefaultDirectedGraph;
 import org.jgrapht.graph.DefaultEdge;
-
-import javax.annotation.Nonnull;
-import java.util.ArrayList;
-import java.util.List;
 
 @NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
 public class TraversalUtils {
