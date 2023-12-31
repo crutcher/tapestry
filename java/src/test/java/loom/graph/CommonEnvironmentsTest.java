@@ -1,5 +1,6 @@
 package loom.graph;
 
+import java.util.stream.Collectors;
 import loom.common.json.WithSchema;
 import loom.graph.constraints.ApplicationNodeSelectionsAreWellFormedConstraint;
 import loom.graph.constraints.NodeBodySchemaConstraint;
@@ -11,8 +12,6 @@ import loom.graph.nodes.OperationSignatureNode;
 import loom.graph.nodes.TensorNode;
 import loom.testing.BaseTestClass;
 import org.junit.Test;
-
-import java.util.stream.Collectors;
 
 public class CommonEnvironmentsTest extends BaseTestClass {
   @Test

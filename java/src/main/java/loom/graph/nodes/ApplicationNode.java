@@ -104,14 +104,32 @@ public class ApplicationNode extends LoomNode<ApplicationNode, ApplicationNode.B
     @Singular @Nonnull Map<String, List<TensorSelection>> outputs;
   }
 
+  /** Describes the sub-range of a tensor that is selected by an application node. */
   @Value
   @Jacksonized
   @Builder
+  @RequiredArgsConstructor
   public static class TensorSelection {
-    UUID tensorId;
-    ZRange range;
+    @Nonnull UUID tensorId;
+    @Nonnull ZRange range;
   }
 
+  /**
+   * Create an ApplicationNodeBuilder with the given body.
+   *
+   * <p>Example:
+   *
+   * <pre>{@code
+   * var node = ApplicationNode.builder()
+   *  .withBody(body -> body
+   *    .input("x", List.of(
+   *      new TensorSelection(tensor.getId(), tensor.getShape()))))
+   *  .buildOnGraph(graph);
+   * }</pre>
+   *
+   * @param cb the body builder callback.
+   * @return the ApplicationNodeBuilder.
+   */
   public static ApplicationNodeBuilder<?, ?> withBody(Consumer<Body.BodyBuilder> cb) {
     var bodyBuilder = Body.builder();
     cb.accept(bodyBuilder);
