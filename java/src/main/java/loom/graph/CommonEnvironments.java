@@ -1,15 +1,13 @@
 package loom.graph;
 
-import java.util.Set;
 import lombok.NoArgsConstructor;
 import loom.graph.constraints.ApplicationNodeSelectionsAreWellFormedConstraint;
 import loom.graph.constraints.NodeBodySchemaConstraint;
 import loom.graph.constraints.TensorDTypesAreValidConstraint;
 import loom.graph.constraints.ThereAreNoApplicationReferenceCyclesConstraint;
-import loom.graph.nodes.ApplicationNode;
-import loom.graph.nodes.GenericNode;
-import loom.graph.nodes.NoteNode;
-import loom.graph.nodes.TensorNode;
+import loom.graph.nodes.*;
+
+import java.util.Set;
 
 @NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
 public final class CommonEnvironments {
@@ -34,6 +32,7 @@ public final class CommonEnvironments {
             TensorDTypesAreValidConstraint.builder()
                 .validDTypes(Set.of("int32", "float32"))
                 .build())
+        .registerNodeType(OperationSignatureNode.TYPE, OperationSignatureNode.class)
         .registerNodeType(ApplicationNode.TYPE, ApplicationNode.class)
         .addConstraint(new ThereAreNoApplicationReferenceCyclesConstraint())
         .addConstraint(new ApplicationNodeSelectionsAreWellFormedConstraint());
