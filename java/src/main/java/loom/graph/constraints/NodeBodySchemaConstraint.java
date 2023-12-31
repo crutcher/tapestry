@@ -50,7 +50,6 @@ public class NodeBodySchemaConstraint implements LoomEnvironment.Constraint {
 
   @Singular private final List<String> nodeTypes;
   @Singular private final List<Pattern> nodeTypePatterns;
-
   @Nonnull private final String bodySchema;
 
   @Builder

@@ -1,6 +1,10 @@
 package loom.graph;
 
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.util.*;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -37,6 +41,12 @@ public final class LoomEnvironment {
         LoomEnvironment env, LoomGraph graph, ValidationIssueCollector issueCollector);
   }
 
+  @Target({ElementType.TYPE})
+  @Retention(RetentionPolicy.RUNTIME)
+  public @interface WithConstraints {
+    Class<? extends Constraint>[] value();
+  }
+
   @Nullable private Class<? extends LoomNode<?, ?>> defaultNodeTypeClass;
   private final Map<String, Class<? extends LoomNode<?, ?>>> nodeTypeClasses = new HashMap<>();
   private final List<Constraint> constraints = new ArrayList<>();
@@ -63,7 +73,7 @@ public final class LoomEnvironment {
    * @param nodeTypeClass the node type class.
    * @return this LoomEnvironment.
    */
-  public LoomEnvironment registerNodeType(
+  public LoomEnvironment autowireNodeTypeClass(
       String type, Class<? extends LoomNode<?, ?>> nodeTypeClass) {
     addNodeTypeClass(type, nodeTypeClass);
     addConstraint(
@@ -71,6 +81,15 @@ public final class LoomEnvironment {
             .nodeType(type)
             .withSchemaFromNodeClass(nodeTypeClass)
             .build());
+    for (var withConstraints : nodeTypeClass.getAnnotationsByType(WithConstraints.class)) {
+      for (var constraint : withConstraints.value()) {
+        try {
+          addConstraint(constraint.getDeclaredConstructor().newInstance());
+        } catch (ReflectiveOperationException e) {
+          throw new RuntimeException(e);
+        }
+      }
+    }
     return this;
   }
 
