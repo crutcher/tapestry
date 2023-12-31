@@ -15,7 +15,7 @@ public final class CommonEnvironments {
             NodeBodySchemaConstraint.builder()
                 .nodeType("^.*$")
                 .isRegex(true)
-                .withSchemaFrom(GenericNode.Body.class)
+                .withSchemaFromBodyClass(GenericNode.Body.class)
                 .build());
   }
 
@@ -29,17 +29,17 @@ public final class CommonEnvironments {
         .addConstraint(
             NodeBodySchemaConstraint.builder()
                 .nodeType(TensorNode.TYPE)
-                .withSchemaFrom(TensorNode.Body.class)
+                .withSchemaFromBodyClass(TensorNode.Body.class)
                 .build())
         .addConstraint(
             NodeBodySchemaConstraint.builder()
                 .nodeType(ApplicationNode.TYPE)
-                .withSchemaFrom(ApplicationNode.Body.class)
+                .withSchemaFromBodyClass(ApplicationNode.Body.class)
                 .build())
         .addConstraint(
             NodeBodySchemaConstraint.builder()
                 .nodeType(NoteNode.TYPE)
-                .withSchemaFrom(NoteNode.Body.class)
+                .withSchemaFromBodyClass(NoteNode.Body.class)
                 .build())
         .addConstraint(
             TensorDTypesAreValidConstraint.builder()

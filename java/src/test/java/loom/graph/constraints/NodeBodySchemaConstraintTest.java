@@ -18,7 +18,7 @@ public class NodeBodySchemaConstraintTest extends BaseTestClass {
       var constraint =
           NodeBodySchemaConstraint.builder()
               .nodeType(TensorNode.TYPE)
-              .withSchemaFrom(TensorNode.Body.class)
+              .withSchemaFromBodyClass(TensorNode.Body.class)
               .build();
 
       assertThat(constraint.getNodeType()).isEqualTo(TensorNode.TYPE);
@@ -28,7 +28,7 @@ public class NodeBodySchemaConstraintTest extends BaseTestClass {
       var constraint =
           NodeBodySchemaConstraint.builder()
               .nodeType(TensorNode.TYPE)
-              .withSchemaFrom(TensorNode.Body.class)
+              .withSchemaFromBodyClass(TensorNode.Body.class)
               .build();
 
       assertThat(constraint.getNodeType()).isEqualTo(TensorNode.TYPE);
@@ -37,7 +37,8 @@ public class NodeBodySchemaConstraintTest extends BaseTestClass {
 
     assertThatExceptionOfType(IllegalArgumentException.class)
         .isThrownBy(
-            () -> NodeBodySchemaConstraint.builder().withSchemaFrom(BodyWithoutSchema.class))
+            () ->
+                NodeBodySchemaConstraint.builder().withSchemaFromBodyClass(BodyWithoutSchema.class))
         .withMessageContaining("does not have a @WithSchema annotation");
   }
 }

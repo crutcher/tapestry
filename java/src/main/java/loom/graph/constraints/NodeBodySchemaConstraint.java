@@ -1,7 +1,5 @@
 package loom.graph.constraints;
 
-import java.util.regex.Pattern;
-import javax.annotation.Nonnull;
 import lombok.Builder;
 import lombok.Getter;
 import loom.common.json.JsonPathUtils;
@@ -14,6 +12,9 @@ import loom.validation.ValidationIssue;
 import loom.validation.ValidationIssueCollector;
 import org.leadpony.justify.api.JsonSchema;
 
+import javax.annotation.Nonnull;
+import java.util.regex.Pattern;
+
 @Builder
 @Getter
 public class NodeBodySchemaConstraint implements LoomConstraint {
@@ -25,7 +26,7 @@ public class NodeBodySchemaConstraint implements LoomConstraint {
      * @param clazz the class.
      * @return this builder.
      */
-    public NodeBodySchemaConstraintBuilder withSchemaFrom(Class<?> clazz) {
+    public NodeBodySchemaConstraintBuilder withSchemaFromBodyClass(Class<?> clazz) {
       var ws = clazz.getAnnotation(WithSchema.class);
       if (ws == null) {
         throw new IllegalArgumentException(

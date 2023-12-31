@@ -2,6 +2,7 @@ package loom.graph;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.JsonSerializer;
@@ -10,6 +11,16 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import java.io.IOException;
+import java.lang.reflect.ParameterizedType;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.UUID;
+import java.util.stream.Stream;
+import javax.annotation.CheckReturnValue;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import loom.common.collections.IteratorUtils;
@@ -21,21 +32,10 @@ import loom.validation.ListValidationIssueCollector;
 import loom.validation.ValidationIssue;
 import loom.validation.ValidationIssueCollector;
 
-import javax.annotation.CheckReturnValue;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.io.IOException;
-import java.lang.reflect.ParameterizedType;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.UUID;
-import java.util.stream.Stream;
-
 /** A Loom Graph document. */
 @Getter
 @Setter
-@ToString(of = {"id", "nodes"})
+@ToString(of = {"id", "nodeMap"})
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public final class LoomGraph implements Iterable<LoomGraph.Node<?, ?>>, HasToJsonString {
@@ -149,38 +149,6 @@ public final class LoomGraph implements Iterable<LoomGraph.Node<?, ?>>, HasToJso
       return graph;
     }
 
-    /**
-     * Get the node body as a JSON string.
-     *
-     * @return the JSON string.
-     */
-    public final String getBodyAsJson() {
-      return JsonUtil.toPrettyJson(getBody());
-    }
-
-    @Nonnull
-    public abstract BodyType getBody();
-
-    public abstract void setBody(@Nonnull BodyType body);
-
-    /**
-     * Get the node body as a JSON tree.
-     *
-     * @return the JSON tree.
-     */
-    public final JsonNode getBodyAsJsonNode() {
-      return JsonUtil.valueToJsonNodeTree(getBody());
-    }
-
-    /**
-     * Set the node body from a JSON string.
-     *
-     * @param json the JSON string.
-     */
-    public final void setBodyFromJson(String json) {
-      setBody(JsonUtil.fromJson(json, getBodyClass()));
-    }
-
     /** Get the class type of the node body. */
     @JsonIgnore
     @SuppressWarnings("unchecked")
@@ -203,6 +171,38 @@ public final class LoomGraph implements Iterable<LoomGraph.Node<?, ?>>, HasToJso
       @SuppressWarnings("unchecked")
       var bodyClass = (Class<B>) cls.getActualTypeArguments()[1];
       return bodyClass;
+    }
+
+    @Nonnull
+    public abstract BodyType getBody();
+
+    /**
+     * Get the node body as a JSON string.
+     *
+     * @return the JSON string.
+     */
+    public final String getBodyAsJson() {
+      return JsonUtil.toPrettyJson(getBody());
+    }
+
+    /**
+     * Get the node body as a JSON tree.
+     *
+     * @return the JSON tree.
+     */
+    public final JsonNode getBodyAsJsonNode() {
+      return JsonUtil.valueToJsonNodeTree(getBody());
+    }
+
+    public abstract void setBody(@Nonnull BodyType body);
+
+    /**
+     * Set the node body from a JSON string.
+     *
+     * @param json the JSON string.
+     */
+    public final void setBodyFromJson(String json) {
+      setBody(JsonUtil.fromJson(json, getBodyClass()));
     }
 
     /**
@@ -228,7 +228,7 @@ public final class LoomGraph implements Iterable<LoomGraph.Node<?, ?>>, HasToJso
   /** Support classes for Jackson serialization. */
   @NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
   public static final class Serialization {
-    /** Jackson deserializer for {@link LoomGraph#nodes}. */
+    /** Jackson deserializer for {@link LoomGraph#nodeMap}. */
     public static final class NodeListToMapDeserializer
         extends MapValueListUtil.MapDeserializer<UUID, Node<?, ?>> {
       @SuppressWarnings("unchecked")
@@ -242,9 +242,10 @@ public final class LoomGraph implements Iterable<LoomGraph.Node<?, ?>>, HasToJso
 
   @Nullable private UUID id;
 
+  @JsonProperty(value = "nodes")
   @JsonSerialize(using = MapValueListUtil.MapSerializer.class)
   @JsonDeserialize(using = Serialization.NodeListToMapDeserializer.class)
-  private final Map<UUID, Node<?, ?>> nodes = new HashMap<>();
+  private final Map<UUID, Node<?, ?>> nodeMap = new HashMap<>();
 
   /**
    * Validate the graph.
@@ -277,7 +278,7 @@ public final class LoomGraph implements Iterable<LoomGraph.Node<?, ?>>, HasToJso
    * @return true if the graph contains a node with the given ID.
    */
   public boolean hasNode(UUID id) {
-    return nodes.containsKey(id);
+    return nodeMap.containsKey(id);
   }
 
   /**
@@ -297,7 +298,7 @@ public final class LoomGraph implements Iterable<LoomGraph.Node<?, ?>>, HasToJso
    * @return the node, or null if not found.
    */
   @Nullable public Node<?, ?> getNode(UUID id) {
-    return nodes.get(id);
+    return nodeMap.get(id);
   }
 
   /**
@@ -331,7 +332,7 @@ public final class LoomGraph implements Iterable<LoomGraph.Node<?, ?>>, HasToJso
    */
   @Nonnull
   public Node<?, ?> assertNode(UUID id) {
-    var node = nodes.get(id);
+    var node = nodeMap.get(id);
     if (node == null) {
       throw new LookupError("Node not found: " + id);
     }
@@ -388,7 +389,7 @@ public final class LoomGraph implements Iterable<LoomGraph.Node<?, ?>>, HasToJso
    */
   @Nonnull
   public Iterable<Node<?, ?>> iterableNodes() {
-    return nodes.values();
+    return nodeMap.values();
   }
 
   /**
@@ -433,7 +434,7 @@ public final class LoomGraph implements Iterable<LoomGraph.Node<?, ?>>, HasToJso
   @CheckReturnValue
   @Nonnull
   public Stream<? extends Node<?, ?>> stream() {
-    return nodes.values().stream();
+    return nodeMap.values().stream();
   }
 
   /**
@@ -491,7 +492,7 @@ public final class LoomGraph implements Iterable<LoomGraph.Node<?, ?>>, HasToJso
 
     env.assertClassForType(node.getType(), (Class<T>) node.getClass());
 
-    nodes.put(node.getId(), node);
+    nodeMap.put(node.getId(), node);
 
     return node;
   }
