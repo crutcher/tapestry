@@ -1,19 +1,16 @@
 package loom.graph.nodes;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.Value;
+import java.util.Map;
+import java.util.function.Consumer;
+import javax.annotation.Nonnull;
+import lombok.*;
 import lombok.experimental.Delegate;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.jackson.Jacksonized;
 import loom.common.json.HasToJsonString;
 import loom.common.json.WithSchema;
 import loom.graph.LoomNode;
-
-import javax.annotation.Nonnull;
-import java.util.function.Consumer;
 
 @Jacksonized
 @SuperBuilder
@@ -43,14 +40,23 @@ public class OperationSignatureNode
             "name": {
                 "type": "string",
                 "format": "uuid"
+            },
+            "params": {
+                "type": "object",
+                "patternProperties": {
+                    "^[a-zA-Z_][a-zA-Z0-9_]*$": {}
+                },
+                "additionalProperties": false
             }
         },
         "required": ["name"],
+        "additionalProperties": false
     }
     """)
   @JsonInclude(JsonInclude.Include.NON_NULL)
   public static class Body implements HasToJsonString {
     String name;
+    @Singular Map<String, Object> params;
   }
 
   public static OperationSignatureNodeBuilder<?, ?> withBody(Consumer<Body.BodyBuilder> cb) {

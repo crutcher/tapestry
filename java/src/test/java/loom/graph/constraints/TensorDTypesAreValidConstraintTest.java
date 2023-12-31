@@ -22,7 +22,7 @@ public class TensorDTypesAreValidConstraintTest extends BaseTestClass {
   }
 
   public LoomGraph createGraph() {
-    return createEnv().createGraph();
+    return createEnv().newGraph();
   }
 
   @Test

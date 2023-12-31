@@ -28,7 +28,7 @@ public class ApplicationNodeSelectionsAreWellFormedConstraintTest extends BaseTe
   }
 
   public LoomGraph createGraph() {
-    return createEnv().createGraph();
+    return createEnv().newGraph();
   }
 
   @Test

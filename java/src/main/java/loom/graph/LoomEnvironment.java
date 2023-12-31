@@ -240,7 +240,7 @@ public final class LoomEnvironment {
    *
    * @return the graph.
    */
-  public LoomGraph createGraph() {
+  public LoomGraph newGraph() {
     return graphBuilder().id(UUID.randomUUID()).build();
   }
 

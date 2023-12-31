@@ -54,7 +54,7 @@ public class LoomGraphTest extends BaseTestClass {
   @Test
   public void testNewUnusedNodeId() {
     var env = CommonEnvironments.genericEnvironment();
-    var graph = env.createGraph();
+    var graph = env.newGraph();
 
     for (int i = 0; i < 10; i++) {
       graph.addNode(
@@ -70,7 +70,7 @@ public class LoomGraphTest extends BaseTestClass {
   @Test
   public void testHasAssertAddNode() {
     var env = CommonEnvironments.genericEnvironment();
-    var graph = env.createGraph();
+    var graph = env.newGraph();
 
     var nodeIdA = UUID.randomUUID();
 

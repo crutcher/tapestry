@@ -1,9 +1,11 @@
 package loom.graph.constraints;
 
+import java.util.List;
 import java.util.regex.Pattern;
 import javax.annotation.Nonnull;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.Singular;
 import loom.common.json.JsonPathUtils;
 import loom.common.json.WithSchema;
 import loom.graph.LoomConstants;
@@ -46,13 +48,27 @@ public class NodeBodySchemaConstraint implements LoomEnvironment.Constraint {
     }
   }
 
-  @Nonnull private final String nodeType;
-  @Builder.Default private final boolean isRegex = false;
+  @Singular private final List<String> nodeTypes;
+  @Singular private final List<Pattern> nodeTypePatterns;
+
   @Nonnull private final String bodySchema;
+
+  @Builder
+  public NodeBodySchemaConstraint(
+      @Nonnull List<String> nodeTypes,
+      @Nonnull List<Pattern> nodeTypePatterns,
+      @Nonnull String bodySchema) {
+    this.nodeTypes = nodeTypes;
+    this.nodeTypePatterns = nodeTypePatterns;
+    this.bodySchema = bodySchema;
+  }
 
   @Override
   public void checkRequirements(LoomEnvironment env) {
-    env.assertSupportsNodeType(nodeType);
+    for (String nodeType : nodeTypes) {
+      env.assertSupportsNodeType(nodeType);
+    }
+    env.getJsonSchemaManager().loadSchema(bodySchema);
   }
 
   @Override
@@ -62,17 +78,21 @@ public class NodeBodySchemaConstraint implements LoomEnvironment.Constraint {
       ValidationIssueCollector issueCollector) {
     var schema = env.getJsonSchemaManager().loadSchema(bodySchema);
 
-    Pattern pattern = isRegex ? Pattern.compile(nodeType) : null;
-
     graph.stream()
         .filter(
             node -> {
               String type = node.getType();
-              if (isRegex) {
-                return pattern.matcher(type).matches();
-              } else {
-                return nodeType.equals(type);
+              for (String nodeType : nodeTypes) {
+                if (nodeType.equals(type)) {
+                  return true;
+                }
               }
+              for (Pattern p : nodeTypePatterns) {
+                if (p.matcher(type).matches()) {
+                  return true;
+                }
+              }
+              return false;
             })
         .forEach(node -> checkNode(env, node, schema, issueCollector));
   }

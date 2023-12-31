@@ -38,7 +38,7 @@ public class LoomEnvironmentTest extends BaseTestClass {
   @Test
   public void testCreateGraph() {
     var env = CommonEnvironments.genericEnvironment();
-    var graph = env.createGraph();
+    var graph = env.newGraph();
 
     assertThat(graph.getEnv()).isNotNull();
 

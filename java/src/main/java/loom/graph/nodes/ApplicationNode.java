@@ -42,9 +42,12 @@ public class ApplicationNode extends LoomNode<ApplicationNode, ApplicationNode.B
           "operationId": {
               "type": "string",
               "format": "uuid"
-          }
+          },
+          "inputs": { "$ref": "#/definitions/TensorSelectionMap" },
+          "outputs": { "$ref": "#/definitions/TensorSelectionMap" }
       },
       "required": ["operationId"],
+      "additionalProperties": false,
       "definitions": {
           "TensorSelectionMap": {
               "type": "object",

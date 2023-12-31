@@ -19,7 +19,7 @@ public class ValidationUtilsTest extends BaseTestClass {
   }
 
   public LoomGraph createGraph() {
-    return createEnv().createGraph();
+    return createEnv().newGraph();
   }
 
   @Test

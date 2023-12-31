@@ -1,14 +1,34 @@
 package loom.graph.constraints;
 
 import loom.common.json.WithSchema;
+import loom.graph.LoomEnvironment;
 import loom.graph.nodes.TensorNode;
 import loom.testing.BaseTestClass;
+import loom.zspace.ZPoint;
 import org.junit.Test;
 
 public class NodeBodySchemaConstraintTest extends BaseTestClass {
   @SuppressWarnings("unused")
   public static class BodyWithoutSchema {
     public String message;
+  }
+
+  @Test
+  public void test_bodyWithSchema() {
+    var env =
+        LoomEnvironment.builder()
+            .build()
+            .addNodeTypeClass(TensorNode.TYPE, TensorNode.class)
+            .addConstraint(
+                NodeBodySchemaConstraint.builder()
+                    .nodeType(TensorNode.TYPE)
+                    .withSchemaFromNodeClass(TensorNode.class)
+                    .build());
+    var graph = env.newGraph();
+
+    TensorNode.withBody(b -> b.dtype("int32").shape(ZPoint.of(2, 3))).buildOn(graph);
+
+    graph.validate();
   }
 
   @Test
@@ -21,7 +41,7 @@ public class NodeBodySchemaConstraintTest extends BaseTestClass {
               .withSchemaFromBodyClass(TensorNode.Body.class)
               .build();
 
-      assertThat(constraint.getNodeType()).isEqualTo(TensorNode.TYPE);
+      assertThat(constraint.getNodeTypes()).containsOnly(TensorNode.TYPE);
       assertThat(constraint.getBodySchema()).isEqualTo(tensorBodySchema);
     }
     {
@@ -31,7 +51,7 @@ public class NodeBodySchemaConstraintTest extends BaseTestClass {
               .withSchemaFromBodyClass(TensorNode.Body.class)
               .build();
 
-      assertThat(constraint.getNodeType()).isEqualTo(TensorNode.TYPE);
+      assertThat(constraint.getNodeTypes()).containsOnly(TensorNode.TYPE);
       assertThat(constraint.getBodySchema()).isEqualTo(tensorBodySchema);
     }
 

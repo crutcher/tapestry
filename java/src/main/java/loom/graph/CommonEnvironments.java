@@ -1,13 +1,13 @@
 package loom.graph;
 
+import java.util.Set;
+import java.util.regex.Pattern;
 import lombok.NoArgsConstructor;
 import loom.graph.constraints.ApplicationNodeSelectionsAreWellFormedConstraint;
 import loom.graph.constraints.NodeBodySchemaConstraint;
 import loom.graph.constraints.TensorDTypesAreValidConstraint;
 import loom.graph.constraints.ThereAreNoApplicationReferenceCyclesConstraint;
 import loom.graph.nodes.*;
-
-import java.util.Set;
 
 @NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
 public final class CommonEnvironments {
@@ -17,8 +17,7 @@ public final class CommonEnvironments {
         .build()
         .addConstraint(
             NodeBodySchemaConstraint.builder()
-                .nodeType("^.*$")
-                .isRegex(true)
+                .nodeTypePattern(Pattern.compile("^.*$"))
                 .withSchemaFromBodyClass(GenericNode.Body.class)
                 .build());
   }

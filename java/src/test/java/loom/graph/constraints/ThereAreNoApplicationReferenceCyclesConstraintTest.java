@@ -25,7 +25,7 @@ public class ThereAreNoApplicationReferenceCyclesConstraintTest extends BaseTest
   @Test
   public void test_Empty() {
     var env = createEnvironment();
-    var graph = env.createGraph();
+    var graph = env.newGraph();
 
     var collector = new ListValidationIssueCollector();
     constraint.validateConstraint(env, graph, collector);
@@ -35,7 +35,7 @@ public class ThereAreNoApplicationReferenceCyclesConstraintTest extends BaseTest
   @Test
   public void test_Cycles() {
     var env = createEnvironment();
-    var graph = env.createGraph();
+    var graph = env.newGraph();
 
     var tensorA =
         TensorNode.withBody(
