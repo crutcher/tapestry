@@ -7,11 +7,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import java.io.IOException;
-import java.lang.reflect.ParameterizedType;
-import java.util.UUID;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -19,6 +14,12 @@ import lombok.experimental.SuperBuilder;
 import loom.common.json.HasToJsonString;
 import loom.common.json.JsonUtil;
 import loom.validation.ValidationIssue;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.io.IOException;
+import java.lang.reflect.ParameterizedType;
+import java.util.UUID;
 
 /**
  * Base class for a node in the graph.
@@ -130,9 +131,10 @@ public abstract class LoomNode<NodeType extends LoomNode<NodeType, BodyType>, Bo
 
   /** Get the class type of the node body. */
   @JsonIgnore
-  @SuppressWarnings("unchecked")
   public final Class<BodyType> getBodyClass() {
-    return getBodyClass(getClass());
+    @SuppressWarnings("unchecked")
+    var cls = (Class<BodyType>) getBodyClass(getClass());
+    return cls;
   }
 
   /**
@@ -141,16 +143,16 @@ public abstract class LoomNode<NodeType extends LoomNode<NodeType, BodyType>, Bo
    * <p>Introspects the node type class parameters to get the body type class.
    *
    * @param nodeTypeClass the node type class.
-   * @param <N> the node type.
-   * @param <B> the body type.
    * @return the body class.
    */
-  // TODO: this type signature is too strict.
-  public static <N extends LoomNode<N, B>, B> Class<B> getBodyClass(Class<N> nodeTypeClass) {
-    var cls = (ParameterizedType) nodeTypeClass.getGenericSuperclass();
-    @SuppressWarnings("unchecked")
-    var bodyClass = (Class<B>) cls.getActualTypeArguments()[1];
-    return bodyClass;
+  public static Class<?> getBodyClass(Class<? extends LoomNode> nodeTypeClass) {
+    Class<?> cls = nodeTypeClass;
+    while (cls.getSuperclass() != LoomNode.class) {
+      cls = cls.getSuperclass();
+    }
+    var pt = (ParameterizedType) nodeTypeClass.getGenericSuperclass();
+    var bc = (Class<?>) pt.getActualTypeArguments()[1];
+    return bc;
   }
 
   @Nonnull

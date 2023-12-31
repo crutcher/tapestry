@@ -1,5 +1,7 @@
 package loom.graph.constraints;
 
+import java.util.regex.Pattern;
+import javax.annotation.Nonnull;
 import lombok.Builder;
 import lombok.Getter;
 import loom.common.json.JsonPathUtils;
@@ -11,9 +13,6 @@ import loom.graph.LoomNode;
 import loom.validation.ValidationIssue;
 import loom.validation.ValidationIssueCollector;
 import org.leadpony.justify.api.JsonSchema;
-
-import javax.annotation.Nonnull;
-import java.util.regex.Pattern;
 
 @Builder
 @Getter
@@ -33,6 +32,17 @@ public class NodeBodySchemaConstraint implements LoomEnvironment.Constraint {
             "Class %s does not have a @WithSchema annotation".formatted(clazz));
       }
       return bodySchema(ws.value());
+    }
+
+    /**
+     * Set the body schema from a node class with a {@link WithSchema} body class.
+     *
+     * @param clazz the class.
+     * @return this builder.
+     */
+    public NodeBodySchemaConstraintBuilder withSchemaFromNodeClass(
+        Class<? extends LoomNode> clazz) {
+      return withSchemaFromBodyClass(LoomNode.getBodyClass(clazz));
     }
   }
 
@@ -64,8 +74,7 @@ public class NodeBodySchemaConstraint implements LoomEnvironment.Constraint {
                 return pattern.matcher(type).matches();
               }
             })
-        .forEach(
-            node -> checkNode(env, node, schema, issueCollector));
+        .forEach(node -> checkNode(env, node, schema, issueCollector));
   }
 
   private void checkNode(

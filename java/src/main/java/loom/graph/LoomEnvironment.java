@@ -6,6 +6,7 @@ import lombok.Data;
 import loom.common.json.JsonSchemaManager;
 import loom.common.json.JsonUtil;
 import loom.common.runtime.ExcludeFromJacocoGeneratedReport;
+import loom.graph.constraints.NodeBodySchemaConstraint;
 import loom.validation.ListValidationIssueCollector;
 import loom.validation.ValidationIssueCollector;
 
@@ -53,6 +54,24 @@ public final class LoomEnvironment {
   public LoomEnvironment addNodeTypeClass(
       String type, Class<? extends LoomNode<?, ?>> nodeTypeClass) {
     this.nodeTypeClasses.put(type, nodeTypeClass);
+    return this;
+  }
+
+  /**
+   * Register a Node type class, and common constraints.
+   *
+   * @param type the type.
+   * @param nodeTypeClass the node type class.
+   * @return this LoomEnvironment.
+   */
+  public LoomEnvironment registerNodeType(
+      String type, Class<? extends LoomNode<?, ?>> nodeTypeClass) {
+    addNodeTypeClass(type, nodeTypeClass);
+    addConstraint(
+        NodeBodySchemaConstraint.builder()
+            .nodeType(type)
+            .withSchemaFromNodeClass(nodeTypeClass)
+            .build());
     return this;
   }
 
