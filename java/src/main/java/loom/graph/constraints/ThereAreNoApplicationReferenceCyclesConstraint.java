@@ -7,7 +7,7 @@ import loom.graph.nodes.TensorNode;
 import loom.validation.ValidationIssue;
 import loom.validation.ValidationIssueCollector;
 
-public class ThereAreNoApplicationReferenceCyclesConstraint implements LoomConstraint {
+public class ThereAreNoApplicationReferenceCyclesConstraint implements LoomEnvironment.Constraint {
 
   @Override
   public void checkRequirements(LoomEnvironment env) {

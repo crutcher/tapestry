@@ -7,7 +7,6 @@ import loom.common.json.JsonPathUtils;
 import loom.common.lazy.LazyString;
 import loom.common.lazy.Thunk;
 import loom.graph.LoomConstants;
-import loom.graph.LoomConstraint;
 import loom.graph.LoomEnvironment;
 import loom.graph.LoomGraph;
 import loom.graph.nodes.ApplicationNode;
@@ -16,7 +15,8 @@ import loom.graph.nodes.ValidationUtils;
 import loom.validation.ValidationIssue;
 import loom.validation.ValidationIssueCollector;
 
-public final class ApplicationNodeSelectionsAreWellFormedConstraint implements LoomConstraint {
+public final class ApplicationNodeSelectionsAreWellFormedConstraint
+    implements LoomEnvironment.Constraint {
   @Override
   public void checkRequirements(LoomEnvironment env) {
     env.assertClassForType(TensorNode.TYPE, TensorNode.class);
@@ -37,7 +37,7 @@ public final class ApplicationNodeSelectionsAreWellFormedConstraint implements L
       @SuppressWarnings("unused") LoomGraph graph,
       ApplicationNode node,
       ValidationIssueCollector issueCollector) {
-    var lazyContexts = Thunk.of(() -> List.of(node.asContext("Application Node")));
+    var lazyContexts = Thunk.of(() -> List.of(node.asValidationContext("Application Node")));
     // TODO: check that the operationId is a valid OperationSignature.
     validateTensorSliceMap(graph, node, "inputs", node.getInputs(), lazyContexts, issueCollector);
     validateTensorSliceMap(graph, node, "outputs", node.getOutputs(), lazyContexts, issueCollector);
@@ -97,7 +97,7 @@ public final class ApplicationNodeSelectionsAreWellFormedConstraint implements L
                   .param("actualDimensions", tensorRange.getNDim())
                   .summary("Tensor selection has the wrong number of dimensions")
                   .context(lazySelectionRangeContext)
-                  .context(tensorNode.asContext("Tensor Node"))
+                  .context(tensorNode.asValidationContext("Tensor Node"))
                   .withContexts(contextsSupplier)
                   .build());
           continue;
@@ -110,7 +110,7 @@ public final class ApplicationNodeSelectionsAreWellFormedConstraint implements L
                   .param("nodeType", ApplicationNode.TYPE)
                   .summary("Tensor selection is out of bounds")
                   .context(lazySelectionRangeContext)
-                  .context(tensorNode.asContext("Tensor Node"))
+                  .context(tensorNode.asValidationContext("Tensor Node"))
                   .withContexts(contextsSupplier)
                   .build());
         }

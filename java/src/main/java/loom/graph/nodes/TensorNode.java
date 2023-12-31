@@ -16,7 +16,7 @@ import loom.common.json.WithSchema;
 import loom.common.lazy.LazyString;
 import loom.common.lazy.Thunk;
 import loom.graph.LoomConstants;
-import loom.graph.LoomGraph;
+import loom.graph.LoomNode;
 import loom.validation.HasValidate;
 import loom.validation.ValidationIssue;
 import loom.validation.ValidationIssueCollector;
@@ -30,12 +30,12 @@ import org.apache.commons.lang3.builder.HashCodeExclude;
 @SuperBuilder
 @Getter
 @Setter
-public final class TensorNode extends LoomGraph.Node<TensorNode, TensorNode.Body> {
+public final class TensorNode extends LoomNode<TensorNode, TensorNode.Body> {
   public static final String TYPE = "TensorNode";
 
   public abstract static class TensorNodeBuilder<
           C extends TensorNode, B extends TensorNodeBuilder<C, B>>
-      extends NodeBuilder<TensorNode, Body, C, B> {
+      extends LoomNodeBuilder<TensorNode, Body, C, B> {
     {
       // Set the node type.
       type(TYPE);

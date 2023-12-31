@@ -12,19 +12,19 @@ import lombok.experimental.SuperBuilder;
 import lombok.extern.jackson.Jacksonized;
 import loom.common.json.HasToJsonString;
 import loom.common.json.WithSchema;
-import loom.graph.LoomGraph;
+import loom.graph.LoomNode;
 import loom.zspace.ZRange;
 
 @Jacksonized
 @SuperBuilder
 @Getter
 @Setter
-public class ApplicationNode extends LoomGraph.Node<ApplicationNode, ApplicationNode.Body> {
+public class ApplicationNode extends LoomNode<ApplicationNode, ApplicationNode.Body> {
   public static final String TYPE = "ApplicationNode";
 
   public abstract static class ApplicationNodeBuilder<
           C extends ApplicationNode, B extends ApplicationNodeBuilder<C, B>>
-      extends NodeBuilder<ApplicationNode, Body, C, B> {
+      extends LoomNodeBuilder<ApplicationNode, Body, C, B> {
     {
       // Set the node type.
       type(TYPE);

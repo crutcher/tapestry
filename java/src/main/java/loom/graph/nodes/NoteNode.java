@@ -10,13 +10,13 @@ import lombok.experimental.Delegate;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.jackson.Jacksonized;
 import loom.common.json.WithSchema;
-import loom.graph.LoomGraph;
+import loom.graph.LoomNode;
 
 @Jacksonized
 @SuperBuilder
 @Getter
 @Setter
-public final class NoteNode extends LoomGraph.Node<NoteNode, NoteNode.Body> {
+public final class NoteNode extends LoomNode<NoteNode, NoteNode.Body> {
   public static final String TYPE = "NoteNode";
 
   @Data
@@ -40,7 +40,7 @@ public final class NoteNode extends LoomGraph.Node<NoteNode, NoteNode.Body> {
   }
 
   public abstract static class NoteNodeBuilder<C extends NoteNode, B extends NoteNodeBuilder<C, B>>
-      extends NodeBuilder<NoteNode, Body, C, B> {
+      extends LoomNodeBuilder<NoteNode, Body, C, B> {
     {
       type(TYPE);
     }

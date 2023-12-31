@@ -18,10 +18,10 @@ public class TraversalUtils {
    * @param graph the graph to search
    * @return a list of cycles, where each cycle is a list of nodes in the cycle.
    */
-  public static List<List<LoomGraph.Node<?, ?>>> findApplicationSimpleCycles(LoomGraph graph) {
-    Graph<LoomGraph.Node<?, ?>, DefaultEdge> linkGraph = buildApplicationLinkGraph(graph);
+  public static List<List<LoomNode<?, ?>>> findApplicationSimpleCycles(LoomGraph graph) {
+    Graph<LoomNode<?, ?>, DefaultEdge> linkGraph = buildApplicationLinkGraph(graph);
 
-    List<List<LoomGraph.Node<?, ?>>> simpleCycles = new ArrayList<>();
+    List<List<LoomNode<?, ?>>> simpleCycles = new ArrayList<>();
     new TarjanSimpleCycles<>(linkGraph).findSimpleCycles(simpleCycles::add);
     // Tarjan will place all non-cycle nodes in their own cycles, so filter those out.
     return simpleCycles.stream().filter(cycle -> cycle.size() > 1).toList();
@@ -38,10 +38,8 @@ public class TraversalUtils {
    * @return a JGraphT graph of the data flow.
    */
   @Nonnull
-  public static Graph<LoomGraph.Node<?, ?>, DefaultEdge> buildApplicationLinkGraph(
-      LoomGraph graph) {
-    Graph<LoomGraph.Node<?, ?>, DefaultEdge> linkGraph =
-        new DefaultDirectedGraph<>(DefaultEdge.class);
+  public static Graph<LoomNode<?, ?>, DefaultEdge> buildApplicationLinkGraph(LoomGraph graph) {
+    Graph<LoomNode<?, ?>, DefaultEdge> linkGraph = new DefaultDirectedGraph<>(DefaultEdge.class);
 
     for (var node : graph.iterableNodes(ApplicationNode.TYPE, ApplicationNode.class)) {
       linkGraph.addVertex(node);

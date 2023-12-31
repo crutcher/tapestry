@@ -5,7 +5,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Singular;
 import loom.graph.LoomConstants;
-import loom.graph.LoomConstraint;
 import loom.graph.LoomEnvironment;
 import loom.graph.LoomGraph;
 import loom.graph.nodes.TensorNode;
@@ -14,7 +13,7 @@ import loom.validation.ValidationIssueCollector;
 
 @Getter
 @Builder
-public class TensorDTypesAreValidConstraint implements LoomConstraint {
+public class TensorDTypesAreValidConstraint implements LoomEnvironment.Constraint {
   @Singular private final Set<String> validDTypes;
 
   @Override

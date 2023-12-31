@@ -1,22 +1,23 @@
 package loom.graph.constraints;
 
-import java.util.regex.Pattern;
-import javax.annotation.Nonnull;
 import lombok.Builder;
 import lombok.Getter;
 import loom.common.json.JsonPathUtils;
 import loom.common.json.WithSchema;
 import loom.graph.LoomConstants;
-import loom.graph.LoomConstraint;
 import loom.graph.LoomEnvironment;
 import loom.graph.LoomGraph;
+import loom.graph.LoomNode;
 import loom.validation.ValidationIssue;
 import loom.validation.ValidationIssueCollector;
 import org.leadpony.justify.api.JsonSchema;
 
+import javax.annotation.Nonnull;
+import java.util.regex.Pattern;
+
 @Builder
 @Getter
-public class NodeBodySchemaConstraint implements LoomConstraint {
+public class NodeBodySchemaConstraint implements LoomEnvironment.Constraint {
   @SuppressWarnings("unused")
   public static class NodeBodySchemaConstraintBuilder {
     /**
@@ -36,7 +37,7 @@ public class NodeBodySchemaConstraint implements LoomConstraint {
   }
 
   @Nonnull private final String nodeType;
-  @Builder.Default private final boolean isRegex = false;
+  @Builder.Default private final Boolean isRegex = false;
   @Nonnull private final String bodySchema;
 
   @Override
@@ -50,23 +51,26 @@ public class NodeBodySchemaConstraint implements LoomConstraint {
       LoomGraph graph,
       ValidationIssueCollector issueCollector) {
     var schema = env.getJsonSchemaManager().loadSchema(bodySchema);
-    if (isRegex) {
-      var typePattern = Pattern.compile(nodeType);
-      for (var node : graph.iterableNodes()) {
-        if (typePattern.matcher(node.getType()).matches()) {
-          checkNode(env, node, schema, issueCollector);
-        }
-      }
-    } else {
-      for (var node : graph.iterableNodes(nodeType, LoomGraph.Node.class)) {
-        checkNode(env, node, schema, issueCollector);
-      }
-    }
+
+    Pattern pattern = isRegex ? Pattern.compile(nodeType) : null;
+
+    graph.stream()
+        .filter(
+            node -> {
+              String type = node.getType();
+              if (pattern == null) {
+                return nodeType.equals(type);
+              } else {
+                return pattern.matcher(type).matches();
+              }
+            })
+        .forEach(
+            node -> checkNode(env, node, schema, issueCollector));
   }
 
   private void checkNode(
       LoomEnvironment env,
-      LoomGraph.Node<?, ?> node,
+      LoomNode<?, ?> node,
       JsonSchema schema,
       ValidationIssueCollector issueCollector) {
 
@@ -79,7 +83,7 @@ public class NodeBodySchemaConstraint implements LoomConstraint {
         .jsonPathPrefix(JsonPathUtils.concatJsonPath(node.getJsonPath() + ".body"))
         .schema(schema)
         .json(node.getBodyAsJson())
-        .context(node.asContext("Node"))
+        .context(node.asValidationContext("Node"))
         .context(
             ValidationIssue.Context.builder().name("Body Schema").dataFromJson(bodySchema).build())
         .build()

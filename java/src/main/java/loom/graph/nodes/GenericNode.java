@@ -13,7 +13,7 @@ import lombok.experimental.SuperBuilder;
 import lombok.extern.jackson.Jacksonized;
 import loom.common.json.HasToJsonString;
 import loom.common.json.WithSchema;
-import loom.graph.LoomGraph;
+import loom.graph.LoomNode;
 
 /**
  * The GenericNode class represents a generic node in a graph. It extends the LoomGraph.Node class,
@@ -23,7 +23,7 @@ import loom.graph.LoomGraph;
 @SuperBuilder
 @Getter
 @Setter
-public final class GenericNode extends LoomGraph.Node<GenericNode, GenericNode.Body> {
+public final class GenericNode extends LoomNode<GenericNode, GenericNode.Body> {
 
   /** The Body class represents the body of a GenericNode. It contains a map of fields. */
   @Data

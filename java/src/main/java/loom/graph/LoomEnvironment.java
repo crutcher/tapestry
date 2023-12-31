@@ -1,15 +1,17 @@
 package loom.graph;
 
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
-import java.util.*;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import lombok.Builder;
 import lombok.Data;
 import loom.common.json.JsonSchemaManager;
 import loom.common.json.JsonUtil;
+import loom.common.runtime.ExcludeFromJacocoGeneratedReport;
 import loom.validation.ListValidationIssueCollector;
 import loom.validation.ValidationIssueCollector;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.*;
 
 /**
  * Loom Graph Environment.
@@ -19,12 +21,27 @@ import loom.validation.ValidationIssueCollector;
 @Data
 @Builder
 public final class LoomEnvironment {
-  @Builder.Default private final JsonSchemaManager jsonSchemaManager = new JsonSchemaManager();
+  /** Constraint interface for graph validating plugins. */
+  @FunctionalInterface
+  public interface Constraint {
+    /**
+     * Check that the environment supports the requirements of this constraint.
+     *
+     * @param env the LoomEnvironment.
+     * @throws IllegalStateException if the environment does not support the requirements of this
+     */
+    @ExcludeFromJacocoGeneratedReport
+    default void checkRequirements(LoomEnvironment env) {}
 
-  @Nullable private Class<? extends LoomGraph.Node<?, ?>> defaultNodeTypeClass;
-  private final Map<String, Class<? extends LoomGraph.Node<?, ?>>> nodeTypeClasses =
-      new HashMap<>();
-  private final List<LoomConstraint> constraints = new ArrayList<>();
+    void validateConstraint(
+        LoomEnvironment env, LoomGraph graph, ValidationIssueCollector issueCollector);
+  }
+
+  @Nullable private Class<? extends LoomNode<?, ?>> defaultNodeTypeClass;
+  private final Map<String, Class<? extends LoomNode<?, ?>>> nodeTypeClasses = new HashMap<>();
+  private final List<Constraint> constraints = new ArrayList<>();
+
+  @Builder.Default private final JsonSchemaManager jsonSchemaManager = new JsonSchemaManager();
 
   /**
    * Add a node type class to the LoomEnvironment.
@@ -34,7 +51,7 @@ public final class LoomEnvironment {
    * @return this LoomEnvironment.
    */
   public LoomEnvironment addNodeTypeClass(
-      String type, Class<? extends LoomGraph.Node<?, ?>> nodeTypeClass) {
+      String type, Class<? extends LoomNode<?, ?>> nodeTypeClass) {
     this.nodeTypeClasses.put(type, nodeTypeClass);
     return this;
   }
@@ -67,7 +84,7 @@ public final class LoomEnvironment {
    * @param type the type of the node.
    * @return the class representing the node type, or null if the type is not found.
    */
-  @Nullable public Class<? extends LoomGraph.Node<?, ?>> classForType(String type) {
+  @Nullable public Class<? extends LoomNode<?, ?>> classForType(String type) {
     var nodeTypeClass = nodeTypeClasses.get(type);
     if (nodeTypeClass == null) {
       nodeTypeClass = defaultNodeTypeClass;
@@ -83,7 +100,7 @@ public final class LoomEnvironment {
    * @throws IllegalStateException if the node type is not present.
    */
   @Nonnull
-  public Class<? extends LoomGraph.Node<?, ?>> assertClassForType(String type) {
+  public Class<? extends LoomNode<?, ?>> assertClassForType(String type) {
     var nodeTypeClass = classForType(type);
     if (nodeTypeClass == null) {
       throw new IllegalStateException("Unknown node type: " + type);
@@ -98,7 +115,7 @@ public final class LoomEnvironment {
    * @param nodeTypeClass the node type class.
    * @throws IllegalStateException if the node type class is not present.
    */
-  public void assertClassForType(String type, Class<? extends LoomGraph.Node<?, ?>> nodeTypeClass) {
+  public void assertClassForType(String type, Class<? extends LoomNode<?, ?>> nodeTypeClass) {
     if (nodeTypeClass != assertClassForType(type)) {
       throw new IllegalStateException("Node type class mismatch: " + type + " is " + nodeTypeClass);
     }
@@ -111,7 +128,7 @@ public final class LoomEnvironment {
    * @return the modified LoomEnvironment with the added constraint.
    * @throws IllegalArgumentException if the constraint is not valid in this environment.
    */
-  public LoomEnvironment addConstraint(LoomConstraint constraint) {
+  public LoomEnvironment addConstraint(Constraint constraint) {
     constraint.checkRequirements(this);
     constraints.add(constraint);
     return this;
@@ -123,7 +140,7 @@ public final class LoomEnvironment {
    * @param constraintClass the constraint class.
    * @return the constraint, or null if not found.
    */
-  public LoomConstraint lookupConstraint(Class<? extends LoomConstraint> constraintClass) {
+  public Constraint lookupConstraint(Class<? extends Constraint> constraintClass) {
     for (var constraint : constraints) {
       if (constraint.getClass().equals(constraintClass)) {
         return constraint;
@@ -140,7 +157,7 @@ public final class LoomEnvironment {
    * @throws IllegalStateException if the constraint is not present.
    */
   @CanIgnoreReturnValue
-  public LoomConstraint assertConstraint(Class<? extends LoomConstraint> constraintClass) {
+  public Constraint assertConstraint(Class<? extends Constraint> constraintClass) {
     var constraint = lookupConstraint(constraintClass);
     if (constraint == null) {
       throw new IllegalStateException("Required constraint not found: " + constraintClass);

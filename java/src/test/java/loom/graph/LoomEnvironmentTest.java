@@ -1,5 +1,6 @@
 package loom.graph;
 
+import loom.graph.constraints.NodeBodySchemaConstraint;
 import loom.graph.nodes.ApplicationNode;
 import loom.graph.nodes.NoteNode;
 import loom.graph.nodes.TensorNode;
@@ -98,7 +99,7 @@ public class LoomEnvironmentTest extends BaseTestClass {
   @Test
   public void test_constraints() {
     var constraint =
-        new LoomConstraint() {
+        new LoomEnvironment.Constraint() {
           @Override
           public void checkRequirements(LoomEnvironment env) {
             env.assertSupportsNodeType(TensorNode.TYPE);
@@ -121,7 +122,11 @@ public class LoomEnvironmentTest extends BaseTestClass {
 
     env.addNodeTypeClass(TensorNode.TYPE, TensorNode.class);
 
+    assertThat(env.lookupConstraint(constraint.getClass())).isNull();
+
     env.addConstraint(constraint);
+
+    assertThat(env.lookupConstraint(NodeBodySchemaConstraint.class)).isNull();
 
     env.assertConstraint(constraint.getClass());
   }

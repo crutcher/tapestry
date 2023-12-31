@@ -55,7 +55,7 @@ public class TensorDTypesAreValidConstraintTest extends BaseTestClass {
             .type(LoomConstants.NODE_VALIDATION_ERROR)
             .param("nodeType", TensorNode.TYPE)
             .summary("Tensor dtype (nonesuch) not a recognized type")
-            .context(badTensor.asContext("Tensor"))
+            .context(badTensor.asValidationContext("Tensor"))
             .build());
   }
 }

@@ -110,7 +110,7 @@ public class ApplicationNodeSelectionsAreWellFormedConstraintTest extends BaseTe
                         .name("Reference")
                         .jsonpath(apNode.getJsonPath(), "body.inputs.source[0]")
                         .data(missingTensorId))
-            .context(apNode.asContext("Application Node"))
+            .context(apNode.asValidationContext("Application Node"))
             .build());
   }
 
@@ -152,7 +152,7 @@ public class ApplicationNodeSelectionsAreWellFormedConstraintTest extends BaseTe
                         .name("Reference")
                         .jsonpath(apNode.getJsonPath(), "body.inputs.source[0]")
                         .data(noteNode.getId()))
-            .context(apNode.asContext("Application Node"))
+            .context(apNode.asValidationContext("Application Node"))
             .build());
   }
 
@@ -195,8 +195,8 @@ public class ApplicationNodeSelectionsAreWellFormedConstraintTest extends BaseTe
                         .name("Selection Range")
                         .jsonpath(appNode.getJsonPath(), "body.inputs.source[0]")
                         .data(ZRange.fromShape(100)))
-            .context(inputTensor.asContext("Tensor Node"))
-            .context(appNode.asContext("Application Node"))
+            .context(inputTensor.asValidationContext("Tensor Node"))
+            .context(appNode.asValidationContext("Application Node"))
             .build());
   }
 
@@ -238,8 +238,8 @@ public class ApplicationNodeSelectionsAreWellFormedConstraintTest extends BaseTe
                         .name("Selection Range")
                         .jsonpath(appNode.getJsonPath(), "body.inputs.source[0]")
                         .data(ZRange.fromStartWithShape(ZPoint.of(1, 2), ZPoint.of(5, 3))))
-            .context(inputTensor.asContext("Tensor Node"))
-            .context(appNode.asContext("Application Node"))
+            .context(inputTensor.asValidationContext("Tensor Node"))
+            .context(appNode.asValidationContext("Application Node"))
             .build());
   }
 }

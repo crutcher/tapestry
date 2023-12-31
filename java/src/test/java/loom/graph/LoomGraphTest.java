@@ -25,7 +25,7 @@ public class LoomGraphTest extends BaseTestClass {
   @SuperBuilder
   @Getter
   @Setter
-  public static class DemoNode extends LoomGraph.Node<DemoNode, DemoNode.Body> {
+  public static class DemoNode extends LoomNode<DemoNode, DemoNode.Body> {
     public static final String TYPE = "DemoNode";
     @Delegate @Nonnull private Body body;
 
@@ -336,6 +336,8 @@ public class LoomGraphTest extends BaseTestClass {
             DemoNode.builder()
                 .type(DemoNode.TYPE)
                 .body(DemoNode.Body.builder().foo("bar").build()));
+
+    assertThat(node.assertGraph()).isSameAs(graph);
 
     assertThat(graph.hasNode(node.getId())).isTrue();
     assertThat(graph.hasNode(node.getId().toString())).isTrue();
