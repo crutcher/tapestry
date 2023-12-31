@@ -28,6 +28,16 @@ public class TraversalUtils {
     return simpleCycles.stream().filter(cycle -> cycle.size() > 1).toList();
   }
 
+  /**
+   * Build a JGraphT graph of the data flow of Application and Tensor nodes in the graph.
+   *
+   * <p>This is a directed graph where the nodes are Application and Tensor nodes, and the edges
+   * represent data flow from Tensor inputs to Application nodes; and from Application nodes to
+   * Tensor outputs.
+   *
+   * @param graph the graph to traverse.
+   * @return a JGraphT graph of the data flow.
+   */
   @Nonnull
   public static Graph<LoomGraph.Node<?, ?>, DefaultEdge> buildApplicationLinkGraph(
       LoomGraph graph) {
