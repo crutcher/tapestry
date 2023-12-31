@@ -24,7 +24,6 @@ import javax.annotation.Nullable;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import loom.common.collections.IteratorUtils;
-import loom.common.exceptions.LookupError;
 import loom.common.json.HasToJsonString;
 import loom.common.json.JsonUtil;
 import loom.common.json.MapValueListUtil;
@@ -141,6 +140,7 @@ public final class LoomGraph implements Iterable<LoomGraph.Node<?, ?>>, HasToJso
      * Get the graph that this node belongs to.
      *
      * @return the graph.
+     * @throws IllegalStateException if the node does not belong to a graph.
      */
     public final LoomGraph assertGraph() {
       if (graph == null) {
@@ -166,6 +166,7 @@ public final class LoomGraph implements Iterable<LoomGraph.Node<?, ?>>, HasToJso
      * @param <N> the node type.
      * @param <B> the body type.
      */
+    // TODO: this type signature is too strict.
     public static <N extends Node<N, B>, B> Class<B> getBodyClass(Class<N> nodeTypeClass) {
       var cls = (ParameterizedType) nodeTypeClass.getGenericSuperclass();
       @SuppressWarnings("unchecked")
@@ -316,7 +317,7 @@ public final class LoomGraph implements Iterable<LoomGraph.Node<?, ?>>, HasToJso
    *
    * @param id the ID of the node to get.
    * @return the node.
-   * @throws LookupError if the node does not exist.
+   * @throws IllegalStateException if the node does not exist.
    */
   @Nonnull
   public Node<?, ?> assertNode(String id) {
@@ -328,13 +329,13 @@ public final class LoomGraph implements Iterable<LoomGraph.Node<?, ?>>, HasToJso
    *
    * @param id the ID of the node to get.
    * @return the node.
-   * @throws LookupError if the node does not exist.
+   * @throws IllegalStateException if the node does not exist.
    */
   @Nonnull
   public Node<?, ?> assertNode(UUID id) {
     var node = nodeMap.get(id);
     if (node == null) {
-      throw new LookupError("Node not found: " + id);
+      throw new IllegalStateException("Node not found: " + id);
     }
     return node;
   }
@@ -347,7 +348,7 @@ public final class LoomGraph implements Iterable<LoomGraph.Node<?, ?>>, HasToJso
    * @param nodeClass the class of the node to get.
    * @return the cast node.
    * @param <T> the type of the node to get.
-   * @throws LookupError if the node does not exist, or is not of the given type.
+   * @throws IllegalStateException if the node does not exist, or is not of the given type.
    */
   @Nonnull
   public <T extends Node<?, ?>> T assertNode(String id, String type, Class<T> nodeClass) {
@@ -362,16 +363,17 @@ public final class LoomGraph implements Iterable<LoomGraph.Node<?, ?>>, HasToJso
    * @param nodeClass the class of the node to get.
    * @return the cast node.
    * @param <T> the type of the node to get.
-   * @throws LookupError if the node does not exist, or is not of the given type.
+   * @throws IllegalStateException if the node does not exist, or is not of the given type.
    */
   @Nonnull
   public <T extends Node<?, ?>> T assertNode(UUID id, @Nullable String type, Class<T> nodeClass) {
     var node = assertNode(id);
     if (type != null && !node.getType().equals(type)) {
-      throw new LookupError("Node is not of type " + type + ": " + id);
+      throw new IllegalStateException("Node is not of type " + type + ": " + id);
     }
     if (!nodeClass.isInstance(node)) {
-      throw new LookupError("Node is not of type " + nodeClass.getSimpleName() + ": " + id);
+      throw new IllegalStateException(
+          "Node is not of type " + nodeClass.getSimpleName() + ": " + id);
     }
     return nodeClass.cast(node);
   }

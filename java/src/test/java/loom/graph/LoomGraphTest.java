@@ -1,10 +1,5 @@
 package loom.graph;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import javax.annotation.Nonnull;
 import lombok.Builder;
 import lombok.Data;
 import lombok.Getter;
@@ -12,7 +7,6 @@ import lombok.Setter;
 import lombok.experimental.Delegate;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.jackson.Jacksonized;
-import loom.common.exceptions.LookupError;
 import loom.common.json.JsonUtil;
 import loom.common.json.WithSchema;
 import loom.graph.nodes.GenericNode;
@@ -20,6 +14,12 @@ import loom.graph.nodes.TensorNode;
 import loom.testing.BaseTestClass;
 import loom.zspace.ZPoint;
 import org.junit.Test;
+
+import javax.annotation.Nonnull;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 public class LoomGraphTest extends BaseTestClass {
   @Jacksonized
@@ -76,8 +76,9 @@ public class LoomGraphTest extends BaseTestClass {
 
     assertThat(graph.hasNode(nodeIdA)).isFalse();
     assertThat(graph.hasNode(nodeIdA.toString())).isFalse();
-    assertThatExceptionOfType(LookupError.class).isThrownBy(() -> graph.assertNode(nodeIdA));
-    assertThatExceptionOfType(LookupError.class)
+    assertThatExceptionOfType(IllegalStateException.class)
+        .isThrownBy(() -> graph.assertNode(nodeIdA));
+    assertThatExceptionOfType(IllegalStateException.class)
         .isThrownBy(() -> graph.assertNode(nodeIdA.toString()));
 
     var nodeA =
@@ -101,9 +102,9 @@ public class LoomGraphTest extends BaseTestClass {
     assertThat(graph.assertNode(nodeIdA.toString(), "test", GenericNode.class)).isSameAs(nodeA);
     assertThat(graph.assertNode(nodeIdA, null, GenericNode.class)).isSameAs(nodeA);
     assertThat(graph.assertNode(nodeIdA.toString(), null, GenericNode.class)).isSameAs(nodeA);
-    assertThatExceptionOfType(LookupError.class)
+    assertThatExceptionOfType(IllegalStateException.class)
         .isThrownBy(() -> graph.assertNode(nodeIdA, "foo", GenericNode.class));
-    assertThatExceptionOfType(LookupError.class)
+    assertThatExceptionOfType(IllegalStateException.class)
         .isThrownBy(() -> graph.assertNode(nodeIdA, "test", DemoNode.class));
   }
 
