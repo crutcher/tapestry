@@ -17,6 +17,7 @@ import loom.common.json.WithSchema;
 import loom.graph.nodes.GenericNode;
 import loom.graph.nodes.TensorNode;
 import loom.testing.BaseTestClass;
+import loom.validation.ValidationIssue;
 import loom.zspace.ZPoint;
 import org.junit.Test;
 
@@ -314,6 +315,21 @@ public class LoomGraphTest extends BaseTestClass {
   }
 
   @Test
+  public void test_nodeBuilder() {
+    var env = LoomEnvironment.builder().build().addNodeTypeClass(DemoNode.TYPE, DemoNode.class);
+
+    var graph = env.graphBuilder().build();
+
+    var node =
+        graph.nodeBuilder().type(DemoNode.TYPE).label("abc").body(Map.of("foo", "bar")).build();
+
+    assertThat(node)
+        .isInstanceOf(DemoNode.class)
+        .hasFieldOrPropertyWithValue("label", "abc")
+        .hasFieldOrPropertyWithValue("foo", "bar");
+  }
+
+  @Test
   public void testNode() {
     var env = LoomEnvironment.builder().build().addNodeTypeClass(DemoNode.TYPE, DemoNode.class);
 
@@ -336,6 +352,15 @@ public class LoomGraphTest extends BaseTestClass {
             DemoNode.builder()
                 .type(DemoNode.TYPE)
                 .body(DemoNode.Body.builder().foo("bar").build()));
+
+    assertThat(node.asValidationContext("foo", "bar"))
+        .isEqualTo(
+            ValidationIssue.Context.builder()
+                .name("foo")
+                .message("bar")
+                .jsonpath(node.getJsonPath())
+                .data(node)
+                .build());
 
     assertThat(node.assertGraph()).isSameAs(graph);
 

@@ -1,5 +1,6 @@
 package loom.graph;
 
+import java.util.Set;
 import lombok.NoArgsConstructor;
 import loom.graph.constraints.ApplicationNodeSelectionsAreWellFormedConstraint;
 import loom.graph.constraints.NodeBodySchemaConstraint;
@@ -9,8 +10,6 @@ import loom.graph.nodes.ApplicationNode;
 import loom.graph.nodes.GenericNode;
 import loom.graph.nodes.NoteNode;
 import loom.graph.nodes.TensorNode;
-
-import java.util.Set;
 
 @NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
 public final class CommonEnvironments {

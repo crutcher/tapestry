@@ -1,7 +1,5 @@
 package loom.graph.constraints;
 
-import java.util.regex.Pattern;
-import javax.annotation.Nonnull;
 import lombok.Builder;
 import lombok.Getter;
 import loom.common.json.JsonPathUtils;
@@ -13,6 +11,9 @@ import loom.graph.LoomNode;
 import loom.validation.ValidationIssue;
 import loom.validation.ValidationIssueCollector;
 import org.leadpony.justify.api.JsonSchema;
+
+import javax.annotation.Nonnull;
+import java.util.regex.Pattern;
 
 @Builder
 @Getter
@@ -47,7 +48,7 @@ public class NodeBodySchemaConstraint implements LoomEnvironment.Constraint {
   }
 
   @Nonnull private final String nodeType;
-  @Builder.Default private final Boolean isRegex = false;
+  @Builder.Default private final boolean isRegex = false;
   @Nonnull private final String bodySchema;
 
   @Override
@@ -68,10 +69,10 @@ public class NodeBodySchemaConstraint implements LoomEnvironment.Constraint {
         .filter(
             node -> {
               String type = node.getType();
-              if (pattern == null) {
-                return nodeType.equals(type);
-              } else {
+              if (isRegex) {
                 return pattern.matcher(type).matches();
+              } else {
+                return nodeType.equals(type);
               }
             })
         .forEach(node -> checkNode(env, node, schema, issueCollector));

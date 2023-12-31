@@ -124,6 +124,9 @@ public class LoomEnvironmentTest extends BaseTestClass {
 
     assertThat(env.lookupConstraint(constraint.getClass())).isNull();
 
+    assertThatExceptionOfType(IllegalStateException.class)
+        .isThrownBy(() -> env.assertConstraint(constraint.getClass()));
+
     env.addConstraint(constraint);
 
     assertThat(env.lookupConstraint(NodeBodySchemaConstraint.class)).isNull();
