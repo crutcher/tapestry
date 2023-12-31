@@ -7,11 +7,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import java.io.IOException;
-import java.lang.reflect.ParameterizedType;
-import java.util.UUID;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -19,6 +14,12 @@ import lombok.experimental.SuperBuilder;
 import loom.common.json.HasToJsonString;
 import loom.common.json.JsonUtil;
 import loom.validation.ValidationIssue;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.io.IOException;
+import java.lang.reflect.ParameterizedType;
+import java.util.UUID;
 
 /**
  * Base class for a node in the graph.
@@ -150,8 +151,7 @@ public abstract class LoomNode<NodeType extends LoomNode<NodeType, BodyType>, Bo
       cls = cls.getSuperclass();
     }
     var pt = (ParameterizedType) nodeTypeClass.getGenericSuperclass();
-    var bc = (Class<?>) pt.getActualTypeArguments()[1];
-    return bc;
+    return (Class<?>) pt.getActualTypeArguments()[1];
   }
 
   @Nonnull
