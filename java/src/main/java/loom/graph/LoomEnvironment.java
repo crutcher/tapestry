@@ -61,6 +61,12 @@ public final class LoomEnvironment {
     }
   }
 
+  /**
+   * Returns the class associated with the given type in this LoomEnvironment.
+   *
+   * @param type the type of the node.
+   * @return the class representing the node type, or null if the type is not found.
+   */
   @Nullable public Class<? extends LoomGraph.Node<?, ?>> classForType(String type) {
     var nodeTypeClass = nodeTypeClasses.get(type);
     if (nodeTypeClass == null) {

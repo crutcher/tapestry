@@ -31,10 +31,20 @@ public class DemoTest extends BaseTestClass {
 
     TensorNode tensorB =
         (TensorNode)
-            graph.buildNode(TensorNode.TYPE, "B", Map.of("dtype", "int32", "shape", List.of(2, 3)));
+            graph
+                .nodeBuilder()
+                .type(TensorNode.TYPE)
+                .label("B")
+                .body(Map.of("dtype", "int32", "shape", List.of(2, 3)))
+                .build();
 
     TensorNode tensorC =
-        (TensorNode) graph.buildNode(TensorNode.TYPE, "{\"dtype\": \"int32\", \"shape\": [2, 3]}");
+        (TensorNode)
+            graph
+                .nodeBuilder()
+                .type(TensorNode.TYPE)
+                .body("{\"dtype\": \"int32\", \"shape\": [2, 3]}")
+                .build();
 
     TensorNode tensorI =
         TensorNode.withBody(

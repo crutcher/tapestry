@@ -10,16 +10,6 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import java.io.IOException;
-import java.lang.reflect.ParameterizedType;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.UUID;
-import java.util.stream.Stream;
-import javax.annotation.CheckReturnValue;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import loom.common.collections.IteratorUtils;
@@ -30,6 +20,17 @@ import loom.common.json.MapValueListUtil;
 import loom.validation.ListValidationIssueCollector;
 import loom.validation.ValidationIssue;
 import loom.validation.ValidationIssueCollector;
+
+import javax.annotation.CheckReturnValue;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.io.IOException;
+import java.lang.reflect.ParameterizedType;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.UUID;
+import java.util.stream.Stream;
 
 /** A Loom Graph document. */
 @Getter
@@ -254,90 +255,19 @@ public final class LoomGraph implements Iterable<LoomGraph.Node<?, ?>>, HasToJso
    */
   public void validate() {
     var collector = new ListValidationIssueCollector();
-    env.validateGraph(this, collector);
+    validate(collector);
     collector.check();
   }
 
+  /**
+   * Validate the graph.
+   *
+   * <p>Validates the graph against the environment.
+   *
+   * @param issueCollector collector to collect validation errors into.
+   */
   public void validate(ValidationIssueCollector issueCollector) {
     env.validateGraph(this, issueCollector);
-  }
-
-  /**
-   * Add a node to the graph.
-   *
-   * <p>If the node builder does not have an ID, a new ID will be generated.
-   *
-   * @param builder a builder for the node to add.
-   * @return the ID of the node.
-   */
-  @Nonnull
-  public <N extends Node<N, B>, B> N addNode(Node.NodeBuilder<N, B, ?, ?> builder) {
-    if (builder.id == null) {
-      builder.id = newUnusedNodeId();
-    }
-
-    @SuppressWarnings("unchecked")
-    var node = (N) builder.build();
-
-    return addNode(node);
-  }
-
-  /**
-   * Create a new, unused node ID.
-   *
-   * @return the new ID.
-   */
-  public UUID newUnusedNodeId() {
-    UUID id;
-    do {
-      id = UUID.randomUUID();
-    } while (hasNode(id));
-    return id;
-  }
-
-  /**
-   * Add a node to the graph.
-   *
-   * @param node the node to add.
-   * @return the added Node.
-   */
-  @Nonnull
-  @SuppressWarnings("unchecked")
-  public <T extends Node<?, ?>> T addNode(T node) {
-    if (hasNode(node.getId())) {
-      throw new IllegalArgumentException("Graph already has node with id: " + node.getId());
-    }
-
-    if (node.getGraph() != null) {
-      throw new IllegalArgumentException("Node already belongs to a graph: " + node.getId());
-    }
-    node.setGraph(this);
-
-    env.assertClassForType(node.getType(), (Class<T>) node.getClass());
-
-    nodes.put(node.getId(), node);
-
-    return node;
-  }
-
-  /**
-   * Add a node to the graph.
-   *
-   * <p>If the node does not have an ID, a new ID will be added to the tree.
-   *
-   * @param jsonNode the json node tree to build from.
-   * @return the added Node.
-   */
-  @Nonnull
-  public Node<?, ?> addNode(@Nonnull JsonNode jsonNode) {
-    ObjectNode obj = (ObjectNode) jsonNode;
-    String type = obj.get("type").asText();
-    var nodeClass = env.assertClassForType(type);
-    if (obj.get("id") == null) {
-      obj.put("id", newUnusedNodeId().toString());
-    }
-    var node = JsonUtil.convertValue(obj, nodeClass);
-    return addNode(node);
   }
 
   /**
@@ -348,28 +278,6 @@ public final class LoomGraph implements Iterable<LoomGraph.Node<?, ?>>, HasToJso
    */
   public boolean hasNode(UUID id) {
     return nodes.containsKey(id);
-  }
-
-  @Nonnull
-  public Node<?, ?> buildNode(@Nonnull String type, @Nonnull Object body) {
-    return buildNode(type, null, body);
-  }
-
-  @Nonnull
-  public Node<?, ?> buildNode(@Nonnull String type, @Nullable String label, @Nonnull Object body) {
-    var nodeTree = JsonNodeFactory.instance.objectNode();
-    nodeTree.put("type", type);
-    if (label != null) {
-      nodeTree.put("label", label);
-    }
-    if (body instanceof String) {
-      nodeTree.set("body", JsonUtil.parseToJsonNodeTree((String) body));
-    } else if (body instanceof ObjectNode bodyNode) {
-      nodeTree.set("body", bodyNode);
-    } else {
-      nodeTree.set("body", JsonUtil.valueToJsonNodeTree(body));
-    }
-    return addNode(nodeTree);
   }
 
   /**
@@ -526,5 +434,155 @@ public final class LoomGraph implements Iterable<LoomGraph.Node<?, ?>>, HasToJso
   @Nonnull
   public Stream<? extends Node<?, ?>> stream() {
     return nodes.values().stream();
+  }
+
+  /**
+   * Create a new, unused node ID.
+   *
+   * <p>Generates a new UUID, and checks that it is not already in use in the graph.
+   *
+   * @return the new ID.
+   */
+  public UUID newUnusedNodeId() {
+    UUID id;
+    do {
+      id = UUID.randomUUID();
+    } while (hasNode(id));
+    return id;
+  }
+
+  /**
+   * Add a node to the graph.
+   *
+   * <p>If the node builder does not have an ID, a new ID will be generated.
+   *
+   * @param builder a builder for the node to add.
+   * @return the ID of the node.
+   */
+  @Nonnull
+  public <N extends Node<N, B>, B> N addNode(Node.NodeBuilder<N, B, ?, ?> builder) {
+    if (builder.id == null) {
+      builder.id = newUnusedNodeId();
+    }
+
+    @SuppressWarnings("unchecked")
+    var node = (N) builder.build();
+
+    return addNode(node);
+  }
+
+  /**
+   * Add a node to the graph.
+   *
+   * @param node the node to add.
+   * @return the added Node.
+   */
+  @Nonnull
+  @SuppressWarnings("unchecked")
+  public <T extends Node<?, ?>> T addNode(T node) {
+    if (hasNode(node.getId())) {
+      throw new IllegalArgumentException("Graph already has node with id: " + node.getId());
+    }
+
+    if (node.getGraph() != null) {
+      throw new IllegalArgumentException("Node already belongs to a graph: " + node.getId());
+    }
+    node.setGraph(this);
+
+    env.assertClassForType(node.getType(), (Class<T>) node.getClass());
+
+    nodes.put(node.getId(), node);
+
+    return node;
+  }
+
+  /**
+   * Add a node to the graph.
+   *
+   * <p>If the node does not have an ID, a new ID will be added to the tree.
+   *
+   * @param jsonNode the json node tree to build from.
+   * @return the added Node.
+   */
+  @Nonnull
+  public Node<?, ?> addNode(@Nonnull JsonNode jsonNode) {
+    ObjectNode obj = (ObjectNode) jsonNode;
+    String type = obj.get("type").asText();
+    var nodeClass = env.assertClassForType(type);
+    if (obj.get("id") == null) {
+      obj.put("id", newUnusedNodeId().toString());
+    }
+    var node = JsonUtil.convertValue(obj, nodeClass);
+    return addNode(node);
+  }
+
+  /** Create a new NodeBuilder. */
+  public NodeBuilder nodeBuilder() {
+    return new NodeBuilder();
+  }
+
+  @NoArgsConstructor(access = AccessLevel.PRIVATE)
+  public final class NodeBuilder {
+    private String type;
+    private String label;
+    private JsonNode body;
+
+    /**
+     * Set the type of the node.
+     *
+     * @param type the type.
+     * @return the builder.
+     */
+    public NodeBuilder type(String type) {
+      this.type = type;
+      return this;
+    }
+
+    /**
+     * Set the label of the node.
+     *
+     * @param label the label.
+     * @return the builder.
+     */
+    public NodeBuilder label(@Nullable String label) {
+      this.label = label;
+      return this;
+    }
+
+    /**
+     * Set the body of the node.
+     *
+     * <p>If the {@code body} is a string, it will be parsed as JSON to a JsonNode, and then
+     * converted. If the {@code body} is a JsonNode, or other data structure, it will be converted
+     * to the appropriate node class.
+     *
+     * @param body the body.
+     * @return the builder.
+     */
+    public NodeBuilder body(Object body) {
+      if (body instanceof String str) {
+        body = JsonUtil.parseToJsonNodeTree(str);
+      }
+      if (!(body instanceof JsonNode)) {
+        body = JsonUtil.valueToJsonNodeTree(body);
+      }
+      this.body = ((JsonNode) body).deepCopy();
+      return this;
+    }
+
+    /**
+     * Build the node on the graph.
+     *
+     * @return the new node.
+     */
+    public Node<?, ?> build() {
+      var nodeTree = JsonNodeFactory.instance.objectNode();
+      nodeTree.put("type", type);
+      if (label != null) {
+        nodeTree.put("label", label);
+      }
+      nodeTree.set("body", body);
+      return addNode(nodeTree);
+    }
   }
 }

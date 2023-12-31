@@ -297,14 +297,15 @@ public class LoomGraphTest extends BaseTestClass {
 
     var graph = env.graphBuilder().build();
 
-    var a = (DemoNode) graph.buildNode(DemoNode.TYPE, DemoNode.Body.builder().foo("a").build());
+    Object body1 = DemoNode.Body.builder().foo("a").build();
+    var a = (DemoNode) graph.nodeBuilder().type(DemoNode.TYPE).body(body1).build();
 
-    var b = (DemoNode) graph.buildNode(DemoNode.TYPE, Map.of("foo", "b"));
+    var b = (DemoNode) graph.nodeBuilder().type(DemoNode.TYPE).body(Map.of("foo", "b")).build();
 
-    var c = (DemoNode) graph.buildNode(DemoNode.TYPE, "{\"foo\": \"c\"}");
+    var c = (DemoNode) graph.nodeBuilder().type(DemoNode.TYPE).body("{\"foo\": \"c\"}").build();
 
-    var d =
-        (DemoNode) graph.buildNode(DemoNode.TYPE, JsonUtil.parseToJsonNodeTree("{\"foo\": \"d\"}"));
+    Object body = JsonUtil.parseToJsonNodeTree("{\"foo\": \"d\"}");
+    var d = (DemoNode) graph.nodeBuilder().type(DemoNode.TYPE).body(body).build();
 
     assertThat(a.getFoo()).isEqualTo("a");
     assertThat(b.getFoo()).isEqualTo("b");
