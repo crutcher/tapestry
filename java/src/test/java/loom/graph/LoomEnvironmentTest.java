@@ -1,8 +1,8 @@
 package loom.graph;
 
-import loom.graph.constraints.AllTensorsHaveExactlyOneSourceOperationConstraint;
-import loom.graph.constraints.OperationNodesSourcesAndResultsAreTensors;
-import loom.graph.nodes.*;
+import loom.graph.nodes.NoteNode;
+import loom.graph.nodes.OperationNode;
+import loom.graph.nodes.TensorNode;
 import loom.testing.BaseTestClass;
 import loom.validation.ValidationIssueCollector;
 import org.junit.Test;
@@ -18,11 +18,18 @@ public class LoomEnvironmentTest extends BaseTestClass {
 
     assertThat(env.supportsNodeType(TensorNode.TYPE)).isTrue();
     assertThat(env.supportsNodeType(NoteNode.TYPE)).isTrue();
+
+    assertThat(env.classForType(TensorNode.TYPE)).isEqualTo(TensorNode.class);
+    assertThat(env.classForType(NoteNode.TYPE)).isEqualTo(NoteNode.class);
+
+    assertThat(env.supportsNodeType(OperationNode.TYPE)).isFalse();
+    assertThatExceptionOfType(IllegalStateException.class)
+        .isThrownBy(() -> env.assertClassForType(OperationNode.TYPE));
   }
 
   @Test
   public void test_toString() {
-    var env = CommonEnvironments.simpleTensorEnvironment("int32");
+    var env = CommonEnvironments.expressionEnvironment();
 
     assertThat(env.toString()).contains("LoomEnvironment");
   }
@@ -74,17 +81,17 @@ public class LoomEnvironmentTest extends BaseTestClass {
 
   @Test
   public void test_assertNodeTypeClass() {
-    var env = CommonEnvironments.simpleTensorEnvironment("int32");
+    var env = CommonEnvironments.expressionEnvironment();
 
-    env.assertNodeTypeClass(TensorNode.TYPE, TensorNode.class);
+    env.assertClassForType(TensorNode.TYPE, TensorNode.class);
     assertThatExceptionOfType(IllegalStateException.class)
-        .isThrownBy(() -> env.assertNodeTypeClass(TensorNode.TYPE, OperationNode.class));
+        .isThrownBy(() -> env.assertClassForType(TensorNode.TYPE, OperationNode.class));
 
     assertThat(env.supportsNodeType(TensorNode.TYPE)).isTrue();
     env.assertSupportsNodeType(TensorNode.TYPE);
 
     assertThat(env.supportsNodeType("foo")).isFalse();
-    assertThatExceptionOfType(IllegalArgumentException.class)
+    assertThatExceptionOfType(IllegalStateException.class)
         .isThrownBy(() -> env.assertSupportsNodeType("foo"));
   }
 
@@ -94,7 +101,7 @@ public class LoomEnvironmentTest extends BaseTestClass {
         new LoomConstraint() {
           @Override
           public void checkRequirements(LoomEnvironment env) {
-            env.assertConstraint(AllTensorsHaveExactlyOneSourceOperationConstraint.class);
+            env.assertSupportsNodeType(TensorNode.TYPE);
           }
 
           @Override
@@ -107,16 +114,12 @@ public class LoomEnvironmentTest extends BaseTestClass {
           }
         };
 
-    var env = CommonEnvironments.simpleTensorEnvironment("int32");
+    var env = LoomEnvironment.builder().build();
 
     assertThatExceptionOfType(IllegalStateException.class)
         .isThrownBy(() -> env.addConstraint(constraint));
 
-    env.addConstraint(new OperationNodesSourcesAndResultsAreTensors())
-        .addConstraint(new AllTensorsHaveExactlyOneSourceOperationConstraint());
-
-    assertThatExceptionOfType(IllegalStateException.class)
-        .isThrownBy(() -> env.assertConstraint(constraint.getClass()));
+    env.addNodeTypeClass(TensorNode.TYPE, TensorNode.class);
 
     env.addConstraint(constraint);
 

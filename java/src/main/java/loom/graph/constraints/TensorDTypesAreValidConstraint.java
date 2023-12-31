@@ -19,7 +19,7 @@ public class TensorDTypesAreValidConstraint implements LoomConstraint {
 
   @Override
   public void checkRequirements(LoomEnvironment env) {
-    env.assertNodeTypeClass(TensorNode.TYPE, TensorNode.class);
+    env.assertClassForType(TensorNode.TYPE, TensorNode.class);
   }
 
   @Override

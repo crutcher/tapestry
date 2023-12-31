@@ -19,8 +19,8 @@ import loom.validation.ValidationIssueCollector;
 public final class OperationNodesSourcesAndResultsAreTensors implements LoomConstraint {
   @Override
   public void checkRequirements(LoomEnvironment env) {
-    env.assertNodeTypeClass(TensorNode.TYPE, TensorNode.class);
-    env.assertNodeTypeClass(OperationNode.TYPE, OperationNode.class);
+    env.assertClassForType(TensorNode.TYPE, TensorNode.class);
+    env.assertClassForType(OperationNode.TYPE, OperationNode.class);
   }
 
   @Override

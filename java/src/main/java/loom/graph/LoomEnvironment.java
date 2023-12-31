@@ -26,6 +26,13 @@ public final class LoomEnvironment {
       new HashMap<>();
   private final List<LoomConstraint> constraints = new ArrayList<>();
 
+  /**
+   * Add a node type class to the LoomEnvironment.
+   *
+   * @param type the type of the node.
+   * @param nodeTypeClass the class representing the node type.
+   * @return this LoomEnvironment.
+   */
   public LoomEnvironment addNodeTypeClass(
       String type, Class<? extends LoomGraph.Node<?, ?>> nodeTypeClass) {
     this.nodeTypeClasses.put(type, nodeTypeClass);
@@ -46,11 +53,11 @@ public final class LoomEnvironment {
    * Assert that this environment supports the given node type.
    *
    * @param type the node type.
-   * @throws IllegalArgumentException if the node type is not supported.
+   * @throws IllegalStateException if the node type is not supported.
    */
   public void assertSupportsNodeType(String type) {
     if (!supportsNodeType(type)) {
-      throw new IllegalArgumentException("Unsupported node type: " + type);
+      throw new IllegalStateException("Unsupported node type: " + type);
     }
   }
 
@@ -62,11 +69,18 @@ public final class LoomEnvironment {
     return nodeTypeClass;
   }
 
+  /**
+   * Assert that a node type is present in this environment.
+   *
+   * @param type the node type.
+   * @return the node type class.
+   * @throws IllegalStateException if the node type is not present.
+   */
   @Nonnull
   public Class<? extends LoomGraph.Node<?, ?>> assertClassForType(String type) {
     var nodeTypeClass = classForType(type);
     if (nodeTypeClass == null) {
-      throw new IllegalArgumentException("Unknown node type: " + type);
+      throw new IllegalStateException("Unknown node type: " + type);
     }
     return nodeTypeClass;
   }
@@ -78,15 +92,9 @@ public final class LoomEnvironment {
    * @param nodeTypeClass the node type class.
    * @throws IllegalStateException if the node type class is not present.
    */
-  public void assertNodeTypeClass(
-      String type, Class<? extends LoomGraph.Node<?, ?>> nodeTypeClass) {
-    var registeredClass = classForType(type);
-    if (registeredClass == null) {
-      throw new IllegalStateException("Required node type class not found: " + type);
-    }
-    if (registeredClass != nodeTypeClass) {
-      throw new IllegalStateException(
-          "Node type class mismatch: " + type + " is " + registeredClass);
+  public void assertClassForType(String type, Class<? extends LoomGraph.Node<?, ?>> nodeTypeClass) {
+    if (nodeTypeClass != assertClassForType(type)) {
+      throw new IllegalStateException("Node type class mismatch: " + type + " is " + nodeTypeClass);
     }
   }
 
@@ -95,6 +103,7 @@ public final class LoomEnvironment {
    *
    * @param constraint the constraint to add.
    * @return the modified LoomEnvironment with the added constraint.
+   * @throws IllegalArgumentException if the constraint is not valid in this environment.
    */
   public LoomEnvironment addConstraint(LoomConstraint constraint) {
     constraint.checkRequirements(this);
@@ -191,7 +200,7 @@ public final class LoomEnvironment {
    * @return the graph.
    */
   public LoomGraph createGraph() {
-    return graphBuilder().id(UUID.randomUUID()).env(this).build();
+    return graphBuilder().id(UUID.randomUUID()).build();
   }
 
   /**

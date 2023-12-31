@@ -1,5 +1,6 @@
 package loom.graph.constraints;
 
+import java.util.regex.Pattern;
 import javax.annotation.Nonnull;
 import lombok.Builder;
 import lombok.Getter;
@@ -35,6 +36,7 @@ public class NodeBodySchemaConstraint implements LoomConstraint {
   }
 
   @Nonnull private final String nodeType;
+  @Builder.Default private final boolean isRegex = false;
   @Nonnull private final String bodySchema;
 
   @Override
@@ -48,8 +50,17 @@ public class NodeBodySchemaConstraint implements LoomConstraint {
       LoomGraph graph,
       ValidationIssueCollector issueCollector) {
     var schema = env.getJsonSchemaManager().loadSchema(bodySchema);
-    for (var node : graph.iterableNodes(nodeType, LoomGraph.Node.class)) {
-      checkNode(env, node, schema, issueCollector);
+    if (isRegex) {
+      var typePattern = Pattern.compile(nodeType);
+      for (var node : graph.iterableNodes()) {
+        if (typePattern.matcher(node.getType()).matches()) {
+          checkNode(env, node, schema, issueCollector);
+        }
+      }
+    } else {
+      for (var node : graph.iterableNodes(nodeType, LoomGraph.Node.class)) {
+        checkNode(env, node, schema, issueCollector);
+      }
     }
   }
 

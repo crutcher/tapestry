@@ -11,8 +11,8 @@ public class ThereAreNoApplicationReferenceCyclesConstraint implements LoomConst
 
   @Override
   public void checkRequirements(LoomEnvironment env) {
-    env.assertNodeTypeClass(TensorNode.TYPE, TensorNode.class);
-    env.assertNodeTypeClass(ApplicationNode.TYPE, ApplicationNode.class);
+    env.assertClassForType(TensorNode.TYPE, TensorNode.class);
+    env.assertClassForType(ApplicationNode.TYPE, ApplicationNode.class);
   }
 
   @Override

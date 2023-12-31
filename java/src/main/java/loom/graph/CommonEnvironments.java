@@ -8,14 +8,18 @@ import loom.graph.nodes.*;
 @NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
 public final class CommonEnvironments {
   public static LoomEnvironment genericEnvironment() {
-    return LoomEnvironment.builder().defaultNodeTypeClass(GenericNode.class).build();
+    return LoomEnvironment.builder()
+        .defaultNodeTypeClass(GenericNode.class)
+        .build()
+        .addConstraint(
+            NodeBodySchemaConstraint.builder()
+                .nodeType("^.*$")
+                .isRegex(true)
+                .withSchemaFrom(GenericNode.Body.class)
+                .build());
   }
 
-  public static LoomEnvironment simpleTensorEnvironment(String... dtypes) {
-    return simpleTensorEnvironment(Set.of(dtypes));
-  }
-
-  public static LoomEnvironment simpleTensorEnvironment(Set<String> dtypes) {
+  public static LoomEnvironment expressionEnvironment() {
     return LoomEnvironment.builder()
         .build()
         .addNodeTypeClass(NoteNode.TYPE, NoteNode.class)
@@ -37,11 +41,10 @@ public final class CommonEnvironments {
                 .nodeType(NoteNode.TYPE)
                 .withSchemaFrom(NoteNode.Body.class)
                 .build())
-        .addConstraint(TensorDTypesAreValidConstraint.builder().validDTypes(dtypes).build());
-  }
-
-  public static LoomEnvironment expressionEnvironment() {
-    return simpleTensorEnvironment("int32", "float32")
+        .addConstraint(
+            TensorDTypesAreValidConstraint.builder()
+                .validDTypes(Set.of("int32", "float32"))
+                .build())
         .addConstraint(new OperationNodesSourcesAndResultsAreTensors())
         .addConstraint(new AllTensorsHaveExactlyOneSourceOperationConstraint())
         .addConstraint(new ThereAreNoTensorOperationReferenceCyclesConstraint())

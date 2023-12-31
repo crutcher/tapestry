@@ -10,6 +10,16 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import java.io.IOException;
+import java.lang.reflect.ParameterizedType;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.UUID;
+import java.util.stream.Stream;
+import javax.annotation.CheckReturnValue;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import loom.common.collections.IteratorUtils;
@@ -20,17 +30,6 @@ import loom.common.json.MapValueListUtil;
 import loom.validation.ListValidationIssueCollector;
 import loom.validation.ValidationIssue;
 import loom.validation.ValidationIssueCollector;
-
-import javax.annotation.CheckReturnValue;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.io.IOException;
-import java.lang.reflect.ParameterizedType;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.UUID;
-import java.util.stream.Stream;
 
 /** A Loom Graph document. */
 @Getter
@@ -314,7 +313,7 @@ public final class LoomGraph implements Iterable<LoomGraph.Node<?, ?>>, HasToJso
     }
     node.setGraph(this);
 
-    env.assertNodeTypeClass(node.getType(), (Class<T>) node.getClass());
+    env.assertClassForType(node.getType(), (Class<T>) node.getClass());
 
     nodes.put(node.getId(), node);
 
@@ -508,7 +507,8 @@ public final class LoomGraph implements Iterable<LoomGraph.Node<?, ?>>, HasToJso
    */
   @CheckReturnValue
   @Nonnull
-  public <NodeType> Stream<NodeType> stream(@Nullable String type, Class<NodeType> nodeClass) {
+  public <NodeType extends Node<?, ?>> Stream<NodeType> stream(
+      @Nullable String type, Class<NodeType> nodeClass) {
     var s = stream();
     if (type != null) {
       s = s.filter(node -> node.getType().equals(type));
@@ -524,7 +524,7 @@ public final class LoomGraph implements Iterable<LoomGraph.Node<?, ?>>, HasToJso
    */
   @CheckReturnValue
   @Nonnull
-  public Stream<Node<?, ?>> stream() {
+  public Stream<? extends Node<?, ?>> stream() {
     return nodes.values().stream();
   }
 }

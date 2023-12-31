@@ -6,7 +6,7 @@ import static loom.graph.LoomConstants.NODE_VALIDATION_ERROR;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import loom.graph.CommonEnvironments;
+import loom.graph.LoomEnvironment;
 import loom.graph.LoomGraph;
 import loom.graph.nodes.NoteNode;
 import loom.graph.nodes.OperationNode;
@@ -22,7 +22,13 @@ public class OperationNodesSourcesAndResultsAreTensorsTest extends BaseTestClass
       new OperationNodesSourcesAndResultsAreTensors();
 
   private LoomGraph testGraph() {
-    var env = CommonEnvironments.simpleTensorEnvironment("int32").addConstraint(constraint);
+    var env =
+        LoomEnvironment.builder()
+            .build()
+            .addNodeTypeClass(NoteNode.TYPE, NoteNode.class)
+            .addNodeTypeClass(TensorNode.TYPE, TensorNode.class)
+            .addNodeTypeClass(OperationNode.TYPE, OperationNode.class)
+            .addConstraint(constraint);
     return env.createGraph();
   }
 
