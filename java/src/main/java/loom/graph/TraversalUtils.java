@@ -1,15 +1,15 @@
 package loom.graph;
 
-import java.util.ArrayList;
-import java.util.List;
-import javax.annotation.Nonnull;
 import lombok.NoArgsConstructor;
 import loom.graph.nodes.ApplicationNode;
-import loom.graph.nodes.OperationNode;
 import org.jgrapht.Graph;
 import org.jgrapht.alg.cycle.TarjanSimpleCycles;
 import org.jgrapht.graph.DefaultDirectedGraph;
 import org.jgrapht.graph.DefaultEdge;
+
+import javax.annotation.Nonnull;
+import java.util.ArrayList;
+import java.util.List;
 
 @NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
 public class TraversalUtils {
@@ -53,51 +53,5 @@ public class TraversalUtils {
       }
     }
     return linkGraph;
-  }
-
-  /**
-   * Build a graph of the links between Tensors and Operations in the graph.
-   *
-   * @param graph the graph to build the link graph for.
-   * @return a JGraphT graph of the links between Tensors and Operations in the graph.
-   */
-  @Nonnull
-  public static Graph<LoomGraph.Node<?, ?>, DefaultEdge> buildOperationLinkGraph(LoomGraph graph) {
-    Graph<LoomGraph.Node<?, ?>, DefaultEdge> linkGraph =
-        new DefaultDirectedGraph<>(DefaultEdge.class);
-
-    for (var opNode : graph.iterableNodes(OperationNode.TYPE, OperationNode.class)) {
-      linkGraph.addVertex(opNode);
-
-      for (var entry : opNode.getInputNodeListMap().entrySet()) {
-        for (var refNode : entry.getValue()) {
-          linkGraph.addVertex(refNode);
-          linkGraph.addEdge(refNode, opNode);
-        }
-      }
-
-      for (var entry : opNode.getOutputNodeListMap().entrySet()) {
-        for (var refNode : entry.getValue()) {
-          linkGraph.addVertex(refNode);
-          linkGraph.addEdge(opNode, refNode);
-        }
-      }
-    }
-    return linkGraph;
-  }
-
-  /**
-   * Find all simple cycles of Tensors and Operations in the graph.
-   *
-   * @param graph the graph to search
-   * @return a list of cycles, where each cycle is a list of nodes in the cycle.
-   */
-  public static List<List<LoomGraph.Node<?, ?>>> findOperationSimpleCycles(LoomGraph graph) {
-    Graph<LoomGraph.Node<?, ?>, DefaultEdge> linkGraph = buildOperationLinkGraph(graph);
-
-    List<List<LoomGraph.Node<?, ?>>> simpleCycles = new ArrayList<>();
-    new TarjanSimpleCycles<>(linkGraph).findSimpleCycles(simpleCycles::add);
-    // Tarjan will place all non-cycle nodes in their own cycles, so filter those out.
-    return simpleCycles.stream().filter(cycle -> cycle.size() > 1).toList();
   }
 }

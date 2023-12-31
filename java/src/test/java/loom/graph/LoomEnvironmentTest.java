@@ -1,7 +1,7 @@
 package loom.graph;
 
+import loom.graph.nodes.ApplicationNode;
 import loom.graph.nodes.NoteNode;
-import loom.graph.nodes.OperationNode;
 import loom.graph.nodes.TensorNode;
 import loom.testing.BaseTestClass;
 import loom.validation.ValidationIssueCollector;
@@ -22,9 +22,9 @@ public class LoomEnvironmentTest extends BaseTestClass {
     assertThat(env.classForType(TensorNode.TYPE)).isEqualTo(TensorNode.class);
     assertThat(env.classForType(NoteNode.TYPE)).isEqualTo(NoteNode.class);
 
-    assertThat(env.supportsNodeType(OperationNode.TYPE)).isFalse();
+    assertThat(env.supportsNodeType(ApplicationNode.TYPE)).isFalse();
     assertThatExceptionOfType(IllegalStateException.class)
-        .isThrownBy(() -> env.assertClassForType(OperationNode.TYPE));
+        .isThrownBy(() -> env.assertClassForType(ApplicationNode.TYPE));
   }
 
   @Test
@@ -85,7 +85,7 @@ public class LoomEnvironmentTest extends BaseTestClass {
 
     env.assertClassForType(TensorNode.TYPE, TensorNode.class);
     assertThatExceptionOfType(IllegalStateException.class)
-        .isThrownBy(() -> env.assertClassForType(TensorNode.TYPE, OperationNode.class));
+        .isThrownBy(() -> env.assertClassForType(TensorNode.TYPE, ApplicationNode.class));
 
     assertThat(env.supportsNodeType(TensorNode.TYPE)).isTrue();
     env.assertSupportsNodeType(TensorNode.TYPE);

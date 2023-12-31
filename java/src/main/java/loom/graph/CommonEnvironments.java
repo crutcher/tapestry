@@ -1,9 +1,16 @@
 package loom.graph;
 
-import java.util.Set;
 import lombok.NoArgsConstructor;
-import loom.graph.constraints.*;
-import loom.graph.nodes.*;
+import loom.graph.constraints.ApplicationNodeSelectionsAreWellFormedConstraint;
+import loom.graph.constraints.NodeBodySchemaConstraint;
+import loom.graph.constraints.TensorDTypesAreValidConstraint;
+import loom.graph.constraints.ThereAreNoApplicationReferenceCyclesConstraint;
+import loom.graph.nodes.ApplicationNode;
+import loom.graph.nodes.GenericNode;
+import loom.graph.nodes.NoteNode;
+import loom.graph.nodes.TensorNode;
+
+import java.util.Set;
 
 @NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
 public final class CommonEnvironments {
@@ -23,31 +30,27 @@ public final class CommonEnvironments {
     return LoomEnvironment.builder()
         .build()
         .addNodeTypeClass(NoteNode.TYPE, NoteNode.class)
+        .addConstraint(
+            NodeBodySchemaConstraint.builder()
+                .nodeType(NoteNode.TYPE)
+                .withSchemaFromBodyClass(NoteNode.Body.class)
+                .build())
         .addNodeTypeClass(TensorNode.TYPE, TensorNode.class)
-        .addNodeTypeClass(OperationNode.TYPE, OperationNode.class)
-        .addNodeTypeClass(ApplicationNode.TYPE, ApplicationNode.class)
         .addConstraint(
             NodeBodySchemaConstraint.builder()
                 .nodeType(TensorNode.TYPE)
                 .withSchemaFromBodyClass(TensorNode.Body.class)
                 .build())
         .addConstraint(
+            TensorDTypesAreValidConstraint.builder()
+                .validDTypes(Set.of("int32", "float32"))
+                .build())
+        .addNodeTypeClass(ApplicationNode.TYPE, ApplicationNode.class)
+        .addConstraint(
             NodeBodySchemaConstraint.builder()
                 .nodeType(ApplicationNode.TYPE)
                 .withSchemaFromBodyClass(ApplicationNode.Body.class)
                 .build())
-        .addConstraint(
-            NodeBodySchemaConstraint.builder()
-                .nodeType(NoteNode.TYPE)
-                .withSchemaFromBodyClass(NoteNode.Body.class)
-                .build())
-        .addConstraint(
-            TensorDTypesAreValidConstraint.builder()
-                .validDTypes(Set.of("int32", "float32"))
-                .build())
-        .addConstraint(new OperationNodesSourcesAndResultsAreTensors())
-        .addConstraint(new AllTensorsHaveExactlyOneSourceOperationConstraint())
-        .addConstraint(new ThereAreNoTensorOperationReferenceCyclesConstraint())
         .addConstraint(new ThereAreNoApplicationReferenceCyclesConstraint())
         .addConstraint(new ApplicationNodeSelectionsAreWellFormedConstraint());
   }
