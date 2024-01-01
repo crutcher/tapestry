@@ -44,19 +44,19 @@ public final class ZAffineMap
 
     A.assertNDim(2);
     b.assertNDim(1);
-    if (b.shape(0) != outputDim()) {
+    if (b.shape(0) != outputNDim()) {
       throw new IllegalArgumentException(
           String.format("A.shape[1] != b.shape[0]: %s != %s", A.shapeAsList(), b.shapeAsList()));
     }
   }
 
-  public int outputDim() {
+  public int outputNDim() {
     return A.shape(0);
   }
 
   // This seems like a backwards way to represent this;
   // but `Ax + b` is the standard form.
-  public int inputDim() {
+  public int inputNDim() {
     return A.shape(1);
   }
 

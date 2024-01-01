@@ -12,8 +12,8 @@ public class ZAffineMapTest implements CommonAssertions {
 
     assertThat(map.apply(new ZPoint(1, 1))).isEqualTo(new ZPoint(5, 7, 9));
 
-    assertThat(map.inputDim()).isEqualTo(2);
-    assertThat(map.outputDim()).isEqualTo(3);
+    assertThat(map.inputNDim()).isEqualTo(2);
+    assertThat(map.outputNDim()).isEqualTo(3);
 
     assertThat(map.A.isMutable()).isFalse();
     assertThat(map.b.isMutable()).isFalse();

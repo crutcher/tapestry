@@ -1,12 +1,11 @@
 package loom.graph.nodes;
 
+import java.util.List;
+import java.util.UUID;
 import loom.graph.CommonEnvironments;
 import loom.testing.BaseTestClass;
 import loom.zspace.ZRange;
 import org.junit.Test;
-
-import java.util.List;
-import java.util.UUID;
 
 public class ApplicationNodeTest extends BaseTestClass {
   @Test
