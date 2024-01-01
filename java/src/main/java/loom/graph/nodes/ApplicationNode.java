@@ -1,6 +1,11 @@
 package loom.graph.nodes;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.function.Consumer;
+import javax.annotation.Nonnull;
 import lombok.*;
 import lombok.experimental.Delegate;
 import lombok.experimental.SuperBuilder;
@@ -12,12 +17,6 @@ import loom.graph.LoomNode;
 import loom.graph.constraints.ApplicationNodeSelectionsAreWellFormedConstraint;
 import loom.graph.constraints.ThereAreNoApplicationReferenceCyclesConstraint;
 import loom.zspace.ZRange;
-
-import javax.annotation.Nonnull;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.function.Consumer;
 
 @Jacksonized
 @SuperBuilder

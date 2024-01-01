@@ -2,6 +2,7 @@ package loom.graph.nodes;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonSetter;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -76,6 +77,16 @@ public final class TensorNode extends LoomNode<TensorNode, TensorNode.Body> {
   public static final class Body
       implements HasValidate<Body>, HasDimension, HasToJsonString, HasSize {
     public static class BodyBuilder {
+      @JsonSetter
+      public BodyBuilder shape(@Nonnull ZPoint shape) {
+        this.shape = shape;
+        return this;
+      }
+
+      public BodyBuilder shape(@Nonnull int... shape) {
+        return shape(ZPoint.of(shape));
+      }
+
       public Body build() {
         return new Body(dtype, shape, origin).checkValid();
       }
