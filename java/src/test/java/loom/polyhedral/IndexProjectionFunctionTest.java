@@ -9,7 +9,7 @@ import org.junit.Test;
 
 public class IndexProjectionFunctionTest extends BaseTestClass {
   @Test
-  public void test_missmatch() {
+  public void test_mismatch() {
     assertThatExceptionOfType(IllegalArgumentException.class)
         .isThrownBy(
             () ->
