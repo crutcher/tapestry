@@ -1,13 +1,12 @@
 package loom.testing;
 
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Stream;
 import loom.common.json.JsonUtil;
 import loom.common.text.PrettyDiffUtils;
 import loom.validation.ValidationIssue;
 import org.assertj.core.api.WithAssertions;
-
-import java.util.Comparator;
-import java.util.List;
-import java.util.stream.Stream;
 
 public interface CommonAssertions extends WithAssertions {
   default void assertValidationIssues(List<ValidationIssue> issues, ValidationIssue... expected) {

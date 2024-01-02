@@ -1,5 +1,9 @@
 package loom.graph.constraints;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Supplier;
 import loom.common.json.JsonPathUtils;
 import loom.common.lazy.LazyString;
 import loom.common.lazy.Thunk;
@@ -8,11 +12,6 @@ import loom.graph.nodes.*;
 import loom.validation.ValidationIssue;
 import loom.validation.ValidationIssueCollector;
 import loom.zspace.ZRange;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Supplier;
 
 public class OperationReferenceAgreementConstraint implements LoomEnvironment.Constraint {
   @Override
@@ -114,8 +113,7 @@ public class OperationReferenceAgreementConstraint implements LoomEnvironment.Co
     }
 
     if (!shards.stream()
-        .allMatch(
-            shard -> validateApplicationNode(opSignatureNode, shard, issueCollector))) {
+        .allMatch(shard -> validateApplicationNode(opSignatureNode, shard, issueCollector))) {
       // The shards are not valid, so we can't validate the shard ranges.
       return false;
     }
@@ -209,20 +207,12 @@ public class OperationReferenceAgreementConstraint implements LoomEnvironment.Co
   }
 
   private static boolean validateApplicationNode(
-      OperationSignatureNode opSig,
-      ApplicationNode node,
-      ValidationIssueCollector issueCollector) {
+      OperationSignatureNode opSig, ApplicationNode node, ValidationIssueCollector issueCollector) {
 
     var lazyContexts = Thunk.of(() -> List.of(node.asValidationContext("Operation Node")));
 
     return validateApplicationSignatureAgreement(
-            node,
-        opSig,
-        "inputs",
-        node.getInputs(),
-        opSig.getInputs(),
-        lazyContexts,
-        issueCollector);
+        node, opSig, "inputs", node.getInputs(), opSig.getInputs(), lazyContexts, issueCollector);
   }
 
   public static boolean validateApplicationSignatureAgreement(

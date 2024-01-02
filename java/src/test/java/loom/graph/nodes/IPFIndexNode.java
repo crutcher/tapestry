@@ -1,5 +1,7 @@
 package loom.graph.nodes;
 
+import java.util.function.Consumer;
+import javax.annotation.Nonnull;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -11,9 +13,6 @@ import loom.common.json.HasToJsonString;
 import loom.common.json.WithSchema;
 import loom.graph.LoomNode;
 import loom.zspace.ZRange;
-
-import javax.annotation.Nonnull;
-import java.util.function.Consumer;
 
 @Jacksonized
 @SuperBuilder
