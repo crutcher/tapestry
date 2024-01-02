@@ -19,11 +19,11 @@ public class ApplicationNodeTest extends BaseTestClass {
             .input(
                 "source",
                 List.of(
-                    ApplicationNode.TensorSelection.builder()
+                    TensorSelection.builder()
                         .tensorId(tensorIdA)
                         .range(ZRange.fromShape(2, 3))
                         .build(),
-                    ApplicationNode.TensorSelection.builder()
+                    TensorSelection.builder()
                         .tensorId(tensorIdB)
                         .range(ZRange.fromShape())
                         .build()))
@@ -66,20 +66,33 @@ public class ApplicationNodeTest extends BaseTestClass {
     var inputTensor = TensorNode.withBody(b -> b.shape(2, 3).dtype("float32")).buildOn(graph);
     var outputTensor = TensorNode.withBody(b -> b.shape(10).dtype("int32")).buildOn(graph);
 
-    ApplicationNode.withBody(
-            b ->
-                b.operationId(UUID.randomUUID())
-                    .input(
-                        "x",
-                        List.of(
-                            new ApplicationNode.TensorSelection(
-                                inputTensor.getId(), inputTensor.getEffectiveRange())))
-                    .output(
-                        "y",
-                        List.of(
-                            new ApplicationNode.TensorSelection(
-                                outputTensor.getId(), outputTensor.getEffectiveRange()))))
-        .buildOn(graph);
+    var opSig =
+        OperationSignatureNode.withBody(
+                b ->
+                    b.name("increment")
+                        .input(
+                            "x",
+                            List.of(
+                                new TensorSelection(
+                                    inputTensor.getId(), inputTensor.getEffectiveRange())))
+                        .output(
+                            "y",
+                            List.of(
+                                new TensorSelection(
+                                    outputTensor.getId(), outputTensor.getEffectiveRange()))))
+            .buildOn(graph);
+
+    var app =
+        ApplicationNode.withBody(
+                b ->
+                    b.operationId(UUID.randomUUID())
+                        .operationId(opSig.getId())
+                        .inputs(opSig.getInputs())
+                        .outputs(opSig.getOutputs()))
+            .buildOn(graph);
+
+    assertThat(app.getOperationSignatureNode()).isSameAs(opSig);
+    assertThat(opSig.getApplicationNodes()).containsOnly(app);
 
     graph.validate();
   }

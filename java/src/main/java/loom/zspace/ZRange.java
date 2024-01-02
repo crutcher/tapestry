@@ -188,6 +188,8 @@ public final class ZRange implements Cloneable, HasSize, HasPermute<ZRange>, Has
    */
   @Nonnull
   public static ZRange parse(@Nonnull String str) {
+    str = str.strip();
+
     if (str.startsWith("{")) {
       return JsonUtil.fromJson(str, ZRange.class);
     }

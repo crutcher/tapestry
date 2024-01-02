@@ -1,14 +1,20 @@
 package loom.testing;
 
-import java.util.List;
 import loom.common.json.JsonUtil;
 import loom.common.text.PrettyDiffUtils;
 import loom.validation.ValidationIssue;
 import org.assertj.core.api.WithAssertions;
 
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Stream;
+
 public interface CommonAssertions extends WithAssertions {
   default void assertValidationIssues(List<ValidationIssue> issues, ValidationIssue... expected) {
-    assertEquivalentJson(JsonUtil.toJson(issues), JsonUtil.toJson(expected));
+    var cmp = Comparator.comparing(JsonUtil::toJson);
+    var sortedIssues = issues.stream().sorted(cmp).toList();
+    var sortedExpected = Stream.of(expected).sorted(cmp).toList();
+    assertEquivalentJson(JsonUtil.toJson(sortedIssues), JsonUtil.toJson(sortedExpected));
   }
 
   default void assertEquivalentJson(

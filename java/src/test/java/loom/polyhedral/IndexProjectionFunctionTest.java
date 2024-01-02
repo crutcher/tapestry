@@ -9,6 +9,25 @@ import org.junit.Test;
 
 public class IndexProjectionFunctionTest extends BaseTestClass {
   @Test
+  public void test_toString() {
+    var ipf =
+        new IndexProjectionFunction(
+            new ZAffineMap(
+                ZTensor.newMatrix(
+                    new int[][] {
+                      {1, 0},
+                      {0, 1},
+                      {1, 1}
+                    }),
+                ZTensor.newVector(10, 20, 30)),
+            ZPoint.of(4, 4, 1));
+
+    assertThat(ipf)
+        .hasToString(
+            "ipf(affineMap={\"A\":[[1,0],[0,1],[1,1]],\"b\":[10,20,30]}, shape=[4, 4, 1])");
+  }
+
+  @Test
   public void test_mismatch() {
     assertThatExceptionOfType(IllegalArgumentException.class)
         .isThrownBy(

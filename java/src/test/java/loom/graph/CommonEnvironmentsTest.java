@@ -2,10 +2,9 @@ package loom.graph;
 
 import java.util.stream.Collectors;
 import loom.common.json.WithSchema;
-import loom.graph.constraints.ApplicationNodeSelectionsAreWellFormedConstraint;
 import loom.graph.constraints.NodeBodySchemaConstraint;
+import loom.graph.constraints.OperationReferenceAgreementConstraint;
 import loom.graph.constraints.TensorDTypesAreValidConstraint;
-import loom.graph.constraints.ThereAreNoApplicationReferenceCyclesConstraint;
 import loom.graph.nodes.ApplicationNode;
 import loom.graph.nodes.NoteNode;
 import loom.graph.nodes.OperationSignatureNode;
@@ -23,8 +22,7 @@ public class CommonEnvironmentsTest extends BaseTestClass {
     env.assertClassForType(ApplicationNode.TYPE, ApplicationNode.class);
 
     env.assertConstraint(TensorDTypesAreValidConstraint.class);
-    env.assertConstraint(ThereAreNoApplicationReferenceCyclesConstraint.class);
-    env.assertConstraint(ApplicationNodeSelectionsAreWellFormedConstraint.class);
+    env.assertConstraint(OperationReferenceAgreementConstraint.class);
 
     var m =
         env.getConstraints().stream()

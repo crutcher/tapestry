@@ -1,20 +1,22 @@
 package loom.polyhedral;
 
+import javax.annotation.Nonnull;
 import lombok.Builder;
+import lombok.Value;
 import lombok.extern.jackson.Jacksonized;
+import loom.common.json.HasToJsonString;
 import loom.zspace.ZAffineMap;
 import loom.zspace.ZPoint;
 import loom.zspace.ZRange;
 import loom.zspace.ZTensor;
 
-import javax.annotation.Nonnull;
-
 /** A function which maps coordinates in a space to ranges in another space. */
+@Value
 @Jacksonized
 @Builder
-public class IndexProjectionFunction {
-  @Nonnull private final ZAffineMap affineMap;
-  @Nonnull private final ZPoint shape;
+public class IndexProjectionFunction implements HasToJsonString {
+  @Nonnull ZAffineMap affineMap;
+  @Nonnull ZPoint shape;
 
   @Builder
   public IndexProjectionFunction(ZAffineMap affineMap, ZPoint shape) {
@@ -27,6 +29,11 @@ public class IndexProjectionFunction {
               "affineMap.outputDim() (%d) != shape.dim() (%d)",
               affineMap.outputNDim(), shape.getNDim()));
     }
+  }
+
+  @Override
+  public String toString() {
+    return String.format("ipf(affineMap=%s, shape=%s)", affineMap, shape);
   }
 
   /**

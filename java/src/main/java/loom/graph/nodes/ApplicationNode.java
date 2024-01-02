@@ -1,31 +1,25 @@
 package loom.graph.nodes;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.function.Consumer;
-import javax.annotation.Nonnull;
 import lombok.*;
 import lombok.experimental.Delegate;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.jackson.Jacksonized;
 import loom.common.json.HasToJsonString;
 import loom.common.json.WithSchema;
-import loom.graph.LoomEnvironment;
 import loom.graph.LoomNode;
-import loom.graph.constraints.ApplicationNodeSelectionsAreWellFormedConstraint;
-import loom.graph.constraints.ThereAreNoApplicationReferenceCyclesConstraint;
-import loom.zspace.ZRange;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.function.Consumer;
 
 @Jacksonized
 @SuperBuilder
 @Getter
 @Setter
-@LoomEnvironment.WithConstraints({
-  ThereAreNoApplicationReferenceCyclesConstraint.class,
-  ApplicationNodeSelectionsAreWellFormedConstraint.class
-})
 public class ApplicationNode extends LoomNode<ApplicationNode, ApplicationNode.Body> {
   public static final String TYPE = "ApplicationNode";
 
@@ -38,15 +32,16 @@ public class ApplicationNode extends LoomNode<ApplicationNode, ApplicationNode.B
     }
   }
 
-  @Value
-  @Jacksonized
-  @Builder
   @WithSchema(
       """
   {
       "type": "object",
       "properties": {
           "operationId": {
+              "type": "string",
+              "format": "uuid"
+          },
+          "indexId": {
               "type": "string",
               "format": "uuid"
           },
@@ -96,21 +91,15 @@ public class ApplicationNode extends LoomNode<ApplicationNode, ApplicationNode.B
       }
   }
   """)
-  @JsonInclude(JsonInclude.Include.NON_NULL)
-  public static class Body implements HasToJsonString {
-    UUID operationId;
-    @Singular @Nonnull Map<String, List<TensorSelection>> inputs;
-    @Singular @Nonnull Map<String, List<TensorSelection>> outputs;
-  }
-
-  /** Describes the sub-range of a tensor that is selected by an application node. */
   @Value
   @Jacksonized
   @Builder
-  @RequiredArgsConstructor
-  public static class TensorSelection {
-    @Nonnull UUID tensorId;
-    @Nonnull ZRange range;
+  @JsonInclude(JsonInclude.Include.NON_EMPTY)
+  public static class Body implements HasToJsonString {
+    UUID operationId;
+    @Nullable UUID indexId;
+    @Singular @Nonnull Map<String, List<TensorSelection>> inputs;
+    @Singular @Nonnull Map<String, List<TensorSelection>> outputs;
   }
 
   /**
@@ -138,4 +127,9 @@ public class ApplicationNode extends LoomNode<ApplicationNode, ApplicationNode.B
   @Delegate(excludes = {HasToJsonString.class})
   @Nonnull
   private Body body;
+
+  public OperationSignatureNode getOperationSignatureNode() {
+    return assertGraph()
+        .assertNode(getOperationId(), OperationSignatureNode.TYPE, OperationSignatureNode.class);
+  }
 }

@@ -29,7 +29,8 @@ public final class CommonEnvironments {
             TensorDTypesAreValidConstraint.builder()
                 .validDTypes(Set.of("int32", "float32"))
                 .build())
+        .autowireNodeTypeClass(ApplicationNode.TYPE, ApplicationNode.class)
         .autowireNodeTypeClass(OperationSignatureNode.TYPE, OperationSignatureNode.class)
-        .autowireNodeTypeClass(ApplicationNode.TYPE, ApplicationNode.class);
+        .autowireNodeTypeClass(IPFSignatureNode.TYPE, IPFSignatureNode.class);
   }
 }
