@@ -7,18 +7,19 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import java.io.IOException;
-import java.lang.reflect.ParameterizedType;
-import java.util.UUID;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import loom.common.json.HasToJsonString;
 import loom.common.json.JsonUtil;
+import loom.common.runtime.ReflectionUtils;
 import loom.validation.ValidationIssue;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.io.IOException;
+import java.util.UUID;
 
 /**
  * Base class for a node in the graph.
@@ -132,7 +133,7 @@ public abstract class LoomNode<NodeType extends LoomNode<NodeType, BodyType>, Bo
   @JsonIgnore
   public final Class<BodyType> getBodyClass() {
     @SuppressWarnings("unchecked")
-    var cls = (Class<BodyType>) getBodyClass(getClass());
+    var cls = (Class<BodyType>) getBodyClass((Class<? extends LoomNode<?, ?>>) getClass());
     return cls;
   }
 
@@ -144,13 +145,9 @@ public abstract class LoomNode<NodeType extends LoomNode<NodeType, BodyType>, Bo
    * @param nodeTypeClass the node type class.
    * @return the body class.
    */
-  public static Class<?> getBodyClass(Class<? extends LoomNode> nodeTypeClass) {
-    Class<?> cls = nodeTypeClass;
-    while (cls.getSuperclass() != LoomNode.class) {
-      cls = cls.getSuperclass();
-    }
-    var pt = (ParameterizedType) nodeTypeClass.getGenericSuperclass();
-    return (Class<?>) pt.getActualTypeArguments()[1];
+  public static Class<?> getBodyClass(Class<? extends LoomNode<?, ?>> nodeTypeClass) {
+    return (Class<?>)
+        ReflectionUtils.getTypeArgumentsForGenericSuperclass(nodeTypeClass, LoomNode.class)[1];
   }
 
   @Nonnull

@@ -44,7 +44,7 @@ public class NodeBodySchemaConstraint implements LoomEnvironment.Constraint {
      * @return this builder.
      */
     public NodeBodySchemaConstraintBuilder withSchemaFromNodeClass(
-        Class<? extends LoomNode> clazz) {
+        Class<? extends LoomNode<?, ?>> clazz) {
       return withSchemaFromBodyClass(LoomNode.getBodyClass(clazz));
     }
   }
