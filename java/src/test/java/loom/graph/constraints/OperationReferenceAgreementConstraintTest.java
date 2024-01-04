@@ -1,5 +1,11 @@
 package loom.graph.constraints;
 
+import static loom.graph.LoomConstants.NODE_REFERENCE_ERROR;
+import static loom.graph.LoomConstants.NODE_VALIDATION_ERROR;
+
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import loom.graph.CommonEnvironments;
 import loom.graph.LoomConstants;
 import loom.graph.LoomGraph;
@@ -10,13 +16,6 @@ import loom.validation.ValidationIssue;
 import loom.zspace.ZPoint;
 import loom.zspace.ZRange;
 import org.junit.Test;
-
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-
-import static loom.graph.LoomConstants.NODE_REFERENCE_ERROR;
-import static loom.graph.LoomConstants.NODE_VALIDATION_ERROR;
 
 public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
 

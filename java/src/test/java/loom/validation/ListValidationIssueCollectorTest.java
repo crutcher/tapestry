@@ -9,6 +9,8 @@ public class ListValidationIssueCollectorTest extends BaseTestClass {
     var collector = new ListValidationIssueCollector();
     assertThat(collector.getIssues()).isNull();
     collector.check();
+
+    assertThat(collector.hasFailed()).isFalse();
   }
 
   @Test
@@ -16,6 +18,7 @@ public class ListValidationIssueCollectorTest extends BaseTestClass {
     var collector = new ListValidationIssueCollector();
     collector.addIssue(ValidationIssue.builder("foo").summary("a test").build());
     collector.addIssue(ValidationIssue.builder("bar").summary("xyz"));
+    assertThat(collector.hasFailed()).isTrue();
 
     assertThat(collector.getIssues()).hasSize(2);
 
