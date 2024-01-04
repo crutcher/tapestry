@@ -40,6 +40,7 @@ public final class TensorNode extends LoomNode<TensorNode, TensorNode.Body> {
         "range": { "$ref": "#/definitions/ZRange" }
       },
       "required": ["dtype", "range"],
+        "additionalProperties": false,
       "definitions": {
           "ZRange": {
               "type": "object",

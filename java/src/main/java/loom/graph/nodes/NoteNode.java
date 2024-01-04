@@ -31,7 +31,8 @@ public final class NoteNode extends LoomNode<NoteNode, NoteNode.Body> {
             "type": "string"
         }
       },
-      "required": ["message"]
+      "required": ["message"],
+      "additionalProperties": false
   }
   """)
   public static final class Body {
