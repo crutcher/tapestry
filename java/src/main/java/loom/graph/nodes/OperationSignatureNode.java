@@ -132,7 +132,11 @@ public class OperationSignatureNode
   @JsonIgnore
   public List<ApplicationNode> getApplicationNodes() {
     var id = getId();
-    return assertGraph().stream(ApplicationNode.TYPE, ApplicationNode.class)
+    return assertGraph()
+        .nodeScan()
+        .type(ApplicationNode.TYPE)
+        .nodeClass(ApplicationNode.class)
+        .asStream()
         .filter(appNode -> appNode.getOperationId().equals(id))
         .toList();
   }

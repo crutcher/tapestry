@@ -24,7 +24,8 @@ public class TensorDTypesAreValidConstraint implements LoomEnvironment.Constrain
   @Override
   public void validateConstraint(
       LoomEnvironment env, LoomGraph graph, ValidationIssueCollector issueCollector) {
-    for (var tensorNode : graph.iterableNodes(TensorNode.TYPE, TensorNode.class)) {
+    for (var tensorNode :
+        graph.nodeScan().type(TensorNode.TYPE).nodeClass(TensorNode.class).asList()) {
       checkTensor(tensorNode, issueCollector);
     }
   }

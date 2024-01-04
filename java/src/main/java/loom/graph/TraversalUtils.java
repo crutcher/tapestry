@@ -42,7 +42,11 @@ public class TraversalUtils {
     Graph<LoomNode<?, ?>, DefaultEdge> linkGraph = new DefaultDirectedGraph<>(DefaultEdge.class);
 
     for (var node :
-        graph.iterableNodes(OperationSignatureNode.TYPE, OperationSignatureNode.class)) {
+        graph
+            .nodeScan()
+            .type(OperationSignatureNode.TYPE)
+            .nodeClass(OperationSignatureNode.class)
+            .asList()) {
       linkGraph.addVertex(node);
 
       for (var entry : node.getInputs().entrySet()) {

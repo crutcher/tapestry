@@ -2,6 +2,7 @@ package loom.graph.constraints;
 
 import java.util.List;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 import javax.annotation.Nonnull;
 import lombok.Builder;
 import lombok.Getter;
@@ -77,7 +78,7 @@ public class NodeBodySchemaConstraint implements LoomEnvironment.Constraint {
       ValidationIssueCollector issueCollector) {
     var schema = env.getJsonSchemaManager().loadSchema(bodySchema);
 
-    graph.stream()
+    ((Stream<? extends LoomNode<?, ?>>) graph.nodeScan().asStream())
         .filter(
             node -> {
               String type = node.getType();

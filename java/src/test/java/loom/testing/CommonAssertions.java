@@ -1,15 +1,21 @@
 package loom.testing;
 
-import java.util.Comparator;
-import java.util.List;
-import java.util.stream.Stream;
 import loom.common.json.JsonUtil;
 import loom.common.text.PrettyDiffUtils;
 import loom.validation.ValidationIssue;
 import org.assertj.core.api.WithAssertions;
 
+import javax.annotation.Nullable;
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Stream;
+
 public interface CommonAssertions extends WithAssertions {
-  default void assertValidationIssues(List<ValidationIssue> issues, ValidationIssue... expected) {
+  default void assertValidationIssues(
+      @Nullable List<ValidationIssue> issues, ValidationIssue... expected) {
+    assertThat(issues).isNotNull();
+    assert issues != null;
+
     var cmp = Comparator.comparing(JsonUtil::toJson);
     var sortedIssues = issues.stream().sorted(cmp).toList();
     var sortedExpected = Stream.of(expected).sorted(cmp).toList();

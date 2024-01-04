@@ -8,16 +8,12 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
-import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import lombok.*;
-import loom.common.collections.IteratorUtils;
 import loom.common.json.HasToJsonString;
 import loom.common.json.JsonUtil;
 import loom.common.json.MapValueListUtil;
@@ -30,7 +26,7 @@ import loom.validation.ValidationIssueCollector;
 @ToString(onlyExplicitlyIncluded = true)
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public final class LoomGraph implements Iterable<LoomNode<?, ?>>, HasToJsonString {
+public final class LoomGraph implements HasToJsonString {
 
   @JsonIgnore @Nonnull private final LoomEnvironment env;
 
@@ -41,6 +37,9 @@ public final class LoomGraph implements Iterable<LoomNode<?, ?>>, HasToJsonStrin
   @JsonSerialize(using = MapValueListUtil.MapSerializer.class)
   @JsonDeserialize(using = Serialization.NodeListToMapDeserializer.class)
   private final Map<UUID, LoomNode<?, ?>> nodeMap = new HashMap<>();
+
+  @JsonIgnore private final Map<String, List<LoomNode<?, ?>>> nodeTypeMap = new HashMap<>();
+  @JsonIgnore private final Map<Class<?>, List<LoomNode<?, ?>>> nodeClassMap = new HashMap<>();
 
   /**
    * Validate the graph.
@@ -173,65 +172,123 @@ public final class LoomGraph implements Iterable<LoomNode<?, ?>>, HasToJsonStrin
     return nodeClass.cast(node);
   }
 
-  @Override
-  @Nonnull
-  public Iterator<LoomNode<?, ?>> iterator() {
-    return iterableNodes().iterator();
-  }
-
   /**
-   * Get an iterable of all nodes in the graph.
+   * Builder for a LoomNode scan.
    *
-   * @return the iterable.
+   * @param <T> the type of the node to scan for.
    */
-  @Nonnull
-  public Iterable<LoomNode<?, ?>> iterableNodes() {
-    return nodeMap.values();
-  }
+  public static final class NodeScanBuilder<T extends LoomNode<?, ?>> {
+    @Nonnull private final LoomGraph graph;
+    @Nullable private String type;
+    @Nullable private Class<T> nodeClass;
 
-  /**
-   * Get an iterable of all nodes of class {@code T} the graph, optionally filtered by type.
-   *
-   * @param type the type to filter by; null to skip type filter.
-   * @param nodeClass the class of the nodes to get.
-   * @return the iterable.
-   * @param <NodeType> the type of the nodes to get.
-   */
-  @Nonnull
-  public <NodeType extends LoomNode<?, ?>> Iterable<NodeType> iterableNodes(
-      @Nullable String type, Class<NodeType> nodeClass) {
-    return IteratorUtils.supplierToIterable(() -> stream(type, nodeClass).iterator());
-  }
+    private final List<Predicate<T>> filters = new ArrayList<>();
 
-  /**
-   * Get a stream of all nodes of class {@code T} the graph, optionally filtered by type.
-   *
-   * @param type the type to filter by; null to skip type filter.
-   * @param nodeClass the class of the nodes to get.
-   * @return the stream.
-   * @param <NodeType> the type of the nodes to get.
-   */
-  @CheckReturnValue
-  @Nonnull
-  public <NodeType extends LoomNode<?, ?>> Stream<NodeType> stream(
-      @Nullable String type, Class<NodeType> nodeClass) {
-    var s = stream();
-    if (type != null) {
-      s = s.filter(node -> node.getType().equals(type));
+    private NodeScanBuilder(@Nonnull LoomGraph graph) {
+      this.graph = graph;
     }
 
-    return s.filter(nodeClass::isInstance).map(nodeClass::cast);
+    /**
+     * Set the type of the node to scan for.
+     *
+     * @param type the type.
+     * @return the builder.
+     */
+    public NodeScanBuilder<T> type(@Nullable String type) {
+      this.type = type;
+      return this;
+    }
+
+    /**
+     * Set the class of the node to scan for.
+     *
+     * @param nodeClass the class.
+     * @return the builder, cast to the correct type.
+     * @param <X> the type of the node to scan for.
+     */
+    public <X extends LoomNode<?, ?>> NodeScanBuilder<X> nodeClass(@Nullable Class<X> nodeClass) {
+      @SuppressWarnings("unchecked")
+      var thisAs = (NodeScanBuilder<X>) this;
+      thisAs.nodeClass = nodeClass;
+      return thisAs;
+    }
+
+    /**
+     * Add a filter to the scan.
+     *
+     * @param filter the filter.
+     * @return the builder.
+     */
+    public NodeScanBuilder<T> filter(Predicate<T> filter) {
+      filters.add(filter);
+      return this;
+    }
+
+    /**
+     * Get the nodes matching the scan as a stream.
+     *
+     * @return the stream.
+     */
+    public Stream<T> asStream() {
+      enum NodeSource {
+        ALL,
+        TYPE_FILTERED,
+        CLASS_FILTERED
+      }
+
+      NodeSource nodeSource = NodeSource.ALL;
+      Collection<LoomNode<?, ?>> nodes = graph.getNodeMap().values();
+
+      if (type != null) {
+        var source = graph.nodeTypeMap.get(type);
+        if (source != null && source.size() < nodes.size()) {
+          nodeSource = NodeSource.TYPE_FILTERED;
+          nodes = source;
+        }
+      }
+      if (nodeClass != null) {
+        var source = graph.nodeClassMap.get(nodeClass);
+        if (source != null && source.size() < nodes.size()) {
+          nodeSource = NodeSource.CLASS_FILTERED;
+          nodes = source;
+        }
+      }
+
+      Stream<LoomNode<?, ?>> baseStream = nodes.stream();
+
+      if (type != null && nodeSource != NodeSource.TYPE_FILTERED) {
+        baseStream = baseStream.filter(node -> node.getType().equals(type));
+      }
+      @SuppressWarnings("unchecked")
+      var typedStream =
+          (nodeClass == null || nodeSource == NodeSource.CLASS_FILTERED)
+              ? (Stream<T>) baseStream
+              : baseStream.filter(nodeClass::isInstance).map(nodeClass::cast);
+
+      for (var filter : filters) {
+        typedStream = typedStream.filter(filter);
+      }
+
+      return typedStream;
+    }
+
+    /**
+     * Get the nodes matching the scan as a list.
+     *
+     * @return the list.
+     */
+    public List<T> asList() {
+      return asStream().toList();
+    }
   }
 
   /**
-   * Get a stream of all nodes in the graph.
+   * Create a new NodeScanBuilder.
    *
-   * @return the stream.
+   * @return the builder.
    */
-  @CheckReturnValue
-  @Nonnull
-  public Stream<? extends LoomNode<?, ?>> stream() {
-    return nodeMap.values().stream();
+  public NodeScanBuilder<LoomNode<?, ?>> nodeScan() {
+    return new NodeScanBuilder<>(this);
   }
 
   /**
@@ -250,23 +307,36 @@ public final class LoomGraph implements Iterable<LoomNode<?, ?>>, HasToJsonStrin
   }
 
   /**
-   * Add a node to the graph.
+   * Remove a node from the graph. Silently does nothing if the node does not exist.
    *
-   * <p>If the node builder does not have an ID, a new ID will be generated.
-   *
-   * @param builder a builder for the node to add.
-   * @return the ID of the node.
+   * @param id the ID of the node to remove.
    */
-  @Nonnull
-  public <N extends LoomNode<N, B>, B> N addNode(LoomNode.LoomNodeBuilder<N, B, ?, ?> builder) {
-    if (!builder.hasId()) {
-      builder.id(newUnusedNodeId());
+  public void removeNode(UUID id) {
+    var node = nodeMap.get(id);
+    if (node == null) {
+      return;
     }
+    nodeMap.remove(id);
+    nodeTypeMap.get(node.getType()).remove(node);
+    nodeClassMap.get(node.getClass()).remove(node);
+  }
 
-    @SuppressWarnings("unchecked")
-    var node = (N) builder.build();
+  /**
+   * Remove a node from the graph. Silently does nothing if the node does not exist.
+   *
+   * @param id the ID of the node to remove.
+   */
+  public void removeNode(String id) {
+    removeNode(UUID.fromString(id));
+  }
 
-    return addNode(node);
+  /**
+   * Remove a node from the graph. Silently does nothing if the node does not exist.
+   *
+   * @param node the node to remove.
+   */
+  public void removeNode(LoomNode<?, ?> node) {
+    removeNode(node.getId());
   }
 
   /**
@@ -290,8 +360,30 @@ public final class LoomGraph implements Iterable<LoomNode<?, ?>>, HasToJsonStrin
     env.assertClassForType(node.getType(), (Class<T>) node.getClass());
 
     nodeMap.put(node.getId(), node);
+    nodeTypeMap.computeIfAbsent(node.getType(), k -> new ArrayList<>()).add(node);
+    nodeClassMap.computeIfAbsent(node.getClass(), k -> new ArrayList<>()).add(node);
 
     return node;
+  }
+
+  /**
+   * Add a node to the graph.
+   *
+   * <p>If the node builder does not have an ID, a new ID will be generated.
+   *
+   * @param builder a builder for the node to add.
+   * @return the ID of the node.
+   */
+  @Nonnull
+  public <N extends LoomNode<N, B>, B> N addNode(LoomNode.LoomNodeBuilder<N, B, ?, ?> builder) {
+    if (!builder.hasId()) {
+      builder.id(newUnusedNodeId());
+    }
+
+    @SuppressWarnings("unchecked")
+    var node = (N) builder.build();
+
+    return addNode(node);
   }
 
   /**

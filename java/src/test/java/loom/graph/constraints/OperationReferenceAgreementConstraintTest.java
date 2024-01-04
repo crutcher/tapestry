@@ -118,6 +118,273 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
   }
 
   @Test
+  public void test_no_shards() {
+    var graph = createGraph();
+
+    var tensorA =
+        TensorNode.withBody(
+                b -> {
+                  b.dtype("int32");
+                  b.shape(new ZPoint(2, 3));
+                })
+            .label("A")
+            .buildOn(graph);
+
+    var op =
+        OperationSignatureNode.withBody(
+                b -> {
+                  b.name("source");
+                  b.output(
+                      "output",
+                      List.of(new TensorSelection(tensorA.getId(), tensorA.getEffectiveRange())));
+                })
+            .buildOn(graph);
+
+    var constraint = graph.getEnv().assertConstraint(OperationReferenceAgreementConstraint.class);
+    var issueCollector = new ListValidationIssueCollector();
+    constraint.validateConstraint(graph.getEnv(), graph, issueCollector);
+    assertValidationIssues(
+        issueCollector.getIssues(),
+        ValidationIssue.builder()
+            .type(LoomConstants.NODE_VALIDATION_ERROR)
+            .summary("Operation Signature has no Application shards")
+            .context(op.asValidationContext("Operation Node"))
+            .build());
+  }
+
+  @Test
+  public void test_application_operation_disagreement() {
+    var graph = createGraph();
+    var tensorA =
+        TensorNode.withBody(
+                b -> {
+                  b.dtype("int32");
+                  b.shape(new ZPoint(100));
+                })
+            .label("A")
+            .buildOn(graph);
+
+    var sourceOp =
+        OperationSignatureNode.withBody(
+                b -> {
+                  b.name("source");
+                  b.input(
+                      "foo",
+                      List.of(new TensorSelection(tensorA.getId(), tensorA.getEffectiveRange())));
+                })
+            .buildOn(graph);
+    var app1 =
+        ApplicationNode.withBody(
+                b -> {
+                  b.operationId(sourceOp.getId());
+                  b.input("foo", List.of());
+                })
+            .label("Wrong List Size")
+            .buildOn(graph);
+    var app2 =
+        ApplicationNode.withBody(
+                b -> {
+                  b.operationId(sourceOp.getId());
+                  b.input("bar", List.of());
+                })
+            .label("Misaligned Input Keys")
+            .buildOn(graph);
+    var app3 =
+        ApplicationNode.withBody(
+                b -> {
+                  b.operationId(sourceOp.getId());
+                  b.input(
+                      "foo",
+                      List.of(
+                          TensorSelection.builder()
+                              .tensorId(tensorA.getId())
+                              .range(new ZRange(ZPoint.of(0), ZPoint.of(100)))
+                              .build()));
+                  b.output("bar", List.of());
+                })
+            .label("Misaligned Output Keys")
+            .buildOn(graph);
+
+    var constraint = graph.getEnv().assertConstraint(OperationReferenceAgreementConstraint.class);
+    var issueCollector = new ListValidationIssueCollector();
+    constraint.validateConstraint(graph.getEnv(), graph, issueCollector);
+    assertValidationIssues(
+        issueCollector.getIssues(),
+        ValidationIssue.builder()
+            .type(LoomConstants.NODE_VALIDATION_ERROR)
+            .summary(
+                "Application inputs key \"foo\" selection size (0) != Signature selection size (1)")
+            .context(app1.asValidationContext("Application Node"))
+            .context(sourceOp.asValidationContext("Operation Node"))
+            .build(),
+        ValidationIssue.builder()
+            .type(LoomConstants.NODE_VALIDATION_ERROR)
+            .summary("Application Node inputs keys [bar] != Operation Signature inputs keys [foo]")
+            .context(app2.asValidationContext("Application Node"))
+            .context(sourceOp.asValidationContext("Operation Node"))
+            .build(),
+        ValidationIssue.builder()
+            .type(LoomConstants.NODE_VALIDATION_ERROR)
+            .summary("Application Node outputs keys [bar] != Operation Signature outputs keys []")
+            .context(app3.asValidationContext("Application Node"))
+            .context(sourceOp.asValidationContext("Operation Node"))
+            .build());
+  }
+
+  @SuppressWarnings("unused")
+  @Test
+  public void test_application_shard_range_disagreement() {
+    var graph = createGraph();
+
+    var tensorA =
+        TensorNode.withBody(
+                b -> {
+                  b.dtype("int32");
+                  b.shape(new ZPoint(2, 3));
+                })
+            .label("A")
+            .buildOn(graph);
+
+    var sourceOp =
+        OperationSignatureNode.withBody(
+                b -> {
+                  b.name("source");
+                  b.output(
+                      "output",
+                      List.of(new TensorSelection(tensorA.getId(), tensorA.getEffectiveRange())));
+                })
+            .buildOn(graph);
+
+    var app1 =
+        ApplicationNode.withBody(
+                b -> {
+                  b.operationId(sourceOp.getId());
+                  b.output(
+                      "output",
+                      List.of(
+                          TensorSelection.builder()
+                              .tensorId(tensorA.getId())
+                              .range(new ZRange(ZPoint.of(0, 0), ZPoint.of(1, 2)))
+                              .build()));
+                })
+            .buildOn(graph);
+    var app2 =
+        ApplicationNode.withBody(
+                b -> {
+                  b.operationId(sourceOp.getId());
+                  b.output(
+                      "output",
+                      List.of(
+                          TensorSelection.builder()
+                              .tensorId(tensorA.getId())
+                              .range(new ZRange(ZPoint.of(1, 0), ZPoint.of(2, 2)))
+                              .build()));
+                })
+            .buildOn(graph);
+
+    var sinkOp =
+        OperationSignatureNode.withBody(
+                b -> {
+                  b.name("sink");
+                  b.input(
+                      "input",
+                      List.of(new TensorSelection(tensorA.getId(), tensorA.getEffectiveRange())));
+                })
+            .buildOn(graph);
+
+    var app3 =
+        ApplicationNode.withBody(
+                b -> {
+                  b.operationId(sinkOp.getId());
+                  b.input(
+                      "input",
+                      List.of(
+                          TensorSelection.builder()
+                              .tensorId(tensorA.getId())
+                              .range(new ZRange(ZPoint.of(0, 0), ZPoint.of(2, 1)))
+                              .build()));
+                })
+            .buildOn(graph);
+    var app4 =
+        ApplicationNode.withBody(
+                b -> {
+                  b.operationId(sinkOp.getId());
+                  b.input(
+                      "input",
+                      List.of(
+                          TensorSelection.builder()
+                              .tensorId(tensorA.getId())
+                              .range(new ZRange(ZPoint.of(0, 1), ZPoint.of(2, 2)))
+                              .build()));
+                })
+            .buildOn(graph);
+
+    var constraint = graph.getEnv().assertConstraint(OperationReferenceAgreementConstraint.class);
+    var issueCollector = new ListValidationIssueCollector();
+    constraint.validateConstraint(graph.getEnv(), graph, issueCollector);
+    assertValidationIssues(
+        issueCollector.getIssues(),
+        ValidationIssue.builder()
+            .type(LoomConstants.NODE_VALIDATION_ERROR)
+            .summary(
+                "Operation Signature inputs key \"input[0]\" range zr[0:2, 0:3] != shard bounding range zr[0:2, 0:2]")
+            .context(
+                context ->
+                    context
+                        .name("Shard Ranges")
+                        .data(
+                            List.of(
+                                new ZRange(ZPoint.of(0, 0), ZPoint.of(2, 1)),
+                                new ZRange(ZPoint.of(0, 1), ZPoint.of(2, 2)))))
+            .context(sinkOp.asValidationContext("Operation Node"))
+            .build(),
+        ValidationIssue.builder()
+            .type(LoomConstants.NODE_VALIDATION_ERROR)
+            .summary(
+                "Operation Signature outputs key \"output[0]\" range zr[0:2, 0:3] != shard bounding range zr[0:2, 0:2]")
+            .context(
+                context ->
+                    context
+                        .name("Shard Ranges")
+                        .data(
+                            List.of(
+                                new ZRange(ZPoint.of(0, 0), ZPoint.of(1, 2)),
+                                new ZRange(ZPoint.of(1, 0), ZPoint.of(2, 2)))))
+            .context(sourceOp.asValidationContext("Operation Node"))
+            .build());
+  }
+
+  @Test
+  public void test_missing_operation() {
+    var graph = createGraph();
+    var missingOperationId = UUID.randomUUID();
+
+    var app =
+        ApplicationNode.withBody(
+                b -> b.operationId(missingOperationId))
+            .buildOn(graph);
+
+    var constraint = graph.getEnv().assertConstraint(OperationReferenceAgreementConstraint.class);
+    var issueCollector = new ListValidationIssueCollector();
+    constraint.validateConstraint(graph.getEnv(), graph, issueCollector);
+    assertValidationIssues(
+        issueCollector.getIssues(),
+        ValidationIssue.builder()
+            .type(NODE_REFERENCE_ERROR)
+            .param("nodeId", missingOperationId)
+            .param("nodeType", OperationSignatureNode.TYPE)
+            .summary("Referenced node does not exist")
+            .context(
+                context ->
+                    context
+                        .name("Reference")
+                        .jsonpath(app.getJsonPath(), "body.operationId")
+                        .data(missingOperationId))
+            .context(app.asValidationContext("Application Node"))
+            .build());
+  }
+
+  @Test
   public void test_missing_tensor() {
     var graph = createGraph();
 

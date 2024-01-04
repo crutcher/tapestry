@@ -373,7 +373,7 @@ public class LoomGraphTest extends BaseTestClass {
 
     {
       var nodeList = new ArrayList<>();
-      graph.iterator().forEachRemaining(nodeList::add);
+      graph.nodeScan().asStream().forEach(nodeList::add);
       assertThat(nodeList).containsExactly(node);
     }
 

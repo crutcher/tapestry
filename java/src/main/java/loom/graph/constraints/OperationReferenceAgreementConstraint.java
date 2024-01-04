@@ -1,9 +1,5 @@
 package loom.graph.constraints;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Supplier;
 import loom.common.json.JsonPathUtils;
 import loom.common.lazy.LazyString;
 import loom.common.lazy.Thunk;
@@ -12,6 +8,12 @@ import loom.graph.nodes.*;
 import loom.validation.ValidationIssue;
 import loom.validation.ValidationIssueCollector;
 import loom.zspace.ZRange;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 public class OperationReferenceAgreementConstraint implements LoomEnvironment.Constraint {
   @Override
@@ -27,7 +29,8 @@ public class OperationReferenceAgreementConstraint implements LoomEnvironment.Co
       LoomGraph graph,
       ValidationIssueCollector issueCollector) {
     boolean valid = true;
-    for (var node : graph.iterableNodes(ApplicationNode.TYPE, ApplicationNode.class)) {
+    for (var node :
+        graph.nodeScan().type(ApplicationNode.TYPE).nodeClass(ApplicationNode.class).asList()) {
       var opNode =
           ValidationUtils.validateNodeReference(
               graph,
@@ -45,7 +48,11 @@ public class OperationReferenceAgreementConstraint implements LoomEnvironment.Co
     }
 
     for (var node :
-        graph.iterableNodes(OperationSignatureNode.TYPE, OperationSignatureNode.class)) {
+        graph
+            .nodeScan()
+            .type(OperationSignatureNode.TYPE)
+            .nodeClass(OperationSignatureNode.class)
+            .asList()) {
       valid &= validateOperationSignatureNode(graph, node, issueCollector);
     }
 
@@ -106,58 +113,40 @@ public class OperationReferenceAgreementConstraint implements LoomEnvironment.Co
       issueCollector.addIssue(
           ValidationIssue.builder()
               .type(LoomConstants.NODE_VALIDATION_ERROR)
-              .summary(
-                  "Operation Signature %s has no Application shards", opSignatureNode.getLabel())
+              .summary("Operation Signature has no Application shards")
               .withContexts(lazyContexts));
       return false;
     }
+    for (var appNode : shards) {
+      valid &= validateApplicationNode(opSignatureNode, appNode, issueCollector);
+    }
 
-    if (!shards.stream()
-        .allMatch(shard -> validateApplicationNode(opSignatureNode, shard, issueCollector))) {
-      // The shards are not valid, so we can't validate the shard ranges.
+    if (!valid) {
       return false;
     }
 
-    // check the input range coverage:
-    // 1. Every shard range is inside the input range.
-    // 2. The bounding union of the shard ranges is equal to the input range.
-    for (var entry : opSignatureNode.getInputs().entrySet()) {
-      final var ioName = entry.getKey();
-      final var selections = entry.getValue();
+    valid =
+        validateShardAgreement(
+            shards,
+            "inputs",
+            opSignatureNode.getInputs(),
+            ApplicationNode::getInputs,
+            lazyContexts,
+            issueCollector);
+    valid &=
+        validateShardAgreement(
+            shards,
+            "outputs",
+            opSignatureNode.getOutputs(),
+            ApplicationNode::getOutputs,
+            lazyContexts,
+            issueCollector);
 
-      final var k = selections.size();
-
-      var shardSelections = shards.stream().map(shard -> shard.getInputs().get(ioName)).toList();
-
-      if (shardSelections.stream().anyMatch(s -> s.size() != k)) {
-        // The shard selection map is not the same size as the operation signature selection map;
-        // the errors for that are handled in the ApplicationNode validation.
-        valid = false;
-        continue;
-      }
-
-      for (int idx = 0; idx < k; ++idx) {
-        var sigRange = selections.get(idx).getRange();
-        var finalIdx = idx;
-        var shardRanges = shardSelections.stream().map(s -> s.get(finalIdx).getRange()).toList();
-
-        var boundingRange = ZRange.boundingRange(shardRanges);
-
-        if (!sigRange.equals(boundingRange)) {
-          issueCollector.addIssue(
-              ValidationIssue.builder()
-                  .type(LoomConstants.NODE_VALIDATION_ERROR)
-                  .summary(
-                      "Operation Signature %s input %s range %s != shard bounding range %s",
-                      opSignatureNode.getLabel(), ioName, sigRange, boundingRange));
-          valid = false;
-        }
-      }
+    if (!valid) {
+      return false;
     }
 
     // check the output range coverage:
-    // 1. None of the shard ranges overlap.
-    // 2. Every shard range is inside the output range.
     // 3. The sum of the shard range sizes is equal to the output range size.
     for (var entry : opSignatureNode.getOutputs().entrySet()) {
       final var ioName = entry.getKey();
@@ -167,31 +156,13 @@ public class OperationReferenceAgreementConstraint implements LoomEnvironment.Co
 
       var shardSelections = shards.stream().map(shard -> shard.getOutputs().get(ioName)).toList();
 
-      if (shardSelections.stream().anyMatch(s -> s.size() != k)) {
-        // The shard selection map is not the same size as the operation signature selection map;
-        // the errors for that are handled in the ApplicationNode validation.
-        valid = false;
-        continue;
-      }
-
       for (int idx = 0; idx < k; ++idx) {
         var sigRange = selections.get(idx).getRange();
         var finalIdx = idx;
 
         var shardRanges = shardSelections.stream().map(s -> s.get(finalIdx).getRange()).toList();
-        var boundingRange = ZRange.boundingRange(shardRanges);
+
         var totalSize = shardRanges.stream().mapToInt(ZRange::getSize).sum();
-
-        if (!sigRange.equals(boundingRange)) {
-          issueCollector.addIssue(
-              ValidationIssue.builder()
-                  .type(LoomConstants.NODE_VALIDATION_ERROR)
-                  .summary(
-                      "Operation Signature %s output %s range %s != shard bounding range %s",
-                      opSignatureNode.getLabel(), ioName, sigRange, boundingRange));
-          valid = false;
-        }
-
         if (totalSize != sigRange.getSize()) {
           // There are overlapping shard ranges.
           issueCollector.addIssue(
@@ -206,13 +177,84 @@ public class OperationReferenceAgreementConstraint implements LoomEnvironment.Co
     return valid;
   }
 
+  private static boolean validateShardAgreement(
+      List<ApplicationNode> shards,
+      String sliceMapName,
+      Map<String, List<TensorSelection>> selectionMap,
+      Function<ApplicationNode, Map<String, List<TensorSelection>>> shardSelectionMapFn,
+      Supplier<List<ValidationIssue.Context>> contextsSupplier,
+      ValidationIssueCollector issueCollector) {
+    boolean valid = true;
+    for (var entry : selectionMap.entrySet()) {
+      final var ioName = entry.getKey();
+      final var selections = entry.getValue();
+
+      final var k = selections.size();
+
+      var shardSelections =
+          shards.stream().map(shard -> shardSelectionMapFn.apply(shard).get(ioName)).toList();
+      assert shardSelections.stream().allMatch(s -> s.size() == k);
+
+      for (int idx = 0; idx < k; ++idx) {
+        var sigRange = selections.get(idx).getRange();
+        var finalIdx = idx;
+        var shardRanges = shardSelections.stream().map(s -> s.get(finalIdx).getRange()).toList();
+
+        var boundingRange = ZRange.boundingRange(shardRanges);
+
+        if (!sigRange.equals(boundingRange)) {
+          issueCollector.addIssue(
+              ValidationIssue.builder()
+                  .type(LoomConstants.NODE_VALIDATION_ERROR)
+                  .summary(
+                      "Operation Signature %s key \"%s[%d]\" range %s != shard bounding range %s",
+                      sliceMapName, ioName, idx, sigRange, boundingRange)
+                  .context(
+                      ValidationIssue.Context.builder()
+                          .name("Shard Ranges")
+                          .data(shardRanges)
+                          .build())
+                  .withContexts(contextsSupplier));
+          valid = false;
+        }
+      }
+    }
+    return valid;
+  }
+
   private static boolean validateApplicationNode(
-      OperationSignatureNode opSig, ApplicationNode node, ValidationIssueCollector issueCollector) {
+      OperationSignatureNode operationSignatureNode,
+      ApplicationNode applicationNode,
+      ValidationIssueCollector issueCollector) {
 
-    var lazyContexts = Thunk.of(() -> List.of(node.asValidationContext("Operation Node")));
+    var lazyContexts =
+        Thunk.of(
+            () ->
+                List.of(
+                    applicationNode.asValidationContext("Application Node"),
+                    operationSignatureNode.asValidationContext("Operation Node")));
 
-    return validateApplicationSignatureAgreement(
-        node, opSig, "inputs", node.getInputs(), opSig.getInputs(), lazyContexts, issueCollector);
+    boolean valid = true;
+    valid &=
+        validateApplicationSignatureAgreement(
+            applicationNode,
+            operationSignatureNode,
+            "inputs",
+            applicationNode.getInputs(),
+            operationSignatureNode.getInputs(),
+            lazyContexts,
+            issueCollector);
+    valid &=
+        validateApplicationSignatureAgreement(
+            applicationNode,
+            operationSignatureNode,
+            "outputs",
+            applicationNode.getOutputs(),
+            operationSignatureNode.getOutputs(),
+            lazyContexts,
+            issueCollector);
+
+    return valid;
   }
 
   public static boolean validateApplicationSignatureAgreement(
@@ -249,7 +291,7 @@ public class OperationReferenceAgreementConstraint implements LoomEnvironment.Co
               ValidationIssue.builder()
                   .type(LoomConstants.NODE_VALIDATION_ERROR)
                   .summary(
-                      "Application %s key \"%s\" selection size (%d) != Signature size (%d)",
+                      "Application %s key \"%s\" selection size (%d) != Signature selection size (%d)",
                       sliceMapName, ioName, appSelections.size(), sigSelections.size())
                   .withContexts(contextsSupplier));
           valid = false;
