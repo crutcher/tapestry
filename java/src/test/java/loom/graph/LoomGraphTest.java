@@ -1,10 +1,5 @@
 package loom.graph;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import javax.annotation.Nonnull;
 import lombok.Builder;
 import lombok.Data;
 import lombok.Getter;
@@ -15,11 +10,18 @@ import lombok.extern.jackson.Jacksonized;
 import loom.common.json.JsonUtil;
 import loom.common.json.WithSchema;
 import loom.graph.nodes.GenericNode;
+import loom.graph.nodes.NoteNode;
 import loom.graph.nodes.TensorNode;
 import loom.testing.BaseTestClass;
 import loom.validation.ValidationIssue;
 import loom.zspace.ZPoint;
 import org.junit.Test;
+
+import javax.annotation.Nonnull;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 public class LoomGraphTest extends BaseTestClass {
   @Jacksonized
@@ -482,5 +484,28 @@ public class LoomGraphTest extends BaseTestClass {
                           "foo": "baz"
                         }
                         """);
+  }
+
+  @Test
+  public void test_scan() {
+    var env = CommonEnvironments.expressionEnvironment();
+    var graph = env.newGraph();
+
+    var tensorNode =
+        TensorNode.withBody(b -> b.dtype("int32").shape(ZPoint.of(2, 3))).buildOn(graph);
+
+    var noteNode = NoteNode.withBody(b -> b.message("foo")).buildOn(graph);
+
+    assertThat(graph.nodeScan().type(NoteNode.TYPE).asList()).containsOnly(noteNode);
+    assertThat(graph.nodeScan().type(NoteNode.TYPE).nodeClass(NoteNode.class).asList())
+        .containsOnly(noteNode);
+    assertThat(graph.nodeScan().nodeClass(NoteNode.class).asList()).containsOnly(noteNode);
+
+    assertThat(graph.nodeScan().type(TensorNode.TYPE).asList()).containsOnly(tensorNode);
+    assertThat(graph.nodeScan().type(TensorNode.TYPE).nodeClass(TensorNode.class).asList())
+        .containsOnly(tensorNode);
+    assertThat(graph.nodeScan().nodeClass(TensorNode.class).asList()).containsOnly(tensorNode);
+
+    assertThat(graph.nodeScan().type(TensorNode.TYPE).nodeClass(NoteNode.class).asList()).isEmpty();
   }
 }
