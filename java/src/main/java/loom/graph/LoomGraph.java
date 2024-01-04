@@ -8,17 +8,17 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import java.util.*;
-import java.util.function.Predicate;
-import java.util.stream.Stream;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import lombok.*;
 import loom.common.json.HasToJsonString;
 import loom.common.json.JsonUtil;
 import loom.common.json.MapValueListUtil;
 import loom.validation.ListValidationIssueCollector;
 import loom.validation.ValidationIssueCollector;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.*;
+import java.util.stream.Stream;
 
 /** A Loom Graph document. */
 @Getter
@@ -182,8 +182,6 @@ public final class LoomGraph implements HasToJsonString {
     @Nullable private String type;
     @Nullable private Class<T> nodeClass;
 
-    private final List<Predicate<T>> filters = new ArrayList<>();
-
     private NodeScanBuilder(@Nonnull LoomGraph graph) {
       this.graph = graph;
     }
@@ -211,17 +209,6 @@ public final class LoomGraph implements HasToJsonString {
       var thisAs = (NodeScanBuilder<X>) this;
       thisAs.nodeClass = nodeClass;
       return thisAs;
-    }
-
-    /**
-     * Add a filter to the scan.
-     *
-     * @param filter the filter.
-     * @return the builder.
-     */
-    public NodeScanBuilder<T> filter(Predicate<T> filter) {
-      filters.add(filter);
-      return this;
     }
 
     /**
@@ -264,10 +251,6 @@ public final class LoomGraph implements HasToJsonString {
           (nodeClass == null || nodeSource == NodeSource.CLASS_FILTERED)
               ? (Stream<T>) baseStream
               : baseStream.filter(nodeClass::isInstance).map(nodeClass::cast);
-
-      for (var filter : filters) {
-        typedStream = typedStream.filter(filter);
-      }
 
       return typedStream;
     }

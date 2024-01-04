@@ -68,6 +68,43 @@ public class LoomGraphTest extends BaseTestClass {
   }
 
   @Test
+  public void testRemoveNode() {
+    var env = CommonEnvironments.genericEnvironment();
+    var graph = env.newGraph();
+
+    var node1 =
+        graph.addNode(
+            GenericNode.builder()
+                .label("foo")
+                .type("test")
+                .body(GenericNode.Body.builder().field("a", 12).build()));
+
+    var node2 =
+        graph.addNode(
+            GenericNode.builder()
+                .label("bar")
+                .type("test")
+                .body(GenericNode.Body.builder().field("a", 12).build()));
+
+    var node3 =
+        graph.addNode(
+            GenericNode.builder()
+                .label("qux")
+                .type("test")
+                .body(GenericNode.Body.builder().field("a", 12).build()));
+
+    graph.removeNode(node1);
+    // Should be a no-op.
+    graph.removeNode(node1);
+    graph.removeNode(node2.getId());
+    graph.removeNode(node3.getId().toString());
+
+    assertThat(graph.hasNode(node1.getId())).isFalse();
+    assertThat(graph.hasNode(node2.getId())).isFalse();
+    assertThat(graph.hasNode(node3.getId())).isFalse();
+  }
+
+  @Test
   public void testHasAssertAddNode() {
     var env = CommonEnvironments.genericEnvironment();
     var graph = env.newGraph();
