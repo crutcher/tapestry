@@ -7,9 +7,9 @@ import lombok.experimental.SuperBuilder;
 import lombok.extern.jackson.Jacksonized;
 import loom.common.json.HasToJsonString;
 import loom.common.json.WithSchema;
-import loom.graph.IPFSignatureAgreementConstraint;
 import loom.graph.LoomEnvironment;
 import loom.graph.LoomNode;
+import loom.graph.constraints.IPFSignatureAgreementConstraint;
 import loom.polyhedral.IndexProjectionFunction;
 
 import javax.annotation.Nonnull;

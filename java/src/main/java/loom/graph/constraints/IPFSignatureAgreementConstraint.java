@@ -1,16 +1,19 @@
-package loom.graph;
+package loom.graph.constraints;
 
-import java.util.List;
-import java.util.Map;
-import java.util.function.Supplier;
 import loom.common.json.JsonPathUtils;
 import loom.common.lazy.LazyString;
-import loom.graph.constraints.OperationReferenceAgreementConstraint;
+import loom.graph.LoomConstants;
+import loom.graph.LoomEnvironment;
+import loom.graph.LoomGraph;
 import loom.graph.nodes.*;
 import loom.polyhedral.IndexProjectionFunction;
 import loom.validation.ValidationIssue;
 import loom.validation.ValidationIssueCollector;
 import loom.zspace.ZRange;
+
+import java.util.List;
+import java.util.Map;
+import java.util.function.Supplier;
 
 public class IPFSignatureAgreementConstraint implements LoomEnvironment.Constraint {
   @Override

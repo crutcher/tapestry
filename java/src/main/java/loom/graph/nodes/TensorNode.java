@@ -3,11 +3,6 @@ package loom.graph.nodes;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonSetter;
-import java.util.List;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import lombok.*;
 import lombok.experimental.Delegate;
 import lombok.experimental.SuperBuilder;
@@ -26,6 +21,12 @@ import loom.zspace.HasSize;
 import loom.zspace.ZPoint;
 import loom.zspace.ZRange;
 import org.apache.commons.lang3.builder.HashCodeExclude;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 @Jacksonized
 @SuperBuilder

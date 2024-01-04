@@ -2,16 +2,15 @@ package loom.zspace;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Builder;
-import lombok.extern.jackson.Jacksonized;
-import loom.common.json.HasToJsonString;
-import loom.common.json.JsonUtil;
-
+import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import javax.annotation.concurrent.ThreadSafe;
-import java.util.Objects;
+import lombok.Builder;
+import lombok.extern.jackson.Jacksonized;
+import loom.common.json.HasToJsonString;
+import loom.common.json.JsonUtil;
 
 /** A linear map from {@code Z^inDim} to {@code Z^outDim}. */
 @ThreadSafe

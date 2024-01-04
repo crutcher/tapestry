@@ -1,6 +1,7 @@
-package loom.graph;
+package loom.graph.constraints;
 
 import java.util.List;
+import loom.graph.CommonEnvironments;
 import loom.graph.nodes.*;
 import loom.polyhedral.IndexProjectionFunction;
 import loom.testing.BaseTestClass;
