@@ -1,6 +1,5 @@
 package loom.graph.constraints;
 
-import java.util.List;
 import loom.graph.CommonEnvironments;
 import loom.graph.nodes.*;
 import loom.polyhedral.IndexProjectionFunction;
@@ -9,6 +8,9 @@ import loom.zspace.ZAffineMap;
 import loom.zspace.ZPoint;
 import loom.zspace.ZRange;
 import org.junit.Test;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @SuppressWarnings("unused")
 public class IPFSignatureAgreementConstraintTest extends BaseTestClass {
@@ -65,6 +67,7 @@ public class IPFSignatureAgreementConstraintTest extends BaseTestClass {
                         .output("z", List.of(TensorSelection.from(tensorC))))
             .addTo(graph);
 
+    /*
     var app1Index =
         IPFIndexNode.withBody(b -> b.range(new ZRange(ZPoint.of(0, 0), ZPoint.of(3, 2))))
             .addTo(graph);
@@ -75,17 +78,9 @@ public class IPFSignatureAgreementConstraintTest extends BaseTestClass {
                     b.operationId(sig.getId())
                         .indexId(app1Index.getId())
                         .input("x", List.of(TensorSelection.from(tensorA)))
-                        .input(
-                            "y",
-                            List.of(
-                                new TensorSelection(
-                                    tensorB.getId(), new ZRange(ZPoint.of(0, 0), ZPoint.of(4, 2)))))
+                        .input("y", List.of(TensorSelection.from(tensorB, ZRange.fromShape(4, 2))))
                         .output(
-                            "z",
-                            List.of(
-                                new TensorSelection(
-                                    tensorC.getId(),
-                                    new ZRange(ZPoint.of(0, 0), ZPoint.of(3, 2))))))
+                            "z", List.of(TensorSelection.from(tensorC, ZRange.fromShape(3, 2)))))
             .addTo(graph);
 
     var appIndex2 =
@@ -97,21 +92,71 @@ public class IPFSignatureAgreementConstraintTest extends BaseTestClass {
                 b ->
                     b.operationId(sig.getId())
                         .indexId(appIndex2.getId())
-                        .input(
-                            "x", List.of(new TensorSelection(tensorA.getId(), tensorA.getRange())))
+                        .input("x", List.of(TensorSelection.from(tensorA)))
                         .input(
                             "y",
                             List.of(
-                                new TensorSelection(
-                                    tensorB.getId(), new ZRange(ZPoint.of(0, 2), ZPoint.of(4, 5)))))
+                                TensorSelection.from(
+                                    tensorB, new ZRange(ZPoint.of(0, 2), ZPoint.of(4, 5)))))
                         .output(
                             "z",
                             List.of(
-                                new TensorSelection(
-                                    tensorC.getId(),
-                                    new ZRange(ZPoint.of(0, 2), ZPoint.of(3, 5))))))
+                                TensorSelection.from(
+                                    tensorC, new ZRange(ZPoint.of(0, 2), ZPoint.of(3, 5))))))
             .addTo(graph);
 
+     */
+    var app1 = createIpfShard(sig, new ZRange(ZPoint.of(0, 0), ZPoint.of(3, 2)));
+    var app2 = createIpfShard(sig, new ZRange(ZPoint.of(0, 2), ZPoint.of(3, 5)));
+
     graph.validate();
+  }
+
+  public static ApplicationNode createIpfShard(OperationSignatureNode sig, ZRange shardIndex) {
+    var graph = sig.assertGraph();
+    var sigIndex = graph.assertNode(sig.getIndexId(), IPFIndexNode.TYPE, IPFIndexNode.class);
+    var ipfSig =
+        graph.assertNode(sig.getSignatureId(), IPFSignatureNode.TYPE, IPFSignatureNode.class);
+
+    var appIndex = IPFIndexNode.withBody(b -> b.range(shardIndex)).addTo(graph);
+
+    assert sigIndex.getRange().contains(shardIndex);
+
+    return ApplicationNode.withBody(
+            b -> {
+              b.operationId(sig.getId());
+              b.indexId(appIndex.getId());
+
+              for (var entry : ipfSig.getInputs().entrySet()) {
+                var name = entry.getKey();
+                var projections = entry.getValue();
+                var baseSelections = sig.getInputs().get(name);
+                assert baseSelections != null && projections.size() == baseSelections.size();
+
+                List<TensorSelection> selections = new ArrayList<>();
+                for (int idx = 0; idx < projections.size(); ++idx) {
+                  var p = projections.get(idx);
+                  var s = baseSelections.get(idx);
+                  selections.add(new TensorSelection(s.getTensorId(), p.apply(shardIndex)));
+                }
+                b.input(name, selections);
+              }
+
+              for (var entry : ipfSig.getOutputs().entrySet()) {
+                var name = entry.getKey();
+                var projections = entry.getValue();
+                var baseSelections = sig.getOutputs().get(name);
+                assert baseSelections != null && projections.size() == baseSelections.size();
+
+                List<TensorSelection> selections = new ArrayList<>();
+                for (int idx = 0; idx < projections.size(); ++idx) {
+                  var p = projections.get(idx);
+                  var s = baseSelections.get(idx);
+                  selections.add(new TensorSelection(s.getTensorId(), p.apply(shardIndex)));
+                }
+                b.output(name, selections);
+              }
+            })
+        .addTo(graph);
   }
 }
