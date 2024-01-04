@@ -16,6 +16,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import static loom.graph.LoomConstants.NODE_REFERENCE_ERROR;
+import static loom.graph.LoomConstants.NODE_VALIDATION_ERROR;
 
 public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
 
@@ -331,10 +332,12 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
             .context(
                 context ->
                     context
-                        .name("Shard Ranges")
+                        .name("Application Shard Ranges")
                         .data(
-                            List.of(
+                            Map.of(
+                                app3.getId(),
                                 new ZRange(ZPoint.of(0, 0), ZPoint.of(2, 1)),
+                                app4.getId(),
                                 new ZRange(ZPoint.of(0, 1), ZPoint.of(2, 2)))))
             .context(sinkOp.asValidationContext("Operation Node"))
             .build(),
@@ -345,12 +348,134 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
             .context(
                 context ->
                     context
-                        .name("Shard Ranges")
+                        .name("Application Shard Ranges")
                         .data(
-                            List.of(
+                            Map.of(
+                                app1.getId(),
                                 new ZRange(ZPoint.of(0, 0), ZPoint.of(1, 2)),
+                                app2.getId(),
                                 new ZRange(ZPoint.of(1, 0), ZPoint.of(2, 2)))))
             .context(sourceOp.asValidationContext("Operation Node"))
+            .build(),
+        ValidationIssue.builder()
+            .type(LoomConstants.NODE_VALIDATION_ERROR)
+            .summary("Overlapping Application output key \"output[0]\" ranges")
+            .context(
+                context ->
+                    context
+                        .name("Application Shard Ranges")
+                        .data(
+                            Map.of(
+                                app1.getId(),
+                                new ZRange(ZPoint.of(0, 0), ZPoint.of(1, 2)),
+                                app2.getId(),
+                                new ZRange(ZPoint.of(1, 0), ZPoint.of(2, 2)))))
+            .context(sourceOp.asValidationContext("Operation Node"))
+            .build());
+  }
+
+  @SuppressWarnings({"unused", "SequencedCollectionMethodCanBeUsed"})
+  @Test
+  public void test_application_broken_reference() {
+    var graph = createGraph();
+
+    var tensorA =
+        TensorNode.withBody(
+                b -> {
+                  b.dtype("int32");
+                  b.shape(new ZPoint(2, 3));
+                })
+            .label("A")
+            .buildOn(graph);
+    var tensorB =
+        TensorNode.withBody(
+                b -> {
+                  b.dtype("int32");
+                  b.shape(new ZPoint(2, 3));
+                })
+            .label("A")
+            .buildOn(graph);
+
+    var opSig =
+        OperationSignatureNode.withBody(
+                b -> {
+                  b.name("source");
+                  b.output(
+                      "output",
+                      List.of(new TensorSelection(tensorA.getId(), tensorA.getEffectiveRange())));
+                })
+            .buildOn(graph);
+
+    var app1 =
+        ApplicationNode.withBody(
+                b -> {
+                  b.operationId(opSig.getId());
+                  b.output(
+                      "output",
+                      List.of(
+                          TensorSelection.builder()
+                              .tensorId(tensorB.getId())
+                              .range(tensorB.getEffectiveRange())
+                              .build()));
+                })
+            .buildOn(graph);
+    var app2 =
+        ApplicationNode.withBody(
+                b -> {
+                  b.operationId(opSig.getId());
+                  b.output(
+                      "output",
+                      List.of(
+                          TensorSelection.builder()
+                              .tensorId(tensorA.getId())
+                              .range(new ZRange(ZPoint.of(0, -3), ZPoint.of(1, 2)))
+                              .build()));
+                })
+            .buildOn(graph);
+
+    var constraint = graph.getEnv().assertConstraint(OperationReferenceAgreementConstraint.class);
+    var issueCollector = new ListValidationIssueCollector();
+    constraint.validateConstraint(graph.getEnv(), graph, issueCollector);
+    assertValidationIssues(
+        issueCollector.getIssues(),
+        ValidationIssue.builder()
+            .type(NODE_VALIDATION_ERROR)
+            .summary("Application Tensor Selection Tensor Id != Signature Tensor Id")
+            .context(
+                context ->
+                    context
+                        .name("Application Tensor Selection")
+                        .jsonpath(app1.getJsonPath(), "body.outputs.output[0]")
+                        .data(app1.getOutputs().get("output").get(0)))
+            .context(
+                context ->
+                    context
+                        .name("Operation Tensor Selection")
+                        .jsonpath(opSig.getJsonPath(), "body.outputs.output[0]")
+                        .data(opSig.getOutputs().get("output").get(0)))
+            .context(app1.asValidationContext("Application Node"))
+            .context(opSig.asValidationContext("Operation Node"))
+            .build(),
+        ValidationIssue.builder()
+            .type(NODE_VALIDATION_ERROR)
+            .summary(
+                "Application Tensor Selection range %s is outside signature range %s",
+                app2.getOutputs().get("output").get(0).getRange(),
+                opSig.getOutputs().get("output").get(0).getRange())
+            .context(
+                context ->
+                    context
+                        .name("Application Tensor Selection")
+                        .jsonpath(app2.getJsonPath(), "body.outputs.output[0]")
+                        .data(app2.getOutputs().get("output").get(0)))
+            .context(
+                context ->
+                    context
+                        .name("Operation Tensor Selection")
+                        .jsonpath(opSig.getJsonPath(), "body.outputs.output[0]")
+                        .data(opSig.getOutputs().get("output").get(0)))
+            .context(app2.asValidationContext("Application Node"))
+            .context(opSig.asValidationContext("Operation Node"))
             .build());
   }
 
@@ -359,10 +484,7 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
     var graph = createGraph();
     var missingOperationId = UUID.randomUUID();
 
-    var app =
-        ApplicationNode.withBody(
-                b -> b.operationId(missingOperationId))
-            .buildOn(graph);
+    var app = ApplicationNode.withBody(b -> b.operationId(missingOperationId)).buildOn(graph);
 
     var constraint = graph.getEnv().assertConstraint(OperationReferenceAgreementConstraint.class);
     var issueCollector = new ListValidationIssueCollector();

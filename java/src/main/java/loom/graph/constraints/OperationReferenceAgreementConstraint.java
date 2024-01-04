@@ -1,5 +1,13 @@
 package loom.graph.constraints;
 
+import com.google.common.collect.Streams;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.function.Function;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import loom.common.json.JsonPathUtils;
 import loom.common.lazy.LazyString;
 import loom.common.lazy.Thunk;
@@ -8,12 +16,6 @@ import loom.graph.nodes.*;
 import loom.validation.ValidationIssue;
 import loom.validation.ValidationIssueCollector;
 import loom.zspace.ZRange;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.function.Supplier;
 
 public class OperationReferenceAgreementConstraint implements LoomEnvironment.Constraint {
   @Override
@@ -107,6 +109,7 @@ public class OperationReferenceAgreementConstraint implements LoomEnvironment.Co
             issueCollector);
 
     var shards = opSignatureNode.getApplicationNodes();
+    var shardIds = shards.stream().map(LoomNode::getId).toList();
 
     if (shards.isEmpty()) {
       // There are no shards, so we can't validate the shard ranges.
@@ -127,6 +130,7 @@ public class OperationReferenceAgreementConstraint implements LoomEnvironment.Co
 
     valid =
         validateShardAgreement(
+            shardIds,
             shards,
             "inputs",
             opSignatureNode.getInputs(),
@@ -135,16 +139,13 @@ public class OperationReferenceAgreementConstraint implements LoomEnvironment.Co
             issueCollector);
     valid &=
         validateShardAgreement(
+            shardIds,
             shards,
             "outputs",
             opSignatureNode.getOutputs(),
             ApplicationNode::getOutputs,
             lazyContexts,
             issueCollector);
-
-    if (!valid) {
-      return false;
-    }
 
     // check the output range coverage:
     // 3. The sum of the shard range sizes is equal to the output range size.
@@ -168,7 +169,12 @@ public class OperationReferenceAgreementConstraint implements LoomEnvironment.Co
           issueCollector.addIssue(
               ValidationIssue.builder()
                   .type(LoomConstants.NODE_VALIDATION_ERROR)
-                  .summary("Overlapping Application output ranges"));
+                  .summary("Overlapping Application output key \"%s[%d]\" ranges", ioName, idx)
+                  .context(
+                      ValidationIssue.Context.builder()
+                          .name("Application Shard Ranges")
+                          .data(rangeMap(shardIds, shardRanges)))
+                  .withContexts(lazyContexts));
           valid = false;
         }
       }
@@ -178,6 +184,7 @@ public class OperationReferenceAgreementConstraint implements LoomEnvironment.Co
   }
 
   private static boolean validateShardAgreement(
+      List<UUID> shardIds,
       List<ApplicationNode> shards,
       String sliceMapName,
       Map<String, List<TensorSelection>> selectionMap,
@@ -203,6 +210,7 @@ public class OperationReferenceAgreementConstraint implements LoomEnvironment.Co
         var boundingRange = ZRange.boundingRange(shardRanges);
 
         if (!sigRange.equals(boundingRange)) {
+
           issueCollector.addIssue(
               ValidationIssue.builder()
                   .type(LoomConstants.NODE_VALIDATION_ERROR)
@@ -211,8 +219,8 @@ public class OperationReferenceAgreementConstraint implements LoomEnvironment.Co
                       sliceMapName, ioName, idx, sigRange, boundingRange)
                   .context(
                       ValidationIssue.Context.builder()
-                          .name("Shard Ranges")
-                          .data(shardRanges)
+                          .name("Application Shard Ranges")
+                          .data(rangeMap(shardIds, shardRanges))
                           .build())
                   .withContexts(contextsSupplier));
           valid = false;
@@ -220,6 +228,12 @@ public class OperationReferenceAgreementConstraint implements LoomEnvironment.Co
       }
     }
     return valid;
+  }
+
+  @SuppressWarnings("UnstableApiUsage")
+  private static Map<UUID, ZRange> rangeMap(List<UUID> shardIds, List<ZRange> shardRanges) {
+    return Streams.zip(shardIds.stream(), shardRanges.stream(), Map::entry)
+        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
   }
 
   private static boolean validateApplicationNode(

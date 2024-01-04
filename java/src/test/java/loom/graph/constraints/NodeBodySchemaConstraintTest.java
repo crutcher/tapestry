@@ -1,7 +1,9 @@
 package loom.graph.constraints;
 
+import java.util.regex.Pattern;
 import loom.common.json.WithSchema;
 import loom.graph.LoomEnvironment;
+import loom.graph.nodes.NoteNode;
 import loom.graph.nodes.TensorNode;
 import loom.testing.BaseTestClass;
 import loom.zspace.ZPoint;
@@ -14,10 +16,11 @@ public class NodeBodySchemaConstraintTest extends BaseTestClass {
   }
 
   @Test
-  public void test_bodyWithSchema() {
+  public void test_bodyWithSchema_byName() {
     var env =
         LoomEnvironment.builder()
             .build()
+            .addNodeTypeClass(NoteNode.TYPE, NoteNode.class)
             .addNodeTypeClass(TensorNode.TYPE, TensorNode.class)
             .addConstraint(
                 NodeBodySchemaConstraint.builder()
@@ -25,6 +28,29 @@ public class NodeBodySchemaConstraintTest extends BaseTestClass {
                     .withSchemaFromNodeClass(TensorNode.class)
                     .build());
     var graph = env.newGraph();
+
+    NoteNode.withBody(b -> b.message("hello")).buildOn(graph);
+
+    TensorNode.withBody(b -> b.dtype("int32").shape(ZPoint.of(2, 3))).buildOn(graph);
+
+    graph.validate();
+  }
+
+  @Test
+  public void test_bodyWithSchema_byPattern() {
+    var env =
+        LoomEnvironment.builder()
+            .build()
+            .addNodeTypeClass(NoteNode.TYPE, NoteNode.class)
+            .addNodeTypeClass(TensorNode.TYPE, TensorNode.class)
+            .addConstraint(
+                NodeBodySchemaConstraint.builder()
+                    .nodeTypePattern(Pattern.compile("TensorNode"))
+                    .withSchemaFromNodeClass(TensorNode.class)
+                    .build());
+    var graph = env.newGraph();
+
+    NoteNode.withBody(b -> b.message("hello")).buildOn(graph);
 
     TensorNode.withBody(b -> b.dtype("int32").shape(ZPoint.of(2, 3))).buildOn(graph);
 
