@@ -73,13 +73,12 @@ public class ApplicationNodeTest extends BaseTestClass {
                         .input(
                             "x",
                             List.of(
-                                new TensorSelection(
-                                    inputTensor.getId(), inputTensor.getEffectiveRange())))
+                                new TensorSelection(inputTensor.getId(), inputTensor.getRange())))
                         .output(
                             "y",
                             List.of(
                                 new TensorSelection(
-                                    outputTensor.getId(), outputTensor.getEffectiveRange()))))
+                                    outputTensor.getId(), outputTensor.getRange()))))
             .addTo(graph);
 
     var app =

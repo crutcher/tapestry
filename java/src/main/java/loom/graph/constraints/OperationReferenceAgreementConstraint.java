@@ -405,7 +405,7 @@ public class OperationReferenceAgreementConstraint implements LoomEnvironment.Co
           valid = false;
           continue;
         }
-        var tensorRange = tensorNode.getEffectiveRange();
+        var tensorRange = tensorNode.getRange();
 
         var selectionRange = tensorSelection.getRange();
         var lazySelectionRangeContext =

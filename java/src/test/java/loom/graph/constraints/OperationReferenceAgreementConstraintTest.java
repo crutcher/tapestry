@@ -49,8 +49,7 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
                 b -> {
                   b.name("source");
                   b.output(
-                      "output",
-                      List.of(new TensorSelection(tensorA.getId(), tensorA.getEffectiveRange())));
+                      "output", List.of(new TensorSelection(tensorA.getId(), tensorA.getRange())));
                 })
             .addTo(graph);
 
@@ -84,8 +83,7 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
                 b -> {
                   b.name("sink");
                   b.input(
-                      "input",
-                      List.of(new TensorSelection(tensorA.getId(), tensorA.getEffectiveRange())));
+                      "input", List.of(new TensorSelection(tensorA.getId(), tensorA.getRange())));
                 })
             .addTo(graph);
 
@@ -135,8 +133,7 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
                 b -> {
                   b.name("source");
                   b.output(
-                      "output",
-                      List.of(new TensorSelection(tensorA.getId(), tensorA.getEffectiveRange())));
+                      "output", List.of(new TensorSelection(tensorA.getId(), tensorA.getRange())));
                 })
             .addTo(graph);
 
@@ -168,9 +165,7 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
         OperationSignatureNode.withBody(
                 b -> {
                   b.name("source");
-                  b.input(
-                      "foo",
-                      List.of(new TensorSelection(tensorA.getId(), tensorA.getEffectiveRange())));
+                  b.input("foo", List.of(new TensorSelection(tensorA.getId(), tensorA.getRange())));
                 })
             .addTo(graph);
     var app1 =
@@ -250,8 +245,7 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
                 b -> {
                   b.name("source");
                   b.output(
-                      "output",
-                      List.of(new TensorSelection(tensorA.getId(), tensorA.getEffectiveRange())));
+                      "output", List.of(new TensorSelection(tensorA.getId(), tensorA.getRange())));
                 })
             .addTo(graph);
 
@@ -287,8 +281,7 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
                 b -> {
                   b.name("sink");
                   b.input(
-                      "input",
-                      List.of(new TensorSelection(tensorA.getId(), tensorA.getEffectiveRange())));
+                      "input", List.of(new TensorSelection(tensorA.getId(), tensorA.getRange())));
                 })
             .addTo(graph);
 
@@ -400,8 +393,7 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
                 b -> {
                   b.name("source");
                   b.output(
-                      "output",
-                      List.of(new TensorSelection(tensorA.getId(), tensorA.getEffectiveRange())));
+                      "output", List.of(new TensorSelection(tensorA.getId(), tensorA.getRange())));
                 })
             .addTo(graph);
 
@@ -414,7 +406,7 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
                       List.of(
                           TensorSelection.builder()
                               .tensorId(tensorB.getId())
-                              .range(tensorB.getEffectiveRange())
+                              .range(tensorB.getRange())
                               .build()));
                 })
             .addTo(graph);
@@ -864,22 +856,22 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
                       List.of(
                           TensorSelection.builder()
                               .tensorId(tensorA.getId())
-                              .range(tensorA.getEffectiveRange())
+                              .range(tensorA.getRange())
                               .build(),
                           TensorSelection.builder()
                               .tensorId(tensorB.getId())
-                              .range(tensorB.getEffectiveRange())
+                              .range(tensorB.getRange())
                               .build()));
                   b.output(
                       "y",
                       List.of(
                           TensorSelection.builder()
                               .tensorId(tensorC.getId())
-                              .range(tensorC.getEffectiveRange())
+                              .range(tensorC.getRange())
                               .build(),
                           TensorSelection.builder()
                               .tensorId(tensorA.getId())
-                              .range(tensorA.getEffectiveRange())
+                              .range(tensorA.getRange())
                               .build()));
                 })
             .label("Add")
@@ -893,22 +885,22 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
                         List.of(
                             TensorSelection.builder()
                                 .tensorId(tensorA.getId())
-                                .range(tensorA.getEffectiveRange())
+                                .range(tensorA.getRange())
                                 .build(),
                             TensorSelection.builder()
                                 .tensorId(tensorB.getId())
-                                .range(tensorB.getEffectiveRange())
+                                .range(tensorB.getRange())
                                 .build()))
                     .output(
                         "y",
                         List.of(
                             TensorSelection.builder()
                                 .tensorId(tensorC.getId())
-                                .range(tensorC.getEffectiveRange())
+                                .range(tensorC.getRange())
                                 .build(),
                             TensorSelection.builder()
                                 .tensorId(tensorA.getId())
-                                .range(tensorA.getEffectiveRange())
+                                .range(tensorA.getRange())
                                 .build())))
         .addTo(graph);
 

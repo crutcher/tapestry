@@ -98,9 +98,7 @@ public class IPFSignatureAgreementConstraintTest extends BaseTestClass {
                     b.operationId(sig.getId())
                         .indexId(appIndex2.getId())
                         .input(
-                            "x",
-                            List.of(
-                                new TensorSelection(tensorA.getId(), tensorA.getEffectiveRange())))
+                            "x", List.of(new TensorSelection(tensorA.getId(), tensorA.getRange())))
                         .input(
                             "y",
                             List.of(

@@ -1,15 +1,18 @@
 package loom.graph;
 
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 import loom.common.json.JsonUtil;
 import loom.graph.nodes.GenericNode;
 import loom.graph.nodes.NoteNode;
 import loom.graph.nodes.TensorNode;
 import loom.testing.BaseTestClass;
 import loom.zspace.ZPoint;
+import loom.zspace.ZRange;
+import loom.zspace.ZTensor;
 import org.junit.Test;
+
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 public class LoomGraphTest extends BaseTestClass {
 
@@ -184,7 +187,7 @@ public class LoomGraphTest extends BaseTestClass {
                     "label": "foo",
                     "body": {
                       "dtype": "int32",
-                      "shape": [2, 3]
+                      "range": { "start": [0, 0], "end": [2, 3] }
                     }
                   },
                   {
@@ -193,7 +196,7 @@ public class LoomGraphTest extends BaseTestClass {
                     "label": "bar",
                     "body": {
                       "dtype": "float32",
-                      "shape": [4, 5]
+                      "range": { "start": [0, 0], "end": [4, 5] }
                     }
                   }
                ]
@@ -209,12 +212,12 @@ public class LoomGraphTest extends BaseTestClass {
         .hasFieldOrPropertyWithValue("label", "foo")
         .isInstanceOf(TensorNode.class)
         .hasFieldOrPropertyWithValue("dtype", "int32")
-        .hasFieldOrPropertyWithValue("shape", ZPoint.of(2, 3));
+        .hasFieldOrPropertyWithValue("shape", ZTensor.newVector(2, 3));
     assertThat(graph.assertNode("00000000-0000-0000-0000-000000000002"))
         .hasFieldOrPropertyWithValue("label", "bar")
         .isInstanceOf(TensorNode.class)
         .hasFieldOrPropertyWithValue("dtype", "float32")
-        .hasFieldOrPropertyWithValue("shape", ZPoint.of(4, 5));
+        .hasFieldOrPropertyWithValue("shape", ZTensor.newVector(4, 5));
 
     assertEquivalentJson(graph.toJsonString(), source);
   }
@@ -266,7 +269,7 @@ public class LoomGraphTest extends BaseTestClass {
                 "label": "foo",
                 "body": {
                   "dtype": "int32",
-                  "shape": [2, 3]
+                  "range": {"start":[0, 0], "end": [2, 3]}
                 }
             }
             """;
@@ -276,10 +279,10 @@ public class LoomGraphTest extends BaseTestClass {
     assertThat(node.getId()).isEqualTo(UUID.fromString("00000000-0000-0000-0000-000000000000"));
     assertThat(node.getLabel()).isEqualTo("foo");
 
-    assertThat(node.getBody().getShape()).isEqualTo(ZPoint.of(2, 3));
+    assertThat(node.getBody().getRange()).isEqualTo(ZRange.fromShape(2, 3));
     assertThat(node.getBody().getDtype()).isEqualTo("int32");
 
-    assertThat(node.getShape()).isEqualTo(ZPoint.of(2, 3));
+    assertThat(node.getRange()).isEqualTo(ZRange.fromShape(2, 3));
     assertThat(node.getDtype()).isEqualTo("int32");
 
     assertJsonEquals(node.getBody(), node.getBodyAsJson());
@@ -291,7 +294,7 @@ public class LoomGraphTest extends BaseTestClass {
         """
               {
                 "dtype": "int32",
-                "shape": [2, 3]
+                "range": {"start":[0, 0], "end": [2, 3]}
               }
               """);
 
@@ -299,7 +302,7 @@ public class LoomGraphTest extends BaseTestClass {
         """
               {
                 "dtype": "float32",
-                "shape": [5, 6]
+                "range": {"start":[0, 0], "end": [5, 6]}
               }
               """);
     assertEquivalentJson(
@@ -307,7 +310,7 @@ public class LoomGraphTest extends BaseTestClass {
         """
               {
                 "dtype": "float32",
-                "shape": [5, 6]
+                "range": {"start":[0, 0], "end": [5, 6]}
               }
               """);
   }

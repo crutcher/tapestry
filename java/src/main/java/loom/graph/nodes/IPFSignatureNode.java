@@ -1,6 +1,10 @@
 package loom.graph.nodes;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Consumer;
+import javax.annotation.Nonnull;
 import lombok.*;
 import lombok.experimental.Delegate;
 import lombok.experimental.SuperBuilder;
@@ -11,11 +15,6 @@ import loom.graph.LoomEnvironment;
 import loom.graph.LoomNode;
 import loom.graph.constraints.IPFSignatureAgreementConstraint;
 import loom.polyhedral.IndexProjectionFunction;
-
-import javax.annotation.Nonnull;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Consumer;
 
 @Jacksonized
 @SuperBuilder

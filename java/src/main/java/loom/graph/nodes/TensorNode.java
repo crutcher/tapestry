@@ -1,32 +1,17 @@
 package loom.graph.nodes;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonSetter;
 import lombok.*;
 import lombok.experimental.Delegate;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.jackson.Jacksonized;
 import loom.common.json.HasToJsonString;
 import loom.common.json.WithSchema;
-import loom.common.lazy.LazyString;
-import loom.common.lazy.Thunk;
-import loom.graph.LoomConstants;
 import loom.graph.LoomNode;
-import loom.validation.HasValidate;
-import loom.validation.ValidationIssue;
-import loom.validation.ValidationIssueCollector;
-import loom.zspace.HasDimension;
-import loom.zspace.HasSize;
-import loom.zspace.ZPoint;
-import loom.zspace.ZRange;
-import org.apache.commons.lang3.builder.HashCodeExclude;
+import loom.zspace.*;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.util.List;
 import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 @Jacksonized
 @SuperBuilder
@@ -44,11 +29,6 @@ public final class TensorNode extends LoomNode<TensorNode, TensorNode.Body> {
     }
   }
 
-  @Data
-  @ToString(onlyExplicitlyIncluded = true)
-  @Jacksonized
-  @Builder
-  @JsonInclude(JsonInclude.Include.NON_NULL)
   @WithSchema(
       """
   {
@@ -57,109 +37,83 @@ public final class TensorNode extends LoomNode<TensorNode, TensorNode.Body> {
         "dtype": {
             "type": "string"
         },
-        "shape": {
-          "type": "array",
-          "items": {
-            "type": "integer",
-            "minimum": 1
-          }
-        },
-        "origin": {
-          "documentation": "The origin is optional, and defaults to zeros. The dimensions of origin must match the dimensions of shape.",
-          "type": "array",
-          "items": {
-            "type": "integer"
-          }
-        }
+        "range": { "$ref": "#/definitions/ZRange" }
       },
-      "required": ["dtype", "shape"]
+      "required": ["dtype", "range"],
+      "definitions": {
+          "ZRange": {
+              "type": "object",
+              "properties": {
+                  "start": { "$ref": "#/definitions/ZPoint" },
+                  "end": { "$ref": "#/definitions/ZPoint" }
+              },
+              "required": ["start", "end"],
+              "additionalProperties": false
+          },
+          "ZPoint": {
+              "type": "array",
+              "items": {
+                "type": "integer"
+              }
+          }
+      }
   }
   """)
-  public static final class Body
-      implements HasValidate<Body>, HasDimension, HasToJsonString, HasSize {
+  @Data
+  @Jacksonized
+  @Builder
+  public static final class Body implements HasDimension, HasToJsonString, HasSize {
     public static class BodyBuilder {
-      @JsonSetter
+      /**
+       * Helper to set the range via {@code ZRange.fromShape(shape)}.
+       *
+       * @param shape the shape to set the range to.
+       * @return this builder.
+       */
+      @JsonIgnore
       public BodyBuilder shape(@Nonnull ZPoint shape) {
-        this.shape = shape;
-        return this;
+        return range(ZRange.fromShape(shape));
       }
 
-      public BodyBuilder shape(@Nonnull int... shape) {
-        return shape(ZPoint.of(shape));
+      /**
+       * Helper to set the range via {@code ZRange.fromShape(shape)}.
+       *
+       * @param shape the shape to set the range to.
+       * @return this builder.
+       */
+      @JsonIgnore
+      public BodyBuilder shape(@Nonnull ZTensor shape) {
+        return range(ZRange.fromShape(shape));
       }
 
-      public Body build() {
-        return new Body(dtype, shape, origin).checkValid();
+      /**
+       * Helper to set the range via {@code ZRange.fromShape(shape)}.
+       *
+       * @param shape the shape to set the range to.
+       * @return this builder.
+       */
+      @JsonIgnore
+      public BodyBuilder shape(int... shape) {
+        return range(ZRange.fromShape(shape));
       }
     }
 
     @ToString.Include @Nonnull private final String dtype;
-    @ToString.Include @Nonnull private final ZPoint shape;
-    @ToString.Include @Nullable private final ZPoint origin;
+    @ToString.Include @Nonnull private final ZRange range;
 
     @Override
     public int getNDim() {
-      return getShape().getNDim();
+      return getRange().getNDim();
     }
 
     @Override
     public int getSize() {
-      return getEffectiveRange().getSize();
+      return getRange().getSize();
     }
 
-    @HashCodeExclude
-    @Getter(lazy = true)
     @JsonIgnore
-    private final ZPoint effectiveOrigin = computeEffectiveOrigin();
-
-    @HashCodeExclude
-    @Getter(lazy = true)
-    @JsonIgnore
-    private final ZRange effectiveRange = computeEffectiveRange();
-
-    private ZPoint computeEffectiveOrigin() {
-      return origin != null ? origin : ZPoint.newZerosLike(getShape());
-    }
-
-    private ZRange computeEffectiveRange() {
-      return ZRange.fromStartWithShape(getEffectiveOrigin(), getShape());
-    }
-
-    @Override
-    public void validate(
-        @Nullable LazyString jsonPathPrefix,
-        ValidationIssueCollector issueCollector,
-        @Nullable Supplier<List<ValidationIssue.Context>> contextSupplier) {
-      var lazyContext =
-          Thunk.of(
-              () ->
-                  ValidationIssue.Context.builder()
-                      .name("Body")
-                      .jsonpath(jsonPathPrefix, "body")
-                      .data(this)
-                      .build());
-
-      if (!getShape().coords.isStrictlyPositive()) {
-        issueCollector.addIssue(
-            ValidationIssue.builder()
-                .type(LoomConstants.NODE_VALIDATION_ERROR)
-                .summary("shape must be positive and non-empty: %s".formatted(getShape()))
-                .context(lazyContext)
-                .withContexts(contextSupplier)
-                .build());
-      }
-
-      if (getOrigin() != null && getOrigin().getNDim() != getShape().getNDim()) {
-        issueCollector.addIssue(
-            ValidationIssue.builder()
-                .type(LoomConstants.NODE_VALIDATION_ERROR)
-                .summary(
-                    "origin %s dimensions != shape %s dimensions"
-                        .formatted(getOrigin(), getShape()))
-                .context(lazyContext)
-                .withContexts(contextSupplier)
-                .build());
-      }
+    public ZTensor getShape() {
+      return getRange().getShape();
     }
   }
 

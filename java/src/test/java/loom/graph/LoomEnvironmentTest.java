@@ -58,7 +58,7 @@ public class LoomEnvironmentTest extends BaseTestClass {
                       "label": "foo",
                       "body": {
                         "dtype": "int32",
-                        "shape": [2, 3]
+                        "range": {"start": [0, 0], "end": [2, 3] }
                       }
                     }
                   ]
