@@ -34,6 +34,42 @@ public class ZAffineMapTest implements CommonAssertions {
   }
 
   @Test
+  public void test_auto_bias() {
+    int[][] mat = {{1, 0}, {0, 2}, {1, 2}};
+    ZTensor A = ZTensor.fromArray(mat);
+    ZTensor b = ZTensor.newZeros(3);
+
+    assertThat(new ZAffineMap(A, b))
+        .isEqualTo(new ZAffineMap(A))
+        .isEqualTo(new ZAffineMap(A, null))
+        .isEqualTo(ZAffineMap.fromMatrix(A))
+        .isEqualTo(ZAffineMap.fromMatrix(mat));
+  }
+
+  @Test
+  public void test_translate() {
+    var map =
+        new ZAffineMap(
+            ZTensor.fromArray(new int[][] {{1, 0}, {0, 2}, {1, 2}}), ZTensor.newVector(4, 5, 6));
+
+    assertThat(map.translate(ZTensor.newVector(1, 2, 3)))
+        .isEqualTo(
+            new ZAffineMap(
+                ZTensor.fromArray(new int[][] {{1, 0}, {0, 2}, {1, 2}}),
+                ZTensor.newVector(5, 7, 9)));
+    assertThat(map.translate(ZPoint.of(1, 2, 3)))
+        .isEqualTo(
+            new ZAffineMap(
+                ZTensor.fromArray(new int[][] {{1, 0}, {0, 2}, {1, 2}}),
+                ZTensor.newVector(5, 7, 9)));
+    assertThat(map.translate(1, 2, 3))
+        .isEqualTo(
+            new ZAffineMap(
+                ZTensor.fromArray(new int[][] {{1, 0}, {0, 2}, {1, 2}}),
+                ZTensor.newVector(5, 7, 9)));
+  }
+
+  @Test
   public void test_string_parse_json() {
     var map =
         new ZAffineMap(

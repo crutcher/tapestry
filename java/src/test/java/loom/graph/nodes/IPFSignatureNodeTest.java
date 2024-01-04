@@ -36,7 +36,7 @@ public class IPFSignatureNodeTest extends BaseTestClass {
                                     .b(ZTensor.newVector(10, 20, 30))
                                     .build(),
                                 ZPoint.of(2, 2, 3)))))
-        .buildOn(graph);
+        .addTo(graph);
 
     graph.validate();
   }

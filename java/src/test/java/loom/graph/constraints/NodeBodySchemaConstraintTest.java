@@ -29,9 +29,9 @@ public class NodeBodySchemaConstraintTest extends BaseTestClass {
                     .build());
     var graph = env.newGraph();
 
-    NoteNode.withBody(b -> b.message("hello")).buildOn(graph);
+    NoteNode.withBody(b -> b.message("hello")).addTo(graph);
 
-    TensorNode.withBody(b -> b.dtype("int32").shape(ZPoint.of(2, 3))).buildOn(graph);
+    TensorNode.withBody(b -> b.dtype("int32").shape(ZPoint.of(2, 3))).addTo(graph);
 
     graph.validate();
   }
@@ -50,9 +50,9 @@ public class NodeBodySchemaConstraintTest extends BaseTestClass {
                     .build());
     var graph = env.newGraph();
 
-    NoteNode.withBody(b -> b.message("hello")).buildOn(graph);
+    NoteNode.withBody(b -> b.message("hello")).addTo(graph);
 
-    TensorNode.withBody(b -> b.dtype("int32").shape(ZPoint.of(2, 3))).buildOn(graph);
+    TensorNode.withBody(b -> b.dtype("int32").shape(ZPoint.of(2, 3))).addTo(graph);
 
     graph.validate();
   }

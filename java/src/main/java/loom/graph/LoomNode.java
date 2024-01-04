@@ -32,6 +32,7 @@ import java.util.UUID;
 @SuperBuilder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonSerialize(using = LoomNode.Serialization.NodeSerializer.class)
+@SuppressWarnings("unused") // NodeType
 public abstract class LoomNode<NodeType extends LoomNode<NodeType, BodyType>, BodyType>
     implements HasToJsonString {
 
@@ -60,7 +61,7 @@ public abstract class LoomNode<NodeType extends LoomNode<NodeType, BodyType>, Bo
      * @param graph the node type.
      * @return this builder.
      */
-    public NodeType buildOn(LoomGraph graph) {
+    public NodeType addTo(LoomGraph graph) {
       return graph.addNode(this);
     }
 

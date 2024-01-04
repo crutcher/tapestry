@@ -1,6 +1,7 @@
 package loom.polyhedral;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import lombok.Builder;
 import lombok.Value;
 import lombok.extern.jackson.Jacksonized;
@@ -15,19 +16,44 @@ import loom.zspace.ZTensor;
 @Jacksonized
 @Builder
 public class IndexProjectionFunction implements HasToJsonString {
+  @SuppressWarnings("unused")
+  public static class IndexProjectionFunctionBuilder {
+    public IndexProjectionFunctionBuilder affineMap(@Nonnull ZAffineMap affineMap) {
+      this.affineMap = affineMap;
+      return this;
+    }
+
+    public IndexProjectionFunctionBuilder affineMap(@Nonnull ZAffineMap.ZAffineMapBuilder builder) {
+      return affineMap(builder.build());
+    }
+
+    public IndexProjectionFunctionBuilder shape(@Nonnull ZPoint shape) {
+      this.shape = shape;
+      return this;
+    }
+
+    public IndexProjectionFunctionBuilder shape(@Nonnull ZTensor shape) {
+      return shape(shape.newZPoint());
+    }
+
+    public IndexProjectionFunctionBuilder shape(int... shape) {
+      return shape(ZPoint.of(shape));
+    }
+  }
+
   @Nonnull ZAffineMap affineMap;
   @Nonnull ZPoint shape;
 
   @Builder
-  public IndexProjectionFunction(ZAffineMap affineMap, ZPoint shape) {
+  public IndexProjectionFunction(@Nonnull ZAffineMap affineMap, @Nullable ZPoint shape) {
+    this.shape = shape == null ? ZPoint.newOnes(affineMap.outputNDim()) : shape;
     this.affineMap = affineMap;
-    this.shape = shape;
 
-    if (affineMap.outputNDim() != shape.getNDim()) {
+    if (this.affineMap.outputNDim() != this.shape.getNDim()) {
       throw new IllegalArgumentException(
           String.format(
               "affineMap.outputDim() (%d) != shape.dim() (%d)",
-              affineMap.outputNDim(), shape.getNDim()));
+              this.affineMap.outputNDim(), this.shape.getNDim()));
     }
   }
 

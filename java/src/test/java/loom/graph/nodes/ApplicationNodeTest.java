@@ -63,8 +63,8 @@ public class ApplicationNodeTest extends BaseTestClass {
     var env = CommonEnvironments.expressionEnvironment();
     var graph = env.newGraph();
 
-    var inputTensor = TensorNode.withBody(b -> b.shape(2, 3).dtype("float32")).buildOn(graph);
-    var outputTensor = TensorNode.withBody(b -> b.shape(10).dtype("int32")).buildOn(graph);
+    var inputTensor = TensorNode.withBody(b -> b.shape(2, 3).dtype("float32")).addTo(graph);
+    var outputTensor = TensorNode.withBody(b -> b.shape(10).dtype("int32")).addTo(graph);
 
     var opSig =
         OperationSignatureNode.withBody(
@@ -80,7 +80,7 @@ public class ApplicationNodeTest extends BaseTestClass {
                             List.of(
                                 new TensorSelection(
                                     outputTensor.getId(), outputTensor.getEffectiveRange()))))
-            .buildOn(graph);
+            .addTo(graph);
 
     var app =
         ApplicationNode.withBody(
@@ -89,7 +89,7 @@ public class ApplicationNodeTest extends BaseTestClass {
                         .operationId(opSig.getId())
                         .inputs(opSig.getInputs())
                         .outputs(opSig.getOutputs()))
-            .buildOn(graph);
+            .addTo(graph);
 
     assertThat(app.getOperationSignatureNode()).isSameAs(opSig);
     assertThat(opSig.getApplicationNodes()).containsOnly(app);

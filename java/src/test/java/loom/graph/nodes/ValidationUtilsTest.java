@@ -26,7 +26,7 @@ public class ValidationUtilsTest extends BaseTestClass {
   public void test_validateNodeReference_valid() {
     var graph = createGraph();
 
-    var node = NoteNode.withBody(b -> b.message("Hello")).buildOn(graph);
+    var node = NoteNode.withBody(b -> b.message("Hello")).addTo(graph);
 
     var collector = new ListValidationIssueCollector();
     NoteNode result =
@@ -82,7 +82,7 @@ public class ValidationUtilsTest extends BaseTestClass {
   public void test_validateNodeReference_wrongType() {
     var graph = createGraph();
 
-    var node = NoteNode.withBody(b -> b.message("Hello")).buildOn(graph);
+    var node = NoteNode.withBody(b -> b.message("Hello")).addTo(graph);
 
     var collector = new ListValidationIssueCollector();
     NoteNode result =
@@ -117,7 +117,7 @@ public class ValidationUtilsTest extends BaseTestClass {
   public void test_validateNodeReference_wrongClass() {
     var graph = createGraph();
 
-    var node = NoteNode.withBody(b -> b.message("Hello")).buildOn(graph);
+    var node = NoteNode.withBody(b -> b.message("Hello")).addTo(graph);
 
     var collector = new ListValidationIssueCollector();
     TensorNode result =

@@ -398,6 +398,28 @@ public final class ZPoint implements Cloneable, HasPermute<ZPoint>, HasToJsonStr
     return new ZPoint(ZTensor.newZeros(ndim));
   }
 
+  /**
+   * Create a ZPoint of all ones in the same ZSpace as a reference ZPoint.
+   *
+   * @param ref a reference ZPoint.
+   * @return a new ZPoint.
+   */
+  @Nonnull
+  public static ZPoint newOnesLike(@Nonnull ZPoint ref) {
+    return newOnes(ref.getNDim());
+  }
+
+  /**
+   * Create a ZPoint of all ones in the given ZSpace.
+   *
+   * @param ndim the number of dimensions.
+   * @return a new ZPoint.
+   */
+  @Nonnull
+  public static ZPoint newOnes(int ndim) {
+    return new ZPoint(ZTensor.newOnes(ndim));
+  }
+
   @Override
   public int getNDim() {
     return coords.shape(0);

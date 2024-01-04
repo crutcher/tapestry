@@ -1,23 +1,27 @@
 package loom.graph.nodes;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Consumer;
-import javax.annotation.Nonnull;
 import lombok.*;
 import lombok.experimental.Delegate;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.jackson.Jacksonized;
 import loom.common.json.HasToJsonString;
 import loom.common.json.WithSchema;
+import loom.graph.IPFSignatureAgreementConstraint;
+import loom.graph.LoomEnvironment;
 import loom.graph.LoomNode;
 import loom.polyhedral.IndexProjectionFunction;
+
+import javax.annotation.Nonnull;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Consumer;
 
 @Jacksonized
 @SuperBuilder
 @Getter
 @Setter
+@LoomEnvironment.WithConstraints({IPFSignatureAgreementConstraint.class})
 public class IPFSignatureNode extends LoomNode<IPFSignatureNode, IPFSignatureNode.Body> {
   public static final String TYPE = "IPFSignatureNode";
 

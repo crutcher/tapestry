@@ -9,6 +9,29 @@ import org.junit.Test;
 
 public class IndexProjectionFunctionTest extends BaseTestClass {
   @Test
+  public void test_builder() {
+    ZAffineMap affineMap = ZAffineMap.fromMatrix(new int[][] {{1, 0}, {0, 1}, {1, 1}});
+
+    assertThat(new IndexProjectionFunction(affineMap, ZPoint.of(4, 4, 1)))
+        .isEqualTo(
+            IndexProjectionFunction.builder()
+                .affineMap(affineMap.toBuilder())
+                .shape(ZTensor.newVector(4, 4, 1))
+                .build())
+        .isEqualTo(
+            IndexProjectionFunction.builder()
+                .affineMap(affineMap)
+                .shape(ZTensor.newVector(4, 4, 1))
+                .build())
+        .isEqualTo(
+            IndexProjectionFunction.builder()
+                .affineMap(affineMap)
+                .shape(ZPoint.of(4, 4, 1))
+                .build())
+        .isEqualTo(IndexProjectionFunction.builder().affineMap(affineMap).shape(4, 4, 1).build());
+  }
+
+  @Test
   public void test_toString() {
     var ipf =
         new IndexProjectionFunction(

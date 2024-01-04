@@ -14,6 +14,13 @@ import loom.zspace.ZRange;
 @Builder
 @RequiredArgsConstructor
 public class TensorSelection {
+  public static TensorSelection from(TensorNode tensorNode) {
+    return TensorSelection.builder()
+        .tensorId(tensorNode.getId())
+        .range(tensorNode.getEffectiveRange())
+        .build();
+  }
+
   @Nonnull UUID tensorId;
   @Nonnull ZRange range;
 }

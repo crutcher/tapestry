@@ -42,7 +42,7 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
                   b.shape(new ZPoint(2, 3));
                 })
             .label("A")
-            .buildOn(graph);
+            .addTo(graph);
 
     var sourceOp =
         OperationSignatureNode.withBody(
@@ -52,7 +52,7 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
                       "output",
                       List.of(new TensorSelection(tensorA.getId(), tensorA.getEffectiveRange())));
                 })
-            .buildOn(graph);
+            .addTo(graph);
 
     ApplicationNode.withBody(
             b -> {
@@ -65,7 +65,7 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
                           .range(new ZRange(ZPoint.of(0, 0), ZPoint.of(1, 3)))
                           .build()));
             })
-        .buildOn(graph);
+        .addTo(graph);
     ApplicationNode.withBody(
             b -> {
               b.operationId(sourceOp.getId());
@@ -77,7 +77,7 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
                           .range(new ZRange(ZPoint.of(1, 0), ZPoint.of(2, 3)))
                           .build()));
             })
-        .buildOn(graph);
+        .addTo(graph);
 
     var sinkOp =
         OperationSignatureNode.withBody(
@@ -87,7 +87,7 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
                       "input",
                       List.of(new TensorSelection(tensorA.getId(), tensorA.getEffectiveRange())));
                 })
-            .buildOn(graph);
+            .addTo(graph);
 
     ApplicationNode.withBody(
             b -> {
@@ -100,7 +100,7 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
                           .range(new ZRange(ZPoint.of(0, 0), ZPoint.of(2, 1)))
                           .build()));
             })
-        .buildOn(graph);
+        .addTo(graph);
     ApplicationNode.withBody(
             b -> {
               b.operationId(sinkOp.getId());
@@ -112,7 +112,7 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
                           .range(new ZRange(ZPoint.of(0, 1), ZPoint.of(2, 3)))
                           .build()));
             })
-        .buildOn(graph);
+        .addTo(graph);
 
     graph.validate();
   }
@@ -128,7 +128,7 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
                   b.shape(new ZPoint(2, 3));
                 })
             .label("A")
-            .buildOn(graph);
+            .addTo(graph);
 
     var op =
         OperationSignatureNode.withBody(
@@ -138,7 +138,7 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
                       "output",
                       List.of(new TensorSelection(tensorA.getId(), tensorA.getEffectiveRange())));
                 })
-            .buildOn(graph);
+            .addTo(graph);
 
     var constraint = graph.getEnv().assertConstraint(OperationReferenceAgreementConstraint.class);
     var issueCollector = new ListValidationIssueCollector();
@@ -162,7 +162,7 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
                   b.shape(new ZPoint(100));
                 })
             .label("A")
-            .buildOn(graph);
+            .addTo(graph);
 
     var sourceOp =
         OperationSignatureNode.withBody(
@@ -172,7 +172,7 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
                       "foo",
                       List.of(new TensorSelection(tensorA.getId(), tensorA.getEffectiveRange())));
                 })
-            .buildOn(graph);
+            .addTo(graph);
     var app1 =
         ApplicationNode.withBody(
                 b -> {
@@ -180,7 +180,7 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
                   b.input("foo", List.of());
                 })
             .label("Wrong List Size")
-            .buildOn(graph);
+            .addTo(graph);
     var app2 =
         ApplicationNode.withBody(
                 b -> {
@@ -188,7 +188,7 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
                   b.input("bar", List.of());
                 })
             .label("Misaligned Input Keys")
-            .buildOn(graph);
+            .addTo(graph);
     var app3 =
         ApplicationNode.withBody(
                 b -> {
@@ -203,7 +203,7 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
                   b.output("bar", List.of());
                 })
             .label("Misaligned Output Keys")
-            .buildOn(graph);
+            .addTo(graph);
 
     var constraint = graph.getEnv().assertConstraint(OperationReferenceAgreementConstraint.class);
     var issueCollector = new ListValidationIssueCollector();
@@ -243,7 +243,7 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
                   b.shape(new ZPoint(2, 3));
                 })
             .label("A")
-            .buildOn(graph);
+            .addTo(graph);
 
     var sourceOp =
         OperationSignatureNode.withBody(
@@ -253,7 +253,7 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
                       "output",
                       List.of(new TensorSelection(tensorA.getId(), tensorA.getEffectiveRange())));
                 })
-            .buildOn(graph);
+            .addTo(graph);
 
     var app1 =
         ApplicationNode.withBody(
@@ -267,7 +267,7 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
                               .range(new ZRange(ZPoint.of(0, 0), ZPoint.of(1, 2)))
                               .build()));
                 })
-            .buildOn(graph);
+            .addTo(graph);
     var app2 =
         ApplicationNode.withBody(
                 b -> {
@@ -280,7 +280,7 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
                               .range(new ZRange(ZPoint.of(1, 0), ZPoint.of(2, 2)))
                               .build()));
                 })
-            .buildOn(graph);
+            .addTo(graph);
 
     var sinkOp =
         OperationSignatureNode.withBody(
@@ -290,7 +290,7 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
                       "input",
                       List.of(new TensorSelection(tensorA.getId(), tensorA.getEffectiveRange())));
                 })
-            .buildOn(graph);
+            .addTo(graph);
 
     var app3 =
         ApplicationNode.withBody(
@@ -304,7 +304,7 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
                               .range(new ZRange(ZPoint.of(0, 0), ZPoint.of(2, 1)))
                               .build()));
                 })
-            .buildOn(graph);
+            .addTo(graph);
     var app4 =
         ApplicationNode.withBody(
                 b -> {
@@ -317,7 +317,7 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
                               .range(new ZRange(ZPoint.of(0, 1), ZPoint.of(2, 2)))
                               .build()));
                 })
-            .buildOn(graph);
+            .addTo(graph);
 
     var constraint = graph.getEnv().assertConstraint(OperationReferenceAgreementConstraint.class);
     var issueCollector = new ListValidationIssueCollector();
@@ -385,7 +385,7 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
                   b.shape(new ZPoint(2, 3));
                 })
             .label("A")
-            .buildOn(graph);
+            .addTo(graph);
     var tensorB =
         TensorNode.withBody(
                 b -> {
@@ -393,7 +393,7 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
                   b.shape(new ZPoint(2, 3));
                 })
             .label("A")
-            .buildOn(graph);
+            .addTo(graph);
 
     var opSig =
         OperationSignatureNode.withBody(
@@ -403,7 +403,7 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
                       "output",
                       List.of(new TensorSelection(tensorA.getId(), tensorA.getEffectiveRange())));
                 })
-            .buildOn(graph);
+            .addTo(graph);
 
     var app1 =
         ApplicationNode.withBody(
@@ -417,7 +417,7 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
                               .range(tensorB.getEffectiveRange())
                               .build()));
                 })
-            .buildOn(graph);
+            .addTo(graph);
     var app2 =
         ApplicationNode.withBody(
                 b -> {
@@ -430,7 +430,7 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
                               .range(new ZRange(ZPoint.of(0, -3), ZPoint.of(1, 2)))
                               .build()));
                 })
-            .buildOn(graph);
+            .addTo(graph);
 
     var constraint = graph.getEnv().assertConstraint(OperationReferenceAgreementConstraint.class);
     var issueCollector = new ListValidationIssueCollector();
@@ -483,7 +483,7 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
     var graph = createGraph();
     var missingOperationId = UUID.randomUUID();
 
-    var app = ApplicationNode.withBody(b -> b.operationId(missingOperationId)).buildOn(graph);
+    var app = ApplicationNode.withBody(b -> b.operationId(missingOperationId)).addTo(graph);
 
     var constraint = graph.getEnv().assertConstraint(OperationReferenceAgreementConstraint.class);
     var issueCollector = new ListValidationIssueCollector();
@@ -524,7 +524,7 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
                       "result",
                       List.of(new TensorSelection(missingOutputId, ZRange.fromShape(10))));
                 })
-            .buildOn(graph);
+            .addTo(graph);
     ApplicationNode.withBody(
             b -> {
               b.operationId(op.getId());
@@ -543,7 +543,7 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
                           .range(ZRange.fromShape(10))
                           .build()));
             })
-        .buildOn(graph);
+        .addTo(graph);
 
     var constraint = graph.getEnv().assertConstraint(OperationReferenceAgreementConstraint.class);
 
@@ -583,7 +583,7 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
   public void test_wrong_reference_type() {
     var graph = createGraph();
 
-    var noteNode = NoteNode.withBody(b -> b.message("hello")).buildOn(graph);
+    var noteNode = NoteNode.withBody(b -> b.message("hello")).addTo(graph);
 
     @SuppressWarnings("unused")
     var op =
@@ -597,7 +597,7 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
                       "result",
                       List.of(new TensorSelection(noteNode.getId(), ZRange.fromShape(10))));
                 })
-            .buildOn(graph);
+            .addTo(graph);
     ApplicationNode.withBody(
             b -> {
               b.operationId(op.getId());
@@ -616,7 +616,7 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
                           .range(ZRange.fromShape(10))
                           .build()));
             })
-        .buildOn(graph);
+        .addTo(graph);
 
     var constraint = graph.getEnv().assertConstraint(OperationReferenceAgreementConstraint.class);
 
@@ -666,7 +666,7 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
                   b.shape(new ZPoint(2, 3));
                 })
             .label("A")
-            .buildOn(graph);
+            .addTo(graph);
 
     var sourceOp =
         OperationSignatureNode.withBody(
@@ -676,7 +676,7 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
                       "output",
                       List.of(new TensorSelection(tensorA.getId(), ZRange.fromShape(200))));
                 })
-            .buildOn(graph);
+            .addTo(graph);
 
     ApplicationNode.withBody(
             b -> {
@@ -684,7 +684,7 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
               b.output(
                   "output", List.of(new TensorSelection(tensorA.getId(), ZRange.fromShape(200))));
             })
-        .buildOn(graph);
+        .addTo(graph);
 
     var sinkOp =
         OperationSignatureNode.withBody(
@@ -694,7 +694,7 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
                       "input",
                       List.of(new TensorSelection(tensorA.getId(), ZRange.fromShape(200))));
                 })
-            .buildOn(graph);
+            .addTo(graph);
 
     ApplicationNode.withBody(
             b -> {
@@ -702,7 +702,7 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
               b.input(
                   "input", List.of(new TensorSelection(tensorA.getId(), ZRange.fromShape(200))));
             })
-        .buildOn(graph);
+        .addTo(graph);
 
     var constraint = graph.getEnv().assertConstraint(OperationReferenceAgreementConstraint.class);
 
@@ -753,7 +753,7 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
                   b.shape(new ZPoint(2, 3));
                 })
             .label("A")
-            .buildOn(graph);
+            .addTo(graph);
 
     var sourceOp =
         OperationSignatureNode.withBody(
@@ -763,7 +763,7 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
                       "output",
                       List.of(new TensorSelection(tensorA.getId(), ZRange.fromShape(5, 10))));
                 })
-            .buildOn(graph);
+            .addTo(graph);
 
     ApplicationNode.withBody(
             b -> {
@@ -771,7 +771,7 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
               b.output(
                   "output", List.of(new TensorSelection(tensorA.getId(), ZRange.fromShape(5, 10))));
             })
-        .buildOn(graph);
+        .addTo(graph);
 
     var sinkOp =
         OperationSignatureNode.withBody(
@@ -781,7 +781,7 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
                       "input",
                       List.of(new TensorSelection(tensorA.getId(), ZRange.fromShape(2, 8))));
                 })
-            .buildOn(graph);
+            .addTo(graph);
 
     ApplicationNode.withBody(
             b -> {
@@ -789,7 +789,7 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
               b.input(
                   "input", List.of(new TensorSelection(tensorA.getId(), ZRange.fromShape(2, 8))));
             })
-        .buildOn(graph);
+        .addTo(graph);
 
     var constraint = graph.getEnv().assertConstraint(OperationReferenceAgreementConstraint.class);
     var issueCollector = new ListValidationIssueCollector();
@@ -835,7 +835,7 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
                   b.shape(new ZPoint(2, 3));
                 })
             .label("A")
-            .buildOn(graph);
+            .addTo(graph);
 
     var tensorB =
         TensorNode.withBody(
@@ -844,7 +844,7 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
                   b.shape(new ZPoint(4, 5));
                 })
             .label("B")
-            .buildOn(graph);
+            .addTo(graph);
 
     var tensorC =
         TensorNode.withBody(
@@ -853,7 +853,7 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
                   b.shape(new ZPoint(6, 7));
                 })
             .label("C")
-            .buildOn(graph);
+            .addTo(graph);
 
     var opNode =
         OperationSignatureNode.withBody(
@@ -883,7 +883,7 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
                               .build()));
                 })
             .label("Add")
-            .buildOn(graph);
+            .addTo(graph);
 
     ApplicationNode.withBody(
             b ->
@@ -910,7 +910,7 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
                                 .tensorId(tensorA.getId())
                                 .range(tensorA.getEffectiveRange())
                                 .build())))
-        .buildOn(graph);
+        .addTo(graph);
 
     var constraint = graph.getEnv().assertConstraint(OperationReferenceAgreementConstraint.class);
     var issueCollector = new ListValidationIssueCollector();

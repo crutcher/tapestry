@@ -35,7 +35,7 @@ public class TensorDTypesAreValidConstraintTest extends BaseTestClass {
               b.shape(new ZPoint(2, 3));
             })
         .label("Good")
-        .buildOn(graph);
+        .addTo(graph);
 
     var badTensor =
         TensorNode.withBody(
@@ -44,7 +44,7 @@ public class TensorDTypesAreValidConstraintTest extends BaseTestClass {
                   b.shape(new ZPoint(2, 3));
                 })
             .label("Bad")
-            .buildOn(graph);
+            .addTo(graph);
 
     var collector = new ListValidationIssueCollector();
     graph.validate(collector);

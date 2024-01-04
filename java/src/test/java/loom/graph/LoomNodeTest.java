@@ -1,13 +1,12 @@
 package loom.graph;
 
+import java.util.Map;
+import java.util.UUID;
 import loom.common.json.JsonUtil;
 import loom.graph.nodes.NoteNode;
 import loom.testing.BaseTestClass;
 import loom.validation.ValidationIssue;
 import org.junit.Test;
-
-import java.util.Map;
-import java.util.UUID;
 
 public class LoomNodeTest extends BaseTestClass {
 
@@ -32,7 +31,7 @@ public class LoomNodeTest extends BaseTestClass {
     {
       // Dynamic
       var graph = makeGraph();
-      var node = ExampleNode.withBody(b -> b.foo("bar")).buildOn(graph);
+      var node = ExampleNode.withBody(b -> b.foo("bar")).addTo(graph);
 
       assertThat(node.getBodyClass()).isEqualTo(ExampleNode.Body.class);
     }
@@ -41,7 +40,7 @@ public class LoomNodeTest extends BaseTestClass {
   @Test
   public void test_getJsonPath() {
     var graph = makeGraph();
-    var node = ExampleNode.withBody(b -> b.foo("bar")).buildOn(graph);
+    var node = ExampleNode.withBody(b -> b.foo("bar")).addTo(graph);
 
     assertThat(node.getJsonPath()).isEqualTo("$.nodes[@.id=='%s']".formatted(node.getId()));
   }
@@ -49,7 +48,7 @@ public class LoomNodeTest extends BaseTestClass {
   @Test
   public void test_toString() {
     var graph = makeGraph();
-    var node = ExampleNode.withBody(b -> b.foo("bar")).buildOn(graph);
+    var node = ExampleNode.withBody(b -> b.foo("bar")).addTo(graph);
 
     assertThat(node)
         .hasToString(
@@ -61,7 +60,7 @@ public class LoomNodeTest extends BaseTestClass {
   public void test_assertGraph() {
     {
       var graph = makeGraph();
-      var node = ExampleNode.withBody(b -> b.foo("bar")).buildOn(graph);
+      var node = ExampleNode.withBody(b -> b.foo("bar")).addTo(graph);
 
       assertThat(node.getGraph()).isSameAs(graph);
       assertThat(node.assertGraph()).isSameAs(graph);
@@ -77,7 +76,7 @@ public class LoomNodeTest extends BaseTestClass {
   @Test
   public void test_asValidationContext() {
     var graph = makeGraph();
-    var node = ExampleNode.withBody(b -> b.foo("bar")).buildOn(graph);
+    var node = ExampleNode.withBody(b -> b.foo("bar")).addTo(graph);
 
     assertThat(node.asValidationContext("test"))
         .isEqualTo(
@@ -100,7 +99,7 @@ public class LoomNodeTest extends BaseTestClass {
   @Test
   public void test_getBody() {
     var graph = makeGraph();
-    var node = ExampleNode.withBody(b -> b.foo("bar")).buildOn(graph);
+    var node = ExampleNode.withBody(b -> b.foo("bar")).addTo(graph);
 
     assertThat(node.getBody()).isEqualTo(ExampleNode.Body.builder().foo("bar").build());
     assertEquivalentJson(node.getBodyAsJson(), "{\"foo\":\"bar\"}");
@@ -123,7 +122,7 @@ public class LoomNodeTest extends BaseTestClass {
   @Test
   public void test_json() {
     var graph = makeGraph();
-    var node = ExampleNode.withBody(b -> b.foo("bar")).buildOn(graph);
+    var node = ExampleNode.withBody(b -> b.foo("bar")).addTo(graph);
 
     assertJsonEquals(
         node,

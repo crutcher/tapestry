@@ -23,7 +23,7 @@ public class IPFIndexNode extends LoomNode<IPFIndexNode, IPFIndexNode.Body> {
 
   public abstract static class IPFIndexNodeBuilder<
           C extends IPFIndexNode, B extends IPFIndexNodeBuilder<C, B>>
-      extends LoomNodeBuilder<IPFIndexNode, Body, C, B> {
+      extends LoomNode.LoomNodeBuilder<IPFIndexNode, Body, C, B> {
     {
       // Set the node type.
       type(TYPE);
@@ -32,30 +32,32 @@ public class IPFIndexNode extends LoomNode<IPFIndexNode, IPFIndexNode.Body> {
 
   @WithSchema(
       """
-    {
-        "type": "object",
-        "properties": {
-            "range": { "$ref": "#/definitions/ZRange" }
-        },
-        "required": ["range"],
-        "additionalProperties": false,
-        "definitions": {
-            "ZRange": {
-                "type": "object",
-                "properties": {
-                    "start": { "$ref": "#/definitions/ZPoint" },
-                    "end": { "$ref": "#/definitions/ZPoint" }
-                },
-                "required": ["start", "end"],
-                "additionalProperties": false
-            },
-            "ZPoint": {
-                "type": "array",
-                "items": { "type": "number" },
-            }
-        }
-    }
-    """)
+  {
+      "type": "object",
+      "properties": {
+          "range": { "$ref": "#/definitions/ZRange" }
+      },
+      "required": ["range"],
+      "additionalProperties": false,
+      "definitions": {
+          "ZRange": {
+              "type": "object",
+              "properties": {
+                  "start": { "$ref": "#/definitions/ZPoint" },
+                  "end": { "$ref": "#/definitions/ZPoint" }
+              },
+              "required": ["start", "end"],
+              "additionalProperties": false
+          },
+          "ZPoint": {
+              "type": "array",
+              "items": {
+                "type": "integer"
+              }
+          }
+      }
+  }
+  """)
   @Value
   @Jacksonized
   @Builder
@@ -70,5 +72,6 @@ public class IPFIndexNode extends LoomNode<IPFIndexNode, IPFIndexNode.Body> {
   }
 
   @Delegate(excludes = {HasToJsonString.class})
+  @Nonnull
   private Body body;
 }

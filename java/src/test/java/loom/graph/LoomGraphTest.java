@@ -1,5 +1,8 @@
 package loom.graph;
 
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import loom.common.json.JsonUtil;
 import loom.graph.nodes.GenericNode;
 import loom.graph.nodes.NoteNode;
@@ -7,10 +10,6 @@ import loom.graph.nodes.TensorNode;
 import loom.testing.BaseTestClass;
 import loom.zspace.ZPoint;
 import org.junit.Test;
-
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 
 public class LoomGraphTest extends BaseTestClass {
 
@@ -346,7 +345,7 @@ public class LoomGraphTest extends BaseTestClass {
             .body(Map.of("foo", "bar"))
             .build();
 
-    NoteNode.withBody(b -> b.message("hello world")).label("extraneous").buildOn(graph);
+    NoteNode.withBody(b -> b.message("hello world")).label("extraneous").addTo(graph);
 
     graph.validate();
 
@@ -360,10 +359,9 @@ public class LoomGraphTest extends BaseTestClass {
     var env = CommonEnvironments.expressionEnvironment();
     var graph = env.newGraph();
 
-    var tensorNode =
-        TensorNode.withBody(b -> b.dtype("int32").shape(ZPoint.of(2, 3))).buildOn(graph);
+    var tensorNode = TensorNode.withBody(b -> b.dtype("int32").shape(ZPoint.of(2, 3))).addTo(graph);
 
-    var noteNode = NoteNode.withBody(b -> b.message("foo")).buildOn(graph);
+    var noteNode = NoteNode.withBody(b -> b.message("foo")).addTo(graph);
 
     assertThat(graph.nodeScan().type(NoteNode.TYPE).asList()).containsOnly(noteNode);
     assertThat(graph.nodeScan().type(NoteNode.TYPE).nodeClass(NoteNode.class).asList())

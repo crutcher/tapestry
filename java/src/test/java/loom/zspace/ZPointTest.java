@@ -44,6 +44,22 @@ public class ZPointTest implements CommonAssertions {
   }
 
   @Test
+  public void test_newOnes() {
+    assertThat(ZPoint.newOnes(3)).isEqualTo(new ZPoint(1, 1, 1));
+    assertThat(ZPoint.newOnes(0)).isEqualTo(new ZPoint());
+
+    assertThat(ZPoint.newOnesLike(new ZPoint(1, 2, 3))).isEqualTo(new ZPoint(1, 1, 1));
+  }
+
+  @Test
+  public void test_newZeros() {
+    assertThat(ZPoint.newZeros(3)).isEqualTo(new ZPoint(0, 0, 0));
+    assertThat(ZPoint.newZeros(0)).isEqualTo(new ZPoint());
+
+    assertThat(ZPoint.newZerosLike(new ZPoint(1, 2, 3))).isEqualTo(new ZPoint(0, 0, 0));
+  }
+
+  @Test
   public void test_get() {
     ZPoint p = new ZPoint(1, 2, 3);
     assertThat(p.get(0)).isEqualTo(1);
