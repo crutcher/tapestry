@@ -4,16 +4,18 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Splitter;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.Objects;
+import lombok.Builder;
+import lombok.Getter;
+import loom.common.json.HasToJsonString;
+import loom.common.json.JsonUtil;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import javax.annotation.concurrent.ThreadSafe;
-import lombok.Getter;
-import loom.common.json.HasToJsonString;
-import loom.common.json.JsonUtil;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.Objects;
 
 /**
  * Represents a range of points in discrete space.
@@ -238,6 +240,32 @@ public final class ZRange implements Cloneable, HasSize, HasPermute<ZRange>, Has
     this(new ZPoint(start), new ZPoint(end));
   }
 
+  @SuppressWarnings("unused")
+  public static class ZRangeBuilder {
+    private ZPoint shape;
+
+    public ZRangeBuilder shape(@Nonnull ZPoint shape) {
+      this.shape = shape;
+      return this;
+    }
+
+    public ZRangeBuilder shape(@Nonnull ZTensor shape) {
+      shape(shape.newZPoint());
+      return this;
+    }
+
+    public ZRange build() {
+      if (shape != null) {
+        if (end != null) {
+          throw new IllegalStateException("Cannot set both shape and end");
+        }
+        return ZRange.fromStartWithShape(start, shape);
+      } else {
+        return new ZRange(start, end);
+      }
+    }
+  }
+
   /**
    * Construct a new ZRange of {@code [start, end)}.
    *
@@ -245,6 +273,7 @@ public final class ZRange implements Cloneable, HasSize, HasPermute<ZRange>, Has
    * @param end the exclusive end point.
    */
   @JsonCreator
+  @Builder
   public ZRange(
       @Nonnull @JsonProperty(value = "start") ZPoint start,
       @Nonnull @JsonProperty(value = "end") ZPoint end) {

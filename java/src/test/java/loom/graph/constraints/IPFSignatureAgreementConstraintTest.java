@@ -1,6 +1,9 @@
 package loom.graph.constraints;
 
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
+import java.util.*;
+import java.util.function.Function;
+import javax.annotation.Nullable;
 import loom.graph.CommonEnvironments;
 import loom.graph.LoomGraph;
 import loom.graph.nodes.*;
@@ -10,10 +13,6 @@ import loom.zspace.ZAffineMap;
 import loom.zspace.ZPoint;
 import loom.zspace.ZRange;
 import org.junit.Test;
-
-import javax.annotation.Nullable;
-import java.util.*;
-import java.util.function.Function;
 
 @SuppressWarnings("unused")
 public class IPFSignatureAgreementConstraintTest extends BaseTestClass {
@@ -28,27 +27,27 @@ public class IPFSignatureAgreementConstraintTest extends BaseTestClass {
         TensorNode.withBody(
                 b ->
                     b.dtype("int32")
-                        .range(ZRange.fromStartWithShape(new ZPoint(-10, 4), new ZPoint(3, 4))))
+                        .range(
+                            ZRange.builder()
+                                .start(ZPoint.of(-10, 4))
+                                .shape(ZPoint.of(3, 4))
+                                .build()))
             .addTo(graph);
 
     var tensorB = TensorNode.withBody(b -> b.dtype("int32").shape(4, 5)).addTo(graph);
 
-    var ipfSignature =
+    var relativeSignature =
         IPFSignature.builder()
             .input(
                 "x",
                 IndexProjectionFunction.builder()
-                    .affineMap(
-                        ZAffineMap.fromMatrix(new int[][] {{1, 0}, {0, 0}})
-                            .translate(tensorA.getRange().getStart()))
+                    .affineMap(ZAffineMap.fromMatrix(new int[][] {{1, 0}, {0, 0}}))
                     .shape(ZPoint.of(1, tensorA.getShape().get(1)))
                     .build())
             .input(
                 "y",
                 IndexProjectionFunction.builder()
-                    .affineMap(
-                        ZAffineMap.fromMatrix(new int[][] {{0, 0}, {0, 1}})
-                            .translate(tensorB.getRange().getStart()))
+                    .affineMap(ZAffineMap.fromMatrix(new int[][] {{0, 0}, {0, 1}}))
                     .shape(ZPoint.of(tensorB.getShape().get(0), 1))
                     .build())
             .output(
@@ -59,10 +58,10 @@ public class IPFSignatureAgreementConstraintTest extends BaseTestClass {
             .build();
 
     var op =
-        apply(
+        applyRelativeSignature(
             graph,
             "matmul",
-            ipfSignature,
+            relativeSignature,
             inputs -> {
               var x = inputs.get("x").getFirst().getRange().getShape().get(0);
               var y = inputs.get("y").getFirst().getRange().getShape().get(1);
@@ -193,7 +192,38 @@ public class IPFSignatureAgreementConstraintTest extends BaseTestClass {
     graph.validate();
   }
 
-  public static OperationSignatureNode apply(
+  public static OperationSignatureNode applyRelativeSignature(
+      LoomGraph graph,
+      String kernelName,
+      IPFSignature ipfSignature,
+      Function<Map<String, List<TensorSelection>>, ZRange> indexBuilder,
+      Map<String, List<TensorSelection>> inputs,
+      Map<String, List<String>> outputTypes,
+      @Nullable Map<String, Object> params) {
+
+    var relativeSignature = IPFSignature.builder();
+    for (var entry : ipfSignature.getInputs().entrySet()) {
+      var name = entry.getKey();
+      var projections = entry.getValue();
+      var selections = inputs.get(name);
+      assert selections != null && projections.size() == selections.size();
+
+      List<IndexProjectionFunction> relativeProjections = new ArrayList<>();
+      for (int idx = 0; idx < selections.size(); ++idx) {
+        var p = projections.get(idx);
+        var s = selections.get(idx);
+        relativeProjections.add(p.translate(s.getRange().getStart()));
+      }
+      relativeSignature.input(name, relativeProjections);
+    }
+
+    relativeSignature.outputs(ipfSignature.getOutputs());
+
+    return applyFixedSignature(
+        graph, kernelName, relativeSignature.build(), indexBuilder, inputs, outputTypes, params);
+  }
+
+  public static OperationSignatureNode applyFixedSignature(
       LoomGraph graph,
       String kernelName,
       IPFSignature ipfSignature,

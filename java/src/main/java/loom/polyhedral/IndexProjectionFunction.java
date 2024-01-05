@@ -99,4 +99,18 @@ public class IndexProjectionFunction implements HasToJsonString {
     }
     return ZRange.boundingRange(r1, apply(source.getInclusiveEnd()));
   }
+
+  /**
+   * Translates the projection function by the given offset.
+   *
+   * @param offset The offset to translate by.
+   * @return The translated projection function.
+   */
+  @Nonnull
+  public IndexProjectionFunction translate(@Nonnull ZPoint offset) {
+    return IndexProjectionFunction.builder()
+        .affineMap(affineMap.translate(offset))
+        .shape(shape)
+        .build();
+  }
 }
