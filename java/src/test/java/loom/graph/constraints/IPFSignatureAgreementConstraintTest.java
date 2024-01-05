@@ -24,7 +24,12 @@ public class IPFSignatureAgreementConstraintTest extends BaseTestClass {
 
     var graph = env.newGraph();
 
-    var tensorA = TensorNode.withBody(b -> b.dtype("int32").shape(3, 4)).addTo(graph);
+    var tensorA =
+        TensorNode.withBody(
+                b ->
+                    b.dtype("int32")
+                        .range(ZRange.fromStartWithShape(new ZPoint(-10, 4), new ZPoint(3, 4))))
+            .addTo(graph);
 
     var tensorB = TensorNode.withBody(b -> b.dtype("int32").shape(4, 5)).addTo(graph);
 
@@ -32,24 +37,25 @@ public class IPFSignatureAgreementConstraintTest extends BaseTestClass {
         IPFSignature.builder()
             .input(
                 "x",
-                List.of(
-                    IndexProjectionFunction.builder()
-                        .affineMap(ZAffineMap.fromMatrix(new int[][] {{1, 0}, {0, 0}}))
-                        .shape(ZPoint.of(1, tensorA.getShape().get(1)))
-                        .build()))
+                IndexProjectionFunction.builder()
+                    .affineMap(
+                        ZAffineMap.fromMatrix(new int[][] {{1, 0}, {0, 0}})
+                            .translate(tensorA.getRange().getStart()))
+                    .shape(ZPoint.of(1, tensorA.getShape().get(1)))
+                    .build())
             .input(
                 "y",
-                List.of(
-                    IndexProjectionFunction.builder()
-                        .affineMap(ZAffineMap.fromMatrix(new int[][] {{0, 0}, {0, 1}}))
-                        .shape(ZPoint.of(tensorB.getShape().get(0), 1))
-                        .build()))
+                IndexProjectionFunction.builder()
+                    .affineMap(
+                        ZAffineMap.fromMatrix(new int[][] {{0, 0}, {0, 1}})
+                            .translate(tensorB.getRange().getStart()))
+                    .shape(ZPoint.of(tensorB.getShape().get(0), 1))
+                    .build())
             .output(
                 "z",
-                List.of(
-                    IndexProjectionFunction.builder()
-                        .affineMap(ZAffineMap.fromMatrix(new int[][] {{1, 0}, {0, 1}}))
-                        .build()))
+                IndexProjectionFunction.builder()
+                    .affineMap(ZAffineMap.fromMatrix(new int[][] {{1, 0}, {0, 1}}))
+                    .build())
             .build();
 
     var op =
