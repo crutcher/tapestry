@@ -89,7 +89,7 @@ public class IPFSignatureAgreementConstraintTest extends BaseTestClass {
   }
 
   @Test
-  public void test_valid() {
+  public void test_valid_long() {
     var env = CommonEnvironments.expressionEnvironment();
     env.assertConstraint(IPFSignatureAgreementConstraint.class);
 
@@ -141,50 +141,42 @@ public class IPFSignatureAgreementConstraintTest extends BaseTestClass {
                         .output("z", List.of(TensorSelection.from(tensorC))))
             .addTo(graph);
 
-    /*
-        var app1Index =
-            IPFIndexNode.withBody(b -> b.range(new ZRange(ZPoint.of(0, 0), ZPoint.of(3, 2))))
-                .addTo(graph);
+    var app1Index =
+        IPFIndexNode.withBody(b -> b.range(new ZRange(ZPoint.of(0, 0), ZPoint.of(3, 2))))
+            .addTo(graph);
 
-        var app1 =
-            ApplicationNode.withBody(
-                    b ->
-                        b.operationId(sig.getId())
-                            .indexId(app1Index.getId())
-                            .input("x", List.of(TensorSelection.from(tensorA)))
-                            .input("y", List.of(TensorSelection.from(tensorB, ZRange.fromShape(4, 2))))
-                            .output(
-                                "z", List.of(TensorSelection.from(tensorC, ZRange.fromShape(3, 2)))))
-                .addTo(graph);
+    var app1 =
+        ApplicationNode.withBody(
+                b ->
+                    b.operationId(sig.getId())
+                        .indexId(app1Index.getId())
+                        .input("x", List.of(TensorSelection.from(tensorA)))
+                        .input("y", List.of(TensorSelection.from(tensorB, ZRange.fromShape(4, 2))))
+                        .output(
+                            "z", List.of(TensorSelection.from(tensorC, ZRange.fromShape(3, 2)))))
+            .addTo(graph);
 
-        var appIndex2 =
-            IPFIndexNode.withBody(b -> b.range(new ZRange(ZPoint.of(0, 2), ZPoint.of(3, 5))))
-                .addTo(graph);
+    var appIndex2 =
+        IPFIndexNode.withBody(b -> b.range(new ZRange(ZPoint.of(0, 2), ZPoint.of(3, 5))))
+            .addTo(graph);
 
-        var app2 =
-            ApplicationNode.withBody(
-                    b ->
-                        b.operationId(sig.getId())
-                            .indexId(appIndex2.getId())
-                            .input("x", List.of(TensorSelection.from(tensorA)))
-                            .input(
-                                "y",
-                                List.of(
-                                    TensorSelection.from(
-                                        tensorB, new ZRange(ZPoint.of(0, 2), ZPoint.of(4, 5)))))
-                            .output(
-                                "z",
-                                List.of(
-                                    TensorSelection.from(
-                                        tensorC, new ZRange(ZPoint.of(0, 2), ZPoint.of(3, 5))))))
-                .addTo(graph);
-
-    */
-    /*
-    var app1 = createIpfShard(sig, new ZRange(ZPoint.of(0, 0), ZPoint.of(3, 2)));
-    var app2 = createIpfShard(sig, new ZRange(ZPoint.of(0, 2), ZPoint.of(3, 5)));
-     */
-    var apps = createIpfShards(sig, sigIndex.getRange().split(1, 3));
+    var app2 =
+        ApplicationNode.withBody(
+                b ->
+                    b.operationId(sig.getId())
+                        .indexId(appIndex2.getId())
+                        .input("x", List.of(TensorSelection.from(tensorA)))
+                        .input(
+                            "y",
+                            List.of(
+                                TensorSelection.from(
+                                    tensorB, new ZRange(ZPoint.of(0, 2), ZPoint.of(4, 5)))))
+                        .output(
+                            "z",
+                            List.of(
+                                TensorSelection.from(
+                                    tensorC, new ZRange(ZPoint.of(0, 2), ZPoint.of(3, 5))))))
+            .addTo(graph);
 
     graph.validate();
   }
