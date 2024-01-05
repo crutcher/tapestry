@@ -82,14 +82,20 @@ public class IPFSignatureAgreementConstraintTest extends BaseTestClass {
         .isEqualTo(1);
     assertThat(graph.nodeScan().nodeClass(ApplicationNode.class).asStream().count()).isEqualTo(1);
 
-    assertThat(
-            graph
-                .nodeScan()
-                .nodeClass(TensorNode.class)
-                .asStream()
-                .filter(n -> Objects.equals(n.getLabel(), "matmul/z[0]"))
-                .count())
-        .isEqualTo(1);
+    TensorNode tensorC =
+        graph.assertNode(
+            op.getOutputs().get("z").getFirst().getTensorId(), TensorNode.TYPE, TensorNode.class);
+
+    assertThat(tensorC.getDtype()).isEqualTo("int32");
+    assertThat(tensorC.getRange()).isEqualTo(ZRange.fromShape(3, 5));
+    assertThat(tensorC.getLabel()).isEqualTo("matmul/z[0]");
+
+    var shards = op.getApplicationNodes();
+    assertThat(shards).hasSize(1);
+    var app = shards.getFirst();
+    assertThat(app.getOperationSignatureNode()).isSameAs(op);
+    assertThat(graph.assertNode(app.getIndexId(), IPFIndexNode.TYPE, IPFIndexNode.class).getRange())
+        .isEqualTo(ZRange.fromShape(3, 5));
 
     graph.validate();
   }
