@@ -1,13 +1,6 @@
 package loom.graph;
 
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-import java.util.*;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import lombok.Builder;
 import lombok.Data;
 import loom.common.json.JsonSchemaManager;
@@ -16,6 +9,14 @@ import loom.common.runtime.ExcludeFromJacocoGeneratedReport;
 import loom.graph.constraints.NodeBodySchemaConstraint;
 import loom.validation.ListValidationIssueCollector;
 import loom.validation.ValidationIssueCollector;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+import java.util.*;
 
 /**
  * Loom Graph Environment.
@@ -49,6 +50,10 @@ public final class LoomEnvironment {
 
   @Nullable private Class<? extends LoomNode<?, ?>> defaultNodeTypeClass;
   private final Map<String, Class<? extends LoomNode<?, ?>>> nodeTypeClasses = new HashMap<>();
+
+  @Nullable private Class<?> defaultAnnotationTypeClass;
+  private final Map<String, Class<?>> annotationTypeClasses = new HashMap<>();
+
   private final List<Constraint> constraints = new ArrayList<>();
 
   @Builder.Default private final JsonSchemaManager jsonSchemaManager = new JsonSchemaManager();
@@ -161,6 +166,21 @@ public final class LoomEnvironment {
     if (nodeTypeClass != assertClassForType(type)) {
       throw new IllegalStateException("Node type class mismatch: " + type + " is " + nodeTypeClass);
     }
+  }
+
+  public Class<?> assertAnnotationClass(String key, Object value) {
+    var cls = annotationTypeClasses.get(key);
+    if (cls == null && defaultAnnotationTypeClass != null) {
+      cls = defaultAnnotationTypeClass;
+    }
+    if (cls == null) {
+      throw new IllegalStateException("Unknown annotation key: " + key);
+    }
+    if (!cls.isAssignableFrom(value.getClass())) {
+      throw new IllegalStateException(
+          "Annotation value type mismatch: " + key + " is " + cls + ", got " + value.getClass());
+    }
+    return cls;
   }
 
   /**

@@ -7,6 +7,13 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -15,11 +22,6 @@ import loom.common.json.HasToJsonString;
 import loom.common.json.JsonUtil;
 import loom.common.runtime.ReflectionUtils;
 import loom.validation.ValidationIssue;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.io.IOException;
-import java.util.UUID;
 
 /**
  * Base class for a node in the graph.
@@ -79,6 +81,103 @@ public abstract class LoomNode<NodeType extends LoomNode<NodeType, BodyType>, Bo
   @Nonnull private final UUID id;
   @Nonnull private final String type;
   @Nullable private String label;
+
+  @Builder.Default @Nonnull private final Map<String, Object> annotations = new HashMap<>();
+
+  /**
+   * Does the node have an annotation with the given key?
+   *
+   * @param key the annotation key.
+   * @return true if the node has the annotation.
+   */
+  public final boolean hasAnnotation(String key) {
+    return annotations.containsKey(key);
+  }
+
+  /**
+   * Does the node have an annotation with the given key and class?
+   *
+   * @param key the annotation key.
+   * @param cls the annotation class.
+   * @return true if the node has the annotation with the given key and class.
+   */
+  public final boolean hasAnnotation(String key, Class<?> cls) {
+    return annotations.containsKey(key) && cls.isInstance(annotations.get(key));
+  }
+
+  /**
+   * Get an annotation from the node.
+   *
+   * @param key the annotation key.
+   * @return the annotation value.
+   */
+  @Nullable public final Object getAnnotation(String key) {
+    return annotations.get(key);
+  }
+
+  /**
+   * Get an annotation from the node.
+   *
+   * @param key the annotation key.
+   * @param cls the annotation class.
+   * @return the annotation value.
+   * @param <T> the annotation type.
+   */
+  @Nullable public final <T> T getAnnotation(@Nonnull String key, @Nonnull Class<? extends T> cls) {
+    return cls.cast(annotations.get(key));
+  }
+
+  /**
+   * Get an annotation from the node.
+   *
+   * @param key the annotation key.
+   * @param cls the annotation class.
+   * @return the annotation value.
+   * @param <T> the annotation type.
+   */
+  @Nonnull
+  public final <T> T assertAnnotation(@Nonnull String key, @Nonnull Class<? extends T> cls) {
+    var value = getAnnotation(key, cls);
+    if (value == null) {
+      throw new IllegalStateException("Annotation not found: " + key);
+    }
+    return value;
+  }
+
+  /**
+   * Remove an annotation from the node.
+   *
+   * @param key the annotation key.
+   */
+  public final void removeAnnotation(@Nonnull String key) {
+    annotations.remove(key);
+  }
+
+  /**
+   * Set an annotation on the node.
+   *
+   * <p>Converts the annotation value to the annotation class if the graph is present.
+   *
+   * @param key the annotation key.
+   * @param value the annotation value.
+   * @throws IllegalStateException if the annotation value is not assignable to the annotation.
+   */
+  public final void setAnnotation(@Nonnull String key, @Nonnull Object value) {
+    if (hasGraph()) {
+      var cls = assertGraph().getEnv().assertAnnotationClass(key, value);
+      value = JsonUtil.convertValue(value, cls);
+    }
+    annotations.put(key, value);
+  }
+
+  /**
+   * Does the node belong to a graph?
+   *
+   * @return true if the node belongs to a graph.
+   */
+  public final boolean hasGraph() {
+    return graph != null;
+  }
 
   /**
    * Get the graph that this node belongs to.
@@ -213,6 +312,9 @@ public abstract class LoomNode<NodeType extends LoomNode<NodeType, BodyType>, Bo
         var label = value.getLabel();
         if (label != null) {
           gen.writeStringField("label", label);
+        }
+        if (!value.getAnnotations().isEmpty()) {
+          gen.writeObjectField("annotations", value.getAnnotations());
         }
 
         gen.writeObjectField("body", value.getBody());

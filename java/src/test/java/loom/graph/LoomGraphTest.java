@@ -1,5 +1,8 @@
 package loom.graph;
 
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import loom.common.json.JsonUtil;
 import loom.graph.nodes.GenericNode;
 import loom.graph.nodes.NoteNode;
@@ -9,10 +12,6 @@ import loom.zspace.ZPoint;
 import loom.zspace.ZRange;
 import loom.zspace.ZTensor;
 import org.junit.Test;
-
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 
 public class LoomGraphTest extends BaseTestClass {
 

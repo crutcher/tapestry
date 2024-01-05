@@ -37,6 +37,41 @@ public class LoomNodeTest extends BaseTestClass {
     }
   }
 
+  public record Example(String foo) {}
+
+  @Test
+  public void test_annotations() {
+    var graph = makeGraph();
+    var node = ExampleNode.withBody(b -> b.foo("bar")).addTo(graph);
+    graph.getEnv().getAnnotationTypeClasses().put("foo", String.class);
+    graph.getEnv().getAnnotationTypeClasses().put("Example", Example.class);
+
+    node.setAnnotation("foo", "abc");
+    node.setAnnotation("Example", new Example("xyz"));
+    assertThat(node.getAnnotations())
+        .containsEntry("foo", "abc")
+        .containsEntry("Example", new Example("xyz"));
+
+    assertThat(node.hasAnnotation("foo")).isTrue();
+    assertThat(node.hasAnnotation("foo", String.class)).isTrue();
+    assertThat(node.hasAnnotation("foo", Example.class)).isFalse();
+
+    assertThat(node.getAnnotation("foo")).isEqualTo("abc");
+    assertThat(node.getAnnotation("foo", String.class)).isEqualTo("abc");
+
+    assertThatExceptionOfType(ClassCastException.class)
+        .isThrownBy(() -> node.getAnnotation("foo", Integer.class));
+
+    node.removeAnnotation("foo");
+    assertThat(node.hasAnnotation("foo")).isFalse();
+    assertThatExceptionOfType(IllegalStateException.class)
+        .isThrownBy(() -> node.assertAnnotation("foo", String.class));
+
+    assertThat(node.getAnnotation("Example", Example.class)).isEqualTo(new Example("xyz"));
+
+    assertThat(node.assertAnnotation("Example", Example.class)).isEqualTo(new Example("xyz"));
+  }
+
   @Test
   public void test_getJsonPath() {
     var graph = makeGraph();
@@ -132,6 +167,31 @@ public class LoomNodeTest extends BaseTestClass {
           "type": "ExampleNode",
           "body": {
             "foo": "bar"
+          }
+        }
+        """
+            .formatted(node.getId()));
+
+    graph.getEnv().getAnnotationTypeClasses().put("foo", String.class);
+    graph.getEnv().getAnnotationTypeClasses().put("Example", Example.class);
+
+    node.setAnnotation("foo", "abc");
+    node.setAnnotation("Example", new Example("xyz"));
+
+    assertJsonEquals(
+        node,
+        """
+        {
+          "id": "%s",
+          "type": "ExampleNode",
+          "body": {
+            "foo": "bar"
+          },
+          "annotations": {
+            "foo": "abc",
+            "Example": {
+              "foo": "xyz"
+            }
           }
         }
         """
