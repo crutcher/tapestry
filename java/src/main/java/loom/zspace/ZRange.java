@@ -4,16 +4,17 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Splitter;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.Objects;
+import lombok.Getter;
+import loom.common.json.HasToJsonString;
+import loom.common.json.JsonUtil;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import javax.annotation.concurrent.ThreadSafe;
-import lombok.Getter;
-import loom.common.json.HasToJsonString;
-import loom.common.json.JsonUtil;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.Objects;
 
 /**
  * Represents a range of points in discrete space.
@@ -305,6 +306,19 @@ public final class ZRange implements Cloneable, HasSize, HasPermute<ZRange>, Has
   }
 
   /**
+   * Resolve a dimension index.
+   *
+   * <p>Negative dimension indices are resolved relative to the number of dimensions.
+   *
+   * @param dim the dimension index.
+   * @return the resolved dimension index.
+   * @throws IndexOutOfBoundsException if the index is out of range.
+   */
+  public int resolveDim(int dim) {
+    return start.resolveDim(dim);
+  }
+
+  /**
    * Returns an {@code Iterable<int[]>} over the coordinates of this ZRange.
    *
    * <p>When the buffer mode is {@link BufferMode#REUSED}, the buffer is shared between subsequent
@@ -428,5 +442,49 @@ public final class ZRange implements Cloneable, HasSize, HasPermute<ZRange>, Has
     } else {
       return null;
     }
+  }
+
+  /**
+   * Split this range into a number of sub-ranges.
+   *
+   * <p>The sub-ranges will be non-overlapping, and will cover the entire range.
+   *
+   * <p>The last sub-range may be smaller than the others.
+   *
+   * @param dim the dimension to split on.
+   * @param chunkSize the size of each chunk.
+   * @return the sub-ranges.
+   */
+  @Nonnull
+  public ZRange[] split(int dim, int chunkSize) {
+    if (chunkSize <= 0) {
+      throw new IllegalArgumentException("chunkSize must be > 0: " + chunkSize);
+    }
+
+    int d = resolveDim(dim);
+    ZTensor shape = getShape();
+    int dimSize = shape.get(d);
+
+    if (chunkSize >= dimSize) {
+      return new ZRange[] {this};
+    }
+
+    int n = dimSize / chunkSize;
+    if (dimSize % chunkSize != 0) {
+      ++n;
+    }
+
+    var startArr = start.coords.toT1();
+    var endArr = end.coords.toT1();
+    var ranges = new ZRange[n];
+
+    for (int i = 0; i < n; ++i) {
+      int dimStart = i * chunkSize;
+      int dimEnd = Math.min(dimStart + chunkSize, dimSize);
+      startArr[d] = dimStart;
+      endArr[d] = dimEnd;
+      ranges[i] = new ZRange(new ZPoint(startArr), new ZPoint(endArr));
+    }
+    return ranges;
   }
 }

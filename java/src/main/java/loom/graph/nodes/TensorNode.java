@@ -1,6 +1,8 @@
 package loom.graph.nodes;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.util.function.Consumer;
+import javax.annotation.Nonnull;
 import lombok.*;
 import lombok.experimental.Delegate;
 import lombok.experimental.SuperBuilder;
@@ -9,9 +11,6 @@ import loom.common.json.HasToJsonString;
 import loom.common.json.WithSchema;
 import loom.graph.LoomNode;
 import loom.zspace.*;
-
-import javax.annotation.Nonnull;
-import java.util.function.Consumer;
 
 @Jacksonized
 @SuperBuilder

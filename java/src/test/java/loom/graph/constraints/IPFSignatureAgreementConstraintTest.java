@@ -1,5 +1,9 @@
 package loom.graph.constraints;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
 import loom.graph.CommonEnvironments;
 import loom.graph.nodes.*;
 import loom.polyhedral.IndexProjectionFunction;
@@ -8,9 +12,6 @@ import loom.zspace.ZAffineMap;
 import loom.zspace.ZPoint;
 import loom.zspace.ZRange;
 import org.junit.Test;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @SuppressWarnings("unused")
 public class IPFSignatureAgreementConstraintTest extends BaseTestClass {
@@ -68,48 +69,61 @@ public class IPFSignatureAgreementConstraintTest extends BaseTestClass {
             .addTo(graph);
 
     /*
-    var app1Index =
-        IPFIndexNode.withBody(b -> b.range(new ZRange(ZPoint.of(0, 0), ZPoint.of(3, 2))))
-            .addTo(graph);
+        var app1Index =
+            IPFIndexNode.withBody(b -> b.range(new ZRange(ZPoint.of(0, 0), ZPoint.of(3, 2))))
+                .addTo(graph);
 
-    var app1 =
-        ApplicationNode.withBody(
-                b ->
-                    b.operationId(sig.getId())
-                        .indexId(app1Index.getId())
-                        .input("x", List.of(TensorSelection.from(tensorA)))
-                        .input("y", List.of(TensorSelection.from(tensorB, ZRange.fromShape(4, 2))))
-                        .output(
-                            "z", List.of(TensorSelection.from(tensorC, ZRange.fromShape(3, 2)))))
-            .addTo(graph);
+        var app1 =
+            ApplicationNode.withBody(
+                    b ->
+                        b.operationId(sig.getId())
+                            .indexId(app1Index.getId())
+                            .input("x", List.of(TensorSelection.from(tensorA)))
+                            .input("y", List.of(TensorSelection.from(tensorB, ZRange.fromShape(4, 2))))
+                            .output(
+                                "z", List.of(TensorSelection.from(tensorC, ZRange.fromShape(3, 2)))))
+                .addTo(graph);
 
-    var appIndex2 =
-        IPFIndexNode.withBody(b -> b.range(new ZRange(ZPoint.of(0, 2), ZPoint.of(3, 5))))
-            .addTo(graph);
+        var appIndex2 =
+            IPFIndexNode.withBody(b -> b.range(new ZRange(ZPoint.of(0, 2), ZPoint.of(3, 5))))
+                .addTo(graph);
 
-    var app2 =
-        ApplicationNode.withBody(
-                b ->
-                    b.operationId(sig.getId())
-                        .indexId(appIndex2.getId())
-                        .input("x", List.of(TensorSelection.from(tensorA)))
-                        .input(
-                            "y",
-                            List.of(
-                                TensorSelection.from(
-                                    tensorB, new ZRange(ZPoint.of(0, 2), ZPoint.of(4, 5)))))
-                        .output(
-                            "z",
-                            List.of(
-                                TensorSelection.from(
-                                    tensorC, new ZRange(ZPoint.of(0, 2), ZPoint.of(3, 5))))))
-            .addTo(graph);
+        var app2 =
+            ApplicationNode.withBody(
+                    b ->
+                        b.operationId(sig.getId())
+                            .indexId(appIndex2.getId())
+                            .input("x", List.of(TensorSelection.from(tensorA)))
+                            .input(
+                                "y",
+                                List.of(
+                                    TensorSelection.from(
+                                        tensorB, new ZRange(ZPoint.of(0, 2), ZPoint.of(4, 5)))))
+                            .output(
+                                "z",
+                                List.of(
+                                    TensorSelection.from(
+                                        tensorC, new ZRange(ZPoint.of(0, 2), ZPoint.of(3, 5))))))
+                .addTo(graph);
 
-     */
+    */
+    /*
     var app1 = createIpfShard(sig, new ZRange(ZPoint.of(0, 0), ZPoint.of(3, 2)));
     var app2 = createIpfShard(sig, new ZRange(ZPoint.of(0, 2), ZPoint.of(3, 5)));
+     */
+    var apps = createIpfShards(sig, sigIndex.getRange().split(1, 3));
 
     graph.validate();
+  }
+
+  public static List<ApplicationNode> createIpfShards(
+      OperationSignatureNode sig, ZRange... shardIndexes) {
+    return createIpfShards(sig, Arrays.asList(shardIndexes));
+  }
+
+  public static List<ApplicationNode> createIpfShards(
+      OperationSignatureNode sig, Collection<ZRange> shardIndexes) {
+    return shardIndexes.stream().map(shardIndex -> createIpfShard(sig, shardIndex)).toList();
   }
 
   public static ApplicationNode createIpfShard(OperationSignatureNode sig, ZRange shardIndex) {

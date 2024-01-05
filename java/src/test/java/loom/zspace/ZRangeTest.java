@@ -1,8 +1,9 @@
 package loom.zspace;
 
-import java.util.List;
 import loom.testing.CommonAssertions;
 import org.junit.Test;
+
+import java.util.List;
 
 public class ZRangeTest implements CommonAssertions {
   @Test
@@ -247,5 +248,41 @@ public class ZRangeTest implements CommonAssertions {
         .isEqualTo(ZRange.of(new ZPoint(0, 1), new ZPoint(2, 3)));
 
     assertThat(range.intersection(new ZRange(new ZPoint(-5, -5), new ZPoint(-1, -1)))).isNull();
+  }
+
+  @Test
+  public void test_resolveDim() {
+    var range = ZRange.fromShape(2, 3);
+    assertThat(range.resolveDim(0)).isEqualTo(0);
+    assertThat(range.resolveDim(1)).isEqualTo(1);
+    assertThat(range.resolveDim(-1)).isEqualTo(1);
+    assertThat(range.resolveDim(-2)).isEqualTo(0);
+
+    assertThatExceptionOfType(IndexOutOfBoundsException.class)
+        .isThrownBy(() -> range.resolveDim(2))
+        .withMessageContaining("invalid dimension: index 2 out of range [0, 2)");
+    assertThatExceptionOfType(IndexOutOfBoundsException.class)
+        .isThrownBy(() -> range.resolveDim(-3))
+        .withMessageContaining("invalid dimension: index -3 out of range [0, 2)");
+  }
+
+  @Test
+  public void test_split() {
+    var range = ZRange.fromShape(2, 3);
+
+    assertThat(range.split(1, 2))
+        .containsExactly(
+            ZRange.of(new ZPoint(0, 0), new ZPoint(2, 2)),
+            ZRange.of(new ZPoint(0, 2), new ZPoint(2, 3)));
+    assertThat(range.split(-1, 2))
+        .containsExactly(
+            ZRange.of(new ZPoint(0, 0), new ZPoint(2, 2)),
+            ZRange.of(new ZPoint(0, 2), new ZPoint(2, 3)));
+
+    assertThat(range.split(-1, 3)).containsExactly(range);
+
+    assertThatExceptionOfType(IllegalArgumentException.class)
+        .isThrownBy(() -> range.split(0, -2))
+        .withMessage("chunkSize must be > 0: -2");
   }
 }

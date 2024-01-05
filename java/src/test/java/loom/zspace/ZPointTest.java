@@ -1,8 +1,9 @@
 package loom.zspace;
 
-import java.util.List;
 import loom.testing.CommonAssertions;
 import org.junit.Test;
+
+import java.util.List;
 
 public class ZPointTest implements CommonAssertions {
   @Test
@@ -41,6 +42,24 @@ public class ZPointTest implements CommonAssertions {
 
     assertThatExceptionOfType(ZDimMissMatchError.class)
         .isThrownBy(() -> new ZPoint(ZTensor.newZeros(2, 3)));
+  }
+
+  @Test
+  public void test_resolveDim() {
+    var p = new ZPoint(1, 2, 3);
+    assertThat(p.resolveDim(0)).isEqualTo(0);
+    assertThat(p.resolveDim(1)).isEqualTo(1);
+    assertThat(p.resolveDim(2)).isEqualTo(2);
+    assertThat(p.resolveDim(-1)).isEqualTo(2);
+    assertThat(p.resolveDim(-2)).isEqualTo(1);
+    assertThat(p.resolveDim(-3)).isEqualTo(0);
+
+    assertThatExceptionOfType(IndexOutOfBoundsException.class)
+        .isThrownBy(() -> p.resolveDim(3))
+        .withMessageContaining("invalid dimension: index 3 out of range [0, 3)");
+    assertThatExceptionOfType(IndexOutOfBoundsException.class)
+        .isThrownBy(() -> p.resolveDim(-4))
+        .withMessageContaining("invalid dimension: index -4 out of range [0, 3)");
   }
 
   @Test

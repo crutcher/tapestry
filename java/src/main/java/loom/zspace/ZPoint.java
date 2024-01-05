@@ -509,6 +509,19 @@ public final class ZPoint implements Cloneable, HasPermute<ZPoint>, HasToJsonStr
   }
 
   /**
+   * Resolve a dimension index.
+   *
+   * <p>Negative dimension indices are resolved relative to the number of dimensions.
+   *
+   * @param dim the dimension index.
+   * @return the resolved dimension index.
+   * @throws IndexOutOfBoundsException if the index is out of range.
+   */
+  public int resolveDim(int dim) {
+    return IndexingFns.resolveDim(dim, getNDim());
+  }
+
+  /**
    * Is `this == rhs`?
    *
    * @param rhs the right-hand side.
