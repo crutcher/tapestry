@@ -8,16 +8,17 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import java.util.*;
-import java.util.stream.Stream;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import lombok.*;
 import loom.common.json.HasToJsonString;
 import loom.common.json.JsonUtil;
 import loom.common.json.MapValueListUtil;
 import loom.validation.ListValidationIssueCollector;
 import loom.validation.ValidationIssueCollector;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.*;
+import java.util.stream.Stream;
 
 /** A Loom Graph document. */
 @Getter
@@ -298,6 +299,7 @@ public final class LoomGraph implements HasToJsonString {
     if (node == null) {
       return;
     }
+    node.setGraph(null);
     nodeMap.remove(id);
     nodeTypeMap.get(node.getType()).remove(node);
     nodeClassMap.get(node.getClass()).remove(node);

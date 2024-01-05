@@ -1,8 +1,5 @@
 package loom.graph;
 
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 import loom.common.json.JsonUtil;
 import loom.graph.nodes.GenericNode;
 import loom.graph.nodes.NoteNode;
@@ -12,6 +9,10 @@ import loom.zspace.ZPoint;
 import loom.zspace.ZRange;
 import loom.zspace.ZTensor;
 import org.junit.Test;
+
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 public class LoomGraphTest extends BaseTestClass {
 
@@ -78,15 +79,29 @@ public class LoomGraphTest extends BaseTestClass {
                 .type("test")
                 .body(GenericNode.Body.builder().field("a", 12).build()));
 
-    graph.removeNode(node1);
-    // Should be a no-op.
-    graph.removeNode(node1);
-    graph.removeNode(node2.getId());
-    graph.removeNode(node3.getId().toString());
+    {
+      // By Node
 
-    assertThat(graph.hasNode(node1.getId())).isFalse();
-    assertThat(graph.hasNode(node2.getId())).isFalse();
-    assertThat(graph.hasNode(node3.getId())).isFalse();
+      graph.removeNode(node1);
+      assertThat(node1.getGraph()).isNull();
+      assertThat(graph.hasNode(node1.getId())).isFalse();
+      graph.removeNode(node2.getId());
+      // Should be a no-op.
+      graph.removeNode(node1);
+    }
+
+    {
+      // By Id
+      assertThat(node2.getGraph()).isNull();
+      assertThat(graph.hasNode(node2.getId())).isFalse();
+    }
+
+    {
+      // By Id String
+      graph.removeNode(node3.getId().toString());
+      assertThat(node3.getGraph()).isNull();
+      assertThat(graph.hasNode(node3.getId())).isFalse();
+    }
   }
 
   @Test
