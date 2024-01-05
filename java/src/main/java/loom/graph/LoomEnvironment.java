@@ -156,6 +156,18 @@ public final class LoomEnvironment {
   }
 
   /**
+   * Add an annotation type class to the LoomEnvironment.
+   *
+   * @param key the annotation key.
+   * @param annotationTypeClass the annotation type class.
+   * @return this LoomEnvironment.
+   */
+  public LoomEnvironment addAnnotationTypeClass(String key, Class<?> annotationTypeClass) {
+    this.annotationTypeClasses.put(key, annotationTypeClass);
+    return this;
+  }
+
+  /**
    * Assert that a node type class is present in this environment.
    *
    * @param type the node type.
@@ -168,17 +180,21 @@ public final class LoomEnvironment {
     }
   }
 
-  public Class<?> assertAnnotationClass(String key, Object value) {
+  /**
+   * Get the annotation class for a given key.
+   *
+   * @param key the annotation key.
+   * @return the annotation class.
+   * @throws IllegalStateException if the annotation key is not present.
+   */
+  @Nonnull
+  public Class<?> assertAnnotationClass(String key) {
     var cls = annotationTypeClasses.get(key);
     if (cls == null && defaultAnnotationTypeClass != null) {
       cls = defaultAnnotationTypeClass;
     }
     if (cls == null) {
       throw new IllegalStateException("Unknown annotation key: " + key);
-    }
-    if (!cls.isAssignableFrom(value.getClass())) {
-      throw new IllegalStateException(
-          "Annotation value type mismatch: " + key + " is " + cls + ", got " + value.getClass());
     }
     return cls;
   }

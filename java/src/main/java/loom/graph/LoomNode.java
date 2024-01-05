@@ -156,18 +156,37 @@ public abstract class LoomNode<NodeType extends LoomNode<NodeType, BodyType>, Bo
   /**
    * Set an annotation on the node.
    *
-   * <p>Converts the annotation value to the annotation class if the graph is present.
-   *
    * @param key the annotation key.
    * @param value the annotation value.
    * @throws IllegalStateException if the annotation value is not assignable to the annotation.
    */
   public final void setAnnotation(@Nonnull String key, @Nonnull Object value) {
-    if (hasGraph()) {
-      var cls = assertGraph().getEnv().assertAnnotationClass(key, value);
-      value = JsonUtil.convertValue(value, cls);
-    }
     annotations.put(key, value);
+  }
+
+  /**
+   * Set an annotation on the node from a JSON string.
+   *
+   * <p>The annotation will be converted to the environment's type class for the annotation.
+   *
+   * @param key the annotation key.
+   * @param json the JSON string.
+   */
+  public final void setAnnotationFromJson(@Nonnull String key, @Nonnull String json) {
+    setAnnotation(key, JsonUtil.fromJson(json, assertGraph().getEnv().assertAnnotationClass(key)));
+  }
+
+  /**
+   * Set an annotation on the node from an Object tree.
+   *
+   * <p>The annotation will be converted to the environment's type class for the annotation.
+   *
+   * @param key the annotation key.
+   * @param value the Object tree.
+   */
+  public final void setAnnotationFromValue(@Nonnull String key, @Nonnull Object value) {
+    setAnnotation(
+        key, JsonUtil.convertValue(value, assertGraph().getEnv().assertAnnotationClass(key)));
   }
 
   /**

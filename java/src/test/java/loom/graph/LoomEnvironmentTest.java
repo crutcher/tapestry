@@ -29,6 +29,24 @@ public class LoomEnvironmentTest extends BaseTestClass {
   }
 
   @Test
+  public void test_annotations() {
+    var env = LoomEnvironment.builder().build();
+
+    assertThat(env.getAnnotationTypeClasses()).isEmpty();
+
+    env.addAnnotationTypeClass("foo", String.class).addAnnotationTypeClass("bar", Integer.class);
+
+    assertThat(env.assertAnnotationClass("foo")).isEqualTo(String.class);
+    assertThat(env.assertAnnotationClass("bar")).isEqualTo(Integer.class);
+
+    assertThatExceptionOfType(IllegalStateException.class)
+        .isThrownBy(() -> env.assertAnnotationClass("baz"));
+
+    env.setDefaultAnnotationTypeClass(Object.class);
+    assertThat(env.assertAnnotationClass("baz")).isEqualTo(Object.class);
+  }
+
+  @Test
   public void test_toString() {
     var env = CommonEnvironments.expressionEnvironment();
 

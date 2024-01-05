@@ -46,30 +46,38 @@ public class LoomNodeTest extends BaseTestClass {
     graph.getEnv().getAnnotationTypeClasses().put("foo", String.class);
     graph.getEnv().getAnnotationTypeClasses().put("Example", Example.class);
 
-    node.setAnnotation("foo", "abc");
-    node.setAnnotation("Example", new Example("xyz"));
-    assertThat(node.getAnnotations())
-        .containsEntry("foo", "abc")
-        .containsEntry("Example", new Example("xyz"));
+    {
+      node.setAnnotation("foo", "abc");
 
-    assertThat(node.hasAnnotation("foo")).isTrue();
-    assertThat(node.hasAnnotation("foo", String.class)).isTrue();
-    assertThat(node.hasAnnotation("foo", Example.class)).isFalse();
+      assertThat(node.hasAnnotation("foo")).isTrue();
+      assertThat(node.hasAnnotation("foo", String.class)).isTrue();
+      assertThat(node.hasAnnotation("foo", Example.class)).isFalse();
 
-    assertThat(node.getAnnotation("foo")).isEqualTo("abc");
-    assertThat(node.getAnnotation("foo", String.class)).isEqualTo("abc");
+      assertThat(node.getAnnotation("foo")).isEqualTo("abc");
+      assertThat(node.getAnnotation("foo", String.class)).isEqualTo("abc");
 
-    assertThatExceptionOfType(ClassCastException.class)
-        .isThrownBy(() -> node.getAnnotation("foo", Integer.class));
+      assertThatExceptionOfType(ClassCastException.class)
+          .isThrownBy(() -> node.getAnnotation("foo", Integer.class));
 
-    node.removeAnnotation("foo");
-    assertThat(node.hasAnnotation("foo")).isFalse();
-    assertThatExceptionOfType(IllegalStateException.class)
-        .isThrownBy(() -> node.assertAnnotation("foo", String.class));
+      node.removeAnnotation("foo");
+      assertThat(node.hasAnnotation("foo")).isFalse();
+      assertThatExceptionOfType(IllegalStateException.class)
+          .isThrownBy(() -> node.assertAnnotation("foo", String.class));
+    }
 
-    assertThat(node.getAnnotation("Example", Example.class)).isEqualTo(new Example("xyz"));
+    {
+      node.setAnnotation("Example", new Example("xyz"));
 
-    assertThat(node.assertAnnotation("Example", Example.class)).isEqualTo(new Example("xyz"));
+      assertThat(node.getAnnotation("Example", Example.class)).isEqualTo(new Example("xyz"));
+
+      assertThat(node.assertAnnotation("Example", Example.class)).isEqualTo(new Example("xyz"));
+
+      node.setAnnotationFromJson("Example", "{\"foo\":\"zzz\"}");
+      assertThat(node.getAnnotation("Example", Example.class)).isEqualTo(new Example("zzz"));
+
+      node.setAnnotationFromValue("Example", Map.of("foo", "mmm"));
+      assertThat(node.getAnnotation("Example", Example.class)).isEqualTo(new Example("mmm"));
+    }
   }
 
   @Test
@@ -97,12 +105,14 @@ public class LoomNodeTest extends BaseTestClass {
       var graph = makeGraph();
       var node = ExampleNode.withBody(b -> b.foo("bar")).addTo(graph);
 
+      assertThat(node.hasGraph()).isTrue();
       assertThat(node.getGraph()).isSameAs(graph);
       assertThat(node.assertGraph()).isSameAs(graph);
     }
     {
       var node = ExampleNode.withBody(b -> b.foo("bar")).id(UUID.randomUUID()).build();
 
+      assertThat(node.hasGraph()).isFalse();
       assertThat(node.getGraph()).isNull();
       assertThatThrownBy(node::assertGraph).isInstanceOf(IllegalStateException.class);
     }
