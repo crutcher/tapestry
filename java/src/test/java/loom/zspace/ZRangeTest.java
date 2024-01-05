@@ -1,9 +1,8 @@
 package loom.zspace;
 
+import java.util.List;
 import loom.testing.CommonAssertions;
 import org.junit.Test;
-
-import java.util.List;
 
 public class ZRangeTest implements CommonAssertions {
   @Test
