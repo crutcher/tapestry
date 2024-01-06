@@ -5,11 +5,12 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
+import lombok.NoArgsConstructor;
+
 import java.io.IOException;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Supplier;
-import lombok.NoArgsConstructor;
 
 /**
  * Utilities for serializing and deserializing a {@code Map<K, T>} as a json {@code [T]}.
@@ -59,7 +60,12 @@ public class MapValueListUtil {
     }
   }
 
-  /** Deserializer to read a json {@code [T]} as a {@code Map<K, T>}. */
+  /**
+   * Deserializer to read a json {@code [V]} as a {@code Map<K, V>}
+   *
+   * @param <K> the key type.
+   * @param <V> the value type.
+   */
   public static class MapDeserializer<K, V> extends JsonDeserializer<Map<K, V>> {
     private final Class<V> valueClass;
     private final Function<V, K> keyExtractor;

@@ -8,10 +8,11 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.BooleanNode;
 import com.fasterxml.jackson.databind.node.NumericNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import java.util.*;
-import javax.annotation.Nullable;
 import lombok.NoArgsConstructor;
 import lombok.Value;
+
+import javax.annotation.Nullable;
+import java.util.*;
 
 @NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
 public final class JsonUtil {
@@ -145,8 +146,15 @@ public final class JsonUtil {
   /**
    * Convert a Jackson JsonNode tree a simple JSON value tree.
    *
-   * <p>Simple JSON value trees are composed of the following types: - null - String - Number -
-   * Boolean - List<$Simple> - Map<String, $Simple>
+   * <p>Simple JSON value trees are composed of the following types:</p>
+   * <ul>
+   *     <li>{@code null}</li>
+   *     <li>{@code String}</li>
+   *     <li>{@code Number}</li>
+   *     <li>{@code Boolean}</li>
+   *     <li>{@code List<Simple>}</li>
+   *     <li>{@code Map<String, Simple>}</li>
+   *     </ul>
    *
    * @param node the node to convert.
    * @return the simple JSON value tree.

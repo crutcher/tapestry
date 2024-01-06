@@ -4,26 +4,25 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Splitter;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.Objects;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import javax.annotation.concurrent.Immutable;
-import javax.annotation.concurrent.ThreadSafe;
 import lombok.Builder;
 import lombok.Getter;
 import loom.common.json.HasToJsonString;
 import loom.common.json.JsonUtil;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.annotation.concurrent.Immutable;
+import javax.annotation.concurrent.ThreadSafe;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.Objects;
 
 /**
  * Represents a range of points in discrete space.
  *
  * <p>A simple definition is that a range {@code other} is contained if
  *
- * <pre>
- * this.start <= other.start && this.end >= other.end
- * </pre>
+ * <pre>{@code this.start <= other.start && this.end >= other.end}</pre>
  *
  * <p>But there are a number of special cases to consider:
  *
@@ -376,22 +375,20 @@ public final class ZRange implements Cloneable, HasSize, HasPermute<ZRange>, Has
    *
    * <p>A simple definition is that a range {@code other} is contained if
    *
-   * <pre>
-   * this.start <= other.start && this.end >= other.end
-   * </pre>
+   * <pre>{@code this.start <= other.start && this.end >= other.end}</pre>
    *
    * <p>But there are a number of special cases to consider:
    *
    * <ol>
-   *   Can an empty range be contained?
-   * </ol>
+   *     <li> Can an empty range be contained? </li>
    *
-   * <ol>
+   * <li>
    *   Can an empty range contain anything?
-   * </ol>
+   * </li>
    *
-   * <ol>
+   * <li>
    *   How do define the behavior at 0-dim?
+   * </li>
    * </ol>
    *
    * <p>Empty ranges can have utility in a number of algorithms; they can describe partition

@@ -6,10 +6,11 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.google.errorprone.annotations.Immutable;
-import javax.annotation.Nonnull;
-import javax.annotation.concurrent.ThreadSafe;
 import lombok.NoArgsConstructor;
 import loom.common.json.HasToJsonString;
+
+import javax.annotation.Nonnull;
+import javax.annotation.concurrent.ThreadSafe;
 
 /**
  * A point in a ZSpace.
@@ -194,7 +195,7 @@ public final class ZPoint implements Cloneable, HasPermute<ZPoint>, HasToJsonStr
     }
 
     /**
-     * Is `lhs < rhs`?
+     * Is {@code lhs < rhs}?
      *
      * @param lhs the left-hand side.
      * @param rhs the right-hand side.
@@ -205,7 +206,7 @@ public final class ZPoint implements Cloneable, HasPermute<ZPoint>, HasToJsonStr
     }
 
     /**
-     * Is `lhs < rhs`?
+     * Is {@code lhs < rhs}?
      *
      * @param lhs the left-hand side.
      * @param rhs the right-hand side.
@@ -216,7 +217,7 @@ public final class ZPoint implements Cloneable, HasPermute<ZPoint>, HasToJsonStr
     }
 
     /**
-     * Is `lhs < rhs`?
+     * Is {@code lhs < rhs}?
      *
      * @param lhs the left-hand side.
      * @param rhs the right-hand side.
@@ -227,7 +228,7 @@ public final class ZPoint implements Cloneable, HasPermute<ZPoint>, HasToJsonStr
     }
 
     /**
-     * Is `lhs < rhs`?
+     * Is {@code lhs < rhs}?
      *
      * @param lhs the left-hand side.
      * @param rhs the right-hand side.
@@ -238,7 +239,7 @@ public final class ZPoint implements Cloneable, HasPermute<ZPoint>, HasToJsonStr
     }
 
     /**
-     * Is `lhs <= rhs`?
+     * Is {@code lhs <= rhs}?
      *
      * @param lhs the left-hand side.
      * @param rhs the right-hand side.
@@ -249,7 +250,7 @@ public final class ZPoint implements Cloneable, HasPermute<ZPoint>, HasToJsonStr
     }
 
     /**
-     * Is `lhs <= rhs`?
+     * Is {@code lhs <= rhs}?
      *
      * @param lhs the left-hand side.
      * @param rhs the right-hand side.
@@ -263,7 +264,7 @@ public final class ZPoint implements Cloneable, HasPermute<ZPoint>, HasToJsonStr
     }
 
     /**
-     * Is `lhs <= rhs`?
+     * Is {@code lhs <= rhs}?
      *
      * @param lhs the left-hand side.
      * @param rhs the right-hand side.
@@ -274,7 +275,7 @@ public final class ZPoint implements Cloneable, HasPermute<ZPoint>, HasToJsonStr
     }
 
     /**
-     * Is `lhs <= rhs`?
+     * Is {@code lhs <= rhs}?
      *
      * @param lhs the left-hand side.
      * @param rhs the right-hand side.
@@ -285,7 +286,7 @@ public final class ZPoint implements Cloneable, HasPermute<ZPoint>, HasToJsonStr
     }
 
     /**
-     * Is `lhs > rhs`?
+     * Is {@code lhs > rhs}?
      *
      * @param lhs the left-hand side.
      * @param rhs the right-hand side.
@@ -296,7 +297,7 @@ public final class ZPoint implements Cloneable, HasPermute<ZPoint>, HasToJsonStr
     }
 
     /**
-     * Is `lhs > rhs`?
+     * Is {@code lhs > rhs}?
      *
      * @param lhs the left-hand side.
      * @param rhs the right-hand side.
@@ -307,7 +308,7 @@ public final class ZPoint implements Cloneable, HasPermute<ZPoint>, HasToJsonStr
     }
 
     /**
-     * Is `lhs > rhs`?
+     * Is {@code lhs > rhs}?
      *
      * @param lhs the left-hand side.
      * @param rhs the right-hand side.
@@ -318,7 +319,7 @@ public final class ZPoint implements Cloneable, HasPermute<ZPoint>, HasToJsonStr
     }
 
     /**
-     * Is `lhs > rhs`?
+     * Is {@code lhs > rhs}?
      *
      * @param lhs the left-hand side.
      * @param rhs the right-hand side.
@@ -329,7 +330,7 @@ public final class ZPoint implements Cloneable, HasPermute<ZPoint>, HasToJsonStr
     }
 
     /**
-     * Is `lhs >= rhs`?
+     * Is {@code lhs >= rhs}?
      *
      * @param lhs the left-hand side.
      * @param rhs the right-hand side.
@@ -340,7 +341,7 @@ public final class ZPoint implements Cloneable, HasPermute<ZPoint>, HasToJsonStr
     }
 
     /**
-     * Is `lhs >= rhs`?
+     * Is {@code lhs >= rhs}?
      *
      * @param lhs the left-hand side.
      * @param rhs the right-hand side.
@@ -354,7 +355,7 @@ public final class ZPoint implements Cloneable, HasPermute<ZPoint>, HasToJsonStr
     }
 
     /**
-     * Is `lhs >= rhs`?
+     * Is {@code lhs >= rhs}?
      *
      * @param lhs the left-hand side.
      * @param rhs the right-hand side.
@@ -365,7 +366,7 @@ public final class ZPoint implements Cloneable, HasPermute<ZPoint>, HasToJsonStr
     }
 
     /**
-     * Is `lhs >= rhs`?
+     * Is {@code lhs >= rhs}?
      *
      * @param lhs the left-hand side.
      * @param rhs the right-hand side.
@@ -563,7 +564,7 @@ public final class ZPoint implements Cloneable, HasPermute<ZPoint>, HasToJsonStr
   }
 
   /**
-   * Is `this == rhs`?
+   * Is {@code this == rhs}?
    *
    * @param rhs the right-hand side.
    * @return true or false.
@@ -573,7 +574,7 @@ public final class ZPoint implements Cloneable, HasPermute<ZPoint>, HasToJsonStr
   }
 
   /**
-   * Is `this != rhs`?
+   * Is {@code this != rhs}?
    *
    * @param rhs the right-hand side.
    * @return true or false.
@@ -583,7 +584,7 @@ public final class ZPoint implements Cloneable, HasPermute<ZPoint>, HasToJsonStr
   }
 
   /**
-   * Is `this != rhs`?
+   * Is {@code this != rhs}?
    *
    * @param rhs the right-hand side.
    * @return true or false.
@@ -593,7 +594,7 @@ public final class ZPoint implements Cloneable, HasPermute<ZPoint>, HasToJsonStr
   }
 
   /**
-   * Is `this < rhs`?
+   * Is {@code this < rhs}?
    *
    * @param rhs the right-hand side.
    * @return true or false.
@@ -603,7 +604,7 @@ public final class ZPoint implements Cloneable, HasPermute<ZPoint>, HasToJsonStr
   }
 
   /**
-   * Is `this < rhs`?
+   * Is {@code this < rhs}?
    *
    * @param rhs the right-hand side.
    * @return true or false.
@@ -613,7 +614,7 @@ public final class ZPoint implements Cloneable, HasPermute<ZPoint>, HasToJsonStr
   }
 
   /**
-   * Is `this <= rhs`?
+   * Is {@code this <= rhs}?
    *
    * @param rhs the right-hand side.
    * @return true or false.
@@ -623,7 +624,7 @@ public final class ZPoint implements Cloneable, HasPermute<ZPoint>, HasToJsonStr
   }
 
   /**
-   * Is `this <= rhs`?
+   * Is {@code this <= rhs}?
    *
    * @param rhs the right-hand side.
    * @return true or false.
@@ -633,7 +634,7 @@ public final class ZPoint implements Cloneable, HasPermute<ZPoint>, HasToJsonStr
   }
 
   /**
-   * Is `this > rhs`?
+   * Is {@code this > rhs}?
    *
    * @param rhs the right-hand side.
    * @return true or false.
@@ -643,7 +644,7 @@ public final class ZPoint implements Cloneable, HasPermute<ZPoint>, HasToJsonStr
   }
 
   /**
-   * Is `this > rhs`?
+   * Is {@code this > rhs}?
    *
    * @param rhs the right-hand side.
    * @return true or false.
@@ -653,7 +654,7 @@ public final class ZPoint implements Cloneable, HasPermute<ZPoint>, HasToJsonStr
   }
 
   /**
-   * Is `this >= rhs`?
+   * Is {@code this >= rhs}?
    *
    * @param rhs the right-hand side.
    * @return true or false.
@@ -663,7 +664,7 @@ public final class ZPoint implements Cloneable, HasPermute<ZPoint>, HasToJsonStr
   }
 
   /**
-   * Is `this >= rhs`?
+   * Is {@code this >= rhs}?
    *
    * @param rhs the right-hand side.
    * @return true or false.

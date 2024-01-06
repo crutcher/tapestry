@@ -1,7 +1,5 @@
 /**
- *
- *
- * <h1>ZSpace (N-Dimensional Integer Space) Libs</h1>
+ * ZSpace (N-Dimensional Integer Space) Libs
  *
  * <p>The primary purpose of these classes and interfaces is to permit the description and
  * manipulation of ZSpace selections and projection maps as part of tensor expression graphs.

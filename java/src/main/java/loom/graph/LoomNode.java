@@ -7,12 +7,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -22,6 +16,13 @@ import loom.common.json.HasToJsonString;
 import loom.common.json.JsonUtil;
 import loom.common.runtime.ReflectionUtils;
 import loom.validation.ValidationIssue;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 /**
  * Base class for a node in the graph.
@@ -248,7 +249,10 @@ public abstract class LoomNode<NodeType extends LoomNode<NodeType, BodyType>, Bo
     return "%s%s".formatted(getClass().getSimpleName(), toJsonString());
   }
 
-  /** Get the class type of the node body. */
+  /**
+   * Get the class type of the node body.
+   * @return the body class.
+   */
   @JsonIgnore
   public final Class<BodyType> getBodyClass() {
     @SuppressWarnings("unchecked")
@@ -269,6 +273,10 @@ public abstract class LoomNode<NodeType extends LoomNode<NodeType, BodyType>, Bo
         ReflectionUtils.getTypeArgumentsForGenericSuperclass(nodeTypeClass, LoomNode.class)[1];
   }
 
+  /**
+   * Get the node body.
+   * @return the node body.
+   */
   @Nonnull
   public abstract BodyType getBody();
 
@@ -290,6 +298,10 @@ public abstract class LoomNode<NodeType extends LoomNode<NodeType, BodyType>, Bo
     return JsonUtil.valueToJsonNodeTree(getBody());
   }
 
+  /**
+   * Set the node body.
+   * @param body the node body.
+   */
   public abstract void setBody(@Nonnull BodyType body);
 
   /**
@@ -317,6 +329,7 @@ public abstract class LoomNode<NodeType extends LoomNode<NodeType, BodyType>, Bo
      * to a method in subclasses to delegate the type methods of {@code body} does not honor
      * {@code @JsonIgnore}, and we otherwise generate data fields for every getter in the body.
      *
+     * @param <N> the node type.
      * @param <B> the type of the node body.
      */
     public static final class NodeSerializer<N extends LoomNode<N, B>, B>

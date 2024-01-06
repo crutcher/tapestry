@@ -1,6 +1,13 @@
 package loom.graph;
 
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+import java.util.*;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import lombok.Builder;
 import lombok.Data;
 import loom.common.json.JsonSchemaManager;
@@ -9,14 +16,6 @@ import loom.common.runtime.ExcludeFromJacocoGeneratedReport;
 import loom.graph.constraints.NodeBodySchemaConstraint;
 import loom.validation.ListValidationIssueCollector;
 import loom.validation.ValidationIssueCollector;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-import java.util.*;
 
 /**
  * Loom Graph Environment.
