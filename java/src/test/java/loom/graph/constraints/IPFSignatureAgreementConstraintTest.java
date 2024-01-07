@@ -9,7 +9,6 @@ import loom.graph.LoomGraph;
 import loom.graph.nodes.*;
 import loom.polyhedral.IndexProjectionFunction;
 import loom.testing.BaseTestClass;
-import loom.zspace.ZAffineMap;
 import loom.zspace.ZPoint;
 import loom.zspace.ZRange;
 import org.junit.Test;
@@ -41,20 +40,18 @@ public class IPFSignatureAgreementConstraintTest extends BaseTestClass {
             .input(
                 "x",
                 IndexProjectionFunction.builder()
-                    .affineMap(ZAffineMap.fromMatrix(new int[][] {{1, 0}, {0, 0}}))
+                    .affineMap(new int[][] {{1, 0}, {0, 0}})
                     .shape(ZPoint.of(1, tensorA.getShape().get(1)))
                     .build())
             .input(
                 "y",
                 IndexProjectionFunction.builder()
-                    .affineMap(ZAffineMap.fromMatrix(new int[][] {{0, 0}, {0, 1}}))
+                    .affineMap(new int[][] {{0, 0}, {0, 1}})
                     .shape(ZPoint.of(tensorB.getShape().get(0), 1))
                     .build())
             .output(
                 "z",
-                IndexProjectionFunction.builder()
-                    .affineMap(ZAffineMap.fromMatrix(new int[][] {{1, 0}, {0, 1}}))
-                    .build())
+                IndexProjectionFunction.builder().affineMap(new int[][] {{1, 0}, {0, 1}}).build())
             .build();
 
     var op =

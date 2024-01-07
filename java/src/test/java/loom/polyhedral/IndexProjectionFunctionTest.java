@@ -46,8 +46,7 @@ public class IndexProjectionFunctionTest extends BaseTestClass {
             ZPoint.of(4, 4, 1));
 
     assertThat(ipf)
-        .hasToString(
-            "ipf(affineMap={\"A\":[[1,0],[0,1],[1,1]],\"b\":[10,20,30]}, shape=[4, 4, 1])");
+        .hasToString("ipf(affineMap=λx.[[1,0],[0,1],[1,1]]⋅x + [10,20,30], shape=[4, 4, 1])");
   }
 
   @Test

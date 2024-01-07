@@ -15,8 +15,10 @@ public class ZAffineMapTest implements CommonAssertions {
     assertThat(map.inputNDim()).isEqualTo(2);
     assertThat(map.outputNDim()).isEqualTo(3);
 
-    assertThat(map.A.isMutable()).isFalse();
-    assertThat(map.b.isMutable()).isFalse();
+    assertThat(map.projection.isMutable()).isFalse();
+    assertThat(map.offset.isMutable()).isFalse();
+
+    assertThat(map).hasToString("λx.[[1,0],[0,2],[1,2]]⋅x + [4,5,6]");
 
     assertThat(map)
         .hasSameHashCodeAs(
@@ -75,9 +77,8 @@ public class ZAffineMapTest implements CommonAssertions {
         new ZAffineMap(
             ZTensor.fromArray(new int[][] {{1, 0}, {0, 2}, {1, 2}}), ZTensor.newVector(4, 5, 6));
 
-    String json = "{\"A\":[[1,0],[0,2],[1,2]],\"b\":[4,5,6]}";
+    String json = "{\"projection\":[[1,0],[0,2],[1,2]],\"offset\":[4,5,6]}";
 
-    assertThat(map).hasToString(json);
     assertThat(map.toJsonString()).isEqualTo(json);
 
     assertThat(ZAffineMap.parse(json)).isEqualTo(map);
