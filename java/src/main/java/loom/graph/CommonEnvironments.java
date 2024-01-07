@@ -31,7 +31,7 @@ public final class CommonEnvironments {
                 .build())
         .autowireNodeTypeClass(ApplicationNode.TYPE, ApplicationNode.class)
         .autowireNodeTypeClass(OperationSignatureNode.TYPE, OperationSignatureNode.class)
-        .autowireNodeTypeClass(IPFIndexNode.TYPE, IPFIndexNode.class)
-        .autowireNodeTypeClass(IPFSignatureNode.TYPE, IPFSignatureNode.class);
+        .addAnnotationTypeClass(IPFSignature.ANNOTATION_TYPE, IPFSignature.class)
+        .addAnnotationTypeClass(IPFIndex.ANNOTATION_TYPE, IPFIndex.class);
   }
 }

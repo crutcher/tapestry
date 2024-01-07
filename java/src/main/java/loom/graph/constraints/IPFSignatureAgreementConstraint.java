@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 import loom.common.json.JsonPathUtils;
-import loom.common.lazy.LazyString;
 import loom.graph.LoomConstants;
 import loom.graph.LoomEnvironment;
 import loom.graph.LoomGraph;
@@ -20,8 +19,6 @@ public class IPFSignatureAgreementConstraint implements LoomEnvironment.Constrai
     env.assertClassForType(TensorNode.TYPE, TensorNode.class);
     env.assertClassForType(OperationSignatureNode.TYPE, OperationSignatureNode.class);
     env.assertClassForType(ApplicationNode.TYPE, ApplicationNode.class);
-    env.assertClassForType(IPFSignatureNode.TYPE, IPFSignatureNode.class);
-    env.assertClassForType(IPFIndexNode.TYPE, IPFIndexNode.class);
     env.assertConstraint(OperationReferenceAgreementConstraint.class);
   }
 
@@ -39,26 +36,22 @@ public class IPFSignatureAgreementConstraint implements LoomEnvironment.Constrai
                 .iterator();
         it.hasNext(); ) {
       var opSig = it.next();
-
-      var sigId = opSig.getSignatureId();
-      var sigNode = graph.getNode(sigId);
-      if (sigNode instanceof IPFSignatureNode ipfSignatureNode) {
-        checkOperation(graph, ipfSignatureNode, opSig, issueCollector);
+      if (opSig.hasAnnotation(IPFSignature.ANNOTATION_TYPE)) {
+        checkOperation(opSig, issueCollector);
       }
     }
   }
 
   private void checkOperation(
-      LoomGraph graph,
-      IPFSignatureNode ipfSignatureNode,
-      OperationSignatureNode opSig,
-      ValidationIssueCollector issueCollector) {
+      OperationSignatureNode opSig, ValidationIssueCollector issueCollector) {
+
+    var ipfSignature = opSig.assertAnnotation(IPFSignature.ANNOTATION_TYPE, IPFSignature.class);
 
     Supplier<List<ValidationIssue.Context>> lazyContexts =
         () ->
             List.of(
                 ValidationIssue.Context.builder()
-                    .name("Operation")
+                    .name("Operation Node")
                     .jsonpath(JsonPathUtils.concatJsonPath(opSig.getJsonPath(), "body"))
                     .data(opSig.getId())
                     .build(),
@@ -69,63 +62,60 @@ public class IPFSignatureAgreementConstraint implements LoomEnvironment.Constrai
                     .build());
 
     {
-      var indexNode =
-          ValidationUtils.validateNodeReference(
-              graph,
-              opSig.getIndexId(),
-              IPFIndexNode.TYPE,
-              IPFIndexNode.class,
-              new LazyString(
-                  () -> JsonPathUtils.concatJsonPath(opSig.getJsonPath(), "body.indexId")),
-              issueCollector,
-              lazyContexts);
-      if (indexNode == null) {
+      var ipfIndex = opSig.getAnnotation(IPFIndex.ANNOTATION_TYPE, IPFIndex.class);
+      if (ipfIndex == null) {
+        issueCollector.addIssue(
+            ValidationIssue.builder()
+                .type(LoomConstants.NODE_VALIDATION_ERROR)
+                .param("opSigId", opSig.getId())
+                .summary("Operation signature does not have an IPF index")
+                .context(opSig.asValidationContext("Operation Signature"))
+                .withContexts(lazyContexts));
         return;
       }
 
       validateProjectionAgreement(
-          indexNode,
+          ipfIndex,
           "inputs",
           opSig.getInputs(),
-          ipfSignatureNode.getInputs(),
+          ipfSignature.getInputs(),
           issueCollector,
           lazyContexts);
       validateProjectionAgreement(
-          indexNode,
+          ipfIndex,
           "outputs",
           opSig.getOutputs(),
-          ipfSignatureNode.getOutputs(),
+          ipfSignature.getOutputs(),
           issueCollector,
           lazyContexts);
     }
 
     for (var appNode : opSig.getApplicationNodes()) {
-      var indexNode =
-          ValidationUtils.validateNodeReference(
-              graph,
-              appNode.getIndexId(),
-              IPFIndexNode.TYPE,
-              IPFIndexNode.class,
-              new LazyString(
-                  () -> JsonPathUtils.concatJsonPath(appNode.getJsonPath(), "body.indexId")),
-              issueCollector,
-              lazyContexts);
-      if (indexNode == null) {
-        return;
+      var ipfIndex = appNode.getAnnotation(IPFIndex.ANNOTATION_TYPE, IPFIndex.class);
+      if (ipfIndex == null) {
+        issueCollector.addIssue(
+            ValidationIssue.builder()
+                .type(LoomConstants.NODE_VALIDATION_ERROR)
+                .param("appNodeId", appNode.getId())
+                .param("opSigId", opSig.getId())
+                .summary("Application node does not have an IPF index")
+                .context(appNode.asValidationContext("Application Node"))
+                .withContexts(lazyContexts));
+        continue;
       }
 
       validateProjectionAgreement(
-          indexNode,
+          ipfIndex,
           "inputs",
           appNode.getInputs(),
-          ipfSignatureNode.getInputs(),
+          ipfSignature.getInputs(),
           issueCollector,
           lazyContexts);
       validateProjectionAgreement(
-          indexNode,
+          ipfIndex,
           "outputs",
           appNode.getOutputs(),
-          ipfSignatureNode.getOutputs(),
+          ipfSignature.getOutputs(),
           issueCollector,
           lazyContexts);
     }
@@ -133,7 +123,7 @@ public class IPFSignatureAgreementConstraint implements LoomEnvironment.Constrai
 
   @SuppressWarnings("unused")
   private void validateProjectionAgreement(
-      IPFIndexNode opIndex,
+      IPFIndex ipfIndex,
       String selectionMapName,
       Map<String, List<TensorSelection>> selectionMap,
       Map<String, List<IndexProjectionFunction>> projectionMap,
@@ -151,7 +141,7 @@ public class IPFSignatureAgreementConstraint implements LoomEnvironment.Constrai
       return;
     }
 
-    var index = opIndex.getRange();
+    var index = ipfIndex.getRange();
 
     for (var entry : selectionMap.entrySet()) {
       final var ioName = entry.getKey();

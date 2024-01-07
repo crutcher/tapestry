@@ -5,12 +5,11 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
-import lombok.NoArgsConstructor;
-
 import java.io.IOException;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import lombok.NoArgsConstructor;
 
 /**
  * Utilities for serializing and deserializing a {@code Map<K, T>} as a json {@code [T]}.

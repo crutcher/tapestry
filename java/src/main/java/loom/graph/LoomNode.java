@@ -7,6 +7,12 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,13 +22,6 @@ import loom.common.json.HasToJsonString;
 import loom.common.json.JsonUtil;
 import loom.common.runtime.ReflectionUtils;
 import loom.validation.ValidationIssue;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
 
 /**
  * Base class for a node in the graph.
@@ -55,6 +54,21 @@ public abstract class LoomNode<NodeType extends LoomNode<NodeType, BodyType>, Bo
       B extends LoomNodeBuilder<NodeType, BodyType, C, B>> {
 
     /**
+     * Set an annotation on the node.
+     *
+     * @param key the annotation key.
+     * @param value the annotation value.
+     * @return {@code this}
+     */
+    public B annotation(String key, Object value) {
+      if (annotations$value == null) {
+        annotations(new HashMap<>());
+      }
+      annotations$value.put(key, value);
+      return self();
+    }
+
+    /**
      * Complete the build of the node on the graph.
      *
      * <p>Equivalent to {@code buildOn(graph)}.
@@ -62,7 +76,7 @@ public abstract class LoomNode<NodeType extends LoomNode<NodeType, BodyType>, Bo
      * <p>Assigns a random UUID to the node if the node does not have an ID.
      *
      * @param graph the node type.
-     * @return this builder.
+     * @return {@code this}
      */
     public NodeType addTo(LoomGraph graph) {
       return graph.addNode(this);
@@ -251,6 +265,7 @@ public abstract class LoomNode<NodeType extends LoomNode<NodeType, BodyType>, Bo
 
   /**
    * Get the class type of the node body.
+   *
    * @return the body class.
    */
   @JsonIgnore
@@ -275,6 +290,7 @@ public abstract class LoomNode<NodeType extends LoomNode<NodeType, BodyType>, Bo
 
   /**
    * Get the node body.
+   *
    * @return the node body.
    */
   @Nonnull
@@ -300,6 +316,7 @@ public abstract class LoomNode<NodeType extends LoomNode<NodeType, BodyType>, Bo
 
   /**
    * Set the node body.
+   *
    * @param body the node body.
    */
   public abstract void setBody(@Nonnull BodyType body);

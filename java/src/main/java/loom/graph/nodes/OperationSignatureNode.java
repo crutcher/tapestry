@@ -4,10 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.function.Consumer;
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import lombok.*;
 import lombok.experimental.Delegate;
 import lombok.experimental.SuperBuilder;
@@ -51,14 +49,6 @@ public class OperationSignatureNode
                     "^[a-zA-Z_][a-zA-Z0-9_]*$": {}
                 },
                 "additionalProperties": false
-            },
-            "signatureId": {
-                "type": "string",
-                "format": "uuid"
-            },
-            "indexId": {
-                "type": "string",
-                "format": "uuid"
             },
             "inputs": { "$ref": "#/definitions/TensorSelectionMap" },
             "outputs": { "$ref": "#/definitions/TensorSelectionMap" }
@@ -113,8 +103,6 @@ public class OperationSignatureNode
   public static class Body implements HasToJsonString {
     String name;
     @Singular Map<String, Object> params;
-    @Nullable UUID signatureId;
-    @Nullable UUID indexId;
     @Singular @Nonnull Map<String, List<TensorSelection>> inputs;
     @Singular @Nonnull Map<String, List<TensorSelection>> outputs;
   }

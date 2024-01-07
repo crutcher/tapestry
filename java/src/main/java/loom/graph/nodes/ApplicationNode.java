@@ -6,7 +6,6 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.function.Consumer;
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import lombok.*;
 import lombok.experimental.Delegate;
 import lombok.experimental.SuperBuilder;
@@ -37,10 +36,6 @@ public class ApplicationNode extends LoomNode<ApplicationNode, ApplicationNode.B
       "type": "object",
       "properties": {
           "operationId": {
-              "type": "string",
-              "format": "uuid"
-          },
-          "indexId": {
               "type": "string",
               "format": "uuid"
           },
@@ -96,7 +91,6 @@ public class ApplicationNode extends LoomNode<ApplicationNode, ApplicationNode.B
   @JsonInclude(JsonInclude.Include.NON_EMPTY)
   public static class Body implements HasToJsonString {
     UUID operationId;
-    @Nullable UUID indexId;
     @Singular @Nonnull Map<String, List<TensorSelection>> inputs;
     @Singular @Nonnull Map<String, List<TensorSelection>> outputs;
   }

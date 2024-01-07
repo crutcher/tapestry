@@ -20,7 +20,7 @@ public class IPFSignatureAgreementConstraintTest extends BaseTestClass {
   @Test
   public void test_valid_short() {
     var env = CommonEnvironments.expressionEnvironment();
-    env.assertConstraint(IPFSignatureAgreementConstraint.class);
+    env.addConstraint(new IPFSignatureAgreementConstraint());
 
     var graph = env.newGraph();
 
@@ -76,8 +76,6 @@ public class IPFSignatureAgreementConstraintTest extends BaseTestClass {
             Map.of("z", List.of("int32")),
             null);
 
-    assertThat(graph.nodeScan().nodeClass(IPFSignatureNode.class).asStream().count()).isEqualTo(1);
-    assertThat(graph.nodeScan().nodeClass(IPFIndexNode.class).asStream().count()).isEqualTo(2);
     assertThat(graph.nodeScan().nodeClass(OperationSignatureNode.class).asStream().count())
         .isEqualTo(1);
     assertThat(graph.nodeScan().nodeClass(ApplicationNode.class).asStream().count()).isEqualTo(1);
@@ -94,101 +92,8 @@ public class IPFSignatureAgreementConstraintTest extends BaseTestClass {
     assertThat(shards).hasSize(1);
     var app = shards.getFirst();
     assertThat(app.getOperationSignatureNode()).isSameAs(op);
-    assertThat(graph.assertNode(app.getIndexId(), IPFIndexNode.TYPE, IPFIndexNode.class).getRange())
+    assertThat(app.assertAnnotation(IPFIndex.ANNOTATION_TYPE, IPFIndex.class).getRange())
         .isEqualTo(ZRange.fromShape(3, 5));
-
-    graph.validate();
-  }
-
-  @Test
-  public void test_valid_long() {
-    var env = CommonEnvironments.expressionEnvironment();
-    env.assertConstraint(IPFSignatureAgreementConstraint.class);
-
-    var graph = env.newGraph();
-
-    var tensorA = TensorNode.withBody(b -> b.dtype("int32").shape(3, 4)).addTo(graph);
-
-    var tensorB = TensorNode.withBody(b -> b.dtype("int32").shape(4, 5)).addTo(graph);
-
-    var tensorC = TensorNode.withBody(b -> b.dtype("int32").shape(3, 5)).addTo(graph);
-
-    var sigIndex =
-        IPFIndexNode.withBody(b -> b.range(new ZRange(ZPoint.of(0, 0), ZPoint.of(3, 5))))
-            .addTo(graph);
-
-    var ipfSignature =
-        IPFSignatureNode.withBody(
-                b ->
-                    b.input(
-                            "x",
-                            List.of(
-                                IndexProjectionFunction.builder()
-                                    .affineMap(ZAffineMap.fromMatrix(new int[][] {{1, 0}, {0, 0}}))
-                                    .shape(ZPoint.of(1, tensorA.getShape().get(1)))
-                                    .build()))
-                        .input(
-                            "y",
-                            List.of(
-                                IndexProjectionFunction.builder()
-                                    .affineMap(ZAffineMap.fromMatrix(new int[][] {{0, 0}, {0, 1}}))
-                                    .shape(ZPoint.of(tensorB.getShape().get(0), 1))
-                                    .build()))
-                        .output(
-                            "z",
-                            List.of(
-                                IndexProjectionFunction.builder()
-                                    .affineMap(ZAffineMap.fromMatrix(new int[][] {{1, 0}, {0, 1}}))
-                                    .build())))
-            .addTo(graph);
-
-    var sig =
-        OperationSignatureNode.withBody(
-                b ->
-                    b.name("matmul")
-                        .signatureId(ipfSignature.getId())
-                        .indexId(sigIndex.getId())
-                        .input("x", List.of(TensorSelection.from(tensorA)))
-                        .input("y", List.of(TensorSelection.from(tensorB)))
-                        .output("z", List.of(TensorSelection.from(tensorC))))
-            .addTo(graph);
-
-    var app1Index =
-        IPFIndexNode.withBody(b -> b.range(new ZRange(ZPoint.of(0, 0), ZPoint.of(3, 2))))
-            .addTo(graph);
-
-    var app1 =
-        ApplicationNode.withBody(
-                b ->
-                    b.operationId(sig.getId())
-                        .indexId(app1Index.getId())
-                        .input("x", List.of(TensorSelection.from(tensorA)))
-                        .input("y", List.of(TensorSelection.from(tensorB, ZRange.fromShape(4, 2))))
-                        .output(
-                            "z", List.of(TensorSelection.from(tensorC, ZRange.fromShape(3, 2)))))
-            .addTo(graph);
-
-    var appIndex2 =
-        IPFIndexNode.withBody(b -> b.range(new ZRange(ZPoint.of(0, 2), ZPoint.of(3, 5))))
-            .addTo(graph);
-
-    var app2 =
-        ApplicationNode.withBody(
-                b ->
-                    b.operationId(sig.getId())
-                        .indexId(appIndex2.getId())
-                        .input("x", List.of(TensorSelection.from(tensorA)))
-                        .input(
-                            "y",
-                            List.of(
-                                TensorSelection.from(
-                                    tensorB, new ZRange(ZPoint.of(0, 2), ZPoint.of(4, 5)))))
-                        .output(
-                            "z",
-                            List.of(
-                                TensorSelection.from(
-                                    tensorC, new ZRange(ZPoint.of(0, 2), ZPoint.of(3, 5))))))
-            .addTo(graph);
 
     graph.validate();
   }
@@ -246,17 +151,12 @@ public class IPFSignatureAgreementConstraintTest extends BaseTestClass {
      */
 
     var index = indexBuilder.apply(inputs);
-
-    var ipfSignatureNode = IPFSignatureNode.builder().body(ipfSignature).addTo(graph);
-
-    var ipfIndexNode = IPFIndexNode.withBody(b -> b.range(index)).addTo(graph);
+    var ipfIndex = IPFIndex.builder().range(index).build();
 
     var opSigNode =
         OperationSignatureNode.withBody(
                 b -> {
                   b.name(kernelName);
-                  b.signatureId(ipfSignatureNode.getId());
-                  b.indexId(ipfIndexNode.getId());
 
                   for (var entry : inputs.entrySet()) {
                     var name = entry.getKey();
@@ -294,6 +194,8 @@ public class IPFSignatureAgreementConstraintTest extends BaseTestClass {
                     b.output(name, selections);
                   }
                 })
+            .annotation(IPFSignature.ANNOTATION_TYPE, ipfSignature)
+            .annotation(IPFIndex.ANNOTATION_TYPE, ipfIndex)
             .addTo(graph);
 
     createIpfShards(opSigNode, index);
@@ -314,18 +216,15 @@ public class IPFSignatureAgreementConstraintTest extends BaseTestClass {
 
   public static ApplicationNode createIpfShard(OperationSignatureNode sig, ZRange shardIndex) {
     var graph = sig.assertGraph();
-    var sigIndex = graph.assertNode(sig.getIndexId(), IPFIndexNode.TYPE, IPFIndexNode.class);
-    var ipfSig =
-        graph.assertNode(sig.getSignatureId(), IPFSignatureNode.TYPE, IPFSignatureNode.class);
 
-    var appIndex = IPFIndexNode.withBody(b -> b.range(shardIndex)).addTo(graph);
+    var ipfSig = sig.assertAnnotation(IPFSignature.ANNOTATION_TYPE, IPFSignature.class);
+    var ipfIndex = sig.assertAnnotation(IPFIndex.ANNOTATION_TYPE, IPFIndex.class);
 
-    assert sigIndex.getRange().contains(shardIndex);
+    assert ipfIndex.getRange().contains(shardIndex);
 
     return ApplicationNode.withBody(
             b -> {
               b.operationId(sig.getId());
-              b.indexId(appIndex.getId());
 
               for (var entry : ipfSig.getInputs().entrySet()) {
                 var name = entry.getKey();
@@ -357,6 +256,7 @@ public class IPFSignatureAgreementConstraintTest extends BaseTestClass {
                 b.output(name, selections);
               }
             })
+        .annotation(IPFIndex.ANNOTATION_TYPE, IPFIndex.builder().range(shardIndex).build())
         .addTo(graph);
   }
 }

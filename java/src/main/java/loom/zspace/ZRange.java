@@ -4,18 +4,17 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Splitter;
-import lombok.Builder;
-import lombok.Getter;
-import loom.common.json.HasToJsonString;
-import loom.common.json.JsonUtil;
-
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import javax.annotation.concurrent.ThreadSafe;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.Objects;
+import lombok.Builder;
+import lombok.Getter;
+import loom.common.json.HasToJsonString;
+import loom.common.json.JsonUtil;
 
 /**
  * Represents a range of points in discrete space.
@@ -380,15 +379,9 @@ public final class ZRange implements Cloneable, HasSize, HasPermute<ZRange>, Has
    * <p>But there are a number of special cases to consider:
    *
    * <ol>
-   *     <li> Can an empty range be contained? </li>
-   *
-   * <li>
-   *   Can an empty range contain anything?
-   * </li>
-   *
-   * <li>
-   *   How do define the behavior at 0-dim?
-   * </li>
+   *   <li>Can an empty range be contained?
+   *   <li>Can an empty range contain anything?
+   *   <li>How do define the behavior at 0-dim?
    * </ol>
    *
    * <p>Empty ranges can have utility in a number of algorithms; they can describe partition
