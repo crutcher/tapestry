@@ -15,6 +15,7 @@ import lombok.Builder;
 import lombok.Getter;
 import loom.common.json.HasToJsonString;
 import loom.common.json.JsonUtil;
+import loom.common.runtime.CheckThat;
 
 /**
  * Represents a range of points in discrete space.
@@ -237,29 +238,135 @@ public final class ZRange implements Cloneable, HasSize, HasPermute<ZRange>, Has
     this(new ZPoint(start), new ZPoint(end));
   }
 
+  /** ZRange builder. */
   @SuppressWarnings("unused")
   public static class ZRangeBuilder {
-    private ZPoint shape;
+    private ZTensor shape;
 
+    /**
+     * Set the shape of the range.
+     *
+     * <p>If the start is not set, it will be set to zeros.
+     *
+     * @param shape the shape.
+     * @return {@code this}
+     */
     public ZRangeBuilder shape(@Nonnull ZPoint shape) {
-      this.shape = shape;
+      shape(shape.coords);
       return this;
     }
 
+    /**
+     * Set the shape of the range.
+     *
+     * <p>If the start is not set, it will be set to zeros.
+     *
+     * @param shape the shape.
+     * @return {@code this}
+     */
     public ZRangeBuilder shape(@Nonnull ZTensor shape) {
-      shape(shape.newZPoint());
+      this.shape = shape;
+      if (start == null) {
+        start = ZTensor.newZerosLike(shape).newZPoint();
+      }
       return this;
     }
 
+    /**
+     * Set the shape of the range.
+     *
+     * <p>If the start is not set, it will be set to zeros.
+     *
+     * @param shape the shape.
+     * @return {@code this}
+     */
+    public ZRangeBuilder shape(@Nonnull int... shape) {
+      shape(new ZPoint(shape));
+      return this;
+    }
+
+    /**
+     * Set the start of the range.
+     *
+     * @param start the shape.
+     * @return {@code this}
+     */
+    public ZRangeBuilder start(@Nonnull ZPoint start) {
+      this.start = start;
+      return this;
+    }
+
+    /**
+     * Set the start of the range.
+     *
+     * @param start the shape.
+     * @return {@code this}
+     */
+    public ZRangeBuilder start(@Nonnull ZTensor start) {
+      start(start.newZPoint());
+      return this;
+    }
+
+    /**
+     * Set the start of the range.
+     *
+     * @param start the shape.
+     * @return {@code this}
+     */
+    public ZRangeBuilder start(@Nonnull int... start) {
+      start(new ZPoint(start));
+      return this;
+    }
+
+    /**
+     * Set the end of the range.
+     *
+     * @param end the shape.
+     * @return {@code this}
+     */
+    public ZRangeBuilder end(@Nonnull ZPoint end) {
+      this.end = end;
+      return this;
+    }
+
+    /**
+     * Set the end of the range.
+     *
+     * @param end the shape.
+     * @return {@code this}
+     */
+    public ZRangeBuilder end(@Nonnull ZTensor end) {
+      end(end.newZPoint());
+      return this;
+    }
+
+    /**
+     * Set the end of the range.
+     *
+     * @param end the shape.
+     * @return {@code this}
+     */
+    public ZRangeBuilder end(@Nonnull int... end) {
+      end(new ZPoint(end));
+      return this;
+    }
+
+    /**
+     * Build the range.
+     *
+     * @return the range.
+     */
     public ZRange build() {
+      var start =
+          CheckThat.valueIsNotNull(this.start, IllegalArgumentException.class, "start is null");
+      var end = this.end;
       if (shape != null) {
         if (end != null) {
-          throw new IllegalStateException("Cannot set both shape and end");
+          throw new IllegalArgumentException("Cannot set both shape and end");
         }
-        return ZRange.fromStartWithShape(start, shape);
-      } else {
-        return new ZRange(start, end);
+        end = start.coords.add(shape).newZPoint();
       }
+      return new ZRange(start, end);
     }
   }
 

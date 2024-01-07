@@ -12,6 +12,26 @@ public class ZRangeTest implements CommonAssertions {
   }
 
   @Test
+  public void test_builder() {
+    assertThat(ZRange.builder().start(2, 3).end(10, 10).build())
+        .isEqualTo(new ZRange(new ZPoint(2, 3), new ZPoint(10, 10)));
+    assertThat(ZRange.builder().start(new ZPoint(2, 3)).end(new ZPoint(10, 10)).build())
+        .isEqualTo(new ZRange(new ZPoint(2, 3), new ZPoint(10, 10)));
+    assertThat(
+            ZRange.builder().start(ZTensor.newVector(2, 3)).end(ZTensor.newVector(10, 10)).build())
+        .isEqualTo(new ZRange(new ZPoint(2, 3), new ZPoint(10, 10)));
+
+    assertThat(ZRange.builder().shape(2, 3).build())
+        .isEqualTo(new ZRange(new ZPoint(0, 0), new ZPoint(2, 3)));
+    assertThat(ZRange.builder().start(10, 10).shape(2, 3).build())
+        .isEqualTo(new ZRange(new ZPoint(10, 10), new ZPoint(12, 13)));
+
+    assertThatExceptionOfType(IllegalArgumentException.class)
+        .isThrownBy(() -> ZRange.builder().start(2, 3).end(10, 10).shape(2, 3).build())
+        .withMessageContaining("Cannot set both shape and end");
+  }
+
+  @Test
   public void test_0dim_range() {
     // A zero-dimensional range is a slightly weird object.
 
