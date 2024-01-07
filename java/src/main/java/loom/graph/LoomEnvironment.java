@@ -12,9 +12,11 @@ import lombok.Builder;
 import lombok.Data;
 import loom.common.json.JsonSchemaManager;
 import loom.common.json.JsonUtil;
+import loom.common.runtime.CheckThat;
 import loom.common.runtime.ExcludeFromJacocoGeneratedReport;
 import loom.graph.constraints.NodeBodySchemaConstraint;
 import loom.validation.ListValidationIssueCollector;
+import loom.validation.ValidationIssue;
 import loom.validation.ValidationIssueCollector;
 
 /**
@@ -183,19 +185,27 @@ public final class LoomEnvironment {
    * Get the annotation class for a given key.
    *
    * @param key the annotation key.
+   * @return the annotation class, or null if not found.
+   */
+  public Class<?> getAnnotationClass(String key) {
+    var cls = annotationTypeClasses.get(key);
+    if (cls == null && defaultAnnotationTypeClass != null) {
+      cls = defaultAnnotationTypeClass;
+    }
+    return cls;
+  }
+
+  /**
+   * Get the annotation class for a given key.
+   *
+   * @param key the annotation key.
    * @return the annotation class.
    * @throws IllegalStateException if the annotation key is not present.
    */
   @Nonnull
   public Class<?> assertAnnotationClass(String key) {
-    var cls = annotationTypeClasses.get(key);
-    if (cls == null && defaultAnnotationTypeClass != null) {
-      cls = defaultAnnotationTypeClass;
-    }
-    if (cls == null) {
-      throw new IllegalStateException("Unknown annotation key: " + key);
-    }
-    return cls;
+    return CheckThat.valueIsNotNull(
+        getAnnotationClass(key), IllegalStateException.class, "Unknown annotation key: %s", key);
   }
 
   /**
@@ -289,6 +299,52 @@ public final class LoomEnvironment {
    * @param issueCollector the ValidationIssueCollector.
    */
   public void validateGraph(LoomGraph graph, ValidationIssueCollector issueCollector) {
+    for (var nodeIt = graph.nodeScan().asStream().iterator(); nodeIt.hasNext(); ) {
+      var node = nodeIt.next();
+      var type = node.getType();
+      var nodeClass = node.getClass();
+      var expectedClass = classForType(type);
+
+      if (expectedClass == null) {
+        issueCollector.addIssue(
+            ValidationIssue.builder()
+                .type(LoomConstants.NODE_VALIDATION_ERROR)
+                .summary("Unknown node type: " + type)
+                .context(node.asValidationContext("Node"))
+                .build());
+      } else if (!expectedClass.isAssignableFrom(nodeClass)) {
+        issueCollector.addIssue(
+            ValidationIssue.builder()
+                .type(LoomConstants.NODE_VALIDATION_ERROR)
+                .summary("Node type mismatch: " + type + " is " + nodeClass)
+                .context(node.asValidationContext("Node"))
+                .build());
+      }
+
+      for (var entry : node.getAnnotations().entrySet()) {
+        var key = entry.getKey();
+        var annotation = entry.getValue();
+        var annotationClass = annotation.getClass();
+
+        var expectedAnnotationClass = getAnnotationClass(key);
+        if (expectedAnnotationClass == null) {
+          issueCollector.addIssue(
+              ValidationIssue.builder()
+                  .type(LoomConstants.NODE_VALIDATION_ERROR)
+                  .summary("Unknown annotation key: " + key)
+                  .context(node.asValidationContext("Node"))
+                  .build());
+        } else if (!expectedAnnotationClass.isAssignableFrom(annotationClass)) {
+          issueCollector.addIssue(
+              ValidationIssue.builder()
+                  .type(LoomConstants.NODE_VALIDATION_ERROR)
+                  .summary("Annotation type mismatch: " + key + " is " + annotationClass)
+                  .context(node.asValidationContext("Node"))
+                  .build());
+        }
+      }
+    }
+
     for (var constraint : constraints) {
       constraint.validateConstraint(this, graph, issueCollector);
     }
