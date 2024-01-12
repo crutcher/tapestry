@@ -8,16 +8,18 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import java.util.*;
-import java.util.stream.Stream;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import lombok.*;
 import loom.common.json.HasToJsonString;
 import loom.common.json.JsonUtil;
 import loom.common.json.MapValueListUtil;
 import loom.validation.ListValidationIssueCollector;
 import loom.validation.ValidationIssueCollector;
+
+import javax.annotation.CheckReturnValue;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.*;
+import java.util.stream.Stream;
 
 /** A Loom Graph document. */
 @Getter
@@ -191,6 +193,7 @@ public final class LoomGraph implements HasToJsonString {
      * @param type the type.
      * @return the builder.
      */
+    @Nonnull
     public NodeScanBuilder<T> type(@Nullable String type) {
       this.type = type;
       return this;
@@ -203,6 +206,7 @@ public final class LoomGraph implements HasToJsonString {
      * @return the builder, cast to the correct type.
      * @param <X> the type of the node to scan for.
      */
+    @Nonnull
     public <X extends LoomNode<?, ?>> NodeScanBuilder<X> nodeClass(@Nullable Class<X> nodeClass) {
       @SuppressWarnings("unchecked")
       var thisAs = (NodeScanBuilder<X>) this;
@@ -215,6 +219,8 @@ public final class LoomGraph implements HasToJsonString {
      *
      * @return the stream.
      */
+    @Nonnull
+    @CheckReturnValue
     public Stream<T> asStream() {
       enum NodeSource {
         ALL,
@@ -259,6 +265,8 @@ public final class LoomGraph implements HasToJsonString {
      *
      * @return the list.
      */
+    @Nonnull
+    @CheckReturnValue
     public List<T> asList() {
       return asStream().toList();
     }
@@ -269,6 +277,7 @@ public final class LoomGraph implements HasToJsonString {
    *
    * @return the builder.
    */
+  @Nonnull
   public NodeScanBuilder<LoomNode<?, ?>> nodeScan() {
     return new NodeScanBuilder<>(this);
   }
@@ -280,6 +289,7 @@ public final class LoomGraph implements HasToJsonString {
    *
    * @return the new ID.
    */
+  @Nonnull
   public UUID newUnusedNodeId() {
     UUID id;
     do {

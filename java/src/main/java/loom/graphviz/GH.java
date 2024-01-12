@@ -22,10 +22,28 @@ import org.dom4j.io.XMLWriter;
 @RequiredArgsConstructor(access = lombok.AccessLevel.PRIVATE)
 public final class GH {
 
-  public static final OutputFormat XML_OUTPUT_FORMAT = OutputFormat.createPrettyPrint();
+  /**
+   * From <a href="https://www.graphviz.org/doc/info/shapes.html#html-like">HTML-Like Labels</a>:
+   * <quote> As is obvious from the above description, the interpretation of white space characters
+   * is one place where HTML-like labels is very different from standard HTML. In HTML, any sequence
+   * of white space characters is collapsed to a single space, If the user does not want this to
+   * happen, the input must use non-breaking spaces &nbsp;. This makes sense in HTML, where text
+   * layout depends dynamically on the space available. In Graphviz, the layout is statically
+   * determined by the input, so it is reasonable to treat ordinary space characters as
+   * non-breaking. In addition, ignoring tabs and newlines allows the input text to be formatted for
+   * easier reading. </quote>
+   *
+   * <p>HTML-Like Labels Care about whitespace, so we need to disable the default behavior of the
+   * {@link OutputFormat} to trim whitespace.
+   */
+  public static final OutputFormat XML_OUTPUT_FORMAT;
 
   static {
+    XML_OUTPUT_FORMAT = new OutputFormat();
     XML_OUTPUT_FORMAT.setSuppressDeclaration(true);
+    XML_OUTPUT_FORMAT.setNewlines(true);
+    XML_OUTPUT_FORMAT.setTrimText(false);
+    XML_OUTPUT_FORMAT.setPadText(false);
   }
 
   public enum HorizontalAlign {

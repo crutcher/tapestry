@@ -1,12 +1,11 @@
 package loom.common.runtime;
 
-import lombok.NoArgsConstructor;
-
-import javax.annotation.Nonnull;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Arrays;
+import javax.annotation.Nonnull;
+import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
 public final class ReflectionUtils {

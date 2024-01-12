@@ -12,8 +12,6 @@ import guru.nidi.graphviz.model.Factory;
 import guru.nidi.graphviz.model.Link;
 import guru.nidi.graphviz.model.MutableGraph;
 import guru.nidi.graphviz.model.MutableNode;
-import java.util.*;
-import javax.annotation.Nullable;
 import lombok.Builder;
 import lombok.Data;
 import lombok.Getter;
@@ -24,6 +22,10 @@ import loom.common.text.TextUtils;
 import loom.graph.LoomGraph;
 import loom.graph.LoomNode;
 import loom.graphviz.GH;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.*;
 
 @Data
 @Builder
@@ -37,9 +39,6 @@ public class GraphExporter {
     var exporter = builder().build();
     exporter.setDefaultNodeTypeExporter(new DefaultNodeExporter());
     exporter.getNodeTypeExporters().put(TensorNode.TYPE, new TensorNodeExporter());
-    // exporter.getNodeTypeExporters().put(OperationSignatureNode.TYPE, new
-    // OperationSignatureNodeExporter());
-    // exporter.getNodeTypeExporters().put(ApplicationNode.TYPE, new ApplicationNodeExporter());
     return exporter;
   }
 
@@ -55,7 +54,7 @@ public class GraphExporter {
 
       gvizNode.add(Shape.RECTANGLE);
 
-      var table =
+      var labelTable =
           GH.table()
               .border(0)
               .cellborder(0)
@@ -66,16 +65,16 @@ public class GraphExporter {
                       .add(GH.font().color("teal").add(GH.bold(GH.text(node.getType())))));
 
       if (node.getLabel() != null) {
-        table.tr(
+        labelTable.tr(
             GH.td()
                 .colspan(2)
                 .add(GH.font().attr("color", "green").add(GH.bold(GH.text(node.getLabel())))));
       }
 
-      table.parseAndAdd(export.toRows((ObjectNode) node.getBodyAsJsonNode()));
-      table.parseAndAdd(export.renderAnnotations(node));
+      labelTable.parseAndAdd(export.toRows((ObjectNode) node.getBodyAsJsonNode()));
+      labelTable.parseAndAdd(export.renderAnnotations(node));
 
-      gvizNode.add(Label.html(table.toString()));
+      gvizNode.add(Label.html(labelTable.toString()));
 
       List<Link> links = new ArrayList<>();
       var body = (ObjectNode) node.getBodyAsJsonNode();
@@ -105,87 +104,32 @@ public class GraphExporter {
       gvizNode.add("style", "filled");
       gvizNode.add("fillcolor", "lightblue");
 
-      StringBuilder label = new StringBuilder();
-      label.append("<table border=\"0\" cellborder=\"0\" cellspacing=\"0\">");
-      label.append(export.renderSpanningHeader(export.formatNodeType(node)));
+      var labelTable =
+          GH.table()
+              .border(0)
+              .cellborder(0)
+              .cellspacing(0)
+              .tr(
+                  GH.td()
+                      .colspan(2)
+                      .add(GH.font().color("teal").add(GH.bold(GH.text(node.getType())))));
+
       if (node.getLabel() != null) {
-        label.append(
-            export.renderSpanningHeader(
-                "<font color=\"green\"><b>\"%s\"</b></font>".formatted(node.getLabel())));
+        labelTable.tr(
+            GH.td()
+                .colspan(2)
+                .add(GH.font().attr("color", "green").add(GH.bold(GH.text(node.getLabel())))));
       }
-      label.append(export.renderTableRow("dtype", tensorNode.getDtype()));
-      label.append(export.renderTableRow("range", tensorNode.getRange().toRangeString()));
 
-      label.append(export.renderAnnotations(node));
+      labelTable.tr(
+          GH.td().valign(GH.VerticalAlign.TOP).add(GH.bold("dtype")), tensorNode.getDtype());
+      labelTable.tr(
+          GH.td().valign(GH.VerticalAlign.TOP).add(GH.bold("range")),
+          tensorNode.getRange().toRangeString());
 
-      label.append("</table>");
+      // labelTable.parseAndAdd(export.renderAnnotations(node));
 
-      gvizNode.add(Label.html(label.toString()));
-    }
-  }
-
-  public static class ApplicationNodeExporter implements NodeTypeExporter {
-    @Override
-    public void exportNode(
-        GraphExporter graphExporter, Export export, LoomNode<?, ?> node, MutableNode gvizNode) {
-      // pass
-    }
-  }
-
-  public static class OperationSignatureNodeExporter implements NodeTypeExporter {
-    @Override
-    public void exportNode(
-        GraphExporter graphExporter, Export export, LoomNode<?, ?> node, MutableNode gvizNode) {
-      var opSig = (OperationSignatureNode) node;
-      gvizNode.add(Shape.BOX_3D);
-
-      StringBuilder label = new StringBuilder();
-      label.append("<table border=\"0\" cellborder=\"0\" cellspacing=\"0\">");
-      label.append(export.renderSpanningHeader(export.formatNodeType(node)));
-      if (node.getLabel() != null) {
-        label.append(
-            export.renderSpanningHeader(
-                "<font color=\"green\"><b>\"%s\"</b></font>".formatted(node.getLabel())));
-      }
-      label.append(export.toRows((ObjectNode) node.getBodyAsJsonNode()));
-
-      label.append(export.renderAnnotations(node));
-
-      label.append("</table>");
-
-      gvizNode.add(Label.html(label.toString()));
-
-      for (var entry : opSig.getInputs().entrySet()) {
-        var name = entry.getKey();
-        var selections = entry.getValue();
-
-        for (int idx = 0; idx < selections.size(); ++idx) {
-          var selection = selections.get(idx);
-          var target = selection.getTensorId();
-          var linkLabel =
-              "<table border=\"0\" cellborder=\"0\"><tr><td>inputs.%s[%d]</td></tr><tr><td>%s</td></tr></table>"
-                  .formatted(name, idx, selection.getRange().toRangeString());
-
-          Link link = Link.to(Factory.node(target.toString())).with(Label.html(linkLabel));
-          gvizNode.addLink(link);
-        }
-      }
-      for (var entry : opSig.getOutputs().entrySet()) {
-        var name = entry.getKey();
-        var selections = entry.getValue();
-
-        for (int idx = 0; idx < selections.size(); ++idx) {
-          var selection = selections.get(idx);
-          var target = selection.getTensorId();
-          var linkLabel =
-              "<table border=\"0\" cellborder=\"0\"><tr><td>outputs.%s[%d]</td></tr><tr><td>%s</td></tr></table>"
-                  .formatted(name, idx, selection.getRange().toRangeString());
-
-          // TODO: Add a reverse link.
-          Link link = Link.to(Factory.node(target.toString())).with(Label.html(linkLabel));
-          gvizNode.addLink(link);
-        }
-      }
+      gvizNode.add(Label.html(labelTable.toString()));
     }
   }
 
@@ -206,6 +150,7 @@ public class GraphExporter {
   @Data
   @RequiredArgsConstructor
   public class Export {
+    @Nonnull
     private final LoomGraph graph;
 
     @Getter(lazy = true)
@@ -275,10 +220,8 @@ public class GraphExporter {
     }
 
     public String exportAnnotation(String key, Object value) {
-      StringBuilder rows = new StringBuilder();
-      rows.append("<tr><td colspan=\"2\"><b>%s</b></td></tr>".formatted(formatAnnotationType(key)));
-      rows.append(toRows((ObjectNode) JsonUtil.convertValue(value, JsonNode.class)));
-      return rows.toString();
+      return "<tr><td colspan=\"2\"><b>%s</b></td></tr>".formatted(formatAnnotationType(key))
+          + toRows((ObjectNode) JsonUtil.convertValue(value, JsonNode.class));
     }
 
     @Getter(lazy = true)
@@ -289,23 +232,11 @@ public class GraphExporter {
     }
 
     public String jsonToTable(ObjectNode node) {
-      var table = new StringBuilder();
-      table.append("<table border=\"0\" cellborder=\"0\" cellspacing=\"0\">");
-      table.append(toRows(node));
-      table.append("</table>");
-      return table.toString();
+      return "<table border=\"0\" cellborder=\"0\" cellspacing=\"0\">" + toRows(node) + "</table>";
     }
 
     public String renderKeyCell(String text) {
       return "<td valign=\"top\"><b>%s</b></td>".formatted(text);
-    }
-
-    public String renderSpanningHeader(String text) {
-      return "<tr><td colspan=\"2\"><b>%s</b></td></tr>".formatted(text);
-    }
-
-    public String renderTableRow(String key, String value) {
-      return "<tr>%s<td>%s</td></tr>".formatted(renderKeyCell(key), value);
     }
 
     public String toRows(ObjectNode node) {
@@ -349,11 +280,9 @@ public class GraphExporter {
             if (isAllNumeric(array)) {
               return JsonUtil.toJson(array);
             } else {
-              var table = new StringBuilder();
-              table.append("<table border=\"0\" cellborder=\"1\" cellspacing=\"0\">");
-              table.append(toRows(array));
-              table.append("</table>");
-              return table.toString();
+              return "<table border=\"0\" cellborder=\"1\" cellspacing=\"0\">"
+                  + toRows(array)
+                  + "</table>";
             }
           }
 
@@ -371,20 +300,12 @@ public class GraphExporter {
       return getNodeLabels().get(id);
     }
 
-    public String nodeLabel(LoomNode<?, ?> node) {
-      return nodeLabel(node.getId());
-    }
-
     public String formattedNodeLabel(UUID id) {
       return "<font color=\"teal\">%s</font>".formatted(nodeLabel(id));
     }
 
     public String formattedNodeLabel(LoomNode<?, ?> node) {
       return formattedNodeLabel(node.getId());
-    }
-
-    public String formatNodeType(LoomNode<?, ?> node) {
-      return "<font color=\"teal\">%s</font>".formatted(node.getType());
     }
 
     public String formatAnnotationType(String type) {
