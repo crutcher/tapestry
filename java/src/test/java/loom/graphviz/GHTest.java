@@ -17,16 +17,20 @@ public class GHTest extends BaseTestClass {
 
   @Test
   public void test_NodeWrapper() {
-    var b = GH.element("b");
+    var wrapper = new GH.NodeWrapper<>(DocumentHelper.createText("hello"));
 
-    GH.text("hello").withParent(b);
+    var b = GH.bold();
+    wrapper.withParent(b);
 
     assertThat(b.toString()).isEqualTo("<b>hello</b>");
   }
 
   @Test
   public void test_ElementWrapper() {
-    var hello = GH.element("hello").attr("foo", "bar").add("some text", GH.br(), GH.element("b"));
+    var hello =
+        new GH.ElementWrapper<>(DocumentHelper.createElement("hello"))
+            .attr("foo", "bar")
+            .add("some text", GH.br(), GH.bold());
 
     assertThatExceptionOfType(UnsupportedOperationException.class)
         .isThrownBy(() -> hello.add(new Object()))

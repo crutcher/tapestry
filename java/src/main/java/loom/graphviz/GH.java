@@ -20,7 +20,7 @@ import java.util.Collection;
  * <p>See <a href="https://www.graphviz.org/doc/info/shapes.html#html-like">HTML-Like Labels</a>
  */
 @RequiredArgsConstructor(access = lombok.AccessLevel.PRIVATE)
-public class GH {
+public final class GH {
 
   public static final OutputFormat XML_OUTPUT_FORMAT = OutputFormat.createPrettyPrint();
 
@@ -263,7 +263,7 @@ public class GH {
    * @return an ElementWrapper for the element.
    */
   @CheckReturnValue
-  public static ElementWrapper<?> element(String name) {
+  private static ElementWrapper<?> element(String name) {
     return new ElementWrapper<>(DocumentHelper.createElement(name));
   }
 
@@ -467,7 +467,7 @@ public class GH {
   }
 
   /** An extension of {@link ElementWrapper} for the {@code <font></font>} element. */
-  public static class FontWrapper extends ElementWrapper<FontWrapper> {
+  public static final class FontWrapper extends ElementWrapper<FontWrapper> {
     public FontWrapper(Element element) {
       super(element);
       assert element.getName().equals("font");
@@ -525,7 +525,7 @@ public class GH {
   }
 
   /** An extension of {@link ElementWrapper} for the {@code <img></img>} element. */
-  public static class ImgWrapper extends ElementWrapper<ImgWrapper> {
+  public static final class ImgWrapper extends ElementWrapper<ImgWrapper> {
     public ImgWrapper(Element element) {
       super(element);
       assert element.getName().equals("img");
@@ -820,7 +820,7 @@ public class GH {
   }
 
   /** An extension of {@link ElementWrapper} for the {@code <table></table>} element. */
-  public static class TableWrapper extends TableBaseWrapper<TableWrapper> {
+  public static final class TableWrapper extends TableBaseWrapper<TableWrapper> {
     public TableWrapper(Element element) {
       super(element);
       assert element.getName().equals("table");
@@ -894,7 +894,7 @@ public class GH {
   }
 
   /** An extension of {@link ElementWrapper} for the {@code <td></td>} element. */
-  public static class TableDataWrapper extends TableBaseWrapper<TableDataWrapper> {
+  public static final class TableDataWrapper extends TableBaseWrapper<TableDataWrapper> {
 
     public TableDataWrapper(Element element) {
       super(element);
