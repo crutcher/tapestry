@@ -16,7 +16,6 @@ import guru.nidi.graphviz.model.MutableNode;
 import lombok.Builder;
 import lombok.Data;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import loom.common.DigestUtils;
 import loom.common.json.JsonUtil;
 import loom.common.text.TextUtils;
@@ -134,18 +133,21 @@ public class GraphExporter {
   }
 
   @Data
-  @RequiredArgsConstructor
   public class Export {
     @Nonnull private final LoomGraph graph;
+
+    public Export(@Nonnull LoomGraph graph) {
+      this.graph = Objects.requireNonNull(graph);
+    }
 
     @Getter(lazy = true)
     private final Map<UUID, String> nodeHexAliasMap = renderNodeHexAliasMap();
 
     @Getter private MutableGraph exportGraph = null;
 
-
+    @SuppressWarnings("UnstableApiUsage")
     private Map<UUID, String> renderNodeHexAliasMap() {
-      var ids = graph.nodeScan().asStream().map(LoomNode::getId).toList();
+        var ids = getGraph().nodeScan().asStream().map(LoomNode::getId).toList();
 
       var idHashes = ids.stream().map(id -> DigestUtils.toMD5HexString(id.toString())).toList();
 
@@ -191,7 +193,9 @@ public class GraphExporter {
         var xlabelTable = GH.table().border(0).cellborder(0).cellspacing(0).cellpadding(0);
         xlabelTable.tr(GH.td().add(nodeLabelElement(node.getId())));
         if (node.getLabel() != null) {
-          xlabelTable.tr(GH.td().add(GH.font().color("green").add(GH.bold("\"%s\"".formatted(node.getLabel())))));
+          xlabelTable.tr(
+              GH.td()
+                  .add(GH.font().color("green").add(GH.bold("\"%s\"".formatted(node.getLabel())))));
         }
         gvnode.add("xlabel", Label.html(xlabelTable.toString()));
       }
@@ -257,7 +261,6 @@ public class GraphExporter {
       return GH.tr(keyCell(key.toString()), valueCell(values));
     }
 
-
     public List<GH.ElementWrapper<?>> jsonObjectToRows(ObjectNode node) {
       List<GH.ElementWrapper<?>> rows = new ArrayList<>();
       for (var it = node.fields(); it.hasNext(); ) {
@@ -306,27 +309,23 @@ public class GraphExporter {
       }
     }
 
-
-    private static final List<String> NODE_LABEL_HEX_COLORS = List.of(
-            "magenta",
-            "red",
-            "teal",
-            "green");
-
+    private static final List<String> NODE_LABEL_HEX_COLORS =
+        List.of("magenta", "red", "teal", "green");
 
     public GH.ElementWrapper<?> nodeLabelElement(UUID id) {
       var group = GH.bold();
       group.add(GH.font().color("blue").add("{#"));
 
       String alias = nodeHexAlias(id);
-      for (char c : alias.toCharArray()) {
+      for (int idx = 0; idx < alias.length(); idx++) {
+        char c = alias.charAt(idx);
         String digit = String.valueOf(c);
         var f = GH.font().withParent(group).add(digit.toUpperCase(Locale.ROOT));
         try {
-            int val = Integer.parseInt(digit, 16);
-            f.color(NODE_LABEL_HEX_COLORS.get(val % NODE_LABEL_HEX_COLORS.size()));
+          int val = Integer.parseInt(digit, 16);
+          f.color(NODE_LABEL_HEX_COLORS.get(val % NODE_LABEL_HEX_COLORS.size()));
         } catch (NumberFormatException e) {
-            // ignore
+          // ignore
         }
       }
 

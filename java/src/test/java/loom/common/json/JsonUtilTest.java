@@ -1,5 +1,6 @@
 package loom.common.json;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import java.util.ArrayList;
 import java.util.List;
@@ -9,6 +10,24 @@ import loom.testing.CommonAssertions;
 import org.junit.Test;
 
 public class JsonUtilTest implements CommonAssertions {
+
+  @Test
+  public void test_anyOf() {
+    var empty = JsonNodeFactory.instance.arrayNode();
+
+    assertThat(JsonUtil.Tree.allOf(empty, JsonNode::isNumber)).isTrue();
+    assertThat(JsonUtil.Tree.anyOf(empty, JsonNode::isNumber)).isFalse();
+    assertThat(JsonUtil.Tree.isAllNumeric(empty)).isTrue();
+
+    var arrayNode = JsonNodeFactory.instance.arrayNode().add(1).add(2).add(3);
+    assertThat(JsonUtil.Tree.isAllNumeric(arrayNode)).isTrue();
+    assertThat(JsonUtil.Tree.allOf(arrayNode, JsonNode::isNumber)).isTrue();
+    assertThat(JsonUtil.Tree.allOf(arrayNode, n -> n.asInt() >= 2)).isFalse();
+    assertThat(JsonUtil.Tree.anyOf(arrayNode, n -> n.asInt() >= 2)).isTrue();
+
+    assertThat(JsonUtil.Tree.isAllNumeric(JsonNodeFactory.instance.arrayNode().add(1).add("abc")))
+        .isFalse();
+  }
 
   @Value
   public static class ExampleClass {

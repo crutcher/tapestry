@@ -121,7 +121,7 @@ public class GHTest extends BaseTestClass {
   public void test_tables() {
     assertThat(GH.table()).isInstanceOf(GH.TableWrapper.class).hasToString("<table/>");
 
-    GH.TableBaseWrapper<GH.TableWrapper> tableWrapperTableBaseWrapper =
+    var table =
         GH.table()
             .align(GH.HorizontalAlign.CENTER)
             .valign(GH.VerticalAlign.TOP)
@@ -143,9 +143,6 @@ public class GHTest extends BaseTestClass {
             .target("foo")
             .port("xyz")
             .id("12345")
-            .tooltip("bar");
-    var table =
-        tableWrapperTableBaseWrapper
             .tooltip("I like tables")
             .tr(DocumentHelper.createElement("br"), GH.td().colspan(2).add("xyz"), "c")
             .tr(
@@ -179,11 +176,17 @@ public class GHTest extends BaseTestClass {
             target="foo"
             port="xyz"
             id="12345"
-            tooltip="bar"
-            title="I like tables"
+            tooltip="I like tables"
           >
           <tr><td><br/></td><td colspan="2">xyz</td><td>c</td></tr>
           <tr><td align="TEXT" balign="CENTER" colspan="3" rowspan="3"/></tr>
         </table>""");
+  }
+
+  @Test
+  public void test_nest() {
+    var stack = GH.nest(GH.font().color("red"), GH.bold(), GH.italic("hello"));
+
+    assertXmlEquals(stack, "<font color=\"red\"><b><i>hello</i></b></font>");
   }
 }
