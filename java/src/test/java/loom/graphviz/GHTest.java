@@ -1,5 +1,6 @@
 package loom.graphviz;
 
+import loom.graph.export.graphviz.GH;
 import loom.testing.BaseTestClass;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Text;

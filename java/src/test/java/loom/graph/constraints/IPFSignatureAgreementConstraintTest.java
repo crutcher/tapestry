@@ -7,6 +7,7 @@ import java.util.function.Function;
 import javax.annotation.Nullable;
 import loom.graph.CommonEnvironments;
 import loom.graph.LoomGraph;
+import loom.graph.export.graphviz.GraphVisualizer;
 import loom.graph.nodes.*;
 import loom.polyhedral.IndexProjectionFunction;
 import loom.testing.BaseTestClass;
@@ -97,13 +98,16 @@ public class IPFSignatureAgreementConstraintTest extends BaseTestClass {
 
     graph.validate();
 
-    var exporter = GraphExporter.buildDefault();
-    var export = exporter.export(graph);
-    var gv = export.getGraphviz();
+    {
+      // This is for dev on the graphviz stuff; it should be moved.
+      var exporter = GraphVisualizer.buildDefault();
+      var export = exporter.export(graph);
+      var gv = export.getGraphviz();
 
-    var img = gv.render(Format.PNG).toImage();
+      var img = gv.render(Format.PNG).toImage();
 
-    System.out.println("here");
+      System.out.println("here");
+    }
   }
 
   public static OperationSignatureNode applyRelativeSignature(

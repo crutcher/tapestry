@@ -1,19 +1,20 @@
-package loom.graphviz;
+package loom.graph.export.graphviz;
 
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
-import java.io.IOException;
-import java.io.StringWriter;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.stream.Stream;
-import javax.annotation.CheckReturnValue;
-import javax.annotation.Nonnull;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import loom.common.runtime.ExcludeFromJacocoGeneratedReport;
 import org.dom4j.*;
 import org.dom4j.io.OutputFormat;
 import org.dom4j.io.XMLWriter;
+
+import javax.annotation.CheckReturnValue;
+import javax.annotation.Nonnull;
+import java.io.IOException;
+import java.io.StringWriter;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.stream.Stream;
 
 /**
  * A fluent api for creating GraphViz HTML-Like labels.
@@ -948,12 +949,20 @@ public final class GH {
       return this;
     }
 
+    /**
+     * Override to auto-box table element adds.
+     *
+     * <p>Table elements can only have {@code <tr></tr>} and {@code <hr/>} children;
+     *
+     * @param node the child to add.
+     * @return {@code this}
+     */
+    @Override
     @CanIgnoreReturnValue
     public TableWrapper add(Node node) {
       if (node instanceof Element element) {
-        if (element.getName().equals("tr")) {
-          getNode().add(node);
-          return this;
+        if (element.getName().equals("tr") || element.getName().equals("hr")) {
+          return super.add(node);
         }
       }
       return tr(node);

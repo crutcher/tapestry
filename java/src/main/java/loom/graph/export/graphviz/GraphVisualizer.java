@@ -1,9 +1,8 @@
-package loom.graph.nodes;
+package loom.graph.export.graphviz;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.google.common.collect.Streams;
 import guru.nidi.graphviz.attribute.Label;
 import guru.nidi.graphviz.attribute.Rank;
 import guru.nidi.graphviz.attribute.Shape;
@@ -16,12 +15,11 @@ import guru.nidi.graphviz.model.MutableNode;
 import lombok.Builder;
 import lombok.Data;
 import lombok.Getter;
-import loom.common.DigestUtils;
 import loom.common.json.JsonUtil;
-import loom.common.text.TextUtils;
 import loom.graph.LoomGraph;
 import loom.graph.LoomNode;
-import loom.graphviz.GH;
+import loom.graph.nodes.ExportUtils;
+import loom.graph.nodes.TensorNode;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -29,7 +27,7 @@ import java.util.*;
 
 @Data
 @Builder
-public class GraphExporter {
+public class GraphVisualizer {
   static {
     // TODO: Make this configurable.
     // TODO: how do I shut up the INFO level logging on this?
@@ -41,37 +39,55 @@ public class GraphExporter {
 
   @Builder.Default private double graphScale = 2.5;
 
-  public static GraphExporter buildDefault() {
+  @Builder.Default private Map<String, NodeTypeExporter> nodeTypeExporters = new HashMap<>();
+  @Builder.Default private NodeTypeExporter defaultNodeTypeExporter = new DefaultNodeExporter();
+
+  public NodeTypeExporter exporterForNodeType(String type) {
+    var exp = nodeTypeExporters.get(type);
+    if (exp == null) {
+      exp = defaultNodeTypeExporter;
+    }
+    if (exp == null) {
+      throw new IllegalStateException("No exporter for type: " + type);
+    }
+    return exp;
+  }
+
+  public static GraphVisualizer buildDefault() {
     var exporter = builder().build();
-    exporter.setDefaultNodeTypeExporter(new DefaultNodeExporter());
     exporter.getNodeTypeExporters().put(TensorNode.TYPE, new TensorNodeExporter());
     return exporter;
   }
 
   public interface NodeTypeExporter {
     void exportNode(
-        GraphExporter graphExporter, Export export, LoomNode<?, ?> node, MutableNode gvizNode);
+        GraphVisualizer visualizer,
+        ExportContext context,
+        LoomNode<?, ?> node,
+        MutableNode gvizNode);
   }
 
   public static class DefaultNodeExporter implements NodeTypeExporter {
     @Override
     public void exportNode(
-        GraphExporter graphExporter, Export export, LoomNode<?, ?> node, MutableNode gvizNode) {
+        GraphVisualizer visualizer,
+        ExportContext context,
+        LoomNode<?, ?> node,
+        MutableNode gvizNode) {
 
       gvizNode.add(Shape.RECTANGLE);
 
       var labelTable = GH.table().border(0).cellborder(0).cellspacing(2).cellpadding(2);
 
       labelTable.add(
-          export.renderDataTable(
-              graphExporter.typeAlias(node.getType()), node.getBodyAsJsonNode()));
-      labelTable.addAll(export.renderAnnotationTables(node));
+          context.renderDataTable(visualizer.typeAlias(node.getType()), node.getBodyAsJsonNode()));
+      labelTable.addAll(context.renderAnnotationTables(node));
 
       gvizNode.add(Label.html(labelTable.toString()));
 
       List<Link> links = new ArrayList<>();
       var body = (ObjectNode) node.getBodyAsJsonNode();
-      var graph = export.getGraph();
+      var graph = context.getGraph();
       ExportUtils.findLinks(
           body,
           graph::hasNode,
@@ -96,7 +112,10 @@ public class GraphExporter {
   public static class TensorNodeExporter implements NodeTypeExporter {
     @Override
     public void exportNode(
-        GraphExporter graphExporter, Export export, LoomNode<?, ?> node, MutableNode gvizNode) {
+        GraphVisualizer visualizer,
+        ExportContext context,
+        LoomNode<?, ?> node,
+        MutableNode gvizNode) {
       var tensorNode = (TensorNode) node;
       gvizNode.add(Shape.BOX_3D);
       gvizNode.add("style", "filled");
@@ -107,36 +126,22 @@ public class GraphExporter {
               .border(0)
               .cellborder(0)
               .cellspacing(0)
-              .tr(export.renderDataTypeTitle(graphExporter.typeAlias(node.getType())))
+              .tr(context.renderDataTypeTitle(visualizer.typeAlias(node.getType())))
               .add(
-                  export.dataRow("dtype", tensorNode.getDtype()),
-                  export.dataRow("shape", tensorNode.getShape().toString()),
-                  export.dataRow("range", tensorNode.getRange().toRangeString()))
-              .addAll(export.renderAnnotationTables(node));
+                  context.dataRow("dtype", tensorNode.getDtype()),
+                  context.dataRow("shape", tensorNode.getShape().toString()),
+                  context.dataRow("range", tensorNode.getRange().toRangeString()))
+              .addAll(context.renderAnnotationTables(node));
 
       gvizNode.add(Label.html(labelTable.toString()));
     }
   }
 
-  @Builder.Default private Map<String, NodeTypeExporter> nodeTypeExporters = new HashMap<>();
-  @Builder.Default private NodeTypeExporter defaultNodeTypeExporter = null;
-
-  public NodeTypeExporter exporterForNodeType(String type) {
-    var exp = nodeTypeExporters.get(type);
-    if (exp == null) {
-      exp = defaultNodeTypeExporter;
-    }
-    if (exp == null) {
-      throw new IllegalStateException("No exporter for type: " + type);
-    }
-    return exp;
-  }
-
   @Data
-  public class Export {
+  public class ExportContext {
     @Nonnull private final LoomGraph graph;
 
-    public Export(@Nonnull LoomGraph graph) {
+    public ExportContext(@Nonnull LoomGraph graph) {
       this.graph = Objects.requireNonNull(graph);
     }
 
@@ -145,21 +150,12 @@ public class GraphExporter {
 
     @Getter private MutableGraph exportGraph = null;
 
-    @SuppressWarnings("UnstableApiUsage")
+    @Getter(lazy = true)
+    private final Graphviz graphviz = renderGraphviz();
+
     private Map<UUID, String> renderNodeHexAliasMap() {
-        var ids = getGraph().nodeScan().asStream().map(LoomNode::getId).toList();
-
-      var idHashes = ids.stream().map(id -> DigestUtils.toMD5HexString(id.toString())).toList();
-
-      var labelLen = Math.max(TextUtils.longestCommonPrefix(idHashes).length() + 1, minLabelLen);
-
-      var labels = new HashMap<UUID, String>();
-      Streams.forEachPair(
-          ids.stream(),
-          idHashes.stream(),
-          (id, hash) -> labels.put(id, hash.substring(0, labelLen)));
-
-      return Collections.unmodifiableMap(labels);
+      return AliasUtils.uuidAliasMap(
+          getGraph().nodeScan().asStream().map(LoomNode::getId).toList(), minLabelLen);
     }
 
     @Nullable private LoomNode<?, ?> maybeNode(UUID id) {
@@ -201,7 +197,8 @@ public class GraphExporter {
       }
 
       exportGraph.add(gvnode);
-      exporterForNodeType(node.getType()).exportNode(GraphExporter.this, Export.this, node, gvnode);
+      exporterForNodeType(node.getType())
+          .exportNode(GraphVisualizer.this, ExportContext.this, node, gvnode);
     }
 
     public List<GH.TableWrapper> renderAnnotationTables(LoomNode<?, ?> loomNode) {
@@ -233,9 +230,6 @@ public class GraphExporter {
       table.addAll(renderDataType(title, node));
       return table;
     }
-
-    @Getter(lazy = true)
-    private final Graphviz graphviz = renderGraphviz();
 
     private Graphviz renderGraphviz() {
       return Graphviz.fromGraph(exportGraph).scale(graphScale);
@@ -338,8 +332,8 @@ public class GraphExporter {
     }
   }
 
-  public Export export(LoomGraph graph) {
-    var e = new Export(graph);
+  public ExportContext export(LoomGraph graph) {
+    var e = new ExportContext(graph);
     e.export();
     return e;
   }
