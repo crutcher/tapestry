@@ -8,6 +8,7 @@ import guru.nidi.graphviz.attribute.Label;
 import guru.nidi.graphviz.attribute.Rank;
 import guru.nidi.graphviz.attribute.Shape;
 import guru.nidi.graphviz.engine.Graphviz;
+import guru.nidi.graphviz.engine.GraphvizCmdLineEngine;
 import guru.nidi.graphviz.model.Factory;
 import guru.nidi.graphviz.model.Link;
 import guru.nidi.graphviz.model.MutableGraph;
@@ -30,6 +31,12 @@ import java.util.*;
 @Data
 @Builder
 public class GraphExporter {
+  static {
+    // TODO: Make this configurable.
+    // TODO: how do I shut up the INFO level logging on this?
+    Graphviz.useEngine(new GraphvizCmdLineEngine());
+  }
+
   @Builder.Default private final int minLabelLen = 2;
   @Builder.Default private final Rank.RankDir rankDir = Rank.RankDir.LEFT_TO_RIGHT;
 
@@ -62,17 +69,18 @@ public class GraphExporter {
               .tr(
                   GH.td()
                       .colspan(2)
-                      .add(GH.font().color("teal").add(GH.bold(GH.text(node.getType())))));
+                      .add(GH.font().color("teal").add(GH.bold(
+                                graphExporter.typeAlias(node.getType())))));
 
       if (node.getLabel() != null) {
         labelTable.tr(
             GH.td()
                 .colspan(2)
-                .add(GH.font().attr("color", "green").add(GH.bold(GH.text(node.getLabel())))));
+                .add(GH.font().attr("color", "green").add(GH.bold(node.getLabel()))));
       }
 
-      labelTable.parseAndAdd(export.toRows((ObjectNode) node.getBodyAsJsonNode()));
-      labelTable.parseAndAdd(export.renderAnnotations(node));
+      labelTable.addXml(export.toRows((ObjectNode) node.getBodyAsJsonNode()));
+      labelTable.addAll(export.renderAnnotationRows(node));
 
       gvizNode.add(Label.html(labelTable.toString()));
 
@@ -95,6 +103,17 @@ public class GraphExporter {
     }
   }
 
+  public String typeAlias(String type) {
+    // TODO: something real.
+    return "loom:" + type;
+  }
+
+  public GH.ElementWrapper<?> dataRow(Object key, Object... values) {
+    return GH.tr(
+        GH.td().align(GH.TableDataAlign.RIGHT).valign(GH.VerticalAlign.TOP).add(GH.bold(key)),
+        GH.td().align(GH.TableDataAlign.LEFT).valign(GH.VerticalAlign.TOP).add(values));
+  }
+
   public static class TensorNodeExporter implements NodeTypeExporter {
     @Override
     public void exportNode(
@@ -112,22 +131,21 @@ public class GraphExporter {
               .tr(
                   GH.td()
                       .colspan(2)
-                      .add(GH.font().color("teal").add(GH.bold(GH.text(node.getType())))));
+                      .add(GH.font().color("teal").add(GH.bold(graphExporter.typeAlias(node.getType())))));
 
       if (node.getLabel() != null) {
         labelTable.tr(
             GH.td()
                 .colspan(2)
-                .add(GH.font().attr("color", "green").add(GH.bold(GH.text(node.getLabel())))));
+                .add(GH.font().attr("color", "green").add(GH.bold(node.getLabel()))));
       }
 
-      labelTable.tr(
-          GH.td().valign(GH.VerticalAlign.TOP).add(GH.bold("dtype")), tensorNode.getDtype());
-      labelTable.tr(
-          GH.td().valign(GH.VerticalAlign.TOP).add(GH.bold("range")),
-          tensorNode.getRange().toRangeString());
+      labelTable.add(
+              graphExporter.dataRow("dtype", tensorNode.getDtype()),
+          graphExporter.dataRow("shape", tensorNode.getShape().toString()),
+          graphExporter.dataRow("range", tensorNode.getRange().toRangeString()));
 
-      // labelTable.parseAndAdd(export.renderAnnotations(node));
+      labelTable.addAll(export.renderAnnotationRows(node));
 
       gvizNode.add(Label.html(labelTable.toString()));
     }
@@ -150,8 +168,7 @@ public class GraphExporter {
   @Data
   @RequiredArgsConstructor
   public class Export {
-    @Nonnull
-    private final LoomGraph graph;
+    @Nonnull private final LoomGraph graph;
 
     @Getter(lazy = true)
     private final Map<UUID, String> nodeLabels = renderNodeLabels();
@@ -193,7 +210,7 @@ public class GraphExporter {
       exportGraph.graphAttrs().add(Rank.dir(rankDir));
 
       // Force support for "xlabel":
-      exportGraph.graphAttrs().add("forcelabels", true);
+      // exportGraph.graphAttrs().add("forcelabels", true);
 
       for (var nodeIt = graph.nodeScan().asStream().iterator(); nodeIt.hasNext(); ) {
         var loomNode = nodeIt.next();
@@ -209,19 +226,37 @@ public class GraphExporter {
       exporterForNodeType(node.getType()).exportNode(GraphExporter.this, Export.this, node, gvnode);
     }
 
-    public String renderAnnotations(LoomNode<?, ?> loomNode) {
-      StringBuilder sb = new StringBuilder();
-      for (var annEntry : loomNode.getAnnotations().entrySet()) {
-        var key = annEntry.getKey();
-        var value = annEntry.getValue();
-        sb.append(exportAnnotation(key, value));
+    public List<GH.ElementWrapper<?>> objectNodeToRows(ObjectNode node) {
+      List<GH.ElementWrapper<?>> rows = new ArrayList<>();
+      for (var it = node.fields(); it.hasNext(); ) {
+        var entry = it.next();
+        rows.add(
+            GH.tr(
+                GH.td()
+                    .align(GH.TableDataAlign.RIGHT)
+                    .valign(GH.VerticalAlign.TOP)
+                    .add(GH.bold(entry.getKey())),
+                GH.td()
+                    .align(GH.TableDataAlign.LEFT)
+                    .valign(GH.VerticalAlign.TOP)
+                    .addXml(jsonToCell(entry.getValue()))));
       }
-      return sb.toString();
+      return rows;
     }
 
-    public String exportAnnotation(String key, Object value) {
-      return "<tr><td colspan=\"2\"><b>%s</b></td></tr>".formatted(formatAnnotationType(key))
-          + toRows((ObjectNode) JsonUtil.convertValue(value, JsonNode.class));
+    public List<GH.ElementWrapper<?>> renderAnnotationRows(LoomNode<?, ?> loomNode) {
+      List<GH.ElementWrapper<?>> rows = new ArrayList<>();
+      for (var annEntry :
+          loomNode.getAnnotations().entrySet().stream()
+              .sorted(Map.Entry.comparingByKey())
+              .toList()) {
+        var key = annEntry.getKey();
+        var value = annEntry.getValue();
+
+        rows.add(GH.tr(GH.td().colspan(2).add(GH.font().color("teal").add(GH.bold(typeAlias(key))))));
+        rows.addAll(objectNodeToRows((ObjectNode) JsonUtil.convertValue(value, JsonNode.class)));
+      }
+      return rows;
     }
 
     @Getter(lazy = true)
@@ -306,10 +341,6 @@ public class GraphExporter {
 
     public String formattedNodeLabel(LoomNode<?, ?> node) {
       return formattedNodeLabel(node.getId());
-    }
-
-    public String formatAnnotationType(String type) {
-      return "<font color=\"teal\">%s</font>".formatted(type);
     }
   }
 

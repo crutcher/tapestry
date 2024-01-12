@@ -1,18 +1,19 @@
 package loom.graphviz;
 
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
-import java.io.IOException;
-import java.io.StringWriter;
-import java.util.Arrays;
-import java.util.Collection;
-import javax.annotation.CheckReturnValue;
-import javax.annotation.Nonnull;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import loom.common.runtime.ExcludeFromJacocoGeneratedReport;
 import org.dom4j.*;
 import org.dom4j.io.OutputFormat;
 import org.dom4j.io.XMLWriter;
+
+import javax.annotation.CheckReturnValue;
+import javax.annotation.Nonnull;
+import java.io.IOException;
+import java.io.StringWriter;
+import java.util.Arrays;
+import java.util.Collection;
 
 /**
  * A fluent api for creating GraphViz HTML-Like labels.
@@ -238,7 +239,7 @@ public final class GH {
      * @return {@code this}
      */
     @CanIgnoreReturnValue
-    public T addAll(Collection<Object> objects) {
+    public T addAll(Collection<?> objects) {
       for (var object : objects) {
         switch (object) {
           case String str -> add(str);
@@ -260,7 +261,7 @@ public final class GH {
      * @return {@code this}
      */
     @CanIgnoreReturnValue
-    public T parseAndAdd(String xml) {
+    public T addXml(String xml) {
       Document document;
       try {
         document = DocumentHelper.parseText("<root>%s</root>".formatted(xml));

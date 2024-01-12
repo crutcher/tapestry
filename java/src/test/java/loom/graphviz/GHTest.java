@@ -37,9 +37,9 @@ public class GHTest extends BaseTestClass {
         .withMessageContaining(
             "Cannot add instances of class java.lang.Object to an Element: java.lang.Object@");
 
-    hello.parseAndAdd("<font color=\"red\">red text</font>abc<br/>");
+    hello.addXml("<font color=\"red\">red text</font>abc<br/>");
 
-    assertThatExceptionOfType(RuntimeException.class).isThrownBy(() -> hello.parseAndAdd("<x>abc"));
+    assertThatExceptionOfType(RuntimeException.class).isThrownBy(() -> hello.addXml("<x>abc"));
 
     assertThat(hello.getAttr("foo")).isEqualTo("bar");
 

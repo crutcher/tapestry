@@ -2,9 +2,6 @@ package loom.graph.constraints;
 
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import guru.nidi.graphviz.engine.Format;
-import java.util.*;
-import java.util.function.Function;
-import javax.annotation.Nullable;
 import loom.graph.CommonEnvironments;
 import loom.graph.LoomGraph;
 import loom.graph.nodes.*;
@@ -13,6 +10,10 @@ import loom.testing.BaseTestClass;
 import loom.zspace.ZPoint;
 import loom.zspace.ZRange;
 import org.junit.Test;
+
+import javax.annotation.Nullable;
+import java.util.*;
+import java.util.function.Function;
 
 @SuppressWarnings("unused")
 public class IPFSignatureAgreementConstraintTest extends BaseTestClass {
@@ -100,8 +101,6 @@ public class IPFSignatureAgreementConstraintTest extends BaseTestClass {
     var exporter = GraphExporter.buildDefault();
     var export = exporter.export(graph);
     var gv = export.getGraphviz();
-
-    System.out.println(export.getExportGraph());
 
     var img = gv.render(Format.PNG).toImage();
 
