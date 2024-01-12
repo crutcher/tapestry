@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.stream.Stream;
 
 /**
  * A fluent api for creating GraphViz HTML-Like labels.
@@ -148,8 +149,7 @@ public final class GH {
    *
    * @param <T> the type of the wrapper.
    */
-  public static class ElementWrapper<T extends ElementWrapper<T>>
-      extends NodeWrapper<ElementWrapper<T>, Element> {
+  public static class ElementWrapper<T extends ElementWrapper<T>> extends NodeWrapper<T, Element> {
 
     public ElementWrapper(Element element) {
       super(element);
@@ -251,6 +251,17 @@ public final class GH {
                   + " to an Element: %s".formatted(object));
         }
       }
+      return self();
+    }
+
+    /**
+     * Add a stream of objects to this element.
+     *
+     * @param objects the objects to add.
+     * @return {@code this}
+     */
+    public T addAll(Stream<?> objects) {
+      objects.forEach(this::add);
       return self();
     }
 
@@ -612,7 +623,7 @@ public final class GH {
    * @param <T> the type of the wrapper.
    */
   public abstract static class TableBaseWrapper<T extends TableBaseWrapper<T>>
-      extends ElementWrapper<TableBaseWrapper<T>> {
+      extends ElementWrapper<T> {
     public TableBaseWrapper(Element element) {
       super(element);
     }
@@ -1048,5 +1059,18 @@ public final class GH {
     var t = td();
     t.add(children);
     return t;
+  }
+
+  /**
+   * Chain a series of elements together as children of each other.
+   *
+   * @param stack the elements to chain together.
+   * @return the first element in the stack.
+   */
+  public static ElementWrapper<?> nest(ElementWrapper<?>... stack) {
+    for (int i = 1; i < stack.length; i++) {
+      stack[i].withParent(stack[i - 1]);
+    }
+    return stack[0];
   }
 }

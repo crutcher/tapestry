@@ -8,13 +8,83 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.BooleanNode;
 import com.fasterxml.jackson.databind.node.NumericNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import java.util.*;
-import javax.annotation.Nullable;
 import lombok.NoArgsConstructor;
 import lombok.Value;
+import loom.common.collections.IteratorUtils;
+
+import javax.annotation.Nullable;
+import java.util.*;
+import java.util.function.Predicate;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 @NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
 public final class JsonUtil {
+  @NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
+  public static class Tree {
+
+    /**
+     * Check if all elements in an array are numeric.
+     *
+     * @param array The array to check.
+     * @return True if all elements are numeric, false otherwise.
+     */
+    public static boolean isAllNumeric(ArrayNode array) {
+      return allOf(array, JsonNode::isNumber);
+    }
+
+    /**
+     * Check if all elements in an array match the Predicate.
+     *
+     * @param array The array to check.
+     * @return True if all elements are boolean, false otherwise.
+     */
+    public static boolean allOf(ArrayNode array, Predicate<JsonNode> predicate) {
+      for (var it = array.elements(); it.hasNext(); ) {
+        var node = it.next();
+        if (!predicate.test(node)) {
+          return false;
+        }
+      }
+      return true;
+    }
+
+    /**
+     * Check if any elements in an array match the Predicate.
+     *
+     * @param array The array to check.
+     * @return True if any elements are numeric, false otherwise.
+     */
+    public static boolean anyOf(ArrayNode array, Predicate<JsonNode> predicate) {
+      for (var it = array.elements(); it.hasNext(); ) {
+        var node = it.next();
+        if (predicate.test(node)) {
+          return true;
+        }
+      }
+      return false;
+    }
+
+    /**
+     * Adapt an ArrayNode to a {@code Stream<JsonNode>}.
+     *
+     * @param array The array to adapt.
+     * @return The Stream.
+     */
+    public static Stream<JsonNode> stream(ArrayNode array) {
+      return StreamSupport.stream(array.spliterator(), false);
+    }
+
+    /**
+     * Adapt an ObjectNode to a {@code Stream<Map.Entry<String, JsonNode>>}.
+     *
+     * @param object The object to adapt.
+     * @return The Stream.
+     */
+    public static Stream<Map.Entry<String, JsonNode>> stream(ObjectNode object) {
+      return IteratorUtils.iteratorToStream(object.fields());
+    }
+  }
 
   private static final ObjectMapper COMMON_MAPPER =
       new ObjectMapper().configure(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS, true);

@@ -21,6 +21,10 @@ public final class IteratorUtils {
     return StreamSupport.stream(iterable.spliterator(), false);
   }
 
+  public static <T> Stream<T> iteratorToStream(@Nonnull Iterator<T> iterator) {
+    return StreamSupport.stream(supplierToIterable(() -> iterator).spliterator(), false);
+  }
+
   /**
    * Convert a Supplier of Iterators to an Iterable.
    *

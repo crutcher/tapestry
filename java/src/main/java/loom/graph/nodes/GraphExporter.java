@@ -61,25 +61,21 @@ public class GraphExporter {
 
       gvizNode.add(Shape.RECTANGLE);
 
-      var labelTable =
-          GH.table()
-              .border(0)
-              .cellborder(0)
-              .cellspacing(0)
-              .tr(
-                  GH.td()
-                      .colspan(2)
-                      .add(GH.font().color("teal").add(GH.bold(
-                                graphExporter.typeAlias(node.getType())))));
+      var labelTable = GH.table().border(0).cellborder(0).cellspacing(0);
+
+      labelTable.tr(
+          GH.nest(
+              GH.td().colspan(2),
+              GH.font().color("teal"),
+              GH.bold(graphExporter.typeAlias(node.getType()))));
 
       if (node.getLabel() != null) {
         labelTable.tr(
-            GH.td()
-                .colspan(2)
-                .add(GH.font().attr("color", "green").add(GH.bold(node.getLabel()))));
+            GH.nest(
+                GH.td().colspan(2), GH.font().attr("color", "green"), GH.bold(node.getLabel())));
       }
 
-      labelTable.addXml(export.toRows((ObjectNode) node.getBodyAsJsonNode()));
+      labelTable.addAll(export.jsonObjectToRows((ObjectNode) node.getBodyAsJsonNode()));
       labelTable.addAll(export.renderAnnotationRows(node));
 
       gvizNode.add(Label.html(labelTable.toString()));
@@ -131,17 +127,18 @@ public class GraphExporter {
               .tr(
                   GH.td()
                       .colspan(2)
-                      .add(GH.font().color("teal").add(GH.bold(graphExporter.typeAlias(node.getType())))));
+                      .add(
+                          GH.font()
+                              .color("teal")
+                              .add(GH.bold(graphExporter.typeAlias(node.getType())))));
 
       if (node.getLabel() != null) {
         labelTable.tr(
-            GH.td()
-                .colspan(2)
-                .add(GH.font().attr("color", "green").add(GH.bold(node.getLabel()))));
+            GH.td().colspan(2).add(GH.font().attr("color", "green").add(GH.bold(node.getLabel()))));
       }
 
       labelTable.add(
-              graphExporter.dataRow("dtype", tensorNode.getDtype()),
+          graphExporter.dataRow("dtype", tensorNode.getDtype()),
           graphExporter.dataRow("shape", tensorNode.getShape().toString()),
           graphExporter.dataRow("range", tensorNode.getRange().toRangeString()));
 
@@ -209,39 +206,17 @@ public class GraphExporter {
       exportGraph.setDirected(true);
       exportGraph.graphAttrs().add(Rank.dir(rankDir));
 
-      // Force support for "xlabel":
-      // exportGraph.graphAttrs().add("forcelabels", true);
-
       for (var nodeIt = graph.nodeScan().asStream().iterator(); nodeIt.hasNext(); ) {
         var loomNode = nodeIt.next();
-
         exportNode(loomNode);
       }
     }
 
     private void exportNode(LoomNode<?, ?> node) {
       var gvnode = Factory.mutNode(node.getId().toString());
-      gvnode.add("xlabel", Label.html(formattedNodeLabel(node)));
+      gvnode.add("xlabel", Label.html(nodeLabelElement(node.getId()).toString()));
       exportGraph.add(gvnode);
       exporterForNodeType(node.getType()).exportNode(GraphExporter.this, Export.this, node, gvnode);
-    }
-
-    public List<GH.ElementWrapper<?>> objectNodeToRows(ObjectNode node) {
-      List<GH.ElementWrapper<?>> rows = new ArrayList<>();
-      for (var it = node.fields(); it.hasNext(); ) {
-        var entry = it.next();
-        rows.add(
-            GH.tr(
-                GH.td()
-                    .align(GH.TableDataAlign.RIGHT)
-                    .valign(GH.VerticalAlign.TOP)
-                    .add(GH.bold(entry.getKey())),
-                GH.td()
-                    .align(GH.TableDataAlign.LEFT)
-                    .valign(GH.VerticalAlign.TOP)
-                    .addXml(jsonToCell(entry.getValue()))));
-      }
-      return rows;
     }
 
     public List<GH.ElementWrapper<?>> renderAnnotationRows(LoomNode<?, ?> loomNode) {
@@ -253,8 +228,10 @@ public class GraphExporter {
         var key = annEntry.getKey();
         var value = annEntry.getValue();
 
-        rows.add(GH.tr(GH.td().colspan(2).add(GH.font().color("teal").add(GH.bold(typeAlias(key))))));
-        rows.addAll(objectNodeToRows((ObjectNode) JsonUtil.convertValue(value, JsonNode.class)));
+        rows.add(
+            GH.tr(GH.td().colspan(2).add(GH.font().color("teal").add(GH.bold(typeAlias(key))))));
+        ObjectNode node = (ObjectNode) JsonUtil.convertValue(value, JsonNode.class);
+        rows.addAll(jsonObjectToRows(node));
       }
       return rows;
     }
@@ -266,81 +243,68 @@ public class GraphExporter {
       return Graphviz.fromGraph(exportGraph).scale(graphScale);
     }
 
-    public String jsonToTable(ObjectNode node) {
-      return "<table border=\"0\" cellborder=\"0\" cellspacing=\"0\">" + toRows(node) + "</table>";
+    public GH.TableDataWrapper keyCell(String key) {
+      return GH.td().align(GH.TableDataAlign.RIGHT).valign(GH.VerticalAlign.TOP).add(GH.bold(key));
     }
 
-    public String renderKeyCell(String text) {
-      return "<td valign=\"top\"><b>%s</b></td>".formatted(text);
+    public GH.TableDataWrapper valueCell(Object... value) {
+      return GH.td().align(GH.TableDataAlign.LEFT).valign(GH.VerticalAlign.TOP).add(value);
     }
 
-    public String toRows(ObjectNode node) {
-      var table = new StringBuilder();
+    public List<GH.ElementWrapper<?>> jsonObjectToRows(ObjectNode node) {
+      List<GH.ElementWrapper<?>> rows = new ArrayList<>();
       for (var it = node.fields(); it.hasNext(); ) {
         var entry = it.next();
-        table.append(
-            "<tr>%s<td>%s</td></tr>"
-                .formatted(renderKeyCell(entry.getKey()), jsonToCell(entry.getValue())));
+        rows.add(GH.tr(keyCell(entry.getKey()), valueCell(jsonToElement(entry.getValue()))));
       }
-      return table.toString();
+      return rows;
     }
 
-    public String toRows(ArrayNode node) {
-      var table = new StringBuilder();
-      for (var it = node.elements(); it.hasNext(); ) {
-        var entry = it.next();
-        table.append("<tr><td>%s</td></tr>".formatted(jsonToCell(entry)));
-      }
-      return table.toString();
-    }
-
-    public static boolean isAllNumeric(ArrayNode array) {
-      for (var it = array.elements(); it.hasNext(); ) {
-        var node = it.next();
-        if (!node.isNumber()) {
-          return false;
-        }
-      }
-      return true;
-    }
-
-    public String jsonToCell(JsonNode node) {
-      switch (node.getNodeType()) {
-        case OBJECT:
-          return jsonToTable((ObjectNode) node);
-
-        case ARRAY:
-          {
-            var array = (ArrayNode) node;
-            if (isAllNumeric(array)) {
-              return JsonUtil.toJson(array);
-            } else {
-              return "<table border=\"0\" cellborder=\"1\" cellspacing=\"0\">"
-                  + toRows(array)
-                  + "</table>";
-            }
+    public GH.ElementWrapper<?> jsonToElement(JsonNode node) {
+      switch (node) {
+        case ArrayNode array -> {
+          if (JsonUtil.Tree.isAllNumeric(array)) {
+            return GH.font().color("blue").add(GH.bold(JsonUtil.toJson(array)));
+          } else {
+            return GH.table()
+                .border(0)
+                .cellborder(1)
+                .cellspacing(0)
+                .addAll(
+                    JsonUtil.Tree.stream(array).map(item -> GH.tr(valueCell(jsonToElement(item)))));
           }
-
-        default:
+        }
+        case ObjectNode object -> {
+          return GH.table()
+              .border(0)
+              .cellborder(0)
+              .cellspacing(0)
+              .addAll(
+                  JsonUtil.Tree.stream(object)
+                      .map(
+                          entry ->
+                              GH.tr(
+                                  keyCell(entry.getKey()),
+                                  valueCell(jsonToElement(entry.getValue())))));
+        }
+        default -> {
           var text = node.asText();
           var targetNode = maybeNode(text);
           if (targetNode != null) {
-            return formattedNodeLabel(targetNode);
+            return nodeLabelElement(targetNode.getId());
+          } else {
+            return GH.bold(text);
           }
-          return text;
+        }
       }
+    }
+
+    public GH.ElementWrapper<?> nodeLabelElement(UUID id) {
+      return GH.font().color("teal").add(GH.bold(nodeLabel(id)));
     }
 
     public String nodeLabel(UUID id) {
       return getNodeLabels().get(id);
-    }
-
-    public String formattedNodeLabel(UUID id) {
-      return "<font color=\"teal\">%s</font>".formatted(nodeLabel(id));
-    }
-
-    public String formattedNodeLabel(LoomNode<?, ?> node) {
-      return formattedNodeLabel(node.getId());
     }
   }
 
