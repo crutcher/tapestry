@@ -1,6 +1,7 @@
 package loom.graph.constraints;
 
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
+import guru.nidi.graphviz.engine.Format;
 import java.util.*;
 import java.util.function.Function;
 import javax.annotation.Nullable;
@@ -22,76 +23,89 @@ public class IPFSignatureAgreementConstraintTest extends BaseTestClass {
 
     var graph = env.newGraph();
 
-    var tensorA =
-        TensorNode.withBody(
-                b ->
-                    b.dtype("int32")
-                        .range(
-                            ZRange.builder()
-                                .start(ZPoint.of(-10, 4))
-                                .shape(ZPoint.of(3, 4))
-                                .build()))
-            .addTo(graph);
+    {
+      var tensorA =
+          TensorNode.withBody(
+                  b ->
+                      b.dtype("int32")
+                          .range(
+                              ZRange.builder()
+                                  .start(ZPoint.of(-10, 4))
+                                  .shape(ZPoint.of(3, 4))
+                                  .build()))
+              .label("A")
+              .addTo(graph);
 
-    var tensorB = TensorNode.withBody(b -> b.dtype("int32").shape(4, 5)).addTo(graph);
+      var tensorB = TensorNode.withBody(b -> b.dtype("int32").shape(4, 5)).label("B").addTo(graph);
 
-    var relativeSignature =
-        IPFSignature.builder()
-            .input(
-                "x",
-                IndexProjectionFunction.builder()
-                    .affineMap(new int[][] {{1, 0}, {0, 0}})
-                    .shape(ZPoint.of(1, tensorA.getShape().get(1)))
-                    .build())
-            .input(
-                "y",
-                IndexProjectionFunction.builder()
-                    .affineMap(new int[][] {{0, 0}, {0, 1}})
-                    .shape(ZPoint.of(tensorB.getShape().get(0), 1))
-                    .build())
-            .output(
-                "z",
-                IndexProjectionFunction.builder().affineMap(new int[][] {{1, 0}, {0, 1}}).build())
-            .build();
+      var relativeSignature =
+          IPFSignature.builder()
+              .input(
+                  "x",
+                  IndexProjectionFunction.builder()
+                      .affineMap(new int[][] {{1, 0}, {0, 0}})
+                      .shape(ZPoint.of(1, tensorA.getShape().get(1)))
+                      .build())
+              .input(
+                  "y",
+                  IndexProjectionFunction.builder()
+                      .affineMap(new int[][] {{0, 0}, {0, 1}})
+                      .shape(ZPoint.of(tensorB.getShape().get(0), 1))
+                      .build())
+              .output(
+                  "z",
+                  IndexProjectionFunction.builder().affineMap(new int[][] {{1, 0}, {0, 1}}).build())
+              .build();
 
-    var op =
-        applyRelativeSignature(
-            graph,
-            "matmul",
-            relativeSignature,
-            inputs -> {
-              var x = inputs.get("x").getFirst().getRange().getShape().get(0);
-              var y = inputs.get("y").getFirst().getRange().getShape().get(1);
-              return ZRange.fromShape(x, y);
-            },
-            Map.of(
-                "x",
-                List.of(TensorSelection.from(tensorA)),
-                "y",
-                List.of(TensorSelection.from(tensorB))),
-            Map.of("z", List.of("int32")),
-            null);
+      var op =
+          applyRelativeSignature(
+              graph,
+              "matmul",
+              relativeSignature,
+              inputs -> {
+                var x = inputs.get("x").getFirst().getRange().getShape().get(0);
+                var y = inputs.get("y").getFirst().getRange().getShape().get(1);
+                return ZRange.fromShape(x, y);
+              },
+              Map.of(
+                  "x",
+                  List.of(TensorSelection.from(tensorA)),
+                  "y",
+                  List.of(TensorSelection.from(tensorB))),
+              Map.of("z", List.of("int32")),
+              null);
 
-    assertThat(graph.nodeScan().nodeClass(OperationSignatureNode.class).asStream().count())
-        .isEqualTo(1);
-    assertThat(graph.nodeScan().nodeClass(ApplicationNode.class).asStream().count()).isEqualTo(1);
+      assertThat(graph.nodeScan().nodeClass(OperationSignatureNode.class).asStream().count())
+          .isEqualTo(1);
+      assertThat(graph.nodeScan().nodeClass(ApplicationNode.class).asStream().count()).isEqualTo(1);
 
-    TensorNode tensorC =
-        graph.assertNode(
-            op.getOutputs().get("z").getFirst().getTensorId(), TensorNode.TYPE, TensorNode.class);
+      TensorNode tensorC =
+          graph.assertNode(
+              op.getOutputs().get("z").getFirst().getTensorId(), TensorNode.TYPE, TensorNode.class);
 
-    assertThat(tensorC.getDtype()).isEqualTo("int32");
-    assertThat(tensorC.getRange()).isEqualTo(ZRange.fromShape(3, 5));
-    assertThat(tensorC.getLabel()).isEqualTo("matmul/z[0]");
+      assertThat(tensorC.getDtype()).isEqualTo("int32");
+      assertThat(tensorC.getRange()).isEqualTo(ZRange.fromShape(3, 5));
+      assertThat(tensorC.getLabel()).isEqualTo("matmul/z[0]");
 
-    var shards = op.getApplicationNodes();
-    assertThat(shards).hasSize(1);
-    var app = shards.getFirst();
-    assertThat(app.getOperationSignatureNode()).isSameAs(op);
-    assertThat(app.assertAnnotation(IPFIndex.ANNOTATION_TYPE, IPFIndex.class).getRange())
-        .isEqualTo(ZRange.fromShape(3, 5));
+      var shards = op.getApplicationNodes();
+      assertThat(shards).hasSize(1);
+      var app = shards.getFirst();
+      assertThat(app.getOperationSignatureNode()).isSameAs(op);
+      assertThat(app.assertAnnotation(IPFIndex.ANNOTATION_TYPE, IPFIndex.class).getRange())
+          .isEqualTo(ZRange.fromShape(3, 5));
+    }
 
     graph.validate();
+
+    var exporter = GraphExporter.buildDefault();
+    var export = exporter.export(graph);
+    var gv = export.getGraphviz();
+
+    System.out.println(export.getExportGraph());
+
+    var img = gv.render(Format.PNG).toImage();
+
+    System.out.println("here");
   }
 
   public static OperationSignatureNode applyRelativeSignature(
@@ -218,6 +232,11 @@ public class IPFSignatureAgreementConstraintTest extends BaseTestClass {
 
     assert ipfIndex.getRange().contains(shardIndex);
 
+    var label =
+        (sig.getLabel() == null ? sig.getName() : sig.getLabel())
+            + ": "
+            + shardIndex.toRangeString();
+
     return ApplicationNode.withBody(
             b -> {
               b.operationId(sig.getId());
@@ -253,6 +272,7 @@ public class IPFSignatureAgreementConstraintTest extends BaseTestClass {
               }
             })
         .annotation(IPFIndex.ANNOTATION_TYPE, IPFIndex.builder().range(shardIndex).build())
+        .label(label)
         .addTo(graph);
   }
 }

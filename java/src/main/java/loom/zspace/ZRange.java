@@ -413,8 +413,12 @@ public final class ZRange implements Cloneable, HasSize, HasPermute<ZRange>, Has
 
   @Override
   public String toString() {
+    return "zr" + toRangeString();
+  }
+
+  public String toRangeString() {
     var b = new StringBuilder();
-    b.append("zr[");
+    b.append("[");
     for (int i = 0; i < getNDim(); ++i) {
       if (i > 0) {
         b.append(", ");

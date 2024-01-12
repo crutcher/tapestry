@@ -161,5 +161,16 @@ dependencies {
     // Optional: Graal JS engine; enable as the default.
     implementation("org.graalvm.js:js:22.3.1")
     // Graphviz.useEngine(GraphvizJdkEngine())
+
+    // ================
+    // XML Stuff
+    implementation("org.dom4j:dom4j:2.1.4")
+
+    // HTML Dom Library
+    // https://mvnrepository.com/artifact/org.jsoup/jsoup
+    implementation("org.jsoup:jsoup:1.17.2")
+    // XMLUnit testing.
+    implementation("org.xmlunit:xmlunit-core:2.9.1")
+    implementation("org.xmlunit:xmlunit-assertj3:2.9.1")
 }
 
