@@ -1,5 +1,6 @@
 package loom.common;
 
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 
 public class DigestUtils {
@@ -25,7 +26,7 @@ public class DigestUtils {
 
   public static String toMD5HexString(String str) {
     MessageDigest md = getMD5Digest();
-    md.update(str.getBytes());
+    md.update(str.getBytes(StandardCharsets.UTF_8));
     return bytesToHex(md.digest());
   }
 }

@@ -2,14 +2,13 @@ package loom.graph.nodes;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import lombok.Value;
-import loom.common.json.JsonPathUtils;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.UUID;
 import java.util.function.BiConsumer;
 import java.util.function.Predicate;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import lombok.Value;
+import loom.common.json.JsonPathUtils;
 
 public class ExportUtils {
 
