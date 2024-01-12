@@ -121,7 +121,7 @@ public class GHTest extends BaseTestClass {
   public void test_tables() {
     assertThat(GH.table()).isInstanceOf(GH.TableWrapper.class).hasToString("<table/>");
 
-    var table =
+    GH.TableBaseWrapper<GH.TableWrapper> tableWrapperTableBaseWrapper =
         GH.table()
             .align(GH.HorizontalAlign.CENTER)
             .valign(GH.VerticalAlign.TOP)
@@ -143,8 +143,10 @@ public class GHTest extends BaseTestClass {
             .target("foo")
             .port("xyz")
             .id("12345")
-            .tooltip("bar")
-            .title("I like tables")
+            .tooltip("bar");
+    var table =
+        tableWrapperTableBaseWrapper
+            .tooltip("I like tables")
             .tr(DocumentHelper.createElement("br"), GH.td().colspan(2).add("xyz"), "c")
             .tr(
                 GH.td()

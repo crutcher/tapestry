@@ -3,16 +3,10 @@ package loom.graph;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -22,6 +16,13 @@ import loom.common.json.HasToJsonString;
 import loom.common.json.JsonUtil;
 import loom.common.runtime.ReflectionUtils;
 import loom.validation.ValidationIssue;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 /**
  * Base class for a node in the graph.
@@ -310,8 +311,8 @@ public abstract class LoomNode<NodeType extends LoomNode<NodeType, BodyType>, Bo
    *
    * @return the JSON tree.
    */
-  public final JsonNode getBodyAsJsonNode() {
-    return JsonUtil.valueToJsonNodeTree(getBody());
+  public final ObjectNode getBodyAsJsonNode() {
+    return (ObjectNode) JsonUtil.valueToJsonNodeTree(getBody());
   }
 
   /**

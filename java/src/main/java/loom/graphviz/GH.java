@@ -636,6 +636,8 @@ public final class GH {
     /**
      * Set the valign of the element.
      *
+     * <p>See: <a href="https://graphviz.org/doc/info/shapes.html#valign">Graphviz HTML VALIGN</a>
+     *
      * @param valign the valign of the element.
      * @return {@code this}
      */
@@ -647,6 +649,8 @@ public final class GH {
 
     /**
      * Set the border of the element.
+     *
+     * <p>See: <a href="https://graphviz.org/doc/info/shapes.html#border">Graphviz HTML BORDER</a>
      *
      * @param border the border of the element.
      * @return {@code this}
@@ -660,6 +664,9 @@ public final class GH {
     /**
      * Set the cell spacing of the element.
      *
+     * <p>See: <a href="https://graphviz.org/doc/info/shapes.html#cellspacing">Graphviz HTML
+     * CELLSPACING</a>
+     *
      * @param spacing the cell spacing of the element.
      * @return {@code this}
      */
@@ -671,6 +678,9 @@ public final class GH {
 
     /**
      * Set the cell padding of the element.
+     *
+     * <p>See: <a href="https://graphviz.org/doc/info/shapes.html#cellpadding">Graphviz HTML
+     * CELLPADDING</a>
      *
      * @param padding the cell padding of the element.
      * @return {@code this}
@@ -684,6 +694,8 @@ public final class GH {
     /**
      * Set the color of the element.
      *
+     * <p>See: <a href="https://graphviz.org/doc/info/shapes.html#color">Graphviz HTML COLOR</a>
+     *
      * @param color the color of the element.
      * @return {@code this}
      */
@@ -695,6 +707,8 @@ public final class GH {
 
     /**
      * Set the bgcolor of the element.
+     *
+     * <p>See: <a href="https://graphviz.org/doc/info/shapes.html#bgcolor">Graphviz HTML BGCOLOR</a>
      *
      * @param color the bgcolor of the element.
      * @return {@code this}
@@ -708,6 +722,8 @@ public final class GH {
     /**
      * Set the sides style of the element.
      *
+     * <p>See: <a href="https://graphviz.org/doc/info/shapes.html#sides">Graphviz HTML SIDES</a>
+     *
      * @param sides the sides style of the element.
      * @return {@code this}
      */
@@ -719,6 +735,8 @@ public final class GH {
 
     /**
      * Set the style of the element.
+     *
+     * <p>See: <a href="https://graphviz.org/doc/info/shapes.html#style">Graphviz HTML STYLE</a>
      *
      * @param style the style of the element.
      * @return {@code this}
@@ -732,6 +750,9 @@ public final class GH {
     /**
      * Set if this element is fixed size.
      *
+     * <p>See: <a href="https://graphviz.org/doc/info/shapes.html#fixedangle">Graphviz HTML
+     * FIXEDANGLE</a>
+     *
      * @param fixed the fixed size of the element.
      * @return {@code this}
      */
@@ -743,6 +764,9 @@ public final class GH {
 
     /**
      * Set the gradient angle of the element.
+     *
+     * <p>See: <a href="https://graphviz.org/doc/info/shapes.html#gradientangle">Graphviz HTML
+     * GRADIENTANGLE</a>
      *
      * @param angle the gradient angle of the element.
      * @return {@code this}
@@ -756,6 +780,8 @@ public final class GH {
     /**
      * Set the height of the element.
      *
+     * <p>See: <a href="https://graphviz.org/doc/info/shapes.html#height">Graphviz HTML HEIGHT</a>
+     *
      * @param height the height of the element.
      * @return {@code this}
      */
@@ -767,6 +793,8 @@ public final class GH {
 
     /**
      * Set the width of the element.
+     *
+     * <p>See: <a href="https://graphviz.org/doc/info/shapes.html#width">Graphviz HTML WIDTH</a>
      *
      * @param width the width of the element.
      * @return {@code this}
@@ -780,6 +808,8 @@ public final class GH {
     /**
      * Set the href of the element.
      *
+     * <p>See: <a href="https://graphviz.org/doc/info/shapes.html#href">Graphviz HTML HREF</a>
+     *
      * @param style the href of the element.
      * @return {@code this}
      */
@@ -791,6 +821,8 @@ public final class GH {
 
     /**
      * Set the target of the element.
+     *
+     * <p>See: <a href="https://graphviz.org/doc/info/shapes.html#target">Graphviz HTML TARGET</a>
      *
      * @param target the target of the element.
      * @return {@code this}
@@ -804,6 +836,8 @@ public final class GH {
     /**
      * Set the port of the element.
      *
+     * <p>See: <a href="https://graphviz.org/doc/info/shapes.html#port">Graphviz HTML PORT</a>
+     *
      * @param port the port of the element.
      * @return {@code this}
      */
@@ -816,6 +850,8 @@ public final class GH {
     /**
      * Set the id of the element.
      *
+     * <p>See: <a href="https://graphviz.org/doc/info/shapes.html#id">Graphviz HTML ID</a>
+     *
      * @param port the id of the element.
      * @return {@code this}
      */
@@ -826,19 +862,9 @@ public final class GH {
     }
 
     /**
-     * Set the title of the element.
-     *
-     * @param tooltip the title of the element.
-     * @return {@code this}
-     */
-    @CanIgnoreReturnValue
-    public T title(String tooltip) {
-      attr("title", tooltip);
-      return self();
-    }
-
-    /**
      * Set the tooltip of the element.
+     *
+     * <p>See: <a href="https://graphviz.org/doc/info/shapes.html#title">Graphviz HTML TITLE</a>
      *
      * @param tooltip the tooltip of the element.
      * @return {@code this}
@@ -921,6 +947,17 @@ public final class GH {
     public TableWrapper tr(Object... children) {
       GH.tr(children).withParent(this);
       return this;
+    }
+
+    @CanIgnoreReturnValue
+    public TableWrapper add(Node node) {
+      if (node instanceof Element element) {
+        if (element.getName().equals("tr")) {
+          getNode().add(node);
+          return this;
+        }
+      }
+      return tr(node);
     }
   }
 

@@ -8,15 +8,14 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.BooleanNode;
 import com.fasterxml.jackson.databind.node.NumericNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import lombok.NoArgsConstructor;
-import lombok.Value;
-import loom.common.collections.IteratorUtils;
-
-import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
+import javax.annotation.Nullable;
+import lombok.NoArgsConstructor;
+import lombok.Value;
+import loom.common.collections.IteratorUtils;
 
 @NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
 public final class JsonUtil {

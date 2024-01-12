@@ -37,10 +37,10 @@ public class GraphExporter {
     Graphviz.useEngine(new GraphvizCmdLineEngine());
   }
 
-  @Builder.Default private final int minLabelLen = 2;
+  @Builder.Default private final int minLabelLen = 4;
   @Builder.Default private final Rank.RankDir rankDir = Rank.RankDir.LEFT_TO_RIGHT;
 
-  @Builder.Default private double graphScale = 2.0;
+  @Builder.Default private double graphScale = 2.5;
 
   public static GraphExporter buildDefault() {
     var exporter = builder().build();
@@ -61,22 +61,12 @@ public class GraphExporter {
 
       gvizNode.add(Shape.RECTANGLE);
 
-      var labelTable = GH.table().border(0).cellborder(0).cellspacing(0);
+      var labelTable = GH.table().border(0).cellborder(0).cellspacing(2).cellpadding(2);
 
-      labelTable.tr(
-          GH.nest(
-              GH.td().colspan(2),
-              GH.font().color("teal"),
-              GH.bold(graphExporter.typeAlias(node.getType()))));
-
-      if (node.getLabel() != null) {
-        labelTable.tr(
-            GH.nest(
-                GH.td().colspan(2), GH.font().attr("color", "green"), GH.bold(node.getLabel())));
-      }
-
-      labelTable.addAll(export.jsonObjectToRows((ObjectNode) node.getBodyAsJsonNode()));
-      labelTable.addAll(export.renderAnnotationRows(node));
+      labelTable.add(
+          export.renderDataTable(
+              graphExporter.typeAlias(node.getType()), node.getBodyAsJsonNode()));
+      labelTable.addAll(export.renderAnnotationTables(node));
 
       gvizNode.add(Label.html(labelTable.toString()));
 
@@ -104,12 +94,6 @@ public class GraphExporter {
     return "loom:" + type;
   }
 
-  public GH.ElementWrapper<?> dataRow(Object key, Object... values) {
-    return GH.tr(
-        GH.td().align(GH.TableDataAlign.RIGHT).valign(GH.VerticalAlign.TOP).add(GH.bold(key)),
-        GH.td().align(GH.TableDataAlign.LEFT).valign(GH.VerticalAlign.TOP).add(values));
-  }
-
   public static class TensorNodeExporter implements NodeTypeExporter {
     @Override
     public void exportNode(
@@ -124,25 +108,12 @@ public class GraphExporter {
               .border(0)
               .cellborder(0)
               .cellspacing(0)
-              .tr(
-                  GH.td()
-                      .colspan(2)
-                      .add(
-                          GH.font()
-                              .color("teal")
-                              .add(GH.bold(graphExporter.typeAlias(node.getType())))));
-
-      if (node.getLabel() != null) {
-        labelTable.tr(
-            GH.td().colspan(2).add(GH.font().attr("color", "green").add(GH.bold(node.getLabel()))));
-      }
-
-      labelTable.add(
-          graphExporter.dataRow("dtype", tensorNode.getDtype()),
-          graphExporter.dataRow("shape", tensorNode.getShape().toString()),
-          graphExporter.dataRow("range", tensorNode.getRange().toRangeString()));
-
-      labelTable.addAll(export.renderAnnotationRows(node));
+              .tr(export.renderDataTypeTitle(graphExporter.typeAlias(node.getType())))
+              .add(
+                  export.dataRow("dtype", tensorNode.getDtype()),
+                  export.dataRow("shape", tensorNode.getShape().toString()),
+                  export.dataRow("range", tensorNode.getRange().toRangeString()))
+              .addAll(export.renderAnnotationTables(node));
 
       gvizNode.add(Label.html(labelTable.toString()));
     }
@@ -168,11 +139,12 @@ public class GraphExporter {
     @Nonnull private final LoomGraph graph;
 
     @Getter(lazy = true)
-    private final Map<UUID, String> nodeLabels = renderNodeLabels();
+    private final Map<UUID, String> nodeHexAliasMap = renderNodeHexAliasMap();
 
     @Getter private MutableGraph exportGraph = null;
 
-    private Map<UUID, String> renderNodeLabels() {
+
+    private Map<UUID, String> renderNodeHexAliasMap() {
       var ids = graph.nodeScan().asStream().map(LoomNode::getId).toList();
 
       var idHashes = ids.stream().map(id -> DigestUtils.toMD5HexString(id.toString())).toList();
@@ -183,7 +155,7 @@ public class GraphExporter {
       Streams.forEachPair(
           ids.stream(),
           idHashes.stream(),
-          (id, hash) -> labels.put(id, "#" + hash.substring(0, labelLen)));
+          (id, hash) -> labels.put(id, hash.substring(0, labelLen)));
 
       return Collections.unmodifiableMap(labels);
     }
@@ -214,26 +186,48 @@ public class GraphExporter {
 
     private void exportNode(LoomNode<?, ?> node) {
       var gvnode = Factory.mutNode(node.getId().toString());
-      gvnode.add("xlabel", Label.html(nodeLabelElement(node.getId()).toString()));
+
+      {
+        var xlabelTable = GH.table().border(0).cellborder(0).cellspacing(0).cellpadding(0);
+        xlabelTable.tr(GH.td().add(nodeLabelElement(node.getId())));
+        if (node.getLabel() != null) {
+          xlabelTable.tr(GH.td().add(GH.font().color("green").add(GH.bold("\"%s\"".formatted(node.getLabel())))));
+        }
+        gvnode.add("xlabel", Label.html(xlabelTable.toString()));
+      }
+
       exportGraph.add(gvnode);
       exporterForNodeType(node.getType()).exportNode(GraphExporter.this, Export.this, node, gvnode);
     }
 
-    public List<GH.ElementWrapper<?>> renderAnnotationRows(LoomNode<?, ?> loomNode) {
-      List<GH.ElementWrapper<?>> rows = new ArrayList<>();
-      for (var annEntry :
-          loomNode.getAnnotations().entrySet().stream()
-              .sorted(Map.Entry.comparingByKey())
-              .toList()) {
-        var key = annEntry.getKey();
-        var value = annEntry.getValue();
+    public List<GH.TableWrapper> renderAnnotationTables(LoomNode<?, ?> loomNode) {
+      List<GH.TableWrapper> tables = new ArrayList<>();
+      loomNode.getAnnotations().entrySet().stream()
+          .sorted(Map.Entry.comparingByKey())
+          .forEach(
+              entry ->
+                  tables.add(
+                      renderDataTable(
+                          typeAlias(entry.getKey()),
+                          (ObjectNode) JsonUtil.convertValue(entry.getValue(), JsonNode.class))));
+      return tables;
+    }
 
-        rows.add(
-            GH.tr(GH.td().colspan(2).add(GH.font().color("teal").add(GH.bold(typeAlias(key))))));
-        ObjectNode node = (ObjectNode) JsonUtil.convertValue(value, JsonNode.class);
-        rows.addAll(jsonObjectToRows(node));
-      }
+    public GH.TableDataWrapper renderDataTypeTitle(String title) {
+      return GH.td().colspan(2).add(GH.font().color("teal").add(GH.bold(title)));
+    }
+
+    public List<GH.ElementWrapper<?>> renderDataType(String title, ObjectNode node) {
+      List<GH.ElementWrapper<?>> rows = new ArrayList<>();
+      rows.add(renderDataTypeTitle(title));
+      rows.addAll(jsonObjectToRows(node));
       return rows;
+    }
+
+    public GH.TableWrapper renderDataTable(String title, ObjectNode node) {
+      var table = GH.table().border(0).cellborder(1).cellspacing(0).cellpadding(0);
+      table.addAll(renderDataType(title, node));
+      return table;
     }
 
     @Getter(lazy = true)
@@ -244,12 +238,25 @@ public class GraphExporter {
     }
 
     public GH.TableDataWrapper keyCell(String key) {
-      return GH.td().align(GH.TableDataAlign.RIGHT).valign(GH.VerticalAlign.TOP).add(GH.bold(key));
+      return GH.td()
+          .align(GH.TableDataAlign.RIGHT)
+          .valign(GH.VerticalAlign.TOP)
+          .add(GH.bold(" %s ".formatted(key)));
     }
 
     public GH.TableDataWrapper valueCell(Object... value) {
-      return GH.td().align(GH.TableDataAlign.LEFT).valign(GH.VerticalAlign.TOP).add(value);
+      return GH.td()
+          .align(GH.TableDataAlign.LEFT)
+          .valign(GH.VerticalAlign.TOP)
+          .add(" ")
+          .add(value)
+          .add(" ");
     }
+
+    public GH.ElementWrapper<?> dataRow(Object key, Object... values) {
+      return GH.tr(keyCell(key.toString()), valueCell(values));
+    }
+
 
     public List<GH.ElementWrapper<?>> jsonObjectToRows(ObjectNode node) {
       List<GH.ElementWrapper<?>> rows = new ArrayList<>();
@@ -268,8 +275,8 @@ public class GraphExporter {
           } else {
             return GH.table()
                 .border(0)
-                .cellborder(1)
-                .cellspacing(0)
+                .cellborder(0)
+                .cellspacing(2)
                 .addAll(
                     JsonUtil.Tree.stream(array).map(item -> GH.tr(valueCell(jsonToElement(item)))));
           }
@@ -277,7 +284,7 @@ public class GraphExporter {
         case ObjectNode object -> {
           return GH.table()
               .border(0)
-              .cellborder(0)
+              .cellborder(1)
               .cellspacing(0)
               .addAll(
                   JsonUtil.Tree.stream(object)
@@ -299,12 +306,36 @@ public class GraphExporter {
       }
     }
 
+
+    private static final List<String> NODE_LABEL_HEX_COLORS = List.of(
+            "magenta",
+            "red",
+            "teal",
+            "green");
+
+
     public GH.ElementWrapper<?> nodeLabelElement(UUID id) {
-      return GH.font().color("teal").add(GH.bold(nodeLabel(id)));
+      var group = GH.bold();
+      group.add(GH.font().color("blue").add("{#"));
+
+      String alias = nodeHexAlias(id);
+      for (char c : alias.toCharArray()) {
+        String digit = String.valueOf(c);
+        var f = GH.font().withParent(group).add(digit.toUpperCase(Locale.ROOT));
+        try {
+            int val = Integer.parseInt(digit, 16);
+            f.color(NODE_LABEL_HEX_COLORS.get(val % NODE_LABEL_HEX_COLORS.size()));
+        } catch (NumberFormatException e) {
+            // ignore
+        }
+      }
+
+      group.add(GH.font().color("blue").add("}"));
+      return group;
     }
 
-    public String nodeLabel(UUID id) {
-      return getNodeLabels().get(id);
+    public String nodeHexAlias(UUID id) {
+      return getNodeHexAliasMap().get(id);
     }
   }
 
