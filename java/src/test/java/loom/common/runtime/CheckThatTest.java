@@ -3,8 +3,8 @@ package loom.common.runtime;
 import loom.testing.BaseTestClass;
 import org.junit.Test;
 
+@SuppressWarnings("ConstantConditions")
 public class CheckThatTest extends BaseTestClass {
-
   @Test
   public void test_valueIsNotNull() {
     CheckThat.valueIsNotNull("foo", RuntimeException.class, "bar");

@@ -26,13 +26,7 @@ public final class CheckThat {
       return val;
     }
 
-    E exc;
-    try {
-      exc = eClass.getConstructor(String.class).newInstance(msg.toString());
-    } catch (Exception e) {
-      throw new RuntimeException(e);
-    }
-    throw exc;
+    throw ReflectionUtils.newInstance(eClass, msg.toString());
   }
 
   /**

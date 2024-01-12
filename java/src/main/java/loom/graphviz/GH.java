@@ -9,6 +9,7 @@ import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import loom.common.runtime.ExcludeFromJacocoGeneratedReport;
 import org.dom4j.*;
 import org.dom4j.io.OutputFormat;
 import org.dom4j.io.XMLWriter;
@@ -60,6 +61,7 @@ public final class GH {
    * @param node the node to serialize
    * @return the serialized xml.
    */
+  @ExcludeFromJacocoGeneratedReport
   public static String nodeToXml(Node node) {
     try {
       StringWriter sw = new StringWriter();

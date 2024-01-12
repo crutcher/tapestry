@@ -1,12 +1,45 @@
 package loom.common.runtime;
 
+import lombok.NoArgsConstructor;
+
+import javax.annotation.Nonnull;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import lombok.NoArgsConstructor;
+import java.util.Arrays;
 
 @NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
 public final class ReflectionUtils {
 
+  /**
+   * Create a new instance of a class.
+   *
+   * @param cls the class
+   * @param args the constructor arguments
+   * @return the new instance
+   * @param <T> the class type
+   * @throws RuntimeException if the class cannot be instantiated
+   */
+  @Nonnull
+  public static <T> T newInstance(Class<T> cls, Object... args) {
+    try {
+      var argClasses = Arrays.stream(args).map(Object::getClass).toArray(Class<?>[]::new);
+      return cls.getConstructor(argClasses).newInstance(args);
+    } catch (NoSuchMethodException
+        | InvocationTargetException
+        | IllegalAccessException
+        | InstantiationException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  /**
+   * Check that a class is a subclass of another class.
+   *
+   * @param cls the class
+   * @param superclass the superclass
+   * @throws ClassCastException if the class is not a subclass of the superclass
+   */
   public static void checkIsSubclass(Class<?> cls, Class<?> superclass) {
     if (!superclass.isAssignableFrom(cls)) {
       throw new ClassCastException(cls + " is not a subclass of " + superclass);

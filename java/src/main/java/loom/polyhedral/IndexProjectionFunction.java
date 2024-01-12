@@ -1,5 +1,7 @@
 package loom.polyhedral;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import lombok.Builder;
 import lombok.Value;
 import lombok.extern.jackson.Jacksonized;
@@ -8,9 +10,6 @@ import loom.zspace.ZAffineMap;
 import loom.zspace.ZPoint;
 import loom.zspace.ZRange;
 import loom.zspace.ZTensor;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 /** A function which maps coordinates in a space to ranges in another space. */
 @Value

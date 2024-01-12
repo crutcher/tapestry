@@ -1,6 +1,8 @@
 package loom.common.runtime;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.Value;
 import lombok.experimental.SuperBuilder;
 import loom.testing.CommonAssertions;
 import org.junit.Test;
@@ -23,6 +25,25 @@ public class ReflectionUtilsTest implements CommonAssertions {
   @SuperBuilder
   public static class Level2 extends Level1 {
     private final float w;
+  }
+
+  @Value
+  @AllArgsConstructor
+  public static class Example {
+    public int abc;
+
+    public Example(String abc) {
+      this(Integer.parseInt(abc));
+    }
+  }
+
+  @Test
+  public void test_newInstance() {
+    assertThat(ReflectionUtils.newInstance(Example.class, "123")).isEqualTo(new Example(123));
+
+    assertThatExceptionOfType(RuntimeException.class)
+        .isThrownBy(() -> ReflectionUtils.newInstance(Example.class, new Object()))
+        .withCauseInstanceOf(NoSuchMethodException.class);
   }
 
   @Test
