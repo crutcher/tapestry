@@ -1,10 +1,9 @@
 package loom.common;
 
-import lombok.RequiredArgsConstructor;
-import loom.common.runtime.ExcludeFromJacocoGeneratedReport;
-
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
+import lombok.RequiredArgsConstructor;
+import loom.common.runtime.ExcludeFromJacocoGeneratedReport;
 
 @RequiredArgsConstructor(access = lombok.AccessLevel.PRIVATE)
 public final class DigestUtils {
@@ -12,6 +11,7 @@ public final class DigestUtils {
 
   /**
    * Convert a byte array to a hex string.
+   *
    * @param bytes The byte array to convert
    * @return The hex string
    */
@@ -29,6 +29,7 @@ public final class DigestUtils {
 
   /**
    * Get a MD5 MessageDigest instance.
+   *
    * @return A MD5 MessageDigest instance
    */
   @ExcludeFromJacocoGeneratedReport
@@ -42,6 +43,7 @@ public final class DigestUtils {
 
   /**
    * Return the MD5 hash of a String as a hex String.
+   *
    * @param str The String to hash
    * @return The MD5 hash of the String as a hex String.
    */
