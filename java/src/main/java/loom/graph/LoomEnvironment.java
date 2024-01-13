@@ -105,6 +105,23 @@ public final class LoomEnvironment {
   }
 
   /**
+   * Get the type alias for a given node type.
+   *
+   * @param type the node type.
+   * @return the type alias.
+   */
+  public String getTypeAlias(String type) {
+    // TODO: something real.
+    assertSupportsNodeType(type);
+    return "loom:" + type;
+  }
+
+  public String getAnnotationTypeAlias(String key) {
+    // TODO: something real.
+    return "loom:" + key;
+  }
+
+  /**
    * Does this environment support the given node type?
    *
    * @param type the node type.

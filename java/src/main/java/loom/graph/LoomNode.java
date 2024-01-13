@@ -100,6 +100,15 @@ public abstract class LoomNode<NodeType extends LoomNode<NodeType, BodyType>, Bo
   @Builder.Default @Nonnull private final Map<String, Object> annotations = new HashMap<>();
 
   /**
+   * Get the environment configured type alias for the node type.
+   *
+   * @return the type alias.
+   */
+  public String getTypeAlias() {
+    return assertGraph().getEnv().getTypeAlias(getType());
+  }
+
+  /**
    * Does the node have an annotation with the given key?
    *
    * @param key the annotation key.

@@ -1,10 +1,9 @@
 package loom.graph.export.graphviz;
 
-import loom.testing.BaseTestClass;
-import org.junit.Test;
-
 import java.util.List;
 import java.util.UUID;
+import loom.testing.BaseTestClass;
+import org.junit.Test;
 
 public class AliasUtilsTest extends BaseTestClass {
   @Test

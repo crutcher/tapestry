@@ -2,9 +2,6 @@ package loom.graph.constraints;
 
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import guru.nidi.graphviz.engine.Format;
-import java.util.*;
-import java.util.function.Function;
-import javax.annotation.Nullable;
 import loom.graph.CommonEnvironments;
 import loom.graph.LoomGraph;
 import loom.graph.export.graphviz.GraphVisualizer;
@@ -14,6 +11,10 @@ import loom.testing.BaseTestClass;
 import loom.zspace.ZPoint;
 import loom.zspace.ZRange;
 import org.junit.Test;
+
+import javax.annotation.Nullable;
+import java.util.*;
+import java.util.function.Function;
 
 @SuppressWarnings("unused")
 public class IPFSignatureAgreementConstraintTest extends BaseTestClass {
@@ -36,6 +37,10 @@ public class IPFSignatureAgreementConstraintTest extends BaseTestClass {
                                   .build()))
               .label("A")
               .addTo(graph);
+
+      // This is trash.
+      tensorA.setAnnotation(
+          IPFIndex.ANNOTATION_TYPE, IPFIndex.builder().range(ZRange.fromShape(3, 4)).build());
 
       var tensorB = TensorNode.withBody(b -> b.dtype("int32").shape(4, 5)).label("B").addTo(graph);
 

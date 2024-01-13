@@ -1,10 +1,9 @@
 package loom.graph.export.graphviz;
 
 import com.google.common.collect.Streams;
+import java.util.*;
 import loom.common.DigestUtils;
 import loom.common.text.TextUtils;
-
-import java.util.*;
 
 public class AliasUtils {
   /**
