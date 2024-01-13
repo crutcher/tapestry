@@ -3,10 +3,7 @@ package loom.graph.export.graphviz;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import guru.nidi.graphviz.attribute.Label;
-import guru.nidi.graphviz.attribute.Rank;
-import guru.nidi.graphviz.attribute.Shape;
-import guru.nidi.graphviz.attribute.Style;
+import guru.nidi.graphviz.attribute.*;
 import guru.nidi.graphviz.engine.Graphviz;
 import guru.nidi.graphviz.engine.GraphvizCmdLineEngine;
 import guru.nidi.graphviz.model.Factory;
@@ -19,7 +16,9 @@ import lombok.Getter;
 import loom.common.json.JsonUtil;
 import loom.graph.LoomGraph;
 import loom.graph.LoomNode;
+import loom.graph.nodes.ApplicationNode;
 import loom.graph.nodes.ExportUtils;
+import loom.graph.nodes.OperationSignatureNode;
 import loom.graph.nodes.TensorNode;
 
 import javax.annotation.Nonnull;
@@ -58,6 +57,8 @@ public class GraphVisualizer {
   public static GraphVisualizer buildDefault() {
     var exporter = builder().build();
     exporter.getNodeTypeExporters().put(TensorNode.TYPE, new TensorNodeExporter());
+    exporter.getNodeTypeExporters().put(ApplicationNode.TYPE, new ApplicationNodeExporter());
+    exporter.getNodeTypeExporters().put(OperationSignatureNode.TYPE, new OperationNodeExporter());
     return exporter;
   }
 
@@ -78,8 +79,8 @@ public class GraphVisualizer {
         MutableNode gvNode) {
 
       gvNode.add(Shape.RECTANGLE);
-      gvNode.add("style", "filled");
-      gvNode.add("fillcolor", "gray");
+      gvNode.add(Style.FILLED);
+      gvNode.add(Color.named("gray").fill());
 
       gvNode.add(
           asHtmlLabel(
@@ -115,8 +116,8 @@ public class GraphVisualizer {
       var tensorNode = (TensorNode) loomNode;
 
       gvNode.add(Shape.BOX_3D);
-      gvNode.add("style", "filled");
-      gvNode.add("fillcolor", "#74CFFF");
+      gvNode.add(Style.FILLED);
+      gvNode.add(Color.rgb("#74CFFF").fill());
 
       gvNode.add(
           asHtmlLabel(
@@ -129,6 +130,100 @@ public class GraphVisualizer {
                       context.dataRow("dtype", tensorNode.getDtype()),
                       context.dataRow("shape", tensorNode.getShape().toString()),
                       context.dataRow("range", tensorNode.getRange().toRangeString()))));
+    }
+  }
+
+  public static class ApplicationNodeExporter implements NodeTypeExporter {
+    @Override
+    public void exportNode(
+            GraphVisualizer visualizer,
+            ExportContext context,
+            LoomNode<?, ?> loomNode,
+            MutableNode gvNode) {
+      var appNode = (ApplicationNode) loomNode;
+
+      gvNode.add(Shape.TAB);
+      gvNode.add(Style.FILLED);
+      gvNode.add(Color.named("green").fill());
+
+      gvNode.add(
+              asHtmlLabel(
+                      GH.table()
+                              .bgcolor("white")
+                              .border(0)
+                              .cellborder(0)
+                              .cellspacing(0)
+                              .add(
+                                      context.renderDataTable(
+                                              loomNode.getTypeAlias(), loomNode.getBodyAsJsonNode()))));
+
+      context.addLink(appNode.getOperationId(), appNode.getId(), link -> link.with(Style.DOTTED));
+
+      for (var entry : appNode.getInputs().entrySet()) {
+        var key = entry.getKey();
+        var slices = entry.getValue();
+        for (int idx = 0; idx < slices.size(); idx++) {
+          var slice = slices.get(idx);
+          String label = "%s[%d]".formatted(key, idx);
+          context.addLink(slice.getTensorId(), appNode.getId(), link -> link.with(Label.of(label)));
+        }
+      }
+
+      for (var entry : appNode.getOutputs().entrySet()) {
+        var key = entry.getKey();
+        var slices = entry.getValue();
+        for (int idx = 0; idx < slices.size(); idx++) {
+          var slice = slices.get(idx);
+          String label = "%s[%d]".formatted(key, idx);
+          context.addLink(appNode.getId(), slice.getTensorId(), link -> link.with(Label.of(label)));
+        }
+      }
+    }
+  }
+
+  public static class OperationNodeExporter implements NodeTypeExporter {
+    @Override
+    public void exportNode(
+            GraphVisualizer visualizer,
+            ExportContext context,
+            LoomNode<?, ?> loomNode,
+            MutableNode gvNode) {
+      var opNode = (OperationSignatureNode) loomNode;
+
+      gvNode.add(Shape.TAB);
+      gvNode.add(Style.FILLED);
+      gvNode.add(Color.named("blue").fill());
+
+      gvNode.add(
+              asHtmlLabel(
+                      GH.table()
+                              .bgcolor("white")
+                              .border(0)
+                              .cellborder(0)
+                              .cellspacing(0)
+                              .add(
+                                      context.renderDataTable(
+                                              loomNode.getTypeAlias(), loomNode.getBodyAsJsonNode()))));
+
+      for (var entry : opNode.getInputs().entrySet()) {
+        var key = entry.getKey();
+        var slices = entry.getValue();
+        for (int idx = 0; idx < slices.size(); idx++) {
+          var slice = slices.get(idx);
+          String label = "%s[%d]".formatted(key, idx);
+          context.addLink(slice.getTensorId(), opNode.getId(), link -> link.with(Label.of(label)));
+        }
+      }
+
+      for (var entry : opNode.getOutputs().entrySet()) {
+        var key = entry.getKey();
+        var slices = entry.getValue();
+        for (int idx = 0; idx < slices.size(); idx++) {
+          var slice = slices.get(idx);
+          String label = "%s[%d]".formatted(key, idx);
+          context.addLink(opNode.getId(), slice.getTensorId(), link -> link.with(Label.of(label)));
+        }
+      }
     }
   }
 
@@ -176,7 +271,8 @@ public class GraphVisualizer {
      */
     public void sameRank(Object... nodeIds) {
       var nodes = Arrays.stream(nodeIds).map(Object::toString).map(Factory::mutNode).toList();
-      exportGraph.add(Factory.mutGraph().setDirected(true).graphAttrs().add("rank", "same").add(nodes));
+      exportGraph.add(Factory.mutGraph().setDirected(true).graphAttrs().add(
+              Rank.inSubgraph(Rank.RankType.SAME)).add(nodes));
     }
 
     public void addLink(Object fromId, Object toId, Function<Link, Link> config) {
@@ -210,7 +306,7 @@ public class GraphVisualizer {
         if (node.getLabel() != null) {
           table.add(GH.font().color("green").add(GH.bold("\"%s\"".formatted(node.getLabel()))));
         }
-        gvnode.add("xlabel", asHtmlLabel(table));
+        gvnode.add(asHtmlLabel(table).external());
       }
 
       exportGraph.add(gvnode);
@@ -222,8 +318,8 @@ public class GraphVisualizer {
         String gvAnnotationNodeId = node.getId() + "#a";
         var aNode = Factory.mutNode(gvAnnotationNodeId);
         aNode.add(Shape.COMPONENT);
-        aNode.add("style", "filled");
-        aNode.add("fillcolor", "#FFD700");
+        aNode.add(Style.FILLED);
+        aNode.add(Color.rgb("#45eebf").fill());
 
         var table = GH.table().border(0).cellborder(0).cellspacing(2).cellpadding(2);
         for (var t : renderAnnotationTables(node)) {
@@ -237,7 +333,7 @@ public class GraphVisualizer {
         addLink(
             node.getId(),
             gvAnnotationNodeId,
-            link -> link.with("arrowhead", "odotodot").with(Style.DASHED));
+            link -> link.with(Arrow.DOT.open().and(Arrow.DOT.open())).with(Style.BOLD));
 
         sameRank(node.getId(), gvAnnotationNodeId);
       }
