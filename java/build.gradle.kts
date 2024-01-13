@@ -43,11 +43,11 @@ spotless {
     java {
         importOrder()
         removeUnusedImports()
-
-        cleanthat()
         googleJavaFormat()
         formatAnnotations()
         trimTrailingWhitespace()
+        indentWithSpaces()
+        endWithNewline()
     }
 }
 
