@@ -9,6 +9,37 @@ import org.junit.Test;
 
 public class IndexProjectionFunctionTest extends BaseTestClass {
   @Test
+  public void test_json() {
+    var ipf =
+        new IndexProjectionFunction(
+            new ZAffineMap(
+                ZTensor.newMatrix(
+                    new int[][] {
+                      {1, 0},
+                      {0, 1},
+                      {1, 1}
+                    }),
+                ZTensor.newVector(10, 20, 30)),
+            ZPoint.of(4, 4, 1));
+
+    assertJsonEquals(
+        ipf,
+        """
+            {
+              "affineMap": {
+                "projection": [
+                  [1, 0],
+                  [0, 1],
+                  [1, 1]
+                ],
+                "offset": [10, 20, 30]
+              },
+              "shape": [4, 4, 1]
+            }
+            """);
+  }
+
+  @Test
   public void test_builder() {
     ZAffineMap affineMap = ZAffineMap.fromMatrix(new int[][] {{1, 0}, {0, 1}, {1, 1}});
 

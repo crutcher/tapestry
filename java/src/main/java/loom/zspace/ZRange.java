@@ -416,6 +416,11 @@ public final class ZRange implements Cloneable, HasSize, HasPermute<ZRange>, Has
     return "zr" + toRangeString();
   }
 
+  /**
+   * Generate a pretty formatted range string.
+   *
+   * @return the range string.
+   */
   public String toRangeString() {
     var b = new StringBuilder();
     b.append("[");
@@ -429,6 +434,16 @@ public final class ZRange implements Cloneable, HasSize, HasPermute<ZRange>, Has
     }
     b.append("]");
     return b.toString();
+  }
+
+  /**
+   * Generate a nicely formatted shape string.
+   *
+   * @return the shape string.
+   */
+  public String toShapeString() {
+    var str = shape.toString();
+    return "‖" + str.substring(1, str.length() - 1) + "‖";
   }
 
   @Override

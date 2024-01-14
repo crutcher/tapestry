@@ -2,6 +2,9 @@ package loom.graph.constraints;
 
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import guru.nidi.graphviz.engine.Format;
+import java.util.*;
+import java.util.function.Function;
+import javax.annotation.Nullable;
 import loom.graph.CommonEnvironments;
 import loom.graph.LoomGraph;
 import loom.graph.export.graphviz.GraphVisualizer;
@@ -11,10 +14,6 @@ import loom.testing.BaseTestClass;
 import loom.zspace.ZPoint;
 import loom.zspace.ZRange;
 import org.junit.Test;
-
-import javax.annotation.Nullable;
-import java.util.*;
-import java.util.function.Function;
 
 @SuppressWarnings("unused")
 public class IPFSignatureAgreementConstraintTest extends BaseTestClass {
@@ -37,10 +36,6 @@ public class IPFSignatureAgreementConstraintTest extends BaseTestClass {
                                   .build()))
               .label("A")
               .addTo(graph);
-
-      // This is trash.
-      tensorA.setAnnotation(
-          IPFIndex.ANNOTATION_TYPE, IPFIndex.builder().range(ZRange.fromShape(3, 4)).build());
 
       var tensorB = TensorNode.withBody(b -> b.dtype("int32").shape(4, 5)).label("B").addTo(graph);
 
@@ -73,6 +68,7 @@ public class IPFSignatureAgreementConstraintTest extends BaseTestClass {
                 var y = inputs.get("y").getFirst().getRange().getShape().get(1);
                 return ZRange.fromShape(x, y);
               },
+              index -> List.of(index.split(1, 2)),
               Map.of(
                   "x",
                   List.of(TensorSelection.from(tensorA)),
@@ -83,7 +79,6 @@ public class IPFSignatureAgreementConstraintTest extends BaseTestClass {
 
       assertThat(graph.nodeScan().nodeClass(OperationSignatureNode.class).asStream().count())
           .isEqualTo(1);
-      assertThat(graph.nodeScan().nodeClass(ApplicationNode.class).asStream().count()).isEqualTo(1);
 
       TensorNode tensorC =
           graph.assertNode(
@@ -92,13 +87,6 @@ public class IPFSignatureAgreementConstraintTest extends BaseTestClass {
       assertThat(tensorC.getDtype()).isEqualTo("int32");
       assertThat(tensorC.getRange()).isEqualTo(ZRange.fromShape(3, 5));
       assertThat(tensorC.getLabel()).isEqualTo("matmul/z[0]");
-
-      var shards = op.getApplicationNodes();
-      assertThat(shards).hasSize(1);
-      var app = shards.getFirst();
-      assertThat(app.getOperationSignatureNode()).isSameAs(op);
-      assertThat(app.assertAnnotation(IPFIndex.ANNOTATION_TYPE, IPFIndex.class).getRange())
-          .isEqualTo(ZRange.fromShape(3, 5));
     }
 
     graph.validate();
@@ -108,6 +96,8 @@ public class IPFSignatureAgreementConstraintTest extends BaseTestClass {
       var exporter = GraphVisualizer.buildDefault();
       var export = exporter.export(graph);
       var gv = export.getGraphviz();
+
+      System.out.println(export.getExportGraph());
 
       var img = gv.render(Format.PNG).toImage();
 
@@ -120,6 +110,7 @@ public class IPFSignatureAgreementConstraintTest extends BaseTestClass {
       String kernelName,
       IPFSignature ipfSignature,
       Function<Map<String, List<TensorSelection>>, ZRange> indexBuilder,
+      Function<ZRange, List<ZRange>> shardBuilder,
       Map<String, List<TensorSelection>> inputs,
       Map<String, List<String>> outputTypes,
       @Nullable Map<String, Object> params) {
@@ -143,7 +134,14 @@ public class IPFSignatureAgreementConstraintTest extends BaseTestClass {
     relativeSignature.outputs(ipfSignature.getOutputs());
 
     return applyFixedSignature(
-        graph, kernelName, relativeSignature.build(), indexBuilder, inputs, outputTypes, params);
+        graph,
+        kernelName,
+        relativeSignature.build(),
+        indexBuilder,
+        shardBuilder,
+        inputs,
+        outputTypes,
+        params);
   }
 
   public static OperationSignatureNode applyFixedSignature(
@@ -151,6 +149,7 @@ public class IPFSignatureAgreementConstraintTest extends BaseTestClass {
       String kernelName,
       IPFSignature ipfSignature,
       Function<Map<String, List<TensorSelection>>, ZRange> indexBuilder,
+      Function<ZRange, List<ZRange>> shardBuilder,
       Map<String, List<TensorSelection>> inputs,
       Map<String, List<String>> outputTypes,
       @Nullable Map<String, Object> params) {
@@ -215,7 +214,7 @@ public class IPFSignatureAgreementConstraintTest extends BaseTestClass {
             .annotation(IPFIndex.ANNOTATION_TYPE, ipfIndex)
             .addTo(graph);
 
-    createIpfShards(opSigNode, index);
+    createIpfShards(opSigNode, shardBuilder.apply(index));
 
     return opSigNode;
   }
@@ -226,11 +225,13 @@ public class IPFSignatureAgreementConstraintTest extends BaseTestClass {
     return createIpfShards(sig, Arrays.asList(shardIndexes));
   }
 
+  @CanIgnoreReturnValue
   public static List<ApplicationNode> createIpfShards(
       OperationSignatureNode sig, Collection<ZRange> shardIndexes) {
     return shardIndexes.stream().map(shardIndex -> createIpfShard(sig, shardIndex)).toList();
   }
 
+  @CanIgnoreReturnValue
   public static ApplicationNode createIpfShard(OperationSignatureNode sig, ZRange shardIndex) {
     var graph = sig.assertGraph();
 

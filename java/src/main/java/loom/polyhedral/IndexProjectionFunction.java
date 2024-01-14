@@ -1,5 +1,7 @@
 package loom.polyhedral;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonSetter;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import lombok.Builder;
@@ -25,6 +27,7 @@ public class IndexProjectionFunction implements HasToJsonString {
      * @return {@code this}
      */
     @Nonnull
+    @JsonIgnore
     public IndexProjectionFunctionBuilder affineMap(@Nonnull int[][] matrix) {
       return affineMap(ZAffineMap.fromMatrix(matrix));
     }
@@ -35,6 +38,8 @@ public class IndexProjectionFunction implements HasToJsonString {
      * @param affineMap the ZAffineMap.
      * @return {@code this}
      */
+    @Nonnull
+    @JsonSetter
     public IndexProjectionFunctionBuilder affineMap(@Nonnull ZAffineMap affineMap) {
       this.affineMap = affineMap;
       return this;
@@ -46,6 +51,8 @@ public class IndexProjectionFunction implements HasToJsonString {
      * @param builder the builder.
      * @return {@code this}
      */
+    @Nonnull
+    @JsonIgnore
     public IndexProjectionFunctionBuilder affineMap(@Nonnull ZAffineMap.ZAffineMapBuilder builder) {
       return affineMap(builder.build());
     }
@@ -56,6 +63,8 @@ public class IndexProjectionFunction implements HasToJsonString {
      * @param offset the offset.
      * @return {@code this}
      */
+    @Nonnull
+    @JsonIgnore
     public IndexProjectionFunctionBuilder translate(@Nonnull ZPoint offset) {
       return affineMap(affineMap.translate(offset));
     }
@@ -66,6 +75,8 @@ public class IndexProjectionFunction implements HasToJsonString {
      * @param offset the offset.
      * @return {@code this}
      */
+    @Nonnull
+    @JsonIgnore
     public IndexProjectionFunctionBuilder translate(int... offset) {
       return affineMap(affineMap.translate(offset));
     }
@@ -76,6 +87,8 @@ public class IndexProjectionFunction implements HasToJsonString {
      * @param shape the shape.
      * @return {@code this}
      */
+    @Nonnull
+    @JsonSetter
     public IndexProjectionFunctionBuilder shape(@Nonnull ZPoint shape) {
       this.shape = shape;
       return this;
@@ -87,6 +100,8 @@ public class IndexProjectionFunction implements HasToJsonString {
      * @param shape the shape.
      * @return {@code this}
      */
+    @Nonnull
+    @JsonIgnore
     public IndexProjectionFunctionBuilder shape(@Nonnull ZTensor shape) {
       return shape(shape.newZPoint());
     }
@@ -97,6 +112,8 @@ public class IndexProjectionFunction implements HasToJsonString {
      * @param shape the shape.
      * @return {@code this}
      */
+    @Nonnull
+    @JsonIgnore
     public IndexProjectionFunctionBuilder shape(int... shape) {
       return shape(ZPoint.of(shape));
     }
