@@ -39,9 +39,8 @@ public class OperationSignatureNode
     {
         "type": "object",
         "properties": {
-            "name": {
-                "type": "string",
-                "format": "uuid"
+            "kernel": {
+                "type": "string"
             },
             "params": {
                 "type": "object",
@@ -53,7 +52,7 @@ public class OperationSignatureNode
             "inputs": { "$ref": "#/definitions/TensorSelectionMap" },
             "outputs": { "$ref": "#/definitions/TensorSelectionMap" }
         },
-        "required": ["name"],
+        "required": ["kernel"],
         "additionalProperties": false,
         "definitions": {
             "TensorSelectionMap": {
@@ -101,7 +100,7 @@ public class OperationSignatureNode
   @Builder
   @JsonInclude(JsonInclude.Include.NON_EMPTY)
   public static class Body implements HasToJsonString {
-    String name;
+    String kernel;
     @Singular Map<String, Object> params;
     @Singular @Nonnull Map<String, List<TensorSelection>> inputs;
     @Singular @Nonnull Map<String, List<TensorSelection>> outputs;

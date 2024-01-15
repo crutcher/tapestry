@@ -69,7 +69,7 @@ public class ApplicationNodeTest extends BaseTestClass {
     var opSig =
         OperationSignatureNode.withBody(
                 b ->
-                    b.name("increment")
+                    b.kernel("increment")
                         .input(
                             "x",
                             List.of(

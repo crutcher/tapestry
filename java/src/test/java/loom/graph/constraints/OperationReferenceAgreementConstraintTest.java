@@ -47,7 +47,7 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
     var sourceOp =
         OperationSignatureNode.withBody(
                 b -> {
-                  b.name("source");
+                  b.kernel("source");
                   b.output(
                       "output", List.of(new TensorSelection(tensorA.getId(), tensorA.getRange())));
                 })
@@ -81,7 +81,7 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
     var sinkOp =
         OperationSignatureNode.withBody(
                 b -> {
-                  b.name("sink");
+                  b.kernel("sink");
                   b.input(
                       "input", List.of(new TensorSelection(tensorA.getId(), tensorA.getRange())));
                 })
@@ -131,7 +131,7 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
     var op =
         OperationSignatureNode.withBody(
                 b -> {
-                  b.name("source");
+                  b.kernel("source");
                   b.output(
                       "output", List.of(new TensorSelection(tensorA.getId(), tensorA.getRange())));
                 })
@@ -164,7 +164,7 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
     var sourceOp =
         OperationSignatureNode.withBody(
                 b -> {
-                  b.name("source");
+                  b.kernel("source");
                   b.input("foo", List.of(new TensorSelection(tensorA.getId(), tensorA.getRange())));
                 })
             .addTo(graph);
@@ -243,7 +243,7 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
     var sourceOp =
         OperationSignatureNode.withBody(
                 b -> {
-                  b.name("source");
+                  b.kernel("source");
                   b.output(
                       "output", List.of(new TensorSelection(tensorA.getId(), tensorA.getRange())));
                 })
@@ -279,7 +279,7 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
     var sinkOp =
         OperationSignatureNode.withBody(
                 b -> {
-                  b.name("sink");
+                  b.kernel("sink");
                   b.input(
                       "input", List.of(new TensorSelection(tensorA.getId(), tensorA.getRange())));
                 })
@@ -391,7 +391,7 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
     var opSig =
         OperationSignatureNode.withBody(
                 b -> {
-                  b.name("source");
+                  b.kernel("source");
                   b.output(
                       "output", List.of(new TensorSelection(tensorA.getId(), tensorA.getRange())));
                 })
@@ -508,7 +508,7 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
     var op =
         OperationSignatureNode.withBody(
                 b -> {
-                  b.name("source");
+                  b.kernel("source");
                   b.input(
                       "source",
                       List.of(new TensorSelection(missingInputId, ZRange.fromShape(1, 2))));
@@ -581,7 +581,7 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
     var op =
         OperationSignatureNode.withBody(
                 b -> {
-                  b.name("source");
+                  b.kernel("source");
                   b.input(
                       "source",
                       List.of(new TensorSelection(noteNode.getId(), ZRange.fromShape(1, 2))));
@@ -663,7 +663,7 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
     var sourceOp =
         OperationSignatureNode.withBody(
                 b -> {
-                  b.name("source");
+                  b.kernel("source");
                   b.output(
                       "output",
                       List.of(new TensorSelection(tensorA.getId(), ZRange.fromShape(200))));
@@ -681,7 +681,7 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
     var sinkOp =
         OperationSignatureNode.withBody(
                 b -> {
-                  b.name("sink");
+                  b.kernel("sink");
                   b.input(
                       "input",
                       List.of(new TensorSelection(tensorA.getId(), ZRange.fromShape(200))));
@@ -750,7 +750,7 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
     var sourceOp =
         OperationSignatureNode.withBody(
                 b -> {
-                  b.name("source");
+                  b.kernel("source");
                   b.output(
                       "output",
                       List.of(new TensorSelection(tensorA.getId(), ZRange.fromShape(5, 10))));
@@ -768,7 +768,7 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
     var sinkOp =
         OperationSignatureNode.withBody(
                 b -> {
-                  b.name("sink");
+                  b.kernel("sink");
                   b.input(
                       "input",
                       List.of(new TensorSelection(tensorA.getId(), ZRange.fromShape(2, 8))));
@@ -850,7 +850,7 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
     var opNode =
         OperationSignatureNode.withBody(
                 b -> {
-                  b.name("increment");
+                  b.kernel("increment");
                   b.input(
                       "x",
                       List.of(

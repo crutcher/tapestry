@@ -172,7 +172,7 @@ public class IPFSignatureAgreementConstraintTest extends BaseTestClass {
     var opSigNode =
         OperationSignatureNode.withBody(
                 b -> {
-                  b.name(kernelName);
+                  b.kernel(kernelName);
 
                   for (var entry : inputs.entrySet()) {
                     var name = entry.getKey();
@@ -240,11 +240,6 @@ public class IPFSignatureAgreementConstraintTest extends BaseTestClass {
 
     assert ipfIndex.getRange().contains(shardIndex);
 
-    var label =
-        (sig.getLabel() == null ? sig.getName() : sig.getLabel())
-            + ": "
-            + shardIndex.toRangeString();
-
     return ApplicationNode.withBody(
             b -> {
               b.operationId(sig.getId());
@@ -280,7 +275,6 @@ public class IPFSignatureAgreementConstraintTest extends BaseTestClass {
               }
             })
         .annotation(IPFIndex.ANNOTATION_TYPE, IPFIndex.builder().range(shardIndex).build())
-        .label(label)
         .addTo(graph);
   }
 }

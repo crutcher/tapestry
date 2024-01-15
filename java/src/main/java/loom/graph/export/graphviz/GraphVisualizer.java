@@ -32,6 +32,8 @@ public class GraphVisualizer {
     Graphviz.useEngine(new GraphvizCmdLineEngine());
   }
 
+  @Builder.Default private final boolean displayColorLegend = false;
+
   @Builder.Default private final int minLabelLen = 6;
   @Builder.Default private final Rank.RankDir rankDir = Rank.RankDir.TOP_TO_BOTTOM;
 
@@ -114,7 +116,10 @@ public class GraphVisualizer {
 
       gvNode.add(Shape.BOX_3D);
       gvNode.add(Style.FILLED);
-      gvNode.add(Color.rgb("#74CFFF").fill());
+
+      String tensorColor = context.colorForTensor(loomNode.getId());
+      gvNode.add(Color.named(tensorColor).fill());
+      // gvNode.add(Color.rgb("#74CFFF").fill());
 
       gvNode.add(
           asHtmlLabel(
@@ -125,8 +130,8 @@ public class GraphVisualizer {
                   .tr(context.renderDataTypeTitle(loomNode.getTypeAlias()))
                   .add(
                       context.asDataKeyValueTR("dtype", tensorNode.getDtype()),
-                      context.asDataKeyValueTR("shape", tensorNode.getShape().toString()),
-                      context.asDataKeyValueTR("range", tensorNode.getRange().toRangeString()))));
+                      context.asDataKeyValueTR("range", tensorNode.getRange().toRangeString()),
+                      context.asDataKeyValueTR("shape", tensorNode.getRange().toShapeString()))));
     }
   }
 
@@ -138,47 +143,74 @@ public class GraphVisualizer {
         boolean isInput) {
       UUID nodeId = node.getId();
 
+      var desc = isInput ? "inputs" : "outputs";
+
       for (var entry : inputs.entrySet()) {
         var key = entry.getKey();
         var slices = entry.getValue();
         for (int idx = 0; idx < slices.size(); idx++) {
           var slice = slices.get(idx);
 
-          var label =
-              asHtmlLabel(
-                  GH.bold(
-                      GH.table()
-                          .border(0)
-                          .cellborder(0)
-                          .cellspacing(0)
-                          .cellpadding(0)
-                          .add("%s[%d]".formatted(key, idx))
-                          .add(slice.getRange().toRangeString())));
-
           UUID tensorId = slice.getTensorId();
 
-          String targetAlias = context.getNodeHexAliasMap().get(tensorId);
+          LoomNode<?, ?> node1 = context.getGraph().assertNode(tensorId);
+          String targetNodeColor = context.colorForTensor(node1.getId());
+          var color = Color.BLACK.and(Color.named(targetNodeColor));
+
+          Function<Link, Link> config = link -> link.with("penwidth", "2").with(color);
+
+          var selNode =
+              Factory.mutNode(node.getId() + "#" + key + "#" + idx)
+                  .add(Shape.BOX_3D)
+                  .add(Style.FILLED)
+                  .add(Color.named(context.colorForTensor(tensorId)).fill());
+          selNode.add(
+              asHtmlLabel(
+                  GH.table()
+                      .border(0)
+                      .cellborder(0)
+                      .cellspacing(0)
+                      .cellpadding(0)
+                      .add(
+                          context.asDataKeyValueTR("range", slice.getRange().toRangeString()),
+                          context.asDataKeyValueTR("shape", slice.getRange().toShapeString()))));
+          context.exportGraph.add(selNode);
+
+          var nodeProxy = Factory.mutNode(nodeId.toString());
+          var tensorProxy = Factory.mutNode(tensorId.toString());
+
+          String port = "%s.%s.%d".formatted(desc, key, idx);
 
           if (isInput) {
-            var link =
-                Link.to(Factory.mutNode(nodeId.toString()).port(targetAlias).port(Compass.NORTH))
-                    .with(label);
+            context.exportGraph.add(
+                tensorProxy.addLink(
+                    config.apply(
+                        tensorProxy.port(Compass.SOUTH).linkTo(selNode.port(Compass.NORTH)))));
 
-            context.exportGraph.add(Factory.mutNode(tensorId.toString()).addLink(link));
+            context.exportGraph.add(
+                selNode.addLink(
+                    config
+                        .apply(
+                            selNode
+                                .port(Compass.SOUTH)
+                                .linkTo(nodeProxy.port(port).port(Compass.NORTH)))
+                        .with("weight", 4)));
 
           } else {
-            var source = Factory.mutNode(nodeId.toString());
+            context.exportGraph.add(
+                nodeProxy.addLink(
+                    config
+                        .apply(
+                            nodeProxy
+                                .port(port)
+                                .port(Compass.SOUTH)
+                                .linkTo(selNode.port(Compass.NORTH)))
+                        .with("weight", 4)));
 
-            var link =
-                source
-                    .port(targetAlias)
-                    .port(Compass.SOUTH)
-                    .linkTo(Factory.mutNode(tensorId.toString()))
-                    .with(label);
-
-            source.addLink(link);
-
-            source.addTo(context.exportGraph);
+            context.exportGraph.add(
+                selNode.addLink(
+                    config.apply(
+                        selNode.port(Compass.SOUTH).linkTo(tensorProxy.port(Compass.NORTH)))));
           }
         }
       }
@@ -186,6 +218,54 @@ public class GraphVisualizer {
   }
 
   public static class ApplicationNodeExporter extends TensorSelectionMapBaseExporter {
+    public GH.TableWrapper padRow(
+        ExportContext context, Map<String, List<TensorSelection>> selectionMap, boolean isInput) {
+
+      var desc = isInput ? "inputs" : "outputs";
+
+      var inputTable =
+          GH.table()
+              .align(GH.HorizontalAlign.LEFT)
+              .fixedsize(true)
+              .border(0)
+              .cellborder(1)
+              .cellspacing(0)
+              .cellpadding(1);
+
+      var padRow = GH.tr();
+      var labelRow = GH.tr();
+      if (isInput) {
+        inputTable.add(padRow, labelRow);
+      } else {
+        inputTable.add(labelRow, padRow);
+      }
+
+      var keys = selectionMap.keySet().stream().sorted().toList();
+      for (int k = 0; k < keys.size(); ++k) {
+        var key = keys.get(k);
+        var argSize = selectionMap.get(key).size();
+
+        if (k != 0) {
+          padRow.add(GH.td().border(0).add(" "));
+          labelRow.add(GH.td().border(0).add(" "));
+        }
+
+        for (int i = 0; i < argSize; ++i) {
+          var sel = selectionMap.get(key).get(i);
+          var color = context.colorForTensor(sel.getTensorId());
+
+          padRow.add(
+              GH.td()
+                  .port("%s.%s.%d".formatted(desc, key, i))
+                  .bgcolor(color)
+                  .add(GH.bold(Integer.toString(i))));
+        }
+        labelRow.add(GH.td().colspan(argSize).add(GH.bold(key)));
+      }
+
+      return inputTable;
+    }
+
     @Override
     public void exportNode(
         GraphVisualizer visualizer,
@@ -194,20 +274,84 @@ public class GraphVisualizer {
         MutableNode gvNode) {
       var appNode = (ApplicationNode) loomNode;
 
-      gvNode.add(Shape.TAB);
-      gvNode.add(Style.FILLED);
-      gvNode.add(Color.named("green").fill());
+      var opNode = appNode.getOperationSignatureNode();
 
-      gvNode.add(
-          asHtmlLabel(
-              GH.table()
-                  .bgcolor("white")
-                  .border(0)
-                  .cellborder(0)
-                  .cellspacing(0)
-                  .add(
-                      context.renderDataTable(
-                          loomNode.getTypeAlias(), loomNode.getBodyAsJsonNode()))));
+      gvNode.add(Shape.COMPONENT);
+
+      var table = GH.table().border(0).cellspacing(0).cellpadding(2);
+      table.add(GH.tr(GH.td().add(padRow(context, appNode.getInputs(), true))));
+
+      var innerTable = GH.table().border(0).cellborder(1).cellspacing(0).cellpadding(0);
+      table.add(GH.tr(GH.td().add(innerTable)));
+
+      innerTable
+          .add(context.renderDataTypeTitle(loomNode.getTypeAlias()))
+          .add(context.asDataKeyValueTR("kernel", opNode.getKernel()));
+
+      {
+        innerTable.add(GH.hr());
+        innerTable.add(context.renderDataTypeTitle("inputs"));
+
+        var keys = appNode.getInputs().keySet().stream().sorted().toList();
+        for (var key : keys) {
+          var sels = appNode.getInputs().get(key);
+
+          var tr = GH.tr();
+          innerTable.add(tr);
+
+          tr.add(GH.td().add(GH.bold(key)));
+
+          var selTable = GH.table();
+          tr.add(GH.td().add(selTable));
+
+          selTable.border(0).cellpadding(2);
+
+          for (int i = 0; i < sels.size(); ++i) {
+            var sel = sels.get(i);
+            var color = context.colorForTensor(sel.getTensorId());
+
+            selTable.add(
+                GH.tr(
+                    GH.td().bgcolor(color).add(GH.bold(Integer.toString(i))),
+                    GH.td().add(context.nodeAliasTable(sel.getTensorId())),
+                    GH.td().add(GH.bold(sel.getRange().toRangeString())),
+                    GH.td().add(GH.bold(sel.getRange().toShapeString()))));
+          }
+        }
+      }
+      {
+        innerTable.add(context.renderDataTypeTitle("outputs"));
+
+        var keys = appNode.getOutputs().keySet().stream().sorted().toList();
+        for (var key : keys) {
+          var sels = appNode.getOutputs().get(key);
+
+          var tr = GH.tr();
+          innerTable.add(tr);
+
+          tr.add(GH.td().add(GH.bold(key)));
+
+          var selTable = GH.table();
+          tr.add(GH.td().add(selTable));
+
+          selTable.border(0).cellpadding(2);
+
+          for (int i = 0; i < sels.size(); ++i) {
+            var sel = sels.get(i);
+            var color = context.colorForTensor(sel.getTensorId());
+
+            selTable.add(
+                GH.tr(
+                    GH.td().bgcolor(color).add(GH.bold(Integer.toString(i))),
+                    GH.td().add(GH.bold(sel.getRange().toRangeString())),
+                    GH.td().add(GH.bold(sel.getRange().toShapeString()))));
+          }
+        }
+      }
+
+      table.add(GH.tr(GH.td().add(padRow(context, appNode.getOutputs(), false))));
+
+      gvNode.add(asHtmlLabel(table));
 
       {
         UUID operationId = appNode.getOperationId();
@@ -217,9 +361,13 @@ public class GraphVisualizer {
                     Factory.mutNode(loomNode.getId().toString())
                         .port(operatorAlias)
                         .port(Compass.NORTH))
+                // .with("constraint", false)
+                .with("weight", 0)
                 .with("dir", "both")
                 .with(Style.DOTTED);
         context.exportGraph.add(Factory.mutNode(operationId.toString()).addLink(link));
+
+        // context.sameRank(loomNode.getId(), operationId);
       }
 
       tensorSelectionMapEdges(context, appNode, appNode.getInputs(), true);
@@ -317,6 +465,23 @@ public class GraphVisualizer {
       exportGraph = Factory.mutGraph("graph");
       exportGraph.setDirected(true);
       exportGraph.graphAttrs().add(Rank.dir(rankDir));
+      exportGraph.graphAttrs().add("smoothing", "spring");
+
+      if (displayColorLegend) {
+        var table =
+            GH.table()
+                .border(0)
+                .cellborder(0)
+                .cellspacing(0)
+                .cellpadding(0)
+                .add(GH.td().colspan(2).add(GH.bold("Color Legend")));
+
+        table.add(GH.td().colspan(2).add(GH.bold("Node Edge Colors")));
+        for (var color : NODE_COLORS) {
+          table.add(GH.tr(GH.td().width(10).bgcolor(color).add(" "), GH.td().add(color)));
+        }
+        exportGraph.add(Factory.mutNode("colors").add(Shape.NONE).add(asHtmlLabel(table)));
+      }
 
       for (var nodeIt = graph.nodeScan().asStream().iterator(); nodeIt.hasNext(); ) {
         var loomNode = nodeIt.next();
@@ -365,7 +530,10 @@ public class GraphVisualizer {
         addLink(
             node.getId(),
             gvAnnotationNodeId,
-            link -> link.with(Arrow.DOT.open().and(Arrow.DOT.open())).with(Style.BOLD));
+            link ->
+                link.with(Arrow.DOT.open().and(Arrow.DOT.open()))
+                    .with(Style.BOLD)
+                    .with("weight", 5));
 
         sameRank(node.getId(), gvAnnotationNodeId);
       }
@@ -508,6 +676,34 @@ public class GraphVisualizer {
           }
         }
       }
+    }
+
+    private static final List<String> NODE_COLORS =
+        List.of(
+            "orchid1",
+            "turquoise1",
+            "maroon1",
+            "mistyrose1",
+            "plum1",
+            "sienna1",
+            "springgreen1",
+            "lavenderblush1",
+            "aquamarine1",
+            "lightsteelblue1");
+
+    // List.of("#696969", "#8b4513", "#006400", "#00008b", "#ff0000", "#00ced1", "#ffa500",
+    // "#00ff00", "#00fa9a", "#0000ff", "#ff00ff", "#1e90ff", "#ffff54", "#dda0dd", "#ff1493",
+    // "#ffe4b5");
+
+    private final Map<UUID, String> colorAssignments = new LinkedHashMap<>();
+
+    public synchronized String colorForTensor(UUID id) {
+      if (colorAssignments.containsKey(id)) {
+        return colorAssignments.get(id);
+      }
+      var color = NODE_COLORS.get(colorAssignments.size() % NODE_COLORS.size());
+      colorAssignments.put(id, color);
+      return color;
     }
 
     private static final List<Pair<String, String>> FG_BG_CONTRAST_PAIRS =
