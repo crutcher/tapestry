@@ -7,6 +7,10 @@ import guru.nidi.graphviz.attribute.*;
 import guru.nidi.graphviz.engine.Graphviz;
 import guru.nidi.graphviz.engine.GraphvizCmdLineEngine;
 import guru.nidi.graphviz.model.*;
+import java.util.*;
+import java.util.function.Function;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import lombok.Builder;
 import lombok.Data;
 import lombok.Getter;
@@ -17,11 +21,6 @@ import loom.graph.nodes.*;
 import loom.polyhedral.IndexProjectionFunction;
 import loom.zspace.ZRange;
 import org.apache.commons.lang3.tuple.Pair;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.util.*;
-import java.util.function.Function;
 
 @Data
 @Builder
@@ -155,9 +154,11 @@ public class GraphVisualizer {
 
           LoomNode<?, ?> node1 = context.getGraph().assertNode(tensorId);
           String targetNodeColor = context.colorForTensor(node1.getId());
-          var color = Color.BLACK.and(Color.named(targetNodeColor));
+          var targetColor = Color.named(targetNodeColor);
+          var color = targetColor.and(targetColor, Color.BLACK);
 
-          Function<Link, Link> config = link -> link.with("penwidth", "2").with(color);
+          Function<Link, Link> config =
+              link -> link.with("penwidth", "2").with(color).with(Arrow.NORMAL);
 
           var selNode =
               Factory.mutNode(node.getId() + "#" + key + "#" + idx)
@@ -287,6 +288,14 @@ public class GraphVisualizer {
       innerTable
           .add(context.renderDataTypeTitle(loomNode.getTypeAlias()))
           .add(context.asDataKeyValueTR("kernel", opNode.getKernel()));
+
+      if (!opNode.getParams().isEmpty()) {
+        innerTable.add(context.renderDataTypeTitle("params"));
+
+        var paramsOsObjectNode =
+            (ObjectNode) JsonUtil.convertValue(opNode.getParams(), JsonNode.class);
+        innerTable.addAll(context.jsonToDataKeyValueTRs(paramsOsObjectNode));
+      }
 
       {
         innerTable.add(GH.hr());
