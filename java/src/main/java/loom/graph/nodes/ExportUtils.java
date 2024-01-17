@@ -7,9 +7,11 @@ import java.util.function.BiConsumer;
 import java.util.function.Predicate;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import lombok.RequiredArgsConstructor;
 import lombok.Value;
 import loom.common.json.JsonPathUtils;
 
+@RequiredArgsConstructor(access = lombok.AccessLevel.PRIVATE)
 public class ExportUtils {
 
   @Value

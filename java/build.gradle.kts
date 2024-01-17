@@ -80,6 +80,26 @@ tasks.jacocoTestReport {
     dependsOn(tasks.test)
 }
 
+tasks.check {
+    finalizedBy(tasks.jacocoTestCoverageVerification)
+}
+
+tasks.jacocoTestCoverageVerification {
+    violationRules {
+        rule {
+            isEnabled = true
+            element = "CLASS"
+            includes = listOf("loom.*")
+
+            limit {
+                counter = "INSTRUCTION"
+                value = "COVEREDRATIO"
+                minimum = "0.9".toBigDecimal()
+            }
+        }
+    }
+}
+
 jmh {
     // See: https://github.com/melix/jmh-gradle-plugin
 

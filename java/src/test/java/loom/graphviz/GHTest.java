@@ -2,19 +2,12 @@ package loom.graphviz;
 
 import loom.graph.export.graphviz.GH;
 import loom.testing.BaseTestClass;
+import loom.testing.XmlAssertions;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Text;
 import org.junit.Test;
-import org.xmlunit.assertj3.XmlAssert;
 
-public class GHTest extends BaseTestClass {
-
-  public static void assertXmlEquals(Object actual, Object expected) {
-    XmlAssert.assertThat(actual.toString())
-        .and(expected.toString())
-        .ignoreWhitespace()
-        .areIdentical();
-  }
+public class GHTest extends BaseTestClass implements XmlAssertions {
 
   @Test
   public void test_NodeWrapper() {

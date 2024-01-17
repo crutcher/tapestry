@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 import java.util.stream.Stream;
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
@@ -117,18 +118,7 @@ public final class GH {
      */
     @CanIgnoreReturnValue
     public T withParent(ElementWrapper<?> parent) {
-      return withParent(parent.getNode());
-    }
-
-    /**
-     * Add this node to the parent as a child.
-     *
-     * @param parent the parent to add this node to.
-     * @return {@code this}
-     */
-    @CanIgnoreReturnValue
-    public T withParent(Element parent) {
-      parent.add(getNode());
+      parent.add(this);
       return self();
     }
 
@@ -241,6 +231,8 @@ public final class GH {
     public T addAll(Collection<?> objects) {
       for (var object : objects) {
         switch (object) {
+          case Object[] array -> add(array);
+          case List<?> list -> addAll(list);
           case String str -> add(str);
           case NodeWrapper<?, ?> wrapper -> add(wrapper);
           case Node n -> add(n);
@@ -964,6 +956,7 @@ public final class GH {
           return super.add(node);
         }
       }
+
       return tr(node);
     }
   }

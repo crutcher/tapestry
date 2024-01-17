@@ -1,10 +1,9 @@
 package loom.graph.nodes;
 
+import java.util.UUID;
 import loom.testing.BaseTestClass;
 import loom.zspace.ZRange;
 import org.junit.Test;
-
-import java.util.UUID;
 
 public class TensorSelectionTest extends BaseTestClass {
   @Test

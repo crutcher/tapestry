@@ -1,6 +1,8 @@
 package loom.graph.constraints;
 
 import guru.nidi.graphviz.engine.Format;
+import java.util.List;
+import java.util.Map;
 import loom.graph.CommonEnvironments;
 import loom.graph.export.graphviz.GraphVisualizer;
 import loom.graph.nodes.*;
@@ -9,9 +11,6 @@ import loom.testing.BaseTestClass;
 import loom.zspace.ZPoint;
 import loom.zspace.ZRange;
 import org.junit.Test;
-
-import java.util.List;
-import java.util.Map;
 
 @SuppressWarnings("unused")
 public class IPFSignatureAgreementConstraintTest extends BaseTestClass {
