@@ -1,5 +1,9 @@
 package loom.graph;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+import javax.annotation.Nonnull;
 import lombok.NoArgsConstructor;
 import loom.graph.nodes.OperationSignatureNode;
 import org.jgrapht.Graph;
@@ -9,11 +13,6 @@ import org.jgrapht.alg.interfaces.VertexColoringAlgorithm;
 import org.jgrapht.graph.DefaultDirectedGraph;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.DefaultUndirectedGraph;
-
-import javax.annotation.Nonnull;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
 
 @NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
 public class TraversalUtils {

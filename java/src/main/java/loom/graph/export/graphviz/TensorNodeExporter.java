@@ -17,13 +17,15 @@ public class TensorNodeExporter implements GraphVisualizer.NodeTypeExporter {
     gvNode.add(Style.FILLED);
     gvNode.add("gradientangle", 315);
     gvNode.add("penwidth", 2);
+    gvNode.add("margin", 0.2);
 
     gvNode.add(context.colorSchemeForNode(loomNode.getId()).fill());
 
     gvNode.add(
         GraphVisualizer.asHtmlLabel(
             GH.table()
-                .border(0)
+                .bgcolor("white")
+                .border(1)
                 .cellborder(0)
                 .cellspacing(0)
                 .add(

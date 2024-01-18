@@ -2,9 +2,7 @@ package loom.graph.export.graphviz;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import guru.nidi.graphviz.attribute.Color;
-import guru.nidi.graphviz.attribute.Shape;
-import guru.nidi.graphviz.attribute.Style;
+import guru.nidi.graphviz.attribute.*;
 import guru.nidi.graphviz.model.Compass;
 import guru.nidi.graphviz.model.Factory;
 import guru.nidi.graphviz.model.Link;
@@ -164,6 +162,16 @@ public class ApplicationNodeExporter implements GraphVisualizer.NodeTypeExporter
 
     String lastSelNodeId = null;
 
+    var selNodeCluster =
+        Factory.mutGraph("cluster_%s_%s".formatted(nodeId, desc))
+            .setDirected(true)
+            .setCluster(true)
+            .graphAttrs()
+            .add(Rank.inSubgraph(Rank.RankType.SAME))
+            .graphAttrs()
+            .add("style", "dashed");
+    // .graphAttrs().add("peripheries", 0);
+
     for (var entry : inputs.entrySet()) {
       var key = entry.getKey();
       var slices = entry.getValue();
@@ -172,12 +180,9 @@ public class ApplicationNodeExporter implements GraphVisualizer.NodeTypeExporter
 
         UUID tensorId = slice.getTensorId();
 
-        LoomNode<?, ?> node1 = context.getGraph().assertNode(tensorId);
-        String targetNodeColor = context.getPrimaryColorForNode(node1.getId());
-        var targetColor = Color.named(targetNodeColor);
-        var color = targetColor.and(targetColor, Color.BLACK);
-
-        Function<Link, Link> config = link -> link.with("penwidth", "6").with(color);
+        var primaryColor = Color.named(context.getPrimaryColorForNode(tensorId));
+        Function<Link, Link> config =
+            link -> link.with("penwidth", "6").with(primaryColor.and(Color.BLACK, primaryColor));
 
         var selNode =
             Factory.mutNode(node.getId() + "#" + key + "#" + idx)
@@ -185,11 +190,14 @@ public class ApplicationNodeExporter implements GraphVisualizer.NodeTypeExporter
                 .add(Style.FILLED)
                 .add("penwidth", 2)
                 .add("gradientangle", 315)
+                .add("margin", 0.15)
                 .add(context.colorSchemeForNode(tensorId).fill());
+
         selNode.add(
             GraphVisualizer.asHtmlLabel(
                 GH.table()
-                    .border(0)
+                    .bgcolor("white")
+                    .border(1)
                     .cellborder(0)
                     .cellspacing(0)
                     .cellpadding(0)
@@ -213,23 +221,19 @@ public class ApplicationNodeExporter implements GraphVisualizer.NodeTypeExporter
 
           exportGraph.add(
               selNode.addLink(
-                  config
-                      .apply(
-                          selNode
-                              .port(Compass.SOUTH)
-                              .linkTo(nodeProxy.port(port).port(Compass.NORTH)))
-                      .with("weight", 4)));
+                  config.apply(
+                      selNode
+                          .port(Compass.SOUTH)
+                          .linkTo(nodeProxy.port(port).port(Compass.NORTH)))));
 
         } else {
           exportGraph.add(
               nodeProxy.addLink(
-                  config
-                      .apply(
-                          nodeProxy
-                              .port(port)
-                              .port(Compass.SOUTH)
-                              .linkTo(selNode.port(Compass.NORTH)))
-                      .with("weight", 4)));
+                  config.apply(
+                      nodeProxy
+                          .port(port)
+                          .port(Compass.SOUTH)
+                          .linkTo(selNode.port(Compass.NORTH)))));
 
           exportGraph.add(
               selNode.addLink(
@@ -242,15 +246,19 @@ public class ApplicationNodeExporter implements GraphVisualizer.NodeTypeExporter
           MutableNode fromProxy = Factory.mutNode(lastSelNodeId);
           MutableNode toProxy = Factory.mutNode(selNode.name().toString());
 
-          context.sameRank(fromProxy.name().toString(), toProxy.name().toString());
-
-          context
-              .getExportGraph()
-              .add(fromProxy.addLink(Link.to(toProxy).with("weight", 6).with(Style.INVIS)));
+          fromProxy.addLink(
+              fromProxy
+                  .linkTo(toProxy)
+                  .with(Style.INVIS)
+                  .with("constraint", false)
+                  .with("weight", 2));
+          selNodeCluster.add(fromProxy, toProxy);
         }
         lastSelNodeId = selNode.name().toString();
       }
     }
+
+    context.getExportGraph().add(selNodeCluster);
   }
 
   /**

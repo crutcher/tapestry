@@ -37,8 +37,10 @@ public class GraphVisualizer {
     Graphviz.useEngine(new GraphvizCmdLineEngine());
   }
 
-  @Builder.Default private final boolean displayColorLegend = true;
+  @Builder.Default private final boolean displayColorLegend = false;
   @Builder.Default private final boolean foldApplicationNodes = true;
+
+  @Builder.Default private final String backgroundColor = "#E2E2E2";
 
   @Builder.Default private final int minLabelLen = 6;
   @Builder.Default private final Rank.RankDir rankDir = Rank.RankDir.TOP_TO_BOTTOM;
@@ -171,12 +173,18 @@ public class GraphVisualizer {
       exportGraph = Factory.mutGraph("graph");
       exportGraph.setDirected(true);
 
+      // default: 0.25
+      // exportGraph.graphAttrs().add("nodesep", "0.4");
+
+      // default: 0.5
+      // exportGraph.graphAttrs().add("ranksep", "0.8");
+
       if (rankDir != Rank.RankDir.TOP_TO_BOTTOM) {
         exportGraph.graphAttrs().add(Rank.dir(rankDir));
       }
 
       exportGraph.graphAttrs().add("splines", "true");
-      exportGraph.graphAttrs().add("bgcolor", "#E2E2E2");
+      exportGraph.graphAttrs().add("bgcolor", backgroundColor);
 
       if (displayColorLegend) {
         var table =
@@ -403,8 +411,7 @@ public class GraphVisualizer {
 
     private static final List<String> NODE_COLORS =
         List.of(
-            "#EF7BDE", "#38DAE0", "#ee9944", "#eedd00", "#99dd55", "#DC9E87", "#44dd88", "#E98FA5",
-            "#22ccbb");
+            "#EF7BDE", "#38DAE0", "#ee9944", "#99dd55", "#DC9E87", "#44dd88", "#E98FA5", "#22ccbb");
 
     public Color colorSchemeForNode(UUID id) {
       var colorPair = getColoringForNode(id);
@@ -437,11 +444,11 @@ public class GraphVisualizer {
 
     private static final List<Pair<String, String>> FG_BG_CONTRAST_PAIRS =
         List.of(
-            Pair.of("black", "#ff45bb"),
-            Pair.of("black", "#45bbff"),
-            Pair.of("black", "#45ffbb"),
-            Pair.of("black", "#cc65ff"),
-            Pair.of("black", "#ffbb45"));
+            Pair.of("black", "#ffbbbb"),
+            Pair.of("black", "#aabbff"),
+            Pair.of("black", "#aaffbb"),
+            Pair.of("black", "#ccbbff"),
+            Pair.of("black", "#ffbbaa"));
 
     public GH.TableWrapper nodeAliasTable(UUID id) {
       String alias = getNodeHexAliasMap().get(id);
