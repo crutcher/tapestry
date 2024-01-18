@@ -2,6 +2,7 @@ package loom.graph.nodes;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -125,6 +126,7 @@ public class OperationSignatureNode
         .nodeClass(ApplicationNode.class)
         .asStream()
         .filter(appNode -> appNode.getOperationId().equals(id))
+        .sorted(Comparator.comparing(LoomNode::getId))
         .toList();
   }
 }

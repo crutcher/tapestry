@@ -1,14 +1,19 @@
 package loom.graph;
 
-import java.util.ArrayList;
-import java.util.List;
-import javax.annotation.Nonnull;
 import lombok.NoArgsConstructor;
 import loom.graph.nodes.OperationSignatureNode;
 import org.jgrapht.Graph;
+import org.jgrapht.alg.color.GreedyColoring;
 import org.jgrapht.alg.cycle.TarjanSimpleCycles;
+import org.jgrapht.alg.interfaces.VertexColoringAlgorithm;
 import org.jgrapht.graph.DefaultDirectedGraph;
 import org.jgrapht.graph.DefaultEdge;
+import org.jgrapht.graph.DefaultUndirectedGraph;
+
+import javax.annotation.Nonnull;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 @NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
 public class TraversalUtils {
@@ -65,5 +70,65 @@ public class TraversalUtils {
       }
     }
     return linkGraph;
+  }
+
+  /**
+   * Construct a coloring graph for tensor and operation adjacency.
+   *
+   * @param graph The graph to construct the coloring graph for.
+   * @return The coloring graph.
+   */
+  public static DefaultUndirectedGraph<UUID, DefaultEdge> tensorOperationColoringGraph(
+      LoomGraph graph) {
+    DefaultUndirectedGraph<UUID, DefaultEdge> coloringGraph =
+        new DefaultUndirectedGraph<>(DefaultEdge.class);
+    for (var opNode :
+        graph
+            .nodeScan()
+            .type(OperationSignatureNode.TYPE)
+            .nodeClass(OperationSignatureNode.class)
+            .asList()) {
+      var opId = opNode.getId();
+      coloringGraph.addVertex(opId);
+
+      List<UUID> tensorIds = new ArrayList<>();
+      for (var entry : opNode.getInputs().entrySet()) {
+        for (var tensorSelection : entry.getValue()) {
+          var tensorId = tensorSelection.getTensorId();
+          tensorIds.add(tensorId);
+          coloringGraph.addVertex(tensorId);
+          coloringGraph.addEdge(opId, tensorId);
+        }
+      }
+      for (var entry : opNode.getOutputs().entrySet()) {
+        for (var tensorSelection : entry.getValue()) {
+          var tensorId = tensorSelection.getTensorId();
+          tensorIds.add(tensorId);
+          coloringGraph.addVertex(tensorId);
+          coloringGraph.addEdge(opId, tensorId);
+        }
+      }
+
+      for (int i = 0; i < tensorIds.size(); i++) {
+        var a = tensorIds.get(i);
+        for (int j = 0; j < i; j++) {
+          coloringGraph.addEdge(a, tensorIds.get(j));
+        }
+      }
+    }
+
+    return coloringGraph;
+  }
+
+  /**
+   * Color the nodes of a graph based on the adjacency of tensors and operations.
+   *
+   * @param graph The graph to color.
+   * @return The Coloring.
+   */
+  public static VertexColoringAlgorithm.Coloring<UUID> tensorOperationColoring(LoomGraph graph) {
+    var coloringGraph = tensorOperationColoringGraph(graph);
+    var greedyColoring = new GreedyColoring<>(coloringGraph);
+    return greedyColoring.getColoring();
   }
 }

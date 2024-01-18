@@ -13,9 +13,11 @@ import guru.nidi.graphviz.model.MutableNode;
 import lombok.Builder;
 import lombok.Data;
 import lombok.Getter;
+import loom.common.collections.IteratorUtils;
 import loom.common.json.JsonUtil;
 import loom.graph.LoomGraph;
 import loom.graph.LoomNode;
+import loom.graph.TraversalUtils;
 import loom.graph.nodes.*;
 import loom.polyhedral.IndexProjectionFunction;
 import loom.zspace.ZRange;
@@ -35,7 +37,7 @@ public class GraphVisualizer {
     Graphviz.useEngine(new GraphvizCmdLineEngine());
   }
 
-  @Builder.Default private final boolean displayColorLegend = false;
+  @Builder.Default private final boolean displayColorLegend = true;
   @Builder.Default private final boolean foldApplicationNodes = true;
 
   @Builder.Default private final int minLabelLen = 6;
@@ -164,11 +166,17 @@ public class GraphVisualizer {
     }
 
     private void export() {
+      colorTensorOperationNodes();
+
       exportGraph = Factory.mutGraph("graph");
       exportGraph.setDirected(true);
-      exportGraph.graphAttrs().add(Rank.dir(rankDir));
-      exportGraph.graphAttrs().add("smoothing", "spring");
+
+      if (rankDir != Rank.RankDir.TOP_TO_BOTTOM) {
+        exportGraph.graphAttrs().add(Rank.dir(rankDir));
+      }
+
       exportGraph.graphAttrs().add("splines", "true");
+      exportGraph.graphAttrs().add("bgcolor", "#E2E2E2");
 
       if (displayColorLegend) {
         var table =
@@ -188,7 +196,7 @@ public class GraphVisualizer {
 
       for (var nodeIt = graph.nodeScan().asStream().iterator(); nodeIt.hasNext(); ) {
         var loomNode = nodeIt.next();
-        exportNode(loomNode);
+        exporterForNodeType(loomNode.getType()).exportNode(GraphVisualizer.this, this, loomNode);
       }
     }
 
@@ -212,11 +220,6 @@ public class GraphVisualizer {
       return gvnode;
     }
 
-    private void exportNode(LoomNode<?, ?> node) {
-      exporterForNodeType(node.getType())
-          .exportNode(GraphVisualizer.this, ExportContext.this, node);
-    }
-
     public void maybeRenderAnnotations(LoomNode<?, ?> node) {
       maybeRenderAnnotations(node.getId().toString(), node.getAnnotations());
     }
@@ -225,22 +228,26 @@ public class GraphVisualizer {
       if (annotations.isEmpty()) {
         return;
       }
+      var env = graph.getEnv();
 
       String gvAnnotationNodeId = nodeId + "#annotations";
       var aNode = Factory.mutNode(gvAnnotationNodeId);
       aNode.add(Shape.COMPONENT);
       aNode.add(Style.FILLED);
+      aNode.add("penwidth", 2);
       aNode.add(Color.rgb("#45eebf").fill());
 
-      var table = GH.table().border(0).cellborder(0).cellspacing(2).cellpadding(2);
+      var wrapperTable = GH.table().border(0).cellborder(0).cellspacing(2).cellpadding(2);
       for (var entry :
           annotations.entrySet().stream().sorted(Map.Entry.comparingByKey()).toList()) {
-        var t = renderAnnotationTable(entry.getKey(), entry.getValue());
-        t.bgcolor("white");
-        table.add(GH.td(t));
+        renderDataTable(
+                env.getAnnotationTypeAlias(entry.getKey()),
+                (ObjectNode) JsonUtil.valueToJsonNodeTree(entry.getValue()))
+            .bgcolor("white")
+            .withParent(wrapperTable);
       }
 
-      aNode.add(asHtmlLabel(table));
+      aNode.add(asHtmlLabel(wrapperTable));
 
       exportGraph.add(aNode);
 
@@ -251,12 +258,6 @@ public class GraphVisualizer {
               link.with(Arrow.DOT.open().and(Arrow.DOT.open())).with(Style.BOLD).with("weight", 5));
 
       sameRank(nodeId, gvAnnotationNodeId);
-    }
-
-    public GH.TableWrapper renderAnnotationTable(String key, Object value) {
-      var env = graph.getEnv();
-      String typeAlias = env.getAnnotationTypeAlias(key);
-      return renderDataTable(typeAlias, (ObjectNode) JsonUtil.convertValue(value, JsonNode.class));
     }
 
     public GH.TableDataWrapper renderDataTypeTitle(String title) {
@@ -384,30 +385,54 @@ public class GraphVisualizer {
       }
     }
 
+    public void colorTensorOperationNodes() {
+      var coloring = TraversalUtils.tensorOperationColoring(getGraph());
+
+      for (Pair<Integer, Set<UUID>> colorPair :
+          IteratorUtils.enumerate(coloring.getColorClasses())) {
+        int color = colorPair.getLeft();
+        var colorSet = colorPair.getRight();
+
+        for (var idxId : IteratorUtils.enumerate(colorSet.stream().sorted().toList())) {
+          int idx = idxId.getLeft();
+          var id = idxId.getRight();
+          setColoringForNode(id, color, idx);
+        }
+      }
+    }
+
     private static final List<String> NODE_COLORS =
         List.of(
-            "orchid1",
-            "turquoise1",
-            "maroon1",
-            "plum1",
-            "sienna1",
-            "springgreen1",
-            "aquamarine1",
-            "lightsteelblue1");
+            "#EF7BDE", "#38DAE0", "#ee9944", "#eedd00", "#99dd55", "#DC9E87", "#44dd88", "#E98FA5",
+            "#22ccbb");
 
-    // List.of("#696969", "#8b4513", "#006400", "#00008b", "#ff0000", "#00ced1", "#ffa500",
-    // "#00ff00", "#00fa9a", "#0000ff", "#ff00ff", "#1e90ff", "#ffff54", "#dda0dd", "#ff1493",
-    // "#ffe4b5");
+    public Color colorSchemeForNode(UUID id) {
+      var colorPair = getColoringForNode(id);
+      return Color.named(colorPair.getLeft()).gradient(Color.named(colorPair.getRight()));
+    }
 
-    private final Map<UUID, String> colorAssignments = new LinkedHashMap<>();
+    private final Map<UUID, Pair<String, String>> nodeColorings = new HashMap<>();
 
-    public synchronized String colorForNode(UUID id) {
-      if (colorAssignments.containsKey(id)) {
-        return colorAssignments.get(id);
+    public void setColoringForNode(UUID id, int color, int idx) {
+      var k = NODE_COLORS.size();
+      var h = color % k;
+      var baseColor = NODE_COLORS.get(h);
+
+      var s = (h + idx + 1 + (k / 2)) % k;
+      if (s == h) {
+        s = (s + 1) % k;
       }
-      var color = NODE_COLORS.get(colorAssignments.size() % NODE_COLORS.size());
-      colorAssignments.put(id, color);
-      return color;
+      var stripeColor = NODE_COLORS.get(s);
+
+      nodeColorings.put(id, Pair.of(baseColor, stripeColor));
+    }
+
+    public String getPrimaryColorForNode(UUID id) {
+      return nodeColorings.get(id).getLeft();
+    }
+
+    public Pair<String, String> getColoringForNode(UUID id) {
+      return nodeColorings.get(id);
     }
 
     private static final List<Pair<String, String>> FG_BG_CONTRAST_PAIRS =

@@ -117,7 +117,7 @@ public class IPFSignatureAgreementConstraintTest extends BaseTestClass {
       var export = exporter.export(graph);
       var gv = export.getGraphviz();
 
-      System.out.println(export.getExportGraph());
+      // System.out.println(export.getExportGraph());
 
       var img = gv.render(Format.PNG).toImage();
 

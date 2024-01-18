@@ -2,7 +2,6 @@ package loom.graph.export.graphviz;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import guru.nidi.graphviz.attribute.Arrow;
 import guru.nidi.graphviz.attribute.Color;
 import guru.nidi.graphviz.attribute.Shape;
 import guru.nidi.graphviz.attribute.Style;
@@ -10,14 +9,13 @@ import guru.nidi.graphviz.model.Compass;
 import guru.nidi.graphviz.model.Factory;
 import guru.nidi.graphviz.model.Link;
 import guru.nidi.graphviz.model.MutableNode;
+import java.util.*;
+import java.util.function.Function;
 import loom.common.json.JsonUtil;
 import loom.graph.LoomNode;
 import loom.graph.nodes.ApplicationNode;
 import loom.graph.nodes.IPFIndex;
 import loom.graph.nodes.TensorSelection;
-
-import java.util.*;
-import java.util.function.Function;
 
 public class ApplicationNodeExporter implements GraphVisualizer.NodeTypeExporter {
   @Override
@@ -29,30 +27,60 @@ public class ApplicationNodeExporter implements GraphVisualizer.NodeTypeExporter
     var opNode = appNode.getOperationSignatureNode();
 
     {
-      UUID operationId = appNode.getOperationId();
-      String operatorAlias = context.getNodeHexAliasMap().get(operationId);
-      var link =
-          Link.to(
-                  Factory.mutNode(loomNode.getId().toString())
-                      .port(operatorAlias)
-                      .port(Compass.NORTH))
-              .with("weight", 0)
-              .with("dir", "both")
-              .with(Style.DOTTED);
-      context.getExportGraph().add(Factory.mutNode(operationId.toString()).addLink(link));
+      MutableNode nodeProxy = Factory.mutNode(gvNode.name());
+
+      var appShards = opNode.getApplicationNodes();
+      var currentIdx = appShards.indexOf(appNode);
+
+      if (currentIdx == appShards.size() - 1) {
+        MutableNode opProxy = Factory.mutNode(opNode.getId().toString());
+
+        context
+            .getExportGraph()
+            .add(
+                nodeProxy.addLink(
+                    nodeProxy
+                        .port(Compass.EAST)
+                        .linkTo(opProxy.port(Compass.WEST))
+                        .with("weight", 2)
+                        .with(Style.DOTTED)));
+
+        context.sameRank(loomNode.getId(), opNode.getId());
+
+      } else {
+        MutableNode nextProxy = Factory.mutNode(appShards.get(currentIdx + 1).getId().toString());
+
+        context
+            .getExportGraph()
+            .add(
+                nodeProxy.addLink(
+                    nodeProxy
+                        .port(Compass.EAST)
+                        .linkTo(nextProxy.port(Compass.WEST))
+                        .with("weight", 2)
+                        .with(Style.DOTTED)));
+
+        context.sameRank(nextProxy.name(), loomNode.getId().toString());
+      }
     }
 
-    gvNode.add(Shape.NOTE);
-    gvNode.add(Style.FILLED);
-    gvNode.add("margin", "0.08,-0.1");
-    gvNode.add(Color.named(context.colorForNode(opNode.getId())).fill());
+    gvNode
+        .add(Shape.NOTE)
+        .add(Style.FILLED)
+        .add("penwidth", 2)
+        .add("gradientangle", 315)
+        .add("margin", "0.08,-0.1")
+        .add(context.colorSchemeForNode(opNode.getId()).fill());
 
     var table =
         GH.table()
             .border(0)
             .cellspacing(0)
             .cellpadding(2)
-            .add(GH.tr(GH.td().add(selectionMapToIOConnectorsTable(context, appNode.getInputs(), true))));
+            .add(
+                GH.tr(
+                    GH.td()
+                        .add(selectionMapToIOConnectorsTable(context, appNode.getInputs(), true))));
 
     if (visualizer.isFoldApplicationNodes()) {
       var descTable =
@@ -145,18 +173,19 @@ public class ApplicationNodeExporter implements GraphVisualizer.NodeTypeExporter
         UUID tensorId = slice.getTensorId();
 
         LoomNode<?, ?> node1 = context.getGraph().assertNode(tensorId);
-        String targetNodeColor = context.colorForNode(node1.getId());
+        String targetNodeColor = context.getPrimaryColorForNode(node1.getId());
         var targetColor = Color.named(targetNodeColor);
         var color = targetColor.and(targetColor, Color.BLACK);
 
-        Function<Link, Link> config =
-            link -> link.with("penwidth", "6").with(color).with(Arrow.NORMAL);
+        Function<Link, Link> config = link -> link.with("penwidth", "6").with(color);
 
         var selNode =
             Factory.mutNode(node.getId() + "#" + key + "#" + idx)
                 .add(Shape.BOX_3D)
                 .add(Style.FILLED)
-                .add(Color.named(context.colorForNode(tensorId)).fill());
+                .add("penwidth", 2)
+                .add("gradientangle", 315)
+                .add(context.colorSchemeForNode(tensorId).fill());
         selNode.add(
             GraphVisualizer.asHtmlLabel(
                 GH.table()
@@ -215,7 +244,9 @@ public class ApplicationNodeExporter implements GraphVisualizer.NodeTypeExporter
 
           context.sameRank(fromProxy.name().toString(), toProxy.name().toString());
 
-          context.getExportGraph().add(fromProxy.addLink(Link.to(toProxy).with(Style.INVIS)));
+          context
+              .getExportGraph()
+              .add(fromProxy.addLink(Link.to(toProxy).with("weight", 6).with(Style.INVIS)));
         }
         lastSelNodeId = selNode.name().toString();
       }
@@ -259,7 +290,7 @@ public class ApplicationNodeExporter implements GraphVisualizer.NodeTypeExporter
 
       for (int i = 0; i < argSize; ++i) {
         var sel = selectionMap.get(key).get(i);
-        var color = context.colorForNode(sel.getTensorId());
+        var color = context.getPrimaryColorForNode(sel.getTensorId());
 
         GH.td(GH.bold(Integer.toString(i)))
             .withParent(padRow)
@@ -303,7 +334,7 @@ public class ApplicationNodeExporter implements GraphVisualizer.NodeTypeExporter
 
       for (int i = 0; i < sels.size(); ++i) {
         var sel = sels.get(i);
-        var color = context.colorForNode(sel.getTensorId());
+        var color = context.getPrimaryColorForNode(sel.getTensorId());
 
         selTable.add(
             GH.tr(

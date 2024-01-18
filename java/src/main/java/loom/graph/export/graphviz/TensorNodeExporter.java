@@ -1,6 +1,5 @@
 package loom.graph.export.graphviz;
 
-import guru.nidi.graphviz.attribute.Color;
 import guru.nidi.graphviz.attribute.Shape;
 import guru.nidi.graphviz.attribute.Style;
 import loom.graph.LoomNode;
@@ -16,11 +15,10 @@ public class TensorNodeExporter implements GraphVisualizer.NodeTypeExporter {
 
     gvNode.add(Shape.BOX_3D);
     gvNode.add(Style.FILLED);
+    gvNode.add("gradientangle", 315);
     gvNode.add("penwidth", 2);
 
-    String tensorColor = context.colorForNode(loomNode.getId());
-    gvNode.add(Color.named(tensorColor).fill());
-    // gvNode.add(Color.rgb("#74CFFF").fill());
+    gvNode.add(context.colorSchemeForNode(loomNode.getId()).fill());
 
     gvNode.add(
         GraphVisualizer.asHtmlLabel(
@@ -28,8 +26,11 @@ public class TensorNodeExporter implements GraphVisualizer.NodeTypeExporter {
                 .border(0)
                 .cellborder(0)
                 .cellspacing(0)
-                .tr(context.renderDataTypeTitle(loomNode.getTypeAlias()))
                 .add(
+                    GH.td()
+                        .colspan(2)
+                        .align(GH.TableDataAlign.LEFT)
+                        .add(GH.font().add(GH.bold(" %s ".formatted(loomNode.getTypeAlias())))),
                     context.asDataKeyValueTR("dtype", tensorNode.getDtype()),
                     context.asDataKeyValueTR("range", tensorNode.getRange().toRangeString()),
                     context.asDataKeyValueTR("shape", tensorNode.getRange().toShapeString()))));
