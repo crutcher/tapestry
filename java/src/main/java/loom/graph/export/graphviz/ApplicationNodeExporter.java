@@ -2,7 +2,9 @@ package loom.graph.export.graphviz;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import guru.nidi.graphviz.attribute.*;
+import guru.nidi.graphviz.attribute.Color;
+import guru.nidi.graphviz.attribute.Shape;
+import guru.nidi.graphviz.attribute.Style;
 import guru.nidi.graphviz.model.Compass;
 import guru.nidi.graphviz.model.Factory;
 import guru.nidi.graphviz.model.Link;
@@ -166,8 +168,6 @@ public class ApplicationNodeExporter implements GraphVisualizer.NodeTypeExporter
         Factory.mutGraph("cluster_%s_%s".formatted(nodeId, desc))
             .setDirected(true)
             .setCluster(true)
-            .graphAttrs()
-            .add(Rank.inSubgraph(Rank.RankType.SAME))
             .graphAttrs()
             .add("style", "dashed");
     // .graphAttrs().add("peripheries", 0);

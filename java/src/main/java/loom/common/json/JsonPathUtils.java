@@ -80,6 +80,17 @@ public class JsonPathUtils {
       }
       sb.append(part);
     }
-    return sb.toString();
+    return normalizePath(sb.toString());
+  }
+
+  /**
+   * Normalize a JSON path.
+   *
+   * @param path the path to normalize.
+   * @return the normalized path.
+   */
+  @Nonnull
+  public static String normalizePath(String path) {
+    return path.replaceAll("\\['([a-zA-Z0-9_]+)']", ".$1").replaceAll("\\.\\.", ".");
   }
 }

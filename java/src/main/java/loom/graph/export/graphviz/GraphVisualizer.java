@@ -10,6 +10,10 @@ import guru.nidi.graphviz.model.Factory;
 import guru.nidi.graphviz.model.Link;
 import guru.nidi.graphviz.model.MutableGraph;
 import guru.nidi.graphviz.model.MutableNode;
+import java.util.*;
+import java.util.function.Function;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import lombok.Builder;
 import lombok.Data;
 import lombok.Getter;
@@ -22,11 +26,6 @@ import loom.graph.nodes.*;
 import loom.polyhedral.IndexProjectionFunction;
 import loom.zspace.ZRange;
 import org.apache.commons.lang3.tuple.Pair;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.util.*;
-import java.util.function.Function;
 
 @Data
 @Builder

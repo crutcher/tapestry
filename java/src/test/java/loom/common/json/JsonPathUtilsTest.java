@@ -1,9 +1,10 @@
 package loom.common.json;
 
-import java.util.List;
 import loom.testing.BaseTestClass;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.Test;
+
+import java.util.List;
 
 public class JsonPathUtilsTest extends BaseTestClass {
   @Test
@@ -27,11 +28,22 @@ public class JsonPathUtilsTest extends BaseTestClass {
     List<Pair<Object[], String>> examples =
         List.of(
             Pair.of(new Object[] {"$", "$.foo[2]", "", ".", "$.bar"}, "$.foo[2].bar"),
+            Pair.of(new Object[] {"$", "$.['foo'][2]", "", ".", "$.bar"}, "$.foo[2].bar"),
             Pair.of(new Object[] {"$.", "", null, "foo", "[2]", "$.bar"}, "$.foo[2].bar"),
             Pair.of(new Object[] {".foo[2]", "$.bar"}, "$.foo[2].bar"));
 
     for (var example : examples) {
       assertThat(JsonPathUtils.concatJsonPath(example.getLeft())).isEqualTo(example.getRight());
+    }
+  }
+
+  @Test
+  public void test_normalizePath() {
+    List<Pair<String, String>> examples =
+        List.of(Pair.of("$.['foo'][3]['bar baz']", "$.foo[3]['bar baz']"));
+
+    for (var example : examples) {
+      assertThat(JsonPathUtils.normalizePath(example.getLeft())).isEqualTo(example.getRight());
     }
   }
 }

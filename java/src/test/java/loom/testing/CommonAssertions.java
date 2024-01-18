@@ -6,10 +6,16 @@ import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import loom.common.json.JsonUtil;
 import loom.common.text.PrettyDiffUtils;
+import loom.validation.ListValidationIssueCollector;
 import loom.validation.ValidationIssue;
 import org.assertj.core.api.WithAssertions;
 
 public interface CommonAssertions extends WithAssertions {
+  default void assertValidationIssues(
+      ListValidationIssueCollector collector, ValidationIssue... expected) {
+    assertValidationIssues(collector.getIssues(), expected);
+  }
+
   default void assertValidationIssues(
       @Nullable List<ValidationIssue> issues, ValidationIssue... expected) {
     assertThat(issues).isNotNull();
