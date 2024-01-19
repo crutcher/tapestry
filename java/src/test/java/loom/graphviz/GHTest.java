@@ -24,14 +24,15 @@ public class GHTest extends BaseTestClass implements XmlAssertions {
     var hello =
         new GH.ElementWrapper<>(DocumentHelper.createElement("hello"))
             .attr("foo", "bar")
-            .add("some text", GH.br(), GH.bold());
+            .add("some text", GH.br(), GH.bold())
+            .add(new Object[] {GH.vr()});
 
     assertThatExceptionOfType(UnsupportedOperationException.class)
         .isThrownBy(() -> hello.add(new Object()))
         .withMessageContaining(
             "Cannot add instances of class java.lang.Object to an Element: java.lang.Object@");
 
-    hello.addXml("<font color=\"red\">red text</font>abc<br/>");
+    hello.addXml("<font color=\"red\">red text</font>abc<br/><vr/>");
 
     assertThatExceptionOfType(RuntimeException.class).isThrownBy(() -> hello.addXml("<x>abc"));
 
@@ -39,7 +40,7 @@ public class GHTest extends BaseTestClass implements XmlAssertions {
 
     assertXmlEquals(
         hello,
-        "<hello foo=\"bar\">some text<br/><b/><font color=\"red\">red text</font>abc<br/></hello>");
+        "<hello foo=\"bar\">some text<br/><b/><vr/><font color=\"red\">red text</font>abc<br/><vr/></hello>");
   }
 
   @Test

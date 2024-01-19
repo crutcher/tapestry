@@ -2,6 +2,14 @@ package loom.graph;
 
 import com.jayway.jsonpath.EvaluationListener;
 import com.jayway.jsonpath.JsonPath;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.function.Supplier;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.annotation.concurrent.ThreadSafe;
 import lombok.Builder;
 import lombok.Singular;
 import lombok.Value;
@@ -11,15 +19,6 @@ import loom.common.json.JsonUtil;
 import loom.validation.ValidationIssue;
 import loom.validation.ValidationIssueCollector;
 import org.apache.commons.lang3.tuple.Pair;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import javax.annotation.concurrent.ThreadSafe;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.function.Supplier;
 
 /** A schema for validating the graph structure of a type in a LoomGraph. */
 @Value

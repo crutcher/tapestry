@@ -1,5 +1,8 @@
 package loom.graph;
 
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import lombok.Builder;
 import lombok.Value;
 import lombok.extern.jackson.Jacksonized;
@@ -11,10 +14,6 @@ import loom.validation.ListValidationIssueCollector;
 import loom.validation.ValidationIssue;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.Test;
-
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 
 public class LoomTypeSchemaTest extends BaseTestClass {
   @Value
