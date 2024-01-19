@@ -1,8 +1,9 @@
 package loom.common.json;
 
 import com.google.common.base.Splitter;
-import javax.annotation.Nonnull;
 import lombok.NoArgsConstructor;
+
+import javax.annotation.Nonnull;
 
 @NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
 public class JsonPathUtils {
@@ -91,6 +92,8 @@ public class JsonPathUtils {
    */
   @Nonnull
   public static String normalizePath(String path) {
-    return path.replaceAll("\\['([a-zA-Z0-9_]+)']", ".$1").replaceAll("\\.\\.", ".");
+    return path.replaceAll("\\['([a-zA-Z_][a-zA-Z0-9_]*)']", ".$1")
+        .replaceAll("\\['([1-9][0-9]*)']", "[$1]")
+        .replaceAll("\\.\\.", ".");
   }
 }
