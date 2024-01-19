@@ -1,10 +1,9 @@
 package loom.common.json;
 
+import java.util.List;
 import loom.testing.BaseTestClass;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.Test;
-
-import java.util.List;
 
 public class JsonPathUtilsTest extends BaseTestClass {
   @Test

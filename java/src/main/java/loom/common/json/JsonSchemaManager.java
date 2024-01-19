@@ -140,7 +140,11 @@ public class JsonSchemaManager {
         var builder = ValidationIssue.builder();
         builder.type(type);
         params.forEach(builder::param);
-        builder.param("keyword", problem.getKeyword());
+
+        var keyword = problem.getKeyword();
+        if (keyword != null) {
+          builder.param("keyword", keyword);
+        }
 
         String summary =
             "%s [%s] :: %s"
