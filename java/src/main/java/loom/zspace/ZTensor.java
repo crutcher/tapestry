@@ -630,11 +630,11 @@ public final class ZTensor
   }
 
   /**
-   * Assign from a tensor.
+   * Assign inplace from a tensor.
    *
    * @param tensor the input tensor.
    */
-  public void assign(@Nonnull HasZTensor tensor) {
+  public void assign_(@Nonnull HasZTensor tensor) {
     assertMutable();
     tensor.asZTensor().broadcastLike(this).forEachEntry(this::_unchecked_set, BufferMode.REUSED);
   }
@@ -976,16 +976,16 @@ public final class ZTensor
    * @param op the operation.
    */
   public void map_(IntUnaryOperator op) {
-    assignFromMap(op, this);
+    assignFromMap_(op, this);
   }
 
   /**
-   * Assign from an element-wise unary operation.
+   * Assign inplace from an element-wise unary operation.
    *
    * @param op the operation.
    * @param tensor the input tensor.
    */
-  public void assignFromMap(@Nonnull IntUnaryOperator op, @Nonnull HasZTensor tensor) {
+  public void assignFromMap_(@Nonnull IntUnaryOperator op, @Nonnull HasZTensor tensor) {
     assertMutable();
     tensor
         .asZTensor()
@@ -1023,17 +1023,17 @@ public final class ZTensor
    * @param rhs the right-hand side tensor.
    */
   public void zipWith_(@Nonnull IntBinaryOperator op, @Nonnull HasZTensor rhs) {
-    assignFromZipWith(op, this, rhs);
+    assignFromZipWith_(op, this, rhs);
   }
 
   /**
-   * Assign from an element-wise binary operation.
+   * Assign inplace from an element-wise binary operation.
    *
    * @param op the operation.
    * @param lhs the left-hand side tensor.
    * @param rhs the right-hand side tensor.
    */
-  public void assignFromZipWith(
+  public void assignFromZipWith_(
       @Nonnull IntBinaryOperator op, @Nonnull HasZTensor lhs, @Nonnull HasZTensor rhs) {
     var zlhs = lhs.asZTensor();
     var zrhs = rhs.asZTensor();
@@ -1712,7 +1712,7 @@ public final class ZTensor
     var perm = IndexingFns.resolvePermutation(permutation, shape[d]);
     var res = newZeros(shape);
     for (int i = 0; i < shape[d]; ++i) {
-      res.selectDim(d, i).assign(selectDim(d, perm[i]));
+      res.selectDim(d, i).assign_(selectDim(d, perm[i]));
     }
     return res;
   }

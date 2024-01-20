@@ -1,14 +1,15 @@
 package loom.zspace;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import loom.common.json.JsonUtil;
+import loom.testing.CommonAssertions;
+import org.junit.Test;
+
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.function.IntBinaryOperator;
-import loom.common.json.JsonUtil;
-import loom.testing.CommonAssertions;
-import org.junit.Test;
 
 public class ZTensorTest implements CommonAssertions {
   @Test
@@ -558,7 +559,7 @@ public class ZTensorTest implements CommonAssertions {
   public void test_assign() {
     var t = ZTensor.newZeros(2, 3);
 
-    t.selectDim(0, 0).assign(ZTensor.newVector(1, 2, 3));
+    t.selectDim(0, 0).assign_(ZTensor.newVector(1, 2, 3));
     assertThat(t).isEqualTo(ZTensor.fromArray(new int[][] {{1, 2, 3}, {0, 0, 0}}));
   }
 

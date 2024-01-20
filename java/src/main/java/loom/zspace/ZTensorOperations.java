@@ -83,7 +83,7 @@ public final class ZTensorOperations {
   @Nonnull
   public static ZTensor map(@Nonnull IntUnaryOperator op, @Nonnull HasZTensor tensor) {
     var result = ZTensor.newZerosLike(tensor);
-    result.assignFromMap(op, tensor);
+    result.assignFromMap_(op, tensor);
     return result;
   }
 
@@ -126,7 +126,7 @@ public final class ZTensorOperations {
     var result =
         ZTensor.newZeros(
             IndexingFns.commonBroadcastShape(zlhs._unsafeGetShape(), zrhs._unsafeGetShape()));
-    result.assignFromZipWith(op, zlhs, zrhs);
+    result.assignFromZipWith_(op, zlhs, zrhs);
     return result;
   }
 
