@@ -22,10 +22,11 @@ import loom.graph.constraints.OperationReferenceAgreementConstraint;
 @Getter
 @Setter
 @LoomEnvironment.WithConstraints({OperationReferenceAgreementConstraint.class})
-public class OperationSignatureNode
+public final class OperationSignatureNode
     extends LoomNode<OperationSignatureNode, OperationSignatureNode.Body> {
   public static final String TYPE = "OperationSignature";
 
+  @SuppressWarnings("unused")
   public abstract static class OperationSignatureNodeBuilder<
           C extends OperationSignatureNode, B extends OperationSignatureNodeBuilder<C, B>>
       extends LoomNodeBuilder<OperationSignatureNode, Body, C, B> {

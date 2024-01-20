@@ -2,9 +2,9 @@ package loom.common.json;
 
 import com.google.common.base.Splitter;
 import javax.annotation.Nonnull;
-import lombok.NoArgsConstructor;
+import lombok.experimental.UtilityClass;
 
-@NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
+@UtilityClass
 public class JsonPathUtils {
   /**
    * Convert a JSON pointer to a JSON path.
@@ -12,7 +12,7 @@ public class JsonPathUtils {
    * @param jsonPointer the JSON pointer.
    * @return the JSON path.
    */
-  public static String jsonPointerToJsonPath(String jsonPointer) {
+  public String jsonPointerToJsonPath(String jsonPointer) {
     if (jsonPointer == null || jsonPointer.isEmpty()) {
       return "$";
     }
@@ -42,8 +42,7 @@ public class JsonPathUtils {
    * @return the concatenated JSON path.
    */
   @Nonnull
-  @SuppressWarnings("ConstantConditions")
-  public static String concatJsonPath(@Nonnull Object... parts) {
+  public String concatJsonPath(@Nonnull Object... parts) {
     var sb = new StringBuilder();
     sb.append("$");
 
@@ -90,7 +89,7 @@ public class JsonPathUtils {
    * @return the normalized path.
    */
   @Nonnull
-  public static String normalizePath(String path) {
+  public String normalizePath(String path) {
     return path.replaceAll("\\['([a-zA-Z_][a-zA-Z0-9_]*)']", ".$1")
         .replaceAll("\\['([1-9][0-9]*)']", "[$1]")
         .replaceAll("\\.\\.", ".");

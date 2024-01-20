@@ -5,10 +5,10 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Arrays;
 import javax.annotation.Nonnull;
-import lombok.NoArgsConstructor;
+import lombok.experimental.UtilityClass;
 
-@NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
-public final class ReflectionUtils {
+@UtilityClass
+public class ReflectionUtils {
 
   /**
    * Create a new instance of a class.
@@ -20,7 +20,7 @@ public final class ReflectionUtils {
    * @throws RuntimeException if the class cannot be instantiated
    */
   @Nonnull
-  public static <T> T newInstance(Class<T> cls, Object... args) {
+  public <T> T newInstance(Class<T> cls, Object... args) {
     try {
       var argClasses = Arrays.stream(args).map(Object::getClass).toArray(Class<?>[]::new);
       return cls.getConstructor(argClasses).newInstance(args);
@@ -39,7 +39,7 @@ public final class ReflectionUtils {
    * @param superclass the superclass
    * @throws ClassCastException if the class is not a subclass of the superclass
    */
-  public static void checkIsSubclass(Class<?> cls, Class<?> superclass) {
+  public void checkIsSubclass(Class<?> cls, Class<?> superclass) {
     if (!superclass.isAssignableFrom(cls)) {
       throw new ClassCastException(cls + " is not a subclass of " + superclass);
     }
@@ -53,7 +53,7 @@ public final class ReflectionUtils {
    * @return the type arguments
    * @param <T> the class type
    */
-  public static <T> Type[] getTypeArgumentsForGenericSuperclass(
+  public <T> Type[] getTypeArgumentsForGenericSuperclass(
       Class<T> cls, Class<? super T> superclass) {
     Class<?> cur = cls;
     while (true) {

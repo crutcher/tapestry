@@ -7,15 +7,15 @@ import java.util.function.BiConsumer;
 import java.util.function.Predicate;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import lombok.RequiredArgsConstructor;
 import lombok.Value;
+import lombok.experimental.UtilityClass;
 import loom.common.json.JsonPathUtils;
 
-@RequiredArgsConstructor(access = lombok.AccessLevel.PRIVATE)
+@UtilityClass
 public class ExportUtils {
 
   @Value
-  public static class JsonPathChain {
+  public class JsonPathChain {
     @Nullable JsonPathChain parent;
     @Nonnull String selector;
     int depth;
@@ -43,12 +43,11 @@ public class ExportUtils {
     }
   }
 
-  public static void findLinks(
-      JsonNode data, Predicate<UUID> isNode, BiConsumer<String, UUID> onLink) {
+  public void findLinks(JsonNode data, Predicate<UUID> isNode, BiConsumer<String, UUID> onLink) {
     findLinks(JsonPathChain.root(), data, isNode, onLink);
   }
 
-  public static void findLinks(
+  public void findLinks(
       JsonPathChain jsonPathChain,
       JsonNode data,
       Predicate<UUID> isNode,

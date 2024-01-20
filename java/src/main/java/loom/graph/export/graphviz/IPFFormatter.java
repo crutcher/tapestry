@@ -1,9 +1,9 @@
 package loom.graph.export.graphviz;
 
-import lombok.RequiredArgsConstructor;
+import lombok.experimental.UtilityClass;
 import loom.polyhedral.IndexProjectionFunction;
 
-@RequiredArgsConstructor(access = lombok.AccessLevel.PRIVATE)
+@UtilityClass
 public class IPFFormatter {
   /**
    * Convert an IndexProjectionFunction to a Graphviz HTML Label element.
@@ -11,7 +11,7 @@ public class IPFFormatter {
    * @param ipf the IndexProjectionFunction.
    * @return the Graphviz HTML Label element.
    */
-  public static GH.TableWrapper renderIPF(IndexProjectionFunction ipf) {
+  public GH.TableWrapper renderIPF(IndexProjectionFunction ipf) {
     var affineMap = ipf.getAffineMap();
 
     var tableWrapper = GH.table().border(0).cellborder(0).cellspacing(0);

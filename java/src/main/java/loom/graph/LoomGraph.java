@@ -14,6 +14,7 @@ import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import lombok.*;
+import lombok.experimental.UtilityClass;
 import loom.common.json.HasToJsonString;
 import loom.common.json.JsonUtil;
 import loom.common.json.MapValueListUtil;
@@ -469,10 +470,10 @@ public final class LoomGraph implements HasToJsonString {
   }
 
   /** Support classes for Jackson serialization. */
-  @NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
-  public static final class Serialization {
+  @UtilityClass
+  public static class Serialization {
     /** Jackson deserializer for {@link LoomGraph#nodeMap}. */
-    public static final class NodeListToMapDeserializer
+    public final class NodeListToMapDeserializer
         extends MapValueListUtil.MapDeserializer<UUID, LoomNode<?, ?>> {
       @SuppressWarnings("unchecked")
       public NodeListToMapDeserializer() {

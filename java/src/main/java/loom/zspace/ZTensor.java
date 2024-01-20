@@ -4,12 +4,11 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.TreeNode;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.IntNode;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
@@ -23,8 +22,8 @@ import java.util.List;
 import java.util.function.*;
 import javax.annotation.Nonnull;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
+import lombok.experimental.UtilityClass;
 import loom.common.collections.IteratorUtils;
 import loom.common.json.HasToJsonString;
 import loom.common.json.JsonUtil;
@@ -85,8 +84,6 @@ import loom.common.json.JsonUtil;
  * 1, so the size of a scalar tensor is 1. Scalar tensors are often used to represent single
  * dimensionless values.
  */
-@JsonSerialize(using = ZTensor.Serialization.Serializer.class)
-@JsonDeserialize(using = ZTensor.Serialization.Deserializer.class)
 @JsonSchemaInject(
     json =
         """
@@ -102,6 +99,8 @@ import loom.common.json.JsonUtil;
         }
         """,
     merge = false)
+@JsonSerialize(using = ZTensor.Serialization.Serializer.class)
+@JsonDeserialize(using = ZTensor.Serialization.Deserializer.class)
 public final class ZTensor
     implements HasZTensor, HasToJsonString, Cloneable, HasDimension, HasSize, HasPermute<ZTensor> {
 
@@ -1861,9 +1860,9 @@ public final class ZTensor
    * <p>All empty tensors serialize to nested "[...]"; so all degenerate tensors (empty tensors with
    * non-zero shapes) are serialized as empty tensors.
    */
-  @NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
-  static final class Serialization {
-    static final class Serializer extends StdSerializer<ZTensor> {
+  @UtilityClass
+  public static class Serialization {
+    public final class Serializer extends StdSerializer<ZTensor> {
       public Serializer() {
         super(ZTensor.class);
       }
@@ -1899,9 +1898,15 @@ public final class ZTensor
               }
             });
       }
+
+      @Override
+      public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
+          throws JsonMappingException {
+        visitor.expectArrayFormat(typeHint);
+      }
     }
 
-    static final class Deserializer extends StdDeserializer<ZTensor> {
+    public class Deserializer extends StdDeserializer<ZTensor> {
       public Deserializer() {
         super(ZTensor.class);
       }
@@ -1920,7 +1925,7 @@ public final class ZTensor
      * @param node the node.
      * @return the tensor.
      */
-    public static ZTensor fromTreeNode(@Nonnull TreeNode node) {
+    public ZTensor fromTreeNode(@Nonnull TreeNode node) {
       return newFromTree(
           node,
           TreeNode::isArray,

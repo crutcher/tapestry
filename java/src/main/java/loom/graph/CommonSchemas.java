@@ -1,11 +1,11 @@
 package loom.graph;
 
-import lombok.RequiredArgsConstructor;
+import lombok.experimental.UtilityClass;
 import loom.graph.nodes.TensorNode;
 
-@RequiredArgsConstructor(access = lombok.AccessLevel.PRIVATE)
+@UtilityClass
 public class CommonSchemas {
-  public static final LoomTypeSchema NOTE_NODE_SCHEMA =
+  public final LoomTypeSchema NOTE_NODE_SCHEMA =
       LoomTypeSchema.builder()
           .jsonSchema(
               """
@@ -21,7 +21,7 @@ public class CommonSchemas {
               }
               """)
           .build();
-  public static final LoomTypeSchema TENSOR_NODE_SCHEMA =
+  public final LoomTypeSchema TENSOR_NODE_SCHEMA =
       LoomTypeSchema.builder()
           .jsonSchema(
               """
@@ -56,7 +56,7 @@ public class CommonSchemas {
               """)
           .build();
 
-  public static final LoomTypeSchema APPLICATION_NODE_SCHEMA =
+  public final LoomTypeSchema APPLICATION_NODE_SCHEMA =
       LoomTypeSchema.builder()
           .referenceSchema(
               "inputs",
@@ -127,7 +127,7 @@ public class CommonSchemas {
               """)
           .build();
 
-  public static final LoomTypeSchema OPERATION_SIGNATURE_NODE_SCHEMA =
+  public final LoomTypeSchema OPERATION_SIGNATURE_NODE_SCHEMA =
       LoomTypeSchema.builder()
           .referenceSchema(
               "inputs",

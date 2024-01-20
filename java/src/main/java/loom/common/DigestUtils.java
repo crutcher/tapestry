@@ -2,12 +2,12 @@ package loom.common;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
-import lombok.RequiredArgsConstructor;
+import lombok.experimental.UtilityClass;
 import loom.common.runtime.ExcludeFromJacocoGeneratedReport;
 
-@RequiredArgsConstructor(access = lombok.AccessLevel.PRIVATE)
-public final class DigestUtils {
-  public static final String MD5_ALGORITHM = "MD5";
+@UtilityClass
+public class DigestUtils {
+  public final String MD5_ALGORITHM = "MD5";
 
   /**
    * Convert a byte array to a hex string.
@@ -15,7 +15,7 @@ public final class DigestUtils {
    * @param bytes The byte array to convert
    * @return The hex string
    */
-  public static String bytesToHex(byte[] bytes) {
+  public String bytesToHex(byte[] bytes) {
     StringBuilder hexString = new StringBuilder();
     for (byte b : bytes) {
       String hex = Integer.toHexString(0xff & b);
@@ -33,7 +33,7 @@ public final class DigestUtils {
    * @return A MD5 MessageDigest instance
    */
   @ExcludeFromJacocoGeneratedReport
-  public static MessageDigest getMD5Digest() {
+  public MessageDigest getMD5Digest() {
     try {
       return MessageDigest.getInstance(MD5_ALGORITHM);
     } catch (Exception e) {
@@ -47,7 +47,7 @@ public final class DigestUtils {
    * @param str The String to hash
    * @return The MD5 hash of the String as a hex String.
    */
-  public static String toMD5HexString(String str) {
+  public String toMD5HexString(String str) {
     MessageDigest md = getMD5Digest();
     md.update(str.getBytes(StandardCharsets.UTF_8));
     return bytesToHex(md.digest());

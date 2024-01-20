@@ -2,12 +2,12 @@ package loom.common.runtime;
 
 import com.google.errorprone.annotations.FormatMethod;
 import com.google.errorprone.annotations.FormatString;
-import lombok.NoArgsConstructor;
+import lombok.experimental.UtilityClass;
 import loom.common.lazy.LazyString;
 import org.jetbrains.annotations.Contract;
 
-@NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
-public final class CheckThat {
+@UtilityClass
+public class CheckThat {
   /**
    * Check that a value is not null.
    *
@@ -20,8 +20,7 @@ public final class CheckThat {
    * @throws E if the value is null
    */
   @Contract("null, _, _ -> fail")
-  public static <T, E extends Throwable> T valueIsNotNull(T val, Class<E> eClass, Object msg)
-      throws E {
+  public <T, E extends Throwable> T valueIsNotNull(T val, Class<E> eClass, Object msg) throws E {
     if (val != null) {
       return val;
     }
@@ -43,7 +42,7 @@ public final class CheckThat {
    */
   @FormatMethod
   @Contract("null, _, _, _ -> fail")
-  public static <T, E extends Throwable> T valueIsNotNull(
+  public <T, E extends Throwable> T valueIsNotNull(
       T val, Class<E> eClass, @FormatString String format, Object... args) throws E {
     return valueIsNotNull(val, eClass, LazyString.format(format, args));
   }

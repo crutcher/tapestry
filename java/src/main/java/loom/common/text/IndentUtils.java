@@ -3,12 +3,12 @@ package loom.common.text;
 import com.google.common.base.Splitter;
 import java.util.List;
 import java.util.stream.Collectors;
-import lombok.NoArgsConstructor;
+import lombok.experimental.UtilityClass;
 
-@NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
+@UtilityClass
 public class IndentUtils {
 
-  public static final Splitter NEWLINE_SPLITTER = Splitter.on("\n");
+  public final Splitter NEWLINE_SPLITTER = Splitter.on("\n");
 
   /**
    * Get the length of the whitespace prefix of a string.
@@ -16,7 +16,7 @@ public class IndentUtils {
    * @param text the string.
    * @return the length of the whitespace prefix.
    */
-  static int whitespacePrefixLength(String text) {
+  public int whitespacePrefixLength(String text) {
     int k = 0;
     while (k < text.length() && Character.isWhitespace(text.charAt(k))) {
       k++;
@@ -32,7 +32,7 @@ public class IndentUtils {
    * @param text the text to split.
    * @return the list of lines.
    */
-  public static List<String> splitAndRemoveCommonIndent(String text) {
+  public List<String> splitAndRemoveCommonIndent(String text) {
     var lines = NEWLINE_SPLITTER.splitToList(text.stripTrailing());
 
     var prefixLen = lines.stream().mapToInt(IndentUtils::whitespacePrefixLength).min();
@@ -53,7 +53,7 @@ public class IndentUtils {
    * @param lines the lines.
    * @return the indented text.
    */
-  public static String indent(String prefix, List<String> lines) {
+  public String indent(String prefix, List<String> lines) {
     return lines.stream()
         .map(line -> (prefix + line).stripTrailing())
         .collect(Collectors.joining("\n"));
@@ -66,7 +66,7 @@ public class IndentUtils {
    * @param lines the lines.
    * @return the indented text.
    */
-  public static String indent(int indent, List<String> lines) {
+  public String indent(int indent, List<String> lines) {
     return indent(" ".repeat(indent), lines);
   }
 
@@ -77,7 +77,7 @@ public class IndentUtils {
    * @param text the text.
    * @return the indented text.
    */
-  public static String indent(String prefix, String text) {
+  public String indent(String prefix, String text) {
     return indent(prefix, NEWLINE_SPLITTER.splitToList(text));
   }
 
@@ -88,7 +88,7 @@ public class IndentUtils {
    * @param text the text.
    * @return the indented text.
    */
-  public static String indent(int indent, String text) {
+  public String indent(int indent, String text) {
     return indent(" ".repeat(indent), text);
   }
 
@@ -102,7 +102,7 @@ public class IndentUtils {
    * @param text the text.
    * @return the indented text.
    */
-  public static String reindent(String prefix, String text) {
+  public String reindent(String prefix, String text) {
     return indent(prefix, splitAndRemoveCommonIndent(text));
   }
 
@@ -116,7 +116,7 @@ public class IndentUtils {
    * @param text the text.
    * @return the indented text.
    */
-  public static String reindent(int indent, String text) {
+  public String reindent(int indent, String text) {
     return indent(indent, splitAndRemoveCommonIndent(text));
   }
 }

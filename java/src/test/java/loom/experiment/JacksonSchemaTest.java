@@ -13,6 +13,7 @@ import loom.graph.nodes.TensorSelection;
 import loom.polyhedral.IndexProjectionFunction;
 import loom.testing.BaseTestClass;
 import loom.zspace.ZRange;
+import loom.zspace.ZTensor;
 import org.junit.Test;
 
 public class JacksonSchemaTest extends BaseTestClass {
@@ -27,8 +28,13 @@ public class JacksonSchemaTest extends BaseTestClass {
 
   private void trial(Object obj) {
     String schema = JsonUtil.jsonSchemaForClass(obj.getClass());
-    // System.out.println(schema);
+    System.out.println(schema);
     assertThat(JSM.validationProblems(schema, JsonUtil.toJson(obj))).isEmpty();
+  }
+
+  @Test
+  public void test_tensor() {
+    trial(ZTensor.newOnes(2, 3));
   }
 
   @Test

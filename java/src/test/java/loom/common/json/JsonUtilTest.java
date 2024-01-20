@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import lombok.Value;
 import loom.testing.CommonAssertions;
 import org.junit.Test;
 
@@ -29,11 +28,7 @@ public class JsonUtilTest implements CommonAssertions {
         .isFalse();
   }
 
-  @Value
-  public static class ExampleClass {
-    public String a;
-    public int b;
-  }
+  public record ExampleClass(String a, int b) {}
 
   @Test
   public void test_toJson_Bad() {

@@ -3,15 +3,15 @@ package loom.zspace;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.util.regex.Pattern;
 import javax.annotation.Nonnull;
-import lombok.NoArgsConstructor;
+import lombok.experimental.UtilityClass;
 
 /** Utility functions for identifiers. */
-@NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
+@UtilityClass
 public final class IdentifiersFns {
 
-  public static final Pattern ATOMIC_IDENTIFIER_PATTERN = Pattern.compile("[a-zA-Z][a-zA-Z0-9_]*");
+  public final Pattern ATOMIC_IDENTIFIER_PATTERN = Pattern.compile("[a-zA-Z][a-zA-Z0-9_]*");
 
-  public static final Pattern DOTTED_IDENTIFIER_PATTERN =
+  public final Pattern DOTTED_IDENTIFIER_PATTERN =
       Pattern.compile(
           String.format(
               "%s(\\.%s)*",
@@ -26,7 +26,7 @@ public final class IdentifiersFns {
    */
   @CanIgnoreReturnValue
   @Nonnull
-  public static String validAtomicIdentifier(@Nonnull String name) {
+  public String validAtomicIdentifier(@Nonnull String name) {
     if (!ATOMIC_IDENTIFIER_PATTERN.matcher(name).matches()) {
       throw new IllegalArgumentException("invalid atomic identifier: \"%s\"".formatted(name));
     }
@@ -42,7 +42,7 @@ public final class IdentifiersFns {
    */
   @CanIgnoreReturnValue
   @Nonnull
-  public static String validDottedIdentifier(@Nonnull String name) {
+  public String validDottedIdentifier(@Nonnull String name) {
     if (!DOTTED_IDENTIFIER_PATTERN.matcher(name).matches()) {
       throw new IllegalArgumentException("invalid dotted identifier: \"%s\"".formatted(name));
     }
@@ -56,7 +56,7 @@ public final class IdentifiersFns {
    * @return the components of the identifier.
    */
   @Nonnull
-  public static String[] splitDottedIdentifier(@Nonnull String name) {
+  public String[] splitDottedIdentifier(@Nonnull String name) {
     validDottedIdentifier(name);
     return name.split("\\.");
   }

@@ -7,15 +7,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import javax.annotation.Nullable;
-import lombok.AccessLevel;
-import lombok.RequiredArgsConstructor;
+import lombok.experimental.UtilityClass;
 import loom.graph.LoomGraph;
 import loom.polyhedral.IndexProjectionFunction;
 import loom.zspace.ZRange;
 
-@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+@UtilityClass
 public class OperationUtils {
-  public static OperationSignatureNode applyRelativeSignature(
+  public OperationSignatureNode applyRelativeSignature(
       LoomGraph graph,
       String kernelName,
       IPFSignature ipfSignature,
@@ -54,7 +53,7 @@ public class OperationUtils {
         params);
   }
 
-  public static OperationSignatureNode applyFixedSignature(
+  public OperationSignatureNode applyFixedSignature(
       LoomGraph graph,
       String kernelName,
       IPFSignature ipfSignature,
@@ -134,13 +133,13 @@ public class OperationUtils {
   }
 
   @CanIgnoreReturnValue
-  public static List<ApplicationNode> createIpfShards(
+  public List<ApplicationNode> createIpfShards(
       OperationSignatureNode sig, Collection<ZRange> shardIndexes) {
     return shardIndexes.stream().map(shardIndex -> createIpfShard(sig, shardIndex)).toList();
   }
 
   @CanIgnoreReturnValue
-  public static ApplicationNode createIpfShard(OperationSignatureNode sig, ZRange shardIndex) {
+  public ApplicationNode createIpfShard(OperationSignatureNode sig, ZRange shardIndex) {
     var graph = sig.assertGraph();
 
     var ipfSig = sig.assertAnnotation(IPFSignature.ANNOTATION_TYPE, IPFSignature.class);

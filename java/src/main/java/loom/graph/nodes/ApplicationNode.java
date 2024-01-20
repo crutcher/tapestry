@@ -19,9 +19,10 @@ import loom.graph.LoomNode;
 @SuperBuilder
 @Getter
 @Setter
-public class ApplicationNode extends LoomNode<ApplicationNode, ApplicationNode.Body> {
+public final class ApplicationNode extends LoomNode<ApplicationNode, ApplicationNode.Body> {
   public static final String TYPE = "ApplicationNode";
 
+  @SuppressWarnings("unused")
   public abstract static class ApplicationNodeBuilder<
           C extends ApplicationNode, B extends ApplicationNodeBuilder<C, B>>
       extends LoomNodeBuilder<ApplicationNode, Body, C, B> {

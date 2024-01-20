@@ -9,19 +9,20 @@ import com.fasterxml.jackson.databind.node.BooleanNode;
 import com.fasterxml.jackson.databind.node.NumericNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.kjetland.jackson.jsonSchema.JsonSchemaGenerator;
+import lombok.Value;
+import lombok.experimental.UtilityClass;
+import loom.common.collections.IteratorUtils;
+
+import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
-import javax.annotation.Nullable;
-import lombok.NoArgsConstructor;
-import lombok.Value;
-import loom.common.collections.IteratorUtils;
 
-@NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
+@UtilityClass
 public final class JsonUtil {
-  @NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
-  public static class Tree {
+  @UtilityClass
+  public class Tree {
 
     /**
      * Check if all elements in an array are numeric.
@@ -29,7 +30,7 @@ public final class JsonUtil {
      * @param array The array to check.
      * @return True if all elements are numeric, false otherwise.
      */
-    public static boolean isAllNumeric(ArrayNode array) {
+    public boolean isAllNumeric(ArrayNode array) {
       return allOf(array, JsonNode::isNumber);
     }
 
@@ -39,7 +40,7 @@ public final class JsonUtil {
      * @param array The array to check.
      * @return True if all elements are boolean, false otherwise.
      */
-    public static boolean allOf(ArrayNode array, Predicate<JsonNode> predicate) {
+    public boolean allOf(ArrayNode array, Predicate<JsonNode> predicate) {
       for (var it = array.elements(); it.hasNext(); ) {
         var node = it.next();
         if (!predicate.test(node)) {
@@ -55,7 +56,7 @@ public final class JsonUtil {
      * @param array The array to check.
      * @return True if any elements are numeric, false otherwise.
      */
-    public static boolean anyOf(ArrayNode array, Predicate<JsonNode> predicate) {
+    public boolean anyOf(ArrayNode array, Predicate<JsonNode> predicate) {
       for (var it = array.elements(); it.hasNext(); ) {
         var node = it.next();
         if (predicate.test(node)) {
@@ -71,7 +72,7 @@ public final class JsonUtil {
      * @param array The array to adapt.
      * @return The Stream.
      */
-    public static Stream<JsonNode> stream(ArrayNode array) {
+    public Stream<JsonNode> stream(ArrayNode array) {
       return StreamSupport.stream(array.spliterator(), false);
     }
 
@@ -81,25 +82,22 @@ public final class JsonUtil {
      * @param object The object to adapt.
      * @return The Stream.
      */
-    public static Stream<Map.Entry<String, JsonNode>> stream(ObjectNode object) {
+    public Stream<Map.Entry<String, JsonNode>> stream(ObjectNode object) {
       return IteratorUtils.iteratorToStream(object.fields());
     }
   }
 
-  private static final ObjectMapper COMMON_MAPPER =
+  private final ObjectMapper COMMON_MAPPER =
       new ObjectMapper().configure(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS, true);
 
-  private static final JsonSchemaGenerator JSON_SCHEMA_GENERATOR =
-      new JsonSchemaGenerator(COMMON_MAPPER);
-
-  // Prevent Construction.
+  private final JsonSchemaGenerator JSON_SCHEMA_GENERATOR = new JsonSchemaGenerator(COMMON_MAPPER);
 
   /**
    * Get a Jackson ObjectMapper with default settings.
    *
    * @return the ObjectMapper.
    */
-  public static ObjectMapper getMapper() {
+  public ObjectMapper getMapper() {
     return COMMON_MAPPER;
   }
 
@@ -110,7 +108,7 @@ public final class JsonUtil {
    * @return the JSON string.
    * @throws IllegalArgumentException if the object cannot be serialized.
    */
-  public static String toJson(Object obj) {
+  public String toJson(Object obj) {
     try {
       return getMapper().writer().writeValueAsString(obj);
     } catch (JsonProcessingException e) {
@@ -125,7 +123,7 @@ public final class JsonUtil {
    * @return the pretty JSON string.
    * @throws IllegalArgumentException if the object cannot be serialized.
    */
-  public static String toPrettyJson(Object obj) {
+  public String toPrettyJson(Object obj) {
     try {
       return getMapper().writerWithDefaultPrettyPrinter().writeValueAsString(obj);
     } catch (JsonProcessingException e) {
@@ -133,7 +131,7 @@ public final class JsonUtil {
     }
   }
 
-  public static String reformatToPrettyJson(String json) {
+  public String reformatToPrettyJson(String json) {
     return toPrettyJson(parseToJsonNodeTree(json));
   }
 
@@ -143,7 +141,7 @@ public final class JsonUtil {
    * @param json the JSON string.
    * @return the JsonNode tree.
    */
-  public static JsonNode parseToJsonNodeTree(String json) {
+  public JsonNode parseToJsonNodeTree(String json) {
     try {
       return getMapper().readTree(json);
     } catch (JsonProcessingException e) {
@@ -157,7 +155,7 @@ public final class JsonUtil {
    * @param obj the object to convert.
    * @return the JsonNode tree.
    */
-  public static JsonNode valueToJsonNodeTree(Object obj) {
+  public JsonNode valueToJsonNodeTree(Object obj) {
     return getMapper().valueToTree(obj);
   }
 
@@ -171,7 +169,7 @@ public final class JsonUtil {
    * @throws IllegalArgumentException if the JSON string cannot be de-serialized to the specified
    *     class.
    */
-  public static <T> T fromJson(String json, Class<T> clazz) {
+  public <T> T fromJson(String json, Class<T> clazz) {
     try {
       return readValue(json, clazz);
     } catch (JsonProcessingException e) {
@@ -188,7 +186,7 @@ public final class JsonUtil {
    * @param <T> the type of the object to de-serialize.
    * @throws JsonProcessingException if the JSON string cannot be de-serialized to the specified.
    */
-  public static <T> T readValue(String json, Class<T> cls) throws JsonProcessingException {
+  public <T> T readValue(String json, Class<T> cls) throws JsonProcessingException {
     return getMapper().readValue(json, cls);
   }
 
@@ -201,7 +199,7 @@ public final class JsonUtil {
    * @param <T> the type of the object to convert to.
    * @throws IllegalArgumentException if the object cannot be converted to the specified class.
    */
-  public static <T> T convertValue(Object tree, Class<T> clazz) {
+  public <T> T convertValue(Object tree, Class<T> clazz) {
     return getMapper().convertValue(tree, clazz);
   }
 
@@ -211,7 +209,7 @@ public final class JsonUtil {
    * @param obj the object to convert.
    * @return the simple JSON value tree.
    */
-  public static Object toSimpleJson(Object obj) {
+  public Object toSimpleJson(Object obj) {
     return treeToSimpleJson(valueToJsonNodeTree(obj));
   }
 
@@ -232,7 +230,7 @@ public final class JsonUtil {
    * @param node the node to convert.
    * @return the simple JSON value tree.
    */
-  public static Object treeToSimpleJson(JsonNode node) {
+  public Object treeToSimpleJson(JsonNode node) {
     if (node.isNull()) {
       return null;
     } else if (node instanceof BooleanNode) {
@@ -258,7 +256,7 @@ public final class JsonUtil {
 
   /** Traversal context for the validateSimpleJson method. */
   @Value
-  protected static class SelectionPath {
+  protected class SelectionPath {
     @Nullable SelectionPath parent;
     @Nullable Object selector;
     @Nullable Object target;
@@ -334,7 +332,7 @@ public final class JsonUtil {
    * @param tree the object to validate.
    * @throws IllegalArgumentException if the object is not a simple JSON value tree.
    */
-  public static void validateSimpleJson(Object tree) {
+  public void validateSimpleJson(Object tree) {
     var scheduled = new ArrayDeque<SelectionPath>();
     scheduled.add(new SelectionPath(tree));
 
@@ -387,7 +385,7 @@ public final class JsonUtil {
    * @param clazz The class.
    * @return The schema as a Jackson ObjectNode.
    */
-  public static ObjectNode jsonSchemaTreeForClass(Class<?> clazz) {
+  public ObjectNode jsonSchemaTreeForClass(Class<?> clazz) {
     return (ObjectNode) JSON_SCHEMA_GENERATOR.generateJsonSchema(clazz);
   }
 
@@ -397,7 +395,7 @@ public final class JsonUtil {
    * @param clazz The class.
    * @return The schema as a JSON string.
    */
-  public static String jsonSchemaForClass(Class<?> clazz) {
+  public String jsonSchemaForClass(Class<?> clazz) {
     return toPrettyJson(jsonSchemaTreeForClass(clazz));
   }
 }

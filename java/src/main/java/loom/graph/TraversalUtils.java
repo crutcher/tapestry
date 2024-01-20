@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import javax.annotation.Nonnull;
-import lombok.NoArgsConstructor;
+import lombok.experimental.UtilityClass;
 import loom.graph.nodes.OperationSignatureNode;
 import org.jgrapht.Graph;
 import org.jgrapht.alg.color.GreedyColoring;
@@ -14,7 +14,7 @@ import org.jgrapht.graph.DefaultDirectedGraph;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.DefaultUndirectedGraph;
 
-@NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
+@UtilityClass
 public class TraversalUtils {
   /**
    * Find all simple cycles of Tensors and Operations in the graph.
@@ -22,7 +22,7 @@ public class TraversalUtils {
    * @param graph the graph to search
    * @return a list of cycles, where each cycle is a list of nodes in the cycle.
    */
-  public static List<List<LoomNode<?, ?>>> findOperationSimpleCycles(LoomGraph graph) {
+  public List<List<LoomNode<?, ?>>> findOperationSimpleCycles(LoomGraph graph) {
     Graph<LoomNode<?, ?>, DefaultEdge> linkGraph = buildOpeartionLinkGraph(graph);
 
     List<List<LoomNode<?, ?>>> simpleCycles = new ArrayList<>();
@@ -42,7 +42,7 @@ public class TraversalUtils {
    * @return a JGraphT graph of the data flow.
    */
   @Nonnull
-  public static Graph<LoomNode<?, ?>, DefaultEdge> buildOpeartionLinkGraph(LoomGraph graph) {
+  public Graph<LoomNode<?, ?>, DefaultEdge> buildOpeartionLinkGraph(LoomGraph graph) {
     Graph<LoomNode<?, ?>, DefaultEdge> linkGraph = new DefaultDirectedGraph<>(DefaultEdge.class);
 
     for (var node :
@@ -77,8 +77,7 @@ public class TraversalUtils {
    * @param graph The graph to construct the coloring graph for.
    * @return The coloring graph.
    */
-  public static DefaultUndirectedGraph<UUID, DefaultEdge> tensorOperationColoringGraph(
-      LoomGraph graph) {
+  public DefaultUndirectedGraph<UUID, DefaultEdge> tensorOperationColoringGraph(LoomGraph graph) {
     DefaultUndirectedGraph<UUID, DefaultEdge> coloringGraph =
         new DefaultUndirectedGraph<>(DefaultEdge.class);
     for (var opNode :
@@ -125,7 +124,7 @@ public class TraversalUtils {
    * @param graph The graph to color.
    * @return The Coloring.
    */
-  public static VertexColoringAlgorithm.Coloring<UUID> tensorOperationColoring(LoomGraph graph) {
+  public VertexColoringAlgorithm.Coloring<UUID> tensorOperationColoring(LoomGraph graph) {
     var coloringGraph = tensorOperationColoringGraph(graph);
     var greedyColoring = new GreedyColoring<>(coloringGraph);
     return greedyColoring.getColoring();

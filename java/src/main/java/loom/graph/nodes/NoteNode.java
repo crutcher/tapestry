@@ -40,6 +40,7 @@ public final class NoteNode extends LoomNode<NoteNode, NoteNode.Body> {
     @Nonnull private String message;
   }
 
+  @SuppressWarnings("unused")
   public abstract static class NoteNodeBuilder<C extends NoteNode, B extends NoteNodeBuilder<C, B>>
       extends LoomNodeBuilder<NoteNode, Body, C, B> {
     {

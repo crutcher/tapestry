@@ -5,13 +5,6 @@ import com.fasterxml.jackson.databind.util.LookupCache;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Splitter;
 import jakarta.json.stream.JsonParsingException;
-import java.io.ByteArrayInputStream;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import lombok.Builder;
 import lombok.Singular;
 import loom.validation.ValidationIssue;
@@ -20,6 +13,14 @@ import org.leadpony.justify.api.JsonSchema;
 import org.leadpony.justify.api.JsonValidationService;
 import org.leadpony.justify.api.Problem;
 import org.leadpony.justify.api.ProblemHandler;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.io.ByteArrayInputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Manages JSON schemas and provides validation services.
@@ -121,9 +122,9 @@ public class JsonSchemaManager {
 
   @Builder
   public static final class IssueScan {
-    @Builder.Default private String type = JSD_ERROR;
+    @Builder.Default private final String type = JSD_ERROR;
 
-    @Builder.Default private String summaryPrefix = null;
+    @Builder.Default private final String summaryPrefix = null;
 
     @Singular private final Map<String, String> params;
 
@@ -139,6 +140,7 @@ public class JsonSchemaManager {
 
     @Nonnull private final ValidationIssueCollector issueCollector;
 
+    @SuppressWarnings("ConstantConditions")
     public void scan() {
       for (var problem : manager.validationProblems(schema, json)) {
         var builder = ValidationIssue.builder();

@@ -19,6 +19,7 @@ import loom.zspace.*;
 public final class TensorNode extends LoomNode<TensorNode, TensorNode.Body> {
   public static final String TYPE = "TensorNode";
 
+  @SuppressWarnings("unused")
   public abstract static class TensorNodeBuilder<
           C extends TensorNode, B extends TensorNodeBuilder<C, B>>
       extends LoomNodeBuilder<TensorNode, Body, C, B> {

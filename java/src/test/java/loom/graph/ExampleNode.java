@@ -15,9 +15,10 @@ import loom.common.json.WithSchema;
 @Setter
 @Jacksonized
 @SuperBuilder
-public class ExampleNode extends LoomNode<ExampleNode, ExampleNode.Body> {
+public final class ExampleNode extends LoomNode<ExampleNode, ExampleNode.Body> {
   public static final String TYPE = "ExampleNode";
 
+  @SuppressWarnings("unused")
   public abstract static class ExampleNodeBuilder<
           C extends ExampleNode, B extends ExampleNodeBuilder<C, B>>
       extends LoomNodeBuilder<ExampleNode, Body, C, B> {

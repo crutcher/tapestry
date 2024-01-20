@@ -11,6 +11,7 @@ import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.UtilityClass;
 import loom.common.runtime.ExcludeFromJacocoGeneratedReport;
 import org.dom4j.*;
 import org.dom4j.io.OutputFormat;
@@ -21,8 +22,8 @@ import org.dom4j.io.XMLWriter;
  *
  * <p>See <a href="https://www.graphviz.org/doc/info/shapes.html#html-like">HTML-Like Labels</a>
  */
-@RequiredArgsConstructor(access = lombok.AccessLevel.PRIVATE)
-public final class GH {
+@UtilityClass
+public class GH {
 
   /**
    * From <a href="https://www.graphviz.org/doc/info/shapes.html#html-like">HTML-Like Labels</a>:
@@ -39,7 +40,7 @@ public final class GH {
    * <p>HTML-Like Labels Care about whitespace, so we need to disable the default behavior of the
    * {@link OutputFormat} to trim whitespace.
    */
-  public static final OutputFormat XML_OUTPUT_FORMAT;
+  public final OutputFormat XML_OUTPUT_FORMAT;
 
   static {
     XML_OUTPUT_FORMAT = new OutputFormat();
@@ -83,7 +84,7 @@ public final class GH {
    * @return the serialized xml.
    */
   @ExcludeFromJacocoGeneratedReport
-  public static String nodeToXml(Node node) {
+  public String nodeToXml(Node node) {
     try {
       StringWriter sw = new StringWriter();
       XMLWriter xmlWriter = new XMLWriter(sw, XML_OUTPUT_FORMAT);
@@ -103,7 +104,7 @@ public final class GH {
    */
   @Getter
   @RequiredArgsConstructor
-  public static class NodeWrapper<T extends NodeWrapper<T, N>, N extends Node> {
+  public class NodeWrapper<T extends NodeWrapper<T, N>, N extends Node> {
     @Nonnull protected final N node;
 
     @SuppressWarnings("unchecked")
@@ -139,7 +140,7 @@ public final class GH {
    *
    * @param <T> the type of the wrapper.
    */
-  public static class ElementWrapper<T extends ElementWrapper<T>> extends NodeWrapper<T, Element> {
+  public class ElementWrapper<T extends ElementWrapper<T>> extends NodeWrapper<T, Element> {
 
     public ElementWrapper(Element element) {
       super(element);
@@ -286,7 +287,7 @@ public final class GH {
    * @return an ElementWrapper for the element.
    */
   @CheckReturnValue
-  private static ElementWrapper<?> element(String name) {
+  private ElementWrapper<?> element(String name) {
     return new ElementWrapper<>(DocumentHelper.createElement(name));
   }
 
@@ -297,7 +298,7 @@ public final class GH {
    * @return the Text node.
    */
   @CheckReturnValue
-  public static NodeWrapper<?, Text> text(String text) {
+  public NodeWrapper<?, Text> text(String text) {
     return new NodeWrapper<>(DocumentHelper.createText(text));
   }
 
@@ -307,7 +308,7 @@ public final class GH {
    * @return the {@code <br/>} element.
    */
   @CheckReturnValue
-  public static ElementWrapper<?> br() {
+  public ElementWrapper<?> br() {
     return element("br");
   }
 
@@ -318,7 +319,7 @@ public final class GH {
    * @return the {@code <br/>} element.
    */
   @CheckReturnValue
-  public static ElementWrapper<?> br(HorizontalAlign align) {
+  public ElementWrapper<?> br(HorizontalAlign align) {
     return br().attr("align", align);
   }
 
@@ -328,7 +329,7 @@ public final class GH {
    * @return the {@code <vr/>} element.
    */
   @CheckReturnValue
-  public static ElementWrapper<?> vr() {
+  public ElementWrapper<?> vr() {
     return element("vr");
   }
 
@@ -338,7 +339,7 @@ public final class GH {
    * @return the {@code <hr/>} element.
    */
   @CheckReturnValue
-  public static ElementWrapper<?> hr() {
+  public ElementWrapper<?> hr() {
     return element("hr");
   }
 
@@ -348,7 +349,7 @@ public final class GH {
    * @return the {@code <i></i>} element wrapper.
    */
   @CheckReturnValue
-  public static ElementWrapper<?> italic() {
+  public ElementWrapper<?> italic() {
     return element("i");
   }
 
@@ -359,7 +360,7 @@ public final class GH {
    * @return the {@code <i></i>} element wrapper.
    */
   @CheckReturnValue
-  public static ElementWrapper<?> italic(Object... children) {
+  public ElementWrapper<?> italic(Object... children) {
     return italic().add(children);
   }
 
@@ -369,7 +370,7 @@ public final class GH {
    * @return the {@code <b></b>} element wrapper.
    */
   @CheckReturnValue
-  public static ElementWrapper<?> bold() {
+  public ElementWrapper<?> bold() {
     return element("b");
   }
 
@@ -380,7 +381,7 @@ public final class GH {
    * @return the {@code <b></b>} element wrapper.
    */
   @CheckReturnValue
-  public static ElementWrapper<?> bold(Object... children) {
+  public ElementWrapper<?> bold(Object... children) {
     return bold().add(children);
   }
 
@@ -390,7 +391,7 @@ public final class GH {
    * @return the {@code <u></u>} element wrapper.
    */
   @CheckReturnValue
-  public static ElementWrapper<?> underline() {
+  public ElementWrapper<?> underline() {
     return element("u");
   }
 
@@ -401,7 +402,7 @@ public final class GH {
    * @return the {@code <u></u>} element wrapper.
    */
   @CheckReturnValue
-  public static ElementWrapper<?> underline(Object... children) {
+  public ElementWrapper<?> underline(Object... children) {
     return underline().add(children);
   }
 
@@ -411,7 +412,7 @@ public final class GH {
    * @return the {@code <o></o>} element wrapper.
    */
   @CheckReturnValue
-  public static ElementWrapper<?> overline() {
+  public ElementWrapper<?> overline() {
     return element("o");
   }
 
@@ -422,7 +423,7 @@ public final class GH {
    * @return the {@code <o></o>} element wrapper.
    */
   @CheckReturnValue
-  public static ElementWrapper<?> overline(Object... children) {
+  public ElementWrapper<?> overline(Object... children) {
     return overline().add(children);
   }
 
@@ -432,7 +433,7 @@ public final class GH {
    * @return the {@code <s></s>} element wrapper.
    */
   @CheckReturnValue
-  public static ElementWrapper<?> strike() {
+  public ElementWrapper<?> strike() {
     return element("s");
   }
 
@@ -443,7 +444,7 @@ public final class GH {
    * @return the {@code <s></s>} element wrapper.
    */
   @CheckReturnValue
-  public static ElementWrapper<?> strike(Object... children) {
+  public ElementWrapper<?> strike(Object... children) {
     return strike().add(children);
   }
 
@@ -453,7 +454,7 @@ public final class GH {
    * @return the {@code <sub></sub>} element wrapper.
    */
   @CheckReturnValue
-  public static ElementWrapper<?> subscript() {
+  public ElementWrapper<?> subscript() {
     return element("sub");
   }
 
@@ -464,7 +465,7 @@ public final class GH {
    * @return the {@code <sub></sub>} element wrapper.
    */
   @CheckReturnValue
-  public static ElementWrapper<?> subscript(Object... children) {
+  public ElementWrapper<?> subscript(Object... children) {
     return subscript().add(children);
   }
 
@@ -474,7 +475,7 @@ public final class GH {
    * @return the {@code <sup></sup>} element wrapper.
    */
   @CheckReturnValue
-  public static ElementWrapper<?> superscript() {
+  public ElementWrapper<?> superscript() {
     return element("sup");
   }
 
@@ -485,12 +486,12 @@ public final class GH {
    * @return the {@code <sup></sup>} element wrapper.
    */
   @CheckReturnValue
-  public static ElementWrapper<?> superscript(Object... children) {
+  public ElementWrapper<?> superscript(Object... children) {
     return superscript().add(children);
   }
 
   /** An extension of {@link ElementWrapper} for the {@code <font></font>} element. */
-  public static final class FontWrapper extends ElementWrapper<FontWrapper> {
+  public final class FontWrapper extends ElementWrapper<FontWrapper> {
     public FontWrapper(Element element) {
       super(element);
       assert element.getName().equals("font");
@@ -543,12 +544,12 @@ public final class GH {
    * @return the {@code <font></font>} element wrapper.
    */
   @CheckReturnValue
-  public static FontWrapper font() {
+  public FontWrapper font() {
     return new FontWrapper();
   }
 
   /** An extension of {@link ElementWrapper} for the {@code <img></img>} element. */
-  public static final class ImgWrapper extends ElementWrapper<ImgWrapper> {
+  public final class ImgWrapper extends ElementWrapper<ImgWrapper> {
     public ImgWrapper(Element element) {
       super(element);
       assert element.getName().equals("img");
@@ -594,7 +595,7 @@ public final class GH {
    * @return the {@code <img></img>} ImgWrapper.
    */
   @CheckReturnValue
-  public static ImgWrapper img() {
+  public ImgWrapper img() {
     return new ImgWrapper();
   }
 
@@ -605,7 +606,7 @@ public final class GH {
    * @return the {@code <img src="src"></img>} ImgWrapper.
    */
   @CheckReturnValue
-  public static ImgWrapper img(String src) {
+  public ImgWrapper img(String src) {
     return img().src(src);
   }
 
@@ -614,8 +615,7 @@ public final class GH {
    *
    * @param <T> the type of the wrapper.
    */
-  public abstract static class TableBaseWrapper<T extends TableBaseWrapper<T>>
-      extends ElementWrapper<T> {
+  public abstract class TableBaseWrapper<T extends TableBaseWrapper<T>> extends ElementWrapper<T> {
     public TableBaseWrapper(Element element) {
       super(element);
     }
@@ -869,7 +869,7 @@ public final class GH {
   }
 
   /** An extension of {@link ElementWrapper} for the {@code <table></table>} element. */
-  public static final class TableWrapper extends TableBaseWrapper<TableWrapper> {
+  public final class TableWrapper extends TableBaseWrapper<TableWrapper> {
     public TableWrapper(Element element) {
       super(element);
       assert element.getName().equals("table");
@@ -963,7 +963,7 @@ public final class GH {
   }
 
   /** An extension of {@link ElementWrapper} for the {@code <td></td>} element. */
-  public static final class TableDataWrapper extends TableBaseWrapper<TableDataWrapper> {
+  public final class TableDataWrapper extends TableBaseWrapper<TableDataWrapper> {
 
     public TableDataWrapper(Element element) {
       super(element);
@@ -1029,7 +1029,7 @@ public final class GH {
    * @return the {@code <table></table>} element wrapper.
    */
   @CheckReturnValue
-  public static TableWrapper table() {
+  public TableWrapper table() {
     return new TableWrapper();
   }
 
@@ -1039,7 +1039,7 @@ public final class GH {
    * @return the {@code <tr></tr>} element wrapper.
    */
   @CheckReturnValue
-  public static ElementWrapper<?> tr() {
+  public ElementWrapper<?> tr() {
     return element("tr");
   }
 
@@ -1052,7 +1052,7 @@ public final class GH {
    * @return the {@code <tr></tr>} element wrapper.
    */
   @CheckReturnValue
-  public static ElementWrapper<?> tr(Object... children) {
+  public ElementWrapper<?> tr(Object... children) {
     var tr = tr();
 
     for (var child : children) {
@@ -1082,7 +1082,7 @@ public final class GH {
    * @return the {@code <td></td>} element wrapper.
    */
   @CheckReturnValue
-  public static TableDataWrapper td() {
+  public TableDataWrapper td() {
     return new TableDataWrapper();
   }
 
@@ -1093,7 +1093,7 @@ public final class GH {
    * @return the {@code <td></td>} element wrapper.
    */
   @CheckReturnValue
-  public static TableDataWrapper td(Object... children) {
+  public TableDataWrapper td(Object... children) {
     var t = td();
     t.add(children);
     return t;
@@ -1105,7 +1105,7 @@ public final class GH {
    * @param stack the elements to chain together.
    * @return the first element in the stack.
    */
-  public static ElementWrapper<?> nest(ElementWrapper<?>... stack) {
+  public ElementWrapper<?> nest(ElementWrapper<?>... stack) {
     for (int i = 1; i < stack.length; i++) {
       stack[i].withParent(stack[i - 1]);
     }

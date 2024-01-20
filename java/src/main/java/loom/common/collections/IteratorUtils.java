@@ -5,11 +5,11 @@ import java.util.function.Supplier;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 import javax.annotation.Nonnull;
-import lombok.NoArgsConstructor;
+import lombok.experimental.UtilityClass;
 import org.apache.commons.lang3.tuple.Pair;
 
-@NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
-public final class IteratorUtils {
+@UtilityClass
+public class IteratorUtils {
 
   /**
    * Convert an Iterable to a Stream.
@@ -18,11 +18,11 @@ public final class IteratorUtils {
    * @return The Stream.
    * @param <T> The type of the Iterable.
    */
-  public static <T> Stream<T> iterableToStream(@Nonnull Iterable<T> iterable) {
+  public <T> Stream<T> iterableToStream(@Nonnull Iterable<T> iterable) {
     return StreamSupport.stream(iterable.spliterator(), false);
   }
 
-  public static <T> Stream<T> iteratorToStream(@Nonnull Iterator<T> iterator) {
+  public <T> Stream<T> iteratorToStream(@Nonnull Iterator<T> iterator) {
     return StreamSupport.stream(supplierToIterable(() -> iterator).spliterator(), false);
   }
 
@@ -33,7 +33,7 @@ public final class IteratorUtils {
    * @return The Iterable.
    * @param <T> The type of the Supplier.
    */
-  public static <T> Iterable<T> supplierToIterable(@Nonnull Supplier<Iterator<T>> supplier) {
+  public <T> Iterable<T> supplierToIterable(@Nonnull Supplier<Iterator<T>> supplier) {
     return supplier::get;
   }
 
@@ -43,7 +43,7 @@ public final class IteratorUtils {
    * @param iterable The Iterable to check.
    * @return True if the Iterable is empty, false otherwise.
    */
-  public static boolean iterableIsNotEmpty(Iterable<?> iterable) {
+  public boolean iterableIsNotEmpty(Iterable<?> iterable) {
     return iterable != null && iterable.iterator().hasNext();
   }
 
@@ -80,7 +80,7 @@ public final class IteratorUtils {
     }
   }
 
-  public static <T> Iterable<Pair<Integer, T>> enumerate(Iterable<T> iterator) {
+  public <T> Iterable<Pair<Integer, T>> enumerate(Iterable<T> iterator) {
     return new EnumerateIterable<>(iterator);
   }
 }
