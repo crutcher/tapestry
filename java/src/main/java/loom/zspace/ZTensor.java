@@ -2236,8 +2236,8 @@ public final class ZTensor
    *
    * @param other the other tensor.
    */
-  public void assertMatchingShape(@Nonnull ZTensor other) {
-    IndexingFns.assertShape(shape, other.shape);
+  public void assertMatchingShape(@Nonnull HasZTensor other) {
+    IndexingFns.assertShape(shape, other.asZTensor().shape);
   }
 
   /**

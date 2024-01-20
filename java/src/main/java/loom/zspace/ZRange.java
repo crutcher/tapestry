@@ -4,19 +4,18 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Splitter;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.Objects;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.annotation.concurrent.Immutable;
+import javax.annotation.concurrent.ThreadSafe;
 import lombok.Builder;
 import lombok.Value;
 import loom.common.json.HasToJsonString;
 import loom.common.json.JsonUtil;
 import loom.common.runtime.CheckThat;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import javax.annotation.concurrent.Immutable;
-import javax.annotation.concurrent.ThreadSafe;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.Objects;
 
 /**
  * Represents a range of points in discrete space.
@@ -138,7 +137,7 @@ public class ZRange implements Cloneable, HasSize, HasPermute<ZRange>, HasToJson
         if (end != null) {
           throw new IllegalArgumentException("Cannot set both shape and end");
         }
-        end = start.coords.add(shape).newZPoint();
+        end = start.tensor.add(shape).newZPoint();
       }
       return new ZRange(start, end);
     }
@@ -197,7 +196,7 @@ public class ZRange implements Cloneable, HasSize, HasPermute<ZRange>, HasToJson
    */
   @Nonnull
   public ZRange translate(@Nonnull HasZTensor delta) {
-    return ZRange.of(start.coords.add(delta), end.coords.add(delta));
+    return ZRange.of(start.tensor.add(delta), end.tensor.add(delta));
   }
 
   /**
@@ -237,15 +236,15 @@ public class ZRange implements Cloneable, HasSize, HasPermute<ZRange>, HasToJson
     }
 
     var first = it.next();
-    var start = first.start.coords;
-    var end = first.end.coords;
+    var start = first.start.tensor;
+    var end = first.end.tensor;
 
     while (it.hasNext()) {
       var r = it.next();
       HasDimension.assertSameNDim(first, r);
 
-      start = ZTensor.Ops.minimum(start, r.start.coords);
-      end = ZTensor.Ops.maximum(end, r.end.coords);
+      start = ZTensor.Ops.minimum(start, r.start.tensor);
+      end = ZTensor.Ops.maximum(end, r.end.tensor);
     }
 
     return new ZRange(start, end);
@@ -312,14 +311,14 @@ public class ZRange implements Cloneable, HasSize, HasPermute<ZRange>, HasToJson
     var zstart = start.asZTensor().newZPoint();
     var zend = end.asZTensor().newZPoint();
 
-    zstart.coords.assertMatchingShape(zend.coords);
+    zstart.tensor.assertMatchingShape(zend);
     if (zstart.gt(end)) {
       throw new IllegalArgumentException("start %s must be <= end %s".formatted(zstart, zend));
     }
     this.start = zstart;
     this.end = zend;
 
-    shape = zend.coords.sub(zstart.coords).asImmutable();
+    shape = zend.tensor.sub(zstart.tensor).asImmutable();
     size = shape.prodAsInt();
   }
 
@@ -359,9 +358,9 @@ public class ZRange implements Cloneable, HasSize, HasPermute<ZRange>, HasToJson
       if (i > 0) {
         b.append(", ");
       }
-      b.append(start.coords.get(i));
+      b.append(start.get(i));
       b.append(":");
-      b.append(end.coords.get(i));
+      b.append(end.get(i));
     }
     b.append("]");
     return b.toString();
@@ -469,7 +468,8 @@ public class ZRange implements Cloneable, HasSize, HasPermute<ZRange>, HasToJson
    * @return true if this range contains the point.
    */
   public boolean contains(@Nonnull HasZTensor p) {
-    return !isEmpty() && (getNDim() == 0 || (start.le(p) && ZPoint.Ops.lt(p, end)));
+    return !isEmpty()
+        && (getNDim() == 0 || (start.le(p) && DominanceOrderingOperations.lt(p, end)));
   }
 
   /**
@@ -485,7 +485,7 @@ public class ZRange implements Cloneable, HasSize, HasPermute<ZRange>, HasToJson
       throw new IndexOutOfBoundsException("Empty range");
     }
 
-    return new ZPoint(end.coords.sub(1));
+    return new ZPoint(end.tensor.sub(1));
   }
 
   /**
@@ -495,8 +495,8 @@ public class ZRange implements Cloneable, HasSize, HasPermute<ZRange>, HasToJson
    * @return the intersection of this range with another, null if there is no intersection.
    */
   @Nullable public ZRange intersection(@Nonnull ZRange other) {
-    var iStart = ZTensor.Ops.maximum(start.coords, other.start.coords).newZPoint();
-    var iEnd = ZTensor.Ops.minimum(end.coords, other.end.coords).newZPoint();
+    var iStart = ZTensor.Ops.maximum(start, other.start).newZPoint();
+    var iEnd = ZTensor.Ops.minimum(end, other.end).newZPoint();
     if (iStart.le(iEnd)) {
       return new ZRange(iStart, iEnd);
     } else {
@@ -534,8 +534,8 @@ public class ZRange implements Cloneable, HasSize, HasPermute<ZRange>, HasToJson
       ++n;
     }
 
-    var startArr = start.coords.toT1();
-    var endArr = end.coords.toT1();
+    var startArr = start.toArray();
+    var endArr = end.toArray();
     var ranges = new ZRange[n];
 
     for (int i = 0; i < n; ++i) {

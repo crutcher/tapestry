@@ -21,19 +21,19 @@ public class ZPointTest implements CommonAssertions {
     {
       var p = new ZPoint(1, 2, 3);
       assertThat(p.getNDim()).isEqualTo(3);
-      assertThat(p.coords).isEqualTo(ZTensor.newVector(1, 2, 3));
+      assertThat(p).isEqualTo(ZTensor.newVector(1, 2, 3));
     }
 
     {
       var p = new ZPoint(ZTensor.newVector(1, 2, 3));
       assertThat(p.getNDim()).isEqualTo(3);
-      assertThat(p.coords).isEqualTo(ZTensor.newVector(1, 2, 3));
+      assertThat(p).isEqualTo(ZTensor.newVector(1, 2, 3));
     }
 
     {
       var p = new ZPoint(List.of(1, 2, 3));
       assertThat(p.getNDim()).isEqualTo(3);
-      assertThat(p.coords).isEqualTo(ZTensor.newVector(1, 2, 3));
+      assertThat(p).isEqualTo(ZTensor.newVector(1, 2, 3));
     }
 
     assertThatExceptionOfType(ZDimMissMatchError.class)
@@ -122,34 +122,14 @@ public class ZPointTest implements CommonAssertions {
     var p10 = new ZPoint(1, 0);
     var p01 = new ZPoint(0, 1);
 
-    assertThat(ZPoint.Ops.partialOrderByGrid(zeros, zeros)).isEqualTo(PartialOrdering.EQUAL);
-    assertThat(ZPoint.Ops.lt(zeros, zeros)).isFalse();
-    assertThat(ZPoint.Ops.le(zeros, zeros)).isTrue();
-    assertThat(ZPoint.Ops.eq(zeros, zeros)).isTrue();
-    assertThat(ZPoint.Ops.ne(zeros, zeros)).isFalse();
-    assertThat(ZPoint.Ops.ge(zeros, zeros)).isTrue();
-    assertThat(ZPoint.Ops.gt(zeros, zeros)).isFalse();
-
-    assertThat(ZPoint.Ops.lt(zeros, zeros.coords)).isFalse();
-    assertThat(ZPoint.Ops.le(zeros, zeros.coords)).isTrue();
-    assertThat(ZPoint.Ops.eq(zeros, zeros.coords)).isTrue();
-    assertThat(ZPoint.Ops.ne(zeros, zeros.coords)).isFalse();
-    assertThat(ZPoint.Ops.ge(zeros, zeros.coords)).isTrue();
-    assertThat(ZPoint.Ops.gt(zeros, zeros.coords)).isFalse();
-
-    assertThat(ZPoint.Ops.lt(zeros.coords, zeros)).isFalse();
-    assertThat(ZPoint.Ops.le(zeros.coords, zeros)).isTrue();
-    assertThat(ZPoint.Ops.eq(zeros.coords, zeros)).isTrue();
-    assertThat(ZPoint.Ops.ne(zeros.coords, zeros)).isFalse();
-    assertThat(ZPoint.Ops.ge(zeros.coords, zeros)).isTrue();
-    assertThat(ZPoint.Ops.gt(zeros.coords, zeros)).isFalse();
-
-    assertThat(ZPoint.Ops.lt(zeros.coords, zeros.coords)).isFalse();
-    assertThat(ZPoint.Ops.le(zeros.coords, zeros.coords)).isTrue();
-    assertThat(ZPoint.Ops.eq(zeros.coords, zeros.coords)).isTrue();
-    assertThat(ZPoint.Ops.ne(zeros.coords, zeros.coords)).isFalse();
-    assertThat(ZPoint.Ops.ge(zeros.coords, zeros.coords)).isTrue();
-    assertThat(ZPoint.Ops.gt(zeros.coords, zeros.coords)).isFalse();
+    assertThat(DominanceOrderingOperations.partialOrderByGrid(zeros, zeros))
+        .isEqualTo(PartialOrdering.EQUAL);
+    assertThat(DominanceOrderingOperations.lt(zeros, zeros)).isFalse();
+    assertThat(DominanceOrderingOperations.le(zeros, zeros)).isTrue();
+    assertThat(DominanceOrderingOperations.eq(zeros, zeros)).isTrue();
+    assertThat(DominanceOrderingOperations.ne(zeros, zeros)).isFalse();
+    assertThat(DominanceOrderingOperations.ge(zeros, zeros)).isTrue();
+    assertThat(DominanceOrderingOperations.gt(zeros, zeros)).isFalse();
 
     assertThat(zeros.lt(zeros)).isFalse();
     assertThat(zeros.le(zeros)).isTrue();
@@ -158,20 +138,14 @@ public class ZPointTest implements CommonAssertions {
     assertThat(zeros.ge(zeros)).isTrue();
     assertThat(zeros.gt(zeros)).isFalse();
 
-    assertThat(zeros.lt(zeros.coords)).isFalse();
-    assertThat(zeros.le(zeros.coords)).isTrue();
-    assertThat(zeros.eq(zeros.coords)).isTrue();
-    assertThat(zeros.ne(zeros.coords)).isFalse();
-    assertThat(zeros.ge(zeros.coords)).isTrue();
-    assertThat(zeros.gt(zeros.coords)).isFalse();
-
-    assertThat(ZPoint.Ops.partialOrderByGrid(zeros, p01)).isEqualTo(PartialOrdering.LESS_THAN);
-    assertThat(ZPoint.Ops.lt(zeros, p01)).isTrue();
-    assertThat(ZPoint.Ops.le(zeros, p01)).isTrue();
-    assertThat(ZPoint.Ops.eq(zeros, p01)).isFalse();
-    assertThat(ZPoint.Ops.ne(zeros, p01)).isTrue();
-    assertThat(ZPoint.Ops.ge(zeros, p01)).isFalse();
-    assertThat(ZPoint.Ops.gt(zeros, p01)).isFalse();
+    assertThat(DominanceOrderingOperations.partialOrderByGrid(zeros, p01))
+        .isEqualTo(PartialOrdering.LESS_THAN);
+    assertThat(DominanceOrderingOperations.lt(zeros, p01)).isTrue();
+    assertThat(DominanceOrderingOperations.le(zeros, p01)).isTrue();
+    assertThat(DominanceOrderingOperations.eq(zeros, p01)).isFalse();
+    assertThat(DominanceOrderingOperations.ne(zeros, p01)).isTrue();
+    assertThat(DominanceOrderingOperations.ge(zeros, p01)).isFalse();
+    assertThat(DominanceOrderingOperations.gt(zeros, p01)).isFalse();
     assertThat(zeros.lt(p01)).isTrue();
     assertThat(zeros.le(p01)).isTrue();
     assertThat(zeros.eq(p01)).isFalse();
@@ -179,13 +153,14 @@ public class ZPointTest implements CommonAssertions {
     assertThat(zeros.ge(p01)).isFalse();
     assertThat(zeros.gt(p01)).isFalse();
 
-    assertThat(ZPoint.Ops.partialOrderByGrid(p01, zeros)).isEqualTo(PartialOrdering.GREATER_THAN);
-    assertThat(ZPoint.Ops.lt(p01, zeros)).isFalse();
-    assertThat(ZPoint.Ops.le(p01, zeros)).isFalse();
-    assertThat(ZPoint.Ops.eq(p01, zeros)).isFalse();
-    assertThat(ZPoint.Ops.ne(p01, zeros)).isTrue();
-    assertThat(ZPoint.Ops.ge(p01, zeros)).isTrue();
-    assertThat(ZPoint.Ops.gt(p01, zeros)).isTrue();
+    assertThat(DominanceOrderingOperations.partialOrderByGrid(p01, zeros))
+        .isEqualTo(PartialOrdering.GREATER_THAN);
+    assertThat(DominanceOrderingOperations.lt(p01, zeros)).isFalse();
+    assertThat(DominanceOrderingOperations.le(p01, zeros)).isFalse();
+    assertThat(DominanceOrderingOperations.eq(p01, zeros)).isFalse();
+    assertThat(DominanceOrderingOperations.ne(p01, zeros)).isTrue();
+    assertThat(DominanceOrderingOperations.ge(p01, zeros)).isTrue();
+    assertThat(DominanceOrderingOperations.gt(p01, zeros)).isTrue();
     assertThat(p01.lt(zeros)).isFalse();
     assertThat(p01.le(zeros)).isFalse();
     assertThat(p01.eq(zeros)).isFalse();
@@ -193,13 +168,14 @@ public class ZPointTest implements CommonAssertions {
     assertThat(p01.ge(zeros)).isTrue();
     assertThat(p01.gt(zeros)).isTrue();
 
-    assertThat(ZPoint.Ops.partialOrderByGrid(zeros, p10)).isEqualTo(PartialOrdering.LESS_THAN);
-    assertThat(ZPoint.Ops.lt(zeros, p10)).isTrue();
-    assertThat(ZPoint.Ops.le(zeros, p10)).isTrue();
-    assertThat(ZPoint.Ops.eq(zeros, p10)).isFalse();
-    assertThat(ZPoint.Ops.ne(zeros, p10)).isTrue();
-    assertThat(ZPoint.Ops.ge(zeros, p10)).isFalse();
-    assertThat(ZPoint.Ops.gt(zeros, p10)).isFalse();
+    assertThat(DominanceOrderingOperations.partialOrderByGrid(zeros, p10))
+        .isEqualTo(PartialOrdering.LESS_THAN);
+    assertThat(DominanceOrderingOperations.lt(zeros, p10)).isTrue();
+    assertThat(DominanceOrderingOperations.le(zeros, p10)).isTrue();
+    assertThat(DominanceOrderingOperations.eq(zeros, p10)).isFalse();
+    assertThat(DominanceOrderingOperations.ne(zeros, p10)).isTrue();
+    assertThat(DominanceOrderingOperations.ge(zeros, p10)).isFalse();
+    assertThat(DominanceOrderingOperations.gt(zeros, p10)).isFalse();
     assertThat(zeros.lt(p10)).isTrue();
     assertThat(zeros.le(p10)).isTrue();
     assertThat(zeros.eq(p10)).isFalse();
@@ -207,13 +183,14 @@ public class ZPointTest implements CommonAssertions {
     assertThat(zeros.ge(p10)).isFalse();
     assertThat(zeros.gt(p10)).isFalse();
 
-    assertThat(ZPoint.Ops.partialOrderByGrid(p01, p10)).isEqualTo(PartialOrdering.INCOMPARABLE);
-    assertThat(ZPoint.Ops.lt(p01, p10)).isFalse();
-    assertThat(ZPoint.Ops.le(p01, p10)).isFalse();
-    assertThat(ZPoint.Ops.eq(p01, p10)).isFalse();
-    assertThat(ZPoint.Ops.ne(p01, p10)).isTrue();
-    assertThat(ZPoint.Ops.ge(p01, p10)).isFalse();
-    assertThat(ZPoint.Ops.gt(p01, p10)).isFalse();
+    assertThat(DominanceOrderingOperations.partialOrderByGrid(p01, p10))
+        .isEqualTo(PartialOrdering.INCOMPARABLE);
+    assertThat(DominanceOrderingOperations.lt(p01, p10)).isFalse();
+    assertThat(DominanceOrderingOperations.le(p01, p10)).isFalse();
+    assertThat(DominanceOrderingOperations.eq(p01, p10)).isFalse();
+    assertThat(DominanceOrderingOperations.ne(p01, p10)).isTrue();
+    assertThat(DominanceOrderingOperations.ge(p01, p10)).isFalse();
+    assertThat(DominanceOrderingOperations.gt(p01, p10)).isFalse();
     assertThat(p01.lt(p10)).isFalse();
     assertThat(p01.le(p10)).isFalse();
     assertThat(p01.eq(p10)).isFalse();
