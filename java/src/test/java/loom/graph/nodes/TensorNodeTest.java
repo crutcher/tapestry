@@ -21,7 +21,7 @@ public class TensorNodeTest extends BaseTestClass {
             """);
 
     assertThat(body.getNDim()).isEqualTo(0);
-    assertThat(body.getRange()).isEqualTo(ZRange.fromShape());
+    assertThat(body.getRange()).isEqualTo(ZRange.newFromShape());
     assertThat(body.getSize()).isEqualTo(1);
     assertThat(body.getRange()).isEqualTo(new ZRange(ZPoint.of(), ZPoint.of()));
   }
@@ -54,15 +54,15 @@ public class TensorNodeTest extends BaseTestClass {
   public void test_body_builder() {
     {
       var body = TensorNode.Body.builder().dtype("int32").shape(ZPoint.of(2, 3)).build();
-      assertThat(body.getRange()).isEqualTo(ZRange.fromShape(2, 3));
+      assertThat(body.getRange()).isEqualTo(ZRange.newFromShape(2, 3));
     }
     {
       var body = TensorNode.Body.builder().dtype("int32").shape(2, 3).build();
-      assertThat(body.getRange()).isEqualTo(ZRange.fromShape(2, 3));
+      assertThat(body.getRange()).isEqualTo(ZRange.newFromShape(2, 3));
     }
     {
       var body = TensorNode.Body.builder().dtype("int32").shape(ZTensor.newVector(2, 3)).build();
-      assertThat(body.getRange()).isEqualTo(ZRange.fromShape(2, 3));
+      assertThat(body.getRange()).isEqualTo(ZRange.newFromShape(2, 3));
     }
   }
 }

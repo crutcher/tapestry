@@ -29,8 +29,8 @@ public final class DominanceOrderingOperations {
    */
   public static PartialOrdering partialOrderByGrid(
       @Nonnull HasZTensor lhs, @Nonnull HasZTensor rhs) {
-    var zlhs = lhs.asZTensor();
-    var zrhs = rhs.asZTensor();
+    var zlhs = lhs.getTensor();
+    var zrhs = rhs.getTensor();
 
     zlhs.assertSameShape(zrhs);
 
@@ -58,8 +58,8 @@ public final class DominanceOrderingOperations {
    * @return true if the points are equal.
    */
   public static boolean eq(@Nonnull HasZTensor lhs, @Nonnull HasZTensor rhs) {
-    lhs.asZTensor().assertSameShape(rhs);
-    return lhs.asZTensor().equals(rhs);
+    lhs.getTensor().assertSameShape(rhs);
+    return lhs.getTensor().equals(rhs);
   }
 
   /**

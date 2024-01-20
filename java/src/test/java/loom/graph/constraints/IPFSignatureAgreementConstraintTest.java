@@ -61,7 +61,7 @@ public class IPFSignatureAgreementConstraintTest extends BaseTestClass {
             inputs -> {
               var x = inputs.get("x").getFirst().getRange().getShape().get(0);
               var y = inputs.get("y").getFirst().getRange().getShape().get(1);
-              return ZRange.fromShape(x, y);
+              return ZRange.newFromShape(x, y);
             },
             index -> List.of(index.split(1, 2)),
             Map.of(
@@ -80,7 +80,7 @@ public class IPFSignatureAgreementConstraintTest extends BaseTestClass {
             op.getOutputs().get("z").getFirst().getTensorId(), TensorNode.TYPE, TensorNode.class);
 
     assertThat(tensorC.getDtype()).isEqualTo("int32");
-    assertThat(tensorC.getRange()).isEqualTo(ZRange.fromShape(3, 5));
+    assertThat(tensorC.getRange()).isEqualTo(ZRange.newFromShape(3, 5));
     assertThat(tensorC.getLabel()).isEqualTo("matmul/z[0]");
 
     var matmulResult =
@@ -102,7 +102,7 @@ public class IPFSignatureAgreementConstraintTest extends BaseTestClass {
             .build(),
         inputs -> {
           var x = inputs.get("tensor").getFirst().getRange().getShape().get(0);
-          return ZRange.fromShape(x);
+          return ZRange.newFromShape(x);
         },
         index -> List.of(index.split(0, 2)),
         Map.of("tensor", List.of(TensorSelection.from(matmulResult))),

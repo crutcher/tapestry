@@ -511,10 +511,10 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
                   b.kernel("source");
                   b.input(
                       "source",
-                      List.of(new TensorSelection(missingInputId, ZRange.fromShape(1, 2))));
+                      List.of(new TensorSelection(missingInputId, ZRange.newFromShape(1, 2))));
                   b.output(
                       "result",
-                      List.of(new TensorSelection(missingOutputId, ZRange.fromShape(10))));
+                      List.of(new TensorSelection(missingOutputId, ZRange.newFromShape(10))));
                 })
             .addTo(graph);
     ApplicationNode.withBody(
@@ -525,14 +525,14 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
                   List.of(
                       TensorSelection.builder()
                           .tensorId(missingInputId)
-                          .range(ZRange.fromShape(1, 2))
+                          .range(ZRange.newFromShape(1, 2))
                           .build()));
               b.output(
                   "result",
                   List.of(
                       TensorSelection.builder()
                           .tensorId(missingOutputId)
-                          .range(ZRange.fromShape(10))
+                          .range(ZRange.newFromShape(10))
                           .build()));
             })
         .addTo(graph);
@@ -584,10 +584,10 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
                   b.kernel("source");
                   b.input(
                       "source",
-                      List.of(new TensorSelection(noteNode.getId(), ZRange.fromShape(1, 2))));
+                      List.of(new TensorSelection(noteNode.getId(), ZRange.newFromShape(1, 2))));
                   b.output(
                       "result",
-                      List.of(new TensorSelection(noteNode.getId(), ZRange.fromShape(10))));
+                      List.of(new TensorSelection(noteNode.getId(), ZRange.newFromShape(10))));
                 })
             .addTo(graph);
     ApplicationNode.withBody(
@@ -598,14 +598,14 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
                   List.of(
                       TensorSelection.builder()
                           .tensorId(noteNode.getId())
-                          .range(ZRange.fromShape(1, 2))
+                          .range(ZRange.newFromShape(1, 2))
                           .build()));
               b.output(
                   "result",
                   List.of(
                       TensorSelection.builder()
                           .tensorId(noteNode.getId())
-                          .range(ZRange.fromShape(10))
+                          .range(ZRange.newFromShape(10))
                           .build()));
             })
         .addTo(graph);
@@ -666,7 +666,7 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
                   b.kernel("source");
                   b.output(
                       "output",
-                      List.of(new TensorSelection(tensorA.getId(), ZRange.fromShape(200))));
+                      List.of(new TensorSelection(tensorA.getId(), ZRange.newFromShape(200))));
                 })
             .addTo(graph);
 
@@ -674,7 +674,8 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
             b -> {
               b.operationId(sourceOp.getId());
               b.output(
-                  "output", List.of(new TensorSelection(tensorA.getId(), ZRange.fromShape(200))));
+                  "output",
+                  List.of(new TensorSelection(tensorA.getId(), ZRange.newFromShape(200))));
             })
         .addTo(graph);
 
@@ -684,7 +685,7 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
                   b.kernel("sink");
                   b.input(
                       "input",
-                      List.of(new TensorSelection(tensorA.getId(), ZRange.fromShape(200))));
+                      List.of(new TensorSelection(tensorA.getId(), ZRange.newFromShape(200))));
                 })
             .addTo(graph);
 
@@ -692,7 +693,7 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
             b -> {
               b.operationId(sinkOp.getId());
               b.input(
-                  "input", List.of(new TensorSelection(tensorA.getId(), ZRange.fromShape(200))));
+                  "input", List.of(new TensorSelection(tensorA.getId(), ZRange.newFromShape(200))));
             })
         .addTo(graph);
 
@@ -713,7 +714,7 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
                     context
                         .name("Selection Range")
                         .jsonpath(sourceOp.getJsonPath(), "body.outputs.output[0]")
-                        .data(ZRange.fromShape(200)))
+                        .data(ZRange.newFromShape(200)))
             .context(tensorA.asValidationContext("Tensor Node"))
             .context(sourceOp.asValidationContext("Operation Node"))
             .build(),
@@ -728,7 +729,7 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
                     context
                         .name("Selection Range")
                         .jsonpath(sinkOp.getJsonPath(), "body.inputs.input[0]")
-                        .data(ZRange.fromShape(200)))
+                        .data(ZRange.newFromShape(200)))
             .context(tensorA.asValidationContext("Tensor Node"))
             .context(sinkOp.asValidationContext("Operation Node"))
             .build());
@@ -753,7 +754,7 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
                   b.kernel("source");
                   b.output(
                       "output",
-                      List.of(new TensorSelection(tensorA.getId(), ZRange.fromShape(5, 10))));
+                      List.of(new TensorSelection(tensorA.getId(), ZRange.newFromShape(5, 10))));
                 })
             .addTo(graph);
 
@@ -761,7 +762,8 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
             b -> {
               b.operationId(sourceOp.getId());
               b.output(
-                  "output", List.of(new TensorSelection(tensorA.getId(), ZRange.fromShape(5, 10))));
+                  "output",
+                  List.of(new TensorSelection(tensorA.getId(), ZRange.newFromShape(5, 10))));
             })
         .addTo(graph);
 
@@ -771,7 +773,7 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
                   b.kernel("sink");
                   b.input(
                       "input",
-                      List.of(new TensorSelection(tensorA.getId(), ZRange.fromShape(2, 8))));
+                      List.of(new TensorSelection(tensorA.getId(), ZRange.newFromShape(2, 8))));
                 })
             .addTo(graph);
 
@@ -779,7 +781,8 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
             b -> {
               b.operationId(sinkOp.getId());
               b.input(
-                  "input", List.of(new TensorSelection(tensorA.getId(), ZRange.fromShape(2, 8))));
+                  "input",
+                  List.of(new TensorSelection(tensorA.getId(), ZRange.newFromShape(2, 8))));
             })
         .addTo(graph);
 
@@ -797,7 +800,7 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
                     context
                         .name("Selection Range")
                         .jsonpath(sinkOp.getJsonPath(), "body.inputs.input[0]")
-                        .data(ZRange.fromShape(2, 8)))
+                        .data(ZRange.newFromShape(2, 8)))
             .context(tensorA.asValidationContext("Tensor Node"))
             .context(sinkOp.asValidationContext("Operation Node"))
             .build(),
@@ -810,7 +813,7 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
                     context
                         .name("Selection Range")
                         .jsonpath(sourceOp.getJsonPath(), "body.outputs.output[0]")
-                        .data(ZRange.fromShape(5, 10)))
+                        .data(ZRange.newFromShape(5, 10)))
             .context(tensorA.asValidationContext("Tensor Node"))
             .context(sourceOp.asValidationContext("Operation Node"))
             .build());

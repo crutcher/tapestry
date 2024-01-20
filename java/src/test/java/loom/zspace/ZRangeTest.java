@@ -140,23 +140,25 @@ public class ZRangeTest implements CommonAssertions {
   @Test
   public void test_fromShape() {
     {
-      var range = ZRange.fromShape(2, 3);
+      var range = ZRange.newFromShape(2, 3);
       assertThat(range.getNDim()).isEqualTo(2);
       assertThat(range.getSize()).isEqualTo(6);
     }
     {
-      var range = ZRange.fromShape(ZTensor.newVector());
+      var range = ZRange.newFromShape(ZTensor.newVector());
       assertThat(range.getNDim()).isEqualTo(0);
       assertThat(range.getSize()).isEqualTo(1);
     }
     {
-      var range = ZRange.fromShape(new ZPoint(2, 3));
+      var range = ZRange.newFromShape(new ZPoint(2, 3));
       assertThat(range.getNDim()).isEqualTo(2);
       assertThat(range.getSize()).isEqualTo(6);
     }
 
     {
-      var range = ZRange.fromStartWithShape(new ZPoint(4, 5), new ZPoint(2, 3));
+      HasZTensor start = new ZPoint(4, 5);
+      HasZTensor shape = new ZPoint(2, 3);
+      var range = ZRange.builder().start(start).shape(shape).build();
       assertThat(range.getNDim()).isEqualTo(2);
       assertThat(range.getSize()).isEqualTo(6);
       assertThat(range.getStart()).isEqualTo(new ZPoint(4, 5));
@@ -191,7 +193,7 @@ public class ZRangeTest implements CommonAssertions {
         .containsExactly(new int[] {2, 3}, new int[] {2, 4}, new int[] {3, 3}, new int[] {3, 4});
 
     // Empty ranges.
-    assertThat(ZRange.fromShape(0, 0).byCoords(BufferMode.SAFE).stream().toList()).isEmpty();
+    assertThat(ZRange.newFromShape(0, 0).byCoords(BufferMode.SAFE).stream().toList()).isEmpty();
 
     // Scalar ranges.
     assertThat(new ZRange(new ZPoint(), new ZPoint()).byCoords(BufferMode.SAFE).stream().toList())
@@ -223,7 +225,7 @@ public class ZRangeTest implements CommonAssertions {
       assertThat(r0.contains(r0.getEnd())).isTrue();
     }
 
-    var range = ZRange.fromShape(2, 3);
+    var range = ZRange.newFromShape(2, 3);
 
     assertThat(range.contains(range)).isTrue();
     assertThat(range.contains(range.getStart())).isTrue();
@@ -232,7 +234,7 @@ public class ZRangeTest implements CommonAssertions {
 
     {
       // Empty Ranges
-      ZRange empty = ZRange.fromShape(0, 0);
+      ZRange empty = ZRange.newFromShape(0, 0);
       assertThat(empty.contains(empty)).isTrue();
       assertThat(empty.contains(empty.getStart())).isFalse();
       assertThat(range.contains(empty)).isTrue();
@@ -259,9 +261,10 @@ public class ZRangeTest implements CommonAssertions {
 
   @Test
   public void test_intersection() {
-    assertThat(ZRange.fromShape().intersection(ZRange.fromShape())).isEqualTo(ZRange.fromShape());
+    assertThat(ZRange.newFromShape().intersection(ZRange.newFromShape()))
+        .isEqualTo(ZRange.newFromShape());
 
-    var range = ZRange.fromShape(2, 3);
+    var range = ZRange.newFromShape(2, 3);
     assertThat(range.intersection(range)).isEqualTo(range);
     assertThat(range.intersection(ZRange.of(new ZPoint(-2, 1), new ZPoint(2, 5))))
         .isEqualTo(ZRange.of(new ZPoint(0, 1), new ZPoint(2, 3)));
@@ -271,7 +274,7 @@ public class ZRangeTest implements CommonAssertions {
 
   @Test
   public void test_resolveDim() {
-    var range = ZRange.fromShape(2, 3);
+    var range = ZRange.newFromShape(2, 3);
     assertThat(range.resolveDim(0)).isEqualTo(0);
     assertThat(range.resolveDim(1)).isEqualTo(1);
     assertThat(range.resolveDim(-1)).isEqualTo(1);
@@ -287,7 +290,7 @@ public class ZRangeTest implements CommonAssertions {
 
   @Test
   public void test_split() {
-    var range = ZRange.fromShape(2, 3);
+    var range = ZRange.newFromShape(2, 3);
 
     assertThat(range.split(1, 2))
         .containsExactly(

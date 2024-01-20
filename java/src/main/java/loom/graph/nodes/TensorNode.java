@@ -72,7 +72,7 @@ public final class TensorNode extends LoomNode<TensorNode, TensorNode.Body> {
        */
       @JsonIgnore
       public BodyBuilder shape(@Nonnull ZPoint shape) {
-        return range(ZRange.fromShape(shape));
+        return range(ZRange.newFromShape(shape));
       }
 
       /**
@@ -83,7 +83,7 @@ public final class TensorNode extends LoomNode<TensorNode, TensorNode.Body> {
        */
       @JsonIgnore
       public BodyBuilder shape(@Nonnull ZTensor shape) {
-        return range(ZRange.fromShape(shape));
+        return range(ZRange.newFromShape(shape));
       }
 
       /**
@@ -94,7 +94,7 @@ public final class TensorNode extends LoomNode<TensorNode, TensorNode.Body> {
        */
       @JsonIgnore
       public BodyBuilder shape(int... shape) {
-        return range(ZRange.fromShape(shape));
+        return range(ZRange.newFromShape(shape));
       }
     }
 

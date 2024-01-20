@@ -3,11 +3,13 @@ package loom.zspace;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.google.errorprone.annotations.Immutable;
 import com.kjetland.jackson.jsonSchema.annotations.JsonSchemaInject;
+import org.jetbrains.annotations.NotNull;
+
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.ThreadSafe;
 
 /**
- * A point in a ZSpace.
+ * An immutable point in a ZSpace.
  *
  * <p>Internally, represented by an immutable ZTensor.
  *
@@ -17,6 +19,14 @@ import javax.annotation.concurrent.ThreadSafe;
 @Immutable
 @JsonSchemaInject(json = "{\"type\": \"array\", \"items\": {\"type\": \"integer\"}}", merge = false)
 public final class ZPoint extends ImmutableZTensorWrapper<ZPoint> implements HasPermute<ZPoint> {
+  /**
+   * Private constructor for Jackson.
+   *
+   * <p>This permits the public constructor to use {@link HasZTensor)}.
+   *
+   * @param tensor the tensor.
+   * @return a new ZPoint.
+   */
   @JsonCreator
   private static ZPoint privateCreator(ZTensor tensor) {
     return new ZPoint(tensor);
@@ -125,7 +135,8 @@ public final class ZPoint extends ImmutableZTensorWrapper<ZPoint> implements Has
   }
 
   @Override
-  protected ZPoint create(HasZTensor tensor) {
+  @Nonnull
+  protected @NotNull ZPoint create(@NotNull HasZTensor tensor) {
     return new ZPoint(tensor);
   }
 

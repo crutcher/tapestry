@@ -292,10 +292,10 @@ public class LoomGraphTest extends BaseTestClass {
     assertThat(node.getId()).isEqualTo(UUID.fromString("00000000-0000-0000-0000-000000000000"));
     assertThat(node.getLabel()).isEqualTo("foo");
 
-    assertThat(node.getBody().getRange()).isEqualTo(ZRange.fromShape(2, 3));
+    assertThat(node.getBody().getRange()).isEqualTo(ZRange.newFromShape(2, 3));
     assertThat(node.getBody().getDtype()).isEqualTo("int32");
 
-    assertThat(node.getRange()).isEqualTo(ZRange.fromShape(2, 3));
+    assertThat(node.getRange()).isEqualTo(ZRange.newFromShape(2, 3));
     assertThat(node.getDtype()).isEqualTo("int32");
 
     assertJsonEquals(node.getBody(), node.getBodyAsJson());

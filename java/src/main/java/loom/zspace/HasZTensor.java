@@ -1,5 +1,8 @@
 package loom.zspace;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 public interface HasZTensor {
-  ZTensor asZTensor();
+  @JsonIgnore
+  ZTensor getTensor();
 }

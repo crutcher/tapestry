@@ -93,7 +93,7 @@ public class IndexProjectionFunction implements HasToJsonString {
     @Nonnull
     @JsonSetter
     public IndexProjectionFunctionBuilder shape(@Nonnull HasZTensor shape) {
-      this.shape = shape.asZTensor().newZPoint();
+      this.shape = shape.getTensor().newZPoint();
       return this;
     }
 
@@ -130,7 +130,7 @@ public class IndexProjectionFunction implements HasToJsonString {
   public IndexProjectionFunction(@Nonnull ZAffineMap affineMap, @Nullable HasZTensor shape) {
     this.affineMap = affineMap;
     this.shape =
-        shape == null ? ZPoint.newOnes(affineMap.outputNDim()) : shape.asZTensor().newZPoint();
+        shape == null ? ZPoint.newOnes(affineMap.outputNDim()) : shape.getTensor().newZPoint();
 
     if (this.affineMap.outputNDim() != this.shape.getNDim()) {
       throw new IllegalArgumentException(
@@ -153,7 +153,8 @@ public class IndexProjectionFunction implements HasToJsonString {
    */
   @Nonnull
   public ZRange apply(@Nonnull HasZTensor source) {
-    return ZRange.fromStartWithShape(affineMap.apply(source).newZPoint(), shape);
+    HasZTensor start = affineMap.apply(source).newZPoint();
+    return ZRange.builder().start(start).shape(shape).build();
   }
 
   /**
@@ -167,7 +168,8 @@ public class IndexProjectionFunction implements HasToJsonString {
     // TODO: Does the linear nature of the affine map mean that this is sufficient?
     ZRange r1 = apply(source.getStart());
     if (source.isEmpty()) {
-      return ZRange.fromStartWithShape(r1.getStart(), ZPoint.newZeros(r1.getNDim()));
+      HasZTensor shape1 = ZPoint.newZeros(r1.getNDim());
+      return ZRange.builder().start(r1.getStart()).shape(shape1).build();
     }
     return ZRange.boundingRange(r1, apply(source.getInclusiveEnd()));
   }

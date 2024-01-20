@@ -30,7 +30,7 @@ public final class ZTensorOperations {
           }
         };
 
-    tensor.asZTensor().forEachValue(acc);
+    tensor.getTensor().forEachValue(acc);
     return acc.value;
   }
 
@@ -67,7 +67,7 @@ public final class ZTensorOperations {
       @Nonnull IntBinaryOperator op,
       int initial,
       @Nonnull int... dims) {
-    var ztensor = tensor.asZTensor();
+    var ztensor = tensor.getTensor();
     int[] ztensorShape = ztensor._unsafeGetShape();
 
     var sumDims = ztensor.resolveDims(dims);
@@ -102,8 +102,8 @@ public final class ZTensorOperations {
    */
   @Nonnull
   public static ZTensor matmul(@Nonnull HasZTensor lhs, @Nonnull HasZTensor rhs) {
-    var zlhs = lhs.asZTensor();
-    var zrhs = rhs.asZTensor();
+    var zlhs = lhs.getTensor();
+    var zrhs = rhs.getTensor();
 
     zlhs.assertNDim(2);
     if (zlhs.shape(1) != zrhs.shape(0)) {
@@ -204,8 +204,8 @@ public final class ZTensorOperations {
   @Nonnull
   public static ZTensor zipWith(
       @Nonnull IntBinaryOperator op, @Nonnull HasZTensor lhs, @Nonnull HasZTensor rhs) {
-    var zlhs = lhs.asZTensor();
-    var zrhs = rhs.asZTensor();
+    var zlhs = lhs.getTensor();
+    var zrhs = rhs.getTensor();
     var result =
         ZTensor.newZeros(
             IndexingFns.commonBroadcastShape(zlhs._unsafeGetShape(), zrhs._unsafeGetShape()));

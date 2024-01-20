@@ -60,7 +60,7 @@ public class ZRange implements Cloneable, HasSize, HasPermute<ZRange>, HasToJson
      * @return {@code this}
      */
     public ZRangeBuilder shape(@Nonnull HasZTensor shape) {
-      this.shape = shape.asZTensor();
+      this.shape = shape.getTensor();
       if (start == null) {
         start = ZPoint.newZerosLike(shape);
       }
@@ -87,7 +87,7 @@ public class ZRange implements Cloneable, HasSize, HasPermute<ZRange>, HasToJson
      * @return {@code this}
      */
     public ZRangeBuilder start(@Nonnull HasZTensor start) {
-      this.start = start.asZTensor().newZPoint();
+      this.start = start.getTensor().newZPoint();
       return this;
     }
 
@@ -109,7 +109,7 @@ public class ZRange implements Cloneable, HasSize, HasPermute<ZRange>, HasToJson
      * @return {@code this}
      */
     public ZRangeBuilder end(@Nonnull HasZTensor end) {
-      this.end = end.asZTensor().newZPoint();
+      this.end = end.getTensor().newZPoint();
       return this;
     }
 
@@ -155,7 +155,7 @@ public class ZRange implements Cloneable, HasSize, HasPermute<ZRange>, HasToJson
    */
   @JsonCreator
   @Builder
-  private static ZRange privateBuilder(
+  private static ZRange privateCreator(
       @Nonnull @JsonProperty(value = "start") ZPoint start,
       @Nonnull @JsonProperty(value = "end") ZPoint end) {
     return new ZRange(start, end);
@@ -168,8 +168,8 @@ public class ZRange implements Cloneable, HasSize, HasPermute<ZRange>, HasToJson
    * @return a new range.
    */
   @Nonnull
-  public static ZRange fromShape(@Nonnull int... shape) {
-    return fromShape(new ZPoint(shape));
+  public static ZRange newFromShape(@Nonnull int... shape) {
+    return newFromShape(new ZPoint(shape));
   }
 
   /**
@@ -179,13 +179,8 @@ public class ZRange implements Cloneable, HasSize, HasPermute<ZRange>, HasToJson
    * @return a new range.
    */
   @Nonnull
-  public static ZRange fromShape(@Nonnull HasZTensor shape) {
+  public static ZRange newFromShape(@Nonnull HasZTensor shape) {
     return new ZRange(ZPoint.newZerosLike(shape), shape);
-  }
-
-  @Nonnull
-  public static ZRange fromStartWithShape(@Nonnull HasZTensor start, @Nonnull HasZTensor shape) {
-    return fromShape(shape).translate(start);
   }
 
   /**
@@ -305,8 +300,8 @@ public class ZRange implements Cloneable, HasSize, HasPermute<ZRange>, HasToJson
    * @param end the exclusive end point.
    */
   public ZRange(@Nonnull HasZTensor start, @Nonnull HasZTensor end) {
-    var zstart = start.asZTensor().newZPoint();
-    var zend = end.asZTensor().newZPoint();
+    var zstart = start.getTensor().newZPoint();
+    var zend = end.getTensor().newZPoint();
 
     zstart.tensor.assertMatchingShape(zend);
     if (zstart.gt(end)) {

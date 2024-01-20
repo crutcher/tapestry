@@ -1,10 +1,7 @@
 package loom.polyhedral;
 
 import loom.testing.BaseTestClass;
-import loom.zspace.ZAffineMap;
-import loom.zspace.ZPoint;
-import loom.zspace.ZRange;
-import loom.zspace.ZTensor;
+import loom.zspace.*;
 import org.junit.Test;
 
 public class IndexProjectionFunctionTest extends BaseTestClass {
@@ -147,15 +144,23 @@ public class IndexProjectionFunctionTest extends BaseTestClass {
                 ZTensor.newVector(10, 20, 30)),
             ZPoint.of(4, 4, 1));
 
+    HasZTensor start3 = ZPoint.of(15, 26, 41);
+    HasZTensor shape3 = ZPoint.of(4, 4, 1);
     assertThat(ipf.apply(ZPoint.of(5, 6)))
-        .isEqualTo(ZRange.fromStartWithShape(ZPoint.of(15, 26, 41), ZPoint.of(4, 4, 1)));
+        .isEqualTo(ZRange.builder().start(start3).shape(shape3).build());
+    HasZTensor start2 = ZPoint.of(15, 26, 41);
+    HasZTensor shape2 = ZPoint.of(4, 4, 1);
     assertThat(ipf.apply(ZTensor.newVector(5, 6)))
-        .isEqualTo(ZRange.fromStartWithShape(ZPoint.of(15, 26, 41), ZPoint.of(4, 4, 1)));
+        .isEqualTo(ZRange.builder().start(start2).shape(shape2).build());
 
+    HasZTensor start1 = ZPoint.of(15, 26, 41);
+    HasZTensor shape1 = ZPoint.of(5, 5, 3);
     assertThat(ipf.apply(ZRange.of(ZPoint.of(5, 6), ZPoint.of(7, 8))))
-        .isEqualTo(ZRange.fromStartWithShape(ZPoint.of(15, 26, 41), ZPoint.of(5, 5, 3)));
+        .isEqualTo(ZRange.builder().start(start1).shape(shape1).build());
 
+    HasZTensor start = ZPoint.of(15, 26, 41);
+    HasZTensor shape = ZPoint.newZeros(3);
     assertThat(ipf.apply(ZRange.of(ZPoint.of(5, 6), ZPoint.of(5, 6))))
-        .isEqualTo(ZRange.fromStartWithShape(ZPoint.of(15, 26, 41), ZPoint.newZeros(3)));
+        .isEqualTo(ZRange.builder().start(start).shape(shape).build());
   }
 }

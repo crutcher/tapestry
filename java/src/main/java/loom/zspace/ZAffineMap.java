@@ -2,7 +2,6 @@ package loom.zspace;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.kjetland.jackson.jsonSchema.annotations.JsonSchemaInject;
 import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -12,7 +11,6 @@ import lombok.Builder;
 import lombok.Value;
 import lombok.extern.jackson.Jacksonized;
 import loom.common.json.HasToJsonString;
-import loom.common.json.JsonUtil;
 
 /** A linear map from {@code Z^inDim} to {@code Z^outDim}. */
 @Value
@@ -22,17 +20,6 @@ import loom.common.json.JsonUtil;
 @Builder(toBuilder = true)
 public class ZAffineMap
     implements HasPermuteInput<ZAffineMap>, HasPermuteOutput<ZAffineMap>, HasToJsonString {
-
-  /**
-   * Parse a ZAffineMap from a string.
-   *
-   * @param str the string to parse.
-   * @return the parsed ZAffineMap.
-   */
-  @Nonnull
-  public static ZAffineMap parse(@Nonnull String str) {
-    return JsonUtil.fromJson(str, ZAffineMap.class);
-  }
 
   /**
    * Create a ZAffineMap from a matrix.
@@ -60,36 +47,9 @@ public class ZAffineMap
     return new ZAffineMap(matrix);
   }
 
-  @JsonSchemaInject(
-      json =
-          """
-      {
-          "type": "array",
-          "items": {
-              "type": "array",
-              "items": {
-                  "type": "integer"
-              }
-          }
-      }
-      """,
-      merge = false)
-  @Nonnull
-  public ZTensor projection;
+  @Nonnull public ZMatrix projection;
 
-  @JsonSchemaInject(
-      json =
-          """
-          {
-              "type": "array",
-              "items": {
-                  "type": "integer"
-              }
-          }
-          """,
-      merge = false)
-  @Nonnull
-  public ZTensor offset;
+  @Nonnull public ZPoint offset;
 
   /**
    * Create a new ZAffineMap.
@@ -101,22 +61,19 @@ public class ZAffineMap
   public ZAffineMap(
       @JsonProperty(value = "A", required = true) HasZTensor projection,
       @Nullable @JsonProperty(value = "b") HasZTensor offset) {
-    var zprojection = projection.asZTensor();
-
-    this.projection = zprojection.asImmutable();
+    this.projection = new ZMatrix(projection);
     if (offset == null) {
-      offset = ZTensor.newZeros(zprojection.shape(0));
+      offset = ZTensor.newZeros(this.projection.outputNDim());
     }
-    var zoffset = offset.asZTensor();
-    this.offset = zoffset.asImmutable();
+    var zoffset = offset.getTensor();
+    this.offset = zoffset.newZPoint();
 
-    zprojection.assertNDim(2);
     zoffset.assertNDim(1);
     if (zoffset.shape(0) != outputNDim()) {
       throw new IllegalArgumentException(
           String.format(
               "A.shape[1] != b.shape[0]: %s != %s",
-              zprojection.shapeAsList(), zoffset.shapeAsList()));
+              this.projection.shapeAsList(), zoffset.shapeAsList()));
     }
   }
 
@@ -130,23 +87,21 @@ public class ZAffineMap
   }
 
   /**
+   * Get the input dimension of this affine map.
+   *
+   * @return the input dimension.
+   */
+  public int inputNDim() {
+    return projection.inputNDim();
+  }
+
+  /**
    * Get the output dimension of this affine map.
    *
    * @return the output dimension.
    */
   public int outputNDim() {
-    return projection.shape(0);
-  }
-
-  /**
-   * Get the input dimension of this affine map.
-   *
-   * @return the input dimension.
-   */
-  // This seems like a backwards way to represent this;
-  // but `Ax + b` is the standard form.
-  public int inputNDim() {
-    return projection.shape(1);
+    return projection.outputNDim();
   }
 
   @Override
@@ -168,13 +123,13 @@ public class ZAffineMap
 
   @Override
   public ZAffineMap permuteInput(@Nonnull int... permutation) {
-    return new ZAffineMap(projection.reorderedDimCopy(permutation, 1), offset);
+    return new ZAffineMap(projection.permuteInput(permutation), offset);
   }
 
   @Override
   public ZAffineMap permuteOutput(@Nonnull int... permutation) {
     return new ZAffineMap(
-        projection.reorderedDimCopy(permutation, 0), offset.reorderedDimCopy(permutation, 0));
+        projection.permuteOutput(permutation), offset.tensor.reorderedDimCopy(permutation, 0));
   }
 
   /**
@@ -185,10 +140,7 @@ public class ZAffineMap
    */
   @Nonnull
   public ZTensor apply(@Nonnull HasZTensor x) {
-    var ztensor = x.asZTensor();
-    // denoted in the `in` dim.
-    ztensor.assertNDim(1);
-    return ZTensorOperations.matmul(projection, x).add(offset);
+    return projection.matmul(x).add(offset);
   }
 
   /**

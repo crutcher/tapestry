@@ -145,24 +145,24 @@ public class IndexingFnsTest implements CommonAssertions {
     var shape = new int[] {2, 1, 3};
     var strides = new int[] {3, 0, 1};
 
-    assertThat(IndexingFns.ravel(shape, strides, new int[] {0, 0, 0})).isEqualTo(0);
-    assertThat(IndexingFns.ravel(shape, strides, new int[] {1, 0, 1})).isEqualTo(4);
-    assertThat(IndexingFns.ravel(shape, strides, new int[] {1, 0, -1})).isEqualTo(5);
-    assertThat(IndexingFns.ravel(shape, strides, new int[] {-1, -1, -1})).isEqualTo(5);
+    assertThat(IndexingFns.ravel(shape, strides, new int[] {0, 0, 0}, -12)).isEqualTo(-12);
+    assertThat(IndexingFns.ravel(shape, strides, new int[] {1, 0, 1}, 3)).isEqualTo(7);
+    assertThat(IndexingFns.ravel(shape, strides, new int[] {1, 0, -1}, 0)).isEqualTo(5);
+    assertThat(IndexingFns.ravel(shape, strides, new int[] {-1, -1, -1}, 0)).isEqualTo(5);
 
     assertThatExceptionOfType(IllegalArgumentException.class)
-        .isThrownBy(() -> IndexingFns.ravel(new int[] {2, 2}, strides, new int[] {0, 0, 0}));
+        .isThrownBy(() -> IndexingFns.ravel(new int[] {2, 2}, strides, new int[] {0, 0, 0}, 0));
     assertThatExceptionOfType(IllegalArgumentException.class)
-        .isThrownBy(() -> IndexingFns.ravel(shape, new int[] {2, 2}, new int[] {0, 0, 0}));
+        .isThrownBy(() -> IndexingFns.ravel(shape, new int[] {2, 2}, new int[] {0, 0, 0}, 0));
 
     assertThatExceptionOfType(IndexOutOfBoundsException.class)
-        .isThrownBy(() -> IndexingFns.ravel(shape, strides, new int[] {0, 1, 0}));
+        .isThrownBy(() -> IndexingFns.ravel(shape, strides, new int[] {0, 1, 0}, 0));
 
     assertThatExceptionOfType(IllegalArgumentException.class)
-        .isThrownBy(() -> IndexingFns.ravel(new int[] {2, 3}, new int[] {1}, new int[] {0, 0}))
+        .isThrownBy(() -> IndexingFns.ravel(new int[] {2, 3}, new int[] {1}, new int[] {0, 0}, 0))
         .withMessageContaining("shape [2, 3] and stride [1] must have the same dimensions");
     assertThatExceptionOfType(IllegalArgumentException.class)
-        .isThrownBy(() -> IndexingFns.ravel(new int[] {2, 3}, new int[] {1, 2}, new int[] {0}))
+        .isThrownBy(() -> IndexingFns.ravel(new int[] {2, 3}, new int[] {1, 2}, new int[] {0}, 0))
         .withMessageContaining("shape [2, 3] and coords [0] must have the same dimensions");
   }
 

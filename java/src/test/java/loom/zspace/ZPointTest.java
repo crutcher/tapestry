@@ -12,6 +12,14 @@ public class ZPointTest implements CommonAssertions {
   }
 
   @Test
+  public void test_create() {
+    var p = new ZPoint(1, 2, 3);
+    assertThat(p.create(ZTensor.newVector(3, 4)))
+        .isInstanceOf(ZPoint.class)
+        .isEqualTo(new ZPoint(3, 4));
+  }
+
+  @Test
   public void test_of() {
     assertThat(ZPoint.of(1, 2, 3)).isEqualTo(new ZPoint(1, 2, 3));
   }

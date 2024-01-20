@@ -21,11 +21,11 @@ public class ApplicationNodeTest extends BaseTestClass {
                 List.of(
                     TensorSelection.builder()
                         .tensorId(tensorIdA)
-                        .range(ZRange.fromShape(2, 3))
+                        .range(ZRange.newFromShape(2, 3))
                         .build(),
                     TensorSelection.builder()
                         .tensorId(tensorIdB)
-                        .range(ZRange.fromShape())
+                        .range(ZRange.newFromShape())
                         .build()))
             .build();
 

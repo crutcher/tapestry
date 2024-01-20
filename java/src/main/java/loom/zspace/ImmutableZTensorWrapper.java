@@ -2,8 +2,10 @@ package loom.zspace;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import javax.annotation.concurrent.ThreadSafe;
+import lombok.Data;
 import loom.common.json.HasToJsonString;
 
 /**
@@ -13,19 +15,20 @@ import loom.common.json.HasToJsonString;
  */
 @ThreadSafe
 @Immutable
+@Data
 public abstract class ImmutableZTensorWrapper<T> implements HasZTensor, Cloneable, HasToJsonString {
   @JsonValue
   @Nonnull
   @SuppressWarnings("Immutable")
-  ZTensor tensor;
+  protected final ZTensor tensor;
 
   /**
    * Create a new instance of {@code T} from a {@link ZTensor}.
    *
    * @param tensor the tensor.
    */
-  public ImmutableZTensorWrapper(HasZTensor tensor) {
-    this.tensor = tensor.asZTensor().asImmutable();
+  public ImmutableZTensorWrapper(@Nonnull HasZTensor tensor) {
+    this.tensor = tensor.getTensor().asImmutable();
   }
 
   /**
@@ -34,7 +37,8 @@ public abstract class ImmutableZTensorWrapper<T> implements HasZTensor, Cloneabl
    * @param tensor the tensor.
    * @return the new instance.
    */
-  protected abstract T create(HasZTensor tensor);
+  @Nonnull
+  protected abstract T create(@Nonnull HasZTensor tensor);
 
   /**
    * Returns {@code this} as {@code T}.
@@ -42,20 +46,21 @@ public abstract class ImmutableZTensorWrapper<T> implements HasZTensor, Cloneabl
    * @return {@code this} as {@code T}.
    */
   @SuppressWarnings("unchecked")
+  @Nonnull
   private T self() {
     return (T) this;
   }
 
+  /**
+   * Immutable, so returns {@code this}.
+   *
+   * @return {@code this}.
+   */
   @Override
   @SuppressWarnings("MethodDoesntCallSuperMethod")
   public final T clone() {
     // Immutable, so no need to clone.
     return self();
-  }
-
-  @Override
-  public final ZTensor asZTensor() {
-    return tensor;
   }
 
   @Override
@@ -65,13 +70,31 @@ public abstract class ImmutableZTensorWrapper<T> implements HasZTensor, Cloneabl
 
   @Override
   @SuppressWarnings("EqualsWhichDoesntCheckParameterClass")
-  public final boolean equals(Object other) {
+  public final boolean equals(@Nullable Object other) {
     return tensor.equals(other);
   }
 
   @Override
   public final String toString() {
     return tensor.toString();
+  }
+
+  /**
+   * Are all cells {@code > 0}?
+   *
+   * @return true if all cells are {@code > 0}.
+   */
+  public boolean isStrictlyPositive() {
+    return tensor.isStrictlyPositive();
+  }
+
+  /**
+   * Are all cells {@code >= 0}?
+   *
+   * @return true if all cells are {@code >= 0}.
+   */
+  public boolean isNonNegative() {
+    return tensor.isNonNegative();
   }
 
   /**

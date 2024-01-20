@@ -52,7 +52,7 @@ public class JacksonSchemaTest extends BaseTestClass {
                 List.of(
                     TensorSelection.builder()
                         .tensorId(UUID.randomUUID())
-                        .range(ZRange.fromShape(10, 20))
+                        .range(ZRange.newFromShape(10, 20))
                         .build()))
             .build());
   }

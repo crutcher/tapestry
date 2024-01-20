@@ -33,7 +33,7 @@ public class TensorSelectionTest extends BaseTestClass {
         .withMessageContaining("does not contain range");
 
     assertThatExceptionOfType(ZDimMissMatchError.class)
-        .isThrownBy(() -> TensorSelection.from(tensorNode, ZRange.fromShape(2)))
+        .isThrownBy(() -> TensorSelection.from(tensorNode, ZRange.newFromShape(2)))
         .withMessageContaining("ZDim shape mismatch: [2] != [1]");
   }
 }

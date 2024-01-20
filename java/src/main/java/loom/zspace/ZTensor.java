@@ -106,6 +106,17 @@ public final class ZTensor
     implements HasZTensor, HasToJsonString, Cloneable, HasDimension, HasSize, HasPermute<ZTensor> {
 
   /**
+   * Construct a new mutable scalar (0-dim) tensor.
+   *
+   * @param value the scalar value.
+   * @return the new tensor.
+   */
+  @Nonnull
+  public static ZTensor newScalar(int value) {
+    return new ZTensor(true, new int[] {}, new int[] {}, new int[] {value}, 0);
+  }
+
+  /**
    * Construct a new mutable vector (1-dim) tensor.
    *
    * @param values the vector values.
@@ -124,112 +135,7 @@ public final class ZTensor
    */
   @Nonnull
   public static ZTensor newVector(@Nonnull int... values) {
-    return fromArray(values);
-  }
-
-  /**
-   * Given a non-sparse array of unknown dimensionality, returns a ZTensor with the same shape and
-   * data.
-   *
-   * @param source the source array.
-   * @return a new ZTensor.
-   */
-  @Nonnull
-  public static ZTensor fromArray(@Nonnull Object source) {
-    if (!IndexingFns.isRecursiveIntArray(source)) {
-      throw new IllegalArgumentException(
-          "Cannot convert object of type %s to ZTensor"
-              .formatted(source.getClass().getCanonicalName()));
-    }
-
-    return fromTree(
-        source,
-        obj -> obj.getClass().isArray(),
-        Array::getLength,
-        Array::get,
-        obj -> (int) obj,
-        int[].class::cast);
-  }
-
-  /**
-   * Decode a ZTensor from a tree of type {@code <T>}.
-   *
-   * <p>This is common used by the Jackson deserializer and the {@link #fromArray} method.
-   *
-   * @param <T> the type of the tree.
-   * @param root the root of the tree.
-   * @param isArray is this node an array, or a scalar?
-   * @param getArrayLength get the length of this array.
-   * @param getArrayElement get the ith element of this array.
-   * @param nodeAsScalar get the value of this scalar.
-   * @param nodeAsSimpleArray get a coherent chunk of data for a final layer array.
-   * @return a new ZTensor.
-   */
-  public static <T> @Nonnull ZTensor fromTree(
-      @Nonnull T root,
-      @Nonnull Predicate<T> isArray,
-      @Nonnull ToIntFunction<T> getArrayLength,
-      @Nonnull BiFunction<T, Integer, T> getArrayElement,
-      @Nonnull ToIntFunction<T> nodeAsScalar,
-      @Nonnull Function<T, int[]> nodeAsSimpleArray) {
-    var pair =
-        IndexingFns.arrayFromTree(
-            root, isArray, getArrayLength, getArrayElement, nodeAsScalar, nodeAsSimpleArray);
-    var shape = pair.getLeft();
-    var data = pair.getRight();
-    return new ZTensor(true, shape, IndexingFns.shapeToLSFStrides(shape), data, 0);
-  }
-
-  /**
-   * Construct a new mutable scalar (0-dim) tensor.
-   *
-   * @param value the scalar value.
-   * @return the new tensor.
-   */
-  @Nonnull
-  public static ZTensor newScalar(int value) {
-    return new ZTensor(true, new int[] {}, new int[] {}, new int[] {value}, 0);
-  }
-
-  /**
-   * Construct a new mutable tensor filled with zeros.
-   *
-   * @param shape the shape of the tensor.
-   * @return a new mutable ZTensor.
-   */
-  @Nonnull
-  public static ZTensor newZeros(@Nonnull int... shape) {
-    return new ZTensor(shape.clone());
-  }
-
-  /**
-   * Returns an {@code Iterable<int[]>} over the coordinates of this tensor.
-   *
-   * <p>When the buffer mode is {@link BufferMode#REUSED}, the buffer is shared between subsequent
-   * calls to {@link Iterator#next()}. When the buffer mode is {@link BufferMode#SAFE}, the buffer
-   * is not shared between subsequent calls to {@link Iterator#next()}.
-   *
-   * <p>Empty tensors will return an empty iterable.
-   *
-   * <p>Scalar tensors will return an iterable with a single empty coordinate array.
-   *
-   * @param bufferMode the buffer mode.
-   * @return an iterable over the coordinates of this tensor.
-   */
-  @Nonnull
-  public IterableCoordinates byCoords(@Nonnull BufferMode bufferMode) {
-    return new IterableCoordinates(bufferMode, shape);
-  }
-
-  /**
-   * Construct an iota tensor [0, ..., size-1].
-   *
-   * @param size the size of the tensor.
-   * @return the new tensor.
-   */
-  @Nonnull
-  public static ZTensor newIota(int size) {
-    return newVector(IndexingFns.iota(size));
+    return newFromArray(values);
   }
 
   /**
@@ -253,6 +159,28 @@ public final class ZTensor
   }
 
   /**
+   * Construct a new mutable tensor filled with zeros.
+   *
+   * @param shape the shape of the tensor.
+   * @return a new mutable ZTensor.
+   */
+  @Nonnull
+  public static ZTensor newZeros(@Nonnull int... shape) {
+    return new ZTensor(shape.clone());
+  }
+
+  /**
+   * Construct an iota tensor [0, ..., size-1].
+   *
+   * @param size the size of the tensor.
+   * @return the new tensor.
+   */
+  @Nonnull
+  public static ZTensor newIota(int size) {
+    return newVector(IndexingFns.iota(size));
+  }
+
+  /**
    * Construct a new mutable ZTensor filled with zeros with a shape like the given ZTensor.
    *
    * @param ref the ZTensor to copy the shape from.
@@ -260,17 +188,7 @@ public final class ZTensor
    */
   @Nonnull
   public static ZTensor newZerosLike(@Nonnull HasZTensor ref) {
-    return new ZTensor(ref.asZTensor().shapeAsArray());
-  }
-
-  /**
-   * Returns the shape of this tensor.
-   *
-   * @return a copy of the shape array.
-   */
-  @Nonnull
-  public int[] shapeAsArray() {
-    return shape.clone();
+    return new ZTensor(ref.getTensor().shapeAsArray());
   }
 
   /**
@@ -282,6 +200,17 @@ public final class ZTensor
   @Nonnull
   public static ZTensor newOnes(@Nonnull int... shape) {
     return newFilled(shape, 1);
+  }
+
+  /**
+   * Construct a new mutable ZTensor filled with ones with a shape like the given ZTensor.
+   *
+   * @param ref the ZTensor to copy the shape from.
+   * @return a new mutable ZTensor.
+   */
+  @Nonnull
+  public static ZTensor newOnesLike(@Nonnull HasZTensor ref) {
+    return newFilledLike(ref, 1);
   }
 
   /**
@@ -300,17 +229,6 @@ public final class ZTensor
   }
 
   /**
-   * Construct a new mutable ZTensor filled with ones with a shape like the given ZTensor.
-   *
-   * @param ref the ZTensor to copy the shape from.
-   * @return a new mutable ZTensor.
-   */
-  @Nonnull
-  public static ZTensor newOnesLike(@Nonnull HasZTensor ref) {
-    return newFilledLike(ref, 1);
-  }
-
-  /**
    * Construct a new mutable ZTensor filled with the fill value with a shape like the given ZTensor.
    *
    * @param ref the ZTensor to copy the shape from.
@@ -319,7 +237,7 @@ public final class ZTensor
    */
   @Nonnull
   public static ZTensor newFilledLike(@Nonnull HasZTensor ref, int fill_value) {
-    return newFilled(ref.asZTensor().shape, fill_value);
+    return newFilled(ref.getTensor().shape, fill_value);
   }
 
   /**
@@ -331,7 +249,7 @@ public final class ZTensor
   public static ZTensor newIdentityMatrix(int n) {
     int[] diag = new int[n];
     Arrays.fill(diag, 1);
-    return newDiagonal(diag);
+    return newDiagonalMatrix(diag);
   }
 
   /**
@@ -340,22 +258,68 @@ public final class ZTensor
    * @param diag the values to put on the diagonal.
    * @return a new ZTensor.
    */
-  public static ZTensor newDiagonal(@Nonnull int... diag) {
-    var tensor = newZeros(diag.length, diag.length);
-    for (int i = 0; i < diag.length; ++i) {
-      tensor._unchecked_set(new int[] {i, i}, diag[i]);
+  public static ZTensor newDiagonalMatrix(@Nonnull int... diag) {
+    return newDiagonalMatrix(Ints.asList(diag));
+  }
+
+  /**
+   * Construct a diagonal matrix from a list of values.
+   *
+   * @param diag the values to put on the diagonal.
+   * @return a new ZTensor.
+   */
+  public static ZTensor newDiagonalMatrix(@Nonnull List<Integer> diag) {
+    var tensor = newZeros(diag.size(), diag.size());
+    for (int i = 0; i < diag.size(); ++i) {
+      tensor._unchecked_set(new int[] {i, i}, diag.get(i));
     }
     return tensor;
   }
 
   /**
-   * Compute the ravel index into the data array for the given coordinates.
+   * Given a non-sparse array of unknown dimensionality, returns a ZTensor with the same shape and
+   * data.
    *
-   * @param coords the coordinates.
-   * @return the ravel index.
+   * <p>For {@code Integer} input, returns a scalar ZTensor.
+   *
+   * @param source the source array.
+   * @return a new ZTensor.
    */
-  private int ravel(@Nonnull int... coords) {
-    return data_offset + IndexingFns.ravel(shape, stride, coords);
+  @Nonnull
+  public static ZTensor newFromArray(@Nonnull Object source) {
+    if (!IndexingFns.isRecursiveIntArray(source)) {
+      throw new IllegalArgumentException(
+          "Cannot convert object of type %s to ZTensor"
+              .formatted(source.getClass().getCanonicalName()));
+    }
+
+    return newFromTree(
+        source,
+        obj -> obj.getClass().isArray(),
+        Array::getLength,
+        Array::get,
+        obj -> (int) obj,
+        int[].class::cast);
+  }
+
+  /**
+   * Given a non-sparse list of unknown dimensionality, returns a ZTensor with the same shape and
+   * data.
+   *
+   * <p>For {@code Integer} input, returns a scalar ZTensor.
+   *
+   * @param source the source list.
+   * @return a new ZTensor.
+   */
+  @SuppressWarnings("unchecked")
+  public static ZTensor newFromList(@Nonnull Object source) {
+    return newFromTree(
+        source,
+        obj -> obj instanceof List,
+        obj -> ((List<?>) obj).size(),
+        (obj, i) -> ((List<?>) obj).get(i),
+        obj -> (Integer) obj,
+        obj -> Ints.toArray((List<Integer>) obj));
   }
 
   /**
@@ -370,6 +334,35 @@ public final class ZTensor
     return JsonUtil.fromJson(str, ZTensor.class);
   }
 
+  /**
+   * Decode a ZTensor from a tree of type {@code <T>}.
+   *
+   * <p>This is common used by the Jackson deserializer and the {@link #newFromArray} method.
+   *
+   * @param <T> the type of the tree.
+   * @param root the root of the tree.
+   * @param isArray is this node an array, or a scalar?
+   * @param getArrayLength get the length of this array.
+   * @param getArrayElement get the ith element of this array.
+   * @param nodeAsScalar get the value of this scalar.
+   * @param nodeAsSimpleArray get a coherent chunk of data for a final layer array.
+   * @return a new ZTensor.
+   */
+  public static <T> @Nonnull ZTensor newFromTree(
+      @Nonnull T root,
+      @Nonnull Predicate<T> isArray,
+      @Nonnull ToIntFunction<T> getArrayLength,
+      @Nonnull BiFunction<T, Integer, T> getArrayElement,
+      @Nonnull ToIntFunction<T> nodeAsScalar,
+      @Nonnull Function<T, int[]> nodeAsSimpleArray) {
+    var pair =
+        IndexingFns.arrayFromTree(
+            root, isArray, getArrayLength, getArrayElement, nodeAsScalar, nodeAsSimpleArray);
+    var shape = pair.getLeft();
+    var data = pair.getRight();
+    return new ZTensor(true, shape, IndexingFns.shapeToLSFStrides(shape), data, 0);
+  }
+
   @Getter private final boolean mutable;
 
   @Nonnull private final int[] shape;
@@ -379,15 +372,6 @@ public final class ZTensor
   @Nonnull private final int[] data;
   private final int data_offset;
   private Integer hash;
-
-  /**
-   * Unsafe accessor for the shape.
-   *
-   * @return the shape.
-   */
-  int[] _unsafeGetShape() {
-    return shape;
-  }
 
   /**
    * Construct a mutable 0-filled ZTensor of the given shape; takes ownership of the shape.
@@ -429,7 +413,7 @@ public final class ZTensor
   }
 
   @Override
-  public ZTensor asZTensor() {
+  public ZTensor getTensor() {
     return this;
   }
 
@@ -483,7 +467,7 @@ public final class ZTensor
     }
 
     if (other instanceof HasZTensor that) {
-      return equalsZTensor(that.asZTensor());
+      return equalsZTensor(that.getTensor());
     }
     return false;
   }
@@ -498,7 +482,7 @@ public final class ZTensor
     // TODO: implement tree-walking comparison without a constructor.
     ZTensor that;
     try {
-      that = fromArray(other);
+      that = newFromArray(other);
     } catch (IllegalArgumentException e) {
       return false;
     }
@@ -584,10 +568,10 @@ public final class ZTensor
    * @throws ZDimMissMatchError if the shapes do not match.
    */
   public void assertSameShape(@Nonnull HasZTensor other) {
-    if (!Arrays.equals(shape, other.asZTensor()._unsafeGetShape())) {
+    if (!Arrays.equals(shape, other.getTensor()._unsafeGetShape())) {
       throw new ZDimMissMatchError(
           String.format(
-              "ZDim shape mismatch: %s != %s", shapeAsList(), other.asZTensor().shapeAsList()));
+              "ZDim shape mismatch: %s != %s", shapeAsList(), other.getTensor().shapeAsList()));
     }
   }
 
@@ -598,8 +582,36 @@ public final class ZTensor
    * @return the cell value.
    */
   public int get(@Nonnull int... coords) {
-
     return data[ravel(coords)];
+  }
+
+  /**
+   * Compute the ravel index into the data array for the given coordinates.
+   *
+   * @param coords the coordinates.
+   * @return the ravel index.
+   */
+  private int ravel(@Nonnull int... coords) {
+    return IndexingFns.ravel(shape, stride, coords, data_offset);
+  }
+
+  /**
+   * Returns an {@code Iterable<int[]>} over the coordinates of this tensor.
+   *
+   * <p>When the buffer mode is {@link BufferMode#REUSED}, the buffer is shared between subsequent
+   * calls to {@link Iterator#next()}. When the buffer mode is {@link BufferMode#SAFE}, the buffer
+   * is not shared between subsequent calls to {@link Iterator#next()}.
+   *
+   * <p>Empty tensors will return an empty iterable.
+   *
+   * <p>Scalar tensors will return an iterable with a single empty coordinate array.
+   *
+   * @param bufferMode the buffer mode.
+   * @return an iterable over the coordinates of this tensor.
+   */
+  @Nonnull
+  public IterableCoordinates byCoords(@Nonnull BufferMode bufferMode) {
+    return new IterableCoordinates(bufferMode, shape);
   }
 
   /**
@@ -635,7 +647,7 @@ public final class ZTensor
    */
   public void assign_(@Nonnull HasZTensor tensor) {
     assertMutable();
-    tensor.asZTensor().broadcastLike(this).forEachEntry(this::_unchecked_set, BufferMode.REUSED);
+    tensor.getTensor().broadcastLike(this).forEachEntry(this::_unchecked_set, BufferMode.REUSED);
   }
 
   /**
@@ -678,9 +690,22 @@ public final class ZTensor
     }
   }
 
-  /** Are all cells in this tensor > 0? */
+  /**
+   * Are all cells {@code > 0}?
+   *
+   * @return true if all cells are {@code > 0}.
+   */
   public boolean isStrictlyPositive() {
     return allMatch(x -> x > 0);
+  }
+
+  /**
+   * Are all cells {@code >= 0}?
+   *
+   * @return true if all cells are {@code >= 0}.
+   */
+  public boolean isNonNegative() {
+    return allMatch(x -> x >= 0);
   }
 
   /**
@@ -830,7 +855,7 @@ public final class ZTensor
    */
   @Nonnull
   public ZTensor broadcastLike(@Nonnull HasZTensor ref) {
-    return broadcastTo(ref.asZTensor().shape);
+    return broadcastTo(ref.getTensor().shape);
   }
 
   /**
@@ -987,7 +1012,7 @@ public final class ZTensor
   public void assignFromMap_(@Nonnull IntUnaryOperator op, @Nonnull HasZTensor tensor) {
     assertMutable();
     tensor
-        .asZTensor()
+        .getTensor()
         .broadcastLike(this)
         .forEachEntry(
             (coords, value) -> _unchecked_set(coords, op.applyAsInt(value)), BufferMode.REUSED);
@@ -1034,8 +1059,8 @@ public final class ZTensor
    */
   public void assignFromZipWith_(
       @Nonnull IntBinaryOperator op, @Nonnull HasZTensor lhs, @Nonnull HasZTensor rhs) {
-    var zlhs = lhs.asZTensor();
-    var zrhs = rhs.asZTensor();
+    var zlhs = lhs.getTensor();
+    var zrhs = rhs.getTensor();
     assertMutable();
     zlhs = zlhs.broadcastLike(this);
     zrhs = zrhs.broadcastLike(this);
@@ -1553,7 +1578,7 @@ public final class ZTensor
    * @param other the other tensor.
    */
   public void assertMatchingShape(@Nonnull HasZTensor other) {
-    IndexingFns.assertShape(shape, other.asZTensor().shape);
+    IndexingFns.assertShape(shape, other.getTensor().shape);
   }
 
   /**
@@ -1589,6 +1614,25 @@ public final class ZTensor
    */
   public int shape(int dim) {
     return shape[resolveDim(dim)];
+  }
+
+  /**
+   * Unsafe accessor for the shape.
+   *
+   * @return the shape.
+   */
+  int[] _unsafeGetShape() {
+    return shape;
+  }
+
+  /**
+   * Returns the shape of this tensor.
+   *
+   * @return a copy of the shape array.
+   */
+  @Nonnull
+  public int[] shapeAsArray() {
+    return shape.clone();
   }
 
   /**
@@ -1877,7 +1921,7 @@ public final class ZTensor
      * @return the tensor.
      */
     public static ZTensor fromTreeNode(@Nonnull TreeNode node) {
-      return fromTree(
+      return newFromTree(
           node,
           TreeNode::isArray,
           TreeNode::size,

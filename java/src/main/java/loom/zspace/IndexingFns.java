@@ -1,9 +1,5 @@
 package loom.zspace;
 
-import lombok.NoArgsConstructor;
-import org.apache.commons.lang3.tuple.Pair;
-
-import javax.annotation.Nonnull;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -13,6 +9,9 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.ToIntFunction;
 import java.util.stream.Collectors;
+import javax.annotation.Nonnull;
+import lombok.NoArgsConstructor;
+import org.apache.commons.lang3.tuple.Pair;
 
 /** Utility functions for computing tensor indices. */
 @NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
@@ -283,10 +282,12 @@ public final class IndexingFns {
    * @param shape the shape array.
    * @param stride the strides array.
    * @param coords the coordinates.
+   * @param offset the offset into the data array.
    * @return the ravel index.
    * @throws IndexOutOfBoundsException if the coordinates are out of bounds.
    */
-  public static int ravel(@Nonnull int[] shape, @Nonnull int[] stride, @Nonnull int[] coords) {
+  public static int ravel(
+      @Nonnull int[] shape, @Nonnull int[] stride, @Nonnull int[] coords, int offset) {
     var ndim = shape.length;
     if (stride.length != ndim) {
       throw new IllegalArgumentException(
@@ -299,7 +300,7 @@ public final class IndexingFns {
               .formatted(Arrays.toString(shape), Arrays.toString(coords)));
     }
 
-    int index = 0;
+    int index = offset;
     for (int i = 0; i < shape.length; ++i) {
       try {
         index += resolveIndex("coord", coords[i], shape[i]) * stride[i];
@@ -314,7 +315,7 @@ public final class IndexingFns {
   }
 
   /**
-   * Given a shape, construct the default LSC-first strides for that shape.
+   * Given a shape, construct the default least-significant-coord-first strides for that shape.
    *
    * <pre>
    * defaultStridesForShape(new int[]{2, 3, 4}) == new int[]{12, 4, 1}
