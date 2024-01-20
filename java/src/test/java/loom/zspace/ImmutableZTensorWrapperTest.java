@@ -2,7 +2,6 @@ package loom.zspace;
 
 import javax.annotation.Nonnull;
 import loom.testing.BaseTestClass;
-import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
 
 public class ImmutableZTensorWrapperTest extends BaseTestClass {
@@ -12,7 +11,7 @@ public class ImmutableZTensorWrapperTest extends BaseTestClass {
     }
 
     @Override
-    protected @NotNull Wrapper create(@Nonnull HasZTensor tensor) {
+    protected @Nonnull Wrapper create(@Nonnull HasZTensor tensor) {
       return new Wrapper(tensor);
     }
   }

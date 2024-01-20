@@ -3,11 +3,9 @@ package loom.zspace;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.google.errorprone.annotations.Immutable;
 import com.kjetland.jackson.jsonSchema.annotations.JsonSchemaInject;
-import org.jetbrains.annotations.NotNull;
-
+import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.ThreadSafe;
-import java.util.List;
 
 /**
  * An immutable (2x2) matrix.
@@ -37,7 +35,7 @@ public final class ZMatrix extends ImmutableZTensorWrapper<ZMatrix>
   /**
    * Private constructor for Jackson.
    *
-   * <p>This permits the public constructor to use {@link HasZTensor)}.
+   * <p>This permits the public constructor to use {@link HasZTensor}.
    *
    * @param tensor the tensor.
    * @return a new ZMatrix.
@@ -201,7 +199,7 @@ public final class ZMatrix extends ImmutableZTensorWrapper<ZMatrix>
 
   @Override
   @Nonnull
-  protected @NotNull ZMatrix create(@Nonnull HasZTensor tensor) {
+  protected ZMatrix create(@Nonnull HasZTensor tensor) {
     return new ZMatrix(tensor);
   }
 

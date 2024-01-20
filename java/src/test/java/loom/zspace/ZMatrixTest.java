@@ -1,9 +1,8 @@
 package loom.zspace;
 
+import java.util.List;
 import loom.testing.BaseTestClass;
 import org.junit.Test;
-
-import java.util.List;
 
 public class ZMatrixTest extends BaseTestClass {
   @Test
