@@ -1,13 +1,8 @@
 package loom.zspace;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.google.errorprone.annotations.Immutable;
 import com.kjetland.jackson.jsonSchema.annotations.JsonSchemaInject;
-import lombok.NoArgsConstructor;
-
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.ThreadSafe;
 
@@ -20,25 +15,11 @@ import javax.annotation.concurrent.ThreadSafe;
  */
 @ThreadSafe
 @Immutable
-@JsonDeserialize(using = ZPoint.Serialization.Deserializer.class)
 @JsonSchemaInject(json = "{\"type\": \"array\", \"items\": {\"type\": \"integer\"}}", merge = false)
 public final class ZPoint extends ImmutableZTensorWrapper<ZPoint> implements HasPermute<ZPoint> {
-
-  /** Jackson serialization support. */
-  @NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
-  static final class Serialization {
-    /** Custom deserializer for ZPoint. */
-    static final class Deserializer extends StdDeserializer<ZPoint> {
-      public Deserializer() {
-        super(ZPoint.class);
-      }
-
-      @Override
-      public ZPoint deserialize(JsonParser p, DeserializationContext context)
-          throws java.io.IOException {
-        return new ZPoint(p.readValueAs(ZTensor.class));
-      }
-    }
+  @JsonCreator
+  private static ZPoint privateCreator(ZTensor tensor) {
+    return new ZPoint(tensor);
   }
 
   /**
@@ -141,6 +122,11 @@ public final class ZPoint extends ImmutableZTensorWrapper<ZPoint> implements Has
    */
   public ZPoint(@Nonnull Iterable<Integer> coords) {
     this(ZTensor.newVector(coords));
+  }
+
+  @Override
+  protected ZPoint create(HasZTensor tensor) {
+    return new ZPoint(tensor);
   }
 
   /**

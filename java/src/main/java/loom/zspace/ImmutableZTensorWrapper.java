@@ -6,6 +6,11 @@ import loom.common.json.HasToJsonString;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.ThreadSafe;
 
+/**
+ * Base class for immutable wrappers around ZTensors.
+ *
+ * @param <T> the type of the subclass.
+ */
 @ThreadSafe
 public abstract class ImmutableZTensorWrapper<T> implements HasZTensor, Cloneable, HasToJsonString {
   @JsonValue
@@ -16,6 +21,8 @@ public abstract class ImmutableZTensorWrapper<T> implements HasZTensor, Cloneabl
   public ImmutableZTensorWrapper(HasZTensor tensor) {
     this.tensor = tensor.asZTensor().asImmutable();
   }
+
+  protected abstract T create(HasZTensor tensor);
 
   @SuppressWarnings("unchecked")
   private T self() {
@@ -51,7 +58,7 @@ public abstract class ImmutableZTensorWrapper<T> implements HasZTensor, Cloneabl
   }
 
   /**
-   * Is `this == rhs`?
+   * Is {@code this == rhs}?
    *
    * @param rhs the right-hand side.
    * @return true or false.
@@ -108,5 +115,65 @@ public abstract class ImmutableZTensorWrapper<T> implements HasZTensor, Cloneabl
    */
   public final boolean ge(@Nonnull HasZTensor rhs) {
     return DominanceOrderingOperations.ge(this, rhs);
+  }
+
+  public int sumAsInt() {
+    return tensor.sumAsInt();
+  }
+
+  public int prodAsInt() {
+    return tensor.prodAsInt();
+  }
+
+  public int maxAsInt() {
+    return tensor.maxAsInt();
+  }
+
+  public int minAsInt() {
+    return tensor.minAsInt();
+  }
+
+  public T neg() {
+    return create(ZTensorOperations.neg(this));
+  }
+
+  public T add(@Nonnull HasZTensor rhs) {
+    return create(ZTensorOperations.add(this, rhs));
+  }
+
+  public T add(int rhs) {
+    return create(ZTensorOperations.add(this, rhs));
+  }
+
+  public T sub(@Nonnull HasZTensor rhs) {
+    return create(ZTensorOperations.sub(this, rhs));
+  }
+
+  public T sub(int rhs) {
+    return create(ZTensorOperations.sub(this, rhs));
+  }
+
+  public T mul(@Nonnull HasZTensor rhs) {
+    return create(ZTensorOperations.mul(this, rhs));
+  }
+
+  public T mul(int rhs) {
+    return create(ZTensorOperations.mul(this, rhs));
+  }
+
+  public T div(@Nonnull HasZTensor rhs) {
+    return create(ZTensorOperations.div(this, rhs));
+  }
+
+  public T div(int rhs) {
+    return create(ZTensorOperations.div(this, rhs));
+  }
+
+  public T mod(@Nonnull HasZTensor rhs) {
+    return create(ZTensorOperations.mod(this, rhs));
+  }
+
+  public T mod(int rhs) {
+    return create(ZTensorOperations.mod(this, rhs));
   }
 }

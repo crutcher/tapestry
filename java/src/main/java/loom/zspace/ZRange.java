@@ -4,18 +4,19 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Splitter;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.Objects;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import javax.annotation.concurrent.Immutable;
-import javax.annotation.concurrent.ThreadSafe;
 import lombok.Builder;
 import lombok.Value;
 import loom.common.json.HasToJsonString;
 import loom.common.json.JsonUtil;
 import loom.common.runtime.CheckThat;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.annotation.concurrent.Immutable;
+import javax.annotation.concurrent.ThreadSafe;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.Objects;
 
 /**
  * Represents a range of points in discrete space.
@@ -243,8 +244,8 @@ public class ZRange implements Cloneable, HasSize, HasPermute<ZRange>, HasToJson
       var r = it.next();
       HasDimension.assertSameNDim(first, r);
 
-      start = ZTensor.Ops.minimum(start, r.start.tensor);
-      end = ZTensor.Ops.maximum(end, r.end.tensor);
+      start = ZTensorOperations.minimum(start, r.start.tensor);
+      end = ZTensorOperations.maximum(end, r.end.tensor);
     }
 
     return new ZRange(start, end);
@@ -485,7 +486,7 @@ public class ZRange implements Cloneable, HasSize, HasPermute<ZRange>, HasToJson
       throw new IndexOutOfBoundsException("Empty range");
     }
 
-    return new ZPoint(end.tensor.sub(1));
+    return end.sub(1);
   }
 
   /**
@@ -495,8 +496,8 @@ public class ZRange implements Cloneable, HasSize, HasPermute<ZRange>, HasToJson
    * @return the intersection of this range with another, null if there is no intersection.
    */
   @Nullable public ZRange intersection(@Nonnull ZRange other) {
-    var iStart = ZTensor.Ops.maximum(start, other.start).newZPoint();
-    var iEnd = ZTensor.Ops.minimum(end, other.end).newZPoint();
+    var iStart = ZTensorOperations.maximum(start, other.start).newZPoint();
+    var iEnd = ZTensorOperations.minimum(end, other.end).newZPoint();
     if (iStart.le(iEnd)) {
       return new ZRange(iStart, iEnd);
     } else {

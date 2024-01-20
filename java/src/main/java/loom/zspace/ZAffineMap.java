@@ -3,17 +3,16 @@ package loom.zspace;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.kjetland.jackson.jsonSchema.annotations.JsonSchemaInject;
+import java.util.Objects;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.annotation.concurrent.Immutable;
+import javax.annotation.concurrent.ThreadSafe;
 import lombok.Builder;
 import lombok.Value;
 import lombok.extern.jackson.Jacksonized;
 import loom.common.json.HasToJsonString;
 import loom.common.json.JsonUtil;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import javax.annotation.concurrent.Immutable;
-import javax.annotation.concurrent.ThreadSafe;
-import java.util.Objects;
 
 /** A linear map from {@code Z^inDim} to {@code Z^outDim}. */
 @Value
@@ -189,7 +188,7 @@ public class ZAffineMap
     var ztensor = x.asZTensor();
     // denoted in the `in` dim.
     ztensor.assertNDim(1);
-    return ZTensor.Ops.matmul(projection, x).add(offset);
+    return ZTensorOperations.matmul(projection, x).add(offset);
   }
 
   /**

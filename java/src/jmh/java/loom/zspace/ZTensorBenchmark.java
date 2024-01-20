@@ -25,14 +25,14 @@ public class ZTensorBenchmark {
   @BenchmarkMode(Mode.SampleTime)
   @OutputTimeUnit(TimeUnit.MICROSECONDS)
   public void mul10x10(Blackhole bh) {
-    bh.consume(ZTensor.Ops.mul(VECTOR_10, ONES_10_10));
+    bh.consume(ZTensorOperations.mul(VECTOR_10, ONES_10_10));
   }
 
   @Benchmark
   @BenchmarkMode(Mode.SampleTime)
   @OutputTimeUnit(TimeUnit.MICROSECONDS)
   public void add10x10(Blackhole bh) {
-    bh.consume(ZTensor.Ops.add(VECTOR_10, ONES_10_10));
+    bh.consume(ZTensorOperations.add(VECTOR_10, ONES_10_10));
   }
 
   @Benchmark
