@@ -17,9 +17,6 @@
     </ExternalSystemSettings>
     <ExternalSystemDebugServerProcess>false</ExternalSystemDebugServerProcess>
     <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
-    <EXTENSION ID="com.intellij.execution.ExternalSystemRunConfigurationJavaExtension">
-      <extension name="coverage" track_test_folders="true" />
-    </EXTENSION>
     <DebugAllEnabled>false</DebugAllEnabled>
     <RunAsTest>false</RunAsTest>
     <method v="2">

@@ -1,11 +1,10 @@
 package loom.zspace;
 
 import com.fasterxml.jackson.annotation.JsonValue;
-import loom.common.json.HasToJsonString;
-
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.Immutable;
 import javax.annotation.concurrent.ThreadSafe;
+import loom.common.json.HasToJsonString;
 
 /**
  * Base class for immutable wrappers around ZTensors.
