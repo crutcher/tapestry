@@ -1,22 +1,26 @@
 package loom.polyhedral;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import lombok.Builder;
 import lombok.Value;
-import lombok.extern.jackson.Jacksonized;
 import loom.common.json.HasToJsonString;
+import loom.zspace.HasZTensor;
 import loom.zspace.ZAffineMap;
 import loom.zspace.ZPoint;
 import loom.zspace.ZRange;
-import loom.zspace.ZTensor;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.annotation.concurrent.Immutable;
+import javax.annotation.concurrent.ThreadSafe;
 
 /** A function which maps coordinates in a space to ranges in another space. */
+@ThreadSafe
+@Immutable
 @Value
-@Jacksonized
-@Builder
 public class IndexProjectionFunction implements HasToJsonString {
   @SuppressWarnings("unused")
   public static class IndexProjectionFunctionBuilder {
@@ -65,7 +69,7 @@ public class IndexProjectionFunction implements HasToJsonString {
      */
     @Nonnull
     @JsonIgnore
-    public IndexProjectionFunctionBuilder translate(@Nonnull ZPoint offset) {
+    public IndexProjectionFunctionBuilder translate(@Nonnull HasZTensor offset) {
       return affineMap(affineMap.translate(offset));
     }
 
@@ -89,21 +93,9 @@ public class IndexProjectionFunction implements HasToJsonString {
      */
     @Nonnull
     @JsonSetter
-    public IndexProjectionFunctionBuilder shape(@Nonnull ZPoint shape) {
-      this.shape = shape;
+    public IndexProjectionFunctionBuilder shape(@Nonnull HasZTensor shape) {
+      this.shape = shape.asZTensor().newZPoint();
       return this;
-    }
-
-    /**
-     * Set the shape of the output.
-     *
-     * @param shape the shape.
-     * @return {@code this}
-     */
-    @Nonnull
-    @JsonIgnore
-    public IndexProjectionFunctionBuilder shape(@Nonnull ZTensor shape) {
-      return shape(shape.newZPoint());
     }
 
     /**
@@ -119,6 +111,14 @@ public class IndexProjectionFunction implements HasToJsonString {
     }
   }
 
+  @JsonCreator
+  @Builder
+  static IndexProjectionFunction privateBuilder(
+      @Nonnull @JsonProperty(value = "affineMap") ZAffineMap affineMap,
+      @Nonnull @JsonProperty(value = "shape") ZPoint shape) {
+    return new IndexProjectionFunction(affineMap, shape);
+  }
+
   @Nonnull ZAffineMap affineMap;
   @Nonnull ZPoint shape;
 
@@ -128,10 +128,10 @@ public class IndexProjectionFunction implements HasToJsonString {
    * @param affineMap the affine map.
    * @param shape the shape, or {@code null} to use one's in the affine map's output dims.
    */
-  @Builder
-  public IndexProjectionFunction(@Nonnull ZAffineMap affineMap, @Nullable ZPoint shape) {
+  public IndexProjectionFunction(@Nonnull ZAffineMap affineMap, @Nullable HasZTensor shape) {
     this.affineMap = affineMap;
-    this.shape = shape == null ? ZPoint.newOnes(affineMap.outputNDim()) : shape;
+    this.shape =
+        shape == null ? ZPoint.newOnes(affineMap.outputNDim()) : shape.asZTensor().newZPoint();
 
     if (this.affineMap.outputNDim() != this.shape.getNDim()) {
       throw new IllegalArgumentException(
@@ -153,18 +153,7 @@ public class IndexProjectionFunction implements HasToJsonString {
    * @return The projected range.
    */
   @Nonnull
-  public ZRange apply(@Nonnull ZPoint source) {
-    return apply(source.coords);
-  }
-
-  /**
-   * Applies the projection function to the given point.
-   *
-   * @param source The point to project.
-   * @return The projected range.
-   */
-  @Nonnull
-  public ZRange apply(@Nonnull ZTensor source) {
+  public ZRange apply(@Nonnull HasZTensor source) {
     return ZRange.fromStartWithShape(affineMap.apply(source).newZPoint(), shape);
   }
 
@@ -191,7 +180,7 @@ public class IndexProjectionFunction implements HasToJsonString {
    * @return The translated projection function.
    */
   @Nonnull
-  public IndexProjectionFunction translate(@Nonnull ZPoint offset) {
+  public IndexProjectionFunction translate(@Nonnull HasZTensor offset) {
     return IndexProjectionFunction.builder()
         .affineMap(affineMap.translate(offset))
         .shape(shape)

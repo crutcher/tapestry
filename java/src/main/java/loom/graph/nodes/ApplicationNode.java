@@ -1,6 +1,7 @@
 package loom.graph.nodes;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -90,7 +91,10 @@ public class ApplicationNode extends LoomNode<ApplicationNode, ApplicationNode.B
   @Builder
   @JsonInclude(JsonInclude.Include.NON_EMPTY)
   public static class Body implements HasToJsonString {
+    @JsonProperty(required = true)
+    @Nonnull
     UUID operationId;
+
     @Singular @Nonnull Map<String, List<TensorSelection>> inputs;
     @Singular @Nonnull Map<String, List<TensorSelection>> outputs;
   }

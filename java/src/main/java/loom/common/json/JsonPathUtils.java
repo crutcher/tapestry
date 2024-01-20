@@ -1,9 +1,8 @@
 package loom.common.json;
 
 import com.google.common.base.Splitter;
-import lombok.NoArgsConstructor;
-
 import javax.annotation.Nonnull;
+import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
 public class JsonPathUtils {

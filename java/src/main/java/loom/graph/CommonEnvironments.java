@@ -5,6 +5,7 @@ import java.util.regex.Pattern;
 import lombok.NoArgsConstructor;
 import loom.graph.constraints.NodeBodySchemaConstraint;
 import loom.graph.constraints.TensorDTypesAreValidConstraint;
+import loom.graph.constraints.TypeSchemaConstraint;
 import loom.graph.nodes.*;
 
 @NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
@@ -25,6 +26,14 @@ public final class CommonEnvironments {
         .build()
         .autowireNodeTypeClass(NoteNode.TYPE, NoteNode.class)
         .autowireNodeTypeClass(TensorNode.TYPE, TensorNode.class)
+        .addConstraint(
+            TypeSchemaConstraint.builder()
+                .nodeTypeSchema(NoteNode.TYPE, CommonSchemas.NOTE_NODE_SCHEMA)
+                .nodeTypeSchema(TensorNode.TYPE, CommonSchemas.TENSOR_NODE_SCHEMA)
+                .nodeTypeSchema(ApplicationNode.TYPE, CommonSchemas.APPLICATION_NODE_SCHEMA)
+                .nodeTypeSchema(
+                    OperationSignatureNode.TYPE, CommonSchemas.OPERATION_SIGNATURE_NODE_SCHEMA)
+                .build())
         .addConstraint(
             TensorDTypesAreValidConstraint.builder()
                 .validDTypes(Set.of("int32", "float32"))

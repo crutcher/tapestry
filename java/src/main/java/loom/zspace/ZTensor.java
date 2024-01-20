@@ -15,6 +15,7 @@ import com.fasterxml.jackson.databind.node.IntNode;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.google.common.primitives.Ints;
 import com.google.errorprone.annotations.CheckReturnValue;
+import com.kjetland.jackson.jsonSchema.annotations.JsonSchemaInject;
 import java.lang.reflect.Array;
 import java.util.*;
 import java.util.function.*;
@@ -84,8 +85,23 @@ import loom.common.json.JsonUtil;
  */
 @JsonSerialize(using = ZTensor.Serialization.Serializer.class)
 @JsonDeserialize(using = ZTensor.Serialization.Deserializer.class)
+@JsonSchemaInject(
+    json =
+        """
+        {
+          "$recursiveAnchor": true,
+          "anyOf": [
+              { "type": "integer" },
+              {
+                "type": "array",
+                "items": { "$recursiveRef": "#" }
+              }
+          ]
+        }
+        """,
+    merge = false)
 public final class ZTensor
-    implements HasToJsonString, Cloneable, HasDimension, HasSize, HasPermute<ZTensor> {
+    implements HasZTensor, HasToJsonString, Cloneable, HasDimension, HasSize, HasPermute<ZTensor> {
 
   /** ZTensor math operations. */
   @NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
@@ -98,34 +114,37 @@ public final class ZTensor
      * @return a new tensor.
      */
     @Nonnull
-    public static ZTensor matmul(@Nonnull ZTensor lhs, @Nonnull ZTensor rhs) {
-      lhs.assertNDim(2);
-      if (lhs.shape(1) != rhs.shape(0)) {
+    public static ZTensor matmul(@Nonnull HasZTensor lhs, @Nonnull HasZTensor rhs) {
+      var zlhs = lhs.asZTensor();
+      var zrhs = rhs.asZTensor();
+
+      zlhs.assertNDim(2);
+      if (zlhs.shape(1) != zrhs.shape(0)) {
         throw new IllegalArgumentException(
             "lhs shape %s not compatible with rhs shape %s"
-                .formatted(lhs.shapeAsList(), rhs.shapeAsList()));
+                .formatted(zlhs.shapeAsList(), zrhs.shapeAsList()));
       }
 
-      if (rhs.getNDim() > 2 || rhs.getNDim() == 0) {
+      if (zrhs.getNDim() > 2 || zrhs.getNDim() == 0) {
         throw new IllegalArgumentException(
             "rhs must be a 1D or 2D tensor, got %dD: %s"
-                .formatted(rhs.getNDim(), rhs.shapeAsList()));
+                .formatted(zrhs.getNDim(), zrhs.shapeAsList()));
       }
 
-      boolean rhsIsVector = rhs.getNDim() == 1;
+      boolean rhsIsVector = zrhs.getNDim() == 1;
       if (rhsIsVector) {
-        rhs = rhs.unsqueeze(1);
+        zrhs = zrhs.unsqueeze(1);
       }
 
-      var res = newZeros(lhs.shape(0), rhs.shape(1));
+      var res = newZeros(zlhs.shape(0), zrhs.shape(1));
       var coords = new int[2];
-      for (int i = 0; i < lhs.shape(0); ++i) {
+      for (int i = 0; i < zlhs.shape(0); ++i) {
         coords[0] = i;
-        for (int j = 0; j < rhs.shape(1); ++j) {
+        for (int j = 0; j < zrhs.shape(1); ++j) {
           coords[1] = j;
           int sum = 0;
-          for (int k = 0; k < lhs.shape(1); ++k) {
-            sum += lhs.get(i, k) * rhs.get(k, j);
+          for (int k = 0; k < zlhs.shape(1); ++k) {
+            sum += zlhs.get(i, k) * zrhs.get(k, j);
           }
           res.set(coords, sum);
         }
@@ -145,7 +164,7 @@ public final class ZTensor
      * @return a new tensor.
      */
     @Nonnull
-    public static ZTensor neg(@Nonnull ZTensor tensor) {
+    public static ZTensor neg(@Nonnull HasZTensor tensor) {
       return map(x -> -x, tensor);
     }
 
@@ -158,7 +177,7 @@ public final class ZTensor
      */
     @CheckReturnValue
     @Nonnull
-    public static ZTensor map(@Nonnull IntUnaryOperator op, @Nonnull ZTensor tensor) {
+    public static ZTensor map(@Nonnull IntUnaryOperator op, @Nonnull HasZTensor tensor) {
       var result = newZerosLike(tensor);
       result.assignFromMap(op, tensor);
       return result;
@@ -171,7 +190,7 @@ public final class ZTensor
      * @return a new tensor.
      */
     @Nonnull
-    public static ZTensor abs(@Nonnull ZTensor tensor) {
+    public static ZTensor abs(@Nonnull HasZTensor tensor) {
       return map(Math::abs, tensor);
     }
 
@@ -183,7 +202,7 @@ public final class ZTensor
      * @return a new tensor.
      */
     @Nonnull
-    public static ZTensor minimum(@Nonnull ZTensor lhs, @Nonnull ZTensor rhs) {
+    public static ZTensor minimum(@Nonnull HasZTensor lhs, @Nonnull HasZTensor rhs) {
       return zipWith(Math::min, lhs, rhs);
     }
 
@@ -197,9 +216,11 @@ public final class ZTensor
      */
     @Nonnull
     public static ZTensor zipWith(
-        @Nonnull IntBinaryOperator op, @Nonnull ZTensor lhs, @Nonnull ZTensor rhs) {
-      var result = newZeros(IndexingFns.commonBroadcastShape(lhs.shape, rhs.shape));
-      result.assignFromZipWith(op, lhs, rhs);
+        @Nonnull IntBinaryOperator op, @Nonnull HasZTensor lhs, @Nonnull HasZTensor rhs) {
+      var zlhs = lhs.asZTensor();
+      var zrhs = rhs.asZTensor();
+      var result = newZeros(IndexingFns.commonBroadcastShape(zlhs.shape, zrhs.shape));
+      result.assignFromZipWith(op, zlhs, zrhs);
       return result;
     }
 
@@ -211,7 +232,7 @@ public final class ZTensor
      * @return a new tensor.
      */
     @Nonnull
-    public static ZTensor minimum(@Nonnull ZTensor lhs, int rhs) {
+    public static ZTensor minimum(@Nonnull HasZTensor lhs, int rhs) {
       return zipWith(Math::min, lhs, rhs);
     }
 
@@ -224,7 +245,7 @@ public final class ZTensor
      * @return a new tensor.
      */
     @Nonnull
-    public static ZTensor zipWith(@Nonnull IntBinaryOperator op, @Nonnull ZTensor lhs, int rhs) {
+    public static ZTensor zipWith(@Nonnull IntBinaryOperator op, @Nonnull HasZTensor lhs, int rhs) {
       return zipWith(op, lhs, loom.zspace.ZTensor.newScalar(rhs));
     }
 
@@ -236,7 +257,7 @@ public final class ZTensor
      * @return a new tensor.
      */
     @Nonnull
-    public static ZTensor minimum(int lhs, @Nonnull ZTensor rhs) {
+    public static ZTensor minimum(int lhs, @Nonnull HasZTensor rhs) {
       return zipWith(Math::min, lhs, rhs);
     }
 
@@ -249,7 +270,7 @@ public final class ZTensor
      * @return a new tensor.
      */
     @Nonnull
-    public static ZTensor zipWith(@Nonnull IntBinaryOperator op, int lhs, @Nonnull ZTensor rhs) {
+    public static ZTensor zipWith(@Nonnull IntBinaryOperator op, int lhs, @Nonnull HasZTensor rhs) {
       return zipWith(op, loom.zspace.ZTensor.newScalar(lhs), rhs);
     }
 
@@ -261,7 +282,7 @@ public final class ZTensor
      * @return a new tensor.
      */
     @Nonnull
-    public static ZTensor maximum(@Nonnull ZTensor lhs, @Nonnull ZTensor rhs) {
+    public static ZTensor maximum(@Nonnull HasZTensor lhs, @Nonnull HasZTensor rhs) {
       return zipWith(Math::max, lhs, rhs);
     }
 
@@ -273,7 +294,7 @@ public final class ZTensor
      * @return a new tensor.
      */
     @Nonnull
-    public static ZTensor maximum(@Nonnull ZTensor lhs, int rhs) {
+    public static ZTensor maximum(@Nonnull HasZTensor lhs, int rhs) {
       return zipWith(Math::max, lhs, rhs);
     }
 
@@ -285,7 +306,7 @@ public final class ZTensor
      * @return a new tensor.
      */
     @Nonnull
-    public static ZTensor maximum(int lhs, @Nonnull ZTensor rhs) {
+    public static ZTensor maximum(int lhs, @Nonnull HasZTensor rhs) {
       return zipWith(Math::max, lhs, rhs);
     }
 
@@ -297,7 +318,7 @@ public final class ZTensor
      * @return a new tensor.
      */
     @Nonnull
-    public static ZTensor add(@Nonnull ZTensor lhs, @Nonnull ZTensor rhs) {
+    public static ZTensor add(@Nonnull HasZTensor lhs, @Nonnull HasZTensor rhs) {
       return zipWith(Integer::sum, lhs, rhs);
     }
 
@@ -309,7 +330,7 @@ public final class ZTensor
      * @return a new tensor.
      */
     @Nonnull
-    public static ZTensor add(@Nonnull ZTensor lhs, int rhs) {
+    public static ZTensor add(@Nonnull HasZTensor lhs, int rhs) {
       return zipWith(Integer::sum, lhs, rhs);
     }
 
@@ -321,7 +342,7 @@ public final class ZTensor
      * @return a new tensor.
      */
     @Nonnull
-    public static ZTensor add(int lhs, @Nonnull ZTensor rhs) {
+    public static ZTensor add(int lhs, @Nonnull HasZTensor rhs) {
       return zipWith(Integer::sum, lhs, rhs);
     }
 
@@ -331,7 +352,7 @@ public final class ZTensor
      * @param lhs the left-hand side tensor, modified in-place; must be mutable.
      * @param rhs the right-hand side tensor.
      */
-    public static void add_(@Nonnull ZTensor lhs, @Nonnull ZTensor rhs) {
+    public static void add_(@Nonnull ZTensor lhs, @Nonnull HasZTensor rhs) {
       lhs.zipWith_(Integer::sum, rhs);
     }
 
@@ -353,7 +374,7 @@ public final class ZTensor
      * @return a new tensor.
      */
     @Nonnull
-    public static ZTensor sub(@Nonnull ZTensor lhs, @Nonnull ZTensor rhs) {
+    public static ZTensor sub(@Nonnull HasZTensor lhs, @Nonnull HasZTensor rhs) {
       return zipWith((l, r) -> l - r, lhs, rhs);
     }
 
@@ -365,7 +386,7 @@ public final class ZTensor
      * @return a new tensor.
      */
     @Nonnull
-    public static ZTensor sub(@Nonnull ZTensor lhs, int rhs) {
+    public static ZTensor sub(@Nonnull HasZTensor lhs, int rhs) {
       return zipWith((l, r) -> l - r, lhs, rhs);
     }
 
@@ -377,7 +398,7 @@ public final class ZTensor
      * @return a new tensor.
      */
     @Nonnull
-    public static ZTensor sub(int lhs, @Nonnull ZTensor rhs) {
+    public static ZTensor sub(int lhs, @Nonnull HasZTensor rhs) {
       return zipWith((l, r) -> l - r, lhs, rhs);
     }
 
@@ -387,7 +408,7 @@ public final class ZTensor
      * @param lhs the left-hand side tensor, modified in-place; must be mutable.
      * @param rhs the right-hand side tensor.
      */
-    public static void sub_(@Nonnull ZTensor lhs, @Nonnull ZTensor rhs) {
+    public static void sub_(@Nonnull ZTensor lhs, @Nonnull HasZTensor rhs) {
       lhs.zipWith_((l, r) -> l - r, rhs);
     }
 
@@ -409,7 +430,7 @@ public final class ZTensor
      * @return a new tensor.
      */
     @Nonnull
-    public static ZTensor mul(@Nonnull ZTensor lhs, @Nonnull ZTensor rhs) {
+    public static ZTensor mul(@Nonnull HasZTensor lhs, @Nonnull HasZTensor rhs) {
       return zipWith((l, r) -> l * r, lhs, rhs);
     }
 
@@ -421,7 +442,7 @@ public final class ZTensor
      * @return a new tensor.
      */
     @Nonnull
-    public static ZTensor mul(@Nonnull ZTensor lhs, int rhs) {
+    public static ZTensor mul(@Nonnull HasZTensor lhs, int rhs) {
       return zipWith((l, r) -> l * r, lhs, rhs);
     }
 
@@ -433,7 +454,7 @@ public final class ZTensor
      * @return a new tensor.
      */
     @Nonnull
-    public static ZTensor mul(int lhs, @Nonnull ZTensor rhs) {
+    public static ZTensor mul(int lhs, @Nonnull HasZTensor rhs) {
       return zipWith((l, r) -> l * r, lhs, rhs);
     }
 
@@ -443,7 +464,7 @@ public final class ZTensor
      * @param lhs the left-hand side tensor, modified in-place; must be mutable.
      * @param rhs the right-hand side tensor.
      */
-    public static void mul_(@Nonnull ZTensor lhs, @Nonnull ZTensor rhs) {
+    public static void mul_(@Nonnull ZTensor lhs, @Nonnull HasZTensor rhs) {
       lhs.zipWith_((l, r) -> l * r, rhs);
     }
 
@@ -465,7 +486,7 @@ public final class ZTensor
      * @return a new tensor.
      */
     @Nonnull
-    public static ZTensor div(@Nonnull ZTensor lhs, @Nonnull ZTensor rhs) {
+    public static ZTensor div(@Nonnull HasZTensor lhs, @Nonnull HasZTensor rhs) {
       return zipWith((l, r) -> l / r, lhs, rhs);
     }
 
@@ -477,7 +498,7 @@ public final class ZTensor
      * @return a new tensor.
      */
     @Nonnull
-    public static ZTensor div(@Nonnull ZTensor lhs, int rhs) {
+    public static ZTensor div(@Nonnull HasZTensor lhs, int rhs) {
       return zipWith((l, r) -> l / r, lhs, rhs);
     }
 
@@ -489,7 +510,7 @@ public final class ZTensor
      * @return a new tensor.
      */
     @Nonnull
-    public static ZTensor div(int lhs, @Nonnull ZTensor rhs) {
+    public static ZTensor div(int lhs, @Nonnull HasZTensor rhs) {
       return zipWith((l, r) -> l / r, lhs, rhs);
     }
 
@@ -499,7 +520,7 @@ public final class ZTensor
      * @param lhs the left-hand side tensor, modified in-place; must be mutable.
      * @param rhs the right-hand side tensor.
      */
-    public static void div_(@Nonnull ZTensor lhs, @Nonnull ZTensor rhs) {
+    public static void div_(@Nonnull ZTensor lhs, @Nonnull HasZTensor rhs) {
       lhs.zipWith_((l, r) -> l / r, rhs);
     }
 
@@ -521,7 +542,7 @@ public final class ZTensor
      * @return a new tensor.
      */
     @Nonnull
-    public static ZTensor mod(@Nonnull ZTensor lhs, @Nonnull ZTensor rhs) {
+    public static ZTensor mod(@Nonnull HasZTensor lhs, @Nonnull HasZTensor rhs) {
       return zipWith((l, r) -> l % r, lhs, rhs);
     }
 
@@ -533,7 +554,7 @@ public final class ZTensor
      * @return a new tensor.
      */
     @Nonnull
-    public static ZTensor mod(@Nonnull ZTensor lhs, int rhs) {
+    public static ZTensor mod(@Nonnull HasZTensor lhs, int rhs) {
       return zipWith((l, r) -> l % r, lhs, rhs);
     }
 
@@ -545,7 +566,7 @@ public final class ZTensor
      * @return a new tensor.
      */
     @Nonnull
-    public static ZTensor mod(int lhs, @Nonnull ZTensor rhs) {
+    public static ZTensor mod(int lhs, @Nonnull HasZTensor rhs) {
       return zipWith((l, r) -> l % r, lhs, rhs);
     }
 
@@ -555,7 +576,7 @@ public final class ZTensor
      * @param lhs the left-hand side tensor, modified in-place; must be mutable.
      * @param rhs the right-hand side tensor.
      */
-    public static void mod_(@Nonnull ZTensor lhs, @Nonnull ZTensor rhs) {
+    public static void mod_(@Nonnull ZTensor lhs, @Nonnull HasZTensor rhs) {
       lhs.zipWith_((l, r) -> l % r, rhs);
     }
 
@@ -575,7 +596,7 @@ public final class ZTensor
      * @param tensor the tensor.
      * @return the int sum of all elements in the tensor.
      */
-    public static int sumAsInt(@Nonnull ZTensor tensor) {
+    public static int sumAsInt(@Nonnull HasZTensor tensor) {
       return reduceCellsAtomic(tensor, Integer::sum, 0);
     }
 
@@ -588,7 +609,7 @@ public final class ZTensor
      * @return the int result of the reduction.
      */
     public static int reduceCellsAtomic(
-        @Nonnull ZTensor tensor, @Nonnull IntBinaryOperator op, int initial) {
+        @Nonnull HasZTensor tensor, @Nonnull IntBinaryOperator op, int initial) {
       var acc =
           new IntConsumer() {
             int value = initial;
@@ -599,7 +620,7 @@ public final class ZTensor
             }
           };
 
-      tensor.forEachValue(acc);
+      tensor.asZTensor().forEachValue(acc);
       return acc.value;
     }
 
@@ -610,7 +631,7 @@ public final class ZTensor
      * @return the scalar ZTensor sum of all elements in the tensor.
      */
     @Nonnull
-    public static ZTensor sum(@Nonnull ZTensor tensor) {
+    public static ZTensor sum(@Nonnull HasZTensor tensor) {
       return reduceCells(tensor, Integer::sum, 0);
     }
 
@@ -624,7 +645,7 @@ public final class ZTensor
      */
     @Nonnull
     public static ZTensor reduceCells(
-        @Nonnull ZTensor tensor, @Nonnull IntBinaryOperator op, int initial) {
+        @Nonnull HasZTensor tensor, @Nonnull IntBinaryOperator op, int initial) {
       return newScalar(reduceCellsAtomic(tensor, op, initial));
     }
 
@@ -639,7 +660,7 @@ public final class ZTensor
      * @return a new tensor.
      */
     @Nonnull
-    public static ZTensor sum(@Nonnull ZTensor tensor, @Nonnull int... dims) {
+    public static ZTensor sum(@Nonnull HasZTensor tensor, @Nonnull int... dims) {
       return reduceCells(tensor, Integer::sum, 0, dims);
     }
 
@@ -658,25 +679,30 @@ public final class ZTensor
      */
     @Nonnull
     public static ZTensor reduceCells(
-        @Nonnull ZTensor tensor, @Nonnull IntBinaryOperator op, int initial, @Nonnull int... dims) {
-      var sumDims = tensor.resolveDims(dims);
+        @Nonnull HasZTensor tensor,
+        @Nonnull IntBinaryOperator op,
+        int initial,
+        @Nonnull int... dims) {
+      var ztensor = tensor.asZTensor();
 
-      var sliceDims = new int[tensor.getNDim() - sumDims.length];
+      var sumDims = ztensor.resolveDims(dims);
 
-      var accShape = new int[tensor.getNDim() - sumDims.length];
-      for (int sourceIdx = 0, accIdx = 0; sourceIdx < tensor.getNDim(); ++sourceIdx) {
+      var sliceDims = new int[ztensor.getNDim() - sumDims.length];
+
+      var accShape = new int[ztensor.getNDim() - sumDims.length];
+      for (int sourceIdx = 0, accIdx = 0; sourceIdx < ztensor.getNDim(); ++sourceIdx) {
         if (IndexingFns.arrayContains(sumDims, sourceIdx)) {
           continue;
         }
 
         sliceDims[accIdx] = sourceIdx;
-        accShape[accIdx] = tensor.shape[sourceIdx];
+        accShape[accIdx] = ztensor.shape[sourceIdx];
         accIdx++;
       }
 
       var acc = newZeros(accShape);
       for (var ks : acc.byCoords(BufferMode.REUSED)) {
-        ZTensor slice = tensor.selectDims(sliceDims, ks);
+        ZTensor slice = ztensor.selectDims(sliceDims, ks);
         acc.set(ks, reduceCellsAtomic(slice, op, initial));
       }
       return acc;
@@ -688,7 +714,7 @@ public final class ZTensor
      * @param tensor the tensor.
      * @return the int product of all elements in the tensor.
      */
-    public static int prodAsInt(@Nonnull ZTensor tensor) {
+    public static int prodAsInt(@Nonnull HasZTensor tensor) {
       return reduceCellsAtomic(tensor, (a, b) -> a * b, 1);
     }
 
@@ -699,7 +725,7 @@ public final class ZTensor
      * @return the scalar ZTensor product of all elements in the tensor.
      */
     @Nonnull
-    public static ZTensor prod(@Nonnull ZTensor tensor) {
+    public static ZTensor prod(@Nonnull HasZTensor tensor) {
       return reduceCells(tensor, (a, b) -> a * b, 1);
     }
 
@@ -714,7 +740,7 @@ public final class ZTensor
      * @return a new tensor.
      */
     @Nonnull
-    public static ZTensor prod(@Nonnull ZTensor tensor, @Nonnull int... dims) {
+    public static ZTensor prod(@Nonnull HasZTensor tensor, @Nonnull int... dims) {
       return reduceCells(tensor, (a, b) -> a * b, 1, dims);
     }
 
@@ -724,7 +750,7 @@ public final class ZTensor
      * @param tensor the tensor.
      * @return the int min of all elements in the tensor.
      */
-    public static int minAsInt(@Nonnull ZTensor tensor) {
+    public static int minAsInt(@Nonnull HasZTensor tensor) {
       return reduceCellsAtomic(tensor, Math::min, Integer.MAX_VALUE);
     }
 
@@ -735,7 +761,7 @@ public final class ZTensor
      * @return the scalar ZTensor min of all elements in the tensor.
      */
     @Nonnull
-    public static ZTensor min(@Nonnull ZTensor tensor) {
+    public static ZTensor min(@Nonnull HasZTensor tensor) {
       return reduceCells(tensor, Math::min, Integer.MAX_VALUE);
     }
 
@@ -750,7 +776,7 @@ public final class ZTensor
      * @return a new tensor.
      */
     @Nonnull
-    public static ZTensor min(@Nonnull ZTensor tensor, @Nonnull int... dims) {
+    public static ZTensor min(@Nonnull HasZTensor tensor, @Nonnull int... dims) {
       return reduceCells(tensor, Math::min, Integer.MAX_VALUE, dims);
     }
 
@@ -760,7 +786,7 @@ public final class ZTensor
      * @param tensor the tensor.
      * @return the int min of all elements in the tensor.
      */
-    public static int maxAsInt(@Nonnull ZTensor tensor) {
+    public static int maxAsInt(@Nonnull HasZTensor tensor) {
       return reduceCellsAtomic(tensor, Math::max, Integer.MIN_VALUE);
     }
 
@@ -771,7 +797,7 @@ public final class ZTensor
      * @return the scalar ZTensor max of all elements in the tensor.
      */
     @Nonnull
-    public static ZTensor max(@Nonnull ZTensor tensor) {
+    public static ZTensor max(@Nonnull HasZTensor tensor) {
       return reduceCells(tensor, Math::max, Integer.MIN_VALUE);
     }
 
@@ -786,7 +812,7 @@ public final class ZTensor
      * @return a new tensor.
      */
     @Nonnull
-    public static ZTensor max(@Nonnull ZTensor tensor, @Nonnull int... dims) {
+    public static ZTensor max(@Nonnull HasZTensor tensor, @Nonnull int... dims) {
       return reduceCells(tensor, Math::max, Integer.MIN_VALUE, dims);
     }
   }
@@ -1061,8 +1087,8 @@ public final class ZTensor
    * @return a new mutable ZTensor.
    */
   @Nonnull
-  public static ZTensor newZerosLike(@Nonnull ZTensor ref) {
-    return new ZTensor(ref.shapeAsArray());
+  public static ZTensor newZerosLike(@Nonnull HasZTensor ref) {
+    return new ZTensor(ref.asZTensor().shapeAsArray());
   }
 
   /**
@@ -1108,7 +1134,7 @@ public final class ZTensor
    * @return a new mutable ZTensor.
    */
   @Nonnull
-  public static ZTensor newOnesLike(@Nonnull ZTensor ref) {
+  public static ZTensor newOnesLike(@Nonnull HasZTensor ref) {
     return newFilledLike(ref, 1);
   }
 
@@ -1120,8 +1146,8 @@ public final class ZTensor
    * @return a new mutable ZTensor.
    */
   @Nonnull
-  public static ZTensor newFilledLike(@Nonnull ZTensor ref, int fill_value) {
-    return newFilled(ref.shape, fill_value);
+  public static ZTensor newFilledLike(@Nonnull HasZTensor ref, int fill_value) {
+    return newFilled(ref.asZTensor().shape, fill_value);
   }
 
   /**
@@ -1219,6 +1245,11 @@ public final class ZTensor
     this.data_offset = data_offset;
   }
 
+  @Override
+  public ZTensor asZTensor() {
+    return this;
+  }
+
   /**
    * Is this tensor read-only / immutable?
    *
@@ -1262,8 +1293,10 @@ public final class ZTensor
   @Override
   public boolean equals(Object other) {
     if (this == other) return true;
-    if (other == null || getClass() != other.getClass()) return false;
-    var that = (ZTensor) other;
+
+    if (other == null) return false;
+    if (!(other instanceof HasZTensor)) return false;
+    var that = ((HasZTensor) other).asZTensor();
 
     if (this.getNDim() != that.getNDim()) {
       return false;
@@ -1372,9 +1405,9 @@ public final class ZTensor
    *
    * @param tensor the input tensor.
    */
-  public void assign(@Nonnull ZTensor tensor) {
+  public void assign(@Nonnull HasZTensor tensor) {
     assertMutable();
-    tensor.broadcastLike(this).forEachEntry(this::_unchecked_set, BufferMode.REUSED);
+    tensor.asZTensor().broadcastLike(this).forEachEntry(this::_unchecked_set, BufferMode.REUSED);
   }
 
   /**
@@ -1568,8 +1601,8 @@ public final class ZTensor
    * @return a broadcasted view of this tensor.
    */
   @Nonnull
-  public ZTensor broadcastLike(@Nonnull ZTensor ref) {
-    return broadcastTo(ref.shape);
+  public ZTensor broadcastLike(@Nonnull HasZTensor ref) {
+    return broadcastTo(ref.asZTensor().shape);
   }
 
   /**
@@ -1723,9 +1756,10 @@ public final class ZTensor
    * @param op the operation.
    * @param tensor the input tensor.
    */
-  public void assignFromMap(@Nonnull IntUnaryOperator op, @Nonnull ZTensor tensor) {
+  public void assignFromMap(@Nonnull IntUnaryOperator op, @Nonnull HasZTensor tensor) {
     assertMutable();
     tensor
+        .asZTensor()
         .broadcastLike(this)
         .forEachEntry(
             (coords, value) -> _unchecked_set(coords, op.applyAsInt(value)), BufferMode.REUSED);
@@ -1739,7 +1773,7 @@ public final class ZTensor
    * @return a new tensor.
    */
   @Nonnull
-  public ZTensor zipWith(@Nonnull IntBinaryOperator op, @Nonnull ZTensor rhs) {
+  public ZTensor zipWith(@Nonnull IntBinaryOperator op, @Nonnull HasZTensor rhs) {
     return Ops.zipWith(op, this, rhs);
   }
 
@@ -1759,7 +1793,7 @@ public final class ZTensor
    * @param op the operation.
    * @param rhs the right-hand side tensor.
    */
-  public void zipWith_(@Nonnull IntBinaryOperator op, @Nonnull ZTensor rhs) {
+  public void zipWith_(@Nonnull IntBinaryOperator op, @Nonnull HasZTensor rhs) {
     assignFromZipWith(op, this, rhs);
   }
 
@@ -1771,12 +1805,14 @@ public final class ZTensor
    * @param rhs the right-hand side tensor.
    */
   public void assignFromZipWith(
-      @Nonnull IntBinaryOperator op, @Nonnull ZTensor lhs, @Nonnull ZTensor rhs) {
+      @Nonnull IntBinaryOperator op, @Nonnull HasZTensor lhs, @Nonnull HasZTensor rhs) {
+    var zlhs = lhs.asZTensor();
+    var zrhs = rhs.asZTensor();
     assertMutable();
-    lhs = lhs.broadcastLike(this);
-    rhs = rhs.broadcastLike(this);
+    zlhs = zlhs.broadcastLike(this);
+    zrhs = zrhs.broadcastLike(this);
     for (int[] coords : byCoords(BufferMode.REUSED)) {
-      _unchecked_set(coords, op.applyAsInt(lhs.get(coords), rhs.get(coords)));
+      _unchecked_set(coords, op.applyAsInt(zlhs.get(coords), zrhs.get(coords)));
     }
   }
 
@@ -1815,7 +1851,7 @@ public final class ZTensor
    * @param rhs the right-hand side tensor.
    * @return a new tensor.
    */
-  public ZTensor matmul(@Nonnull ZTensor rhs) {
+  public ZTensor matmul(@Nonnull HasZTensor rhs) {
     return Ops.matmul(this, rhs);
   }
 
@@ -1967,7 +2003,7 @@ public final class ZTensor
 
   /** Returns an elementwise broadcast addition with this tensor. */
   @Nonnull
-  public ZTensor add(@Nonnull ZTensor rhs) {
+  public ZTensor add(@Nonnull HasZTensor rhs) {
     return Ops.add(this, rhs);
   }
 
@@ -1984,7 +2020,7 @@ public final class ZTensor
    *
    * @param rhs the right-hand side tensor.
    */
-  public void add_(@Nonnull ZTensor rhs) {
+  public void add_(@Nonnull HasZTensor rhs) {
     Ops.add_(this, rhs);
   }
 
@@ -2006,7 +2042,7 @@ public final class ZTensor
    * @return a new tensor.
    */
   @Nonnull
-  public ZTensor sub(@Nonnull ZTensor rhs) {
+  public ZTensor sub(@Nonnull HasZTensor rhs) {
     return Ops.sub(this, rhs);
   }
 
@@ -2028,7 +2064,7 @@ public final class ZTensor
    *
    * @param rhs the right-hand side tensor.
    */
-  public void sub_(@Nonnull ZTensor rhs) {
+  public void sub_(@Nonnull HasZTensor rhs) {
     Ops.sub_(this, rhs);
   }
 
@@ -2050,7 +2086,7 @@ public final class ZTensor
    * @return a new tensor.
    */
   @Nonnull
-  public ZTensor mul(@Nonnull ZTensor rhs) {
+  public ZTensor mul(@Nonnull HasZTensor rhs) {
     return Ops.mul(this, rhs);
   }
 
@@ -2072,7 +2108,7 @@ public final class ZTensor
    *
    * @param rhs the right-hand side tensor.
    */
-  public void mul_(@Nonnull ZTensor rhs) {
+  public void mul_(@Nonnull HasZTensor rhs) {
     Ops.mul_(this, rhs);
   }
 
@@ -2094,7 +2130,7 @@ public final class ZTensor
    * @return a new tensor.
    */
   @Nonnull
-  public ZTensor div(@Nonnull ZTensor rhs) {
+  public ZTensor div(@Nonnull HasZTensor rhs) {
     return Ops.div(this, rhs);
   }
 
@@ -2116,7 +2152,7 @@ public final class ZTensor
    *
    * @param rhs the right-hand side tensor.
    */
-  public void div_(@Nonnull ZTensor rhs) {
+  public void div_(@Nonnull HasZTensor rhs) {
     Ops.div_(this, rhs);
   }
 
@@ -2138,7 +2174,7 @@ public final class ZTensor
    * @return a new tensor.
    */
   @Nonnull
-  public ZTensor mod(@Nonnull ZTensor rhs) {
+  public ZTensor mod(@Nonnull HasZTensor rhs) {
     return Ops.mod(this, rhs);
   }
 
@@ -2160,7 +2196,7 @@ public final class ZTensor
    *
    * @param rhs the right-hand side tensor.
    */
-  public void mod_(@Nonnull ZTensor rhs) {
+  public void mod_(@Nonnull HasZTensor rhs) {
     Ops.mod_(this, rhs);
   }
 

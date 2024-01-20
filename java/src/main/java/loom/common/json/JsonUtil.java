@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.BooleanNode;
 import com.fasterxml.jackson.databind.node.NumericNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.kjetland.jackson.jsonSchema.JsonSchemaGenerator;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
@@ -88,6 +89,9 @@ public final class JsonUtil {
   private static final ObjectMapper COMMON_MAPPER =
       new ObjectMapper().configure(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS, true);
 
+  private static final JsonSchemaGenerator JSON_SCHEMA_GENERATOR =
+      new JsonSchemaGenerator(COMMON_MAPPER);
+
   // Prevent Construction.
 
   /**
@@ -95,7 +99,7 @@ public final class JsonUtil {
    *
    * @return the ObjectMapper.
    */
-  static ObjectMapper getMapper() {
+  public static ObjectMapper getMapper() {
     return COMMON_MAPPER;
   }
 
@@ -375,5 +379,25 @@ public final class JsonUtil {
       throw new IllegalArgumentException(
           "Unexpected value type (%s) at %s".formatted(target.getClass().getSimpleName(), item));
     }
+  }
+
+  /**
+   * Generate a JSON schema for a class.
+   *
+   * @param clazz The class.
+   * @return The schema as a Jackson ObjectNode.
+   */
+  public static ObjectNode jsonSchemaTreeForClass(Class<?> clazz) {
+    return (ObjectNode) JSON_SCHEMA_GENERATOR.generateJsonSchema(clazz);
+  }
+
+  /**
+   * Generate a JSON schema for a class.
+   *
+   * @param clazz The class.
+   * @return The schema as a JSON string.
+   */
+  public static String jsonSchemaForClass(Class<?> clazz) {
+    return toPrettyJson(jsonSchemaTreeForClass(clazz));
   }
 }

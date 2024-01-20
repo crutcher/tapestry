@@ -189,5 +189,9 @@ dependencies {
     // XMLUnit testing.
     implementation("org.xmlunit:xmlunit-core:2.9.1")
     implementation("org.xmlunit:xmlunit-assertj3:2.9.1")
+
+    // Experimental
+    // https://mvnrepository.com/artifact/com.kjetland/mbknor-jackson-jsonschema
+    implementation("com.kjetland:mbknor-jackson-jsonschema_2.13:1.0.39")
 }
 

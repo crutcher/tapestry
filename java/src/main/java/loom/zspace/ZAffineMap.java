@@ -2,6 +2,7 @@ package loom.zspace;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.kjetland.jackson.jsonSchema.annotations.JsonSchemaInject;
 import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -55,13 +56,40 @@ public class ZAffineMap
    * @return the ZAffineMap.
    */
   @Nonnull
-  public static ZAffineMap fromMatrix(@Nonnull ZTensor matrix) {
+  public static ZAffineMap fromMatrix(@Nonnull HasZTensor matrix) {
     return new ZAffineMap(matrix);
   }
 
-  @Nonnull public ZTensor projection;
+  @JsonSchemaInject(
+      json =
+          """
+      {
+          "type": "array",
+          "items": {
+              "type": "array",
+              "items": {
+                  "type": "integer"
+              }
+          }
+      }
+      """,
+      merge = false)
+  @Nonnull
+  public ZTensor projection;
 
-  @Nonnull public ZTensor offset;
+  @JsonSchemaInject(
+      json =
+          """
+          {
+              "type": "array",
+              "items": {
+                  "type": "integer"
+              }
+          }
+          """,
+      merge = false)
+  @Nonnull
+  public ZTensor offset;
 
   /**
    * Create a new ZAffineMap.
@@ -71,21 +99,24 @@ public class ZAffineMap
    */
   @JsonCreator
   public ZAffineMap(
-      @JsonProperty(value = "A", required = true) ZTensor projection,
-      @Nullable @JsonProperty(value = "b") ZTensor offset) {
-    this.projection = projection.asImmutable();
-    if (offset == null) {
-      offset = ZTensor.newZeros(projection.shape(0));
-    }
-    this.offset = offset.asImmutable();
+      @JsonProperty(value = "A", required = true) HasZTensor projection,
+      @Nullable @JsonProperty(value = "b") HasZTensor offset) {
+    var zprojection = projection.asZTensor();
 
-    projection.assertNDim(2);
-    offset.assertNDim(1);
-    if (offset.shape(0) != outputNDim()) {
+    this.projection = zprojection.asImmutable();
+    if (offset == null) {
+      offset = ZTensor.newZeros(zprojection.shape(0));
+    }
+    var zoffset = offset.asZTensor();
+    this.offset = zoffset.asImmutable();
+
+    zprojection.assertNDim(2);
+    zoffset.assertNDim(1);
+    if (zoffset.shape(0) != outputNDim()) {
       throw new IllegalArgumentException(
           String.format(
               "A.shape[1] != b.shape[0]: %s != %s",
-              projection.shapeAsList(), offset.shapeAsList()));
+              zprojection.shapeAsList(), zoffset.shapeAsList()));
     }
   }
 
@@ -94,7 +125,7 @@ public class ZAffineMap
    *
    * @param projection the matrix.
    */
-  public ZAffineMap(@Nonnull ZTensor projection) {
+  public ZAffineMap(@Nonnull HasZTensor projection) {
     this(projection, null);
   }
 
@@ -147,26 +178,16 @@ public class ZAffineMap
   }
 
   /**
-   * Apply this affine map to the given ZPoint.
-   *
-   * @param x a ZPoint of dim `inDim`.
-   * @return a ZPoint of dim `outDim`.
-   */
-  @Nonnull
-  public ZPoint apply(@Nonnull ZPoint x) {
-    return new ZPoint(apply(x.coords));
-  }
-
-  /**
    * Apply this affine map to the given vector.
    *
    * @param x a 1-dim tensor of length `inDim`.
    * @return a 1-dim tensor of length `outDim`.
    */
   @Nonnull
-  public ZTensor apply(@Nonnull ZTensor x) {
+  public ZTensor apply(@Nonnull HasZTensor x) {
+    var ztensor = x.asZTensor();
     // denoted in the `in` dim.
-    x.assertNDim(1);
+    ztensor.assertNDim(1);
     return ZTensor.Ops.matmul(projection, x).add(offset);
   }
 
@@ -177,19 +198,8 @@ public class ZAffineMap
    * @return a new affine map.
    */
   @Nonnull
-  public ZAffineMap translate(@Nonnull ZTensor x) {
+  public ZAffineMap translate(@Nonnull HasZTensor x) {
     return new ZAffineMap(projection, offset.add(x));
-  }
-
-  /**
-   * Translate this affine map by the given vector.
-   *
-   * @param x a ZPoint of dim `inDim`.
-   * @return a new affine map.
-   */
-  @Nonnull
-  public ZAffineMap translate(@Nonnull ZPoint x) {
-    return translate(x.coords);
   }
 
   /**

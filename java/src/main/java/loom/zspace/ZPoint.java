@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.google.errorprone.annotations.Immutable;
+import com.kjetland.jackson.jsonSchema.annotations.JsonSchemaInject;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.ThreadSafe;
 import lombok.NoArgsConstructor;
@@ -21,7 +22,8 @@ import loom.common.json.HasToJsonString;
 @ThreadSafe
 @Immutable
 @JsonDeserialize(using = ZPoint.Serialization.Deserializer.class)
-public final class ZPoint implements Cloneable, HasPermute<ZPoint>, HasToJsonString {
+@JsonSchemaInject(json = "{\"type\": \"array\", \"items\": {\"type\": \"integer\"}}", merge = false)
+public final class ZPoint implements HasZTensor, Cloneable, HasPermute<ZPoint>, HasToJsonString {
   /** Jackson serialization support. */
   @NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
   static final class Serialization {
@@ -43,29 +45,6 @@ public final class ZPoint implements Cloneable, HasPermute<ZPoint>, HasToJsonStr
   @NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
   public static final class Ops {
     /**
-     * Compute the partial ordering of two points.
-     *
-     * <p>Only tensors of the same dimension are comparable.
-     *
-     * <p>Two tensors are equal if they have the same coordinates.
-     *
-     * <p>A tensor is less than another if it has a coordinate less than the other; and no
-     * coordinates greater than the other.
-     *
-     * <p>A tensor is greater than another if it has a coordinate greater than the other; and no
-     * coordinates less than the other.
-     *
-     * <p>Otherwise, the tensors are unordered.
-     *
-     * @param lhs the left-hand side.
-     * @param rhs the right-hand side.
-     * @return the partial ordering.
-     */
-    public static PartialOrdering partialOrderByGrid(@Nonnull ZPoint lhs, @Nonnull ZPoint rhs) {
-      return partialOrderByGrid(lhs.coords, rhs.coords);
-    }
-
-    /**
      * Compute the partial ordering of two tensors as coordinates in distance from 0.
      *
      * <p>Only tensors of the same dimension are comparable.
@@ -86,13 +65,17 @@ public final class ZPoint implements Cloneable, HasPermute<ZPoint>, HasToJsonStr
      * @param rhs the right-hand side.
      * @return the partial ordering.
      */
-    public static PartialOrdering partialOrderByGrid(@Nonnull ZTensor lhs, @Nonnull ZTensor rhs) {
-      HasDimension.assertSameNDim(lhs, rhs);
+    public static PartialOrdering partialOrderByGrid(
+        @Nonnull HasZTensor lhs, @Nonnull HasZTensor rhs) {
+      var zlhs = lhs.asZTensor();
+      var zrhs = rhs.asZTensor();
+
+      HasDimension.assertSameNDim(zlhs, zrhs);
 
       boolean lt = false;
       boolean gt = false;
-      for (int[] coords : lhs.byCoords(BufferMode.REUSED)) {
-        int cmp = Integer.compare(lhs.get(coords), rhs.get(coords));
+      for (int[] coords : zlhs.byCoords(BufferMode.REUSED)) {
+        int cmp = Integer.compare(zlhs.get(coords), zrhs.get(coords));
         if (cmp < 0) {
           lt = true;
         } else if (cmp > 0) {
@@ -112,41 +95,8 @@ public final class ZPoint implements Cloneable, HasPermute<ZPoint>, HasToJsonStr
      * @param rhs the right-hand side.
      * @return true if the points are equal.
      */
-    public static boolean eq(@Nonnull ZPoint lhs, @Nonnull ZPoint rhs) {
-      return eq(lhs.coords, rhs.coords);
-    }
-
-    /**
-     * Are these points equal under partial ordering?
-     *
-     * @param lhs the left-hand side.
-     * @param rhs the right-hand side.
-     * @return true if the points are equal.
-     */
-    public static boolean eq(@Nonnull ZTensor lhs, @Nonnull ZTensor rhs) {
-      return lhs.equals(rhs);
-    }
-
-    /**
-     * Are these points equal under partial ordering?
-     *
-     * @param lhs the left-hand side.
-     * @param rhs the right-hand side.
-     * @return true if the points are equal.
-     */
-    public static boolean eq(@Nonnull ZTensor lhs, @Nonnull ZPoint rhs) {
-      return eq(lhs, rhs.coords);
-    }
-
-    /**
-     * Are these points equal under partial ordering?
-     *
-     * @param lhs the left-hand side.
-     * @param rhs the right-hand side.
-     * @return true if the points are equal.
-     */
-    public static boolean eq(@Nonnull ZPoint lhs, @Nonnull ZTensor rhs) {
-      return eq(lhs.coords, rhs);
+    public static boolean eq(@Nonnull HasZTensor lhs, @Nonnull HasZTensor rhs) {
+      return lhs.asZTensor().equals(rhs);
     }
 
     /**
@@ -156,40 +106,7 @@ public final class ZPoint implements Cloneable, HasPermute<ZPoint>, HasToJsonStr
      * @param rhs the right-hand side.
      * @return true if the points are non-equal.
      */
-    public static boolean ne(@Nonnull ZPoint lhs, @Nonnull ZPoint rhs) {
-      return !eq(lhs.coords, rhs.coords);
-    }
-
-    /**
-     * Are these points non-equal under partial ordering?
-     *
-     * @param lhs the left-hand side.
-     * @param rhs the right-hand side.
-     * @return true if the points are non-equal.
-     */
-    public static boolean ne(@Nonnull ZTensor lhs, @Nonnull ZPoint rhs) {
-      return !eq(lhs, rhs.coords);
-    }
-
-    /**
-     * Are these points non-equal under partial ordering?
-     *
-     * @param lhs the left-hand side.
-     * @param rhs the right-hand side.
-     * @return true if the points are non-equal.
-     */
-    public static boolean ne(@Nonnull ZPoint lhs, @Nonnull ZTensor rhs) {
-      return !eq(lhs.coords, rhs);
-    }
-
-    /**
-     * Are these points non-equal under partial ordering?
-     *
-     * @param lhs the left-hand side.
-     * @param rhs the right-hand side.
-     * @return true if the points are non-equal.
-     */
-    public static boolean ne(@Nonnull ZTensor lhs, @Nonnull ZTensor rhs) {
+    public static boolean ne(@Nonnull HasZTensor lhs, @Nonnull HasZTensor rhs) {
       return !eq(lhs, rhs);
     }
 
@@ -200,62 +117,18 @@ public final class ZPoint implements Cloneable, HasPermute<ZPoint>, HasToJsonStr
      * @param rhs the right-hand side.
      * @return true or false.
      */
-    public static boolean lt(@Nonnull ZPoint lhs, @Nonnull ZPoint rhs) {
-      return lt(lhs.coords, rhs.coords);
-    }
-
-    /**
-     * Is {@code lhs < rhs}?
-     *
-     * @param lhs the left-hand side.
-     * @param rhs the right-hand side.
-     * @return true or false.
-     */
-    public static boolean lt(@Nonnull ZTensor lhs, @Nonnull ZTensor rhs) {
+    public static boolean lt(@Nonnull HasZTensor lhs, @Nonnull HasZTensor rhs) {
       return partialOrderByGrid(lhs, rhs) == PartialOrdering.LESS_THAN;
     }
 
     /**
-     * Is {@code lhs < rhs}?
-     *
-     * @param lhs the left-hand side.
-     * @param rhs the right-hand side.
-     * @return true or false.
-     */
-    public static boolean lt(@Nonnull ZTensor lhs, @Nonnull ZPoint rhs) {
-      return lt(lhs, rhs.coords);
-    }
-
-    /**
-     * Is {@code lhs < rhs}?
-     *
-     * @param lhs the left-hand side.
-     * @param rhs the right-hand side.
-     * @return true or false.
-     */
-    public static boolean lt(@Nonnull ZPoint lhs, @Nonnull ZTensor rhs) {
-      return lt(lhs.coords, rhs);
-    }
-
-    /**
      * Is {@code lhs <= rhs}?
      *
      * @param lhs the left-hand side.
      * @param rhs the right-hand side.
      * @return true or false.
      */
-    public static boolean le(@Nonnull ZPoint lhs, @Nonnull ZPoint rhs) {
-      return le(lhs.coords, rhs.coords);
-    }
-
-    /**
-     * Is {@code lhs <= rhs}?
-     *
-     * @param lhs the left-hand side.
-     * @param rhs the right-hand side.
-     * @return true or false.
-     */
-    public static boolean le(@Nonnull ZTensor lhs, @Nonnull ZTensor rhs) {
+    public static boolean le(@Nonnull HasZTensor lhs, @Nonnull HasZTensor rhs) {
       return switch (partialOrderByGrid(lhs, rhs)) {
         case LESS_THAN, EQUAL -> true;
         default -> false;
@@ -263,116 +136,28 @@ public final class ZPoint implements Cloneable, HasPermute<ZPoint>, HasToJsonStr
     }
 
     /**
-     * Is {@code lhs <= rhs}?
-     *
-     * @param lhs the left-hand side.
-     * @param rhs the right-hand side.
-     * @return true or false.
-     */
-    public static boolean le(@Nonnull ZPoint lhs, @Nonnull ZTensor rhs) {
-      return le(lhs.coords, rhs);
-    }
-
-    /**
-     * Is {@code lhs <= rhs}?
-     *
-     * @param lhs the left-hand side.
-     * @param rhs the right-hand side.
-     * @return true or false.
-     */
-    public static boolean le(@Nonnull ZTensor lhs, @Nonnull ZPoint rhs) {
-      return le(lhs, rhs.coords);
-    }
-
-    /**
      * Is {@code lhs > rhs}?
      *
      * @param lhs the left-hand side.
      * @param rhs the right-hand side.
      * @return true or false.
      */
-    public static boolean gt(@Nonnull ZPoint lhs, @Nonnull ZPoint rhs) {
-      return gt(lhs.coords, rhs.coords);
-    }
-
-    /**
-     * Is {@code lhs > rhs}?
-     *
-     * @param lhs the left-hand side.
-     * @param rhs the right-hand side.
-     * @return true or false.
-     */
-    public static boolean gt(@Nonnull ZTensor lhs, @Nonnull ZTensor rhs) {
+    public static boolean gt(@Nonnull HasZTensor lhs, @Nonnull HasZTensor rhs) {
       return partialOrderByGrid(lhs, rhs) == PartialOrdering.GREATER_THAN;
     }
 
     /**
-     * Is {@code lhs > rhs}?
-     *
-     * @param lhs the left-hand side.
-     * @param rhs the right-hand side.
-     * @return true or false.
-     */
-    public static boolean gt(@Nonnull ZPoint lhs, @Nonnull ZTensor rhs) {
-      return gt(lhs.coords, rhs);
-    }
-
-    /**
-     * Is {@code lhs > rhs}?
-     *
-     * @param lhs the left-hand side.
-     * @param rhs the right-hand side.
-     * @return true or false.
-     */
-    public static boolean gt(@Nonnull ZTensor lhs, @Nonnull ZPoint rhs) {
-      return gt(lhs, rhs.coords);
-    }
-
-    /**
      * Is {@code lhs >= rhs}?
      *
      * @param lhs the left-hand side.
      * @param rhs the right-hand side.
      * @return true or false.
      */
-    public static boolean ge(@Nonnull ZPoint lhs, @Nonnull ZPoint rhs) {
-      return ge(lhs.coords, rhs.coords);
-    }
-
-    /**
-     * Is {@code lhs >= rhs}?
-     *
-     * @param lhs the left-hand side.
-     * @param rhs the right-hand side.
-     * @return true or false.
-     */
-    public static boolean ge(@Nonnull ZTensor lhs, @Nonnull ZTensor rhs) {
+    public static boolean ge(@Nonnull HasZTensor lhs, @Nonnull HasZTensor rhs) {
       return switch (partialOrderByGrid(lhs, rhs)) {
         case GREATER_THAN, EQUAL -> true;
         default -> false;
       };
-    }
-
-    /**
-     * Is {@code lhs >= rhs}?
-     *
-     * @param lhs the left-hand side.
-     * @param rhs the right-hand side.
-     * @return true or false.
-     */
-    public static boolean ge(@Nonnull ZPoint lhs, @Nonnull ZTensor rhs) {
-      return ge(lhs.coords, rhs);
-    }
-
-    /**
-     * Is {@code lhs >= rhs}?
-     *
-     * @param lhs the left-hand side.
-     * @param rhs the right-hand side.
-     * @return true or false.
-     */
-    public static boolean ge(@Nonnull ZTensor lhs, @Nonnull ZPoint rhs) {
-      return ge(lhs, rhs.coords);
     }
   }
 
@@ -383,8 +168,8 @@ public final class ZPoint implements Cloneable, HasPermute<ZPoint>, HasToJsonStr
    * @return a new ZPoint.
    */
   @Nonnull
-  public static ZPoint newZerosLike(@Nonnull ZPoint ref) {
-    return newZeros(ref.getNDim());
+  public static ZPoint newZerosLike(@Nonnull HasZTensor ref) {
+    return new ZPoint(ZTensor.newZerosLike(ref));
   }
 
   /**
@@ -405,8 +190,8 @@ public final class ZPoint implements Cloneable, HasPermute<ZPoint>, HasToJsonStr
    * @return a new ZPoint.
    */
   @Nonnull
-  public static ZPoint newOnesLike(@Nonnull ZPoint ref) {
-    return newOnes(ref.getNDim());
+  public static ZPoint newOnesLike(@Nonnull HasZTensor ref) {
+    return new ZPoint(ZTensor.newOnesLike(ref));
   }
 
   /**
@@ -469,9 +254,10 @@ public final class ZPoint implements Cloneable, HasPermute<ZPoint>, HasToJsonStr
    *
    * @param coord the coordinates.
    */
-  public ZPoint(@Nonnull ZTensor coord) {
-    coord.assertNDim(1);
-    this.coords = coord.asImmutable();
+  public ZPoint(@Nonnull HasZTensor coord) {
+    var ztensor = coord.asZTensor();
+    ztensor.assertNDim(1);
+    this.coords = ztensor.asImmutable();
   }
 
   /**
@@ -508,6 +294,11 @@ public final class ZPoint implements Cloneable, HasPermute<ZPoint>, HasToJsonStr
     return coords.toString();
   }
 
+  @Override
+  public ZTensor asZTensor() {
+    return coords;
+  }
+
   /**
    * Resolve a dimension index.
    *
@@ -527,7 +318,7 @@ public final class ZPoint implements Cloneable, HasPermute<ZPoint>, HasToJsonStr
    * @param rhs the right-hand side.
    * @return true or false.
    */
-  public boolean eq(@Nonnull ZPoint rhs) {
+  public boolean eq(@Nonnull HasZTensor rhs) {
     return ZPoint.Ops.eq(this, rhs);
   }
 
@@ -563,32 +354,12 @@ public final class ZPoint implements Cloneable, HasPermute<ZPoint>, HasToJsonStr
   }
 
   /**
-   * Is {@code this == rhs}?
-   *
-   * @param rhs the right-hand side.
-   * @return true or false.
-   */
-  public boolean eq(@Nonnull ZTensor rhs) {
-    return ZPoint.Ops.eq(this, rhs);
-  }
-
-  /**
    * Is {@code this != rhs}?
    *
    * @param rhs the right-hand side.
    * @return true or false.
    */
-  public boolean ne(@Nonnull ZPoint rhs) {
-    return ZPoint.Ops.ne(this, rhs);
-  }
-
-  /**
-   * Is {@code this != rhs}?
-   *
-   * @param rhs the right-hand side.
-   * @return true or false.
-   */
-  public boolean ne(@Nonnull ZTensor rhs) {
+  public boolean ne(@Nonnull HasZTensor rhs) {
     return ZPoint.Ops.ne(this, rhs);
   }
 
@@ -598,17 +369,7 @@ public final class ZPoint implements Cloneable, HasPermute<ZPoint>, HasToJsonStr
    * @param rhs the right-hand side.
    * @return true or false.
    */
-  public boolean lt(@Nonnull ZPoint rhs) {
-    return ZPoint.Ops.lt(this, rhs);
-  }
-
-  /**
-   * Is {@code this < rhs}?
-   *
-   * @param rhs the right-hand side.
-   * @return true or false.
-   */
-  public boolean lt(@Nonnull ZTensor rhs) {
+  public boolean lt(@Nonnull HasZTensor rhs) {
     return ZPoint.Ops.lt(this, rhs);
   }
 
@@ -618,17 +379,7 @@ public final class ZPoint implements Cloneable, HasPermute<ZPoint>, HasToJsonStr
    * @param rhs the right-hand side.
    * @return true or false.
    */
-  public boolean le(@Nonnull ZPoint rhs) {
-    return ZPoint.Ops.le(this, rhs);
-  }
-
-  /**
-   * Is {@code this <= rhs}?
-   *
-   * @param rhs the right-hand side.
-   * @return true or false.
-   */
-  public boolean le(@Nonnull ZTensor rhs) {
+  public boolean le(@Nonnull HasZTensor rhs) {
     return ZPoint.Ops.le(this, rhs);
   }
 
@@ -638,17 +389,7 @@ public final class ZPoint implements Cloneable, HasPermute<ZPoint>, HasToJsonStr
    * @param rhs the right-hand side.
    * @return true or false.
    */
-  public boolean gt(@Nonnull ZPoint rhs) {
-    return ZPoint.Ops.gt(this, rhs);
-  }
-
-  /**
-   * Is {@code this > rhs}?
-   *
-   * @param rhs the right-hand side.
-   * @return true or false.
-   */
-  public boolean gt(@Nonnull ZTensor rhs) {
+  public boolean gt(@Nonnull HasZTensor rhs) {
     return ZPoint.Ops.gt(this, rhs);
   }
 
@@ -658,17 +399,7 @@ public final class ZPoint implements Cloneable, HasPermute<ZPoint>, HasToJsonStr
    * @param rhs the right-hand side.
    * @return true or false.
    */
-  public boolean ge(@Nonnull ZPoint rhs) {
-    return ZPoint.Ops.ge(this, rhs);
-  }
-
-  /**
-   * Is {@code this >= rhs}?
-   *
-   * @param rhs the right-hand side.
-   * @return true or false.
-   */
-  public boolean ge(@Nonnull ZTensor rhs) {
+  public boolean ge(@Nonnull HasZTensor rhs) {
     return ZPoint.Ops.ge(this, rhs);
   }
 }
