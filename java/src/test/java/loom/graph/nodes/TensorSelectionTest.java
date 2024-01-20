@@ -2,6 +2,7 @@ package loom.graph.nodes;
 
 import java.util.UUID;
 import loom.testing.BaseTestClass;
+import loom.zspace.ZDimMissMatchError;
 import loom.zspace.ZRange;
 import org.junit.Test;
 
@@ -31,8 +32,8 @@ public class TensorSelectionTest extends BaseTestClass {
                 TensorSelection.from(tensorNode, ZRange.builder().start(-1, 0).shape(2, 2).build()))
         .withMessageContaining("does not contain range");
 
-    assertThatExceptionOfType(IndexOutOfBoundsException.class)
+    assertThatExceptionOfType(ZDimMissMatchError.class)
         .isThrownBy(() -> TensorSelection.from(tensorNode, ZRange.fromShape(2)))
-        .withMessageContaining("are out of bounds");
+        .withMessageContaining("ZDim shape mismatch: [2] != [1]");
   }
 }

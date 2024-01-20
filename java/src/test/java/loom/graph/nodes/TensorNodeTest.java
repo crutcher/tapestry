@@ -21,7 +21,7 @@ public class TensorNodeTest extends BaseTestClass {
             """);
 
     assertThat(body.getNDim()).isEqualTo(0);
-    assertThat(body.getRange()).isEqualTo(ZRange.fromShape(0));
+    assertThat(body.getRange()).isEqualTo(ZRange.fromShape());
     assertThat(body.getSize()).isEqualTo(1);
     assertThat(body.getRange()).isEqualTo(new ZRange(ZPoint.of(), ZPoint.of()));
   }

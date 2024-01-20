@@ -32,7 +32,7 @@ public final class DominanceOrderingOperations {
     var zlhs = lhs.asZTensor();
     var zrhs = rhs.asZTensor();
 
-    HasDimension.assertSameNDim(zlhs, zrhs);
+    zlhs.assertSameShape(zrhs);
 
     boolean lt = false;
     boolean gt = false;
@@ -58,6 +58,7 @@ public final class DominanceOrderingOperations {
    * @return true if the points are equal.
    */
   public static boolean eq(@Nonnull HasZTensor lhs, @Nonnull HasZTensor rhs) {
+    lhs.asZTensor().assertSameShape(rhs);
     return lhs.asZTensor().equals(rhs);
   }
 

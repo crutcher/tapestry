@@ -3,20 +3,19 @@ package loom.zspace;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.common.base.Splitter;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.Objects;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.annotation.concurrent.Immutable;
+import javax.annotation.concurrent.ThreadSafe;
 import lombok.Builder;
 import lombok.Value;
 import loom.common.json.HasToJsonString;
 import loom.common.json.JsonUtil;
 import loom.common.runtime.CheckThat;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import javax.annotation.concurrent.Immutable;
-import javax.annotation.concurrent.ThreadSafe;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.Objects;
+import loom.common.text.TextUtils;
 
 /**
  * Represents a range of points in discrete space.
@@ -49,7 +48,7 @@ import java.util.Objects;
 public class ZRange implements Cloneable, HasSize, HasPermute<ZRange>, HasToJsonString {
   /** ZRange builder. */
   @SuppressWarnings("unused")
-  public static class ZRangeBuilder {
+  public static final class ZRangeBuilder {
     private ZTensor shape;
 
     /**
@@ -274,12 +273,12 @@ public class ZRange implements Cloneable, HasSize, HasPermute<ZRange>, HasToJson
         return new ZRange(new ZPoint(), new ZPoint());
       }
 
-      var parts = COMMA_SPLITTER.splitToList(t);
+      var parts = TextUtils.COMMA_SPLITTER.splitToList(t);
       var start = new int[parts.size()];
       var end = new int[parts.size()];
 
       for (int i = 0; i < parts.size(); ++i) {
-        var rangeParts = COLON_SPLITTER.splitToList(parts.get(i));
+        var rangeParts = TextUtils.COLON_SPLITTER.splitToList(parts.get(i));
         if (rangeParts.size() != 2) {
           throw new IllegalArgumentException(String.format("Invalid ZRange: \"%s\"", str));
         }
@@ -294,12 +293,9 @@ public class ZRange implements Cloneable, HasSize, HasPermute<ZRange>, HasToJson
     throw new IllegalArgumentException(String.format("Invalid ZRange: \"%s\"", str));
   }
 
-  private static final Splitter COMMA_SPLITTER = Splitter.on(",");
-  private static final Splitter COLON_SPLITTER = Splitter.on(':');
-
   @Nonnull ZPoint start;
   @Nonnull ZPoint end;
-  @JsonIgnore @Nonnull ZTensor shape;
+  @JsonIgnore @Nonnull ZPoint shape;
   @JsonIgnore int size;
 
   /**
@@ -319,7 +315,7 @@ public class ZRange implements Cloneable, HasSize, HasPermute<ZRange>, HasToJson
     this.start = zstart;
     this.end = zend;
 
-    shape = zend.tensor.sub(zstart.tensor).asImmutable();
+    shape = zend.sub(zstart.tensor);
     size = shape.prodAsInt();
   }
 
@@ -523,7 +519,6 @@ public class ZRange implements Cloneable, HasSize, HasPermute<ZRange>, HasToJson
     }
 
     int d = resolveDim(dim);
-    ZTensor shape = getShape();
     int dimSize = shape.get(d);
 
     if (chunkSize >= dimSize) {

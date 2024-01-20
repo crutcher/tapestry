@@ -1,6 +1,7 @@
 package loom.zspace;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.NoSuchElementException;
 import java.util.Objects;
@@ -46,10 +47,32 @@ public class ZTensorTest implements CommonAssertions {
     assertThat(t)
         .isEqualTo(t)
         .isEqualTo(ZTensor.fromArray(new int[][] {{2, 3}, {4, 5}}))
+        .isEqualTo(new int[][] {{2, 3}, {4, 5}})
+        .isNotEqualTo(new int[][] {{2, 3}, {4}})
         .isNotEqualTo(null)
         .isNotEqualTo("abc")
         .isNotEqualTo(ZTensor.fromArray(new int[][] {{2, 3}, {4, 6}}))
         .isNotEqualTo(ZTensor.fromArray(new int[] {2, 3}));
+
+    assertThatExceptionOfType(IllegalArgumentException.class)
+        .isThrownBy(() -> ZTensor.fromArray(new Object()))
+        .withMessage("Cannot convert object of type java.lang.Object to ZTensor");
+  }
+
+  @Test
+  public void test_fromTree() {
+
+    assertThatExceptionOfType(IllegalArgumentException.class)
+        .isThrownBy(
+            () ->
+                ZTensor.fromTree(
+                    new Object(),
+                    obj -> obj.getClass().isArray(),
+                    Array::getLength,
+                    Array::get,
+                    obj -> (int) obj,
+                    int[].class::cast))
+        .withMessage("Could not parse array from tree");
   }
 
   @Test

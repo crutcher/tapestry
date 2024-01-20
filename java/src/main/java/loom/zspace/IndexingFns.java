@@ -1,10 +1,17 @@
 package loom.zspace;
 
 import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+import java.util.function.BiFunction;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.function.ToIntFunction;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import lombok.NoArgsConstructor;
+import org.apache.commons.lang3.tuple.Pair;
 
 /** Utility functions for computing tensor indices. */
 @NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
@@ -378,6 +385,115 @@ public final class IndexingFns {
     if (!Arrays.equals(actual, expected)) {
       throw new IllegalArgumentException(
           "shape " + Arrays.toString(actual) + " != expected shape " + Arrays.toString(expected));
+    }
+  }
+
+  /**
+   * Returns the shape of the tree as seen from the spine.
+   *
+   * @param <T> the type of the tree.
+   * @param root the root of the tree.
+   * @param isArray is this node an array, or a scalar?
+   * @param getArrayLength get the length of this array.
+   * @param getArrayElement get the ith element of this array.
+   * @return the shape of the tree as seen from the spine.
+   */
+  public static <T> List<Integer> treeSpineShape(
+      @Nonnull T root,
+      @Nonnull Predicate<T> isArray,
+      @Nonnull ToIntFunction<T> getArrayLength,
+      @Nonnull BiFunction<T, Integer, T> getArrayElement) {
+    List<Integer> shapeList = new ArrayList<>();
+    {
+      var it = root;
+      while (isArray.test(it)) {
+        var size = getArrayLength.applyAsInt(it);
+        shapeList.add(size);
+        if (size == 0) {
+          break;
+        } else {
+          it = getArrayElement.apply(it, 0);
+        }
+      }
+    }
+    return shapeList;
+  }
+
+  /**
+   * Decode a non-ragged recursive int array from a tree.
+   *
+   * @param <T> the type of the tree.
+   * @param root the root of the tree.
+   * @param isArray is this node an array, or a scalar?
+   * @param getArrayLength get the length of this array.
+   * @param getArrayElement get the ith element of this array.
+   * @param nodeAsScalar get the value of this scalar.
+   * @param nodeAsSimpleArray get a coherent chunk of data for a final layer array.
+   * @return a {@code Pair<int[], int[]>} of (shape, data)
+   */
+  public static <T> @Nonnull Pair<int[], int[]> arrayFromTree(
+      @Nonnull T root,
+      @Nonnull Predicate<T> isArray,
+      @Nonnull ToIntFunction<T> getArrayLength,
+      @Nonnull BiFunction<T, Integer, T> getArrayElement,
+      @Nonnull ToIntFunction<T> nodeAsScalar,
+      @Nonnull Function<T, int[]> nodeAsSimpleArray) {
+    try {
+      if (!isArray.test(root)) {
+        return Pair.of(new int[] {}, new int[] {nodeAsScalar.applyAsInt(root)});
+      }
+
+      var shapeList = treeSpineShape(root, isArray, getArrayLength, getArrayElement);
+
+      var ndim = shapeList.size();
+
+      if (shapeList.contains(0)) {
+        // Handle degenerate tensors.
+        return Pair.of(new int[ndim], new int[] {});
+      }
+
+      int[] shape = shapeList.stream().mapToInt(i -> i).toArray();
+      int[] data = new int[shapeToSize(shape)];
+
+      int chunkCount = 0;
+      int chunkStride = shape[ndim - 1];
+
+      for (int[] coords : new IterableCoordinates(BufferMode.REUSED, shape)) {
+        if (coords[ndim - 1] != 0) continue;
+
+        var it = root;
+        for (int d = 0; d < ndim - 1; ++d) {
+          it = getArrayElement.apply(it, coords[d]);
+        }
+
+        int[] chunk = nodeAsSimpleArray.apply(it);
+
+        System.arraycopy(chunk, 0, data, chunkCount * chunkStride, chunkStride);
+        chunkCount++;
+      }
+
+      return Pair.of(shape, data);
+
+    } catch (Exception e) {
+      throw new IllegalArgumentException("Could not parse array from tree", e);
+    }
+  }
+
+  /**
+   * Is this object a recursive int array?
+   *
+   * @param source the object.
+   * @return true if this object is a recursive int array.
+   */
+  public static boolean isRecursiveIntArray(@Nonnull Object source) {
+    var clazz = source.getClass();
+    while (true) {
+      if (clazz.isArray()) {
+        clazz = clazz.getComponentType();
+        continue;
+      }
+
+      return clazz == int.class || clazz == Integer.class;
     }
   }
 }

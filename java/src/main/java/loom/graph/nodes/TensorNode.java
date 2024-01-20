@@ -112,7 +112,7 @@ public final class TensorNode extends LoomNode<TensorNode, TensorNode.Body> {
     }
 
     @JsonIgnore
-    public ZTensor getShape() {
+    public ZPoint getShape() {
       return getRange().getShape();
     }
   }

@@ -16,7 +16,10 @@ import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.google.common.primitives.Ints;
 import com.kjetland.jackson.jsonSchema.annotations.JsonSchemaInject;
 import java.lang.reflect.Array;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
 import java.util.function.*;
 import javax.annotation.Nonnull;
 import lombok.Getter;
@@ -213,6 +216,12 @@ public final class ZTensor
    */
   @Nonnull
   public static ZTensor fromArray(@Nonnull Object source) {
+    if (!IndexingFns.isRecursiveIntArray(source)) {
+      throw new IllegalArgumentException(
+          "Cannot convert object of type %s to ZTensor"
+              .formatted(source.getClass().getCanonicalName()));
+    }
+
     return fromTree(
         source,
         obj -> obj.getClass().isArray(),
@@ -243,54 +252,12 @@ public final class ZTensor
       @Nonnull BiFunction<T, Integer, T> getArrayElement,
       @Nonnull ToIntFunction<T> nodeAsScalar,
       @Nonnull Function<T, int[]> nodeAsSimpleArray) {
-
-    if (!isArray.test(root)) {
-      return loom.zspace.ZTensor.newScalar(nodeAsScalar.applyAsInt(root));
-    }
-
-    List<Integer> shapeList = new ArrayList<>();
-    {
-      var it = root;
-      while (isArray.test(it)) {
-        var size = getArrayLength.applyAsInt(it);
-        shapeList.add(size);
-        if (size == 0) {
-          break;
-        } else {
-          it = getArrayElement.apply(it, 0);
-        }
-      }
-    }
-
-    var ndim = shapeList.size();
-
-    if (shapeList.contains(0)) {
-      // Handle degenerate tensors.
-      return loom.zspace.ZTensor.newZeros(new int[ndim]);
-    }
-
-    int[] shape = shapeList.stream().mapToInt(i -> i).toArray();
-
-    var tensor = new ZTensor(shape);
-
-    int chunkCount = 0;
-    int chunkStride = tensor.shape[ndim - 1];
-
-    for (int[] coords : tensor.byCoords(BufferMode.REUSED)) {
-      if (coords[ndim - 1] != 0) continue;
-
-      var it = root;
-      for (int d = 0; d < ndim - 1; ++d) {
-        it = getArrayElement.apply(it, coords[d]);
-      }
-
-      int[] chunk = nodeAsSimpleArray.apply(it);
-
-      System.arraycopy(chunk, 0, tensor.data, chunkCount * chunkStride, chunkStride);
-      chunkCount++;
-    }
-
-    return tensor;
+    var pair =
+        IndexingFns.arrayFromTree(
+            root, isArray, getArrayLength, getArrayElement, nodeAsScalar, nodeAsSimpleArray);
+    var shape = pair.getLeft();
+    var data = pair.getRight();
+    return new ZTensor(true, shape, IndexingFns.shapeToLSFStrides(shape), data, 0);
   }
 
   /**
@@ -589,17 +556,48 @@ public final class ZTensor
   @Override
   public boolean equals(Object other) {
     if (this == other) return true;
-
     if (other == null) return false;
-    if (!(other instanceof HasZTensor)) return false;
-    var that = ((HasZTensor) other).asZTensor();
 
-    if (this.getNDim() != that.getNDim()) {
+    if (IndexingFns.isRecursiveIntArray(other)) {
+      return treeEquals(other);
+    }
+
+    if (other instanceof HasZTensor that) {
+      return ztensorEquals(that.asZTensor());
+    }
+    return false;
+  }
+
+  /**
+   * Private equality for recursive arrays.
+   *
+   * @param other the other object.
+   * @return true iff equals.
+   */
+  private boolean treeEquals(Object other) {
+    // TODO: implement tree-walking comparison without a constructor.
+    ZTensor that;
+    try {
+      that = fromArray(other);
+    } catch (IllegalArgumentException e) {
+      return false;
+    }
+    return ztensorEquals(that);
+  }
+
+  /**
+   * Private equality for ZTensors.
+   *
+   * @param other the other object.
+   * @return true iff equals.
+   */
+  private boolean ztensorEquals(ZTensor other) {
+    if (!Arrays.equals(shape, other.shape)) {
       return false;
     }
 
     for (var coords : byCoords(BufferMode.REUSED)) {
-      if (that.get(coords) != get(coords)) {
+      if (other.get(coords) != get(coords)) {
         return false;
       }
     }
@@ -657,6 +655,20 @@ public final class ZTensor
    */
   public ZPoint newZPoint() {
     return new ZPoint(this);
+  }
+
+  /**
+   * Assert that this tensor has the same shape as another tensor.
+   *
+   * @param other the other tensor.
+   * @throws ZDimMissMatchError if the shapes do not match.
+   */
+  public void assertSameShape(@Nonnull HasZTensor other) {
+    if (!Arrays.equals(shape, other.asZTensor()._unsafeGetShape())) {
+      throw new ZDimMissMatchError(
+          String.format(
+              "ZDim shape mismatch: %s != %s", shapeAsList(), other.asZTensor().shapeAsList()));
+    }
   }
 
   /**

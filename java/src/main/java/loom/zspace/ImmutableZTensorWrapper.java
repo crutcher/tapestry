@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import loom.common.json.HasToJsonString;
 
 import javax.annotation.Nonnull;
+import javax.annotation.concurrent.Immutable;
 import javax.annotation.concurrent.ThreadSafe;
 
 /**
@@ -12,18 +13,35 @@ import javax.annotation.concurrent.ThreadSafe;
  * @param <T> the type of the subclass.
  */
 @ThreadSafe
+@Immutable
 public abstract class ImmutableZTensorWrapper<T> implements HasZTensor, Cloneable, HasToJsonString {
   @JsonValue
   @Nonnull
   @SuppressWarnings("Immutable")
   ZTensor tensor;
 
+  /**
+   * Create a new instance of {@code T} from a {@link ZTensor}.
+   *
+   * @param tensor the tensor.
+   */
   public ImmutableZTensorWrapper(HasZTensor tensor) {
     this.tensor = tensor.asZTensor().asImmutable();
   }
 
+  /**
+   * Create a new instance of {@code T} from a {@link ZTensor}.
+   *
+   * @param tensor the tensor.
+   * @return the new instance.
+   */
   protected abstract T create(HasZTensor tensor);
 
+  /**
+   * Returns {@code this} as {@code T}.
+   *
+   * @return {@code this} as {@code T}.
+   */
   @SuppressWarnings("unchecked")
   private T self() {
     return (T) this;
@@ -117,63 +135,157 @@ public abstract class ImmutableZTensorWrapper<T> implements HasZTensor, Cloneabl
     return DominanceOrderingOperations.ge(this, rhs);
   }
 
-  public int sumAsInt() {
+  /**
+   * Returns the sum of all elements.
+   *
+   * @return the sum of all elements.
+   */
+  public final int sumAsInt() {
     return tensor.sumAsInt();
   }
 
-  public int prodAsInt() {
+  /**
+   * Returns the product of all elements.
+   *
+   * @return the product of all elements.
+   */
+  public final int prodAsInt() {
     return tensor.prodAsInt();
   }
 
-  public int maxAsInt() {
+  /**
+   * Returns the maximum element value.
+   *
+   * @return the maximum element value.
+   */
+  public final int maxAsInt() {
     return tensor.maxAsInt();
   }
 
-  public int minAsInt() {
+  /**
+   * Returns the minimum element value.
+   *
+   * @return the minimum element value.
+   */
+  public final int minAsInt() {
     return tensor.minAsInt();
   }
 
-  public T neg() {
+  /**
+   * Returns the cell-wise negation as a new {@code T}.
+   *
+   * @return the cell-wise negation as a new {@code T}.
+   */
+  public final T neg() {
     return create(ZTensorOperations.neg(this));
   }
 
-  public T add(@Nonnull HasZTensor rhs) {
+  /**
+   * Returns the cell-wise absolute value as a new {@code T}.
+   *
+   * @return the cell-wise absolute value as a new {@code T}.
+   */
+  public final T abs() {
+    return create(ZTensorOperations.abs(this));
+  }
+
+  /**
+   * Returns the broadcast addition with {@code rhs} as a new {@code T}.
+   *
+   * @param rhs the right-hand side.
+   * @return the broadcast addition with {@code rhs} as a new {@code T}.
+   */
+  public final T add(@Nonnull HasZTensor rhs) {
     return create(ZTensorOperations.add(this, rhs));
   }
 
-  public T add(int rhs) {
+  /**
+   * Returns the cell-wise addition with {@code rhs} as a new {@code T}.
+   *
+   * @param rhs the right-hand side.
+   * @return the cell-wise addition with {@code rhs} as a new {@code T}.
+   */
+  public final T add(int rhs) {
     return create(ZTensorOperations.add(this, rhs));
   }
 
-  public T sub(@Nonnull HasZTensor rhs) {
+  /**
+   * Returns the broadcast subtraction with {@code rhs} as a new {@code T}.
+   *
+   * @param rhs the right-hand side.
+   * @return the broadcast subtraction with {@code rhs} as a new {@code T}.
+   */
+  public final T sub(@Nonnull HasZTensor rhs) {
     return create(ZTensorOperations.sub(this, rhs));
   }
 
-  public T sub(int rhs) {
+  /**
+   * Returns the cell-wise subtraction with {@code rhs} as a new {@code T}.
+   *
+   * @param rhs the right-hand side.
+   * @return the cell-wise subtraction with {@code rhs} as a new {@code T}.
+   */
+  public final T sub(int rhs) {
     return create(ZTensorOperations.sub(this, rhs));
   }
 
-  public T mul(@Nonnull HasZTensor rhs) {
+  /**
+   * Returns the broadcast multiplication with {@code rhs} as a new {@code T}.
+   *
+   * @param rhs the right-hand side.
+   * @return the broadcast multiplication with {@code rhs} as a new {@code T}.
+   */
+  public final T mul(@Nonnull HasZTensor rhs) {
     return create(ZTensorOperations.mul(this, rhs));
   }
 
-  public T mul(int rhs) {
+  /**
+   * Returns the cell-wise multiplication with {@code rhs} as a new {@code T}.
+   *
+   * @param rhs the right-hand side.
+   * @return the cell-wise multiplication with {@code rhs} as a new {@code T}.
+   */
+  public final T mul(int rhs) {
     return create(ZTensorOperations.mul(this, rhs));
   }
 
-  public T div(@Nonnull HasZTensor rhs) {
+  /**
+   * Returns the broadcast division with {@code rhs} as a new {@code T}.
+   *
+   * @param rhs the right-hand side.
+   * @return the broadcast division with {@code rhs} as a new {@code T}.
+   */
+  public final T div(@Nonnull HasZTensor rhs) {
     return create(ZTensorOperations.div(this, rhs));
   }
 
-  public T div(int rhs) {
+  /**
+   * Returns the cell-wise division with {@code rhs} as a new {@code T}.
+   *
+   * @param rhs the right-hand side.
+   * @return the cell-wise division with {@code rhs} as a new {@code T}.
+   */
+  public final T div(int rhs) {
     return create(ZTensorOperations.div(this, rhs));
   }
 
-  public T mod(@Nonnull HasZTensor rhs) {
+  /**
+   * Returns the broadcast modulo with {@code rhs} as a new {@code T}.
+   *
+   * @param rhs the right-hand side.
+   * @return the broadcast modulo with {@code rhs} as a new {@code T}.
+   */
+  public final T mod(@Nonnull HasZTensor rhs) {
     return create(ZTensorOperations.mod(this, rhs));
   }
 
-  public T mod(int rhs) {
+  /**
+   * Returns the cell-wise modulo with {@code rhs} as a new {@code T}.
+   *
+   * @param rhs the right-hand side.
+   * @return the cell-wise modulo with {@code rhs} as a new {@code T}.
+   */
+  public final T mod(int rhs) {
     return create(ZTensorOperations.mod(this, rhs));
   }
 }
