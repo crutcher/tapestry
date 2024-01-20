@@ -15,20 +15,19 @@ import com.fasterxml.jackson.databind.node.IntNode;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.google.common.primitives.Ints;
 import com.kjetland.jackson.jsonSchema.annotations.JsonSchemaInject;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.SneakyThrows;
-import loom.common.collections.IteratorUtils;
-import loom.common.json.HasToJsonString;
-import loom.common.json.JsonUtil;
-
-import javax.annotation.Nonnull;
 import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.function.*;
+import javax.annotation.Nonnull;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.SneakyThrows;
+import loom.common.collections.IteratorUtils;
+import loom.common.json.HasToJsonString;
+import loom.common.json.JsonUtil;
 
 /**
  * A multidimensional int array used for numerical operations.
@@ -1438,6 +1437,94 @@ public final class ZTensor
    */
   public void mod_(int rhs) {
     ZTensorOperations.mod_(this, rhs);
+  }
+
+  /**
+   * Returns an elementwise broadcast power with this tensor.
+   *
+   * @param rhs the right-hand side tensor.
+   * @return a new tensor.
+   */
+  @Nonnull
+  public ZTensor pow(@Nonnull HasZTensor rhs) {
+    return ZTensorOperations.pow(this, rhs);
+  }
+
+  /**
+   * Returns an elementwise broadcast power with this tensor.
+   *
+   * @param rhs the right-hand side scalar.
+   * @return a new tensor.
+   */
+  @Nonnull
+  public ZTensor pow(int rhs) {
+    return ZTensorOperations.pow(this, rhs);
+  }
+
+  /**
+   * Performs an in-place elementwise broadcast power on this tensor.
+   *
+   * <p>This tensor must be mutable.
+   *
+   * @param rhs the right-hand side tensor.
+   */
+  public void pow_(@Nonnull HasZTensor rhs) {
+    ZTensorOperations.pow_(this, rhs);
+  }
+
+  /**
+   * Performs an in-place elementwise broadcast power on this tensor.
+   *
+   * <p>This tensor must be mutable.
+   *
+   * @param rhs the right-hand side scalar.
+   */
+  public void pow_(int rhs) {
+    ZTensorOperations.pow_(this, rhs);
+  }
+
+  /**
+   * Returns an elementwise broadcast log with this tensor.
+   *
+   * @param rhs the right-hand side tensor.
+   * @return a new tensor.
+   */
+  @Nonnull
+  public ZTensor log(@Nonnull HasZTensor rhs) {
+    return ZTensorOperations.log(this, rhs);
+  }
+
+  /**
+   * Returns an elementwise broadcast log with this tensor.
+   *
+   * @param rhs the right-hand side scalar.
+   * @return a new tensor.
+   */
+  @Nonnull
+  public ZTensor log(int rhs) {
+    return ZTensorOperations.log(this, rhs);
+  }
+
+  /**
+   * Performs an in-place elementwise broadcast log on this tensor.
+   *
+   * <p>This tensor must be mutable.
+   *
+   * @param rhs the right-hand side tensor.
+   */
+  public void log_(@Nonnull HasZTensor rhs) {
+    ZTensorOperations.log_(this, rhs);
+  }
+
+  /**
+   * Performs an in-place elementwise broadcast log on this tensor.
+   *
+   * <p>This tensor must be mutable.
+   *
+   * @param rhs the right-hand side scalar.
+   */
+  public void log_(int rhs) {
+    ZTensorOperations.log_(this, rhs);
   }
 
   /**

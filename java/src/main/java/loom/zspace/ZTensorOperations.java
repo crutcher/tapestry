@@ -11,6 +11,89 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
 public final class ZTensorOperations {
   /**
+   * Applies the given reduction operation to all values in the given tensor.
+   *
+   * @param tensor the tensor
+   * @param op the reduction operation
+   * @param initial the initial value
+   * @return the int result of the reduction.
+   */
+  public static int reduceCellsAtomic(
+      @Nonnull HasZTensor tensor, @Nonnull IntBinaryOperator op, int initial) {
+    var acc =
+        new IntConsumer() {
+          int value = initial;
+
+          @Override
+          public void accept(int value) {
+            this.value = op.applyAsInt(this.value, value);
+          }
+        };
+
+    tensor.asZTensor().forEachValue(acc);
+    return acc.value;
+  }
+
+  /**
+   * Applies the given reduction operation to all values in the given tensor.
+   *
+   * @param tensor the tensor
+   * @param op the reduction operation
+   * @param initial the initial value
+   * @return a new tensor.
+   */
+  @Nonnull
+  public static ZTensor reduceCells(
+      @Nonnull HasZTensor tensor, @Nonnull IntBinaryOperator op, int initial) {
+    return ZTensor.newScalar(reduceCellsAtomic(tensor, op, initial));
+  }
+
+  /**
+   * Applies the given reduction operation to all values in the given tensor; grouping by the
+   * specified dimensions.
+   *
+   * <p>The shape of the returned tensor is the same as the shape of the input tensor, except that
+   * the specified dimensions are removed.
+   *
+   * @param tensor the tensor
+   * @param op the reduction operation
+   * @param initial the initial value
+   * @param dims the dimensions to group by.
+   * @return a new tensor.
+   */
+  @Nonnull
+  public static ZTensor reduceCells(
+      @Nonnull HasZTensor tensor,
+      @Nonnull IntBinaryOperator op,
+      int initial,
+      @Nonnull int... dims) {
+    var ztensor = tensor.asZTensor();
+    int[] ztensorShape = ztensor._unsafeGetShape();
+
+    var sumDims = ztensor.resolveDims(dims);
+
+    var sliceDims = new int[ztensor.getNDim() - sumDims.length];
+
+    var accShape = new int[ztensor.getNDim() - sumDims.length];
+    for (int sourceIdx = 0, accIdx = 0; sourceIdx < ztensor.getNDim(); ++sourceIdx) {
+      if (IndexingFns.arrayContains(sumDims, sourceIdx)) {
+        continue;
+      }
+
+      sliceDims[accIdx] = sourceIdx;
+      accShape[accIdx] = ztensorShape[sourceIdx];
+      accIdx++;
+    }
+
+    var acc = ZTensor.newZeros(accShape);
+    for (var ks : acc.byCoords(BufferMode.REUSED)) {
+      ZTensor slice = ztensor.selectDims(sliceDims, ks);
+      acc.set(ks, reduceCellsAtomic(slice, op, initial));
+    }
+    return acc;
+  }
+
+  /**
    * Matrix multiplication of {@code lhs * rhs}.
    *
    * @param lhs the left-hand side tensor.
@@ -444,56 +527,162 @@ public final class ZTensorOperations {
    * Element-wise broadcast mod.
    *
    * @param lhs the left-hand side scalar.
-   * @param rhs the right-hand side tensor.
+   * @param base the right-hand side tensor.
    * @return a new tensor.
    */
   @Nonnull
-  public static ZTensor mod(@Nonnull HasZTensor lhs, @Nonnull HasZTensor rhs) {
-    return zipWith((l, r) -> l % r, lhs, rhs);
+  public static ZTensor mod(@Nonnull HasZTensor lhs, @Nonnull HasZTensor base) {
+    return zipWith((l, r) -> l % r, lhs, base);
   }
 
   /**
    * Element-wise broadcast mod.
    *
    * @param lhs the left-hand side scalar.
-   * @param rhs the right-hand side tensor.
+   * @param base the right-hand side tensor.
    * @return a new tensor.
    */
   @Nonnull
-  public static ZTensor mod(@Nonnull HasZTensor lhs, int rhs) {
-    return zipWith((l, r) -> l % r, lhs, rhs);
+  public static ZTensor mod(@Nonnull HasZTensor lhs, int base) {
+    return zipWith((l, r) -> l % r, lhs, base);
   }
 
   /**
    * Element-wise broadcast mod.
    *
    * @param lhs the left-hand side scalar.
-   * @param rhs the right-hand side tensor.
+   * @param base the right-hand side tensor.
    * @return a new tensor.
    */
   @Nonnull
-  public static ZTensor mod(int lhs, @Nonnull HasZTensor rhs) {
-    return zipWith((l, r) -> l % r, lhs, rhs);
+  public static ZTensor mod(int lhs, @Nonnull HasZTensor base) {
+    return zipWith((l, r) -> l % r, lhs, base);
   }
 
   /**
    * Element-wise broadcast in-place mod on the lhs.
    *
    * @param lhs the left-hand side tensor, modified in-place; must be mutable.
-   * @param rhs the right-hand side tensor.
+   * @param base the right-hand side tensor.
    */
-  public static void mod_(@Nonnull ZTensor lhs, @Nonnull HasZTensor rhs) {
-    lhs.zipWith_((l, r) -> l % r, rhs);
+  public static void mod_(@Nonnull ZTensor lhs, @Nonnull HasZTensor base) {
+    lhs.zipWith_((l, r) -> l % r, base);
   }
 
   /**
    * Element-wise broadcast in-place mod on the lhs.
    *
    * @param lhs the left-hand side tensor, modified in-place; must be mutable.
-   * @param rhs the right-hand side tensor.
+   * @param base the right-hand side tensor.
    */
-  public static void mod_(@Nonnull ZTensor lhs, int rhs) {
-    lhs.zipWith_((l, r) -> l % r, rhs);
+  public static void mod_(@Nonnull ZTensor lhs, int base) {
+    lhs.zipWith_((l, r) -> l % r, base);
+  }
+
+  /**
+   * Element-wise broadcast power.
+   *
+   * @param lhs the left-hand side scalar.
+   * @param exp the right-hand side tensor.
+   * @return a new tensor.
+   */
+  public static ZTensor pow(@Nonnull HasZTensor lhs, @Nonnull HasZTensor exp) {
+    return zipWith(IndexingFns::intPow, lhs, exp);
+  }
+
+  /**
+   * Element-wise broadcast power.
+   *
+   * @param lhs the left-hand side tensor.
+   * @param exp the right-hand side scalar.
+   * @return a new tensor.
+   */
+  public static ZTensor pow(int lhs, @Nonnull HasZTensor exp) {
+    return zipWith(IndexingFns::intPow, lhs, exp);
+  }
+
+  /**
+   * Element-wise broadcast power.
+   *
+   * @param lhs the left-hand side tensor.
+   * @param exp the right-hand side scalar.
+   * @return a new tensor.
+   */
+  public static ZTensor pow(@Nonnull HasZTensor lhs, int exp) {
+    return zipWith(IndexingFns::intPow, lhs, exp);
+  }
+
+  /**
+   * Element-wise broadcast in-place power on the lhs.
+   *
+   * @param lhs the left-hand side tensor, modified in-place; must be mutable.
+   * @param exp the right-hand side tensor.
+   */
+  public static void pow_(@Nonnull ZTensor lhs, @Nonnull HasZTensor exp) {
+    lhs.zipWith_(IndexingFns::intPow, exp);
+  }
+
+  /**
+   * Element-wise broadcast in-place power on the lhs.
+   *
+   * @param lhs the left-hand side tensor, modified in-place; must be mutable.
+   * @param exp the right-hand side tensor.
+   */
+  public static void pow_(@Nonnull ZTensor lhs, int exp) {
+    lhs.zipWith_(IndexingFns::intPow, exp);
+  }
+
+  /**
+   * Element-wise broadcast log.
+   *
+   * @param lhs the left-hand side tensor.
+   * @param base the right-hand side tensor.
+   * @return a new tensor.
+   */
+  public static ZTensor log(@Nonnull HasZTensor lhs, @Nonnull HasZTensor base) {
+    return zipWith(IndexingFns::intLog, lhs, base);
+  }
+
+  /**
+   * Element-wise broadcast log.
+   *
+   * @param lhs the left-hand side scalar.
+   * @param base the right-hand side tensor.
+   * @return a new tensor.
+   */
+  public static ZTensor log(int lhs, @Nonnull HasZTensor base) {
+    return zipWith(IndexingFns::intLog, lhs, base);
+  }
+
+  /**
+   * Element-wise broadcast log.
+   *
+   * @param lhs the left-hand side tensor.
+   * @param base the right-hand side scalar.
+   * @return a new tensor.
+   */
+  public static ZTensor log(@Nonnull HasZTensor lhs, int base) {
+    return zipWith(IndexingFns::intLog, lhs, base);
+  }
+
+  /**
+   * Element-wise broadcast in-place log on the lhs.
+   *
+   * @param lhs the left-hand side tensor, modified in-place; must be mutable.
+   * @param base the right-hand side tensor.
+   */
+  public static void log_(@Nonnull ZTensor lhs, @Nonnull HasZTensor base) {
+    lhs.zipWith_(IndexingFns::intLog, base);
+  }
+
+  /**
+   * Element-wise broadcast in-place log on the lhs.
+   *
+   * @param lhs the left-hand side tensor, modified in-place; must be mutable.
+   * @param base the right-hand side tensor.
+   */
+  public static void log_(@Nonnull ZTensor lhs, int base) {
+    lhs.zipWith_(IndexingFns::intLog, base);
   }
 
   /**
@@ -507,30 +696,6 @@ public final class ZTensorOperations {
   }
 
   /**
-   * Applies the given reduction operation to all values in the given tensor.
-   *
-   * @param tensor the tensor
-   * @param op the reduction operation
-   * @param initial the initial value
-   * @return the int result of the reduction.
-   */
-  public static int reduceCellsAtomic(
-      @Nonnull HasZTensor tensor, @Nonnull IntBinaryOperator op, int initial) {
-    var acc =
-        new IntConsumer() {
-          int value = initial;
-
-          @Override
-          public void accept(int value) {
-            this.value = op.applyAsInt(this.value, value);
-          }
-        };
-
-    tensor.asZTensor().forEachValue(acc);
-    return acc.value;
-  }
-
-  /**
    * Returns the sum of all elements in the tensor.
    *
    * @param tensor the tensor.
@@ -539,20 +704,6 @@ public final class ZTensorOperations {
   @Nonnull
   public static ZTensor sum(@Nonnull HasZTensor tensor) {
     return reduceCells(tensor, Integer::sum, 0);
-  }
-
-  /**
-   * Applies the given reduction operation to all values in the given tensor.
-   *
-   * @param tensor the tensor
-   * @param op the reduction operation
-   * @param initial the initial value
-   * @return a new tensor.
-   */
-  @Nonnull
-  public static ZTensor reduceCells(
-      @Nonnull HasZTensor tensor, @Nonnull IntBinaryOperator op, int initial) {
-    return ZTensor.newScalar(reduceCellsAtomic(tensor, op, initial));
   }
 
   /**
@@ -568,51 +719,6 @@ public final class ZTensorOperations {
   @Nonnull
   public static ZTensor sum(@Nonnull HasZTensor tensor, @Nonnull int... dims) {
     return reduceCells(tensor, Integer::sum, 0, dims);
-  }
-
-  /**
-   * Applies the given reduction operation to all values in the given tensor; grouping by the
-   * specified dimensions.
-   *
-   * <p>The shape of the returned tensor is the same as the shape of the input tensor, except that
-   * the specified dimensions are removed.
-   *
-   * @param tensor the tensor
-   * @param op the reduction operation
-   * @param initial the initial value
-   * @param dims the dimensions to group by.
-   * @return a new tensor.
-   */
-  @Nonnull
-  public static ZTensor reduceCells(
-      @Nonnull HasZTensor tensor,
-      @Nonnull IntBinaryOperator op,
-      int initial,
-      @Nonnull int... dims) {
-    var ztensor = tensor.asZTensor();
-    int[] ztensorShape = ztensor._unsafeGetShape();
-
-    var sumDims = ztensor.resolveDims(dims);
-
-    var sliceDims = new int[ztensor.getNDim() - sumDims.length];
-
-    var accShape = new int[ztensor.getNDim() - sumDims.length];
-    for (int sourceIdx = 0, accIdx = 0; sourceIdx < ztensor.getNDim(); ++sourceIdx) {
-      if (IndexingFns.arrayContains(sumDims, sourceIdx)) {
-        continue;
-      }
-
-      sliceDims[accIdx] = sourceIdx;
-      accShape[accIdx] = ztensorShape[sourceIdx];
-      accIdx++;
-    }
-
-    var acc = ZTensor.newZeros(accShape);
-    for (var ks : acc.byCoords(BufferMode.REUSED)) {
-      ZTensor slice = ztensor.selectDims(sliceDims, ks);
-      acc.set(ks, reduceCellsAtomic(slice, op, initial));
-    }
-    return acc;
   }
 
   /**

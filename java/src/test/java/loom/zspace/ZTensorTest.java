@@ -1,15 +1,14 @@
 package loom.zspace;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
-import loom.common.json.JsonUtil;
-import loom.testing.CommonAssertions;
-import org.junit.Test;
-
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.function.IntBinaryOperator;
+import loom.common.json.JsonUtil;
+import loom.testing.CommonAssertions;
+import org.junit.Test;
 
 public class ZTensorTest implements CommonAssertions {
   @Test
@@ -997,6 +996,82 @@ public class ZTensorTest implements CommonAssertions {
     inplace.mod_(rhs);
     inplace.mod_(13);
     assertThat(inplace).isEqualTo(lhs.mul(12345).mod(rhs).mod(12).mod(rhs).mod(13));
+  }
+
+  @Test
+  public void test_pow() {
+    var empty = ZTensor.newZeros(0, 0);
+    var lhs = ZTensor.fromArray(new int[][] {{2, 3}, {4, 5}});
+
+    // [2, 2], [2, 2]
+    assertThat(ZTensorOperations.pow(empty, empty)).isEqualTo(empty.pow(empty)).isEqualTo(empty);
+
+    var rhs = ZTensor.fromArray(new int[][] {{3, 2}, {1, 0}});
+    assertThat(ZTensorOperations.pow(lhs, rhs))
+        .isEqualTo(lhs.pow(rhs))
+        .isEqualTo(ZTensor.fromArray(new int[][] {{8, 9}, {4, 1}}));
+
+    assertThatThrownBy(() -> ZTensorOperations.pow(lhs, empty))
+        .isInstanceOf(IndexOutOfBoundsException.class)
+        .hasMessageContaining("cannot broadcast shapes: [2, 2], [0, 0]");
+
+    // [2, 2], <scalar>
+    assertThat(ZTensorOperations.pow(empty, 12)).isEqualTo(empty.pow(12)).isEqualTo(empty);
+
+    assertThat(ZTensorOperations.pow(lhs, 12))
+        .isEqualTo(lhs.pow(12))
+        .isEqualTo(ZTensor.fromArray(new int[][] {{4096, 531441}, {16777216, 244140625}}));
+
+    // <scalar>, [2, 2]
+    assertThat(ZTensorOperations.pow(12, empty)).isEqualTo(empty);
+
+    assertThat(ZTensorOperations.pow(12, lhs))
+        .isEqualTo(ZTensor.fromArray(new int[][] {{144, 1728}, {20736, 248832}}));
+
+    var inplace = lhs.mul(12345);
+    ZTensorOperations.pow_(inplace, rhs);
+    ZTensorOperations.pow_(inplace, 12);
+    inplace.pow_(rhs);
+    inplace.pow_(13);
+    assertThat(inplace).isEqualTo(lhs.mul(12345).pow(rhs).pow(12).pow(rhs).pow(13));
+  }
+
+  @Test
+  public void test_log() {
+    var empty = ZTensor.newZeros(0, 0);
+    var lhs = ZTensor.fromArray(new int[][] {{2, 3}, {4, 20}});
+
+    // [2, 2], [2, 2]
+    assertThat(ZTensorOperations.log(empty, empty)).isEqualTo(empty.log(empty)).isEqualTo(empty);
+
+    var rhs = ZTensor.fromArray(new int[][] {{3, 2}, {2, 2}});
+    assertThat(ZTensorOperations.log(lhs, rhs))
+        .isEqualTo(lhs.log(rhs))
+        .isEqualTo(ZTensor.fromArray(new int[][] {{0, 1}, {2, 4}}));
+
+    assertThatThrownBy(() -> ZTensorOperations.log(lhs, empty))
+        .isInstanceOf(IndexOutOfBoundsException.class)
+        .hasMessageContaining("cannot broadcast shapes: [2, 2], [0, 0]");
+
+    // [2, 2], <scalar>
+    assertThat(ZTensorOperations.log(empty, 12)).isEqualTo(empty.log(12)).isEqualTo(empty);
+
+    assertThat(ZTensorOperations.log(lhs, 12))
+        .isEqualTo(lhs.log(12))
+        .isEqualTo(ZTensor.fromArray(new int[][] {{0, 0}, {0, 1}}));
+
+    // <scalar>, [2, 2]
+    assertThat(ZTensorOperations.log(12, empty)).isEqualTo(empty);
+
+    assertThat(ZTensorOperations.log(12, lhs))
+        .isEqualTo(ZTensor.fromArray(new int[][] {{3, 2}, {1, 0}}));
+
+    var inplace = lhs.mul(12345);
+    ZTensorOperations.log_(inplace, rhs);
+    ZTensorOperations.log_(inplace, 12);
+    inplace.log_(rhs);
+    inplace.log_(13);
+    assertThat(inplace).isEqualTo(lhs.mul(12345).log(rhs).log(12).log(rhs).log(13));
   }
 
   @Test

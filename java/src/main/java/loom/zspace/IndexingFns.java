@@ -1,5 +1,9 @@
 package loom.zspace;
 
+import lombok.NoArgsConstructor;
+import org.apache.commons.lang3.tuple.Pair;
+
+import javax.annotation.Nonnull;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -9,13 +13,65 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.ToIntFunction;
 import java.util.stream.Collectors;
-import javax.annotation.Nonnull;
-import lombok.NoArgsConstructor;
-import org.apache.commons.lang3.tuple.Pair;
 
 /** Utility functions for computing tensor indices. */
 @NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
 public final class IndexingFns {
+
+  /**
+   * Compute the integer power of a number.
+   *
+   * @param base the base.
+   * @param exp the exponent.
+   * @return the integer power.
+   */
+  public static int intPow(int base, int exp) {
+    if (exp < 0) {
+      throw new IllegalArgumentException("exponent must be non-negative");
+    }
+    int result = 1;
+    while (exp > 0) {
+      if (exp % 2 == 1) {
+        result *= base;
+      }
+      base *= base;
+      exp /= 2;
+    }
+    return result;
+  }
+
+  /**
+   * Compute the integer logarithm of a number.
+   *
+   * @param value the value.
+   * @param base the base.
+   * @return the integer logarithm.
+   */
+  public static int intLog(int value, int base) {
+    if (base <= 1) {
+      throw new IllegalArgumentException("Base must be greater than 1");
+    }
+    if (value <= 0) {
+      throw new IllegalArgumentException("Value must be positive");
+    }
+
+    int low = 0;
+    int high = value;
+    while (low < high) {
+      int mid = (low + high) / 2;
+      int pow = intPow(base, mid);
+
+      if (pow == value) {
+        return mid;
+      } else if (pow < value) {
+        low = mid + 1;
+      } else {
+        high = mid;
+      }
+    }
+
+    return low - 1;
+  }
 
   /**
    * Return an array of integers from 0 to n - 1.

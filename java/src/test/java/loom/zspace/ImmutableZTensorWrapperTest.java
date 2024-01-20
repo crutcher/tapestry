@@ -294,4 +294,57 @@ public class ImmutableZTensorWrapperTest extends BaseTestClass {
             () -> new Wrapper(ZTensor.newVector(1, 2, 3)).mod(new Wrapper(ZTensor.newVector(1, 2))))
         .withMessage("cannot broadcast shapes: [3], [2]");
   }
+
+  @Test
+  public void test_pow() {
+    {
+      Wrapper wrapper = new Wrapper(ZTensor.newVector(1, 2, 3));
+      assertThat(wrapper.pow(new Wrapper(ZTensor.newVector(1, 2, 3))))
+          .isEqualTo(new Wrapper(ZTensor.newVector(1, 4, 27)));
+    }
+    {
+      Wrapper wrapper = new Wrapper(ZTensor.newVector(1, 2, 3));
+      assertThat(wrapper.pow(10)).isEqualTo(new Wrapper(ZTensor.newVector(1, 1024, 59049)));
+    }
+    {
+      Wrapper wrapper = new Wrapper(ZTensor.newMatrix(new int[] {1}, new int[] {2}));
+      assertThat(wrapper.pow(new Wrapper(ZTensor.newVector(1, 2, 3))))
+          .isEqualTo(new Wrapper(ZTensor.newMatrix(new int[] {1, 1, 1}, new int[] {2, 4, 8})));
+    }
+
+    assertThatExceptionOfType(IndexOutOfBoundsException.class)
+        .isThrownBy(
+            () -> new Wrapper(ZTensor.newVector(1, 2, 3)).pow(new Wrapper(ZTensor.newVector(1, 2))))
+        .withMessage("cannot broadcast shapes: [3], [2]");
+  }
+
+  @Test
+  public void test_log() {
+    {
+      Wrapper wrapper = new Wrapper(ZTensor.newVector(10, 19, 8));
+      assertThat(wrapper.log(new Wrapper(ZTensor.newVector(2, 2, 3))))
+          .isEqualTo(new Wrapper(ZTensor.newVector(3, 4, 1)));
+    }
+    {
+      Wrapper wrapper = new Wrapper(ZTensor.newVector(10, 19, 8));
+      assertThat(wrapper.log(2)).isEqualTo(new Wrapper(ZTensor.newVector(3, 4, 3)));
+    }
+    {
+      Wrapper wrapper = new Wrapper(ZTensor.newMatrix(new int[] {14}, new int[] {8}));
+      assertThat(wrapper.log(new Wrapper(ZTensor.newVector(2, 2, 3))))
+          .isEqualTo(new Wrapper(ZTensor.newMatrix(new int[] {3, 3, 2}, new int[] {3, 3, 1})));
+    }
+
+    {
+      Wrapper wrapper = new Wrapper(ZTensor.newVector(1, 2, 3));
+      assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> wrapper.log(0));
+      assertThatExceptionOfType(IllegalArgumentException.class)
+          .isThrownBy(() -> wrapper.log(ZTensor.newVector(0, 1, 2)));
+    }
+
+    assertThatExceptionOfType(IndexOutOfBoundsException.class)
+        .isThrownBy(
+            () -> new Wrapper(ZTensor.newVector(1, 2, 3)).log(new Wrapper(ZTensor.newVector(1, 2))))
+        .withMessage("cannot broadcast shapes: [3], [2]");
+  }
 }

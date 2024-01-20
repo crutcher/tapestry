@@ -271,20 +271,60 @@ public abstract class ImmutableZTensorWrapper<T> implements HasZTensor, Cloneabl
   /**
    * Returns the broadcast modulo with {@code rhs} as a new {@code T}.
    *
-   * @param rhs the right-hand side.
+   * @param base the right-hand side.
    * @return the broadcast modulo with {@code rhs} as a new {@code T}.
    */
-  public final T mod(@Nonnull HasZTensor rhs) {
-    return create(ZTensorOperations.mod(this, rhs));
+  public final T mod(@Nonnull HasZTensor base) {
+    return create(ZTensorOperations.mod(this, base));
   }
 
   /**
    * Returns the cell-wise modulo with {@code rhs} as a new {@code T}.
    *
-   * @param rhs the right-hand side.
+   * @param base the right-hand side.
    * @return the cell-wise modulo with {@code rhs} as a new {@code T}.
    */
-  public final T mod(int rhs) {
-    return create(ZTensorOperations.mod(this, rhs));
+  public final T mod(int base) {
+    return create(ZTensorOperations.mod(this, base));
+  }
+
+  /**
+   * Returns the broadcast power with {@code rhs} as a new {@code T}.
+   *
+   * @param exp the right-hand side.
+   * @return the broadcast power with {@code rhs} as a new {@code T}.
+   */
+  public final T pow(@Nonnull HasZTensor exp) {
+    return create(ZTensorOperations.pow(this, exp));
+  }
+
+  /**
+   * Returns the cell-wise power with {@code rhs} as a new {@code T}.
+   *
+   * @param exp the right-hand side.
+   * @return the cell-wise power with {@code rhs} as a new {@code T}.
+   */
+  public final T pow(int exp) {
+    return create(ZTensorOperations.pow(this, exp));
+  }
+
+  /**
+   * Returns the broadcast log with {@code rhs} as a new {@code T}.
+   *
+   * @param base the right-hand side.
+   * @return the broadcast log with {@code rhs} as a new {@code T}.
+   */
+  public final T log(@Nonnull HasZTensor base) {
+    return create(ZTensorOperations.log(this, base));
+  }
+
+  /**
+   * Returns the cell-wise log with {@code rhs} as a new {@code T}.
+   *
+   * @param base the right-hand side.
+   * @return the cell-wise log with {@code rhs} as a new {@code T}.
+   */
+  public final T log(int base) {
+    return create(ZTensorOperations.log(this, base));
   }
 }
