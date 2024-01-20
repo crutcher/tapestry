@@ -107,86 +107,6 @@ public final class ZTensor
     implements HasZTensor, HasToJsonString, Cloneable, HasDimension, HasSize, HasPermute<ZTensor> {
 
   /**
-   * Serialization Support namespace.
-   *
-   * <ul>
-   *   <li>scalars are serialized as a single number;
-   *   <li>vectors are serialized as a single array;
-   *   <li>matrices are serialized as an array of arrays;
-   *   <li>etc.
-   * </ul>
-   *
-   * <p>All empty tensors serialize to nested "[...]"; so all degenerate tensors (empty tensors with
-   * non-zero shapes) are serialized as empty tensors.
-   */
-  @NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
-  static final class Serialization {
-    static final class Serializer extends StdSerializer<ZTensor> {
-      public Serializer() {
-        super(ZTensor.class);
-      }
-
-      @Override
-      @SuppressWarnings({"Convert2Lambda", "Anonymous2MethodRef"})
-      public void serialize(
-          @Nonnull ZTensor value,
-          @Nonnull JsonGenerator gen,
-          @Nonnull SerializerProvider serializers) {
-
-        value.toTree(
-            new Runnable() {
-              @Override
-              @SneakyThrows
-              public void run() {
-                gen.writeStartArray();
-              }
-            },
-            new Runnable() {
-              @Override
-              @SneakyThrows
-              public void run() {
-                gen.writeEndArray();
-              }
-            },
-            () -> {},
-            new Consumer<>() {
-              @Override
-              @SneakyThrows
-              public void accept(Integer val) {
-                gen.writeNumber(val);
-              }
-            });
-      }
-    }
-
-    static final class Deserializer extends StdDeserializer<ZTensor> {
-      public Deserializer() {
-        super(ZTensor.class);
-      }
-
-      @Override
-      public ZTensor deserialize(@Nonnull JsonParser p, @Nonnull DeserializationContext context)
-          throws java.io.IOException {
-
-        return fromTree(
-            p.readValueAsTree(),
-            TreeNode::isArray,
-            TreeNode::size,
-            TreeNode::get,
-            node -> ((IntNode) node).intValue(),
-            node -> {
-              int[] chunk = new int[node.size()];
-              Iterator<JsonNode> it = ((ArrayNode) node).elements();
-              for (int i = 0; i < chunk.length; ++i) {
-                chunk[i] = it.next().intValue();
-              }
-              return chunk;
-            });
-      }
-    }
-  }
-
-  /**
    * Construct a new mutable vector (1-dim) tensor.
    *
    * @param values the vector values.
@@ -1795,5 +1715,95 @@ public final class ZTensor
       res.selectDim(d, i).assign(selectDim(d, perm[i]));
     }
     return res;
+  }
+
+  /**
+   * Serialization Support namespace.
+   *
+   * <ul>
+   *   <li>scalars are serialized as a single number;
+   *   <li>vectors are serialized as a single array;
+   *   <li>matrices are serialized as an array of arrays;
+   *   <li>etc.
+   * </ul>
+   *
+   * <p>All empty tensors serialize to nested "[...]"; so all degenerate tensors (empty tensors with
+   * non-zero shapes) are serialized as empty tensors.
+   */
+  @NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
+  static final class Serialization {
+    static final class Serializer extends StdSerializer<ZTensor> {
+      public Serializer() {
+        super(ZTensor.class);
+      }
+
+      @Override
+      @SuppressWarnings({"Convert2Lambda", "Anonymous2MethodRef"})
+      public void serialize(
+          @Nonnull ZTensor value,
+          @Nonnull JsonGenerator gen,
+          @Nonnull SerializerProvider serializers) {
+
+        value.toTree(
+            new Runnable() {
+              @Override
+              @SneakyThrows
+              public void run() {
+                gen.writeStartArray();
+              }
+            },
+            new Runnable() {
+              @Override
+              @SneakyThrows
+              public void run() {
+                gen.writeEndArray();
+              }
+            },
+            () -> {},
+            new Consumer<>() {
+              @Override
+              @SneakyThrows
+              public void accept(Integer val) {
+                gen.writeNumber(val);
+              }
+            });
+      }
+    }
+
+    static final class Deserializer extends StdDeserializer<ZTensor> {
+      public Deserializer() {
+        super(ZTensor.class);
+      }
+
+      @Override
+      public ZTensor deserialize(@Nonnull JsonParser p, @Nonnull DeserializationContext context)
+          throws java.io.IOException {
+
+        return fromTreeNode(p.readValueAsTree());
+      }
+    }
+
+    /**
+     * Deserialize a tensor from a {@link TreeNode} data structure.
+     *
+     * @param node the node.
+     * @return the tensor.
+     */
+    public static ZTensor fromTreeNode(@Nonnull TreeNode node) {
+      return fromTree(
+          node,
+          TreeNode::isArray,
+          TreeNode::size,
+          TreeNode::get,
+          node1 -> ((IntNode) node1).intValue(),
+          node1 -> {
+            int[] chunk = new int[node1.size()];
+            Iterator<JsonNode> it = ((ArrayNode) node1).elements();
+            for (int i = 0; i < chunk.length; ++i) {
+              chunk[i] = it.next().intValue();
+            }
+            return chunk;
+          });
+    }
   }
 }
