@@ -15,19 +15,20 @@ import com.fasterxml.jackson.databind.node.IntNode;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.google.common.primitives.Ints;
 import com.kjetland.jackson.jsonSchema.annotations.JsonSchemaInject;
-import java.lang.reflect.Array;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.function.*;
-import javax.annotation.Nonnull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
 import loom.common.collections.IteratorUtils;
 import loom.common.json.HasToJsonString;
 import loom.common.json.JsonUtil;
+
+import javax.annotation.Nonnull;
+import java.lang.reflect.Array;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import java.util.function.*;
 
 /**
  * A multidimensional int array used for numerical operations.
@@ -559,11 +560,11 @@ public final class ZTensor
     if (other == null) return false;
 
     if (IndexingFns.isRecursiveIntArray(other)) {
-      return treeEquals(other);
+      return equalsTree(other);
     }
 
     if (other instanceof HasZTensor that) {
-      return ztensorEquals(that.asZTensor());
+      return equalsZTensor(that.asZTensor());
     }
     return false;
   }
@@ -574,7 +575,7 @@ public final class ZTensor
    * @param other the other object.
    * @return true iff equals.
    */
-  private boolean treeEquals(Object other) {
+  private boolean equalsTree(Object other) {
     // TODO: implement tree-walking comparison without a constructor.
     ZTensor that;
     try {
@@ -582,7 +583,7 @@ public final class ZTensor
     } catch (IllegalArgumentException e) {
       return false;
     }
-    return ztensorEquals(that);
+    return equalsZTensor(that);
   }
 
   /**
@@ -591,7 +592,7 @@ public final class ZTensor
    * @param other the other object.
    * @return true iff equals.
    */
-  private boolean ztensorEquals(ZTensor other) {
+  private boolean equalsZTensor(ZTensor other) {
     if (!Arrays.equals(shape, other.shape)) {
       return false;
     }
