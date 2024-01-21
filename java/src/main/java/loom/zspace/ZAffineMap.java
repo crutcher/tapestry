@@ -2,6 +2,7 @@ package loom.zspace;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -18,6 +19,7 @@ import loom.common.json.HasToJsonString;
 @Immutable
 @Jacksonized
 @Builder(toBuilder = true)
+@JsonPropertyOrder({"projection", "offset"})
 public class ZAffineMap
     implements HasPermuteInput<ZAffineMap>, HasPermuteOutput<ZAffineMap>, HasToJsonString {
 
@@ -59,8 +61,8 @@ public class ZAffineMap
    */
   @JsonCreator
   public ZAffineMap(
-      @JsonProperty(value = "A", required = true) HasZTensor projection,
-      @Nullable @JsonProperty(value = "b") HasZTensor offset) {
+      @JsonProperty(value = "projection", required = true) HasZTensor projection,
+      @Nullable @JsonProperty(value = "offset") HasZTensor offset) {
     this.projection = new ZMatrix(projection);
     if (offset == null) {
       offset = ZTensor.newZeros(this.projection.outputNDim());

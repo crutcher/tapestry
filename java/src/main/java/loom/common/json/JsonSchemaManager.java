@@ -94,10 +94,6 @@ public class JsonSchemaManager {
     return schema;
   }
 
-  public List<Problem> validationProblems(String schema, String json) {
-    return validationProblems(loadSchema(schema), json);
-  }
-
   /**
    * Validate a JSON string against a schema.
    *

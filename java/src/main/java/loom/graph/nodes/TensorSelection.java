@@ -1,5 +1,7 @@
 package loom.graph.nodes;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import java.util.UUID;
 import javax.annotation.Nonnull;
 import lombok.Builder;
@@ -13,6 +15,7 @@ import loom.zspace.ZRange;
 @Jacksonized
 @Builder
 @RequiredArgsConstructor
+@JsonPropertyOrder({"tensorId", "range"})
 public class TensorSelection {
   /**
    * Creates a TensorSelection from a TensorNode.
@@ -47,6 +50,11 @@ public class TensorSelection {
     return TensorSelection.builder().tensorId(tensorNode.getId()).range(range).build();
   }
 
-  @Nonnull UUID tensorId;
-  @Nonnull ZRange range;
+  @JsonProperty(required = true)
+  @Nonnull
+  UUID tensorId;
+
+  @JsonProperty(required = true)
+  @Nonnull
+  ZRange range;
 }

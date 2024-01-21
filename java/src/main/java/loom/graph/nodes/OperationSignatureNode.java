@@ -2,6 +2,8 @@ package loom.graph.nodes;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -101,8 +103,12 @@ public final class OperationSignatureNode
   @Jacksonized
   @Builder
   @JsonInclude(JsonInclude.Include.NON_EMPTY)
+  @JsonPropertyOrder({"kernel", "params", "inputs", "outputs"})
   public static class Body implements HasToJsonString {
+    @JsonProperty(required = true)
+    @Nonnull
     String kernel;
+
     @Singular Map<String, Object> params;
     @Singular @Nonnull Map<String, List<TensorSelection>> inputs;
     @Singular @Nonnull Map<String, List<TensorSelection>> outputs;

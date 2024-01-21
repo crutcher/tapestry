@@ -118,6 +118,10 @@ jmh {
 dependencies {
     // Java extension annotations
     implementation("javax.annotation:javax.annotation-api:1.3.2")
+    implementation("javax.validation:validation-api:2.0.1.Final")
+    // https://mvnrepository.com/artifact/jakarta.validation/jakarta.validation-api
+    // implementation("jakarta.validation:jakarta.validation-api:3.0.2")
+
 
     // Jetbrains annotations
     implementation("org.jetbrains:annotations:24.0.1")
@@ -189,9 +193,5 @@ dependencies {
     // XMLUnit testing.
     implementation("org.xmlunit:xmlunit-core:2.9.1")
     implementation("org.xmlunit:xmlunit-assertj3:2.9.1")
-
-    // Experimental
-    // https://mvnrepository.com/artifact/com.kjetland/mbknor-jackson-jsonschema
-    implementation("com.kjetland:mbknor-jackson-jsonschema_2.13:1.0.39")
 }
 

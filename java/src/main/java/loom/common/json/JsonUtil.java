@@ -8,16 +8,14 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.BooleanNode;
 import com.fasterxml.jackson.databind.node.NumericNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.kjetland.jackson.jsonSchema.JsonSchemaGenerator;
-import lombok.Value;
-import lombok.experimental.UtilityClass;
-import loom.common.collections.IteratorUtils;
-
-import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
+import javax.annotation.Nullable;
+import lombok.Value;
+import lombok.experimental.UtilityClass;
+import loom.common.collections.IteratorUtils;
 
 @UtilityClass
 public final class JsonUtil {
@@ -89,8 +87,6 @@ public final class JsonUtil {
 
   private final ObjectMapper COMMON_MAPPER =
       new ObjectMapper().configure(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS, true);
-
-  private final JsonSchemaGenerator JSON_SCHEMA_GENERATOR = new JsonSchemaGenerator(COMMON_MAPPER);
 
   /**
    * Get a Jackson ObjectMapper with default settings.
@@ -377,25 +373,5 @@ public final class JsonUtil {
       throw new IllegalArgumentException(
           "Unexpected value type (%s) at %s".formatted(target.getClass().getSimpleName(), item));
     }
-  }
-
-  /**
-   * Generate a JSON schema for a class.
-   *
-   * @param clazz The class.
-   * @return The schema as a Jackson ObjectNode.
-   */
-  public ObjectNode jsonSchemaTreeForClass(Class<?> clazz) {
-    return (ObjectNode) JSON_SCHEMA_GENERATOR.generateJsonSchema(clazz);
-  }
-
-  /**
-   * Generate a JSON schema for a class.
-   *
-   * @param clazz The class.
-   * @return The schema as a JSON string.
-   */
-  public String jsonSchemaForClass(Class<?> clazz) {
-    return toPrettyJson(jsonSchemaTreeForClass(clazz));
   }
 }

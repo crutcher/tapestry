@@ -1,6 +1,7 @@
 package loom.graph.nodes;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.function.Consumer;
 import javax.annotation.Nonnull;
 import lombok.*;
@@ -99,8 +100,15 @@ public final class TensorNode extends LoomNode<TensorNode, TensorNode.Body> {
       }
     }
 
-    @ToString.Include @Nonnull private final String dtype;
-    @ToString.Include @Nonnull private final ZRange range;
+    @JsonProperty(required = true)
+    @ToString.Include
+    @Nonnull
+    private final String dtype;
+
+    @JsonProperty(required = true)
+    @ToString.Include
+    @Nonnull
+    private final ZRange range;
 
     @Override
     public int getNDim() {

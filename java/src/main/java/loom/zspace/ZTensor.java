@@ -13,7 +13,6 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.IntNode;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.google.common.primitives.Ints;
-import com.kjetland.jackson.jsonSchema.annotations.JsonSchemaInject;
 import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.Collections;
@@ -84,21 +83,6 @@ import loom.common.json.JsonUtil;
  * 1, so the size of a scalar tensor is 1. Scalar tensors are often used to represent single
  * dimensionless values.
  */
-@JsonSchemaInject(
-    json =
-        """
-        {
-          "$recursiveAnchor": true,
-          "anyOf": [
-              { "type": "integer" },
-              {
-                "type": "array",
-                "items": { "$recursiveRef": "#" }
-              }
-          ]
-        }
-        """,
-    merge = false)
 @JsonSerialize(using = ZTensor.Serialization.Serializer.class)
 @JsonDeserialize(using = ZTensor.Serialization.Deserializer.class)
 public final class ZTensor
@@ -362,7 +346,7 @@ public final class ZTensor
     return new ZTensor(true, shape, IndexingFns.shapeToLSFStrides(shape), data, 0);
   }
 
-  @Getter private final boolean mutable;
+  @JsonIgnore @Getter private final boolean mutable;
 
   @Nonnull private final int[] shape;
 

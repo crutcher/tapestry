@@ -3,8 +3,54 @@ package loom.graph;
 import lombok.experimental.UtilityClass;
 import loom.graph.nodes.TensorNode;
 
+@SuppressWarnings("unused")
 @UtilityClass
 public class CommonSchemas {
+
+  public final String ZTENSOR_SCHEMA =
+      """
+       {
+         "name": "ZTensor",
+         "$recursiveAnchor": true,
+         "anyOf": [
+           {
+             "type": "integer"
+           },
+           {
+             "type": "array",
+             "items": {
+               "$recursiveRef": "#"
+             }
+           }
+         ]
+      }
+      """;
+
+  public final String ZPOINT_SCHEMA =
+      """
+ {
+   "name": "ZPoint",
+   "type": "array",
+   "items": {
+     "type": "integer"
+   }
+}
+""";
+
+  public final String ZMATRIX_SCHEMA =
+      """
+      {
+        "name": "ZMatrix",
+        "type": "array",
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "integer"
+          }
+        }
+      }
+      """;
+
   public final LoomTypeSchema NOTE_NODE_SCHEMA =
       LoomTypeSchema.builder()
           .jsonSchema(

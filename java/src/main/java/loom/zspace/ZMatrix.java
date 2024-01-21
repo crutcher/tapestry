@@ -2,7 +2,6 @@ package loom.zspace;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.google.errorprone.annotations.Immutable;
-import com.kjetland.jackson.jsonSchema.annotations.JsonSchemaInject;
 import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.ThreadSafe;
@@ -16,20 +15,6 @@ import javax.annotation.concurrent.ThreadSafe;
  */
 @ThreadSafe
 @Immutable
-@JsonSchemaInject(
-    json =
-        """
-    {
-        "type": "array",
-        "items": {
-            "type": "array",
-            "items": {
-                "type": "integer"
-            }
-        }
-    }
-    """,
-    merge = false)
 public final class ZMatrix extends ImmutableZTensorWrapper<ZMatrix>
     implements HasPermuteInput<ZMatrix>, HasPermuteOutput<ZMatrix> {
   /**
