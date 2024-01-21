@@ -1,26 +1,34 @@
 package loom.common.json;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.errorprone.annotations.CheckReturnValue;
 import com.networknt.schema.*;
 import com.networknt.schema.uri.URIFetcher;
+import lombok.Builder;
+import lombok.Singular;
+import loom.validation.ValidationIssue;
+import loom.validation.ValidationIssueCollector;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.io.ByteArrayInputStream;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import javax.annotation.Nonnull;
-import lombok.Data;
+import java.util.function.Supplier;
 
 /**
  * Context manager for {@link JsonSchemaFactory}.
  *
  * <p>Supports manually binding schemas to URIs.
  */
-@Data
 public class JsonSchemaFactoryManager {
 
+  public static final String JSD_ERROR = "JSD_ERROR";
   private final Map<URI, String> schemas = new HashMap<>();
   private final URIFetcher uriFetcher = uri -> {
     var schemaSource = schemas.get(uri.normalize());
@@ -69,6 +77,13 @@ public class JsonSchemaFactoryManager {
   }
 
   @CanIgnoreReturnValue
+  public JsonSchemaFactoryManager addSchema(String schema) {
+    var tree = JsonUtil.parseToJsonNodeTree(schema);
+    var uri = tree.get(metaSchema.getIdKeyword()).asText();
+    return addSchema(URI.create(uri), schema);
+  }
+
+  @CanIgnoreReturnValue
   public JsonSchemaFactoryManager addSchema(URI uri, String schema) {
     URI normUri = uri.normalize();
     if (hasSchema(normUri)) {
@@ -86,18 +101,98 @@ public class JsonSchemaFactoryManager {
 
   @Nonnull
   @CheckReturnValue
-  public JsonSchema getSchema(@Nonnull URI uri) {
+  public JsonSchema loadSchema(@Nonnull URI uri) {
     return factory.getSchema(uri, config);
   }
 
+  @Nonnull
+  @CheckReturnValue
+  public JsonSchema loadSchemaFromSource(String source) {
+    return factory.getSchema(source, config);
+  }
+
   private JsonSchema getMetaSchemaInstance() {
-    return getSchema(URI.create(metaSchema.getUri()));
+    return loadSchema(URI.create(metaSchema.getUri()));
   }
 
   public void assertValidSchema(@Nonnull String schema) {
     var errors = getMetaSchemaInstance().validate(JsonUtil.parseToJsonNodeTree(schema));
     if (!errors.isEmpty()) {
       throw new AssertionError("Schema is invalid: " + errors);
+    }
+  }
+
+  public IssueScan.IssueScanBuilder issueScan() {
+    return IssueScan.builder();
+  }
+
+  @Builder
+  public static final class IssueScan {
+
+    @Nonnull
+    private final JsonSchema schema;
+
+    @Builder.Default
+    private final String type = JSD_ERROR;
+
+    @Builder.Default
+    private final String summaryPrefix = null;
+
+    @Singular
+    private final Map<String, String> params;
+
+    @Nonnull
+    private final JsonNode data;
+
+    @Nullable
+    private final String jsonPathPrefix;
+
+    private final Supplier<List<ValidationIssue.Context>> contexts;
+
+    @Nonnull
+    private final ValidationIssueCollector issueCollector;
+
+    @SuppressWarnings("ConstantConditions")
+    private ValidationIssue adaptValidationMessage(ValidationMessage error) {
+      var builder = ValidationIssue.builder().type(type);
+
+      String relPath = error.getPath();
+      var actual = JsonUtil.jsonPathOnValue(data, relPath, JsonNode.class);
+
+      var displayData = JsonUtil.toJson(actual);
+
+      String absPath = JsonPathUtils.concatJsonPath(jsonPathPrefix, relPath);
+
+      builder.param("path", absPath);
+      builder.param("schemaPath", error.getSchemaPath());
+      builder.param("keyword", error.getType());
+      builder.param("keywordArgs", JsonUtil.toSimpleJson(error.getArguments()));
+      builder.params(params);
+
+      String summary = "[%s] :: %s".formatted(error.getType(), error.getPath());
+      if (displayData.length() < 50) {
+        summary += ": " + displayData;
+      }
+      if (summaryPrefix != null) {
+        summary = summaryPrefix + summary;
+      }
+      builder.summary(summary);
+      builder.message(error.getMessage());
+
+      builder.context(
+        ValidationIssue.Context.builder().name("Data").jsonpath(absPath).data(actual)
+      );
+
+      builder.withContexts(contexts);
+
+      return builder.build();
+    }
+
+    @SuppressWarnings("ConstantConditions")
+    public void scan() {
+      for (var error : schema.validate(data)) {
+        issueCollector.addIssue(adaptValidationMessage(error));
+      }
     }
   }
 }

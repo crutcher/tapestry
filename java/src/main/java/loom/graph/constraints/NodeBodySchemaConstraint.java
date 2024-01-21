@@ -1,5 +1,7 @@
 package loom.graph.constraints;
 
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
+import com.networknt.schema.JsonSchema;
 import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
@@ -15,7 +17,6 @@ import loom.graph.LoomGraph;
 import loom.graph.LoomNode;
 import loom.validation.ValidationIssue;
 import loom.validation.ValidationIssueCollector;
-import org.leadpony.justify.api.JsonSchema;
 
 @Builder
 @Getter
@@ -77,7 +78,12 @@ public final class NodeBodySchemaConstraint implements LoomEnvironment.Constrain
     for (String nodeType : nodeTypes) {
       env.assertSupportsNodeType(nodeType);
     }
-    env.getJsonSchemaManager().loadSchema(bodySchema);
+    loadSchema(env);
+  }
+
+  @CanIgnoreReturnValue
+  private JsonSchema loadSchema(LoomEnvironment env) {
+    return env.getJsonSchemaFactoryManager().loadSchemaFromSource(bodySchema);
   }
 
   @Override
@@ -86,7 +92,7 @@ public final class NodeBodySchemaConstraint implements LoomEnvironment.Constrain
     LoomGraph graph,
     ValidationIssueCollector issueCollector
   ) {
-    var schema = env.getJsonSchemaManager().loadSchema(bodySchema);
+    var schema = loadSchema(env);
 
     ((Stream<? extends LoomNode<?, ?>>) graph.nodeScan().asStream()).filter(node -> {
         String type = node.getType();
@@ -112,7 +118,7 @@ public final class NodeBodySchemaConstraint implements LoomEnvironment.Constrain
     ValidationIssueCollector issueCollector
   ) {
     env
-      .getJsonSchemaManager()
+      .getJsonSchemaFactoryManager()
       .issueScan()
       .issueCollector(issueCollector)
       .type(LoomConstants.Errors.NODE_SCHEMA_ERROR)
@@ -120,10 +126,12 @@ public final class NodeBodySchemaConstraint implements LoomEnvironment.Constrain
       .summaryPrefix("Body ")
       .jsonPathPrefix(JsonPathUtils.concatJsonPath(node.getJsonPath() + ".body"))
       .schema(schema)
-      .json(node.getBodyAsJson())
-      .context(node.asValidationContext("Node"))
-      .context(
-        ValidationIssue.Context.builder().name("Body Schema").dataFromJson(bodySchema).build()
+      .data(node.getBodyAsJsonNode())
+      .contexts(() ->
+        List.of(
+          node.asValidationContext("Node"),
+          ValidationIssue.Context.builder().name("Body Schema").dataFromJson(bodySchema).build()
+        )
       )
       .build()
       .scan();

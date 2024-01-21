@@ -90,6 +90,30 @@ public final class JsonUtil {
     }
   }
 
+  // /**
+  //  * Format a parse error.
+  //  *
+  //  * @param e The exception.
+  //  * @param source The source string.
+  //  * @return The formatted error.
+  //  */
+  // static String formatParseError(JsonParsingException e, String source) {
+  //   StringBuilder sb = new StringBuilder();
+  //   sb.append(e.getMessage()).append("\n");
+  //   var location = e.getLocation();
+  //   var k = location.getLineNumber() - 1;
+  //   var lines = Splitter.on("\n").splitToList(source);
+  //   for (int i = 0; i < lines.size(); i++) {
+  //     if (i == k) {
+  //       sb.append(">>> ");
+  //     } else {
+  //       sb.append("    ");
+  //     }
+  //     sb.append(lines.get(i)).append("\n");
+  //   }
+  //   return sb.toString();
+  // }
+
   private final JsonNodeFactory JSON_NODE_FACTORY = JsonNodeFactory.instance;
 
   private final ObjectMapper COMMON_MAPPER = new ObjectMapper()

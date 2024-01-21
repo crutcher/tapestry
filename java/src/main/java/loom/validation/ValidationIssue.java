@@ -3,9 +3,9 @@ package loom.validation;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.google.errorprone.annotations.FormatMethod;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import javax.annotation.Nonnull;
@@ -138,7 +138,9 @@ public final class ValidationIssue {
      */
     public ValidationIssueBuilder param(String key, Object value) {
       if (this.params == null) {
-        this.params = new TreeMap<>();
+        // TODO: it would be nice if param insertion order was preserved.
+        // this is currently getting lost in the build() step.
+        this.params = new LinkedHashMap<>();
       }
       this.params.put(key, value.toString());
       return this;

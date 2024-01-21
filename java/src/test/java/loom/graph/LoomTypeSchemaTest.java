@@ -58,27 +58,27 @@ public class LoomTypeSchemaTest extends BaseTestClass {
       )
       .jsonSchema(
         """
-                    {
-                      "type": "object",
-                      "properties": {
-                        "inputs": {
-                          "type": "object",
-                          "patternProperties": {
-                              "^[a-zA-Z_][a-zA-Z0-9_]*$": {
-                                  "type": "array",
-                                  "items": {
-                                    "type": "string",
-                                    "format": "uuid"
-                                  }
-                              }
-                          },
-                          "additionalProperties": false
-                        }
-                      },
-                      "required": ["inputs"],
-                      "additionalProperties": false
-                    }
-                    """
+        {
+          "type": "object",
+          "properties": {
+            "inputs": {
+              "type": "object",
+              "patternProperties": {
+                  "^[a-zA-Z_][a-zA-Z0-9_]*$": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "format": "uuid"
+                      }
+                  }
+              },
+              "additionalProperties": false
+            }
+          },
+          "required": ["inputs"],
+          "additionalProperties": false
+        }
+        """
       )
       .build();
 
@@ -109,12 +109,38 @@ public class LoomTypeSchemaTest extends BaseTestClass {
       ValidationIssue
         .builder()
         .type(LoomConstants.Errors.NODE_SCHEMA_ERROR)
-        .summary(
-          "Body /inputs/9 [null] :: The object must not have a property whose name is \"9\"."
+        .param("path", "$.foo.inputs")
+        .param("keyword", "additionalProperties")
+        .param("keywordArgs", List.of("9"))
+        .param("schemaPath", "#/properties/inputs/additionalProperties")
+        .summary("Body [additionalProperties] :: $.inputs")
+        .message(
+          "$.inputs.9: is not defined in the schema and the schema does not allow additional properties"
         )
-        .message("Error Parameters: {name=9}")
         .context(
-          ValidationIssue.Context.builder().name("Data").jsonpath(prefix, "inputs[9]").build()
+          ValidationIssue.Context
+            .builder()
+            .name("Data")
+            .data(data.getInputs())
+            .jsonpath(prefix, "inputs")
+        )
+        .context(ValidationIssue.Context.builder().name("Body").jsonpath(prefix).data(data))
+        .build(),
+      ValidationIssue
+        .builder()
+        .type(LoomConstants.Errors.NODE_SCHEMA_ERROR)
+        .param("path", "$.foo.inputs.b[3]")
+        .param("keyword", "format")
+        .param("keywordArgs", "[uuid, must be a valid RFC 4122 UUID]")
+        .param("schemaPath", "^[a-zA-Z_][a-zA-Z0-9_]*$/items")
+        .summary("Body [format] :: $.inputs.b[3]: \"garbage\"")
+        .message("$.inputs.b[3]: does not match the uuid pattern must be a valid RFC 4122 UUID")
+        .context(
+          ValidationIssue.Context
+            .builder()
+            .name("Data")
+            .data("garbage")
+            .jsonpath(prefix, "inputs.b[3]")
         )
         .context(ValidationIssue.Context.builder().name("Body").jsonpath(prefix).data(data))
         .build(),

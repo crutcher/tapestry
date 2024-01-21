@@ -10,7 +10,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import lombok.Builder;
 import lombok.Data;
-import loom.common.json.JsonSchemaManager;
+import loom.common.json.JsonSchemaFactoryManager;
 import loom.common.json.JsonUtil;
 import loom.common.runtime.CheckThat;
 import loom.common.runtime.ExcludeFromJacocoGeneratedReport;
@@ -66,7 +66,7 @@ public final class LoomEnvironment {
   private final List<Constraint> constraints = new ArrayList<>();
 
   @Builder.Default
-  private final JsonSchemaManager jsonSchemaManager = new JsonSchemaManager();
+  private final JsonSchemaFactoryManager jsonSchemaFactoryManager = new JsonSchemaFactoryManager();
 
   /**
    * Add a node type class to the LoomEnvironment.

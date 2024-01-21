@@ -16,6 +16,7 @@ import lombok.Singular;
 import lombok.Value;
 import lombok.extern.jackson.Jacksonized;
 import loom.common.json.JsonPathUtils;
+import loom.common.json.JsonSchemaFactoryManager;
 import loom.common.json.JsonUtil;
 import loom.validation.ValidationIssue;
 import loom.validation.ValidationIssueCollector;
@@ -129,19 +130,25 @@ public class LoomTypeSchema {
       );
 
     if (jsonSchema != null) {
-      var schema = env.getJsonSchemaManager().loadSchema(jsonSchema);
-
-      env
-        .getJsonSchemaManager()
+      JsonSchemaFactoryManager jsfManager = env.getJsonSchemaFactoryManager();
+      var schema = jsfManager.loadSchemaFromSource(jsonSchema);
+      jsfManager
         .issueScan()
         .issueCollector(collector)
         .type(LoomConstants.Errors.NODE_SCHEMA_ERROR)
         .summaryPrefix("Body ")
         .jsonPathPrefix(prefix)
         .schema(schema)
-        .json(json)
-        .context(
-          ValidationIssue.Context.builder().name("Body").jsonpath(prefix).dataFromJson(json).build()
+        .data(JsonUtil.parseToJsonNodeTree(json))
+        .contexts(() ->
+          List.of(
+            ValidationIssue.Context
+              .builder()
+              .name("Body")
+              .jsonpath(prefix)
+              .dataFromJson(json)
+              .build()
+          )
         )
         .build()
         .scan();

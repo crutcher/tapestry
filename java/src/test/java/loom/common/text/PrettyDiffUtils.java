@@ -17,7 +17,10 @@ public class PrettyDiffUtils {
     var udiffLines = DiffUtils.generateUnifiedDiff(a, b, aLines, patch, 3);
 
     // Omit the first two lines of the udiff output, which contain '--- $a' and '+++ b'.
-    return udiffLines.subList(2, udiffLines.size());
+    if (udiffLines.size() > 2) {
+      return udiffLines.subList(2, udiffLines.size());
+    }
+    return udiffLines;
   }
 
   public static String indentUdiff(String prefix, String a, String b) {

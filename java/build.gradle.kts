@@ -164,8 +164,8 @@ dependencies {
     // javax.json
     implementation("org.glassfish:javax.json:1.1.4")
 
-    implementation("org.leadpony.justify:justify:3.1.0")
-    implementation("org.leadpony.joy:joy-classic:2.1.0")
+    // implementation("org.leadpony.justify:justify:3.1.0")
+    // implementation("org.leadpony.joy:joy-classic:2.1.0")
 
     // https://github.com/networknt/json-schema-validator
     implementation("com.networknt:json-schema-validator:1.0.87")
