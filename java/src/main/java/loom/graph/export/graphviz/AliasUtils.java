@@ -2,9 +2,14 @@ package loom.graph.export.graphviz;
 
 import com.google.common.collect.Streams;
 import java.util.*;
+import lombok.experimental.UtilityClass;
 import loom.common.DigestUtils;
 import loom.common.text.TextUtils;
 
+/**
+ * Utilities for generating short aliases for UUIDs.
+ */
+@UtilityClass
 public class AliasUtils {
 
   /**

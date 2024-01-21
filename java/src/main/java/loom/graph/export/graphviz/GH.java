@@ -50,30 +50,57 @@ public class GH {
     XML_OUTPUT_FORMAT.setPadText(false);
   }
 
+  /**
+   * The horizontal alignment of an element.
+   */
   public enum HorizontalAlign {
+    /** Align to the left. */
     LEFT,
+    /** Align to the center. */
     CENTER,
+    /** Align to the right. */
     RIGHT,
   }
 
+  /**
+   * The vertical alignment of an element.
+   */
   public enum VerticalAlign {
+    /** Align to the top. */
     TOP,
+    /** Align to the middle. */
     MIDDLE,
+    /** Align to the bottom. */
     BOTTOM,
   }
 
+  /**
+   * The horizontal alignment of a table data element, with the addition of {@link #TEXT}.
+   */
   public enum TableDataAlign {
+    /** Align to the left. */
     LEFT,
+    /** Align to the center. */
     CENTER,
+    /** Align to the right. */
     RIGHT,
+    /** Align to the text. */
     TEXT,
   }
 
+  /**
+   * The scale of an image.
+   */
   public enum ImageScale {
+    /** Do not scale the image. */
     FALSE,
+    /** Scale the image uniformly to fit the cell. */
     TRUE,
+    /** Scale the image to fit the cell width. */
     WIDTH,
+    /** Scale the image to fit the cell height. */
     HEIGHT,
+    /** Scale the image to fit the cell width and height. */
     BOTH,
   }
 
@@ -106,9 +133,16 @@ public class GH {
   @RequiredArgsConstructor
   public class NodeWrapper<T extends NodeWrapper<T, N>, N extends Node> {
 
+    /**
+     * The node wrapped by this wrapper.
+     */
     @Nonnull
     protected final N node;
 
+    /**
+     * Return {@code this} as the type of the wrapper.
+     * @return {@code this}
+     */
     @SuppressWarnings("unchecked")
     private T self() {
       return (T) this;
@@ -144,10 +178,18 @@ public class GH {
    */
   public class ElementWrapper<T extends ElementWrapper<T>> extends NodeWrapper<T, Element> {
 
+    /**
+     * Wrap an element.
+     * @param element the element to wrap.
+     */
     public ElementWrapper(Element element) {
       super(element);
     }
 
+    /**
+     * Return {@code this} as the type of the wrapper.
+     * @return {@code this}
+     */
     @SuppressWarnings("unchecked")
     private T self() {
       return (T) this;
@@ -494,11 +536,18 @@ public class GH {
   /** An extension of {@link ElementWrapper} for the {@code <font></font>} element. */
   public final class FontWrapper extends ElementWrapper<FontWrapper> {
 
+    /**
+     * Wrap a {@code <font></font>} element.
+     * @param element the element to wrap.
+     */
     public FontWrapper(Element element) {
       super(element);
       assert element.getName().equals("font");
     }
 
+    /**
+     * Create a {@code <font></font>} element wrapper.
+     */
     public FontWrapper() {
       this(DocumentHelper.createElement("font"));
     }
@@ -553,11 +602,18 @@ public class GH {
   /** An extension of {@link ElementWrapper} for the {@code <img></img>} element. */
   public final class ImgWrapper extends ElementWrapper<ImgWrapper> {
 
+    /**
+     * Wrap an {@code <img></img>} element.
+     * @param element the element to wrap.
+     */
     public ImgWrapper(Element element) {
       super(element);
       assert element.getName().equals("img");
     }
 
+    /**
+     * Create a {@code <img></img>} element wrapper.
+     */
     public ImgWrapper() {
       this(DocumentHelper.createElement("img"));
     }

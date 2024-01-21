@@ -42,7 +42,11 @@ import lombok.experimental.UtilityClass;
 @UtilityClass
 public class MapValueListUtil {
 
-  /** Serializer to write a {@code Map<K, T>} as a json {@code [T]}. */
+  /**
+   * Serializer to write a {@code Map<K, T>} as a json {@code [T]}.
+   * @param <K> the key type.
+   * @param <V> the value type.
+   */
   public final class MapSerializer<K extends Comparable<K>, V> extends JsonSerializer<Map<K, V>> {
 
     @Override

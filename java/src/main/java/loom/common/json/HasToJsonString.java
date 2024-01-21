@@ -2,7 +2,10 @@ package loom.common.json;
 
 /** An object that can be converted to a JSON string. */
 public interface HasToJsonString {
-  /** Convert this object to a JSON string. */
+  /**
+   * Convert this object to a JSON string.
+   * @return the JSON string.
+   */
   default String toJsonString() {
     return JsonUtil.toJson(this);
   }

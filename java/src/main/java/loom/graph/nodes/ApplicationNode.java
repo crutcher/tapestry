@@ -2,11 +2,6 @@ package loom.graph.nodes;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.function.Consumer;
-import javax.annotation.Nonnull;
 import lombok.*;
 import lombok.experimental.Delegate;
 import lombok.experimental.SuperBuilder;
@@ -15,14 +10,31 @@ import loom.common.json.HasToJsonString;
 import loom.common.json.WithSchema;
 import loom.graph.LoomNode;
 
+import javax.annotation.Nonnull;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.function.Consumer;
+
+/**
+ * A node representing an application of an operation signature to a set of tensors.
+ */
 @Jacksonized
 @SuperBuilder
 @Getter
 @Setter
 public final class ApplicationNode extends LoomNode<ApplicationNode, ApplicationNode.Body> {
 
+  /**
+   * The node type.
+   */
   public static final String TYPE = "ApplicationNode";
 
+  /**
+   * Extensions to the ApplicationNodeBuilder.
+   * @param <C> the concrete ApplicationNode type.
+   * @param <B> the concrete ApplicationNodeBuilder type.
+   */
   @SuppressWarnings("unused")
   public abstract static class ApplicationNodeBuilder<
     C extends ApplicationNode, B extends ApplicationNodeBuilder<C, B>
@@ -34,6 +46,9 @@ public final class ApplicationNode extends LoomNode<ApplicationNode, Application
     }
   }
 
+  /**
+   * The body of the ApplicationNode.
+   */
   @WithSchema(
     """
   {
@@ -135,6 +150,10 @@ public final class ApplicationNode extends LoomNode<ApplicationNode, Application
   @Nonnull
   private Body body;
 
+  /**
+   * Get the operation signature node.
+   * @return the operation signature node.
+   */
   public OperationSignatureNode getOperationSignatureNode() {
     return assertGraph()
       .assertNode(getOperationId(), OperationSignatureNode.TYPE, OperationSignatureNode.class);

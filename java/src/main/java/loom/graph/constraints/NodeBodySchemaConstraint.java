@@ -1,5 +1,9 @@
 package loom.graph.constraints;
 
+import java.util.List;
+import java.util.regex.Pattern;
+import java.util.stream.Stream;
+import javax.annotation.Nonnull;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Singular;
@@ -12,11 +16,6 @@ import loom.graph.LoomNode;
 import loom.validation.ValidationIssue;
 import loom.validation.ValidationIssueCollector;
 import org.leadpony.justify.api.JsonSchema;
-
-import javax.annotation.Nonnull;
-import java.util.List;
-import java.util.regex.Pattern;
-import java.util.stream.Stream;
 
 @Builder
 @Getter
