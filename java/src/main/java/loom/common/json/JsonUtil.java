@@ -4,14 +4,18 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.BooleanNode;
-import com.fasterxml.jackson.databind.node.NumericNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.*;
+import com.jayway.jsonpath.Configuration;
+import com.jayway.jsonpath.JsonPath;
+import com.jayway.jsonpath.ParseContext;
+import com.jayway.jsonpath.TypeRef;
+import com.jayway.jsonpath.spi.json.JacksonJsonNodeJsonProvider;
+import com.jayway.jsonpath.spi.mapper.JacksonMappingProvider;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import lombok.Value;
 import lombok.experimental.UtilityClass;
@@ -85,16 +89,106 @@ public final class JsonUtil {
     }
   }
 
+  private final JsonNodeFactory JSON_NODE_FACTORY = JsonNodeFactory.instance;
+
   private final ObjectMapper COMMON_MAPPER =
       new ObjectMapper().configure(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS, true);
+
+  private final Configuration JSON_PATH_CONFIG =
+      Configuration.builder()
+          .jsonProvider(new JacksonJsonNodeJsonProvider())
+          .mappingProvider(new JacksonMappingProvider())
+          .build();
+
+  public interface WithNodeBuilders {
+    @Nonnull
+    default NullNode nullNode() {
+      return JSON_NODE_FACTORY.nullNode();
+    }
+
+    @Nonnull
+    default JsonNode missingNode() {
+      return JSON_NODE_FACTORY.missingNode();
+    }
+
+    @Nonnull
+    default BooleanNode booleanNode(boolean value) {
+      return JSON_NODE_FACTORY.booleanNode(value);
+    }
+
+    @Nonnull
+    default NumericNode numberNode(int v) {
+      return JSON_NODE_FACTORY.numberNode(v);
+    }
+
+    @Nonnull
+    default NumericNode numberNode(float v) {
+      return JSON_NODE_FACTORY.numberNode(v);
+    }
+
+    @Nonnull
+    default NumericNode numberNode(double v) {
+      return JSON_NODE_FACTORY.numberNode(v);
+    }
+
+    @Nonnull
+    default TextNode textNode(String value) {
+      return JSON_NODE_FACTORY.textNode(value);
+    }
+
+    @Nonnull
+    default ObjectNode objectNode() {
+      return JSON_NODE_FACTORY.objectNode();
+    }
+
+    @Nonnull
+    default ArrayNode arrayNode() {
+      return JSON_NODE_FACTORY.arrayNode();
+    }
+  }
 
   /**
    * Get a Jackson ObjectMapper with default settings.
    *
    * @return the ObjectMapper.
    */
-  public ObjectMapper getMapper() {
+  public ObjectMapper getObjectMapper() {
     return COMMON_MAPPER;
+  }
+
+  /**
+   * Construct a JsonPath ParseContext bound to our default configuration.
+   *
+   * @return a new ParseContext.
+   */
+  public ParseContext jsonPathParseContext() {
+    return JsonPath.using(JSON_PATH_CONFIG);
+  }
+
+  /**
+   * Evaluate a JsonPath expression on a node.
+   *
+   * @param node the node to evaluate the expression on.
+   * @param path the JsonPath expression.
+   * @param cls the class of the result.
+   * @return the result.
+   * @param <T> the type of the result.
+   */
+  public <T> T jsonPathOnValue(Object node, String path, Class<T> cls) {
+    return jsonPathParseContext().parse(node).read(path, cls);
+  }
+
+  /**
+   * Evaluate a JsonPath expression on a node.
+   *
+   * @param node the node to evaluate the expression on.
+   * @param path the JsonPath expression.
+   * @param type the type of the result.
+   * @return the result.
+   * @param <T> the type of the result.
+   */
+  public <T> T jsonPathOnValue(Object node, String path, TypeRef<T> type) {
+    return jsonPathParseContext().parse(node).read(path, type);
   }
 
   /**
@@ -106,7 +200,7 @@ public final class JsonUtil {
    */
   public String toJson(Object obj) {
     try {
-      return getMapper().writer().writeValueAsString(obj);
+      return getObjectMapper().writer().writeValueAsString(obj);
     } catch (JsonProcessingException e) {
       throw new IllegalArgumentException(e);
     }
@@ -121,7 +215,7 @@ public final class JsonUtil {
    */
   public String toPrettyJson(Object obj) {
     try {
-      return getMapper().writerWithDefaultPrettyPrinter().writeValueAsString(obj);
+      return getObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(obj);
     } catch (JsonProcessingException e) {
       throw new IllegalArgumentException(e);
     }
@@ -139,7 +233,7 @@ public final class JsonUtil {
    */
   public JsonNode parseToJsonNodeTree(String json) {
     try {
-      return getMapper().readTree(json);
+      return getObjectMapper().readTree(json);
     } catch (JsonProcessingException e) {
       throw new IllegalArgumentException(e);
     }
@@ -152,7 +246,7 @@ public final class JsonUtil {
    * @return the JsonNode tree.
    */
   public JsonNode valueToJsonNodeTree(Object obj) {
-    return getMapper().valueToTree(obj);
+    return getObjectMapper().valueToTree(obj);
   }
 
   /**
@@ -183,7 +277,7 @@ public final class JsonUtil {
    * @throws JsonProcessingException if the JSON string cannot be de-serialized to the specified.
    */
   public <T> T readValue(String json, Class<T> cls) throws JsonProcessingException {
-    return getMapper().readValue(json, cls);
+    return getObjectMapper().readValue(json, cls);
   }
 
   /**
@@ -196,7 +290,7 @@ public final class JsonUtil {
    * @throws IllegalArgumentException if the object cannot be converted to the specified class.
    */
   public <T> T convertValue(Object tree, Class<T> clazz) {
-    return getMapper().convertValue(tree, clazz);
+    return getObjectMapper().convertValue(tree, clazz);
   }
 
   /**

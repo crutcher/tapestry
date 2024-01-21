@@ -26,7 +26,6 @@ repositories {
     maven {
         url = uri("https://jitpack.io")
     }
-
 }
 
 java {
@@ -36,7 +35,6 @@ java {
     // toolchain {
     //   languageVersion.set(JavaLanguageVersion.of(17))
     // }
-
 }
 
 spotless {
@@ -48,6 +46,10 @@ spotless {
         trimTrailingWhitespace()
         indentWithSpaces()
         endWithNewline()
+    }
+    kotlinGradle {
+        target("*.gradle.kts")
+        ktlint()
     }
 }
 
@@ -122,7 +124,6 @@ dependencies {
     // https://mvnrepository.com/artifact/jakarta.validation/jakarta.validation-api
     // implementation("jakarta.validation:jakarta.validation-api:3.0.2")
 
-
     // Jetbrains annotations
     implementation("org.jetbrains:annotations:24.0.1")
 
@@ -134,7 +135,11 @@ dependencies {
     errorprone("com.google.errorprone:error_prone_core:2.23.0")
 
     // Logging.
-    implementation("org.slf4j:slf4j-simple:2.0.7")
+    // implementation("org.slf4j:slf4j-simple:2.0.7")
+    implementation("org.slf4j:slf4j-api:2.0.7")
+
+    // https://mvnrepository.com/artifact/org.slf4j/slf4j-reload4j
+    testImplementation("org.slf4j:slf4j-reload4j:2.0.11")
 
     // JMH benchmarking.
     testImplementation("org.openjdk.jmh:jmh-core:1.36")
@@ -150,7 +155,6 @@ dependencies {
     implementation("org.apache.commons:commons-text:1.10.0")
     implementation("org.apache.commons:commons-math3:3.6.1")
 
-
     // Guava.
     implementation("com.google.guava:guava:32.0.0-jre")
 
@@ -161,6 +165,9 @@ dependencies {
 
     implementation("org.leadpony.justify:justify:3.1.0")
     implementation("org.leadpony.joy:joy-classic:2.1.0")
+
+    // https://github.com/networknt/json-schema-validator
+    implementation("com.networknt:json-schema-validator:1.0.87")
 
     /*
     implementation("net.javacrumbs.json-unit:json-unit:3.2.2")
@@ -180,8 +187,8 @@ dependencies {
     // implementation("guru.nidi:graphviz-java-all-j2v8:0.18.1")
     implementation("guru.nidi:graphviz-java:0.18.1")
     // Manual deps for graphviz
-    implementation("org.apache.logging.log4j:log4j-api:2.20.0")
-    implementation("org.apache.logging.log4j:log4j-core:2.20.0")
+    // implementation("org.apache.logging.log4j:log4j-api:2.20.0")
+    // implementation("org.apache.logging.log4j:log4j-core:2.20.0")
     // Optional: Graal JS engine; enable as the default.
     implementation("org.graalvm.js:js:22.3.1")
     // Graphviz.useEngine(GraphvizJdkEngine())
@@ -194,4 +201,3 @@ dependencies {
     implementation("org.xmlunit:xmlunit-core:2.9.1")
     implementation("org.xmlunit:xmlunit-assertj3:2.9.1")
 }
-

@@ -1,10 +1,8 @@
 package loom.graph.constraints;
 
-import guru.nidi.graphviz.engine.Format;
 import java.util.List;
 import java.util.Map;
 import loom.graph.CommonEnvironments;
-import loom.graph.export.graphviz.GraphVisualizer;
 import loom.graph.nodes.*;
 import loom.polyhedral.IndexProjectionFunction;
 import loom.testing.BaseTestClass;
@@ -110,18 +108,18 @@ public class IPFSignatureAgreementConstraintTest extends BaseTestClass {
         Map.of("axis", 1));
     graph.validate();
 
-    {
+    // {
 
-      // This is for dev on the graphviz stuff; it should be moved.
-      var exporter = GraphVisualizer.buildDefault();
-      var export = exporter.export(graph);
-      var gv = export.getGraphviz();
+    // // This is for dev on the graphviz stuff; it should be moved.
+    // var exporter = GraphVisualizer.buildDefault();
+    // var export = exporter.export(graph);
+    // var gv = export.getGraphviz();
 
-      // System.out.println(export.getExportGraph());
+    // // System.out.println(export.getExportGraph());
 
-      var img = gv.render(Format.PNG).toImage();
+    // var img = gv.render(Format.PNG).toImage();
 
-      System.out.println("here");
-    }
+    // System.out.println("here");
+    // }
   }
 }

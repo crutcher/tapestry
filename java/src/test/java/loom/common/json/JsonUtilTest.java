@@ -1,31 +1,77 @@
 package loom.common.json;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.jayway.jsonpath.TypeRef;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import loom.testing.CommonAssertions;
 import org.junit.Test;
 
-public class JsonUtilTest implements CommonAssertions {
+public class JsonUtilTest implements CommonAssertions, JsonUtil.WithNodeBuilders {
+  @Test
+  public void test_WithNodeBuilders() {
+    assertJsonEquals(nullNode(), "null");
+    assertThat(missingNode()).isEqualTo(JsonNodeFactory.instance.missingNode());
+
+    assertJsonEquals(booleanNode(true), "true");
+
+    assertJsonEquals(numberNode(1), "1");
+    assertJsonEquals(numberNode(1.0), "1.0");
+    assertJsonEquals(numberNode(1.0f), "1.0");
+
+    assertJsonEquals(textNode("abc"), "\"abc\"");
+
+    assertJsonEquals(objectNode().put("a", 1), "{\"a\": 1}");
+
+    assertJsonEquals(arrayNode().add(1).add(2), "[1, 2]");
+  }
+
+  @Test
+  public void test_jsonPath() {
+    var node =
+        JsonUtil.parseToJsonNodeTree(
+            """
+        {
+          "a" : {
+            "b" : [1, 2]
+          }
+        }""");
+
+    assertThat(JsonUtil.jsonPathOnValue(node, "$.a.b[1]", Integer.class)).isEqualTo(2);
+    assertThat(JsonUtil.jsonPathOnValue(node, "$.a.b", new TypeRef<List<Integer>>() {}))
+        .containsOnly(1, 2);
+  }
+
+  @Test
+  public void test_stream() {
+    assertThat(
+            JsonUtil.Tree.stream(
+                (ObjectNode) JsonUtil.parseToJsonNodeTree("{\"a\" : 1, \"b\" : 2}")))
+        .containsOnly(Map.entry("a", numberNode(1)), Map.entry("b", numberNode(2)));
+
+    assertThat(JsonUtil.Tree.stream((ArrayNode) JsonUtil.parseToJsonNodeTree("[1, 2, 3]")))
+        .containsOnly(numberNode(1), numberNode(2), numberNode(3));
+  }
 
   @Test
   public void test_anyOf() {
-    var empty = JsonNodeFactory.instance.arrayNode();
+    var empty = arrayNode();
 
     assertThat(JsonUtil.Tree.allOf(empty, JsonNode::isNumber)).isTrue();
     assertThat(JsonUtil.Tree.anyOf(empty, JsonNode::isNumber)).isFalse();
     assertThat(JsonUtil.Tree.isAllNumeric(empty)).isTrue();
 
-    var arrayNode = JsonNodeFactory.instance.arrayNode().add(1).add(2).add(3);
+    var arrayNode = arrayNode().add(1).add(2).add(3);
     assertThat(JsonUtil.Tree.isAllNumeric(arrayNode)).isTrue();
     assertThat(JsonUtil.Tree.allOf(arrayNode, JsonNode::isNumber)).isTrue();
     assertThat(JsonUtil.Tree.allOf(arrayNode, n -> n.asInt() >= 2)).isFalse();
     assertThat(JsonUtil.Tree.anyOf(arrayNode, n -> n.asInt() >= 2)).isTrue();
 
-    assertThat(JsonUtil.Tree.isAllNumeric(JsonNodeFactory.instance.arrayNode().add(1).add("abc")))
-        .isFalse();
+    assertThat(JsonUtil.Tree.isAllNumeric(arrayNode().add(1).add("abc"))).isFalse();
   }
 
   public record ExampleClass(String a, int b) {}
@@ -77,7 +123,7 @@ public class JsonUtilTest implements CommonAssertions {
 
   @Test
   public void test_treeToSimpleJson() {
-    assertThat(JsonUtil.treeToSimpleJson(JsonNodeFactory.instance.nullNode())).isNull();
+    assertThat(JsonUtil.treeToSimpleJson(nullNode())).isNull();
     assertThat(
             JsonUtil.treeToSimpleJson(
                 JsonUtil.parseToJsonNodeTree(
@@ -89,12 +135,12 @@ public class JsonUtilTest implements CommonAssertions {
                     }""")))
         .isEqualTo(Map.of("a", "hello", "b", 3, "bool", true));
     assertThatExceptionOfType(IllegalArgumentException.class)
-        .isThrownBy(() -> JsonUtil.treeToSimpleJson(JsonNodeFactory.instance.missingNode()));
+        .isThrownBy(() -> JsonUtil.treeToSimpleJson(missingNode()));
   }
 
   @Test
   public void test_parseToJsonNodeTree() {
-    assertThat(JsonUtil.parseToJsonNodeTree("null")).isEqualTo(JsonNodeFactory.instance.nullNode());
+    assertThat(JsonUtil.parseToJsonNodeTree("null")).isEqualTo(nullNode());
     assertThat(
             JsonUtil.parseToJsonNodeTree(
                 """
