@@ -15,6 +15,7 @@ import javax.annotation.concurrent.ThreadSafe;
 @ThreadSafe
 @Immutable
 public final class ZPoint extends ImmutableZTensorWrapper<ZPoint> implements HasPermute<ZPoint> {
+
   /**
    * Private constructor for Jackson.
    *

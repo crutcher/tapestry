@@ -10,23 +10,27 @@ import loom.zspace.ZPoint;
 import org.junit.Test;
 
 public class NodeBodySchemaConstraintTest extends BaseTestClass {
+
   @SuppressWarnings("unused")
   public static class BodyWithoutSchema {
+
     public String message;
   }
 
   @Test
   public void test_bodyWithSchema_byName() {
-    var env =
-        LoomEnvironment.builder()
-            .build()
-            .addNodeTypeClass(NoteNode.TYPE, NoteNode.class)
-            .addNodeTypeClass(TensorNode.TYPE, TensorNode.class)
-            .addConstraint(
-                NodeBodySchemaConstraint.builder()
-                    .nodeType(TensorNode.TYPE)
-                    .withSchemaFromNodeClass(TensorNode.class)
-                    .build());
+    var env = LoomEnvironment
+      .builder()
+      .build()
+      .addNodeTypeClass(NoteNode.TYPE, NoteNode.class)
+      .addNodeTypeClass(TensorNode.TYPE, TensorNode.class)
+      .addConstraint(
+        NodeBodySchemaConstraint
+          .builder()
+          .nodeType(TensorNode.TYPE)
+          .withSchemaFromNodeClass(TensorNode.class)
+          .build()
+      );
     var graph = env.newGraph();
 
     NoteNode.withBody(b -> b.message("hello")).addTo(graph);
@@ -38,16 +42,18 @@ public class NodeBodySchemaConstraintTest extends BaseTestClass {
 
   @Test
   public void test_bodyWithSchema_byPattern() {
-    var env =
-        LoomEnvironment.builder()
-            .build()
-            .addNodeTypeClass(NoteNode.TYPE, NoteNode.class)
-            .addNodeTypeClass(TensorNode.TYPE, TensorNode.class)
-            .addConstraint(
-                NodeBodySchemaConstraint.builder()
-                    .nodeTypePattern(Pattern.compile("TensorNode"))
-                    .withSchemaFromNodeClass(TensorNode.class)
-                    .build());
+    var env = LoomEnvironment
+      .builder()
+      .build()
+      .addNodeTypeClass(NoteNode.TYPE, NoteNode.class)
+      .addNodeTypeClass(TensorNode.TYPE, TensorNode.class)
+      .addConstraint(
+        NodeBodySchemaConstraint
+          .builder()
+          .nodeTypePattern(Pattern.compile("TensorNode"))
+          .withSchemaFromNodeClass(TensorNode.class)
+          .build()
+      );
     var graph = env.newGraph();
 
     NoteNode.withBody(b -> b.message("hello")).addTo(graph);
@@ -61,30 +67,30 @@ public class NodeBodySchemaConstraintTest extends BaseTestClass {
   public void test_builder() {
     String tensorBodySchema = TensorNode.Body.class.getAnnotation(WithSchema.class).value();
     {
-      var constraint =
-          NodeBodySchemaConstraint.builder()
-              .nodeType(TensorNode.TYPE)
-              .withSchemaFromBodyClass(TensorNode.Body.class)
-              .build();
+      var constraint = NodeBodySchemaConstraint
+        .builder()
+        .nodeType(TensorNode.TYPE)
+        .withSchemaFromBodyClass(TensorNode.Body.class)
+        .build();
 
       assertThat(constraint.getNodeTypes()).containsOnly(TensorNode.TYPE);
       assertThat(constraint.getBodySchema()).isEqualTo(tensorBodySchema);
     }
     {
-      var constraint =
-          NodeBodySchemaConstraint.builder()
-              .nodeType(TensorNode.TYPE)
-              .withSchemaFromBodyClass(TensorNode.Body.class)
-              .build();
+      var constraint = NodeBodySchemaConstraint
+        .builder()
+        .nodeType(TensorNode.TYPE)
+        .withSchemaFromBodyClass(TensorNode.Body.class)
+        .build();
 
       assertThat(constraint.getNodeTypes()).containsOnly(TensorNode.TYPE);
       assertThat(constraint.getBodySchema()).isEqualTo(tensorBodySchema);
     }
 
     assertThatExceptionOfType(IllegalArgumentException.class)
-        .isThrownBy(
-            () ->
-                NodeBodySchemaConstraint.builder().withSchemaFromBodyClass(BodyWithoutSchema.class))
-        .withMessageContaining("does not have a @WithSchema annotation");
+      .isThrownBy(() ->
+        NodeBodySchemaConstraint.builder().withSchemaFromBodyClass(BodyWithoutSchema.class)
+      )
+      .withMessageContaining("does not have a @WithSchema annotation");
   }
 }

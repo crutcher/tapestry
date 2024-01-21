@@ -12,12 +12,15 @@ import loom.testing.BaseTestClass;
 import org.junit.Test;
 
 public class MapValueListUtilTest extends BaseTestClass {
+
   @Data
   public static class TestDoc {
+
     @Data
     @Jacksonized
     @SuperBuilder
     public static class Node {
+
       private final UUID id;
     }
 
@@ -26,7 +29,8 @@ public class MapValueListUtilTest extends BaseTestClass {
     private final Map<UUID, Node> nodes = new HashMap<>();
 
     public static class NodeListToMapDeserializer
-        extends MapValueListUtil.MapDeserializer<UUID, Node> {
+      extends MapValueListUtil.MapDeserializer<UUID, Node> {
+
       public NodeListToMapDeserializer() {
         super(Node.class, Node::getId, HashMap::new);
       }
@@ -36,7 +40,7 @@ public class MapValueListUtilTest extends BaseTestClass {
   @Test
   public void testBasic() {
     String json =
-        """
+      """
                 {
                   "nodes": [
                      {
@@ -47,8 +51,10 @@ public class MapValueListUtilTest extends BaseTestClass {
                 """;
 
     var doc = new TestDoc();
-    var node =
-        TestDoc.Node.builder().id(UUID.fromString("00000000-0000-0000-0000-000000000000")).build();
+    var node = TestDoc.Node
+      .builder()
+      .id(UUID.fromString("00000000-0000-0000-0000-000000000000"))
+      .build();
     doc.nodes.put(node.getId(), node);
 
     assertJsonEquals(doc, json);

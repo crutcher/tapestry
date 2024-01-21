@@ -7,6 +7,7 @@ import loom.common.runtime.ExcludeFromJacocoGeneratedReport;
 
 @UtilityClass
 public class DigestUtils {
+
   public final String MD5_ALGORITHM = "MD5";
 
   /**

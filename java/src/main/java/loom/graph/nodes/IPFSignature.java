@@ -18,7 +18,7 @@ import loom.polyhedral.IndexProjectionFunction;
 @Jacksonized
 @Builder
 @WithSchema(
-    """
+  """
 {
     "type": "object",
     "properties": {
@@ -74,9 +74,11 @@ import loom.polyhedral.IndexProjectionFunction;
       }
     }
 }
-""")
+"""
+)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class IPFSignature implements HasToJsonString {
+
   public static final String ANNOTATION_TYPE = "IPFSignature";
 
   @SuppressWarnings("unused")
@@ -94,7 +96,9 @@ public class IPFSignature implements HasToJsonString {
 
     @CanIgnoreReturnValue
     public IPFSignatureBuilder input(
-        @Nonnull String name, @Nonnull List<IndexProjectionFunction> ipfs) {
+      @Nonnull String name,
+      @Nonnull List<IndexProjectionFunction> ipfs
+    ) {
       this.inputs.put(name, new ArrayList<>(ipfs));
       return this;
     }
@@ -112,7 +116,9 @@ public class IPFSignature implements HasToJsonString {
 
     @CanIgnoreReturnValue
     public IPFSignatureBuilder output(
-        @Nonnull String name, @Nonnull List<IndexProjectionFunction> ipfs) {
+      @Nonnull String name,
+      @Nonnull List<IndexProjectionFunction> ipfs
+    ) {
       this.outputs.put(name, new ArrayList<>(ipfs));
       return this;
     }
@@ -123,6 +129,9 @@ public class IPFSignature implements HasToJsonString {
     }
   }
 
-  @Nonnull Map<String, List<IndexProjectionFunction>> inputs;
-  @Nonnull Map<String, List<IndexProjectionFunction>> outputs;
+  @Nonnull
+  Map<String, List<IndexProjectionFunction>> inputs;
+
+  @Nonnull
+  Map<String, List<IndexProjectionFunction>> outputs;
 }

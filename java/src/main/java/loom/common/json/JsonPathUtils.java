@@ -6,6 +6,7 @@ import lombok.experimental.UtilityClass;
 
 @UtilityClass
 public class JsonPathUtils {
+
   /**
    * Convert a JSON pointer to a JSON path.
    *
@@ -90,8 +91,9 @@ public class JsonPathUtils {
    */
   @Nonnull
   public String normalizePath(String path) {
-    return path.replaceAll("\\['([a-zA-Z_][a-zA-Z0-9_]*)']", ".$1")
-        .replaceAll("\\['([1-9][0-9]*)']", "[$1]")
-        .replaceAll("\\.\\.", ".");
+    return path
+      .replaceAll("\\['([a-zA-Z_][a-zA-Z0-9_]*)']", ".$1")
+      .replaceAll("\\['([1-9][0-9]*)']", "[$1]")
+      .replaceAll("\\.\\.", ".");
   }
 }

@@ -19,9 +19,9 @@ import loom.common.json.HasToJsonString;
 @Immutable
 @Jacksonized
 @Builder(toBuilder = true)
-@JsonPropertyOrder({"projection", "offset"})
+@JsonPropertyOrder({ "projection", "offset" })
 public class ZAffineMap
-    implements HasPermuteInput<ZAffineMap>, HasPermuteOutput<ZAffineMap>, HasToJsonString {
+  implements HasPermuteInput<ZAffineMap>, HasPermuteOutput<ZAffineMap>, HasToJsonString {
 
   /**
    * Create a ZAffineMap from a matrix.
@@ -49,9 +49,11 @@ public class ZAffineMap
     return new ZAffineMap(matrix);
   }
 
-  @Nonnull public ZMatrix projection;
+  @Nonnull
+  public ZMatrix projection;
 
-  @Nonnull public ZPoint offset;
+  @Nonnull
+  public ZPoint offset;
 
   /**
    * Create a new ZAffineMap.
@@ -61,8 +63,9 @@ public class ZAffineMap
    */
   @JsonCreator
   public ZAffineMap(
-      @JsonProperty(value = "projection", required = true) HasZTensor projection,
-      @Nullable @JsonProperty(value = "offset") HasZTensor offset) {
+    @JsonProperty(value = "projection", required = true) HasZTensor projection,
+    @Nullable @JsonProperty(value = "offset") HasZTensor offset
+  ) {
     this.projection = new ZMatrix(projection);
     if (offset == null) {
       offset = ZTensor.newZeros(this.projection.outputNDim());
@@ -73,9 +76,12 @@ public class ZAffineMap
     zoffset.assertNDim(1);
     if (zoffset.shape(0) != outputNDim()) {
       throw new IllegalArgumentException(
-          String.format(
-              "A.shape[1] != b.shape[0]: %s != %s",
-              this.projection.shapeAsList(), zoffset.shapeAsList()));
+        String.format(
+          "A.shape[1] != b.shape[0]: %s != %s",
+          this.projection.shapeAsList(),
+          zoffset.shapeAsList()
+        )
+      );
     }
   }
 
@@ -120,7 +126,7 @@ public class ZAffineMap
 
   @Override
   public String toString() {
-    return "λx." + projection.toJsonString() + "⋅x + " + offset.toJsonString();
+    return ("λx." + projection.toJsonString() + "⋅x + " + offset.toJsonString());
   }
 
   @Override
@@ -131,7 +137,9 @@ public class ZAffineMap
   @Override
   public ZAffineMap permuteOutput(@Nonnull int... permutation) {
     return new ZAffineMap(
-        projection.permuteOutput(permutation), offset.tensor.reorderedDimCopy(permutation, 0));
+      projection.permuteOutput(permutation),
+      offset.tensor.reorderedDimCopy(permutation, 0)
+    );
   }
 
   /**

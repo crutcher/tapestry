@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 /** ZTensor math operations. */
 @NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
 public final class ZTensorOperations {
+
   /**
    * Applies the given reduction operation to all values in the given tensor.
    *
@@ -19,16 +20,18 @@ public final class ZTensorOperations {
    * @return the int result of the reduction.
    */
   public static int reduceCellsAtomic(
-      @Nonnull HasZTensor tensor, @Nonnull IntBinaryOperator op, int initial) {
-    var acc =
-        new IntConsumer() {
-          int value = initial;
+    @Nonnull HasZTensor tensor,
+    @Nonnull IntBinaryOperator op,
+    int initial
+  ) {
+    var acc = new IntConsumer() {
+      int value = initial;
 
-          @Override
-          public void accept(int value) {
-            this.value = op.applyAsInt(this.value, value);
-          }
-        };
+      @Override
+      public void accept(int value) {
+        this.value = op.applyAsInt(this.value, value);
+      }
+    };
 
     tensor.getTensor().forEachValue(acc);
     return acc.value;
@@ -44,7 +47,10 @@ public final class ZTensorOperations {
    */
   @Nonnull
   public static ZTensor reduceCells(
-      @Nonnull HasZTensor tensor, @Nonnull IntBinaryOperator op, int initial) {
+    @Nonnull HasZTensor tensor,
+    @Nonnull IntBinaryOperator op,
+    int initial
+  ) {
     return ZTensor.newScalar(reduceCellsAtomic(tensor, op, initial));
   }
 
@@ -63,10 +69,11 @@ public final class ZTensorOperations {
    */
   @Nonnull
   public static ZTensor reduceCells(
-      @Nonnull HasZTensor tensor,
-      @Nonnull IntBinaryOperator op,
-      int initial,
-      @Nonnull int... dims) {
+    @Nonnull HasZTensor tensor,
+    @Nonnull IntBinaryOperator op,
+    int initial,
+    @Nonnull int... dims
+  ) {
     var ztensor = tensor.getTensor();
     int[] ztensorShape = ztensor._unsafeGetShape();
 
@@ -108,14 +115,17 @@ public final class ZTensorOperations {
     zlhs.assertNDim(2);
     if (zlhs.shape(1) != zrhs.shape(0)) {
       throw new IllegalArgumentException(
-          "lhs shape %s not compatible with rhs shape %s"
-              .formatted(zlhs.shapeAsList(), zrhs.shapeAsList()));
+        "lhs shape %s not compatible with rhs shape %s".formatted(
+            zlhs.shapeAsList(),
+            zrhs.shapeAsList()
+          )
+      );
     }
 
     if (zrhs.getNDim() > 2 || zrhs.getNDim() == 0) {
       throw new IllegalArgumentException(
-          "rhs must be a 1D or 2D tensor, got %dD: %s"
-              .formatted(zrhs.getNDim(), zrhs.shapeAsList()));
+        "rhs must be a 1D or 2D tensor, got %dD: %s".formatted(zrhs.getNDim(), zrhs.shapeAsList())
+      );
     }
 
     boolean rhsIsVector = zrhs.getNDim() == 1;
@@ -203,12 +213,15 @@ public final class ZTensorOperations {
    */
   @Nonnull
   public static ZTensor zipWith(
-      @Nonnull IntBinaryOperator op, @Nonnull HasZTensor lhs, @Nonnull HasZTensor rhs) {
+    @Nonnull IntBinaryOperator op,
+    @Nonnull HasZTensor lhs,
+    @Nonnull HasZTensor rhs
+  ) {
     var zlhs = lhs.getTensor();
     var zrhs = rhs.getTensor();
-    var result =
-        ZTensor.newZeros(
-            IndexingFns.commonBroadcastShape(zlhs._unsafeGetShape(), zrhs._unsafeGetShape()));
+    var result = ZTensor.newZeros(
+      IndexingFns.commonBroadcastShape(zlhs._unsafeGetShape(), zrhs._unsafeGetShape())
+    );
     result.assignFromZipWith_(op, zlhs, zrhs);
     return result;
   }

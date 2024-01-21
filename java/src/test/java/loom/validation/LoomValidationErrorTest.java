@@ -5,6 +5,7 @@ import loom.testing.BaseTestClass;
 import org.junit.Test;
 
 public class LoomValidationErrorTest extends BaseTestClass {
+
   @Test
   public void testConstructors() {
     var issue = ValidationIssue.builder("foo").summary("a test").build();

@@ -46,9 +46,11 @@ import loom.common.text.TextUtils;
 @Immutable
 @Value
 public class ZRange implements Cloneable, HasSize, HasPermute<ZRange>, HasToJsonString {
+
   /** ZRange builder. */
   @SuppressWarnings("unused")
   public static final class ZRangeBuilder {
+
     private ZTensor shape;
 
     /**
@@ -130,8 +132,11 @@ public class ZRange implements Cloneable, HasSize, HasPermute<ZRange>, HasToJson
      * @return the range.
      */
     public ZRange build() {
-      var start =
-          CheckThat.valueIsNotNull(this.start, IllegalArgumentException.class, "start is null");
+      var start = CheckThat.valueIsNotNull(
+        this.start,
+        IllegalArgumentException.class,
+        "start is null"
+      );
       var end = this.end;
       if (shape != null) {
         if (end != null) {
@@ -156,8 +161,9 @@ public class ZRange implements Cloneable, HasSize, HasPermute<ZRange>, HasToJson
   @JsonCreator
   @Builder
   private static ZRange privateCreator(
-      @Nonnull @JsonProperty(value = "start") ZPoint start,
-      @Nonnull @JsonProperty(value = "end") ZPoint end) {
+    @Nonnull @JsonProperty(value = "start") ZPoint start,
+    @Nonnull @JsonProperty(value = "end") ZPoint end
+  ) {
     return new ZRange(start, end);
   }
 
@@ -288,10 +294,18 @@ public class ZRange implements Cloneable, HasSize, HasPermute<ZRange>, HasToJson
     throw new IllegalArgumentException(String.format("Invalid ZRange: \"%s\"", str));
   }
 
-  @Nonnull ZPoint start;
-  @Nonnull ZPoint end;
-  @JsonIgnore @Nonnull ZPoint shape;
-  @JsonIgnore int size;
+  @Nonnull
+  ZPoint start;
+
+  @Nonnull
+  ZPoint end;
+
+  @JsonIgnore
+  @Nonnull
+  ZPoint shape;
+
+  @JsonIgnore
+  int size;
 
   /**
    * Construct a new ZRange of {@code [start, end)}.
@@ -323,7 +337,7 @@ public class ZRange implements Cloneable, HasSize, HasPermute<ZRange>, HasToJson
   public boolean equals(Object o) {
     if (this == o) return true;
     if (!(o instanceof ZRange zRange)) return false;
-    return Objects.equals(start, zRange.start) && Objects.equals(end, zRange.end);
+    return (Objects.equals(start, zRange.start) && Objects.equals(end, zRange.end));
   }
 
   @Override
@@ -460,8 +474,9 @@ public class ZRange implements Cloneable, HasSize, HasPermute<ZRange>, HasToJson
    * @return true if this range contains the point.
    */
   public boolean contains(@Nonnull HasZTensor p) {
-    return !isEmpty()
-        && (getNDim() == 0 || (start.le(p) && DominanceOrderingOperations.lt(p, end)));
+    return (
+      !isEmpty() && (getNDim() == 0 || (start.le(p) && DominanceOrderingOperations.lt(p, end)))
+    );
   }
 
   /**
@@ -486,7 +501,8 @@ public class ZRange implements Cloneable, HasSize, HasPermute<ZRange>, HasToJson
    * @param other the other range.
    * @return the intersection of this range with another, null if there is no intersection.
    */
-  @Nullable public ZRange intersection(@Nonnull ZRange other) {
+  @Nullable
+  public ZRange intersection(@Nonnull ZRange other) {
     var iStart = ZTensorOperations.maximum(start, other.start).newZPoint();
     var iEnd = ZTensorOperations.minimum(end, other.end).newZPoint();
     if (iStart.le(iEnd)) {
@@ -517,7 +533,7 @@ public class ZRange implements Cloneable, HasSize, HasPermute<ZRange>, HasToJson
     int dimSize = shape.get(d);
 
     if (chunkSize >= dimSize) {
-      return new ZRange[] {this};
+      return new ZRange[] { this };
     }
 
     int n = dimSize / chunkSize;

@@ -11,10 +11,11 @@ import org.junit.Test;
 public class LoomNodeTest extends BaseTestClass {
 
   public LoomEnvironment makeEnvironment() {
-    return LoomEnvironment.builder()
-        .build()
-        .autowireNodeTypeClass(NoteNode.TYPE, NoteNode.class)
-        .autowireNodeTypeClass(ExampleNode.TYPE, ExampleNode.class);
+    return LoomEnvironment
+      .builder()
+      .build()
+      .autowireNodeTypeClass(NoteNode.TYPE, NoteNode.class)
+      .autowireNodeTypeClass(ExampleNode.TYPE, ExampleNode.class);
   }
 
   public LoomGraph makeGraph() {
@@ -57,12 +58,12 @@ public class LoomNodeTest extends BaseTestClass {
       assertThat(node.getAnnotation("foo", String.class)).isEqualTo("abc");
 
       assertThatExceptionOfType(ClassCastException.class)
-          .isThrownBy(() -> node.getAnnotation("foo", Integer.class));
+        .isThrownBy(() -> node.getAnnotation("foo", Integer.class));
 
       node.removeAnnotation("foo");
       assertThat(node.hasAnnotation("foo")).isFalse();
       assertThatExceptionOfType(IllegalStateException.class)
-          .isThrownBy(() -> node.assertAnnotation("foo", String.class));
+        .isThrownBy(() -> node.assertAnnotation("foo", String.class));
     }
 
     {
@@ -94,9 +95,11 @@ public class LoomNodeTest extends BaseTestClass {
     var node = ExampleNode.withBody(b -> b.foo("bar")).addTo(graph);
 
     assertThat(node)
-        .hasToString(
-            "ExampleNode{\"id\":\"%s\",\"type\":\"ExampleNode\",\"body\":{\"foo\":\"bar\"}}"
-                .formatted(node.getId()));
+      .hasToString(
+        "ExampleNode{\"id\":\"%s\",\"type\":\"ExampleNode\",\"body\":{\"foo\":\"bar\"}}".formatted(
+            node.getId()
+          )
+      );
   }
 
   @Test
@@ -124,21 +127,25 @@ public class LoomNodeTest extends BaseTestClass {
     var node = ExampleNode.withBody(b -> b.foo("bar")).addTo(graph);
 
     assertThat(node.asValidationContext("test"))
-        .isEqualTo(
-            ValidationIssue.Context.builder()
-                .name("test")
-                .jsonpath("$.nodes[@.id=='%s']".formatted(node.getId()))
-                .data(node)
-                .build());
+      .isEqualTo(
+        ValidationIssue.Context
+          .builder()
+          .name("test")
+          .jsonpath("$.nodes[@.id=='%s']".formatted(node.getId()))
+          .data(node)
+          .build()
+      );
 
     assertThat(node.asValidationContext("test", "hello world"))
-        .isEqualTo(
-            ValidationIssue.Context.builder()
-                .name("test")
-                .message("hello world")
-                .jsonpath("$.nodes[@.id=='%s']".formatted(node.getId()))
-                .data(node)
-                .build());
+      .isEqualTo(
+        ValidationIssue.Context
+          .builder()
+          .name("test")
+          .message("hello world")
+          .jsonpath("$.nodes[@.id=='%s']".formatted(node.getId()))
+          .data(node)
+          .build()
+      );
   }
 
   @Test
@@ -149,7 +156,7 @@ public class LoomNodeTest extends BaseTestClass {
     assertThat(node.getBody()).isEqualTo(ExampleNode.Body.builder().foo("bar").build());
     assertEquivalentJson(node.getBodyAsJson(), "{\"foo\":\"bar\"}");
     assertThat(node.getBodyAsJsonNode())
-        .isEqualTo(JsonUtil.parseToJsonNodeTree("{\"foo\":\"bar\"}"));
+      .isEqualTo(JsonUtil.parseToJsonNodeTree("{\"foo\":\"bar\"}"));
 
     node.setBody(ExampleNode.Body.builder().foo("baz").build());
     assertThat(node.getFoo()).isEqualTo("baz");
@@ -170,8 +177,8 @@ public class LoomNodeTest extends BaseTestClass {
     var node = ExampleNode.withBody(b -> b.foo("bar")).addTo(graph);
 
     assertJsonEquals(
-        node,
-        """
+      node,
+      """
         {
           "id": "%s",
           "type": "ExampleNode",
@@ -179,8 +186,10 @@ public class LoomNodeTest extends BaseTestClass {
             "foo": "bar"
           }
         }
-        """
-            .formatted(node.getId()));
+        """.formatted(
+          node.getId()
+        )
+    );
 
     graph.getEnv().getAnnotationTypeClasses().put("foo", String.class);
     graph.getEnv().getAnnotationTypeClasses().put("Example", Example.class);
@@ -189,8 +198,8 @@ public class LoomNodeTest extends BaseTestClass {
     node.setAnnotation("Example", new Example("xyz"));
 
     assertJsonEquals(
-        node,
-        """
+      node,
+      """
         {
           "id": "%s",
           "type": "ExampleNode",
@@ -204,7 +213,9 @@ public class LoomNodeTest extends BaseTestClass {
             }
           }
         }
-        """
-            .formatted(node.getId()));
+        """.formatted(
+          node.getId()
+        )
+    );
   }
 }

@@ -5,6 +5,7 @@ import java.util.List;
 import org.assertj.core.util.diff.DiffUtils;
 
 public class PrettyDiffUtils {
+
   private PrettyDiffUtils() {}
 
   public static List<String> udiffLines(String a, String b) {

@@ -15,12 +15,13 @@ public class JsonSchemaManagerTest extends BaseTestClass {
 
   @Data
   public static class ExampleClass {
+
     private UUID id;
     private List<Integer> shape;
   }
 
   public static final String EXAMPLE_SCHEMA =
-      """
+    """
               {
                   "$schema": "http://json-schema.org/draft-07/schema#",
                   "type": "object",
@@ -66,9 +67,9 @@ public class JsonSchemaManagerTest extends BaseTestClass {
     var problems = manager.validationProblems(schema, instanceJson);
 
     assertThat(problems)
-        .hasSize(1)
-        .extracting(Problem::getMessage)
-        .contains("The numeric value must be greater than or equal to 1.");
+      .hasSize(1)
+      .extracting(Problem::getMessage)
+      .contains("The numeric value must be greater than or equal to 1.");
   }
 
   @Test
@@ -85,29 +86,32 @@ public class JsonSchemaManagerTest extends BaseTestClass {
 
     var issueCollector = new ListValidationIssueCollector();
     manager
-        .issueScan()
-        .issueCollector(issueCollector)
-        .param("foo", "bar")
-        .schema(schema)
-        .summaryPrefix("[qqq] ")
-        .json(instanceJson)
-        .jsonPathPrefix("foo.bar[2]")
-        .context(
-            ValidationIssue.Context.builder()
-                .name("foo")
-                .jsonpath("$.foo")
-                .dataFromJson("{\"foo\": \"bar\"}")
-                .build())
-        .build()
-        .scan();
+      .issueScan()
+      .issueCollector(issueCollector)
+      .param("foo", "bar")
+      .schema(schema)
+      .summaryPrefix("[qqq] ")
+      .json(instanceJson)
+      .jsonPathPrefix("foo.bar[2]")
+      .context(
+        ValidationIssue.Context
+          .builder()
+          .name("foo")
+          .jsonpath("$.foo")
+          .dataFromJson("{\"foo\": \"bar\"}")
+          .build()
+      )
+      .build()
+      .scan();
 
     // System.out.println(collector.toDisplayString());
 
     assertThat(issueCollector.getIssues())
-        .hasSize(1)
-        .extracting(ValidationIssue::getSummary)
-        .contains(
-            "[qqq] /shape/3 [minimum] :: The numeric value must be greater than or equal to 1.");
+      .hasSize(1)
+      .extracting(ValidationIssue::getSummary)
+      .contains(
+        "[qqq] /shape/3 [minimum] :: The numeric value must be greater than or equal to 1."
+      );
   }
 
   @Test
@@ -115,19 +119,20 @@ public class JsonSchemaManagerTest extends BaseTestClass {
     var manager = new JsonSchemaManager();
 
     assertThatExceptionOfType(IllegalArgumentException.class)
-        .isThrownBy(
-            () ->
-                manager.loadSchema("""
+      .isThrownBy(() ->
+        manager.loadSchema("""
         {
           "type": "object",
         }
-        """))
-        .withMessageContaining("Error parsing JSON schema")
-        .withMessageContaining(
-            """
+        """)
+      )
+      .withMessageContaining("Error parsing JSON schema")
+      .withMessageContaining(
+        """
                        {
                          "type": "object",
                    >>> }
-                       """);
+                       """
+      );
   }
 }

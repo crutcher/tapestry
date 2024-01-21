@@ -4,6 +4,7 @@ import loom.testing.CommonAssertions;
 import org.junit.Test;
 
 public class DimensionMapTest implements CommonAssertions {
+
   @Test
   public void test_equals_hash() {
     var dm = new DimensionMap("x", "y", "z");
@@ -29,16 +30,16 @@ public class DimensionMapTest implements CommonAssertions {
   @Test
   public void test_bad_names() {
     assertThatExceptionOfType(IllegalArgumentException.class)
-        .isThrownBy(() -> new DimensionMap(new String[] {"x", null}));
+      .isThrownBy(() -> new DimensionMap(new String[] { "x", null }));
 
     assertThatExceptionOfType(IllegalArgumentException.class)
-        .isThrownBy(() -> new DimensionMap(new String[] {"x", "x"}));
+      .isThrownBy(() -> new DimensionMap(new String[] { "x", "x" }));
 
     assertThatExceptionOfType(IllegalArgumentException.class)
-        .isThrownBy(() -> new DimensionMap(new String[] {"x", "9"}));
+      .isThrownBy(() -> new DimensionMap(new String[] { "x", "9" }));
 
     assertThatExceptionOfType(IllegalArgumentException.class)
-        .isThrownBy(() -> new DimensionMap(new String[] {"x", ""}));
+      .isThrownBy(() -> new DimensionMap(new String[] { "x", "" }));
   }
 
   @SuppressWarnings("ResultOfMethodCallIgnored")
@@ -58,16 +59,16 @@ public class DimensionMapTest implements CommonAssertions {
   @Test
   public void test_toPermutation() {
     var dm = new DimensionMap("x", "y", "z");
-    assertThat(dm.toPermutation("y", "x", "z")).isEqualTo(new int[] {1, 0, 2});
+    assertThat(dm.toPermutation("y", "x", "z")).isEqualTo(new int[] { 1, 0, 2 });
 
     assertThatExceptionOfType(IndexOutOfBoundsException.class)
-        .isThrownBy(() -> dm.toPermutation("y", "x", "w"));
+      .isThrownBy(() -> dm.toPermutation("y", "x", "w"));
 
     assertThatExceptionOfType(IllegalArgumentException.class)
-        .isThrownBy(() -> dm.toPermutation("y", "x"));
+      .isThrownBy(() -> dm.toPermutation("y", "x"));
 
     assertThatExceptionOfType(IllegalArgumentException.class)
-        .isThrownBy(() -> dm.toPermutation("y", "y", "x"));
+      .isThrownBy(() -> dm.toPermutation("y", "y", "x"));
   }
 
   @Test
@@ -75,7 +76,7 @@ public class DimensionMapTest implements CommonAssertions {
     var dm = new DimensionMap("x", "y", "z");
     assertThat(dm.permute(1, 2, 0)).isEqualTo(new DimensionMap("y", "z", "x"));
     assertThatExceptionOfType(IndexOutOfBoundsException.class)
-        .isThrownBy(() -> dm.permute(1, 2, 3));
+      .isThrownBy(() -> dm.permute(1, 2, 3));
 
     assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> dm.permute(1, 1, 2));
   }

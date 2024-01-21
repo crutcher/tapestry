@@ -5,6 +5,7 @@ import loom.polyhedral.IndexProjectionFunction;
 
 @UtilityClass
 public class IPFFormatter {
+
   /**
    * Convert an IndexProjectionFunction to a Graphviz HTML Label element.
    *
@@ -18,13 +19,15 @@ public class IPFFormatter {
 
     if (affineMap.inputNDim() == 0 || affineMap.outputNDim() == 0) {
       tableWrapper.add(
-          GH.td(
-              "[−]",
-              GH.subscript(
-                  "%d×%d"
-                      .formatted(ipf.getAffineMap().outputNDim(), ipf.getAffineMap().inputNDim())),
-              " ⊕ ",
-              ipf.getShape().toString()));
+        GH.td(
+          "[−]",
+          GH.subscript(
+            "%d×%d".formatted(ipf.getAffineMap().outputNDim(), ipf.getAffineMap().inputNDim())
+          ),
+          " ⊕ ",
+          ipf.getShape().toString()
+        )
+      );
     } else {
       var row = GH.tr().withParent(tableWrapper);
 

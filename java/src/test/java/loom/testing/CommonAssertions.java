@@ -12,12 +12,16 @@ import org.assertj.core.api.WithAssertions;
 
 public interface CommonAssertions extends WithAssertions {
   default void assertValidationIssues(
-      ListValidationIssueCollector collector, ValidationIssue... expected) {
+    ListValidationIssueCollector collector,
+    ValidationIssue... expected
+  ) {
     assertValidationIssues(collector.getIssues(), expected);
   }
 
   default void assertValidationIssues(
-      @Nullable List<ValidationIssue> issues, ValidationIssue... expected) {
+    @Nullable List<ValidationIssue> issues,
+    ValidationIssue... expected
+  ) {
     assertThat(issues).isNotNull();
     assert issues != null;
 
@@ -28,7 +32,11 @@ public interface CommonAssertions extends WithAssertions {
   }
 
   default void assertEquivalentJson(
-      String actualName, String actual, String expectedName, String expected) {
+    String actualName,
+    String actual,
+    String expectedName,
+    String expected
+  ) {
     // System.out.println("assertEquivalentJson.actual: " + actual);
     // System.out.println("assertEquivalentJson.expected: " + expected);
 
@@ -41,12 +49,12 @@ public interface CommonAssertions extends WithAssertions {
     var prettyActual = JsonUtil.reformatToPrettyJson(actual);
     var prettyExpected = JsonUtil.reformatToPrettyJson(expected);
 
-    var diff =
-        String.format(
-            "JSON Comparison Error: %s != %s\n%s\n",
-            actualName,
-            expectedName,
-            PrettyDiffUtils.indentUdiff("> ", prettyExpected, prettyActual));
+    var diff = String.format(
+      "JSON Comparison Error: %s != %s\n%s\n",
+      actualName,
+      expectedName,
+      PrettyDiffUtils.indentUdiff("> ", prettyExpected, prettyActual)
+    );
 
     assertThat(prettyActual).as(diff).isEqualTo(prettyExpected);
   }
@@ -69,7 +77,6 @@ public interface CommonAssertions extends WithAssertions {
     // Does the serialization of the source object to JSON match the cleaned JSON?
     assertEquivalentJson("Object Json", objJson, "Source Json", cleanJson);
   }
-
   /*
    default void assertJsonEquals(Object obj, JsonValue json) {
      assertJsonEquals(obj, json.toString());

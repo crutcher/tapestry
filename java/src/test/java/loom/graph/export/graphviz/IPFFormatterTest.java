@@ -8,18 +8,19 @@ import loom.zspace.ZTensor;
 import org.junit.Test;
 
 public class IPFFormatterTest extends BaseTestClass implements XmlAssertions {
+
   @Test
   public void test_3x2() {
-    var ipf =
-        IndexProjectionFunction.builder()
-            .affineMap(new int[][] {{1, 1, 0}, {0, 1, 1}})
-            .translate(2, 3)
-            .shape(4, 4)
-            .build();
+    var ipf = IndexProjectionFunction
+      .builder()
+      .affineMap(new int[][] { { 1, 1, 0 }, { 0, 1, 1 } })
+      .translate(2, 3)
+      .shape(4, 4)
+      .build();
 
     assertXmlEquals(
-        IPFFormatter.renderIPF(ipf),
-        """
+      IPFFormatter.renderIPF(ipf),
+      """
         <table border="0" cellborder="0" cellspacing="0">
           <tr>
             <td>
@@ -41,21 +42,22 @@ public class IPFFormatterTest extends BaseTestClass implements XmlAssertions {
             <td> ⊕ [4, 4]</td>
           </tr>
         </table>
-        """);
+        """
+    );
   }
 
   @Test
   public void test_2x1() {
-    var ipf =
-        IndexProjectionFunction.builder()
-            .affineMap(new int[][] {{1}, {0}})
-            .translate(2, 3)
-            .shape(4, 4)
-            .build();
+    var ipf = IndexProjectionFunction
+      .builder()
+      .affineMap(new int[][] { { 1 }, { 0 } })
+      .translate(2, 3)
+      .shape(4, 4)
+      .build();
 
     assertXmlEquals(
-        IPFFormatter.renderIPF(ipf),
-        """
+      IPFFormatter.renderIPF(ipf),
+      """
         <table border="0" cellborder="0" cellspacing="0">
           <tr>
             <td>
@@ -73,24 +75,26 @@ public class IPFFormatterTest extends BaseTestClass implements XmlAssertions {
             <td> ⊕ [4, 4]</td>
           </tr>
         </table>
-        """);
+        """
+    );
   }
 
   @Test
   public void test_scalar() {
-    var ipf =
-        IndexProjectionFunction.builder()
-            .affineMap(ZAffineMap.fromMatrix(ZTensor.newZeros(0, 3)))
-            .build();
+    var ipf = IndexProjectionFunction
+      .builder()
+      .affineMap(ZAffineMap.fromMatrix(ZTensor.newZeros(0, 3)))
+      .build();
 
     assertXmlEquals(
-        IPFFormatter.renderIPF(ipf),
-        """
+      IPFFormatter.renderIPF(ipf),
+      """
         <table border="0" cellborder="0" cellspacing="0">
           <tr>
             <td>[−]<sub>0×3</sub> ⊕ []</td>
           </tr>
         </table>
-        """);
+        """
+    );
   }
 }

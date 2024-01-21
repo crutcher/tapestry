@@ -21,16 +21,16 @@ public class GHTest extends BaseTestClass implements XmlAssertions {
 
   @Test
   public void test_ElementWrapper() {
-    var hello =
-        new GH.ElementWrapper<>(DocumentHelper.createElement("hello"))
-            .attr("foo", "bar")
-            .add("some text", GH.br(), GH.bold())
-            .add(new Object[] {GH.vr()});
+    var hello = new GH.ElementWrapper<>(DocumentHelper.createElement("hello"))
+      .attr("foo", "bar")
+      .add("some text", GH.br(), GH.bold())
+      .add(new Object[] { GH.vr() });
 
     assertThatExceptionOfType(UnsupportedOperationException.class)
-        .isThrownBy(() -> hello.add(new Object()))
-        .withMessageContaining(
-            "Cannot add instances of class java.lang.Object to an Element: java.lang.Object@");
+      .isThrownBy(() -> hello.add(new Object()))
+      .withMessageContaining(
+        "Cannot add instances of class java.lang.Object to an Element: java.lang.Object@"
+      );
 
     hello.addXml("<font color=\"red\">red text</font>abc<br/><vr/>");
 
@@ -39,16 +39,17 @@ public class GHTest extends BaseTestClass implements XmlAssertions {
     assertThat(hello.getAttr("foo")).isEqualTo("bar");
 
     assertXmlEquals(
-        hello,
-        "<hello foo=\"bar\">some text<br/><b/><vr/><font color=\"red\">red text</font>abc<br/><vr/></hello>");
+      hello,
+      "<hello foo=\"bar\">some text<br/><b/><vr/><font color=\"red\">red text</font>abc<br/><vr/></hello>"
+    );
   }
 
   @Test
   public void test_text() {
     assertThat(GH.text("hello"))
-        .isInstanceOf(GH.NodeWrapper.class)
-        .extracting(GH.NodeWrapper::getNode)
-        .isInstanceOf(Text.class);
+      .isInstanceOf(GH.NodeWrapper.class)
+      .extracting(GH.NodeWrapper::getNode)
+      .isInstanceOf(Text.class);
   }
 
   @Test
@@ -91,8 +92,9 @@ public class GHTest extends BaseTestClass implements XmlAssertions {
     assertThat(GH.font()).isInstanceOf(GH.ElementWrapper.class).hasToString("<font/>");
 
     assertXmlEquals(
-        GH.font().color("red").face("Helvetica").point_size(12).add("abc"),
-        "<font color=\"red\" face=\"Helvetica\" point-size=\"12\">abc</font>");
+      GH.font().color("red").face("Helvetica").point_size(12).add("abc"),
+      "<font color=\"red\" face=\"Helvetica\" point-size=\"12\">abc</font>"
+    );
   }
 
   @Test
@@ -100,56 +102,59 @@ public class GHTest extends BaseTestClass implements XmlAssertions {
     assertThat(GH.img()).isInstanceOf(GH.ElementWrapper.class).hasToString("<img/>");
 
     assertThatExceptionOfType(UnsupportedOperationException.class)
-        .isThrownBy(() -> GH.img().add("foo"))
-        .withMessage("Cannot add children to an img element");
+      .isThrownBy(() -> GH.img().add("foo"))
+      .withMessage("Cannot add children to an img element");
 
     assertThat(GH.img("foo.png"))
-        .isInstanceOf(GH.ElementWrapper.class)
-        .hasToString("<img src=\"foo.png\"/>");
+      .isInstanceOf(GH.ElementWrapper.class)
+      .hasToString("<img src=\"foo.png\"/>");
 
     assertXmlEquals(
-        GH.img().src("foo.png").scale(GH.ImageScale.HEIGHT),
-        "<img src=\"foo.png\" scale=\"HEIGHT\"/>");
+      GH.img().src("foo.png").scale(GH.ImageScale.HEIGHT),
+      "<img src=\"foo.png\" scale=\"HEIGHT\"/>"
+    );
   }
 
   @Test
   public void test_tables() {
     assertThat(GH.table()).isInstanceOf(GH.TableWrapper.class).hasToString("<table/>");
 
-    var table =
-        GH.table()
-            .align(GH.HorizontalAlign.CENTER)
-            .valign(GH.VerticalAlign.TOP)
-            .border(1)
-            .cellborder(4)
-            .cellspacing(2)
-            .cellpadding(3)
-            .columns("*")
-            .rows("*")
-            .color("red")
-            .bgcolor("blue")
-            .sides("LR")
-            .style("dotted")
-            .fixedsize(true)
-            .gradientangle(45)
-            .height(100)
-            .width(200)
-            .href("http://example.com")
-            .target("foo")
-            .port("xyz")
-            .id("12345")
-            .tooltip("I like tables")
-            .tr(DocumentHelper.createElement("br"), GH.td().colspan(2).add("xyz"), "c")
-            .tr(
-                GH.td()
-                    .align(GH.TableDataAlign.TEXT)
-                    .balign(GH.HorizontalAlign.CENTER)
-                    .colspan(3)
-                    .rowspan(3));
+    var table = GH
+      .table()
+      .align(GH.HorizontalAlign.CENTER)
+      .valign(GH.VerticalAlign.TOP)
+      .border(1)
+      .cellborder(4)
+      .cellspacing(2)
+      .cellpadding(3)
+      .columns("*")
+      .rows("*")
+      .color("red")
+      .bgcolor("blue")
+      .sides("LR")
+      .style("dotted")
+      .fixedsize(true)
+      .gradientangle(45)
+      .height(100)
+      .width(200)
+      .href("http://example.com")
+      .target("foo")
+      .port("xyz")
+      .id("12345")
+      .tooltip("I like tables")
+      .tr(DocumentHelper.createElement("br"), GH.td().colspan(2).add("xyz"), "c")
+      .tr(
+        GH
+          .td()
+          .align(GH.TableDataAlign.TEXT)
+          .balign(GH.HorizontalAlign.CENTER)
+          .colspan(3)
+          .rowspan(3)
+      );
 
     assertXmlEquals(
-        table,
-        """
+      table,
+      """
         <table
             align="CENTER"
             valign="TOP"
@@ -175,7 +180,8 @@ public class GHTest extends BaseTestClass implements XmlAssertions {
           >
           <tr><td><br/></td><td colspan="2">xyz</td><td>c</td></tr>
           <tr><td align="TEXT" balign="CENTER" colspan="3" rowspan="3"/></tr>
-        </table>""");
+        </table>"""
+    );
   }
 
   @Test

@@ -27,6 +27,7 @@ import org.leadpony.justify.api.ProblemHandler;
  * <p>Wrapper around provider implementation.
  */
 public class JsonSchemaManager {
+
   public static final String JSD_ERROR = "JSD_ERROR";
   private final JsonValidationService service;
   private final LookupCache<String, JsonSchema> schemaCache;
@@ -82,8 +83,7 @@ public class JsonSchemaManager {
     if (schema == null) {
       try {
         schema =
-            service.readSchema(
-                new ByteArrayInputStream(schemaJson.getBytes(StandardCharsets.UTF_8)));
+          service.readSchema(new ByteArrayInputStream(schemaJson.getBytes(StandardCharsets.UTF_8)));
       } catch (JsonParsingException e) {
         String sb = "Error parsing JSON schema:\n" + formatParseError(e, schemaJson);
         throw new IllegalArgumentException(sb, e);
@@ -102,11 +102,11 @@ public class JsonSchemaManager {
    */
   public List<Problem> validationProblems(JsonSchema schema, String json) {
     var problems = new ArrayList<Problem>();
-    var reader =
-        service.createReader(
-            new ByteArrayInputStream(json.getBytes(StandardCharsets.UTF_8)),
-            schema,
-            ProblemHandler.collectingTo(problems));
+    var reader = service.createReader(
+      new ByteArrayInputStream(json.getBytes(StandardCharsets.UTF_8)),
+      schema,
+      ProblemHandler.collectingTo(problems)
+    );
     reader.readValue();
     return problems;
   }
@@ -117,23 +117,33 @@ public class JsonSchemaManager {
 
   @Builder
   public static final class IssueScan {
-    @Builder.Default private final String type = JSD_ERROR;
 
-    @Builder.Default private final String summaryPrefix = null;
+    @Builder.Default
+    private final String type = JSD_ERROR;
 
-    @Singular private final Map<String, String> params;
+    @Builder.Default
+    private final String summaryPrefix = null;
 
-    @Nonnull private final JsonSchemaManager manager;
+    @Singular
+    private final Map<String, String> params;
 
-    @Nonnull private final JsonSchema schema;
+    @Nonnull
+    private final JsonSchemaManager manager;
 
-    @Nonnull private final String json;
+    @Nonnull
+    private final JsonSchema schema;
 
-    @Nullable private final String jsonPathPrefix;
+    @Nonnull
+    private final String json;
 
-    @Singular private final List<ValidationIssue.Context> contexts;
+    @Nullable
+    private final String jsonPathPrefix;
 
-    @Nonnull private final ValidationIssueCollector issueCollector;
+    @Singular
+    private final List<ValidationIssue.Context> contexts;
+
+    @Nonnull
+    private final ValidationIssueCollector issueCollector;
 
     @SuppressWarnings("ConstantConditions")
     public void scan() {
@@ -148,8 +158,11 @@ public class JsonSchemaManager {
         }
 
         String summary =
-            "%s [%s] :: %s"
-                .formatted(problem.getPointer(), problem.getKeyword(), problem.getMessage());
+          "%s [%s] :: %s".formatted(
+              problem.getPointer(),
+              problem.getKeyword(),
+              problem.getMessage()
+            );
         if (summaryPrefix != null) {
           summary = summaryPrefix + summary;
         }
@@ -160,15 +173,18 @@ public class JsonSchemaManager {
 
         var pointer = problem.getPointer();
         if (pointer != null) {
-          var path =
-              JsonPathUtils.concatJsonPath(
-                  jsonPathPrefix, JsonPathUtils.jsonPointerToJsonPath(problem.getPointer()));
+          var path = JsonPathUtils.concatJsonPath(
+            jsonPathPrefix,
+            JsonPathUtils.jsonPointerToJsonPath(problem.getPointer())
+          );
           builder.context(
-              ValidationIssue.Context.builder()
-                  .name("Data")
-                  .jsonpath(path)
-                  .data(problem.parametersAsMap().get("actual"))
-                  .build());
+            ValidationIssue.Context
+              .builder()
+              .name("Data")
+              .jsonpath(path)
+              .data(problem.parametersAsMap().get("actual"))
+              .build()
+          );
         }
 
         if (contexts != null) {

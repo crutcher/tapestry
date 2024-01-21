@@ -16,12 +16,14 @@ import loom.common.json.WithSchema;
 @Jacksonized
 @SuperBuilder
 public final class ExampleNode extends LoomNode<ExampleNode, ExampleNode.Body> {
+
   public static final String TYPE = "ExampleNode";
 
   @SuppressWarnings("unused")
   public abstract static class ExampleNodeBuilder<
-          C extends ExampleNode, B extends ExampleNodeBuilder<C, B>>
-      extends LoomNodeBuilder<ExampleNode, Body, C, B> {
+    C extends ExampleNode, B extends ExampleNodeBuilder<C, B>
+  >
+    extends LoomNodeBuilder<ExampleNode, Body, C, B> {
     {
       // Set the node type.
       type(TYPE);
@@ -29,7 +31,7 @@ public final class ExampleNode extends LoomNode<ExampleNode, ExampleNode.Body> {
   }
 
   @WithSchema(
-      """
+    """
                     {
                       "type": "object",
                       "properties": {
@@ -40,12 +42,15 @@ public final class ExampleNode extends LoomNode<ExampleNode, ExampleNode.Body> {
                       },
                       "required": ["foo"]
                     }
-                    """)
+                    """
+  )
   @Value
   @Jacksonized
   @Builder
   public static class Body {
-    @Nonnull String foo;
+
+    @Nonnull
+    String foo;
   }
 
   public static ExampleNodeBuilder<?, ?> withBody(Consumer<Body.BodyBuilder> cb) {
@@ -54,5 +59,7 @@ public final class ExampleNode extends LoomNode<ExampleNode, ExampleNode.Body> {
     return builder().body(bodyBuilder.build());
   }
 
-  @Delegate @Nonnull private Body body;
+  @Delegate
+  @Nonnull
+  private Body body;
 }

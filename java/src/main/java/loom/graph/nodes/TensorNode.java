@@ -18,12 +18,14 @@ import loom.zspace.*;
 @Getter
 @Setter
 public final class TensorNode extends LoomNode<TensorNode, TensorNode.Body> {
+
   public static final String TYPE = "TensorNode";
 
   @SuppressWarnings("unused")
   public abstract static class TensorNodeBuilder<
-          C extends TensorNode, B extends TensorNodeBuilder<C, B>>
-      extends LoomNodeBuilder<TensorNode, Body, C, B> {
+    C extends TensorNode, B extends TensorNodeBuilder<C, B>
+  >
+    extends LoomNodeBuilder<TensorNode, Body, C, B> {
     {
       // Set the node type.
       type(TYPE);
@@ -31,7 +33,7 @@ public final class TensorNode extends LoomNode<TensorNode, TensorNode.Body> {
   }
 
   @WithSchema(
-      """
+    """
   {
       "type": "object",
       "properties": {
@@ -60,12 +62,15 @@ public final class TensorNode extends LoomNode<TensorNode, TensorNode.Body> {
           }
       }
   }
-  """)
+  """
+  )
   @Data
   @Jacksonized
   @Builder
   public static final class Body implements HasDimension, HasToJsonString, HasSize {
+
     public static class BodyBuilder {
+
       /**
        * Helper to set the range via {@code ZRange.fromShape(shape)}.
        *
@@ -137,7 +142,7 @@ public final class TensorNode extends LoomNode<TensorNode, TensorNode.Body> {
   public abstract static BodyBuilderType bodyBuilder();
    */
 
-  @Delegate(excludes = {HasToJsonString.class})
+  @Delegate(excludes = { HasToJsonString.class })
   @Nonnull
   private Body body;
 }

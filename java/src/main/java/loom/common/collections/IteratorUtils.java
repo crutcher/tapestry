@@ -48,6 +48,7 @@ public class IteratorUtils {
   }
 
   public static class EnumerateIterable<T> implements Iterable<Pair<Integer, T>> {
+
     private final Iterable<T> iterable;
 
     public EnumerateIterable(Iterable<T> iterable) {
@@ -62,6 +63,7 @@ public class IteratorUtils {
   }
 
   public static class EnumerateIterator<T> implements Iterator<Pair<Integer, T>> {
+
     private int index = 0;
     private final Iterator<T> iterator;
 

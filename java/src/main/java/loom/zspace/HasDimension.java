@@ -40,9 +40,11 @@ public interface HasDimension {
     for (int i = 1; i < objs.length; ++i) {
       if (objs[i].getNDim() != ndim) {
         throw new ZDimMissMatchError(
-            String.format(
-                "ZDim mismatch: %s",
-                Arrays.stream(objs).map(HasDimension::getNDim).collect(Collectors.toList())));
+          String.format(
+            "ZDim mismatch: %s",
+            Arrays.stream(objs).map(HasDimension::getNDim).collect(Collectors.toList())
+          )
+        );
       }
     }
   }

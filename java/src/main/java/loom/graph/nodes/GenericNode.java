@@ -29,7 +29,7 @@ public final class GenericNode extends LoomNode<GenericNode, GenericNode.Body> {
   @Data
   @Builder
   @WithSchema(
-      """
+    """
   {
     "type": "object",
     "patternProperties": {
@@ -37,9 +37,12 @@ public final class GenericNode extends LoomNode<GenericNode, GenericNode.Body> {
     },
     "additionalProperties": false
   }
-  """)
+  """
+  )
   public static class Body implements HasToJsonString {
-    @Singular private Map<String, Object> fields;
+
+    @Singular
+    private Map<String, Object> fields;
 
     /**
      * This method is a constructor for the Body class. It initializes the fields map with the given
@@ -94,7 +97,7 @@ public final class GenericNode extends LoomNode<GenericNode, GenericNode.Body> {
     }
   }
 
-  @Delegate(excludes = {HasToJsonString.class})
+  @Delegate(excludes = { HasToJsonString.class })
   @Nonnull
   private Body body;
 }

@@ -32,6 +32,7 @@ public final class ValidationIssue {
 
     /** Extensions to the ContextBuilder. */
     public static class ContextBuilder {
+
       /**
        * Set the jsonpath for the context.
        *
@@ -98,18 +99,23 @@ public final class ValidationIssue {
       return Context.builder().name(name);
     }
 
-    @Nonnull private final String name;
+    @Nonnull
+    private final String name;
 
-    @Nullable private final String message;
+    @Nullable
+    private final String message;
 
-    @Nullable private final String jsonpath;
+    @Nullable
+    private final String jsonpath;
 
     /** This should always be a simple JSON Java value. */
-    @Nullable private final Object data;
+    @Nullable
+    private final Object data;
   }
 
   /** Extensions to the ValidationIssueBuilder. */
   public static final class ValidationIssueBuilder {
+
     /**
      * Add each param to the issue.
      *
@@ -289,13 +295,18 @@ public final class ValidationIssue {
     return ValidationIssue.builder().type(type);
   }
 
-  @Nonnull private final String type;
+  @Nonnull
+  private final String type;
 
-  @Nullable private final Map<String, String> params;
+  @Nullable
+  private final Map<String, String> params;
 
-  @Nonnull private final String summary;
+  @Nonnull
+  private final String summary;
 
-  @Nullable private final String message;
+  @Nullable
+  private final String message;
 
-  @Nullable private final List<Context> contexts;
+  @Nullable
+  private final List<Context> contexts;
 }

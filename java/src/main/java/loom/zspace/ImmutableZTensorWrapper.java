@@ -17,6 +17,7 @@ import loom.common.json.HasToJsonString;
 @Immutable
 @Data
 public abstract class ImmutableZTensorWrapper<T> implements HasZTensor, Cloneable, HasToJsonString {
+
   @JsonValue
   @Nonnull
   @SuppressWarnings("Immutable")

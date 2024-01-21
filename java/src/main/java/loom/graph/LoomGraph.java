@@ -29,9 +29,13 @@ import loom.validation.ValidationIssueCollector;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public final class LoomGraph implements HasToJsonString {
 
-  @JsonIgnore @Nonnull private final LoomEnvironment env;
+  @JsonIgnore
+  @Nonnull
+  private final LoomEnvironment env;
 
-  @ToString.Include @Nullable private UUID id;
+  @ToString.Include
+  @Nullable
+  private UUID id;
 
   @ToString.Include
   @JsonProperty(value = "nodes")
@@ -39,8 +43,11 @@ public final class LoomGraph implements HasToJsonString {
   @JsonDeserialize(using = Serialization.NodeListToMapDeserializer.class)
   private final Map<UUID, LoomNode<?, ?>> nodeMap = new HashMap<>();
 
-  @JsonIgnore private final Map<String, List<LoomNode<?, ?>>> nodeTypeMap = new HashMap<>();
-  @JsonIgnore private final Map<Class<?>, List<LoomNode<?, ?>>> nodeClassMap = new HashMap<>();
+  @JsonIgnore
+  private final Map<String, List<LoomNode<?, ?>>> nodeTypeMap = new HashMap<>();
+
+  @JsonIgnore
+  private final Map<Class<?>, List<LoomNode<?, ?>>> nodeClassMap = new HashMap<>();
 
   /**
    * Validate the graph.
@@ -92,7 +99,8 @@ public final class LoomGraph implements HasToJsonString {
    * @param id the ID of the node to get.
    * @return the node, or null if not found.
    */
-  @Nullable public LoomNode<?, ?> getNode(UUID id) {
+  @Nullable
+  public LoomNode<?, ?> getNode(UUID id) {
     return nodeMap.get(id);
   }
 
@@ -102,7 +110,8 @@ public final class LoomGraph implements HasToJsonString {
    * @param id the ID of the node to get.
    * @return the node, or null if not found.
    */
-  @Nullable public LoomNode<?, ?> getNode(String id) {
+  @Nullable
+  public LoomNode<?, ?> getNode(String id) {
     return getNode(UUID.fromString(id));
   }
 
@@ -161,14 +170,18 @@ public final class LoomGraph implements HasToJsonString {
    */
   @Nonnull
   public <T extends LoomNode<?, ?>> T assertNode(
-      UUID id, @Nullable String type, Class<T> nodeClass) {
+    UUID id,
+    @Nullable String type,
+    Class<T> nodeClass
+  ) {
     var node = assertNode(id);
     if (type != null && !node.getType().equals(type)) {
       throw new IllegalStateException("Node is not of type " + type + ": " + id);
     }
     if (!nodeClass.isInstance(node)) {
       throw new IllegalStateException(
-          "Node is not of type " + nodeClass.getSimpleName() + ": " + id);
+        "Node is not of type " + nodeClass.getSimpleName() + ": " + id
+      );
     }
     return nodeClass.cast(node);
   }
@@ -179,9 +192,15 @@ public final class LoomGraph implements HasToJsonString {
    * @param <T> the type of the node to scan for.
    */
   public static final class NodeScanBuilder<T extends LoomNode<?, ?>> {
-    @Nonnull private final LoomGraph graph;
-    @Nullable private String type;
-    @Nullable private Class<T> nodeClass;
+
+    @Nonnull
+    private final LoomGraph graph;
+
+    @Nullable
+    private String type;
+
+    @Nullable
+    private Class<T> nodeClass;
 
     private NodeScanBuilder(@Nonnull LoomGraph graph) {
       this.graph = graph;
@@ -225,7 +244,7 @@ public final class LoomGraph implements HasToJsonString {
       enum NodeSource {
         ALL,
         TYPE_FILTERED,
-        CLASS_FILTERED
+        CLASS_FILTERED,
       }
 
       NodeSource nodeSource = NodeSource.ALL;
@@ -252,10 +271,9 @@ public final class LoomGraph implements HasToJsonString {
         baseStream = baseStream.filter(node -> node.getType().equals(type));
       }
       @SuppressWarnings("unchecked")
-      var typedStream =
-          (nodeClass == null || nodeSource == NodeSource.CLASS_FILTERED)
-              ? (Stream<T>) baseStream
-              : baseStream.filter(nodeClass::isInstance).map(nodeClass::cast);
+      var typedStream = (nodeClass == null || nodeSource == NodeSource.CLASS_FILTERED)
+        ? (Stream<T>) baseStream
+        : baseStream.filter(nodeClass::isInstance).map(nodeClass::cast);
 
       return typedStream;
     }
@@ -406,6 +424,7 @@ public final class LoomGraph implements HasToJsonString {
 
   @NoArgsConstructor(access = AccessLevel.PRIVATE)
   public final class NodeBuilder {
+
     private String type;
     private String label;
     private JsonNode body;
@@ -472,9 +491,11 @@ public final class LoomGraph implements HasToJsonString {
   /** Support classes for Jackson serialization. */
   @UtilityClass
   public static class Serialization {
+
     /** Jackson deserializer for {@link LoomGraph#nodeMap}. */
     public final class NodeListToMapDeserializer
-        extends MapValueListUtil.MapDeserializer<UUID, LoomNode<?, ?>> {
+      extends MapValueListUtil.MapDeserializer<UUID, LoomNode<?, ?>> {
+
       @SuppressWarnings("unchecked")
       public NodeListToMapDeserializer() {
         super((Class<LoomNode<?, ?>>) (Class<?>) LoomNode.class, LoomNode::getId, HashMap::new);

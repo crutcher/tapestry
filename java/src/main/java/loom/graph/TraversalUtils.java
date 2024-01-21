@@ -16,6 +16,7 @@ import org.jgrapht.graph.DefaultUndirectedGraph;
 
 @UtilityClass
 public class TraversalUtils {
+
   /**
    * Find all simple cycles of Tensors and Operations in the graph.
    *
@@ -45,12 +46,11 @@ public class TraversalUtils {
   public Graph<LoomNode<?, ?>, DefaultEdge> buildOpeartionLinkGraph(LoomGraph graph) {
     Graph<LoomNode<?, ?>, DefaultEdge> linkGraph = new DefaultDirectedGraph<>(DefaultEdge.class);
 
-    for (var node :
-        graph
-            .nodeScan()
-            .type(OperationSignatureNode.TYPE)
-            .nodeClass(OperationSignatureNode.class)
-            .asList()) {
+    for (var node : graph
+      .nodeScan()
+      .type(OperationSignatureNode.TYPE)
+      .nodeClass(OperationSignatureNode.class)
+      .asList()) {
       linkGraph.addVertex(node);
 
       for (var entry : node.getInputs().entrySet()) {
@@ -78,14 +78,14 @@ public class TraversalUtils {
    * @return The coloring graph.
    */
   public DefaultUndirectedGraph<UUID, DefaultEdge> tensorOperationColoringGraph(LoomGraph graph) {
-    DefaultUndirectedGraph<UUID, DefaultEdge> coloringGraph =
-        new DefaultUndirectedGraph<>(DefaultEdge.class);
-    for (var opNode :
-        graph
-            .nodeScan()
-            .type(OperationSignatureNode.TYPE)
-            .nodeClass(OperationSignatureNode.class)
-            .asList()) {
+    DefaultUndirectedGraph<UUID, DefaultEdge> coloringGraph = new DefaultUndirectedGraph<>(
+      DefaultEdge.class
+    );
+    for (var opNode : graph
+      .nodeScan()
+      .type(OperationSignatureNode.TYPE)
+      .nodeClass(OperationSignatureNode.class)
+      .asList()) {
       var opId = opNode.getId();
       coloringGraph.addVertex(opId);
 

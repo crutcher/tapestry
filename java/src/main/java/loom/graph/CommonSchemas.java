@@ -8,7 +8,7 @@ import loom.graph.nodes.TensorNode;
 public class CommonSchemas {
 
   public final String ZTENSOR_SCHEMA =
-      """
+    """
        {
          "name": "ZTensor",
          "$recursiveAnchor": true,
@@ -27,7 +27,7 @@ public class CommonSchemas {
       """;
 
   public final String ZPOINT_SCHEMA =
-      """
+    """
  {
    "name": "ZPoint",
    "type": "array",
@@ -38,7 +38,7 @@ public class CommonSchemas {
 """;
 
   public final String ZMATRIX_SCHEMA =
-      """
+    """
       {
         "name": "ZMatrix",
         "type": "array",
@@ -51,10 +51,10 @@ public class CommonSchemas {
       }
       """;
 
-  public final LoomTypeSchema NOTE_NODE_SCHEMA =
-      LoomTypeSchema.builder()
-          .jsonSchema(
-              """
+  public final LoomTypeSchema NOTE_NODE_SCHEMA = LoomTypeSchema
+    .builder()
+    .jsonSchema(
+      """
               {
                   "type": "object",
                   "properties": {
@@ -65,12 +65,13 @@ public class CommonSchemas {
                   "required": ["text"],
                     "additionalProperties": false
               }
-              """)
-          .build();
-  public final LoomTypeSchema TENSOR_NODE_SCHEMA =
-      LoomTypeSchema.builder()
-          .jsonSchema(
               """
+    )
+    .build();
+  public final LoomTypeSchema TENSOR_NODE_SCHEMA = LoomTypeSchema
+    .builder()
+    .jsonSchema(
+      """
               {
                   "type": "object",
                   "properties": {
@@ -99,25 +100,30 @@ public class CommonSchemas {
                       }
                   }
               }
-              """)
-          .build();
-
-  public final LoomTypeSchema APPLICATION_NODE_SCHEMA =
-      LoomTypeSchema.builder()
-          .referenceSchema(
-              "inputs",
-              LoomTypeSchema.ReferenceSchema.builder()
-                  .path("$.inputs.*[*].tensorId")
-                  .type(TensorNode.TYPE)
-                  .build())
-          .referenceSchema(
-              "outputs",
-              LoomTypeSchema.ReferenceSchema.builder()
-                  .path("$.outputs.*[*].tensorId")
-                  .type(TensorNode.TYPE)
-                  .build())
-          .jsonSchema(
               """
+    )
+    .build();
+
+  public final LoomTypeSchema APPLICATION_NODE_SCHEMA = LoomTypeSchema
+    .builder()
+    .referenceSchema(
+      "inputs",
+      LoomTypeSchema.ReferenceSchema
+        .builder()
+        .path("$.inputs.*[*].tensorId")
+        .type(TensorNode.TYPE)
+        .build()
+    )
+    .referenceSchema(
+      "outputs",
+      LoomTypeSchema.ReferenceSchema
+        .builder()
+        .path("$.outputs.*[*].tensorId")
+        .type(TensorNode.TYPE)
+        .build()
+    )
+    .jsonSchema(
+      """
               {
                   "type": "object",
                   "properties": {
@@ -170,25 +176,30 @@ public class CommonSchemas {
                       }
                   }
               }
-              """)
-          .build();
-
-  public final LoomTypeSchema OPERATION_SIGNATURE_NODE_SCHEMA =
-      LoomTypeSchema.builder()
-          .referenceSchema(
-              "inputs",
-              LoomTypeSchema.ReferenceSchema.builder()
-                  .path("$.inputs.*[*].tensorId")
-                  .type(TensorNode.TYPE)
-                  .build())
-          .referenceSchema(
-              "outputs",
-              LoomTypeSchema.ReferenceSchema.builder()
-                  .path("$.outputs.*[*].tensorId")
-                  .type(TensorNode.TYPE)
-                  .build())
-          .jsonSchema(
               """
+    )
+    .build();
+
+  public final LoomTypeSchema OPERATION_SIGNATURE_NODE_SCHEMA = LoomTypeSchema
+    .builder()
+    .referenceSchema(
+      "inputs",
+      LoomTypeSchema.ReferenceSchema
+        .builder()
+        .path("$.inputs.*[*].tensorId")
+        .type(TensorNode.TYPE)
+        .build()
+    )
+    .referenceSchema(
+      "outputs",
+      LoomTypeSchema.ReferenceSchema
+        .builder()
+        .path("$.outputs.*[*].tensorId")
+        .type(TensorNode.TYPE)
+        .build()
+    )
+    .jsonSchema(
+      """
               {
                   "type": "object",
                   "properties": {
@@ -247,6 +258,7 @@ public class CommonSchemas {
                       }
                   }
               }
-              """)
-          .build();
+              """
+    )
+    .build();
 }

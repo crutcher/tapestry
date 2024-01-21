@@ -12,13 +12,14 @@ public class TensorNodeTest extends BaseTestClass {
   public void test_scalar_body() {
     var body = TensorNode.Body.builder().dtype("int32").shape(ZPoint.of()).build();
     assertJsonEquals(
-        body,
-        """
+      body,
+      """
             {
                 "dtype": "int32",
                 "range": {"start": [], "end": []}
             }
-            """);
+            """
+    );
 
     assertThat(body.getNDim()).isEqualTo(0);
     assertThat(body.getRange()).isEqualTo(ZRange.newFromShape());
@@ -28,20 +29,21 @@ public class TensorNodeTest extends BaseTestClass {
 
   @Test
   public void test_body() {
-    var body =
-        TensorNode.Body.builder()
-            .dtype("int32")
-            .range(new ZRange(ZPoint.of(-1, -1), ZPoint.of(2, 3)))
-            .build();
+    var body = TensorNode.Body
+      .builder()
+      .dtype("int32")
+      .range(new ZRange(ZPoint.of(-1, -1), ZPoint.of(2, 3)))
+      .build();
 
     assertJsonEquals(
-        body,
-        """
+      body,
+      """
           {
             "dtype": "int32",
             "range": {"start":[-1, -1], "end":[2, 3]}
           }
-          """);
+          """
+    );
 
     assertThat(body.getNDim()).isEqualTo(2);
     assertThat(body.getSize()).isEqualTo(12);

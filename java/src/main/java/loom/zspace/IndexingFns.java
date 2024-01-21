@@ -118,7 +118,8 @@ public final class IndexingFns {
     }
     if (res < 0 || res >= size) {
       throw new IndexOutOfBoundsException(
-          String.format("%s: index %d out of range [0, %d)", msg, idx, size));
+        String.format("%s: index %d out of range [0, %d)", msg, idx, size)
+      );
     }
     return res;
   }
@@ -175,8 +176,12 @@ public final class IndexingFns {
         if (res[k] == d) {
           // Duplicate dimensions detected.
           throw new IllegalArgumentException(
-              "dims %s resolve to %s on shape %s with duplicate dimensions"
-                  .formatted(Arrays.toString(dims), Arrays.toString(res), Arrays.toString(shape)));
+            "dims %s resolve to %s on shape %s with duplicate dimensions".formatted(
+                Arrays.toString(dims),
+                Arrays.toString(res),
+                Arrays.toString(shape)
+              )
+          );
         }
       }
     }
@@ -234,8 +239,11 @@ public final class IndexingFns {
 
     if (length != permutation.length) {
       throw new IllegalArgumentException(
-          "array length %d and permutation length %d must be equal"
-              .formatted(length, permutation.length));
+        "array length %d and permutation length %d must be equal".formatted(
+            length,
+            permutation.length
+          )
+      );
     }
 
     return length;
@@ -287,17 +295,27 @@ public final class IndexingFns {
    * @throws IndexOutOfBoundsException if the coordinates are out of bounds.
    */
   public static int ravel(
-      @Nonnull int[] shape, @Nonnull int[] stride, @Nonnull int[] coords, int offset) {
+    @Nonnull int[] shape,
+    @Nonnull int[] stride,
+    @Nonnull int[] coords,
+    int offset
+  ) {
     var ndim = shape.length;
     if (stride.length != ndim) {
       throw new IllegalArgumentException(
-          "shape %s and stride %s must have the same dimensions"
-              .formatted(Arrays.toString(shape), Arrays.toString(stride)));
+        "shape %s and stride %s must have the same dimensions".formatted(
+            Arrays.toString(shape),
+            Arrays.toString(stride)
+          )
+      );
     }
     if (coords.length != ndim) {
       throw new IllegalArgumentException(
-          "shape %s and coords %s must have the same dimensions"
-              .formatted(Arrays.toString(shape), Arrays.toString(coords)));
+        "shape %s and coords %s must have the same dimensions".formatted(
+            Arrays.toString(shape),
+            Arrays.toString(coords)
+          )
+      );
     }
 
     int index = offset;
@@ -306,9 +324,12 @@ public final class IndexingFns {
         index += resolveIndex("coord", coords[i], shape[i]) * stride[i];
       } catch (IndexOutOfBoundsException e) {
         throw new IndexOutOfBoundsException(
-            String.format(
-                "coords %s are out of bounds of shape %s",
-                Arrays.toString(coords), Arrays.toString(shape)));
+          String.format(
+            "coords %s are out of bounds of shape %s",
+            Arrays.toString(coords),
+            Arrays.toString(shape)
+          )
+        );
       }
     }
     return index;
@@ -392,8 +413,9 @@ public final class IndexingFns {
         }
 
         throw new IndexOutOfBoundsException(
-            "cannot broadcast shapes: "
-                + Arrays.stream(shapes).map(Arrays::toString).collect(Collectors.joining(", ")));
+          "cannot broadcast shapes: " +
+          Arrays.stream(shapes).map(Arrays::toString).collect(Collectors.joining(", "))
+        );
       }
     }
 
@@ -441,7 +463,8 @@ public final class IndexingFns {
   public static void assertShape(@Nonnull int[] actual, @Nonnull int[] expected) {
     if (!Arrays.equals(actual, expected)) {
       throw new IllegalArgumentException(
-          "shape " + Arrays.toString(actual) + " != expected shape " + Arrays.toString(expected));
+        "shape " + Arrays.toString(actual) + " != expected shape " + Arrays.toString(expected)
+      );
     }
   }
 
@@ -456,10 +479,11 @@ public final class IndexingFns {
    * @return the shape of the tree as seen from the spine.
    */
   public static <T> List<Integer> treeSpineShape(
-      @Nonnull T root,
-      @Nonnull Predicate<T> isArray,
-      @Nonnull ToIntFunction<T> getArrayLength,
-      @Nonnull BiFunction<T, Integer, T> getArrayElement) {
+    @Nonnull T root,
+    @Nonnull Predicate<T> isArray,
+    @Nonnull ToIntFunction<T> getArrayLength,
+    @Nonnull BiFunction<T, Integer, T> getArrayElement
+  ) {
     List<Integer> shapeList = new ArrayList<>();
     {
       var it = root;
@@ -489,15 +513,16 @@ public final class IndexingFns {
    * @return a {@code Pair<int[], int[]>} of (shape, data)
    */
   public static <T> @Nonnull Pair<int[], int[]> arrayFromTree(
-      @Nonnull T root,
-      @Nonnull Predicate<T> isArray,
-      @Nonnull ToIntFunction<T> getArrayLength,
-      @Nonnull BiFunction<T, Integer, T> getArrayElement,
-      @Nonnull ToIntFunction<T> nodeAsScalar,
-      @Nonnull Function<T, int[]> nodeAsSimpleArray) {
+    @Nonnull T root,
+    @Nonnull Predicate<T> isArray,
+    @Nonnull ToIntFunction<T> getArrayLength,
+    @Nonnull BiFunction<T, Integer, T> getArrayElement,
+    @Nonnull ToIntFunction<T> nodeAsScalar,
+    @Nonnull Function<T, int[]> nodeAsSimpleArray
+  ) {
     try {
       if (!isArray.test(root)) {
-        return Pair.of(new int[] {}, new int[] {nodeAsScalar.applyAsInt(root)});
+        return Pair.of(new int[] {}, new int[] { nodeAsScalar.applyAsInt(root) });
       }
 
       var shapeList = treeSpineShape(root, isArray, getArrayLength, getArrayElement);
@@ -530,7 +555,6 @@ public final class IndexingFns {
       }
 
       return Pair.of(shape, data);
-
     } catch (Exception e) {
       throw new IllegalArgumentException("Could not parse array from tree", e);
     }

@@ -20,12 +20,14 @@ import loom.graph.LoomNode;
 @Getter
 @Setter
 public final class ApplicationNode extends LoomNode<ApplicationNode, ApplicationNode.Body> {
+
   public static final String TYPE = "ApplicationNode";
 
   @SuppressWarnings("unused")
   public abstract static class ApplicationNodeBuilder<
-          C extends ApplicationNode, B extends ApplicationNodeBuilder<C, B>>
-      extends LoomNodeBuilder<ApplicationNode, Body, C, B> {
+    C extends ApplicationNode, B extends ApplicationNodeBuilder<C, B>
+  >
+    extends LoomNodeBuilder<ApplicationNode, Body, C, B> {
     {
       // Set the node type.
       type(TYPE);
@@ -33,7 +35,7 @@ public final class ApplicationNode extends LoomNode<ApplicationNode, Application
   }
 
   @WithSchema(
-      """
+    """
   {
       "type": "object",
       "properties": {
@@ -86,18 +88,25 @@ public final class ApplicationNode extends LoomNode<ApplicationNode, Application
           }
       }
   }
-  """)
+  """
+  )
   @Value
   @Jacksonized
   @Builder
   @JsonInclude(JsonInclude.Include.NON_EMPTY)
-  @JsonPropertyOrder({"operationId", "inputs", "outputs"})
+  @JsonPropertyOrder({ "operationId", "inputs", "outputs" })
   public static class Body implements HasToJsonString {
-    @Nonnull UUID operationId;
 
-    @Singular @Nonnull Map<String, List<TensorSelection>> inputs;
+    @Nonnull
+    UUID operationId;
 
-    @Singular @Nonnull Map<String, List<TensorSelection>> outputs;
+    @Singular
+    @Nonnull
+    Map<String, List<TensorSelection>> inputs;
+
+    @Singular
+    @Nonnull
+    Map<String, List<TensorSelection>> outputs;
   }
 
   /**
@@ -122,12 +131,12 @@ public final class ApplicationNode extends LoomNode<ApplicationNode, Application
     return builder().body(bodyBuilder.build());
   }
 
-  @Delegate(excludes = {HasToJsonString.class})
+  @Delegate(excludes = { HasToJsonString.class })
   @Nonnull
   private Body body;
 
   public OperationSignatureNode getOperationSignatureNode() {
     return assertGraph()
-        .assertNode(getOperationId(), OperationSignatureNode.TYPE, OperationSignatureNode.class);
+      .assertNode(getOperationId(), OperationSignatureNode.TYPE, OperationSignatureNode.class);
   }
 }

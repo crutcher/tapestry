@@ -10,6 +10,7 @@ import loom.common.collections.IteratorUtils;
 
 /** An iterable and streamable view over coordinates in a range. */
 public final class IterableCoordinates implements Iterable<int[]> {
+
   /**
    * An Iterator over coordinates.
    *
@@ -18,9 +19,11 @@ public final class IterableCoordinates implements Iterable<int[]> {
    * is not shared between subsequent calls to {@link Iterator#next()}.
    */
   public final class CoordIterator implements Iterator<int[]> {
+
     private int remaining = size;
 
-    @Nullable private int[] current = null;
+    @Nullable
+    private int[] current = null;
 
     public BufferMode getBufferMode() {
       return bufferMode;
@@ -44,7 +47,6 @@ public final class IterableCoordinates implements Iterable<int[]> {
       if (current == null) {
         // First call to next(); initialize coords to start.
         current = start.clone();
-
       } else {
         // Increment coords least-significant first.
         current[current.length - 1]++;
@@ -66,10 +68,18 @@ public final class IterableCoordinates implements Iterable<int[]> {
     }
   }
 
-  @Nonnull @Getter private final BufferMode bufferMode;
-  @Nonnull private final int[] start;
-  @Nonnull private final int[] end;
-  @Getter private final int size;
+  @Nonnull
+  @Getter
+  private final BufferMode bufferMode;
+
+  @Nonnull
+  private final int[] start;
+
+  @Nonnull
+  private final int[] end;
+
+  @Getter
+  private final int size;
 
   /**
    * Construct an iterable view over coordinates in a range.
@@ -89,7 +99,10 @@ public final class IterableCoordinates implements Iterable<int[]> {
    * @param end the end coordinates.
    */
   public IterableCoordinates(
-      @Nonnull BufferMode bufferMode, @Nonnull int[] start, @Nonnull int[] end) {
+    @Nonnull BufferMode bufferMode,
+    @Nonnull int[] start,
+    @Nonnull int[] end
+  ) {
     this.bufferMode = bufferMode;
     this.start = start;
     this.end = end;

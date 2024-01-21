@@ -20,39 +20,42 @@ import lombok.Data;
  */
 @Data
 public class JsonSchemaFactoryManager {
+
   private final Map<URI, String> schemas = new HashMap<>();
-  private final URIFetcher uriFetcher =
-      uri -> {
-        var schemaSource = schemas.get(uri.normalize());
-        if (schemaSource != null) {
-          return new ByteArrayInputStream(schemaSource.getBytes(StandardCharsets.UTF_8));
-        }
-        throw new RuntimeException("Unknown URI: " + uri);
-      };
+  private final URIFetcher uriFetcher = uri -> {
+    var schemaSource = schemas.get(uri.normalize());
+    if (schemaSource != null) {
+      return new ByteArrayInputStream(schemaSource.getBytes(StandardCharsets.UTF_8));
+    }
+    throw new RuntimeException("Unknown URI: " + uri);
+  };
 
   private final JsonMetaSchema metaSchema = new Version202012().getInstance();
 
-  private final JsonMetaSchema validationSchema =
-      new JsonMetaSchema.Builder(metaSchema.getUri() + "/validation")
-          .idKeyword(metaSchema.getIdKeyword())
-          .addFormats(JsonSchemaVersion.BUILTIN_FORMATS)
-          .addKeywords(metaSchema.getKeywords().values())
-          .addKeywords(
-              Arrays.asList(
-                  new NonValidationKeyword("$vocabulary"),
-                  new NonValidationKeyword("$dynamicAnchor"),
-                  new NonValidationKeyword("$dynamicRef")))
-          .build();
+  private final JsonMetaSchema validationSchema = new JsonMetaSchema.Builder(
+    metaSchema.getUri() + "/validation"
+  )
+    .idKeyword(metaSchema.getIdKeyword())
+    .addFormats(JsonSchemaVersion.BUILTIN_FORMATS)
+    .addKeywords(metaSchema.getKeywords().values())
+    .addKeywords(
+      Arrays.asList(
+        new NonValidationKeyword("$vocabulary"),
+        new NonValidationKeyword("$dynamicAnchor"),
+        new NonValidationKeyword("$dynamicRef")
+      )
+    )
+    .build();
 
-  private final JsonSchemaFactory factory =
-      JsonSchemaFactory.builder()
-          .defaultMetaSchemaURI(metaSchema.getUri())
-          .addMetaSchema(metaSchema)
-          .addMetaSchema(validationSchema)
-          .objectMapper(JsonUtil.getObjectMapper())
-          .uriFetcher(uriFetcher, "http")
-          .enableUriSchemaCache(true)
-          .build();
+  private final JsonSchemaFactory factory = JsonSchemaFactory
+    .builder()
+    .defaultMetaSchemaURI(metaSchema.getUri())
+    .addMetaSchema(metaSchema)
+    .addMetaSchema(validationSchema)
+    .objectMapper(JsonUtil.getObjectMapper())
+    .uriFetcher(uriFetcher, "http")
+    .enableUriSchemaCache(true)
+    .build();
 
   private final SchemaValidatorsConfig config = new SchemaValidatorsConfig();
 

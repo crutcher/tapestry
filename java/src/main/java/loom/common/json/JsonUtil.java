@@ -23,6 +23,7 @@ import loom.common.collections.IteratorUtils;
 
 @UtilityClass
 public final class JsonUtil {
+
   @UtilityClass
   public class Tree {
 
@@ -43,7 +44,7 @@ public final class JsonUtil {
      * @return True if all elements are boolean, false otherwise.
      */
     public boolean allOf(ArrayNode array, Predicate<JsonNode> predicate) {
-      for (var it = array.elements(); it.hasNext(); ) {
+      for (var it = array.elements(); it.hasNext();) {
         var node = it.next();
         if (!predicate.test(node)) {
           return false;
@@ -59,7 +60,7 @@ public final class JsonUtil {
      * @return True if any elements are numeric, false otherwise.
      */
     public boolean anyOf(ArrayNode array, Predicate<JsonNode> predicate) {
-      for (var it = array.elements(); it.hasNext(); ) {
+      for (var it = array.elements(); it.hasNext();) {
         var node = it.next();
         if (predicate.test(node)) {
           return true;
@@ -91,14 +92,14 @@ public final class JsonUtil {
 
   private final JsonNodeFactory JSON_NODE_FACTORY = JsonNodeFactory.instance;
 
-  private final ObjectMapper COMMON_MAPPER =
-      new ObjectMapper().configure(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS, true);
+  private final ObjectMapper COMMON_MAPPER = new ObjectMapper()
+    .configure(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS, true);
 
-  private final Configuration JSON_PATH_CONFIG =
-      Configuration.builder()
-          .jsonProvider(new JacksonJsonNodeJsonProvider())
-          .mappingProvider(new JacksonMappingProvider())
-          .build();
+  private final Configuration JSON_PATH_CONFIG = Configuration
+    .builder()
+    .jsonProvider(new JacksonJsonNodeJsonProvider())
+    .mappingProvider(new JacksonMappingProvider())
+    .build();
 
   public interface WithNodeBuilders {
     @Nonnull
@@ -335,9 +336,9 @@ public final class JsonUtil {
       return result;
     } else if (node instanceof ObjectNode obj) {
       var result = new TreeMap<>();
-      obj.fields()
-          .forEachRemaining(
-              field -> result.put(field.getKey(), treeToSimpleJson(field.getValue())));
+      obj
+        .fields()
+        .forEachRemaining(field -> result.put(field.getKey(), treeToSimpleJson(field.getValue())));
       return result;
     } else {
       throw new IllegalArgumentException("Unexpected node type: " + node.getClass());
@@ -347,9 +348,15 @@ public final class JsonUtil {
   /** Traversal context for the validateSimpleJson method. */
   @Value
   protected class SelectionPath {
-    @Nullable SelectionPath parent;
-    @Nullable Object selector;
-    @Nullable Object target;
+
+    @Nullable
+    SelectionPath parent;
+
+    @Nullable
+    Object selector;
+
+    @Nullable
+    Object target;
 
     public SelectionPath(@Nullable Object target) {
       this.parent = null;
@@ -358,14 +365,20 @@ public final class JsonUtil {
     }
 
     public SelectionPath(
-        @Nullable SelectionPath parent, @Nullable String selector, @Nullable Object target) {
+      @Nullable SelectionPath parent,
+      @Nullable String selector,
+      @Nullable Object target
+    ) {
       this.parent = parent;
       this.selector = selector;
       this.target = target;
     }
 
     public SelectionPath(
-        @Nullable SelectionPath parent, @Nullable Integer selector, @Nullable Object target) {
+      @Nullable SelectionPath parent,
+      @Nullable Integer selector,
+      @Nullable Object target
+    ) {
       this.parent = parent;
       this.selector = selector;
       this.target = target;
@@ -435,24 +448,25 @@ public final class JsonUtil {
 
       final var target = item.getTarget();
 
-      if (target == null
-          || target instanceof String
-          || target instanceof Number
-          || target instanceof Boolean) {
+      if (
+        target == null ||
+        target instanceof String ||
+        target instanceof Number ||
+        target instanceof Boolean
+      ) {
         // Valid scalar values.
         continue;
       }
 
       if (target instanceof Map<?, ?> map) {
-        map.forEach(
-            (k, v) -> {
-              if (k instanceof String s) {
-                // Valid if all children are valid.
-                scheduled.add(new SelectionPath(item, s, v));
-              } else {
-                throw new IllegalArgumentException("Unexpected key: " + k + " at " + item);
-              }
-            });
+        map.forEach((k, v) -> {
+          if (k instanceof String s) {
+            // Valid if all children are valid.
+            scheduled.add(new SelectionPath(item, s, v));
+          } else {
+            throw new IllegalArgumentException("Unexpected key: " + k + " at " + item);
+          }
+        });
         continue;
       }
 
@@ -465,7 +479,8 @@ public final class JsonUtil {
       }
 
       throw new IllegalArgumentException(
-          "Unexpected value type (%s) at %s".formatted(target.getClass().getSimpleName(), item));
+        "Unexpected value type (%s) at %s".formatted(target.getClass().getSimpleName(), item)
+      );
     }
   }
 }

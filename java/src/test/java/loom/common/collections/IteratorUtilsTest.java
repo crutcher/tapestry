@@ -6,6 +6,7 @@ import loom.testing.BaseTestClass;
 import org.junit.Test;
 
 public class IteratorUtilsTest extends BaseTestClass {
+
   @Test
   public void testIterableToStream() {
     var items = List.of("a", "b", "c");

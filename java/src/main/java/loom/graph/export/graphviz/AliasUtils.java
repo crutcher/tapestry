@@ -6,6 +6,7 @@ import loom.common.DigestUtils;
 import loom.common.text.TextUtils;
 
 public class AliasUtils {
+
   /**
    * Given a collection of UUIDs, return a map of UUID to a short alias.
    *
@@ -25,7 +26,10 @@ public class AliasUtils {
 
     var labels = new HashMap<UUID, String>();
     Streams.forEachPair(
-        ids.stream(), idHashes.stream(), (id, hash) -> labels.put(id, hash.substring(0, labelLen)));
+      ids.stream(),
+      idHashes.stream(),
+      (id, hash) -> labels.put(id, hash.substring(0, labelLen))
+    );
 
     return Collections.unmodifiableMap(labels);
   }

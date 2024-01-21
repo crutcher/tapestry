@@ -13,6 +13,7 @@ import lombok.SneakyThrows;
  * @param <T> the type of the Thunk.
  */
 public class Thunk<T> implements Supplier<T> {
+
   /**
    * Construct a Thunk from a Supplier.
    *
@@ -35,10 +36,14 @@ public class Thunk<T> implements Supplier<T> {
     return new Thunk<>(() -> value);
   }
 
-  @Nullable private Supplier<T> supplier;
-  @Nullable private Throwable error;
+  @Nullable
+  private Supplier<T> supplier;
 
-  @Nullable private T value;
+  @Nullable
+  private Throwable error;
+
+  @Nullable
+  private T value;
 
   public Thunk(@Nonnull Supplier<T> supplier) {
     this.supplier = supplier;

@@ -5,6 +5,7 @@ import loom.testing.CommonAssertions;
 import org.junit.Test;
 
 public class ZRangeTest implements CommonAssertions {
+
   @Test
   public void test_clone() {
     var r = new ZRange(new ZPoint(1, 2, 3), new ZPoint(4, 5, 6));
@@ -14,21 +15,22 @@ public class ZRangeTest implements CommonAssertions {
   @Test
   public void test_builder() {
     assertThat(ZRange.builder().start(2, 3).end(10, 10).build())
-        .isEqualTo(new ZRange(new ZPoint(2, 3), new ZPoint(10, 10)));
+      .isEqualTo(new ZRange(new ZPoint(2, 3), new ZPoint(10, 10)));
     assertThat(ZRange.builder().start(new ZPoint(2, 3)).end(new ZPoint(10, 10)).build())
-        .isEqualTo(new ZRange(new ZPoint(2, 3), new ZPoint(10, 10)));
+      .isEqualTo(new ZRange(new ZPoint(2, 3), new ZPoint(10, 10)));
     assertThat(
-            ZRange.builder().start(ZTensor.newVector(2, 3)).end(ZTensor.newVector(10, 10)).build())
-        .isEqualTo(new ZRange(new ZPoint(2, 3), new ZPoint(10, 10)));
+      ZRange.builder().start(ZTensor.newVector(2, 3)).end(ZTensor.newVector(10, 10)).build()
+    )
+      .isEqualTo(new ZRange(new ZPoint(2, 3), new ZPoint(10, 10)));
 
     assertThat(ZRange.builder().shape(2, 3).build())
-        .isEqualTo(new ZRange(new ZPoint(0, 0), new ZPoint(2, 3)));
+      .isEqualTo(new ZRange(new ZPoint(0, 0), new ZPoint(2, 3)));
     assertThat(ZRange.builder().start(10, 10).shape(2, 3).build())
-        .isEqualTo(new ZRange(new ZPoint(10, 10), new ZPoint(12, 13)));
+      .isEqualTo(new ZRange(new ZPoint(10, 10), new ZPoint(12, 13)));
 
     assertThatExceptionOfType(IllegalArgumentException.class)
-        .isThrownBy(() -> ZRange.builder().start(2, 3).end(10, 10).shape(2, 3).build())
-        .withMessageContaining("Cannot set both shape and end");
+      .isThrownBy(() -> ZRange.builder().start(2, 3).end(10, 10).shape(2, 3).build())
+      .withMessageContaining("Cannot set both shape and end");
   }
 
   @Test
@@ -70,11 +72,11 @@ public class ZRangeTest implements CommonAssertions {
     }
 
     assertThatExceptionOfType(IllegalArgumentException.class)
-        .isThrownBy(() -> new ZRange(new ZPoint(1, 2, 3), new ZPoint(4, 5)))
-        .withMessageContaining("shape [3] != expected shape [2]");
+      .isThrownBy(() -> new ZRange(new ZPoint(1, 2, 3), new ZPoint(4, 5)))
+      .withMessageContaining("shape [3] != expected shape [2]");
     assertThatExceptionOfType(IllegalArgumentException.class)
-        .isThrownBy(() -> new ZRange(new ZPoint(1, 1), new ZPoint(0, 1)))
-        .withMessageContaining("start [1, 1] must be <= end [0, 1]");
+      .isThrownBy(() -> new ZRange(new ZPoint(1, 1), new ZPoint(0, 1)))
+      .withMessageContaining("start [1, 1] must be <= end [0, 1]");
   }
 
   @SuppressWarnings("DuplicateExpressions")
@@ -87,7 +89,7 @@ public class ZRangeTest implements CommonAssertions {
   @Test
   public void test_string_parse_json() {
     assertThatExceptionOfType(IllegalArgumentException.class)
-        .isThrownBy(() -> ZRange.parse("zr[1, 2, 3]"));
+      .isThrownBy(() -> ZRange.parse("zr[1, 2, 3]"));
 
     {
       var range = new ZRange(new ZPoint(), new ZPoint());
@@ -114,21 +116,23 @@ public class ZRangeTest implements CommonAssertions {
     }
 
     assertThatExceptionOfType(IllegalArgumentException.class)
-        .isThrownBy(() -> ZRange.parse("abc"))
-        .withMessageContaining("Invalid ZRange: \"abc\"");
+      .isThrownBy(() -> ZRange.parse("abc"))
+      .withMessageContaining("Invalid ZRange: \"abc\"");
   }
 
   @Test
   public void test_boundingRange() {
     assertThat(
-            ZRange.boundingRange(
-                new ZRange(new ZPoint(1, 2, 3), new ZPoint(4, 10, 6)),
-                new ZRange(new ZPoint(2, 0, 4), new ZPoint(5, 6, 7))))
-        .isEqualTo(new ZRange(new ZPoint(1, 0, 3), new ZPoint(5, 10, 7)));
+      ZRange.boundingRange(
+        new ZRange(new ZPoint(1, 2, 3), new ZPoint(4, 10, 6)),
+        new ZRange(new ZPoint(2, 0, 4), new ZPoint(5, 6, 7))
+      )
+    )
+      .isEqualTo(new ZRange(new ZPoint(1, 0, 3), new ZPoint(5, 10, 7)));
 
     assertThatExceptionOfType(IllegalArgumentException.class)
-        .isThrownBy(() -> ZRange.boundingRange(List.of()))
-        .withMessageContaining("no ranges");
+      .isThrownBy(() -> ZRange.boundingRange(List.of()))
+      .withMessageContaining("no ranges");
   }
 
   @Test
@@ -185,19 +189,34 @@ public class ZRangeTest implements CommonAssertions {
     var range = new ZRange(new ZPoint(2, 3), new ZPoint(4, 5));
 
     assertThat(range.byCoords(BufferMode.SAFE).stream().toList())
-        .containsExactly(new int[] {2, 3}, new int[] {2, 4}, new int[] {3, 3}, new int[] {3, 4});
+      .containsExactly(
+        new int[] { 2, 3 },
+        new int[] { 2, 4 },
+        new int[] { 3, 3 },
+        new int[] { 3, 4 }
+      );
 
     assertThat(range.byCoords(BufferMode.REUSED).stream().toList())
-        .containsExactly(new int[] {3, 4}, new int[] {3, 4}, new int[] {3, 4}, new int[] {3, 4});
+      .containsExactly(
+        new int[] { 3, 4 },
+        new int[] { 3, 4 },
+        new int[] { 3, 4 },
+        new int[] { 3, 4 }
+      );
     assertThat(range.byCoords(BufferMode.REUSED).stream().map(int[]::clone).toList())
-        .containsExactly(new int[] {2, 3}, new int[] {2, 4}, new int[] {3, 3}, new int[] {3, 4});
+      .containsExactly(
+        new int[] { 2, 3 },
+        new int[] { 2, 4 },
+        new int[] { 3, 3 },
+        new int[] { 3, 4 }
+      );
 
     // Empty ranges.
     assertThat(ZRange.newFromShape(0, 0).byCoords(BufferMode.SAFE).stream().toList()).isEmpty();
 
     // Scalar ranges.
     assertThat(new ZRange(new ZPoint(), new ZPoint()).byCoords(BufferMode.SAFE).stream().toList())
-        .containsExactly(new int[] {});
+      .containsExactly(new int[] {});
   }
 
   @Test
@@ -211,8 +230,8 @@ public class ZRangeTest implements CommonAssertions {
       var range = new ZRange(new ZPoint(2, 3), new ZPoint(2, 3));
       assertThat(range.isEmpty()).isTrue();
       assertThatExceptionOfType(IndexOutOfBoundsException.class)
-          .isThrownBy(range::getInclusiveEnd)
-          .withMessageContaining("Empty range");
+        .isThrownBy(range::getInclusiveEnd)
+        .withMessageContaining("Empty range");
     }
   }
 
@@ -249,25 +268,25 @@ public class ZRangeTest implements CommonAssertions {
     assertThat(range.contains(ZTensor.newVector(-2, 1))).isFalse();
 
     assertThat(range.contains(ZRange.of(ZTensor.newVector(0, 0), ZTensor.newVector(1, 1))))
-        .isTrue();
+      .isTrue();
     assertThat(range.contains(ZRange.of(ZTensor.newVector(1, 2), ZTensor.newVector(2, 3))))
-        .isTrue();
+      .isTrue();
 
     assertThat(range.contains(ZRange.of(ZTensor.newVector(0, -1), ZTensor.newVector(1, 1))))
-        .isFalse();
+      .isFalse();
     assertThat(range.contains(ZRange.of(ZTensor.newVector(0, 0), ZTensor.newVector(3, 1))))
-        .isFalse();
+      .isFalse();
   }
 
   @Test
   public void test_intersection() {
     assertThat(ZRange.newFromShape().intersection(ZRange.newFromShape()))
-        .isEqualTo(ZRange.newFromShape());
+      .isEqualTo(ZRange.newFromShape());
 
     var range = ZRange.newFromShape(2, 3);
     assertThat(range.intersection(range)).isEqualTo(range);
     assertThat(range.intersection(ZRange.of(new ZPoint(-2, 1), new ZPoint(2, 5))))
-        .isEqualTo(ZRange.of(new ZPoint(0, 1), new ZPoint(2, 3)));
+      .isEqualTo(ZRange.of(new ZPoint(0, 1), new ZPoint(2, 3)));
 
     assertThat(range.intersection(new ZRange(new ZPoint(-5, -5), new ZPoint(-1, -1)))).isNull();
   }
@@ -281,11 +300,11 @@ public class ZRangeTest implements CommonAssertions {
     assertThat(range.resolveDim(-2)).isEqualTo(0);
 
     assertThatExceptionOfType(IndexOutOfBoundsException.class)
-        .isThrownBy(() -> range.resolveDim(2))
-        .withMessageContaining("invalid dimension: index 2 out of range [0, 2)");
+      .isThrownBy(() -> range.resolveDim(2))
+      .withMessageContaining("invalid dimension: index 2 out of range [0, 2)");
     assertThatExceptionOfType(IndexOutOfBoundsException.class)
-        .isThrownBy(() -> range.resolveDim(-3))
-        .withMessageContaining("invalid dimension: index -3 out of range [0, 2)");
+      .isThrownBy(() -> range.resolveDim(-3))
+      .withMessageContaining("invalid dimension: index -3 out of range [0, 2)");
   }
 
   @Test
@@ -293,18 +312,20 @@ public class ZRangeTest implements CommonAssertions {
     var range = ZRange.newFromShape(2, 3);
 
     assertThat(range.split(1, 2))
-        .containsExactly(
-            ZRange.of(new ZPoint(0, 0), new ZPoint(2, 2)),
-            ZRange.of(new ZPoint(0, 2), new ZPoint(2, 3)));
+      .containsExactly(
+        ZRange.of(new ZPoint(0, 0), new ZPoint(2, 2)),
+        ZRange.of(new ZPoint(0, 2), new ZPoint(2, 3))
+      );
     assertThat(range.split(-1, 2))
-        .containsExactly(
-            ZRange.of(new ZPoint(0, 0), new ZPoint(2, 2)),
-            ZRange.of(new ZPoint(0, 2), new ZPoint(2, 3)));
+      .containsExactly(
+        ZRange.of(new ZPoint(0, 0), new ZPoint(2, 2)),
+        ZRange.of(new ZPoint(0, 2), new ZPoint(2, 3))
+      );
 
     assertThat(range.split(-1, 3)).containsExactly(range);
 
     assertThatExceptionOfType(IllegalArgumentException.class)
-        .isThrownBy(() -> range.split(0, -2))
-        .withMessage("chunkSize must be > 0: -2");
+      .isThrownBy(() -> range.split(0, -2))
+      .withMessage("chunkSize must be > 0: -2");
   }
 }

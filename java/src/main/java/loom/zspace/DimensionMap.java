@@ -17,20 +17,23 @@ import loom.common.json.JsonUtil;
 @ThreadSafe
 @JsonDeserialize(using = DimensionMap.Deserializer.class)
 public final class DimensionMap
-    implements HasDimension, HasNamedPermute<DimensionMap>, HasToJsonString {
+  implements HasDimension, HasNamedPermute<DimensionMap>, HasToJsonString {
+
   static final class Deserializer extends StdDeserializer<DimensionMap> {
+
     public Deserializer() {
       super(ZPoint.class);
     }
 
     @Override
     public DimensionMap deserialize(JsonParser p, DeserializationContext ctxt)
-        throws java.io.IOException {
+      throws java.io.IOException {
       return new DimensionMap(p.readValueAs(String[].class));
     }
   }
 
-  @JsonValue public final ImmutableList<String> names;
+  @JsonValue
+  public final ImmutableList<String> names;
 
   public DimensionMap(String... names) {
     for (int i = 0; i < names.length; ++i) {

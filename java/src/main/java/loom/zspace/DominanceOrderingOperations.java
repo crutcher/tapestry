@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 /** Namespace of ZPoint operations. */
 @NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
 public final class DominanceOrderingOperations {
+
   /**
    * Compute the partial ordering of two tensors as coordinates in distance from 0.
    *
@@ -28,7 +29,9 @@ public final class DominanceOrderingOperations {
    * @return the partial ordering.
    */
   public static PartialOrdering partialOrderByGrid(
-      @Nonnull HasZTensor lhs, @Nonnull HasZTensor rhs) {
+    @Nonnull HasZTensor lhs,
+    @Nonnull HasZTensor rhs
+  ) {
     var zlhs = lhs.getTensor();
     var zrhs = rhs.getTensor();
 

@@ -9,7 +9,10 @@ import org.jetbrains.annotations.Nullable;
 
 @Getter
 public class ListValidationIssueCollector implements ValidationIssueCollector, HasToJsonString {
-  @JsonValue @Nullable private List<ValidationIssue> issues;
+
+  @JsonValue
+  @Nullable
+  private List<ValidationIssue> issues;
 
   @Override
   public boolean hasFailed() {

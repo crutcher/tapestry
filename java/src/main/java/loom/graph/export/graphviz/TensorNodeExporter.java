@@ -6,9 +6,13 @@ import loom.graph.LoomNode;
 import loom.graph.nodes.TensorNode;
 
 public class TensorNodeExporter implements GraphVisualizer.NodeTypeExporter {
+
   @Override
   public void exportNode(
-      GraphVisualizer visualizer, GraphVisualizer.ExportContext context, LoomNode<?, ?> loomNode) {
+    GraphVisualizer visualizer,
+    GraphVisualizer.ExportContext context,
+    LoomNode<?, ?> loomNode
+  ) {
     var tensorNode = (TensorNode) loomNode;
     var gvNode = context.standardNodePrefix(loomNode);
     context.maybeRenderAnnotations(loomNode);
@@ -22,19 +26,24 @@ public class TensorNodeExporter implements GraphVisualizer.NodeTypeExporter {
     gvNode.add(context.colorSchemeForNode(loomNode.getId()).fill());
 
     gvNode.add(
-        GraphVisualizer.asHtmlLabel(
-            GH.table()
-                .bgcolor("white")
-                .border(1)
-                .cellborder(0)
-                .cellspacing(0)
-                .add(
-                    GH.td()
-                        .colspan(2)
-                        .align(GH.TableDataAlign.LEFT)
-                        .add(GH.font().add(GH.bold(" %s ".formatted(loomNode.getTypeAlias())))),
-                    context.asDataKeyValueTR("dtype", tensorNode.getDtype()),
-                    context.asDataKeyValueTR("range", tensorNode.getRange().toRangeString()),
-                    context.asDataKeyValueTR("shape", tensorNode.getRange().toShapeString()))));
+      GraphVisualizer.asHtmlLabel(
+        GH
+          .table()
+          .bgcolor("white")
+          .border(1)
+          .cellborder(0)
+          .cellspacing(0)
+          .add(
+            GH
+              .td()
+              .colspan(2)
+              .align(GH.TableDataAlign.LEFT)
+              .add(GH.font().add(GH.bold(" %s ".formatted(loomNode.getTypeAlias())))),
+            context.asDataKeyValueTR("dtype", tensorNode.getDtype()),
+            context.asDataKeyValueTR("range", tensorNode.getRange().toRangeString()),
+            context.asDataKeyValueTR("shape", tensorNode.getRange().toShapeString())
+          )
+      )
+    );
   }
 }

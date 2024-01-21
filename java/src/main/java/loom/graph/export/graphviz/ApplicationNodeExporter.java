@@ -18,9 +18,13 @@ import loom.graph.nodes.IPFIndex;
 import loom.graph.nodes.TensorSelection;
 
 public class ApplicationNodeExporter implements GraphVisualizer.NodeTypeExporter {
+
   @Override
   public void exportNode(
-      GraphVisualizer visualizer, GraphVisualizer.ExportContext context, LoomNode<?, ?> loomNode) {
+    GraphVisualizer visualizer,
+    GraphVisualizer.ExportContext context,
+    LoomNode<?, ?> loomNode
+  ) {
     var gvNode = context.standardNodePrefix(loomNode);
 
     var appNode = (ApplicationNode) loomNode;
@@ -36,67 +40,69 @@ public class ApplicationNodeExporter implements GraphVisualizer.NodeTypeExporter
         MutableNode opProxy = Factory.mutNode(opNode.getId().toString());
 
         context
-            .getExportGraph()
-            .add(
-                nodeProxy.addLink(
-                    nodeProxy
-                        .port(Compass.EAST)
-                        .linkTo(opProxy.port(Compass.WEST))
-                        .with("weight", 2)
-                        .with(Style.DOTTED)));
+          .getExportGraph()
+          .add(
+            nodeProxy.addLink(
+              nodeProxy
+                .port(Compass.EAST)
+                .linkTo(opProxy.port(Compass.WEST))
+                .with("weight", 2)
+                .with(Style.DOTTED)
+            )
+          );
 
         context.sameRank(loomNode.getId(), opNode.getId());
-
       } else {
         MutableNode nextProxy = Factory.mutNode(appShards.get(currentIdx + 1).getId().toString());
 
         context
-            .getExportGraph()
-            .add(
-                nodeProxy.addLink(
-                    nodeProxy
-                        .port(Compass.EAST)
-                        .linkTo(nextProxy.port(Compass.WEST))
-                        .with("weight", 2)
-                        .with(Style.DOTTED)));
+          .getExportGraph()
+          .add(
+            nodeProxy.addLink(
+              nodeProxy
+                .port(Compass.EAST)
+                .linkTo(nextProxy.port(Compass.WEST))
+                .with("weight", 2)
+                .with(Style.DOTTED)
+            )
+          );
 
         context.sameRank(nextProxy.name(), loomNode.getId().toString());
       }
     }
 
     gvNode
-        .add(Shape.NOTE)
-        .add(Style.FILLED)
-        .add("penwidth", 2)
-        .add("gradientangle", 315)
-        .add("margin", "0.08,-0.1")
-        .add(context.colorSchemeForNode(opNode.getId()).fill());
+      .add(Shape.NOTE)
+      .add(Style.FILLED)
+      .add("penwidth", 2)
+      .add("gradientangle", 315)
+      .add("margin", "0.08,-0.1")
+      .add(context.colorSchemeForNode(opNode.getId()).fill());
 
-    var table =
-        GH.table()
-            .border(0)
-            .cellspacing(0)
-            .cellpadding(2)
-            .add(
-                GH.tr(
-                    GH.td()
-                        .add(selectionMapToIOConnectorsTable(context, appNode.getInputs(), true))));
+    var table = GH
+      .table()
+      .border(0)
+      .cellspacing(0)
+      .cellpadding(2)
+      .add(GH.tr(GH.td().add(selectionMapToIOConnectorsTable(context, appNode.getInputs(), true))));
 
     if (visualizer.isFoldApplicationNodes()) {
-      var descTable =
-          GH.table()
-              .withParent(table)
-              .border(0)
-              .cellborder(1)
-              .cellspacing(0)
-              .cellpadding(0)
-              .bgcolor("white")
-              .add(GH.td().colspan(2).add(GH.bold("\"%s\"".formatted(opNode.getKernel()))));
+      var descTable = GH
+        .table()
+        .withParent(table)
+        .border(0)
+        .cellborder(1)
+        .cellspacing(0)
+        .cellpadding(0)
+        .bgcolor("white")
+        .add(GH.td().colspan(2).add(GH.bold("\"%s\"".formatted(opNode.getKernel()))));
 
       if (!opNode.getParams().isEmpty()) {
         descTable.add(
-            context.jsonToDataKeyValueTRs(
-                (ObjectNode) JsonUtil.valueToJsonNodeTree(opNode.getParams())));
+          context.jsonToDataKeyValueTRs(
+            (ObjectNode) JsonUtil.valueToJsonNodeTree(opNode.getParams())
+          )
+        );
       }
 
       // Annotations
@@ -105,42 +111,44 @@ public class ApplicationNodeExporter implements GraphVisualizer.NodeTypeExporter
         var index = (IPFIndex) annotationMap.remove(IPFIndex.ANNOTATION_TYPE);
         if (index != null) {
           // If the index is present, render it in the node.
-          GH.table()
-              .withParent(table)
-              .border(0)
-              .cellborder(1)
-              .cellspacing(0)
-              .cellpadding(0)
-              .bgcolor("white")
-              .add(context.jsonToDataKeyValueTRs((ObjectNode) JsonUtil.valueToJsonNodeTree(index)));
+          GH
+            .table()
+            .withParent(table)
+            .border(0)
+            .cellborder(1)
+            .cellspacing(0)
+            .cellpadding(0)
+            .bgcolor("white")
+            .add(context.jsonToDataKeyValueTRs((ObjectNode) JsonUtil.valueToJsonNodeTree(index)));
         }
 
         context.maybeRenderAnnotations(loomNode.getId().toString(), annotationMap);
       }
-
     } else {
-
-      var descTable =
-          GH.table()
-              .withParent(table)
-              .border(0)
-              .cellborder(1)
-              .cellspacing(0)
-              .cellpadding(0)
-              .bgcolor("white")
-              .add(context.renderDataTypeTitle(loomNode.getTypeAlias()))
-              .add(context.asDataKeyValueTR("kernel", opNode.getKernel()));
+      var descTable = GH
+        .table()
+        .withParent(table)
+        .border(0)
+        .cellborder(1)
+        .cellspacing(0)
+        .cellpadding(0)
+        .bgcolor("white")
+        .add(context.renderDataTypeTitle(loomNode.getTypeAlias()))
+        .add(context.asDataKeyValueTR("kernel", opNode.getKernel()));
 
       if (!opNode.getParams().isEmpty()) {
         descTable.add(
-            context.renderDataTypeTitle("params"),
-            context.jsonToDataKeyValueTRs(
-                (ObjectNode) JsonUtil.convertValue(opNode.getParams(), JsonNode.class)));
+          context.renderDataTypeTitle("params"),
+          context.jsonToDataKeyValueTRs(
+            (ObjectNode) JsonUtil.convertValue(opNode.getParams(), JsonNode.class)
+          )
+        );
       }
 
       descTable.add(
-          selectionMapToDataRows(context, "inputs", appNode.getInputs()),
-          selectionMapToDataRows(context, "outputs", appNode.getOutputs()));
+        selectionMapToDataRows(context, "inputs", appNode.getInputs()),
+        selectionMapToDataRows(context, "outputs", appNode.getOutputs())
+      );
 
       context.maybeRenderAnnotations(loomNode);
     }
@@ -154,22 +162,23 @@ public class ApplicationNodeExporter implements GraphVisualizer.NodeTypeExporter
   }
 
   protected static void tensorSelectionMapEdges(
-      GraphVisualizer.ExportContext context,
-      LoomNode<?, ?> node,
-      Map<String, List<TensorSelection>> inputs,
-      boolean isInput) {
+    GraphVisualizer.ExportContext context,
+    LoomNode<?, ?> node,
+    Map<String, List<TensorSelection>> inputs,
+    boolean isInput
+  ) {
     UUID nodeId = node.getId();
 
     var desc = isInput ? "inputs" : "outputs";
 
     String lastSelNodeId = null;
 
-    var selNodeCluster =
-        Factory.mutGraph("cluster_%s_%s".formatted(nodeId, desc))
-            .setDirected(true)
-            .setCluster(true)
-            .graphAttrs()
-            .add("style", "dashed");
+    var selNodeCluster = Factory
+      .mutGraph("cluster_%s_%s".formatted(nodeId, desc))
+      .setDirected(true)
+      .setCluster(true)
+      .graphAttrs()
+      .add("style", "dashed");
     // .graphAttrs().add("peripheries", 0);
 
     for (var entry : inputs.entrySet()) {
@@ -181,29 +190,33 @@ public class ApplicationNodeExporter implements GraphVisualizer.NodeTypeExporter
         UUID tensorId = slice.getTensorId();
 
         var primaryColor = Color.named(context.getPrimaryColorForNode(tensorId));
-        Function<Link, Link> config =
-            link -> link.with("penwidth", "6").with(primaryColor.and(Color.BLACK, primaryColor));
+        Function<Link, Link> config = link ->
+          link.with("penwidth", "6").with(primaryColor.and(Color.BLACK, primaryColor));
 
-        var selNode =
-            Factory.mutNode(node.getId() + "#" + key + "#" + idx)
-                .add(Shape.BOX_3D)
-                .add(Style.FILLED)
-                .add("penwidth", 2)
-                .add("gradientangle", 315)
-                .add("margin", 0.15)
-                .add(context.colorSchemeForNode(tensorId).fill());
+        var selNode = Factory
+          .mutNode(node.getId() + "#" + key + "#" + idx)
+          .add(Shape.BOX_3D)
+          .add(Style.FILLED)
+          .add("penwidth", 2)
+          .add("gradientangle", 315)
+          .add("margin", 0.15)
+          .add(context.colorSchemeForNode(tensorId).fill());
 
         selNode.add(
-            GraphVisualizer.asHtmlLabel(
-                GH.table()
-                    .bgcolor("white")
-                    .border(1)
-                    .cellborder(0)
-                    .cellspacing(0)
-                    .cellpadding(0)
-                    .add(
-                        context.asDataKeyValueTR("range", slice.getRange().toRangeString()),
-                        context.asDataKeyValueTR("shape", slice.getRange().toShapeString()))));
+          GraphVisualizer.asHtmlLabel(
+            GH
+              .table()
+              .bgcolor("white")
+              .border(1)
+              .cellborder(0)
+              .cellspacing(0)
+              .cellpadding(0)
+              .add(
+                context.asDataKeyValueTR("range", slice.getRange().toRangeString()),
+                context.asDataKeyValueTR("shape", slice.getRange().toShapeString())
+              )
+          )
+        );
         context.getExportGraph().add(selNode);
 
         var nodeProxy = Factory.mutNode(nodeId.toString());
@@ -215,30 +228,32 @@ public class ApplicationNodeExporter implements GraphVisualizer.NodeTypeExporter
 
         if (isInput) {
           exportGraph.add(
-              tensorProxy.addLink(
-                  config.apply(
-                      tensorProxy.port(Compass.SOUTH).linkTo(selNode.port(Compass.NORTH)))));
+            tensorProxy.addLink(
+              config.apply(tensorProxy.port(Compass.SOUTH).linkTo(selNode.port(Compass.NORTH)))
+            )
+          );
 
           exportGraph.add(
-              selNode.addLink(
-                  config.apply(
-                      selNode
-                          .port(Compass.SOUTH)
-                          .linkTo(nodeProxy.port(port).port(Compass.NORTH)))));
-
+            selNode.addLink(
+              config.apply(
+                selNode.port(Compass.SOUTH).linkTo(nodeProxy.port(port).port(Compass.NORTH))
+              )
+            )
+          );
         } else {
           exportGraph.add(
-              nodeProxy.addLink(
-                  config.apply(
-                      nodeProxy
-                          .port(port)
-                          .port(Compass.SOUTH)
-                          .linkTo(selNode.port(Compass.NORTH)))));
+            nodeProxy.addLink(
+              config.apply(
+                nodeProxy.port(port).port(Compass.SOUTH).linkTo(selNode.port(Compass.NORTH))
+              )
+            )
+          );
 
           exportGraph.add(
-              selNode.addLink(
-                  config.apply(
-                      selNode.port(Compass.SOUTH).linkTo(tensorProxy.port(Compass.NORTH)))));
+            selNode.addLink(
+              config.apply(selNode.port(Compass.SOUTH).linkTo(tensorProxy.port(Compass.NORTH)))
+            )
+          );
         }
 
         // Force the selection nodes to cluster and layout in call order.
@@ -247,11 +262,8 @@ public class ApplicationNodeExporter implements GraphVisualizer.NodeTypeExporter
           MutableNode toProxy = Factory.mutNode(selNode.name().toString());
 
           fromProxy.addLink(
-              fromProxy
-                  .linkTo(toProxy)
-                  .with(Style.INVIS)
-                  .with("constraint", false)
-                  .with("weight", 2));
+            fromProxy.linkTo(toProxy).with(Style.INVIS).with("constraint", false).with("weight", 2)
+          );
           selNodeCluster.add(fromProxy, toProxy);
         }
         lastSelNodeId = selNode.name().toString();
@@ -270,18 +282,18 @@ public class ApplicationNodeExporter implements GraphVisualizer.NodeTypeExporter
    * @return The table.
    */
   public GH.TableWrapper selectionMapToIOConnectorsTable(
-      GraphVisualizer.ExportContext context,
-      Map<String, List<TensorSelection>> selectionMap,
-      boolean isInput) {
-
-    var inputTable =
-        GH.table()
-            .align(GH.HorizontalAlign.LEFT)
-            .fixedsize(true)
-            .border(0)
-            .cellborder(1)
-            .cellspacing(0)
-            .cellpadding(1);
+    GraphVisualizer.ExportContext context,
+    Map<String, List<TensorSelection>> selectionMap,
+    boolean isInput
+  ) {
+    var inputTable = GH
+      .table()
+      .align(GH.HorizontalAlign.LEFT)
+      .fixedsize(true)
+      .border(0)
+      .cellborder(1)
+      .cellspacing(0)
+      .cellpadding(1);
 
     var padRow = GH.tr();
     var labelRow = GH.tr();
@@ -300,10 +312,11 @@ public class ApplicationNodeExporter implements GraphVisualizer.NodeTypeExporter
         var sel = selectionMap.get(key).get(i);
         var color = context.getPrimaryColorForNode(sel.getTensorId());
 
-        GH.td(GH.bold(Integer.toString(i)))
-            .withParent(padRow)
-            .port("%s.%s.%d".formatted(isInput ? "inputs" : "outputs", key, i))
-            .bgcolor(color);
+        GH
+          .td(GH.bold(Integer.toString(i)))
+          .withParent(padRow)
+          .port("%s.%s.%d".formatted(isInput ? "inputs" : "outputs", key, i))
+          .bgcolor(color);
       }
 
       labelRow.add(GH.td(GH.bold(key)).bgcolor("white").colspan(argSize));
@@ -319,9 +332,10 @@ public class ApplicationNodeExporter implements GraphVisualizer.NodeTypeExporter
   }
 
   public List<GH.ElementWrapper<?>> selectionMapToDataRows(
-      GraphVisualizer.ExportContext context,
-      String selectionDesc,
-      Map<String, List<TensorSelection>> selectionMap) {
+    GraphVisualizer.ExportContext context,
+    String selectionDesc,
+    Map<String, List<TensorSelection>> selectionMap
+  ) {
     List<GH.ElementWrapper<?>> rows = new ArrayList<>();
 
     rows.add(context.renderDataTypeTitle(selectionDesc));
@@ -345,11 +359,13 @@ public class ApplicationNodeExporter implements GraphVisualizer.NodeTypeExporter
         var color = context.getPrimaryColorForNode(sel.getTensorId());
 
         selTable.add(
-            GH.tr(
-                GH.td().bgcolor(color).add(GH.bold(Integer.toString(i))),
-                GH.td().add(context.nodeAliasTable(sel.getTensorId())),
-                GH.td().add(GH.bold(sel.getRange().toRangeString())),
-                GH.td().add(GH.bold(sel.getRange().toShapeString()))));
+          GH.tr(
+            GH.td().bgcolor(color).add(GH.bold(Integer.toString(i))),
+            GH.td().add(context.nodeAliasTable(sel.getTensorId())),
+            GH.td().add(GH.bold(sel.getRange().toRangeString())),
+            GH.td().add(GH.bold(sel.getRange().toShapeString()))
+          )
+        );
       }
     }
     return rows;

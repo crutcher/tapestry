@@ -36,7 +36,7 @@ import loom.validation.ValidationIssue;
 @JsonSerialize(using = LoomNode.Serialization.NodeSerializer.class)
 @SuppressWarnings("unused") // NodeType
 public abstract class LoomNode<NodeType extends LoomNode<NodeType, BodyType>, BodyType>
-    implements HasToJsonString {
+  implements HasToJsonString {
 
   /**
    * Extensions to the auto-generated {@code @Builder} annotation for LoomNode.
@@ -48,10 +48,11 @@ public abstract class LoomNode<NodeType extends LoomNode<NodeType, BodyType>, Bo
    */
   @SuppressWarnings("unused")
   public abstract static class LoomNodeBuilder<
-      NodeType extends LoomNode<NodeType, BodyType>,
-      BodyType,
-      C extends LoomNode<NodeType, BodyType>,
-      B extends LoomNodeBuilder<NodeType, BodyType, C, B>> {
+    NodeType extends LoomNode<NodeType, BodyType>,
+    BodyType,
+    C extends LoomNode<NodeType, BodyType>,
+    B extends LoomNodeBuilder<NodeType, BodyType, C, B>
+  > {
 
     /**
      * Set an annotation on the node.
@@ -92,12 +93,22 @@ public abstract class LoomNode<NodeType extends LoomNode<NodeType, BodyType>, Bo
     }
   }
 
-  @JsonIgnore @Nullable private LoomGraph graph;
-  @Nonnull private final UUID id;
-  @Nonnull private final String type;
-  @Nullable private String label;
+  @JsonIgnore
+  @Nullable
+  private LoomGraph graph;
 
-  @Builder.Default @Nonnull private final Map<String, Object> annotations = new HashMap<>();
+  @Nonnull
+  private final UUID id;
+
+  @Nonnull
+  private final String type;
+
+  @Nullable
+  private String label;
+
+  @Builder.Default
+  @Nonnull
+  private final Map<String, Object> annotations = new HashMap<>();
 
   /**
    * Get the environment configured type alias for the node type.
@@ -126,7 +137,7 @@ public abstract class LoomNode<NodeType extends LoomNode<NodeType, BodyType>, Bo
    * @return true if the node has the annotation with the given key and class.
    */
   public final boolean hasAnnotation(String key, Class<?> cls) {
-    return annotations.containsKey(key) && cls.isInstance(annotations.get(key));
+    return (annotations.containsKey(key) && cls.isInstance(annotations.get(key)));
   }
 
   /**
@@ -135,7 +146,8 @@ public abstract class LoomNode<NodeType extends LoomNode<NodeType, BodyType>, Bo
    * @param key the annotation key.
    * @return the annotation value.
    */
-  @Nullable public final Object getAnnotation(String key) {
+  @Nullable
+  public final Object getAnnotation(String key) {
     return annotations.get(key);
   }
 
@@ -147,7 +159,8 @@ public abstract class LoomNode<NodeType extends LoomNode<NodeType, BodyType>, Bo
    * @return the annotation value.
    * @param <T> the annotation type.
    */
-  @Nullable public final <T> T getAnnotation(@Nonnull String key, @Nonnull Class<? extends T> cls) {
+  @Nullable
+  public final <T> T getAnnotation(@Nonnull String key, @Nonnull Class<? extends T> cls) {
     return cls.cast(annotations.get(key));
   }
 
@@ -210,7 +223,9 @@ public abstract class LoomNode<NodeType extends LoomNode<NodeType, BodyType>, Bo
    */
   public final void setAnnotationFromValue(@Nonnull String key, @Nonnull Object value) {
     setAnnotation(
-        key, JsonUtil.convertValue(value, assertGraph().getEnv().assertAnnotationClass(key)));
+      key,
+      JsonUtil.convertValue(value, assertGraph().getEnv().assertAnnotationClass(key))
+    );
   }
 
   /**
@@ -293,8 +308,10 @@ public abstract class LoomNode<NodeType extends LoomNode<NodeType, BodyType>, Bo
    * @return the body class.
    */
   public static Class<?> getBodyClass(Class<? extends LoomNode<?, ?>> nodeTypeClass) {
-    return (Class<?>)
-        ReflectionUtils.getTypeArgumentsForGenericSuperclass(nodeTypeClass, LoomNode.class)[1];
+    return (Class<?>) ReflectionUtils.getTypeArgumentsForGenericSuperclass(
+      nodeTypeClass,
+      LoomNode.class
+    )[1];
   }
 
   /**
@@ -350,6 +367,7 @@ public abstract class LoomNode<NodeType extends LoomNode<NodeType, BodyType>, Bo
 
   @NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
   public static final class Serialization {
+
     /**
      * A Jackson serializer for Node. We use a custom serializer because {@code @Delegate} applied
      * to a method in subclasses to delegate the type methods of {@code body} does not honor
@@ -359,10 +377,14 @@ public abstract class LoomNode<NodeType extends LoomNode<NodeType, BodyType>, Bo
      * @param <B> the type of the node body.
      */
     public static final class NodeSerializer<N extends LoomNode<N, B>, B>
-        extends JsonSerializer<LoomNode<N, B>> {
+      extends JsonSerializer<LoomNode<N, B>> {
+
       @Override
-      public void serialize(LoomNode<N, B> value, JsonGenerator gen, SerializerProvider serializers)
-          throws IOException {
+      public void serialize(
+        LoomNode<N, B> value,
+        JsonGenerator gen,
+        SerializerProvider serializers
+      ) throws IOException {
         gen.writeStartObject();
         gen.writeStringField("id", value.getId().toString());
         gen.writeStringField("type", value.getType());

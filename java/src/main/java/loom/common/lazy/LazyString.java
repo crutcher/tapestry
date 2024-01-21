@@ -9,6 +9,7 @@ import java.util.function.Supplier;
  * <p>Delegates methods to the internal string product.
  */
 public final class LazyString extends Thunk<String> {
+
   /**
    * Construct a LazyString from {#link String::format}.
    *

@@ -22,9 +22,8 @@ public class LoomGraphTest extends BaseTestClass {
 
     for (int i = 0; i < 10; i++) {
       graph.addNode(
-          GenericNode.builder()
-              .type("test")
-              .body(GenericNode.Body.builder().field("a", 12).build()));
+        GenericNode.builder().type("test").body(GenericNode.Body.builder().field("a", 12).build())
+      );
     }
 
     var nodeId = graph.newUnusedNodeId();
@@ -36,47 +35,51 @@ public class LoomGraphTest extends BaseTestClass {
     var env = CommonEnvironments.genericEnvironment();
     var graph = env.newGraph();
 
-    var node1 =
-        graph.addNode(
-            GenericNode.builder()
-                .label("foo")
-                .type("test")
-                .body(GenericNode.Body.builder().field("a", 12).build()));
+    var node1 = graph.addNode(
+      GenericNode
+        .builder()
+        .label("foo")
+        .type("test")
+        .body(GenericNode.Body.builder().field("a", 12).build())
+    );
 
     assertThat(graph.getNode(node1.getId())).isSameAs(node1);
     assertThat(graph.getNode(node1.getId().toString())).isSameAs(node1);
 
     assertThatExceptionOfType(IllegalArgumentException.class)
-        .isThrownBy(() -> graph.addNode(node1))
-        .withMessage("Graph already has node with id: %s".formatted(node1.getId()));
+      .isThrownBy(() -> graph.addNode(node1))
+      .withMessage("Graph already has node with id: %s".formatted(node1.getId()));
 
     {
       var graph2 = env.newGraph();
-      var node2 =
-          graph2.addNode(
-              GenericNode.builder()
-                  .label("foo")
-                  .type("test")
-                  .body(GenericNode.Body.builder().field("a", 12).build()));
+      var node2 = graph2.addNode(
+        GenericNode
+          .builder()
+          .label("foo")
+          .type("test")
+          .body(GenericNode.Body.builder().field("a", 12).build())
+      );
 
       assertThatExceptionOfType(IllegalArgumentException.class)
-          .isThrownBy(() -> graph.addNode(node2))
-          .withMessage("Node already belongs to a graph: %s".formatted(node2.getId()));
+        .isThrownBy(() -> graph.addNode(node2))
+        .withMessage("Node already belongs to a graph: %s".formatted(node2.getId()));
     }
 
-    var node2 =
-        graph.addNode(
-            GenericNode.builder()
-                .label("bar")
-                .type("test")
-                .body(GenericNode.Body.builder().field("a", 12).build()));
+    var node2 = graph.addNode(
+      GenericNode
+        .builder()
+        .label("bar")
+        .type("test")
+        .body(GenericNode.Body.builder().field("a", 12).build())
+    );
 
-    var node3 =
-        graph.addNode(
-            GenericNode.builder()
-                .label("qux")
-                .type("test")
-                .body(GenericNode.Body.builder().field("a", 12).build()));
+    var node3 = graph.addNode(
+      GenericNode
+        .builder()
+        .label("qux")
+        .type("test")
+        .body(GenericNode.Body.builder().field("a", 12).build())
+    );
 
     {
       // By Node
@@ -113,20 +116,21 @@ public class LoomGraphTest extends BaseTestClass {
     assertThat(graph.hasNode(nodeIdA)).isFalse();
     assertThat(graph.hasNode(nodeIdA.toString())).isFalse();
     assertThatExceptionOfType(IllegalStateException.class)
-        .isThrownBy(() -> graph.assertNode(nodeIdA));
+      .isThrownBy(() -> graph.assertNode(nodeIdA));
     assertThatExceptionOfType(IllegalStateException.class)
-        .isThrownBy(() -> graph.assertNode(nodeIdA.toString()));
+      .isThrownBy(() -> graph.assertNode(nodeIdA.toString()));
 
-    var nodeA =
-        graph.addNode(
-            GenericNode.builder()
-                .id(nodeIdA)
-                .type("test")
-                .body(GenericNode.Body.builder().field("a", 12).build()));
+    var nodeA = graph.addNode(
+      GenericNode
+        .builder()
+        .id(nodeIdA)
+        .type("test")
+        .body(GenericNode.Body.builder().field("a", 12).build())
+    );
     assertThat(nodeA)
-        .hasFieldOrPropertyWithValue("id", nodeIdA)
-        .hasFieldOrPropertyWithValue("type", "test")
-        .isInstanceOf(GenericNode.class);
+      .hasFieldOrPropertyWithValue("id", nodeIdA)
+      .hasFieldOrPropertyWithValue("type", "test")
+      .isInstanceOf(GenericNode.class);
 
     assertThat(graph.hasNode(nodeIdA)).isTrue();
     assertThat(graph.hasNode(nodeIdA.toString())).isTrue();
@@ -139,15 +143,15 @@ public class LoomGraphTest extends BaseTestClass {
     assertThat(graph.assertNode(nodeIdA, null, GenericNode.class)).isSameAs(nodeA);
     assertThat(graph.assertNode(nodeIdA.toString(), null, GenericNode.class)).isSameAs(nodeA);
     assertThatExceptionOfType(IllegalStateException.class)
-        .isThrownBy(() -> graph.assertNode(nodeIdA, "foo", GenericNode.class));
+      .isThrownBy(() -> graph.assertNode(nodeIdA, "foo", GenericNode.class));
     assertThatExceptionOfType(IllegalStateException.class)
-        .isThrownBy(() -> graph.assertNode(nodeIdA, "test", ExampleNode.class));
+      .isThrownBy(() -> graph.assertNode(nodeIdA, "test", ExampleNode.class));
   }
 
   @Test
   public void testGenericSerializer() {
     var source =
-        """
+      """
         {
            "id": "00000000-0000-0000-0000-000000000000",
            "nodes": [
@@ -178,11 +182,11 @@ public class LoomGraphTest extends BaseTestClass {
     graph.validate();
 
     assertThat(graph.assertNode("00000000-0000-0000-0000-000000000001"))
-        .hasFieldOrPropertyWithValue("label", "foo")
-        .isInstanceOf(GenericNode.class);
+      .hasFieldOrPropertyWithValue("label", "foo")
+      .isInstanceOf(GenericNode.class);
     assertThat(graph.assertNode("00000000-0000-0000-0000-000000000002"))
-        .hasFieldOrPropertyWithValue("label", "bar")
-        .isInstanceOf(GenericNode.class);
+      .hasFieldOrPropertyWithValue("label", "bar")
+      .isInstanceOf(GenericNode.class);
 
     assertEquivalentJson(graph.toJsonString(), source);
   }
@@ -190,7 +194,7 @@ public class LoomGraphTest extends BaseTestClass {
   @Test
   public void testBoundEnvironment() {
     var source =
-        """
+      """
             {
                "id": "00000000-0000-0000-0000-000000000000",
                "nodes": [
@@ -222,15 +226,15 @@ public class LoomGraphTest extends BaseTestClass {
     graph.validate();
 
     assertThat(graph.assertNode("00000000-0000-0000-0000-000000000001"))
-        .hasFieldOrPropertyWithValue("label", "foo")
-        .isInstanceOf(TensorNode.class)
-        .hasFieldOrPropertyWithValue("dtype", "int32")
-        .hasFieldOrPropertyWithValue("shape", ZTensor.newVector(2, 3));
+      .hasFieldOrPropertyWithValue("label", "foo")
+      .isInstanceOf(TensorNode.class)
+      .hasFieldOrPropertyWithValue("dtype", "int32")
+      .hasFieldOrPropertyWithValue("shape", ZTensor.newVector(2, 3));
     assertThat(graph.assertNode("00000000-0000-0000-0000-000000000002"))
-        .hasFieldOrPropertyWithValue("label", "bar")
-        .isInstanceOf(TensorNode.class)
-        .hasFieldOrPropertyWithValue("dtype", "float32")
-        .hasFieldOrPropertyWithValue("shape", ZTensor.newVector(4, 5));
+      .hasFieldOrPropertyWithValue("label", "bar")
+      .isInstanceOf(TensorNode.class)
+      .hasFieldOrPropertyWithValue("dtype", "float32")
+      .hasFieldOrPropertyWithValue("shape", ZTensor.newVector(4, 5));
 
     assertEquivalentJson(graph.toJsonString(), source);
   }
@@ -238,7 +242,7 @@ public class LoomGraphTest extends BaseTestClass {
   @Test
   public void testGenericNodeDelegation() {
     var source =
-        """
+      """
               {
                 "id": "00000000-0000-0000-0000-000000000000",
                 "type": "TreeNode",
@@ -262,20 +266,20 @@ public class LoomGraphTest extends BaseTestClass {
     assertEquivalentJson(source, node.toJsonString());
 
     assertEquivalentJson(
-        node.getBodyAsJson(),
-        """
+      node.getBodyAsJson(),
+      """
                   {
                     "dtype": "int32",
                     "shape": [2, 3]
                   }
-                  """);
+                  """
+    );
   }
 
   @Test
   public void testTensorNodeDelegation() {
-
     var source =
-        """
+      """
             {
                 "id": "00000000-0000-0000-0000-000000000000",
                 "type": "TensorNode",
@@ -303,63 +307,63 @@ public class LoomGraphTest extends BaseTestClass {
     assertEquivalentJson(source, node.toJsonString());
 
     assertEquivalentJson(
-        node.getBodyAsJson(),
-        """
+      node.getBodyAsJson(),
+      """
               {
                 "dtype": "int32",
                 "range": {"start":[0, 0], "end": [2, 3]}
               }
-              """);
+              """
+    );
 
     node.setBodyFromJson(
-        """
+      """
               {
                 "dtype": "float32",
                 "range": {"start":[0, 0], "end": [5, 6]}
               }
-              """);
+              """
+    );
     assertEquivalentJson(
-        node.getBodyAsJson(),
-        """
+      node.getBodyAsJson(),
+      """
               {
                 "dtype": "float32",
                 "range": {"start":[0, 0], "end": [5, 6]}
               }
-              """);
+              """
+    );
   }
 
   @Test
   public void test_nodeBuilder() {
-    var env =
-        LoomEnvironment.builder()
-            .build()
-            .autowireNodeTypeClass(NoteNode.TYPE, NoteNode.class)
-            .autowireNodeTypeClass(ExampleNode.TYPE, ExampleNode.class);
+    var env = LoomEnvironment
+      .builder()
+      .build()
+      .autowireNodeTypeClass(NoteNode.TYPE, NoteNode.class)
+      .autowireNodeTypeClass(ExampleNode.TYPE, ExampleNode.class);
     var graph = env.newGraph();
 
-    var node1 =
-        graph
-            .nodeBuilder()
-            .label("node1")
-            .type(ExampleNode.TYPE)
-            .body(ExampleNode.Body.builder().foo("bar").build())
-            .build();
+    var node1 = graph
+      .nodeBuilder()
+      .label("node1")
+      .type(ExampleNode.TYPE)
+      .body(ExampleNode.Body.builder().foo("bar").build())
+      .build();
 
-    var node2 =
-        graph
-            .nodeBuilder()
-            .label("node2")
-            .type(ExampleNode.TYPE)
-            .body("{\"foo\": \"baz\"}")
-            .build();
+    var node2 = graph
+      .nodeBuilder()
+      .label("node2")
+      .type(ExampleNode.TYPE)
+      .body("{\"foo\": \"baz\"}")
+      .build();
 
-    var node3 =
-        graph
-            .nodeBuilder()
-            .label("node3")
-            .type(ExampleNode.TYPE)
-            .body(Map.of("foo", "bar"))
-            .build();
+    var node3 = graph
+      .nodeBuilder()
+      .label("node3")
+      .type(ExampleNode.TYPE)
+      .body(Map.of("foo", "bar"))
+      .build();
 
     NoteNode.withBody(b -> b.message("hello world")).label("extraneous").addTo(graph);
 
@@ -381,12 +385,12 @@ public class LoomGraphTest extends BaseTestClass {
 
     assertThat(graph.nodeScan().type(NoteNode.TYPE).asList()).containsOnly(noteNode);
     assertThat(graph.nodeScan().type(NoteNode.TYPE).nodeClass(NoteNode.class).asList())
-        .containsOnly(noteNode);
+      .containsOnly(noteNode);
     assertThat(graph.nodeScan().nodeClass(NoteNode.class).asList()).containsOnly(noteNode);
 
     assertThat(graph.nodeScan().type(TensorNode.TYPE).asList()).containsOnly(tensorNode);
     assertThat(graph.nodeScan().type(TensorNode.TYPE).nodeClass(TensorNode.class).asList())
-        .containsOnly(tensorNode);
+      .containsOnly(tensorNode);
     assertThat(graph.nodeScan().nodeClass(TensorNode.class).asList()).containsOnly(tensorNode);
 
     assertThat(graph.nodeScan().type(TensorNode.TYPE).nodeClass(NoteNode.class).asList()).isEmpty();

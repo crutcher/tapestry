@@ -5,6 +5,7 @@ import loom.testing.CommonAssertions;
 import org.junit.Test;
 
 public class ZPointTest implements CommonAssertions {
+
   @Test
   public void test_clone() {
     var p = new ZPoint(1, 2, 3);
@@ -15,8 +16,8 @@ public class ZPointTest implements CommonAssertions {
   public void test_create() {
     var p = new ZPoint(1, 2, 3);
     assertThat(p.create(ZTensor.newVector(3, 4)))
-        .isInstanceOf(ZPoint.class)
-        .isEqualTo(new ZPoint(3, 4));
+      .isInstanceOf(ZPoint.class)
+      .isEqualTo(new ZPoint(3, 4));
   }
 
   @Test
@@ -45,10 +46,10 @@ public class ZPointTest implements CommonAssertions {
     }
 
     assertThatExceptionOfType(ZDimMissMatchError.class)
-        .isThrownBy(() -> new ZPoint(ZTensor.newScalar(3)));
+      .isThrownBy(() -> new ZPoint(ZTensor.newScalar(3)));
 
     assertThatExceptionOfType(ZDimMissMatchError.class)
-        .isThrownBy(() -> new ZPoint(ZTensor.newZeros(2, 3)));
+      .isThrownBy(() -> new ZPoint(ZTensor.newZeros(2, 3)));
   }
 
   @Test
@@ -62,11 +63,11 @@ public class ZPointTest implements CommonAssertions {
     assertThat(p.resolveDim(-3)).isEqualTo(0);
 
     assertThatExceptionOfType(IndexOutOfBoundsException.class)
-        .isThrownBy(() -> p.resolveDim(3))
-        .withMessageContaining("invalid dimension: index 3 out of range [0, 3)");
+      .isThrownBy(() -> p.resolveDim(3))
+      .withMessageContaining("invalid dimension: index 3 out of range [0, 3)");
     assertThatExceptionOfType(IndexOutOfBoundsException.class)
-        .isThrownBy(() -> p.resolveDim(-4))
-        .withMessageContaining("invalid dimension: index -4 out of range [0, 3)");
+      .isThrownBy(() -> p.resolveDim(-4))
+      .withMessageContaining("invalid dimension: index -4 out of range [0, 3)");
   }
 
   @Test
@@ -96,7 +97,7 @@ public class ZPointTest implements CommonAssertions {
   @Test
   public void test_toArray() {
     ZPoint p = new ZPoint(1, 2, 3);
-    assertThat(p.toArray()).isEqualTo(new int[] {1, 2, 3});
+    assertThat(p.toArray()).isEqualTo(new int[] { 1, 2, 3 });
   }
 
   @Test
@@ -131,7 +132,7 @@ public class ZPointTest implements CommonAssertions {
     var p01 = new ZPoint(0, 1);
 
     assertThat(DominanceOrderingOperations.partialOrderByGrid(zeros, zeros))
-        .isEqualTo(PartialOrdering.EQUAL);
+      .isEqualTo(PartialOrdering.EQUAL);
     assertThat(DominanceOrderingOperations.lt(zeros, zeros)).isFalse();
     assertThat(DominanceOrderingOperations.le(zeros, zeros)).isTrue();
     assertThat(DominanceOrderingOperations.eq(zeros, zeros)).isTrue();
@@ -147,7 +148,7 @@ public class ZPointTest implements CommonAssertions {
     assertThat(zeros.gt(zeros)).isFalse();
 
     assertThat(DominanceOrderingOperations.partialOrderByGrid(zeros, p01))
-        .isEqualTo(PartialOrdering.LESS_THAN);
+      .isEqualTo(PartialOrdering.LESS_THAN);
     assertThat(DominanceOrderingOperations.lt(zeros, p01)).isTrue();
     assertThat(DominanceOrderingOperations.le(zeros, p01)).isTrue();
     assertThat(DominanceOrderingOperations.eq(zeros, p01)).isFalse();
@@ -162,7 +163,7 @@ public class ZPointTest implements CommonAssertions {
     assertThat(zeros.gt(p01)).isFalse();
 
     assertThat(DominanceOrderingOperations.partialOrderByGrid(p01, zeros))
-        .isEqualTo(PartialOrdering.GREATER_THAN);
+      .isEqualTo(PartialOrdering.GREATER_THAN);
     assertThat(DominanceOrderingOperations.lt(p01, zeros)).isFalse();
     assertThat(DominanceOrderingOperations.le(p01, zeros)).isFalse();
     assertThat(DominanceOrderingOperations.eq(p01, zeros)).isFalse();
@@ -177,7 +178,7 @@ public class ZPointTest implements CommonAssertions {
     assertThat(p01.gt(zeros)).isTrue();
 
     assertThat(DominanceOrderingOperations.partialOrderByGrid(zeros, p10))
-        .isEqualTo(PartialOrdering.LESS_THAN);
+      .isEqualTo(PartialOrdering.LESS_THAN);
     assertThat(DominanceOrderingOperations.lt(zeros, p10)).isTrue();
     assertThat(DominanceOrderingOperations.le(zeros, p10)).isTrue();
     assertThat(DominanceOrderingOperations.eq(zeros, p10)).isFalse();
@@ -192,7 +193,7 @@ public class ZPointTest implements CommonAssertions {
     assertThat(zeros.gt(p10)).isFalse();
 
     assertThat(DominanceOrderingOperations.partialOrderByGrid(p01, p10))
-        .isEqualTo(PartialOrdering.INCOMPARABLE);
+      .isEqualTo(PartialOrdering.INCOMPARABLE);
     assertThat(DominanceOrderingOperations.lt(p01, p10)).isFalse();
     assertThat(DominanceOrderingOperations.le(p01, p10)).isFalse();
     assertThat(DominanceOrderingOperations.eq(p01, p10)).isFalse();

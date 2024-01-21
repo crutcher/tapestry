@@ -5,6 +5,7 @@ import loom.testing.BaseTestClass;
 import org.junit.Test;
 
 public class GenericNodeTest extends BaseTestClass {
+
   @Test
   public void test_body() {
     var body = GenericNode.Body.builder().field("foo", "bar").field("abc", 99).build();

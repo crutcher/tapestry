@@ -23,15 +23,17 @@ import loom.graph.constraints.OperationReferenceAgreementConstraint;
 @SuperBuilder
 @Getter
 @Setter
-@LoomEnvironment.WithConstraints({OperationReferenceAgreementConstraint.class})
+@LoomEnvironment.WithConstraints({ OperationReferenceAgreementConstraint.class })
 public final class OperationSignatureNode
-    extends LoomNode<OperationSignatureNode, OperationSignatureNode.Body> {
+  extends LoomNode<OperationSignatureNode, OperationSignatureNode.Body> {
+
   public static final String TYPE = "OperationSignature";
 
   @SuppressWarnings("unused")
   public abstract static class OperationSignatureNodeBuilder<
-          C extends OperationSignatureNode, B extends OperationSignatureNodeBuilder<C, B>>
-      extends LoomNodeBuilder<OperationSignatureNode, Body, C, B> {
+    C extends OperationSignatureNode, B extends OperationSignatureNodeBuilder<C, B>
+  >
+    extends LoomNodeBuilder<OperationSignatureNode, Body, C, B> {
     {
       // Set the node type.
       type(TYPE);
@@ -39,7 +41,7 @@ public final class OperationSignatureNode
   }
 
   @WithSchema(
-      """
+    """
     {
         "type": "object",
         "properties": {
@@ -98,20 +100,29 @@ public final class OperationSignatureNode
             }
         }
     }
-    """)
+    """
+  )
   @Value
   @Jacksonized
   @Builder
   @JsonInclude(JsonInclude.Include.NON_EMPTY)
-  @JsonPropertyOrder({"kernel", "params", "inputs", "outputs"})
+  @JsonPropertyOrder({ "kernel", "params", "inputs", "outputs" })
   public static class Body implements HasToJsonString {
+
     @JsonProperty(required = true)
     @Nonnull
     String kernel;
 
-    @Singular Map<String, Object> params;
-    @Singular @Nonnull Map<String, List<TensorSelection>> inputs;
-    @Singular @Nonnull Map<String, List<TensorSelection>> outputs;
+    @Singular
+    Map<String, Object> params;
+
+    @Singular
+    @Nonnull
+    Map<String, List<TensorSelection>> inputs;
+
+    @Singular
+    @Nonnull
+    Map<String, List<TensorSelection>> outputs;
   }
 
   public static OperationSignatureNodeBuilder<?, ?> withBody(Consumer<Body.BodyBuilder> cb) {
@@ -120,7 +131,7 @@ public final class OperationSignatureNode
     return builder().body(bodyBuilder.build());
   }
 
-  @Delegate(excludes = {HasToJsonString.class})
+  @Delegate(excludes = { HasToJsonString.class })
   @Nonnull
   private Body body;
 
@@ -128,12 +139,12 @@ public final class OperationSignatureNode
   public List<ApplicationNode> getApplicationNodes() {
     var id = getId();
     return assertGraph()
-        .nodeScan()
-        .type(ApplicationNode.TYPE)
-        .nodeClass(ApplicationNode.class)
-        .asStream()
-        .filter(appNode -> appNode.getOperationId().equals(id))
-        .sorted(Comparator.comparing(LoomNode::getId))
-        .toList();
+      .nodeScan()
+      .type(ApplicationNode.TYPE)
+      .nodeClass(ApplicationNode.class)
+      .asStream()
+      .filter(appNode -> appNode.getOperationId().equals(id))
+      .sorted(Comparator.comparing(LoomNode::getId))
+      .toList();
   }
 }

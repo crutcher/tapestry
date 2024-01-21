@@ -21,8 +21,10 @@ import loom.zspace.ZRange;
 @Immutable
 @Value
 public class IndexProjectionFunction implements HasToJsonString {
+
   @SuppressWarnings("unused")
   public static class IndexProjectionFunctionBuilder {
+
     /**
      * Build an ZAffineMap from a matrix.
      *
@@ -113,13 +115,17 @@ public class IndexProjectionFunction implements HasToJsonString {
   @JsonCreator
   @Builder
   static IndexProjectionFunction privateBuilder(
-      @Nonnull @JsonProperty(value = "affineMap") ZAffineMap affineMap,
-      @Nonnull @JsonProperty(value = "shape") ZPoint shape) {
+    @Nonnull @JsonProperty(value = "affineMap") ZAffineMap affineMap,
+    @Nonnull @JsonProperty(value = "shape") ZPoint shape
+  ) {
     return new IndexProjectionFunction(affineMap, shape);
   }
 
-  @Nonnull ZAffineMap affineMap;
-  @Nonnull ZPoint shape;
+  @Nonnull
+  ZAffineMap affineMap;
+
+  @Nonnull
+  ZPoint shape;
 
   /**
    * Create a new IndexProjectionFunction.
@@ -130,13 +136,16 @@ public class IndexProjectionFunction implements HasToJsonString {
   public IndexProjectionFunction(@Nonnull ZAffineMap affineMap, @Nullable HasZTensor shape) {
     this.affineMap = affineMap;
     this.shape =
-        shape == null ? ZPoint.newOnes(affineMap.outputNDim()) : shape.getTensor().newZPoint();
+      shape == null ? ZPoint.newOnes(affineMap.outputNDim()) : shape.getTensor().newZPoint();
 
     if (this.affineMap.outputNDim() != this.shape.getNDim()) {
       throw new IllegalArgumentException(
-          String.format(
-              "affineMap.outputDim() (%d) != shape.dim() (%d)",
-              this.affineMap.outputNDim(), this.shape.getNDim()));
+        String.format(
+          "affineMap.outputDim() (%d) != shape.dim() (%d)",
+          this.affineMap.outputNDim(),
+          this.shape.getNDim()
+        )
+      );
     }
   }
 
@@ -182,9 +191,10 @@ public class IndexProjectionFunction implements HasToJsonString {
    */
   @Nonnull
   public IndexProjectionFunction translate(@Nonnull HasZTensor offset) {
-    return IndexProjectionFunction.builder()
-        .affineMap(affineMap.translate(offset))
-        .shape(shape)
-        .build();
+    return IndexProjectionFunction
+      .builder()
+      .affineMap(affineMap.translate(offset))
+      .shape(shape)
+      .build();
   }
 }

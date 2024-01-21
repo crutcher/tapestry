@@ -13,40 +13,48 @@ import loom.validation.ValidationIssueCollector;
 @Data
 @Builder
 public class TypeSchemaConstraint implements LoomEnvironment.Constraint {
-  @Singular private final Map<String, LoomTypeSchema> nodeTypeSchemas;
-  @Singular private final Map<String, LoomTypeSchema> annotationTypeSchemas;
+
+  @Singular
+  private final Map<String, LoomTypeSchema> nodeTypeSchemas;
+
+  @Singular
+  private final Map<String, LoomTypeSchema> annotationTypeSchemas;
 
   @Override
   public void validateConstraint(
-      LoomEnvironment env, LoomGraph graph, ValidationIssueCollector collector) {
+    LoomEnvironment env,
+    LoomGraph graph,
+    ValidationIssueCollector collector
+  ) {
     graph
-        .nodeScan()
-        .asStream()
-        .forEach(
-            node -> {
-              var nodeSchema = nodeTypeSchemas.get(node.getType());
-              if (nodeSchema != null) {
-                nodeSchema.validateValue(
-                    env,
-                    graph,
-                    JsonPathUtils.concatJsonPath(node.getJsonPath(), "body"),
-                    node.getBody(),
-                    collector);
-              }
+      .nodeScan()
+      .asStream()
+      .forEach(node -> {
+        var nodeSchema = nodeTypeSchemas.get(node.getType());
+        if (nodeSchema != null) {
+          nodeSchema.validateValue(
+            env,
+            graph,
+            JsonPathUtils.concatJsonPath(node.getJsonPath(), "body"),
+            node.getBody(),
+            collector
+          );
+        }
 
-              node.getAnnotations()
-                  .forEach(
-                      (key, value) -> {
-                        var annotationSchema = annotationTypeSchemas.get(key);
-                        if (annotationSchema != null) {
-                          annotationSchema.validateValue(
-                              env,
-                              graph,
-                              JsonPathUtils.concatJsonPath(node.getJsonPath(), "annotations", key),
-                              value,
-                              collector);
-                        }
-                      });
-            });
+        node
+          .getAnnotations()
+          .forEach((key, value) -> {
+            var annotationSchema = annotationTypeSchemas.get(key);
+            if (annotationSchema != null) {
+              annotationSchema.validateValue(
+                env,
+                graph,
+                JsonPathUtils.concatJsonPath(node.getJsonPath(), "annotations", key),
+                value,
+                collector
+              );
+            }
+          });
+      });
   }
 }

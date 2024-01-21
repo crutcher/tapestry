@@ -16,8 +16,13 @@ public class ExportUtils {
 
   @Value
   public class JsonPathChain {
-    @Nullable JsonPathChain parent;
-    @Nonnull String selector;
+
+    @Nullable
+    JsonPathChain parent;
+
+    @Nonnull
+    String selector;
+
     int depth;
 
     public static JsonPathChain root() {
@@ -48,21 +53,20 @@ public class ExportUtils {
   }
 
   public void findLinks(
-      JsonPathChain jsonPathChain,
-      JsonNode data,
-      Predicate<UUID> isNode,
-      BiConsumer<String, UUID> onLink) {
-
+    JsonPathChain jsonPathChain,
+    JsonNode data,
+    Predicate<UUID> isNode,
+    BiConsumer<String, UUID> onLink
+  ) {
     switch (data.getNodeType()) {
       case OBJECT:
-        for (var it = data.fields(); it.hasNext(); ) {
+        for (var it = data.fields(); it.hasNext();) {
           var entry = it.next();
           var key = entry.getKey();
           var value = entry.getValue();
           findLinks(new JsonPathChain(jsonPathChain, key), value, isNode, onLink);
         }
         break;
-
       case ARRAY:
         var array = (ArrayNode) data;
         for (var idx = 0; idx < array.size(); ++idx) {
@@ -70,7 +74,6 @@ public class ExportUtils {
           findLinks(new JsonPathChain(jsonPathChain, "[%d]".formatted(idx)), value, isNode, onLink);
         }
         break;
-
       default:
         try {
           var id = UUID.fromString(data.asText());

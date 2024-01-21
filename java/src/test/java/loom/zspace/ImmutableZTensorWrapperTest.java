@@ -5,7 +5,9 @@ import loom.testing.BaseTestClass;
 import org.junit.Test;
 
 public class ImmutableZTensorWrapperTest extends BaseTestClass {
+
   public static class Wrapper extends ImmutableZTensorWrapper<Wrapper> {
+
     public Wrapper(HasZTensor tensor) {
       super(tensor);
     }
@@ -76,18 +78,18 @@ public class ImmutableZTensorWrapperTest extends BaseTestClass {
   public void test_eq() {
     Wrapper wrapper = createWrapper(ZTensor.newVector(1, 2, 3));
     assertThat(wrapper)
-        .isEqualTo(wrapper)
-        .isEqualTo(createWrapper(ZTensor.newVector(1, 2, 3)))
-        .isEqualTo(ZTensor.newVector(1, 2, 3))
-        .isNotEqualTo(createWrapper(ZTensor.newVector(1, 2, 4)))
-        .isNotEqualTo(createWrapper(ZTensor.newVector(1, 2, 3, 4)))
-        .isNotEqualTo(createWrapper(ZTensor.newVector(1, 2)))
-        .isNotEqualTo(null)
-        .isNotEqualTo(new Object());
+      .isEqualTo(wrapper)
+      .isEqualTo(createWrapper(ZTensor.newVector(1, 2, 3)))
+      .isEqualTo(ZTensor.newVector(1, 2, 3))
+      .isNotEqualTo(createWrapper(ZTensor.newVector(1, 2, 4)))
+      .isNotEqualTo(createWrapper(ZTensor.newVector(1, 2, 3, 4)))
+      .isNotEqualTo(createWrapper(ZTensor.newVector(1, 2)))
+      .isNotEqualTo(null)
+      .isNotEqualTo(new Object());
 
     assertThatExceptionOfType(ZDimMissMatchError.class)
-        .isThrownBy(() -> wrapper.eq(createWrapper(ZTensor.newVector(1, 2))))
-        .withMessage("ZDim shape mismatch: [3] != [2]");
+      .isThrownBy(() -> wrapper.eq(createWrapper(ZTensor.newVector(1, 2))))
+      .withMessage("ZDim shape mismatch: [3] != [2]");
   }
 
   @Test
@@ -102,8 +104,8 @@ public class ImmutableZTensorWrapperTest extends BaseTestClass {
     assertThat(wrapper.lt(createWrapper(ZTensor.newVector(5, 2, -1)))).isFalse();
 
     assertThatExceptionOfType(ZDimMissMatchError.class)
-        .isThrownBy(() -> wrapper.lt(createWrapper(ZTensor.newVector(1, 2))))
-        .withMessage("ZDim shape mismatch: [3] != [2]");
+      .isThrownBy(() -> wrapper.lt(createWrapper(ZTensor.newVector(1, 2))))
+      .withMessage("ZDim shape mismatch: [3] != [2]");
   }
 
   @Test
@@ -119,8 +121,8 @@ public class ImmutableZTensorWrapperTest extends BaseTestClass {
     assertThat(wrapper.le(createWrapper(ZTensor.newVector(5, 2, -1)))).isFalse();
 
     assertThatExceptionOfType(ZDimMissMatchError.class)
-        .isThrownBy(() -> wrapper.le(createWrapper(ZTensor.newVector(1, 2))))
-        .withMessage("ZDim shape mismatch: [3] != [2]");
+      .isThrownBy(() -> wrapper.le(createWrapper(ZTensor.newVector(1, 2))))
+      .withMessage("ZDim shape mismatch: [3] != [2]");
   }
 
   @Test
@@ -136,8 +138,8 @@ public class ImmutableZTensorWrapperTest extends BaseTestClass {
     assertThat(wrapper.gt(createWrapper(ZTensor.newVector(5, 2, -1)))).isFalse();
 
     assertThatExceptionOfType(ZDimMissMatchError.class)
-        .isThrownBy(() -> wrapper.gt(createWrapper(ZTensor.newVector(1, 2))))
-        .withMessage("ZDim shape mismatch: [3] != [2]");
+      .isThrownBy(() -> wrapper.gt(createWrapper(ZTensor.newVector(1, 2))))
+      .withMessage("ZDim shape mismatch: [3] != [2]");
   }
 
   @Test
@@ -153,8 +155,8 @@ public class ImmutableZTensorWrapperTest extends BaseTestClass {
     assertThat(wrapper.ge(createWrapper(ZTensor.newVector(5, 2, -1)))).isFalse();
 
     assertThatExceptionOfType(ZDimMissMatchError.class)
-        .isThrownBy(() -> wrapper.ge(createWrapper(ZTensor.newVector(1, 2))))
-        .withMessage("ZDim shape mismatch: [3] != [2]");
+      .isThrownBy(() -> wrapper.ge(createWrapper(ZTensor.newVector(1, 2))))
+      .withMessage("ZDim shape mismatch: [3] != [2]");
   }
 
   @Test
@@ -198,24 +200,23 @@ public class ImmutableZTensorWrapperTest extends BaseTestClass {
     {
       Wrapper wrapper = createWrapper(ZTensor.newVector(1, 2, 3));
       assertThat(wrapper.add(createWrapper(ZTensor.newVector(1, 2, 3))))
-          .isEqualTo(createWrapper(ZTensor.newVector(2, 4, 6)));
+        .isEqualTo(createWrapper(ZTensor.newVector(2, 4, 6)));
     }
     {
       Wrapper wrapper = createWrapper(ZTensor.newVector(1, 2, 3));
       assertThat(wrapper.add(10)).isEqualTo(createWrapper(ZTensor.newVector(11, 12, 13)));
     }
     {
-      Wrapper wrapper = createWrapper(ZTensor.newMatrix(new int[] {1}, new int[] {2}));
+      Wrapper wrapper = createWrapper(ZTensor.newMatrix(new int[] { 1 }, new int[] { 2 }));
       assertThat(wrapper.add(createWrapper(ZTensor.newVector(1, 2, 3))))
-          .isEqualTo(createWrapper(ZTensor.newMatrix(new int[] {2, 3, 4}, new int[] {3, 4, 5})));
+        .isEqualTo(createWrapper(ZTensor.newMatrix(new int[] { 2, 3, 4 }, new int[] { 3, 4, 5 })));
     }
 
     assertThatExceptionOfType(IndexOutOfBoundsException.class)
-        .isThrownBy(
-            () ->
-                createWrapper(ZTensor.newVector(1, 2, 3))
-                    .add(createWrapper(ZTensor.newVector(1, 2))))
-        .withMessage("cannot broadcast shapes: [3], [2]");
+      .isThrownBy(() ->
+        createWrapper(ZTensor.newVector(1, 2, 3)).add(createWrapper(ZTensor.newVector(1, 2)))
+      )
+      .withMessage("cannot broadcast shapes: [3], [2]");
   }
 
   @Test
@@ -223,24 +224,25 @@ public class ImmutableZTensorWrapperTest extends BaseTestClass {
     {
       Wrapper wrapper = createWrapper(ZTensor.newVector(1, 2, 3));
       assertThat(wrapper.sub(createWrapper(ZTensor.newVector(1, 2, 3))))
-          .isEqualTo(createWrapper(ZTensor.newVector(0, 0, 0)));
+        .isEqualTo(createWrapper(ZTensor.newVector(0, 0, 0)));
     }
     {
       Wrapper wrapper = createWrapper(ZTensor.newVector(1, 2, 3));
       assertThat(wrapper.sub(10)).isEqualTo(createWrapper(ZTensor.newVector(-9, -8, -7)));
     }
     {
-      Wrapper wrapper = createWrapper(ZTensor.newMatrix(new int[] {1}, new int[] {2}));
+      Wrapper wrapper = createWrapper(ZTensor.newMatrix(new int[] { 1 }, new int[] { 2 }));
       assertThat(wrapper.sub(createWrapper(ZTensor.newVector(1, 2, 3))))
-          .isEqualTo(createWrapper(ZTensor.newMatrix(new int[] {0, -1, -2}, new int[] {1, 0, -1})));
+        .isEqualTo(
+          createWrapper(ZTensor.newMatrix(new int[] { 0, -1, -2 }, new int[] { 1, 0, -1 }))
+        );
     }
 
     assertThatExceptionOfType(IndexOutOfBoundsException.class)
-        .isThrownBy(
-            () ->
-                createWrapper(ZTensor.newVector(1, 2, 3))
-                    .sub(createWrapper(ZTensor.newVector(1, 2))))
-        .withMessage("cannot broadcast shapes: [3], [2]");
+      .isThrownBy(() ->
+        createWrapper(ZTensor.newVector(1, 2, 3)).sub(createWrapper(ZTensor.newVector(1, 2)))
+      )
+      .withMessage("cannot broadcast shapes: [3], [2]");
   }
 
   @Test
@@ -248,24 +250,23 @@ public class ImmutableZTensorWrapperTest extends BaseTestClass {
     {
       Wrapper wrapper = createWrapper(ZTensor.newVector(1, 2, 3));
       assertThat(wrapper.mul(createWrapper(ZTensor.newVector(1, 2, 3))))
-          .isEqualTo(createWrapper(ZTensor.newVector(1, 4, 9)));
+        .isEqualTo(createWrapper(ZTensor.newVector(1, 4, 9)));
     }
     {
       Wrapper wrapper = createWrapper(ZTensor.newVector(1, 2, 3));
       assertThat(wrapper.mul(10)).isEqualTo(createWrapper(ZTensor.newVector(10, 20, 30)));
     }
     {
-      Wrapper wrapper = createWrapper(ZTensor.newMatrix(new int[] {1}, new int[] {2}));
+      Wrapper wrapper = createWrapper(ZTensor.newMatrix(new int[] { 1 }, new int[] { 2 }));
       assertThat(wrapper.mul(createWrapper(ZTensor.newVector(1, 2, 3))))
-          .isEqualTo(createWrapper(ZTensor.newMatrix(new int[] {1, 2, 3}, new int[] {2, 4, 6})));
+        .isEqualTo(createWrapper(ZTensor.newMatrix(new int[] { 1, 2, 3 }, new int[] { 2, 4, 6 })));
     }
 
     assertThatExceptionOfType(IndexOutOfBoundsException.class)
-        .isThrownBy(
-            () ->
-                createWrapper(ZTensor.newVector(1, 2, 3))
-                    .mul(createWrapper(ZTensor.newVector(1, 2))))
-        .withMessage("cannot broadcast shapes: [3], [2]");
+      .isThrownBy(() ->
+        createWrapper(ZTensor.newVector(1, 2, 3)).mul(createWrapper(ZTensor.newVector(1, 2)))
+      )
+      .withMessage("cannot broadcast shapes: [3], [2]");
   }
 
   @Test
@@ -273,31 +274,30 @@ public class ImmutableZTensorWrapperTest extends BaseTestClass {
     {
       Wrapper wrapper = createWrapper(ZTensor.newVector(1, 2, 3));
       assertThat(wrapper.div(createWrapper(ZTensor.newVector(1, 2, 3))))
-          .isEqualTo(createWrapper(ZTensor.newVector(1, 1, 1)));
+        .isEqualTo(createWrapper(ZTensor.newVector(1, 1, 1)));
     }
     {
       Wrapper wrapper = createWrapper(ZTensor.newVector(1, 2, 3));
       assertThat(wrapper.div(10)).isEqualTo(createWrapper(ZTensor.newVector(0, 0, 0)));
     }
     {
-      Wrapper wrapper = createWrapper(ZTensor.newMatrix(new int[] {1}, new int[] {2}));
+      Wrapper wrapper = createWrapper(ZTensor.newMatrix(new int[] { 1 }, new int[] { 2 }));
       assertThat(wrapper.div(createWrapper(ZTensor.newVector(1, 2, 3))))
-          .isEqualTo(createWrapper(ZTensor.newMatrix(new int[] {1, 0, 0}, new int[] {2, 1, 0})));
+        .isEqualTo(createWrapper(ZTensor.newMatrix(new int[] { 1, 0, 0 }, new int[] { 2, 1, 0 })));
     }
 
     {
       Wrapper wrapper = createWrapper(ZTensor.newVector(1, 2, 3));
       assertThatExceptionOfType(ArithmeticException.class).isThrownBy(() -> wrapper.div(0));
       assertThatExceptionOfType(ArithmeticException.class)
-          .isThrownBy(() -> wrapper.div(ZTensor.newVector(0, 1, 2)));
+        .isThrownBy(() -> wrapper.div(ZTensor.newVector(0, 1, 2)));
     }
 
     assertThatExceptionOfType(IndexOutOfBoundsException.class)
-        .isThrownBy(
-            () ->
-                createWrapper(ZTensor.newVector(1, 2, 3))
-                    .div(createWrapper(ZTensor.newVector(1, 2))))
-        .withMessage("cannot broadcast shapes: [3], [2]");
+      .isThrownBy(() ->
+        createWrapper(ZTensor.newVector(1, 2, 3)).div(createWrapper(ZTensor.newVector(1, 2)))
+      )
+      .withMessage("cannot broadcast shapes: [3], [2]");
   }
 
   @Test
@@ -305,31 +305,30 @@ public class ImmutableZTensorWrapperTest extends BaseTestClass {
     {
       Wrapper wrapper = createWrapper(ZTensor.newVector(1, 2, 3));
       assertThat(wrapper.mod(createWrapper(ZTensor.newVector(1, 2, 3))))
-          .isEqualTo(createWrapper(ZTensor.newVector(0, 0, 0)));
+        .isEqualTo(createWrapper(ZTensor.newVector(0, 0, 0)));
     }
     {
       Wrapper wrapper = createWrapper(ZTensor.newVector(1, 2, 3));
       assertThat(wrapper.mod(10)).isEqualTo(createWrapper(ZTensor.newVector(1, 2, 3)));
     }
     {
-      Wrapper wrapper = createWrapper(ZTensor.newMatrix(new int[] {1}, new int[] {2}));
+      Wrapper wrapper = createWrapper(ZTensor.newMatrix(new int[] { 1 }, new int[] { 2 }));
       assertThat(wrapper.mod(createWrapper(ZTensor.newVector(1, 2, 3))))
-          .isEqualTo(createWrapper(ZTensor.newMatrix(new int[] {0, 1, 1}, new int[] {0, 0, 2})));
+        .isEqualTo(createWrapper(ZTensor.newMatrix(new int[] { 0, 1, 1 }, new int[] { 0, 0, 2 })));
     }
 
     {
       Wrapper wrapper = createWrapper(ZTensor.newVector(1, 2, 3));
       assertThatExceptionOfType(ArithmeticException.class).isThrownBy(() -> wrapper.mod(0));
       assertThatExceptionOfType(ArithmeticException.class)
-          .isThrownBy(() -> wrapper.mod(ZTensor.newVector(0, 1, 2)));
+        .isThrownBy(() -> wrapper.mod(ZTensor.newVector(0, 1, 2)));
     }
 
     assertThatExceptionOfType(IndexOutOfBoundsException.class)
-        .isThrownBy(
-            () ->
-                createWrapper(ZTensor.newVector(1, 2, 3))
-                    .mod(createWrapper(ZTensor.newVector(1, 2))))
-        .withMessage("cannot broadcast shapes: [3], [2]");
+      .isThrownBy(() ->
+        createWrapper(ZTensor.newVector(1, 2, 3)).mod(createWrapper(ZTensor.newVector(1, 2)))
+      )
+      .withMessage("cannot broadcast shapes: [3], [2]");
   }
 
   @Test
@@ -337,24 +336,23 @@ public class ImmutableZTensorWrapperTest extends BaseTestClass {
     {
       Wrapper wrapper = createWrapper(ZTensor.newVector(1, 2, 3));
       assertThat(wrapper.pow(createWrapper(ZTensor.newVector(1, 2, 3))))
-          .isEqualTo(createWrapper(ZTensor.newVector(1, 4, 27)));
+        .isEqualTo(createWrapper(ZTensor.newVector(1, 4, 27)));
     }
     {
       Wrapper wrapper = createWrapper(ZTensor.newVector(1, 2, 3));
       assertThat(wrapper.pow(10)).isEqualTo(createWrapper(ZTensor.newVector(1, 1024, 59049)));
     }
     {
-      Wrapper wrapper = createWrapper(ZTensor.newMatrix(new int[] {1}, new int[] {2}));
+      Wrapper wrapper = createWrapper(ZTensor.newMatrix(new int[] { 1 }, new int[] { 2 }));
       assertThat(wrapper.pow(createWrapper(ZTensor.newVector(1, 2, 3))))
-          .isEqualTo(createWrapper(ZTensor.newMatrix(new int[] {1, 1, 1}, new int[] {2, 4, 8})));
+        .isEqualTo(createWrapper(ZTensor.newMatrix(new int[] { 1, 1, 1 }, new int[] { 2, 4, 8 })));
     }
 
     assertThatExceptionOfType(IndexOutOfBoundsException.class)
-        .isThrownBy(
-            () ->
-                createWrapper(ZTensor.newVector(1, 2, 3))
-                    .pow(createWrapper(ZTensor.newVector(1, 2))))
-        .withMessage("cannot broadcast shapes: [3], [2]");
+      .isThrownBy(() ->
+        createWrapper(ZTensor.newVector(1, 2, 3)).pow(createWrapper(ZTensor.newVector(1, 2)))
+      )
+      .withMessage("cannot broadcast shapes: [3], [2]");
   }
 
   @Test
@@ -362,30 +360,29 @@ public class ImmutableZTensorWrapperTest extends BaseTestClass {
     {
       Wrapper wrapper = createWrapper(ZTensor.newVector(10, 19, 8));
       assertThat(wrapper.log(createWrapper(ZTensor.newVector(2, 2, 3))))
-          .isEqualTo(createWrapper(ZTensor.newVector(3, 4, 1)));
+        .isEqualTo(createWrapper(ZTensor.newVector(3, 4, 1)));
     }
     {
       Wrapper wrapper = createWrapper(ZTensor.newVector(10, 19, 8));
       assertThat(wrapper.log(2)).isEqualTo(createWrapper(ZTensor.newVector(3, 4, 3)));
     }
     {
-      Wrapper wrapper = createWrapper(ZTensor.newMatrix(new int[] {14}, new int[] {8}));
+      Wrapper wrapper = createWrapper(ZTensor.newMatrix(new int[] { 14 }, new int[] { 8 }));
       assertThat(wrapper.log(createWrapper(ZTensor.newVector(2, 2, 3))))
-          .isEqualTo(createWrapper(ZTensor.newMatrix(new int[] {3, 3, 2}, new int[] {3, 3, 1})));
+        .isEqualTo(createWrapper(ZTensor.newMatrix(new int[] { 3, 3, 2 }, new int[] { 3, 3, 1 })));
     }
 
     {
       Wrapper wrapper = createWrapper(ZTensor.newVector(1, 2, 3));
       assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> wrapper.log(0));
       assertThatExceptionOfType(IllegalArgumentException.class)
-          .isThrownBy(() -> wrapper.log(ZTensor.newVector(0, 1, 2)));
+        .isThrownBy(() -> wrapper.log(ZTensor.newVector(0, 1, 2)));
     }
 
     assertThatExceptionOfType(IndexOutOfBoundsException.class)
-        .isThrownBy(
-            () ->
-                createWrapper(ZTensor.newVector(1, 2, 3))
-                    .log(createWrapper(ZTensor.newVector(1, 2))))
-        .withMessage("cannot broadcast shapes: [3], [2]");
+      .isThrownBy(() ->
+        createWrapper(ZTensor.newVector(1, 2, 3)).log(createWrapper(ZTensor.newVector(1, 2)))
+      )
+      .withMessage("cannot broadcast shapes: [3], [2]");
   }
 }

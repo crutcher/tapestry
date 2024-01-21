@@ -24,10 +24,12 @@ public class ReflectionUtils {
     try {
       var argClasses = Arrays.stream(args).map(Object::getClass).toArray(Class<?>[]::new);
       return cls.getConstructor(argClasses).newInstance(args);
-    } catch (NoSuchMethodException
-        | InvocationTargetException
-        | IllegalAccessException
-        | InstantiationException e) {
+    } catch (
+      NoSuchMethodException
+      | InvocationTargetException
+      | IllegalAccessException
+      | InstantiationException e
+    ) {
       throw new RuntimeException(e);
     }
   }
@@ -54,7 +56,9 @@ public class ReflectionUtils {
    * @param <T> the class type
    */
   public <T> Type[] getTypeArgumentsForGenericSuperclass(
-      Class<T> cls, Class<? super T> superclass) {
+    Class<T> cls,
+    Class<? super T> superclass
+  ) {
     Class<?> cur = cls;
     while (true) {
       if (cur == null) {

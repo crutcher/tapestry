@@ -27,6 +27,7 @@ import loom.validation.ValidationIssueCollector;
 @Data
 @Builder
 public final class LoomEnvironment {
+
   /** Constraint interface for graph validating plugins. */
   @FunctionalInterface
   public interface Constraint {
@@ -40,24 +41,32 @@ public final class LoomEnvironment {
     default void checkRequirements(LoomEnvironment env) {}
 
     void validateConstraint(
-        LoomEnvironment env, LoomGraph graph, ValidationIssueCollector issueCollector);
+      LoomEnvironment env,
+      LoomGraph graph,
+      ValidationIssueCollector issueCollector
+    );
   }
 
-  @Target({ElementType.TYPE})
+  @Target({ ElementType.TYPE })
   @Retention(RetentionPolicy.RUNTIME)
   public @interface WithConstraints {
     Class<? extends Constraint>[] value();
   }
 
-  @Nullable private Class<? extends LoomNode<?, ?>> defaultNodeTypeClass;
+  @Nullable
+  private Class<? extends LoomNode<?, ?>> defaultNodeTypeClass;
+
   private final Map<String, Class<? extends LoomNode<?, ?>>> nodeTypeClasses = new HashMap<>();
 
-  @Nullable private Class<?> defaultAnnotationTypeClass;
+  @Nullable
+  private Class<?> defaultAnnotationTypeClass;
+
   private final Map<String, Class<?>> annotationTypeClasses = new HashMap<>();
 
   private final List<Constraint> constraints = new ArrayList<>();
 
-  @Builder.Default private final JsonSchemaManager jsonSchemaManager = new JsonSchemaManager();
+  @Builder.Default
+  private final JsonSchemaManager jsonSchemaManager = new JsonSchemaManager();
 
   /**
    * Add a node type class to the LoomEnvironment.
@@ -67,7 +76,9 @@ public final class LoomEnvironment {
    * @return this LoomEnvironment.
    */
   public LoomEnvironment addNodeTypeClass(
-      String type, Class<? extends LoomNode<?, ?>> nodeTypeClass) {
+    String type,
+    Class<? extends LoomNode<?, ?>> nodeTypeClass
+  ) {
     this.nodeTypeClasses.put(type, nodeTypeClass);
     return this;
   }
@@ -80,13 +91,17 @@ public final class LoomEnvironment {
    * @return this LoomEnvironment.
    */
   public LoomEnvironment autowireNodeTypeClass(
-      String type, Class<? extends LoomNode<?, ?>> nodeTypeClass) {
+    String type,
+    Class<? extends LoomNode<?, ?>> nodeTypeClass
+  ) {
     addNodeTypeClass(type, nodeTypeClass);
     addConstraint(
-        NodeBodySchemaConstraint.builder()
-            .nodeType(type)
-            .withSchemaFromNodeClass(nodeTypeClass)
-            .build());
+      NodeBodySchemaConstraint
+        .builder()
+        .nodeType(type)
+        .withSchemaFromNodeClass(nodeTypeClass)
+        .build()
+    );
     for (var withConstraints : nodeTypeClass.getAnnotationsByType(WithConstraints.class)) {
       for (var cls : withConstraints.value()) {
         addConstraint(createConstraint(cls));
@@ -128,7 +143,7 @@ public final class LoomEnvironment {
    * @return true if the node type is supported.
    */
   public boolean supportsNodeType(String type) {
-    return defaultNodeTypeClass != null || nodeTypeClasses.containsKey(type);
+    return (defaultNodeTypeClass != null || nodeTypeClasses.containsKey(type));
   }
 
   /**
@@ -149,7 +164,8 @@ public final class LoomEnvironment {
    * @param type the type of the node.
    * @return the class representing the node type, or null if the type is not found.
    */
-  @Nullable public Class<? extends LoomNode<?, ?>> classForType(String type) {
+  @Nullable
+  public Class<? extends LoomNode<?, ?>> classForType(String type) {
     var nodeTypeClass = nodeTypeClasses.get(type);
     if (nodeTypeClass == null) {
       nodeTypeClass = defaultNodeTypeClass;
@@ -222,7 +238,11 @@ public final class LoomEnvironment {
   @Nonnull
   public Class<?> assertAnnotationClass(String key) {
     return CheckThat.valueIsNotNull(
-        getAnnotationClass(key), IllegalStateException.class, "Unknown annotation key: %s", key);
+      getAnnotationClass(key),
+      IllegalStateException.class,
+      "Unknown annotation key: %s",
+      key
+    );
   }
 
   /**
@@ -284,7 +304,6 @@ public final class LoomEnvironment {
       var key = entry.getKey();
       if (key.equals("id")) {
         graph.setId(UUID.fromString(entry.getValue().asText()));
-
       } else if (key.equals("nodes")) {
         for (var nodeTree : entry.getValue()) {
           graph.addNode(nodeTree);
@@ -316,7 +335,7 @@ public final class LoomEnvironment {
    * @param issueCollector the ValidationIssueCollector.
    */
   public void validateGraph(LoomGraph graph, ValidationIssueCollector issueCollector) {
-    for (var nodeIt = graph.nodeScan().asStream().iterator(); nodeIt.hasNext(); ) {
+    for (var nodeIt = graph.nodeScan().asStream().iterator(); nodeIt.hasNext();) {
       var node = nodeIt.next();
       var type = node.getType();
       var nodeClass = node.getClass();
@@ -324,18 +343,22 @@ public final class LoomEnvironment {
 
       if (expectedClass == null) {
         issueCollector.addIssue(
-            ValidationIssue.builder()
-                .type(LoomConstants.NODE_VALIDATION_ERROR)
-                .summary("Unknown node type: " + type)
-                .context(node.asValidationContext("Node"))
-                .build());
+          ValidationIssue
+            .builder()
+            .type(LoomConstants.NODE_VALIDATION_ERROR)
+            .summary("Unknown node type: " + type)
+            .context(node.asValidationContext("Node"))
+            .build()
+        );
       } else if (!expectedClass.isAssignableFrom(nodeClass)) {
         issueCollector.addIssue(
-            ValidationIssue.builder()
-                .type(LoomConstants.NODE_VALIDATION_ERROR)
-                .summary("Node type mismatch: " + type + " is " + nodeClass)
-                .context(node.asValidationContext("Node"))
-                .build());
+          ValidationIssue
+            .builder()
+            .type(LoomConstants.NODE_VALIDATION_ERROR)
+            .summary("Node type mismatch: " + type + " is " + nodeClass)
+            .context(node.asValidationContext("Node"))
+            .build()
+        );
       }
 
       for (var entry : node.getAnnotations().entrySet()) {
@@ -346,18 +369,22 @@ public final class LoomEnvironment {
         var expectedAnnotationClass = getAnnotationClass(key);
         if (expectedAnnotationClass == null) {
           issueCollector.addIssue(
-              ValidationIssue.builder()
-                  .type(LoomConstants.NODE_VALIDATION_ERROR)
-                  .summary("Unknown annotation key: " + key)
-                  .context(node.asValidationContext("Node"))
-                  .build());
+            ValidationIssue
+              .builder()
+              .type(LoomConstants.NODE_VALIDATION_ERROR)
+              .summary("Unknown annotation key: " + key)
+              .context(node.asValidationContext("Node"))
+              .build()
+          );
         } else if (!expectedAnnotationClass.isAssignableFrom(annotationClass)) {
           issueCollector.addIssue(
-              ValidationIssue.builder()
-                  .type(LoomConstants.NODE_VALIDATION_ERROR)
-                  .summary("Annotation type mismatch: " + key + " is " + annotationClass)
-                  .context(node.asValidationContext("Node"))
-                  .build());
+            ValidationIssue
+              .builder()
+              .type(LoomConstants.NODE_VALIDATION_ERROR)
+              .summary("Annotation type mismatch: " + key + " is " + annotationClass)
+              .context(node.asValidationContext("Node"))
+              .build()
+          );
         }
       }
     }

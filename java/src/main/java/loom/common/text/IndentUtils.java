@@ -54,9 +54,10 @@ public class IndentUtils {
    * @return the indented text.
    */
   public String indent(String prefix, List<String> lines) {
-    return lines.stream()
-        .map(line -> (prefix + line).stripTrailing())
-        .collect(Collectors.joining("\n"));
+    return lines
+      .stream()
+      .map(line -> (prefix + line).stripTrailing())
+      .collect(Collectors.joining("\n"));
   }
 
   /**

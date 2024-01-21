@@ -41,11 +41,12 @@ spotless {
     java {
         importOrder()
         removeUnusedImports()
-        googleJavaFormat()
         formatAnnotations()
         trimTrailingWhitespace()
         indentWithSpaces()
         endWithNewline()
+        prettier(mapOf("prettier" to "2.8.8", "prettier-plugin-java" to "2.2.0"))
+            .config(mapOf("parser" to "java", "tabWidth" to 2, "printWidth" to 100, "bracketSameLine" to true))
     }
     kotlinGradle {
         target("*.gradle.kts")

@@ -4,6 +4,7 @@ import loom.testing.BaseTestClass;
 import org.junit.Test;
 
 public class LazyStringTest extends BaseTestClass {
+
   @Test
   public void test_format() {
     var lazyString = LazyString.format("Hello %s", "World");

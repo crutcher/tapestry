@@ -36,18 +36,29 @@ public class GraphVisualizer {
     Graphviz.useEngine(new GraphvizCmdLineEngine());
   }
 
-  @Builder.Default private final boolean displayColorLegend = false;
-  @Builder.Default private final boolean foldApplicationNodes = true;
+  @Builder.Default
+  private final boolean displayColorLegend = false;
 
-  @Builder.Default private final String backgroundColor = "#E2E2E2";
+  @Builder.Default
+  private final boolean foldApplicationNodes = true;
 
-  @Builder.Default private final int minLabelLen = 6;
-  @Builder.Default private final Rank.RankDir rankDir = Rank.RankDir.TOP_TO_BOTTOM;
+  @Builder.Default
+  private final String backgroundColor = "#E2E2E2";
 
-  @Builder.Default private double graphScale = 2.5;
+  @Builder.Default
+  private final int minLabelLen = 6;
 
-  @Builder.Default private Map<String, NodeTypeExporter> nodeTypeExporters = new HashMap<>();
-  @Builder.Default private NodeTypeExporter defaultNodeTypeExporter = new DefaultNodeExporter();
+  @Builder.Default
+  private final Rank.RankDir rankDir = Rank.RankDir.TOP_TO_BOTTOM;
+
+  @Builder.Default
+  private double graphScale = 2.5;
+
+  @Builder.Default
+  private Map<String, NodeTypeExporter> nodeTypeExporters = new HashMap<>();
+
+  @Builder.Default
+  private NodeTypeExporter defaultNodeTypeExporter = new DefaultNodeExporter();
 
   public NodeTypeExporter exporterForNodeType(String type) {
     var exp = nodeTypeExporters.get(type);
@@ -73,9 +84,13 @@ public class GraphVisualizer {
   }
 
   public static class DefaultNodeExporter implements NodeTypeExporter {
+
     @Override
     public void exportNode(
-        GraphVisualizer visualizer, ExportContext context, LoomNode<?, ?> loomNode) {
+      GraphVisualizer visualizer,
+      ExportContext context,
+      LoomNode<?, ?> loomNode
+    ) {
       var gvNode = context.standardNodePrefix(loomNode);
       context.maybeRenderAnnotations(loomNode);
 
@@ -84,26 +99,28 @@ public class GraphVisualizer {
       gvNode.add(Color.named("gray").fill());
 
       gvNode.add(
-          asHtmlLabel(
-              GH.table()
-                  .border(0)
-                  .cellborder(0)
-                  .cellspacing(2)
-                  .cellpadding(2)
-                  .bgcolor("white")
-                  .add(
-                      context.renderDataTable(
-                          loomNode.getTypeAlias(), loomNode.getBodyAsJsonNode()))));
+        asHtmlLabel(
+          GH
+            .table()
+            .border(0)
+            .cellborder(0)
+            .cellspacing(2)
+            .cellpadding(2)
+            .bgcolor("white")
+            .add(context.renderDataTable(loomNode.getTypeAlias(), loomNode.getBodyAsJsonNode()))
+        )
+      );
 
       ExportUtils.findLinks(
-          loomNode.getBodyAsJsonNode(),
-          context.getGraph()::hasNode,
-          (path, targetId) -> {
-            // Remove "$." prefix.
-            var p = path.substring(2);
+        loomNode.getBodyAsJsonNode(),
+        context.getGraph()::hasNode,
+        (path, targetId) -> {
+          // Remove "$." prefix.
+          var p = path.substring(2);
 
-            context.addLink(loomNode.getId(), targetId, link -> link.with(Label.of(p)));
-          });
+          context.addLink(loomNode.getId(), targetId, link -> link.with(Label.of(p)));
+        }
+      );
     }
   }
 
@@ -113,7 +130,9 @@ public class GraphVisualizer {
 
   @Data
   public class ExportContext {
-    @Nonnull private final LoomGraph graph;
+
+    @Nonnull
+    private final LoomGraph graph;
 
     public ExportContext(@Nonnull LoomGraph graph) {
       this.graph = Objects.requireNonNull(graph);
@@ -122,21 +141,26 @@ public class GraphVisualizer {
     @Getter(lazy = true)
     private final Map<UUID, String> nodeHexAliasMap = renderNodeHexAliasMap();
 
-    @Getter private MutableGraph exportGraph = null;
+    @Getter
+    private MutableGraph exportGraph = null;
 
     @Getter(lazy = true)
     private final Graphviz graphviz = renderGraphviz();
 
     private Map<UUID, String> renderNodeHexAliasMap() {
       return AliasUtils.uuidAliasMap(
-          getGraph().nodeScan().asStream().map(LoomNode::getId).toList(), minLabelLen);
+        getGraph().nodeScan().asStream().map(LoomNode::getId).toList(),
+        minLabelLen
+      );
     }
 
-    @Nullable private LoomNode<?, ?> maybeNode(UUID id) {
+    @Nullable
+    private LoomNode<?, ?> maybeNode(UUID id) {
       return graph.getNode(id);
     }
 
-    @Nullable private LoomNode<?, ?> maybeNode(String idString) {
+    @Nullable
+    private LoomNode<?, ?> maybeNode(String idString) {
       try {
         var id = UUID.fromString(idString);
         return maybeNode(id);
@@ -153,11 +177,13 @@ public class GraphVisualizer {
     public void sameRank(Object... nodeIds) {
       var nodes = Arrays.stream(nodeIds).map(Object::toString).map(Factory::mutNode).toList();
       exportGraph.add(
-          Factory.mutGraph()
-              .setDirected(true)
-              .graphAttrs()
-              .add(Rank.inSubgraph(Rank.RankType.SAME))
-              .add(nodes));
+        Factory
+          .mutGraph()
+          .setDirected(true)
+          .graphAttrs()
+          .add(Rank.inSubgraph(Rank.RankType.SAME))
+          .add(nodes)
+      );
     }
 
     public void addLink(Object fromId, Object toId, Function<Link, Link> config) {
@@ -186,13 +212,13 @@ public class GraphVisualizer {
       exportGraph.graphAttrs().add("bgcolor", backgroundColor);
 
       if (displayColorLegend) {
-        var table =
-            GH.table()
-                .border(0)
-                .cellborder(0)
-                .cellspacing(0)
-                .cellpadding(0)
-                .add(GH.td().colspan(2).add(GH.bold("Color Legend")));
+        var table = GH
+          .table()
+          .border(0)
+          .cellborder(0)
+          .cellspacing(0)
+          .cellpadding(0)
+          .add(GH.td().colspan(2).add(GH.bold("Color Legend")));
 
         table.add(GH.td().colspan(2).add(GH.bold("Node Edge Colors")));
         for (var color : NODE_COLORS) {
@@ -201,7 +227,7 @@ public class GraphVisualizer {
         exportGraph.add(Factory.mutNode("colors").add(Shape.NONE).add(asHtmlLabel(table)));
       }
 
-      for (var nodeIt = graph.nodeScan().asStream().iterator(); nodeIt.hasNext(); ) {
+      for (var nodeIt = graph.nodeScan().asStream().iterator(); nodeIt.hasNext();) {
         var loomNode = nodeIt.next();
         exporterForNodeType(loomNode.getType()).exportNode(GraphVisualizer.this, this, loomNode);
       }
@@ -210,13 +236,13 @@ public class GraphVisualizer {
     public MutableNode standardNodePrefix(LoomNode<?, ?> node) {
       var gvnode = Factory.mutNode(node.getId().toString());
 
-      var table =
-          GH.table()
-              .border(0)
-              .cellborder(0)
-              .cellspacing(0)
-              .cellpadding(0)
-              .add(nodeAliasTable(node.getId()));
+      var table = GH
+        .table()
+        .border(0)
+        .cellborder(0)
+        .cellspacing(0)
+        .cellpadding(0)
+        .add(nodeAliasTable(node.getId()));
       if (node.getLabel() != null) {
         table.add(GH.font().color("green").add(GH.bold("\"%s\"".formatted(node.getLabel()))));
       }
@@ -245,13 +271,17 @@ public class GraphVisualizer {
       aNode.add(Color.rgb("#45eebf").fill());
 
       var wrapperTable = GH.table().border(0).cellborder(0).cellspacing(2).cellpadding(2);
-      for (var entry :
-          annotations.entrySet().stream().sorted(Map.Entry.comparingByKey()).toList()) {
+      for (var entry : annotations
+        .entrySet()
+        .stream()
+        .sorted(Map.Entry.comparingByKey())
+        .toList()) {
         renderDataTable(
-                env.getAnnotationTypeAlias(entry.getKey()),
-                (ObjectNode) JsonUtil.valueToJsonNodeTree(entry.getValue()))
-            .bgcolor("white")
-            .withParent(wrapperTable);
+          env.getAnnotationTypeAlias(entry.getKey()),
+          (ObjectNode) JsonUtil.valueToJsonNodeTree(entry.getValue())
+        )
+          .bgcolor("white")
+          .withParent(wrapperTable);
       }
 
       aNode.add(asHtmlLabel(wrapperTable));
@@ -259,29 +289,31 @@ public class GraphVisualizer {
       exportGraph.add(aNode);
 
       addLink(
-          nodeId,
-          gvAnnotationNodeId,
-          link ->
-              link.with(Arrow.DOT.open().and(Arrow.DOT.open())).with(Style.BOLD).with("weight", 5));
+        nodeId,
+        gvAnnotationNodeId,
+        link -> link.with(Arrow.DOT.open().and(Arrow.DOT.open())).with(Style.BOLD).with("weight", 5)
+      );
 
       sameRank(nodeId, gvAnnotationNodeId);
     }
 
     public GH.TableDataWrapper renderDataTypeTitle(String title) {
-      return GH.td()
-          .colspan(2)
-          .align(GH.TableDataAlign.LEFT)
-          .add(GH.font().color("teal").add(GH.bold(" %s ".formatted(title))));
+      return GH
+        .td()
+        .colspan(2)
+        .align(GH.TableDataAlign.LEFT)
+        .add(GH.font().color("teal").add(GH.bold(" %s ".formatted(title))));
     }
 
     public GH.TableWrapper renderDataTable(String title, ObjectNode data) {
-      return GH.table()
-          .border(0)
-          .cellborder(1)
-          .cellspacing(0)
-          .cellpadding(0)
-          .add(renderDataTypeTitle(title))
-          .addAll(jsonToDataKeyValueTRs(data));
+      return GH
+        .table()
+        .border(0)
+        .cellborder(1)
+        .cellspacing(0)
+        .cellpadding(0)
+        .add(renderDataTypeTitle(title))
+        .addAll(jsonToDataKeyValueTRs(data));
     }
 
     private Graphviz renderGraphviz() {
@@ -293,29 +325,32 @@ public class GraphVisualizer {
     }
 
     public GH.TableDataWrapper asDataKeyTD(String key) {
-      return GH.td()
-          .align(GH.TableDataAlign.RIGHT)
-          .valign(GH.VerticalAlign.TOP)
-          .add(GH.bold(" %s ".formatted(key)));
+      return GH
+        .td()
+        .align(GH.TableDataAlign.RIGHT)
+        .valign(GH.VerticalAlign.TOP)
+        .add(GH.bold(" %s ".formatted(key)));
     }
 
     public GH.TableDataWrapper asDataValueTD(Object... value) {
-      return GH.td()
-          .align(GH.TableDataAlign.LEFT)
-          .valign(GH.VerticalAlign.TOP)
-          .add(GH.bold().add(" ").add(value).add(" "));
+      return GH
+        .td()
+        .align(GH.TableDataAlign.LEFT)
+        .valign(GH.VerticalAlign.TOP)
+        .add(GH.bold().add(" ").add(value).add(" "));
     }
 
     public List<GH.ElementWrapper<?>> jsonToDataKeyValueTRs(ObjectNode node) {
       List<GH.ElementWrapper<?>> rows = new ArrayList<>();
-      node.fields()
-          .forEachRemaining(
-              entry -> rows.add(asDataKeyValueTR(entry.getKey(), jsonToElement(entry.getValue()))));
+      node
+        .fields()
+        .forEachRemaining(entry ->
+          rows.add(asDataKeyValueTR(entry.getKey(), jsonToElement(entry.getValue())))
+        );
       return rows;
     }
 
     public GH.ElementWrapper<?> jsonToElement(JsonNode node) {
-
       if (node instanceof ObjectNode objectNode) {
         if (objectNode.has("affineMap")) {
           try {
@@ -328,11 +363,12 @@ public class GraphVisualizer {
         if (objectNode.has("start")) {
           try {
             var zrange = JsonUtil.convertValue(objectNode, ZRange.class);
-            return GH.table()
-                .border(0)
-                .cellborder(0)
-                .add(GH.bold(zrange.toRangeString()))
-                .add(GH.bold(zrange.toShapeString()));
+            return GH
+              .table()
+              .border(0)
+              .cellborder(0)
+              .add(GH.bold(zrange.toRangeString()))
+              .add(GH.bold(zrange.toShapeString()));
           } catch (Exception ignored) {
             // ignore
           }
@@ -340,13 +376,15 @@ public class GraphVisualizer {
         if (objectNode.has("tensorId")) {
           try {
             var sel = JsonUtil.convertValue(objectNode, TensorSelection.class);
-            return GH.table()
-                .border(0)
-                .cellborder(0)
-                .tr(
-                    jsonToElement(JsonUtil.valueToJsonNodeTree(sel.getTensorId())),
-                    GH.bold(sel.getRange().toRangeString()),
-                    GH.bold(sel.getRange().toShapeString()));
+            return GH
+              .table()
+              .border(0)
+              .cellborder(0)
+              .tr(
+                jsonToElement(JsonUtil.valueToJsonNodeTree(sel.getTensorId())),
+                GH.bold(sel.getRange().toRangeString()),
+                GH.bold(sel.getRange().toShapeString())
+              );
           } catch (Exception ignored) {
             // ignore
           }
@@ -358,27 +396,29 @@ public class GraphVisualizer {
           if (JsonUtil.Tree.isAllNumeric(array)) {
             return GH.font().color("blue").add(GH.bold(JsonUtil.toJson(array)));
           } else {
-            return GH.table()
-                .border(0)
-                .cellborder(0)
-                .cellspacing(2)
-                .addAll(
-                    JsonUtil.Tree.stream(array)
-                        .map(item -> GH.tr(asDataValueTD(jsonToElement(item)))));
+            return GH
+              .table()
+              .border(0)
+              .cellborder(0)
+              .cellspacing(2)
+              .addAll(
+                JsonUtil.Tree.stream(array).map(item -> GH.tr(asDataValueTD(jsonToElement(item))))
+              );
           }
         }
         case ObjectNode object -> {
-          return GH.table()
-              .border(0)
-              .cellborder(1)
-              .cellspacing(0)
-              .addAll(
-                  JsonUtil.Tree.stream(object)
-                      .map(
-                          entry ->
-                              GH.tr(
-                                  asDataKeyTD(entry.getKey()),
-                                  asDataValueTD(jsonToElement(entry.getValue())))));
+          return GH
+            .table()
+            .border(0)
+            .cellborder(1)
+            .cellspacing(0)
+            .addAll(
+              JsonUtil.Tree
+                .stream(object)
+                .map(entry ->
+                  GH.tr(asDataKeyTD(entry.getKey()), asDataValueTD(jsonToElement(entry.getValue())))
+                )
+            );
         }
         default -> {
           var text = node.asText();
@@ -395,8 +435,9 @@ public class GraphVisualizer {
     public void colorTensorOperationNodes() {
       var coloring = TraversalUtils.tensorOperationColoring(getGraph());
 
-      for (Pair<Integer, Set<UUID>> colorPair :
-          IteratorUtils.enumerate(coloring.getColorClasses())) {
+      for (Pair<Integer, Set<UUID>> colorPair : IteratorUtils.enumerate(
+        coloring.getColorClasses()
+      )) {
         int color = colorPair.getLeft();
         var colorSet = colorPair.getRight();
 
@@ -408,9 +449,16 @@ public class GraphVisualizer {
       }
     }
 
-    private static final List<String> NODE_COLORS =
-        List.of(
-            "#EF7BDE", "#38DAE0", "#ee9944", "#99dd55", "#DC9E87", "#44dd88", "#E98FA5", "#22ccbb");
+    private static final List<String> NODE_COLORS = List.of(
+      "#EF7BDE",
+      "#38DAE0",
+      "#ee9944",
+      "#99dd55",
+      "#DC9E87",
+      "#44dd88",
+      "#E98FA5",
+      "#22ccbb"
+    );
 
     public Color colorSchemeForNode(UUID id) {
       var colorPair = getColoringForNode(id);
@@ -441,26 +489,26 @@ public class GraphVisualizer {
       return nodeColorings.get(id);
     }
 
-    private static final List<Pair<String, String>> FG_BG_CONTRAST_PAIRS =
-        List.of(
-            Pair.of("black", "#ffbbbb"),
-            Pair.of("black", "#aabbff"),
-            Pair.of("black", "#aaffbb"),
-            Pair.of("black", "#ccbbff"),
-            Pair.of("black", "#ffbbaa"));
+    private static final List<Pair<String, String>> FG_BG_CONTRAST_PAIRS = List.of(
+      Pair.of("black", "#ffbbbb"),
+      Pair.of("black", "#aabbff"),
+      Pair.of("black", "#aaffbb"),
+      Pair.of("black", "#ccbbff"),
+      Pair.of("black", "#ffbbaa")
+    );
 
     public GH.TableWrapper nodeAliasTable(UUID id) {
       String alias = getNodeHexAliasMap().get(id);
 
-      var table =
-          GH.table()
-              .border(0)
-              .cellborder(0)
-              .cellspacing(0)
-              .cellpadding(0)
-              .port(alias)
-              .fixedsize(true)
-              .width(alias.length());
+      var table = GH
+        .table()
+        .border(0)
+        .cellborder(0)
+        .cellspacing(0)
+        .cellpadding(0)
+        .port(alias)
+        .fixedsize(true)
+        .width(alias.length());
 
       var row = GH.tr().withParent(table);
 
@@ -485,7 +533,6 @@ public class GraphVisualizer {
 
           font.color(colors.getLeft());
           td.bgcolor(colors.getRight());
-
         } catch (NumberFormatException e) {
           // ignore
         }

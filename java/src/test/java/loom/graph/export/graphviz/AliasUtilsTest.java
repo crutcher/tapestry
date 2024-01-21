@@ -6,6 +6,7 @@ import loom.testing.BaseTestClass;
 import org.junit.Test;
 
 public class AliasUtilsTest extends BaseTestClass {
+
   @Test
   public void test_uuidAliasMap() {
     var id1 = UUID.fromString("3e12c250-0104-44fe-9327-9687b21cf903");
@@ -16,15 +17,15 @@ public class AliasUtilsTest extends BaseTestClass {
     var ids = List.of(id1, id2, id3, id4);
 
     assertThat(AliasUtils.uuidAliasMap(ids, 2))
-        .containsEntry(id1, "3ad")
-        .containsEntry(id2, "3a4")
-        .containsEntry(id3, "3a2")
-        .containsEntry(id4, "3a8");
+      .containsEntry(id1, "3ad")
+      .containsEntry(id2, "3a4")
+      .containsEntry(id3, "3a2")
+      .containsEntry(id4, "3a8");
 
     assertThat(AliasUtils.uuidAliasMap(ids, 4))
-        .containsEntry(id1, "3add")
-        .containsEntry(id2, "3a45")
-        .containsEntry(id3, "3a27")
-        .containsEntry(id4, "3a8e");
+      .containsEntry(id1, "3add")
+      .containsEntry(id2, "3a45")
+      .containsEntry(id3, "3a27")
+      .containsEntry(id4, "3a8e");
   }
 }

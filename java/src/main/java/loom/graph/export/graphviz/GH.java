@@ -53,20 +53,20 @@ public class GH {
   public enum HorizontalAlign {
     LEFT,
     CENTER,
-    RIGHT
+    RIGHT,
   }
 
   public enum VerticalAlign {
     TOP,
     MIDDLE,
-    BOTTOM
+    BOTTOM,
   }
 
   public enum TableDataAlign {
     LEFT,
     CENTER,
     RIGHT,
-    TEXT
+    TEXT,
   }
 
   public enum ImageScale {
@@ -74,7 +74,7 @@ public class GH {
     TRUE,
     WIDTH,
     HEIGHT,
-    BOTH
+    BOTH,
   }
 
   /**
@@ -105,7 +105,9 @@ public class GH {
   @Getter
   @RequiredArgsConstructor
   public class NodeWrapper<T extends NodeWrapper<T, N>, N extends Node> {
-    @Nonnull protected final N node;
+
+    @Nonnull
+    protected final N node;
 
     @SuppressWarnings("unchecked")
     private T self() {
@@ -239,9 +241,8 @@ public class GH {
           case NodeWrapper<?, ?> wrapper -> add(wrapper);
           case Node n -> add(n);
           default -> throw new UnsupportedOperationException(
-              "Cannot add instances of "
-                  + object.getClass()
-                  + " to an Element: %s".formatted(object));
+            "Cannot add instances of " + object.getClass() + " to an Element: %s".formatted(object)
+          );
         }
       }
       return self();
@@ -492,6 +493,7 @@ public class GH {
 
   /** An extension of {@link ElementWrapper} for the {@code <font></font>} element. */
   public final class FontWrapper extends ElementWrapper<FontWrapper> {
+
     public FontWrapper(Element element) {
       super(element);
       assert element.getName().equals("font");
@@ -550,6 +552,7 @@ public class GH {
 
   /** An extension of {@link ElementWrapper} for the {@code <img></img>} element. */
   public final class ImgWrapper extends ElementWrapper<ImgWrapper> {
+
     public ImgWrapper(Element element) {
       super(element);
       assert element.getName().equals("img");
@@ -616,6 +619,7 @@ public class GH {
    * @param <T> the type of the wrapper.
    */
   public abstract class TableBaseWrapper<T extends TableBaseWrapper<T>> extends ElementWrapper<T> {
+
     public TableBaseWrapper(Element element) {
       super(element);
     }
@@ -870,6 +874,7 @@ public class GH {
 
   /** An extension of {@link ElementWrapper} for the {@code <table></table>} element. */
   public final class TableWrapper extends TableBaseWrapper<TableWrapper> {
+
     public TableWrapper(Element element) {
       super(element);
       assert element.getName().equals("table");

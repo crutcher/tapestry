@@ -9,6 +9,7 @@ import loom.zspace.ZRange;
 @Jacksonized
 @Builder
 public class IPFIndex {
+
   public static final String ANNOTATION_TYPE = "IPFIndex";
 
   ZRange range;

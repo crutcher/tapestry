@@ -4,6 +4,7 @@ import com.google.common.base.Splitter;
 import java.util.List;
 
 public class TextUtils {
+
   public static final Splitter COMMA_SPLITTER = Splitter.on(",");
   public static final Splitter COLON_SPLITTER = Splitter.on(':');
 

@@ -14,7 +14,9 @@ import loom.validation.ValidationIssueCollector;
 @Getter
 @Builder
 public class TensorDTypesAreValidConstraint implements LoomEnvironment.Constraint {
-  @Singular private final Set<String> validDTypes;
+
+  @Singular
+  private final Set<String> validDTypes;
 
   @Override
   public void checkRequirements(LoomEnvironment env) {
@@ -23,9 +25,15 @@ public class TensorDTypesAreValidConstraint implements LoomEnvironment.Constrain
 
   @Override
   public void validateConstraint(
-      LoomEnvironment env, LoomGraph graph, ValidationIssueCollector issueCollector) {
-    for (var tensorNode :
-        graph.nodeScan().type(TensorNode.TYPE).nodeClass(TensorNode.class).asList()) {
+    LoomEnvironment env,
+    LoomGraph graph,
+    ValidationIssueCollector issueCollector
+  ) {
+    for (var tensorNode : graph
+      .nodeScan()
+      .type(TensorNode.TYPE)
+      .nodeClass(TensorNode.class)
+      .asList()) {
       checkTensor(tensorNode, issueCollector);
     }
   }
@@ -34,16 +42,20 @@ public class TensorDTypesAreValidConstraint implements LoomEnvironment.Constrain
     var dtype = tensorNode.getDtype();
     if (!validDTypes.contains(dtype)) {
       issueCollector.addIssue(
-          ValidationIssue.builder()
-              .type(LoomConstants.NODE_VALIDATION_ERROR)
-              .param("nodeType", TensorNode.TYPE)
-              .context(
-                  ValidationIssue.Context.builder()
-                      .name("Tensor")
-                      .jsonpath(tensorNode.getJsonPath())
-                      .dataFromJson(tensorNode.toJsonString()))
-              .summary("Tensor dtype (%s) not a recognized type", dtype)
-              .build());
+        ValidationIssue
+          .builder()
+          .type(LoomConstants.NODE_VALIDATION_ERROR)
+          .param("nodeType", TensorNode.TYPE)
+          .context(
+            ValidationIssue.Context
+              .builder()
+              .name("Tensor")
+              .jsonpath(tensorNode.getJsonPath())
+              .dataFromJson(tensorNode.toJsonString())
+          )
+          .summary("Tensor dtype (%s) not a recognized type", dtype)
+          .build()
+      );
     }
   }
 }

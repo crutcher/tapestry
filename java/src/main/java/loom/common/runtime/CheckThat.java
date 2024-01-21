@@ -8,6 +8,7 @@ import org.jetbrains.annotations.Contract;
 
 @UtilityClass
 public class CheckThat {
+
   /**
    * Check that a value is not null.
    *
@@ -43,7 +44,11 @@ public class CheckThat {
   @FormatMethod
   @Contract("null, _, _, _ -> fail")
   public <T, E extends Throwable> T valueIsNotNull(
-      T val, Class<E> eClass, @FormatString String format, Object... args) throws E {
+    T val,
+    Class<E> eClass,
+    @FormatString String format,
+    Object... args
+  ) throws E {
     return valueIsNotNull(val, eClass, LazyString.format(format, args));
   }
 }

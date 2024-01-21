@@ -8,17 +8,20 @@ import loom.common.json.JsonUtil;
 import loom.common.text.IndentUtils;
 
 public class ValidationIssueTextFormatter implements ValidationIssueFormatter {
+
   @Override
   public String formatIssueList(@Nullable List<ValidationIssue> issues) {
     if (issues == null || issues.isEmpty()) {
       return "No Validation Issues";
     }
 
-    return "Validation failed with "
-        + issues.size()
-        + " issues:\n\n"
-        + issues.stream().map(this::formatIssue).collect(Collectors.joining("\n\n"))
-        + "\n";
+    return (
+      "Validation failed with " +
+      issues.size() +
+      " issues:\n\n" +
+      issues.stream().map(this::formatIssue).collect(Collectors.joining("\n\n")) +
+      "\n"
+    );
   }
 
   @Override
@@ -28,12 +31,16 @@ public class ValidationIssueTextFormatter implements ValidationIssueFormatter {
 
     Map<String, String> params = issue.getParams();
     if (params != null && !params.isEmpty()) {
-      sb.append("\n")
-          .append(
-              params.entrySet().stream()
-                  .sorted(Map.Entry.comparingByKey())
-                  .map(e -> "   └> %s: %s".formatted(e.getKey(), e.getValue()))
-                  .collect(Collectors.joining("\n")));
+      sb
+        .append("\n")
+        .append(
+          params
+            .entrySet()
+            .stream()
+            .sorted(Map.Entry.comparingByKey())
+            .map(e -> "   └> %s: %s".formatted(e.getKey(), e.getValue()))
+            .collect(Collectors.joining("\n"))
+        );
     }
 
     String message = issue.getMessage();
@@ -63,8 +70,9 @@ public class ValidationIssueTextFormatter implements ValidationIssueFormatter {
     String message = context.getMessage();
     if (message != null) {
       var m = message.trim();
-      if (!m.isEmpty())
-        sb.append("\n\n").append(IndentUtils.indent(2, IndentUtils.splitAndRemoveCommonIndent(m)));
+      if (!m.isEmpty()) sb
+        .append("\n\n")
+        .append(IndentUtils.indent(2, IndentUtils.splitAndRemoveCommonIndent(m)));
     }
 
     Object data = context.getData();

@@ -17,13 +17,14 @@ import loom.graph.LoomNode;
 @Getter
 @Setter
 public final class NoteNode extends LoomNode<NoteNode, NoteNode.Body> {
+
   public static final String TYPE = "NoteNode";
 
   @Data
   @Jacksonized
   @Builder
   @WithSchema(
-      """
+    """
   {
       "type": "object",
       "properties": {
@@ -34,15 +35,17 @@ public final class NoteNode extends LoomNode<NoteNode, NoteNode.Body> {
       "required": ["message"],
       "additionalProperties": false
   }
-  """)
+  """
+  )
   public static final class Body {
 
-    @Nonnull private String message;
+    @Nonnull
+    private String message;
   }
 
   @SuppressWarnings("unused")
   public abstract static class NoteNodeBuilder<C extends NoteNode, B extends NoteNodeBuilder<C, B>>
-      extends LoomNodeBuilder<NoteNode, Body, C, B> {
+    extends LoomNodeBuilder<NoteNode, Body, C, B> {
     {
       type(TYPE);
     }
@@ -54,5 +57,7 @@ public final class NoteNode extends LoomNode<NoteNode, NoteNode.Body> {
     return builder().body(bodyBuilder.build());
   }
 
-  @Delegate @Nonnull private Body body;
+  @Delegate
+  @Nonnull
+  private Body body;
 }

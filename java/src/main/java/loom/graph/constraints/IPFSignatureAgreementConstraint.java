@@ -14,6 +14,7 @@ import loom.validation.ValidationIssueCollector;
 import loom.zspace.ZRange;
 
 public class IPFSignatureAgreementConstraint implements LoomEnvironment.Constraint {
+
   @Override
   public void checkRequirements(LoomEnvironment env) {
     env.assertClassForType(TensorNode.TYPE, TensorNode.class);
@@ -24,17 +25,19 @@ public class IPFSignatureAgreementConstraint implements LoomEnvironment.Constrai
 
   @Override
   public void validateConstraint(
-      @SuppressWarnings("unused") LoomEnvironment env,
-      LoomGraph graph,
-      ValidationIssueCollector issueCollector) {
-    for (var it =
-            graph
-                .nodeScan()
-                .type(OperationSignatureNode.TYPE)
-                .nodeClass(OperationSignatureNode.class)
-                .asStream()
-                .iterator();
-        it.hasNext(); ) {
+    @SuppressWarnings("unused") LoomEnvironment env,
+    LoomGraph graph,
+    ValidationIssueCollector issueCollector
+  ) {
+    for (
+      var it = graph
+        .nodeScan()
+        .type(OperationSignatureNode.TYPE)
+        .nodeClass(OperationSignatureNode.class)
+        .asStream()
+        .iterator();
+      it.hasNext();
+    ) {
       var opSig = it.next();
       if (opSig.hasAnnotation(IPFSignature.ANNOTATION_TYPE)) {
         checkOperation(opSig, issueCollector);
@@ -43,101 +46,115 @@ public class IPFSignatureAgreementConstraint implements LoomEnvironment.Constrai
   }
 
   private void checkOperation(
-      OperationSignatureNode opSig, ValidationIssueCollector issueCollector) {
-
+    OperationSignatureNode opSig,
+    ValidationIssueCollector issueCollector
+  ) {
     var ipfSignature = opSig.assertAnnotation(IPFSignature.ANNOTATION_TYPE, IPFSignature.class);
 
-    Supplier<List<ValidationIssue.Context>> lazyContexts =
-        () ->
-            List.of(
-                ValidationIssue.Context.builder()
-                    .name("Operation Node")
-                    .jsonpath(JsonPathUtils.concatJsonPath(opSig.getJsonPath(), "body"))
-                    .data(opSig.getId())
-                    .build(),
-                ValidationIssue.Context.builder()
-                    .name("Operation Signature")
-                    .jsonpath(opSig.getJsonPath())
-                    .data(opSig.getId())
-                    .build());
+    Supplier<List<ValidationIssue.Context>> lazyContexts = () ->
+      List.of(
+        ValidationIssue.Context
+          .builder()
+          .name("Operation Node")
+          .jsonpath(JsonPathUtils.concatJsonPath(opSig.getJsonPath(), "body"))
+          .data(opSig.getId())
+          .build(),
+        ValidationIssue.Context
+          .builder()
+          .name("Operation Signature")
+          .jsonpath(opSig.getJsonPath())
+          .data(opSig.getId())
+          .build()
+      );
 
     {
       var ipfIndex = opSig.getAnnotation(IPFIndex.ANNOTATION_TYPE, IPFIndex.class);
       if (ipfIndex == null) {
         issueCollector.addIssue(
-            ValidationIssue.builder()
-                .type(LoomConstants.NODE_VALIDATION_ERROR)
-                .param("opSigId", opSig.getId())
-                .summary("Operation signature does not have an IPF index")
-                .context(opSig.asValidationContext("Operation Signature"))
-                .withContexts(lazyContexts));
+          ValidationIssue
+            .builder()
+            .type(LoomConstants.NODE_VALIDATION_ERROR)
+            .param("opSigId", opSig.getId())
+            .summary("Operation signature does not have an IPF index")
+            .context(opSig.asValidationContext("Operation Signature"))
+            .withContexts(lazyContexts)
+        );
         return;
       }
 
       validateProjectionAgreement(
-          ipfIndex,
-          "inputs",
-          opSig.getInputs(),
-          ipfSignature.getInputs(),
-          issueCollector,
-          lazyContexts);
+        ipfIndex,
+        "inputs",
+        opSig.getInputs(),
+        ipfSignature.getInputs(),
+        issueCollector,
+        lazyContexts
+      );
       validateProjectionAgreement(
-          ipfIndex,
-          "outputs",
-          opSig.getOutputs(),
-          ipfSignature.getOutputs(),
-          issueCollector,
-          lazyContexts);
+        ipfIndex,
+        "outputs",
+        opSig.getOutputs(),
+        ipfSignature.getOutputs(),
+        issueCollector,
+        lazyContexts
+      );
     }
 
     for (var appNode : opSig.getApplicationNodes()) {
       var ipfIndex = appNode.getAnnotation(IPFIndex.ANNOTATION_TYPE, IPFIndex.class);
       if (ipfIndex == null) {
         issueCollector.addIssue(
-            ValidationIssue.builder()
-                .type(LoomConstants.NODE_VALIDATION_ERROR)
-                .param("appNodeId", appNode.getId())
-                .param("opSigId", opSig.getId())
-                .summary("Application node does not have an IPF index")
-                .context(appNode.asValidationContext("Application Node"))
-                .withContexts(lazyContexts));
+          ValidationIssue
+            .builder()
+            .type(LoomConstants.NODE_VALIDATION_ERROR)
+            .param("appNodeId", appNode.getId())
+            .param("opSigId", opSig.getId())
+            .summary("Application node does not have an IPF index")
+            .context(appNode.asValidationContext("Application Node"))
+            .withContexts(lazyContexts)
+        );
         continue;
       }
 
       validateProjectionAgreement(
-          ipfIndex,
-          "inputs",
-          appNode.getInputs(),
-          ipfSignature.getInputs(),
-          issueCollector,
-          lazyContexts);
+        ipfIndex,
+        "inputs",
+        appNode.getInputs(),
+        ipfSignature.getInputs(),
+        issueCollector,
+        lazyContexts
+      );
       validateProjectionAgreement(
-          ipfIndex,
-          "outputs",
-          appNode.getOutputs(),
-          ipfSignature.getOutputs(),
-          issueCollector,
-          lazyContexts);
+        ipfIndex,
+        "outputs",
+        appNode.getOutputs(),
+        ipfSignature.getOutputs(),
+        issueCollector,
+        lazyContexts
+      );
     }
   }
 
   @SuppressWarnings("unused")
   private void validateProjectionAgreement(
-      IPFIndex ipfIndex,
-      String selectionMapName,
-      Map<String, List<TensorSelection>> selectionMap,
-      Map<String, List<IndexProjectionFunction>> projectionMap,
-      ValidationIssueCollector issueCollector,
-      Supplier<List<ValidationIssue.Context>> lazyContexts) {
+    IPFIndex ipfIndex,
+    String selectionMapName,
+    Map<String, List<TensorSelection>> selectionMap,
+    Map<String, List<IndexProjectionFunction>> projectionMap,
+    ValidationIssueCollector issueCollector,
+    Supplier<List<ValidationIssue.Context>> lazyContexts
+  ) {
     if (!selectionMap.keySet().equals(projectionMap.keySet())) {
       issueCollector.addIssue(
-          ValidationIssue.builder()
-              .type(LoomConstants.NODE_VALIDATION_ERROR)
-              .param("selectionMapName", selectionMapName)
-              .param("selectionMapKeys", selectionMap.keySet())
-              .param("projectionMapKeys", projectionMap.keySet())
-              .summary("Selection map and projection map have different keys")
-              .withContexts(lazyContexts));
+        ValidationIssue
+          .builder()
+          .type(LoomConstants.NODE_VALIDATION_ERROR)
+          .param("selectionMapName", selectionMapName)
+          .param("selectionMapKeys", selectionMap.keySet())
+          .param("projectionMapKeys", projectionMap.keySet())
+          .summary("Selection map and projection map have different keys")
+          .withContexts(lazyContexts)
+      );
       return;
     }
 
@@ -150,14 +167,16 @@ public class IPFSignatureAgreementConstraint implements LoomEnvironment.Constrai
 
       if (selections.size() != projections.size()) {
         issueCollector.addIssue(
-            ValidationIssue.builder()
-                .type(LoomConstants.NODE_VALIDATION_ERROR)
-                .param("selectionMapName", selectionMapName)
-                .param("ioName", ioName)
-                .param("selections", selections)
-                .param("projections", projections)
-                .summary("Selection map and projection map have different sizes")
-                .withContexts(lazyContexts));
+          ValidationIssue
+            .builder()
+            .type(LoomConstants.NODE_VALIDATION_ERROR)
+            .param("selectionMapName", selectionMapName)
+            .param("ioName", ioName)
+            .param("selections", selections)
+            .param("projections", projections)
+            .summary("Selection map and projection map have different sizes")
+            .withContexts(lazyContexts)
+        );
         continue;
       }
 
@@ -170,15 +189,17 @@ public class IPFSignatureAgreementConstraint implements LoomEnvironment.Constrai
         ZRange projectedRange = selection.getRange();
         if (!projectedRange.equals(expected)) {
           issueCollector.addIssue(
-              ValidationIssue.builder()
-                  .type(LoomConstants.NODE_VALIDATION_ERROR)
-                  .param("selectionMapName", selectionMapName)
-                  .param("ioName", ioName)
-                  .param("selection", selection)
-                  .param("projection", projection)
-                  .param("expected", expected)
-                  .summary("Selection map and projection map have different ranges")
-                  .withContexts(lazyContexts));
+            ValidationIssue
+              .builder()
+              .type(LoomConstants.NODE_VALIDATION_ERROR)
+              .param("selectionMapName", selectionMapName)
+              .param("ioName", ioName)
+              .param("selection", selection)
+              .param("projection", projection)
+              .param("expected", expected)
+              .summary("Selection map and projection map have different ranges")
+              .withContexts(lazyContexts)
+          );
         }
       }
     }

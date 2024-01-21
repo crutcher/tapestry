@@ -86,7 +86,7 @@ import loom.common.json.JsonUtil;
 @JsonSerialize(using = ZTensor.Serialization.Serializer.class)
 @JsonDeserialize(using = ZTensor.Serialization.Deserializer.class)
 public final class ZTensor
-    implements HasZTensor, HasToJsonString, Cloneable, HasDimension, HasSize, HasPermute<ZTensor> {
+  implements HasZTensor, HasToJsonString, Cloneable, HasDimension, HasSize, HasPermute<ZTensor> {
 
   /**
    * Construct a new mutable scalar (0-dim) tensor.
@@ -96,7 +96,7 @@ public final class ZTensor
    */
   @Nonnull
   public static ZTensor newScalar(int value) {
-    return new ZTensor(true, new int[] {}, new int[] {}, new int[] {value}, 0);
+    return new ZTensor(true, new int[] {}, new int[] {}, new int[] { value }, 0);
   }
 
   /**
@@ -136,7 +136,7 @@ public final class ZTensor
       numCols = rows[0].length;
     }
 
-    int[] shape = new int[] {numRows, numCols};
+    int[] shape = new int[] { numRows, numCols };
     int[] data = Arrays.stream(rows).flatMapToInt(Arrays::stream).toArray();
     return new ZTensor(true, shape, IndexingFns.shapeToLSFStrides(shape), data, 0);
   }
@@ -254,7 +254,7 @@ public final class ZTensor
   public static ZTensor newDiagonalMatrix(@Nonnull List<Integer> diag) {
     var tensor = newZeros(diag.size(), diag.size());
     for (int i = 0; i < diag.size(); ++i) {
-      tensor._unchecked_set(new int[] {i, i}, diag.get(i));
+      tensor._unchecked_set(new int[] { i, i }, diag.get(i));
     }
     return tensor;
   }
@@ -272,17 +272,20 @@ public final class ZTensor
   public static ZTensor newFromArray(@Nonnull Object source) {
     if (!IndexingFns.isRecursiveIntArray(source)) {
       throw new IllegalArgumentException(
-          "Cannot convert object of type %s to ZTensor"
-              .formatted(source.getClass().getCanonicalName()));
+        "Cannot convert object of type %s to ZTensor".formatted(
+            source.getClass().getCanonicalName()
+          )
+      );
     }
 
     return newFromTree(
-        source,
-        obj -> obj.getClass().isArray(),
-        Array::getLength,
-        Array::get,
-        obj -> (int) obj,
-        int[].class::cast);
+      source,
+      obj -> obj.getClass().isArray(),
+      Array::getLength,
+      Array::get,
+      obj -> (int) obj,
+      int[].class::cast
+    );
   }
 
   /**
@@ -297,12 +300,13 @@ public final class ZTensor
   @SuppressWarnings("unchecked")
   public static ZTensor newFromList(@Nonnull Object source) {
     return newFromTree(
-        source,
-        obj -> obj instanceof List,
-        obj -> ((List<?>) obj).size(),
-        (obj, i) -> ((List<?>) obj).get(i),
-        obj -> (Integer) obj,
-        obj -> Ints.toArray((List<Integer>) obj));
+      source,
+      obj -> obj instanceof List,
+      obj -> ((List<?>) obj).size(),
+      (obj, i) -> ((List<?>) obj).get(i),
+      obj -> (Integer) obj,
+      obj -> Ints.toArray((List<Integer>) obj)
+    );
   }
 
   /**
@@ -332,27 +336,42 @@ public final class ZTensor
    * @return a new ZTensor.
    */
   public static <T> @Nonnull ZTensor newFromTree(
-      @Nonnull T root,
-      @Nonnull Predicate<T> isArray,
-      @Nonnull ToIntFunction<T> getArrayLength,
-      @Nonnull BiFunction<T, Integer, T> getArrayElement,
-      @Nonnull ToIntFunction<T> nodeAsScalar,
-      @Nonnull Function<T, int[]> nodeAsSimpleArray) {
-    var pair =
-        IndexingFns.arrayFromTree(
-            root, isArray, getArrayLength, getArrayElement, nodeAsScalar, nodeAsSimpleArray);
+    @Nonnull T root,
+    @Nonnull Predicate<T> isArray,
+    @Nonnull ToIntFunction<T> getArrayLength,
+    @Nonnull BiFunction<T, Integer, T> getArrayElement,
+    @Nonnull ToIntFunction<T> nodeAsScalar,
+    @Nonnull Function<T, int[]> nodeAsSimpleArray
+  ) {
+    var pair = IndexingFns.arrayFromTree(
+      root,
+      isArray,
+      getArrayLength,
+      getArrayElement,
+      nodeAsScalar,
+      nodeAsSimpleArray
+    );
     var shape = pair.getLeft();
     var data = pair.getRight();
     return new ZTensor(true, shape, IndexingFns.shapeToLSFStrides(shape), data, 0);
   }
 
-  @JsonIgnore @Getter private final boolean mutable;
+  @JsonIgnore
+  @Getter
+  private final boolean mutable;
 
-  @Nonnull private final int[] shape;
+  @Nonnull
+  private final int[] shape;
 
-  @Getter private final int size;
-  @Nonnull private final int[] stride;
-  @Nonnull private final int[] data;
+  @Getter
+  private final int size;
+
+  @Nonnull
+  private final int[] stride;
+
+  @Nonnull
+  private final int[] data;
+
   private final int data_offset;
   private Integer hash;
 
@@ -363,11 +382,12 @@ public final class ZTensor
    */
   ZTensor(@Nonnull int[] shape) {
     this(
-        true,
-        shape,
-        IndexingFns.shapeToLSFStrides(shape),
-        new int[IndexingFns.shapeToSize(shape)],
-        0);
+      true,
+      shape,
+      IndexingFns.shapeToLSFStrides(shape),
+      new int[IndexingFns.shapeToSize(shape)],
+      0
+    );
   }
 
   /**
@@ -380,11 +400,12 @@ public final class ZTensor
    * @param data_offset the offset in the source data.
    */
   ZTensor(
-      boolean mutable,
-      @Nonnull int[] shape,
-      @Nonnull int[] stride,
-      @Nonnull int[] data,
-      int data_offset) {
+    boolean mutable,
+    @Nonnull int[] shape,
+    @Nonnull int[] stride,
+    @Nonnull int[] data,
+    int data_offset
+  ) {
     this.mutable = mutable;
 
     this.shape = shape;
@@ -553,8 +574,12 @@ public final class ZTensor
   public void assertSameShape(@Nonnull HasZTensor other) {
     if (!Arrays.equals(shape, other.getTensor()._unsafeGetShape())) {
       throw new ZDimMissMatchError(
-          String.format(
-              "ZDim shape mismatch: %s != %s", shapeAsList(), other.getTensor().shapeAsList()));
+        String.format(
+          "ZDim shape mismatch: %s != %s",
+          shapeAsList(),
+          other.getTensor().shapeAsList()
+        )
+      );
     }
   }
 
@@ -726,10 +751,11 @@ public final class ZTensor
    * @param writeNumber write a number.
    */
   public void toTree(
-      @Nonnull Runnable startArray,
-      @Nonnull Runnable endArray,
-      @Nonnull Runnable elemSep,
-      @Nonnull Consumer<Integer> writeNumber) {
+    @Nonnull Runnable startArray,
+    @Nonnull Runnable endArray,
+    @Nonnull Runnable elemSep,
+    @Nonnull Consumer<Integer> writeNumber
+  ) {
     if (isScalar()) {
       writeNumber.accept(get());
       return;
@@ -762,7 +788,6 @@ public final class ZTensor
         if (coords[d] != shape[d] - 1) {
           elemSep.run();
           break;
-
         } else {
           endArray.run();
         }
@@ -855,16 +880,19 @@ public final class ZTensor
 
     if (isScalar() && IndexingFns.shapeToSize(targetShape) == 0) {
       return new ZTensor(
-          mutable, targetShape, IndexingFns.shapeToLSFStrides(targetShape), new int[0], 0);
+        mutable,
+        targetShape,
+        IndexingFns.shapeToLSFStrides(targetShape),
+        new int[0],
+        0
+      );
     }
 
     var res = this;
     if (res.getNDim() > targetShape.length) {
       throw new IllegalArgumentException(
-          "Cannot broadcast shape "
-              + Arrays.toString(shape)
-              + " to "
-              + Arrays.toString(targetShape));
+        "Cannot broadcast shape " + Arrays.toString(shape) + " to " + Arrays.toString(targetShape)
+      );
     }
     while (res.getNDim() < targetShape.length) {
       res = res.unsqueeze(0);
@@ -872,10 +900,11 @@ public final class ZTensor
     for (int i = 0; i < targetShape.length; ++i) {
       if (res.shape[i] > 1 && res.shape[i] != targetShape[i]) {
         throw new IllegalArgumentException(
-            "Cannot broadcast shape "
-                + Arrays.toString(this.shape)
-                + " to "
-                + Arrays.toString(targetShape));
+          "Cannot broadcast shape " +
+          Arrays.toString(this.shape) +
+          " to " +
+          Arrays.toString(targetShape)
+        );
       }
       if (res.shape[i] == 1 && targetShape[i] > 1) {
         res = res.broadcastDim(i, targetShape[i]);
@@ -921,7 +950,8 @@ public final class ZTensor
 
     if (stride[rDim] != 0) {
       throw new IllegalArgumentException(
-          "dimension " + rDim + ", shape " + shape[rDim] + " is not squeezable");
+        "dimension " + rDim + ", shape " + shape[rDim] + " is not squeezable"
+      );
     }
 
     int[] shape1 = IndexingFns.removeIdx(shape, rDim);
@@ -941,7 +971,8 @@ public final class ZTensor
     dim = resolveDim(dim);
     if (stride[dim] != 0) {
       throw new IllegalArgumentException(
-          "Cannot broadcast dimension %d with real-size %d".formatted(dim, shape[dim]));
+        "Cannot broadcast dimension %d with real-size %d".formatted(dim, shape[dim])
+      );
     }
 
     var new_shape = shapeAsArray();
@@ -995,10 +1026,12 @@ public final class ZTensor
   public void assignFromMap_(@Nonnull IntUnaryOperator op, @Nonnull HasZTensor tensor) {
     assertMutable();
     tensor
-        .getTensor()
-        .broadcastLike(this)
-        .forEachEntry(
-            (coords, value) -> _unchecked_set(coords, op.applyAsInt(value)), BufferMode.REUSED);
+      .getTensor()
+      .broadcastLike(this)
+      .forEachEntry(
+        (coords, value) -> _unchecked_set(coords, op.applyAsInt(value)),
+        BufferMode.REUSED
+      );
   }
 
   /**
@@ -1041,7 +1074,10 @@ public final class ZTensor
    * @param rhs the right-hand side tensor.
    */
   public void assignFromZipWith_(
-      @Nonnull IntBinaryOperator op, @Nonnull HasZTensor lhs, @Nonnull HasZTensor rhs) {
+    @Nonnull IntBinaryOperator op,
+    @Nonnull HasZTensor lhs,
+    @Nonnull HasZTensor rhs
+  ) {
     var zlhs = lhs.getTensor();
     var zrhs = rhs.getTensor();
     assertMutable();
@@ -1743,7 +1779,8 @@ public final class ZTensor
   public ZTensor selectDims(@Nonnull int[] dims, @Nonnull int[] indexes) {
     if (dims.length != indexes.length) {
       throw new IllegalArgumentException(
-          "dims.length (%d) != indexes.length (%d)".formatted(dims.length, indexes.length));
+        "dims.length (%d) != indexes.length (%d)".formatted(dims.length, indexes.length)
+      );
     }
 
     var ds = resolveDims(dims);
@@ -1846,59 +1883,62 @@ public final class ZTensor
    */
   @UtilityClass
   public static class Serialization {
+
     public final class Serializer extends StdSerializer<ZTensor> {
+
       public Serializer() {
         super(ZTensor.class);
       }
 
       @Override
-      @SuppressWarnings({"Convert2Lambda", "Anonymous2MethodRef"})
+      @SuppressWarnings({ "Convert2Lambda", "Anonymous2MethodRef" })
       public void serialize(
-          @Nonnull ZTensor value,
-          @Nonnull JsonGenerator gen,
-          @Nonnull SerializerProvider serializers) {
-
+        @Nonnull ZTensor value,
+        @Nonnull JsonGenerator gen,
+        @Nonnull SerializerProvider serializers
+      ) {
         value.toTree(
-            new Runnable() {
-              @Override
-              @SneakyThrows
-              public void run() {
-                gen.writeStartArray();
-              }
-            },
-            new Runnable() {
-              @Override
-              @SneakyThrows
-              public void run() {
-                gen.writeEndArray();
-              }
-            },
-            () -> {},
-            new Consumer<>() {
-              @Override
-              @SneakyThrows
-              public void accept(Integer val) {
-                gen.writeNumber(val);
-              }
-            });
+          new Runnable() {
+            @Override
+            @SneakyThrows
+            public void run() {
+              gen.writeStartArray();
+            }
+          },
+          new Runnable() {
+            @Override
+            @SneakyThrows
+            public void run() {
+              gen.writeEndArray();
+            }
+          },
+          () -> {},
+          new Consumer<>() {
+            @Override
+            @SneakyThrows
+            public void accept(Integer val) {
+              gen.writeNumber(val);
+            }
+          }
+        );
       }
 
       @Override
       public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
-          throws JsonMappingException {
+        throws JsonMappingException {
         visitor.expectArrayFormat(typeHint);
       }
     }
 
     public class Deserializer extends StdDeserializer<ZTensor> {
+
       public Deserializer() {
         super(ZTensor.class);
       }
 
       @Override
       public ZTensor deserialize(@Nonnull JsonParser p, @Nonnull DeserializationContext context)
-          throws java.io.IOException {
-
+        throws java.io.IOException {
         return fromTreeNode(p.readValueAsTree());
       }
     }
@@ -1911,19 +1951,20 @@ public final class ZTensor
      */
     public ZTensor fromTreeNode(@Nonnull TreeNode node) {
       return newFromTree(
-          node,
-          TreeNode::isArray,
-          TreeNode::size,
-          TreeNode::get,
-          node1 -> ((IntNode) node1).intValue(),
-          node1 -> {
-            int[] chunk = new int[node1.size()];
-            Iterator<JsonNode> it = ((ArrayNode) node1).elements();
-            for (int i = 0; i < chunk.length; ++i) {
-              chunk[i] = it.next().intValue();
-            }
-            return chunk;
-          });
+        node,
+        TreeNode::isArray,
+        TreeNode::size,
+        TreeNode::get,
+        node1 -> ((IntNode) node1).intValue(),
+        node1 -> {
+          int[] chunk = new int[node1.size()];
+          Iterator<JsonNode> it = ((ArrayNode) node1).elements();
+          for (int i = 0; i < chunk.length; ++i) {
+            chunk[i] = it.next().intValue();
+          }
+          return chunk;
+        }
+      );
     }
   }
 }

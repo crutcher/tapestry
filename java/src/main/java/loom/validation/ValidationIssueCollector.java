@@ -2,7 +2,6 @@ package loom.validation;
 
 /** Collects ValidationIssues. */
 public interface ValidationIssueCollector {
-
   /** True if the collector has failed. */
   boolean hasFailed();
 

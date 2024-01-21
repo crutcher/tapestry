@@ -15,8 +15,10 @@ import javax.annotation.concurrent.ThreadSafe;
  */
 @ThreadSafe
 @Immutable
-public final class ZMatrix extends ImmutableZTensorWrapper<ZMatrix>
-    implements HasPermuteInput<ZMatrix>, HasPermuteOutput<ZMatrix> {
+public final class ZMatrix
+  extends ImmutableZTensorWrapper<ZMatrix>
+  implements HasPermuteInput<ZMatrix>, HasPermuteOutput<ZMatrix> {
+
   /**
    * Private constructor for Jackson.
    *
@@ -112,7 +114,7 @@ public final class ZMatrix extends ImmutableZTensorWrapper<ZMatrix>
    */
   @Nonnull
   public static ZMatrix newFilled(int rows, int cols, int value) {
-    return new ZMatrix(ZTensor.newFilled(new int[] {rows, cols}, value));
+    return new ZMatrix(ZTensor.newFilled(new int[] { rows, cols }, value));
   }
 
   /**

@@ -13,6 +13,7 @@ import loom.testing.BaseTestClass;
 import org.junit.Test;
 
 public class CommonEnvironmentsTest extends BaseTestClass {
+
   @Test
   public void test_expressionEnvironment() {
     var env = CommonEnvironments.expressionEnvironment();
@@ -24,17 +25,18 @@ public class CommonEnvironmentsTest extends BaseTestClass {
     env.assertConstraint(TensorDTypesAreValidConstraint.class);
     env.assertConstraint(OperationReferenceAgreementConstraint.class);
 
-    var m =
-        env.getConstraints().stream()
-            .filter(c -> c instanceof NodeBodySchemaConstraint)
-            .collect(Collectors.toMap(c -> ((NodeBodySchemaConstraint) c).getBodySchema(), c -> c));
+    var m = env
+      .getConstraints()
+      .stream()
+      .filter(c -> c instanceof NodeBodySchemaConstraint)
+      .collect(Collectors.toMap(c -> ((NodeBodySchemaConstraint) c).getBodySchema(), c -> c));
     assertThat(m.get(TensorNode.Body.class.getAnnotation(WithSchema.class).value()))
-        .extracting("nodeTypes")
-        .asList()
-        .containsOnly(TensorNode.TYPE);
+      .extracting("nodeTypes")
+      .asList()
+      .containsOnly(TensorNode.TYPE);
     assertThat(m.get(ApplicationNode.Body.class.getAnnotation(WithSchema.class).value()))
-        .extracting("nodeTypes")
-        .asList()
-        .containsOnly(ApplicationNode.TYPE);
+      .extracting("nodeTypes")
+      .asList()
+      .containsOnly(ApplicationNode.TYPE);
   }
 }

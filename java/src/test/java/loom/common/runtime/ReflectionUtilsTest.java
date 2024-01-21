@@ -8,9 +8,11 @@ import loom.testing.CommonAssertions;
 import org.junit.Test;
 
 public class ReflectionUtilsTest implements CommonAssertions {
+
   @Getter
   @SuperBuilder
   public abstract static class Base<X, Y> {
+
     private final X x;
     private final Y y;
   }
@@ -18,18 +20,21 @@ public class ReflectionUtilsTest implements CommonAssertions {
   @Getter
   @SuperBuilder
   public static class Level1 extends Base<String, Integer> {
+
     private final String z;
   }
 
   @Getter
   @SuperBuilder
   public static class Level2 extends Level1 {
+
     private final float w;
   }
 
   @Value
   @AllArgsConstructor
   public static class Example {
+
     public int abc;
 
     public Example(String abc) {
@@ -42,22 +47,24 @@ public class ReflectionUtilsTest implements CommonAssertions {
     assertThat(ReflectionUtils.newInstance(Example.class, "123")).isEqualTo(new Example(123));
 
     assertThatExceptionOfType(RuntimeException.class)
-        .isThrownBy(() -> ReflectionUtils.newInstance(Example.class, new Object()))
-        .withCauseInstanceOf(NoSuchMethodException.class);
+      .isThrownBy(() -> ReflectionUtils.newInstance(Example.class, new Object()))
+      .withCauseInstanceOf(NoSuchMethodException.class);
   }
 
   @Test
   @SuppressWarnings("unchecked")
   public void testGetTypeArgumentsForGenericSuperclass() {
     assertThatExceptionOfType(IllegalArgumentException.class)
-        .isThrownBy(
-            () ->
-                ReflectionUtils.getTypeArgumentsForGenericSuperclass(
-                    (Class<? extends Base<?, ?>>) (Class<?>) Integer.class, Base.class));
+      .isThrownBy(() ->
+        ReflectionUtils.getTypeArgumentsForGenericSuperclass(
+          (Class<? extends Base<?, ?>>) (Class<?>) Integer.class,
+          Base.class
+        )
+      );
     assertThat(ReflectionUtils.getTypeArgumentsForGenericSuperclass(Level1.class, Base.class))
-        .containsExactly(String.class, Integer.class);
+      .containsExactly(String.class, Integer.class);
     assertThat(ReflectionUtils.getTypeArgumentsForGenericSuperclass(Level2.class, Base.class))
-        .containsExactly(String.class, Integer.class);
+      .containsExactly(String.class, Integer.class);
   }
 
   @Test
@@ -76,10 +83,10 @@ public class ReflectionUtilsTest implements CommonAssertions {
 
     ReflectionUtils.checkIsSubclass(B.class, A.class);
     assertThatExceptionOfType(ClassCastException.class)
-        .isThrownBy(() -> ReflectionUtils.checkIsSubclass(A.class, B.class));
+      .isThrownBy(() -> ReflectionUtils.checkIsSubclass(A.class, B.class));
 
     ReflectionUtils.checkIsSubclass(B.class, I.class);
     assertThatExceptionOfType(ClassCastException.class)
-        .isThrownBy(() -> ReflectionUtils.checkIsSubclass(A.class, I.class));
+      .isThrownBy(() -> ReflectionUtils.checkIsSubclass(A.class, I.class));
   }
 }

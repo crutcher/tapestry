@@ -44,9 +44,10 @@ public class MapValueListUtil {
 
   /** Serializer to write a {@code Map<K, T>} as a json {@code [T]}. */
   public final class MapSerializer<K extends Comparable<K>, V> extends JsonSerializer<Map<K, V>> {
+
     @Override
     public void serialize(Map<K, V> value, JsonGenerator gen, SerializerProvider serializers)
-        throws IOException {
+      throws IOException {
       gen.writeStartArray();
 
       // Stable output ordering.
@@ -65,12 +66,16 @@ public class MapValueListUtil {
    * @param <V> the value type.
    */
   public class MapDeserializer<K, V> extends JsonDeserializer<Map<K, V>> {
+
     private final Class<V> valueClass;
     private final Function<V, K> keyExtractor;
     private final Supplier<Map<K, V>> mapBuilder;
 
     public MapDeserializer(
-        Class<V> valueClass, Function<V, K> keyExtractor, Supplier<Map<K, V>> mapBuilder) {
+      Class<V> valueClass,
+      Function<V, K> keyExtractor,
+      Supplier<Map<K, V>> mapBuilder
+    ) {
       this.valueClass = valueClass;
       this.keyExtractor = keyExtractor;
       this.mapBuilder = mapBuilder;
@@ -84,7 +89,9 @@ public class MapValueListUtil {
 
     @Override
     public Map<K, V> deserialize(
-        com.fasterxml.jackson.core.JsonParser p, DeserializationContext ctxt) throws IOException {
+      com.fasterxml.jackson.core.JsonParser p,
+      DeserializationContext ctxt
+    ) throws IOException {
       var map = mapBuilder.get();
       for (var v : p.readValueAs(arrayType())) {
         map.put(keyExtractor.apply(v), v);

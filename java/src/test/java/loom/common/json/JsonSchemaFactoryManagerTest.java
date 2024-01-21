@@ -2,25 +2,29 @@ package loom.common.json;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.ValidationMessage;
+import java.net.URI;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+import javax.annotation.Nonnull;
 import lombok.Builder;
 import lombok.Value;
 import lombok.extern.jackson.Jacksonized;
 import loom.testing.BaseTestClass;
 import org.junit.Test;
 
-import javax.annotation.Nonnull;
-import java.net.URI;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
-
 public class JsonSchemaFactoryManagerTest extends BaseTestClass {
+
   @Value
   @Jacksonized
   @Builder
   public static class Example {
-    @Nonnull UUID id;
-    @Nonnull String name;
+
+    @Nonnull
+    UUID id;
+
+    @Nonnull
+    String name;
   }
 
   @Test
@@ -28,7 +32,7 @@ public class JsonSchemaFactoryManagerTest extends BaseTestClass {
   public void test_unmapped_uri() {
     var manager = new JsonSchemaFactoryManager();
     assertThatExceptionOfType(RuntimeException.class)
-        .isThrownBy(() -> manager.getSchema(URI.create("http://loom.example/data")));
+      .isThrownBy(() -> manager.getSchema(URI.create("http://loom.example/data")));
   }
 
   @Test
@@ -38,8 +42,8 @@ public class JsonSchemaFactoryManagerTest extends BaseTestClass {
   public void test_if() {
     var manager = new JsonSchemaFactoryManager();
     manager.addSchema(
-        "http://loom.example/data",
-        """
+      "http://loom.example/data",
+      """
            {
                 "$schema": "https://json-schema.org/draft/2020-12/schema",
                 "allOf": [
@@ -97,27 +101,28 @@ public class JsonSchemaFactoryManagerTest extends BaseTestClass {
                     }
                 }
            }
-           """);
+           """
+    );
 
     URI schemaUri = URI.create("http://loom.example/data");
     var schema = manager.getSchema(schemaUri);
     schema.initializeValidators();
 
     assertThat(schema.validate(JsonUtil.valueToJsonNodeTree(Map.of("type", "A", "a", "foo"))))
-        .isEmpty();
+      .isEmpty();
     assertThat(schema.validate(JsonUtil.valueToJsonNodeTree(Map.of("type", "B", "x", 12))))
-        .isEmpty();
+      .isEmpty();
 
     assertThat(schema.validate(JsonUtil.valueToJsonNodeTree(Map.of("type", "A", "a", 12))))
-        .hasSize(1);
+      .hasSize(1);
   }
 
   @Test
   public void test() {
     var manager = new JsonSchemaFactoryManager();
     manager.addSchema(
-        "http://loom.example/data",
-        """
+      "http://loom.example/data",
+      """
            {
                 "$schema": "https://json-schema.org/draft/2020-12/schema",
                 "definitions": {
@@ -128,10 +133,11 @@ public class JsonSchemaFactoryManagerTest extends BaseTestClass {
                     }
                 }
            }
-           """);
+           """
+    );
     manager.addSchema(
-        "http://loom.example/example",
-        """
+      "http://loom.example/example",
+      """
                 {
                     "$id": "http://loom.example/example",
                     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -155,7 +161,8 @@ public class JsonSchemaFactoryManagerTest extends BaseTestClass {
                         }
                     }
                 }
-                """);
+                """
+    );
 
     URI schemaUri = URI.create("http://loom.example/example");
     var schema = manager.getSchema(schemaUri);

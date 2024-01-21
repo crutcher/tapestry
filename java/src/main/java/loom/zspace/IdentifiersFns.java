@@ -11,11 +11,13 @@ public final class IdentifiersFns {
 
   public final Pattern ATOMIC_IDENTIFIER_PATTERN = Pattern.compile("[a-zA-Z][a-zA-Z0-9_]*");
 
-  public final Pattern DOTTED_IDENTIFIER_PATTERN =
-      Pattern.compile(
-          String.format(
-              "%s(\\.%s)*",
-              ATOMIC_IDENTIFIER_PATTERN.pattern(), ATOMIC_IDENTIFIER_PATTERN.pattern()));
+  public final Pattern DOTTED_IDENTIFIER_PATTERN = Pattern.compile(
+    String.format(
+      "%s(\\.%s)*",
+      ATOMIC_IDENTIFIER_PATTERN.pattern(),
+      ATOMIC_IDENTIFIER_PATTERN.pattern()
+    )
+  );
 
   /**
    * Validate an atomic identifier.

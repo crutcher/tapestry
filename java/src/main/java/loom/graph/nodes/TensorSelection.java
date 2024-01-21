@@ -15,8 +15,9 @@ import loom.zspace.ZRange;
 @Jacksonized
 @Builder
 @RequiredArgsConstructor
-@JsonPropertyOrder({"tensorId", "range"})
+@JsonPropertyOrder({ "tensorId", "range" })
 public class TensorSelection {
+
   /**
    * Creates a TensorSelection from a TensorNode.
    *
@@ -26,10 +27,11 @@ public class TensorSelection {
    * @return the TensorSelection
    */
   public static TensorSelection from(TensorNode tensorNode) {
-    return TensorSelection.builder()
-        .tensorId(tensorNode.getId())
-        .range(tensorNode.getRange())
-        .build();
+    return TensorSelection
+      .builder()
+      .tensorId(tensorNode.getId())
+      .range(tensorNode.getRange())
+      .build();
   }
 
   /**
@@ -45,7 +47,8 @@ public class TensorSelection {
   public static TensorSelection from(TensorNode tensorNode, ZRange range) {
     if (!tensorNode.getRange().contains(range)) {
       throw new IllegalArgumentException(
-          String.format("TensorNode %s does not contain range %s", tensorNode.getRange(), range));
+        String.format("TensorNode %s does not contain range %s", tensorNode.getRange(), range)
+      );
     }
     return TensorSelection.builder().tensorId(tensorNode.getId()).range(range).build();
   }

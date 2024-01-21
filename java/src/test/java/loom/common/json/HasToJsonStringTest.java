@@ -9,10 +9,12 @@ import loom.testing.BaseTestClass;
 import org.junit.Test;
 
 public class HasToJsonStringTest extends BaseTestClass {
+
   @Jacksonized
   @Builder
   @Data
   public static class Example implements HasToJsonString {
+
     private final String name;
     private final int age;
   }
@@ -22,11 +24,12 @@ public class HasToJsonStringTest extends BaseTestClass {
     var example = Example.builder().name("John").age(42).build();
     assertEquals("{\"name\":\"John\",\"age\":42}", example.toJsonString());
     assertThat(example.toPrettyJsonString())
-        .isEqualTo(
-            """
+      .isEqualTo(
+        """
                 {
                   "name" : "John",
                   "age" : 42
-                }""");
+                }"""
+      );
   }
 }
