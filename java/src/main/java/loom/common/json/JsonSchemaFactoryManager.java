@@ -5,13 +5,6 @@ import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.errorprone.annotations.CheckReturnValue;
 import com.networknt.schema.*;
 import com.networknt.schema.uri.URIFetcher;
-import lombok.Builder;
-import lombok.Singular;
-import loom.validation.ValidationIssue;
-import loom.validation.ValidationIssueCollector;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.io.ByteArrayInputStream;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
@@ -20,6 +13,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import lombok.Builder;
+import lombok.Singular;
+import loom.validation.ValidationIssue;
+import loom.validation.ValidationIssueCollector;
 
 /**
  * Context manager for {@link JsonSchemaFactory}.

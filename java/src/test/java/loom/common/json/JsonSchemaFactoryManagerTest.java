@@ -1,7 +1,16 @@
 package loom.common.json;
 
+import static loom.common.json.JsonSchemaFactoryManager.JSD_ERROR;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.ValidationMessage;
+import java.net.URI;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+import java.util.function.Supplier;
+import javax.annotation.Nonnull;
 import lombok.Builder;
 import lombok.Data;
 import lombok.Value;
@@ -10,16 +19,6 @@ import loom.testing.BaseTestClass;
 import loom.validation.ListValidationIssueCollector;
 import loom.validation.ValidationIssue;
 import org.junit.Test;
-
-import javax.annotation.Nonnull;
-import java.net.URI;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
-import java.util.function.Supplier;
-
-import static loom.common.json.JsonSchemaFactoryManager.JSD_ERROR;
 
 public class JsonSchemaFactoryManagerTest extends BaseTestClass {
 

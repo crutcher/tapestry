@@ -1,15 +1,16 @@
 package loom.zspace;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import loom.common.json.JsonUtil;
+import loom.testing.CommonAssertions;
+import org.junit.Test;
+
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.function.IntBinaryOperator;
-import loom.common.json.JsonUtil;
-import loom.testing.CommonAssertions;
-import org.junit.Test;
 
 public class ZTensorTest implements CommonAssertions {
 
@@ -110,14 +111,29 @@ public class ZTensorTest implements CommonAssertions {
 
       // This is the weird shit, because the buffer is reused.
       assertThat(coords.stream().toList())
-        .contains(new int[] { 1, 1 }, new int[] { 1, 1 }, new int[] { 1, 1 }, new int[] { 1, 1 });
+        .containsExactly(
+          new int[] { 1, 1 },
+          new int[] { 1, 1 },
+          new int[] { 1, 1 },
+          new int[] { 1, 1 }
+        );
       assertThat(coords.stream().map(int[]::clone).toList())
-        .contains(new int[] { 0, 0 }, new int[] { 0, 1 }, new int[] { 1, 0 }, new int[] { 1, 1 });
+        .containsExactly(
+          new int[] { 0, 0 },
+          new int[] { 0, 1 },
+          new int[] { 1, 0 },
+          new int[] { 1, 1 }
+        );
 
       var items = new ArrayList<int[]>();
       coords.iterator().forEachRemaining(b -> items.add(b.clone()));
       assertThat(items)
-        .contains(new int[] { 0, 0 }, new int[] { 0, 1 }, new int[] { 1, 0 }, new int[] { 1, 1 });
+        .containsExactly(
+          new int[] { 0, 0 },
+          new int[] { 0, 1 },
+          new int[] { 1, 0 },
+          new int[] { 1, 1 }
+        );
     }
 
     {
@@ -132,12 +148,22 @@ public class ZTensorTest implements CommonAssertions {
       }
 
       assertThat(coords.stream().toList())
-        .contains(new int[] { 0, 0 }, new int[] { 0, 1 }, new int[] { 1, 0 }, new int[] { 1, 1 });
+        .containsExactly(
+          new int[] { 0, 0 },
+          new int[] { 0, 1 },
+          new int[] { 1, 0 },
+          new int[] { 1, 1 }
+        );
 
       var items = new ArrayList<int[]>();
       coords.iterator().forEachRemaining(items::add);
       assertThat(items)
-        .contains(new int[] { 0, 0 }, new int[] { 0, 1 }, new int[] { 1, 0 }, new int[] { 1, 1 });
+        .containsExactly(
+          new int[] { 0, 0 },
+          new int[] { 0, 1 },
+          new int[] { 1, 0 },
+          new int[] { 1, 1 }
+        );
     }
 
     // Empty tensor.
@@ -145,7 +171,7 @@ public class ZTensorTest implements CommonAssertions {
 
     // Scalar tensor.
     assertThat(ZTensor.newScalar(2).byCoords(BufferMode.SAFE).stream().toList())
-      .contains(new int[] {});
+      .containsExactly(new int[] {});
   }
 
   @Test
