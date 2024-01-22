@@ -17,8 +17,7 @@ public class ExportUtils {
   @Value
   public class JsonPathChain {
 
-    @Nullable
-    JsonPathChain parent;
+    @Nullable JsonPathChain parent;
 
     @Nonnull
     String selector;

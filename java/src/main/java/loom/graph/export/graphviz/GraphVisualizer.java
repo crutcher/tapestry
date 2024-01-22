@@ -154,13 +154,11 @@ public class GraphVisualizer {
       );
     }
 
-    @Nullable
-    private LoomNode<?, ?> maybeNode(UUID id) {
+    @Nullable private LoomNode<?, ?> maybeNode(UUID id) {
       return graph.getNode(id);
     }
 
-    @Nullable
-    private LoomNode<?, ?> maybeNode(String idString) {
+    @Nullable private LoomNode<?, ?> maybeNode(String idString) {
       try {
         var id = UUID.fromString(idString);
         return maybeNode(id);

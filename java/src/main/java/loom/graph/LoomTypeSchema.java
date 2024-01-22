@@ -93,8 +93,7 @@ public class LoomTypeSchema {
   @Singular
   Map<String, ReferenceSchema> referenceSchemas;
 
-  @Nullable
-  String jsonSchema;
+  @Nullable String jsonSchema;
 
   @Nonnull
   public List<LoomNode<?, ?>> collectFromGraph(

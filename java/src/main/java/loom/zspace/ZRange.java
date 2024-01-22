@@ -501,8 +501,7 @@ public class ZRange implements Cloneable, HasSize, HasPermute<ZRange>, HasToJson
    * @param other the other range.
    * @return the intersection of this range with another, null if there is no intersection.
    */
-  @Nullable
-  public ZRange intersection(@Nonnull ZRange other) {
+  @Nullable public ZRange intersection(@Nonnull ZRange other) {
     var iStart = ZTensorOperations.maximum(start, other.start).newZPoint();
     var iEnd = ZTensorOperations.minimum(end, other.end).newZPoint();
     if (iStart.le(iEnd)) {

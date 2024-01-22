@@ -39,14 +39,15 @@ java {
 
 spotless {
     java {
+        prettier(mapOf("prettier" to "2.8.8", "prettier-plugin-java" to "2.2.0"))
+            .config(mapOf("parser" to "java", "tabWidth" to 2, "printWidth" to 100, "bracketSameLine" to true))
+
         importOrder()
         removeUnusedImports()
         formatAnnotations()
         trimTrailingWhitespace()
         indentWithSpaces()
         endWithNewline()
-        prettier(mapOf("prettier" to "2.8.8", "prettier-plugin-java" to "2.2.0"))
-            .config(mapOf("parser" to "java", "tabWidth" to 2, "printWidth" to 100, "bracketSameLine" to true))
     }
     kotlinGradle {
         target("*.gradle.kts")
@@ -140,7 +141,7 @@ dependencies {
     implementation("org.slf4j:slf4j-api:2.0.7")
 
     // https://mvnrepository.com/artifact/org.slf4j/slf4j-reload4j
-    testImplementation("org.slf4j:slf4j-reload4j:2.0.11")
+    implementation("org.slf4j:slf4j-reload4j:2.0.11")
 
     // JMH benchmarking.
     testImplementation("org.openjdk.jmh:jmh-core:1.36")

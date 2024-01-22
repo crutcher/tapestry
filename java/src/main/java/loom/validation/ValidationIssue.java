@@ -102,15 +102,12 @@ public final class ValidationIssue {
     @Nonnull
     private final String name;
 
-    @Nullable
-    private final String message;
+    @Nullable private final String message;
 
-    @Nullable
-    private final String jsonpath;
+    @Nullable private final String jsonpath;
 
     /** This should always be a simple JSON Java value. */
-    @Nullable
-    private final Object data;
+    @Nullable private final Object data;
   }
 
   /** Extensions to the ValidationIssueBuilder. */
@@ -300,15 +297,12 @@ public final class ValidationIssue {
   @Nonnull
   private final String type;
 
-  @Nullable
-  private final Map<String, String> params;
+  @Nullable private final Map<String, String> params;
 
   @Nonnull
   private final String summary;
 
-  @Nullable
-  private final String message;
+  @Nullable private final String message;
 
-  @Nullable
-  private final List<Context> contexts;
+  @Nullable private final List<Context> contexts;
 }

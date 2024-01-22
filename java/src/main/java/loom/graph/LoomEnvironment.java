@@ -53,13 +53,11 @@ public final class LoomEnvironment {
     Class<? extends Constraint>[] value();
   }
 
-  @Nullable
-  private Class<? extends LoomNode<?, ?>> defaultNodeTypeClass;
+  @Nullable private Class<? extends LoomNode<?, ?>> defaultNodeTypeClass;
 
   private final Map<String, Class<? extends LoomNode<?, ?>>> nodeTypeClasses = new HashMap<>();
 
-  @Nullable
-  private Class<?> defaultAnnotationTypeClass;
+  @Nullable private Class<?> defaultAnnotationTypeClass;
 
   private final Map<String, Class<?>> annotationTypeClasses = new HashMap<>();
 
@@ -164,8 +162,7 @@ public final class LoomEnvironment {
    * @param type the type of the node.
    * @return the class representing the node type, or null if the type is not found.
    */
-  @Nullable
-  public Class<? extends LoomNode<?, ?>> classForType(String type) {
+  @Nullable public Class<? extends LoomNode<?, ?>> classForType(String type) {
     var nodeTypeClass = nodeTypeClasses.get(type);
     if (nodeTypeClass == null) {
       nodeTypeClass = defaultNodeTypeClass;

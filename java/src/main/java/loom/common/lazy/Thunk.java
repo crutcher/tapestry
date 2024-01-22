@@ -36,14 +36,11 @@ public class Thunk<T> implements Supplier<T> {
     return new Thunk<>(() -> value);
   }
 
-  @Nullable
-  private Supplier<T> supplier;
+  @Nullable private Supplier<T> supplier;
 
-  @Nullable
-  private Throwable error;
+  @Nullable private Throwable error;
 
-  @Nullable
-  private T value;
+  @Nullable private T value;
 
   public Thunk(@Nonnull Supplier<T> supplier) {
     this.supplier = supplier;

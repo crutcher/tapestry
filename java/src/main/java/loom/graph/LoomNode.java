@@ -94,8 +94,7 @@ public abstract class LoomNode<NodeType extends LoomNode<NodeType, BodyType>, Bo
   }
 
   @JsonIgnore
-  @Nullable
-  private LoomGraph graph;
+  @Nullable private LoomGraph graph;
 
   @Nonnull
   private final UUID id;
@@ -103,8 +102,7 @@ public abstract class LoomNode<NodeType extends LoomNode<NodeType, BodyType>, Bo
   @Nonnull
   private final String type;
 
-  @Nullable
-  private String label;
+  @Nullable private String label;
 
   @Builder.Default
   @Nonnull
@@ -146,8 +144,7 @@ public abstract class LoomNode<NodeType extends LoomNode<NodeType, BodyType>, Bo
    * @param key the annotation key.
    * @return the annotation value.
    */
-  @Nullable
-  public final Object getAnnotation(String key) {
+  @Nullable public final Object getAnnotation(String key) {
     return annotations.get(key);
   }
 
@@ -159,8 +156,7 @@ public abstract class LoomNode<NodeType extends LoomNode<NodeType, BodyType>, Bo
    * @return the annotation value.
    * @param <T> the annotation type.
    */
-  @Nullable
-  public final <T> T getAnnotation(@Nonnull String key, @Nonnull Class<? extends T> cls) {
+  @Nullable public final <T> T getAnnotation(@Nonnull String key, @Nonnull Class<? extends T> cls) {
     return cls.cast(annotations.get(key));
   }
 

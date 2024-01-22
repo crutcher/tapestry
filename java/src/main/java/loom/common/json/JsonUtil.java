@@ -373,14 +373,11 @@ public final class JsonUtil {
   @Value
   protected class SelectionPath {
 
-    @Nullable
-    SelectionPath parent;
+    @Nullable SelectionPath parent;
 
-    @Nullable
-    Object selector;
+    @Nullable Object selector;
 
-    @Nullable
-    Object target;
+    @Nullable Object target;
 
     public SelectionPath(@Nullable Object target) {
       this.parent = null;

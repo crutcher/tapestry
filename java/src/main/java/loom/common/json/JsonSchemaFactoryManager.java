@@ -143,8 +143,7 @@ public class JsonSchemaFactoryManager {
     @Nonnull
     private final JsonNode data;
 
-    @Nullable
-    private final String jsonPathPrefix;
+    @Nullable private final String jsonPathPrefix;
 
     private final Supplier<List<ValidationIssue.Context>> contexts;
 

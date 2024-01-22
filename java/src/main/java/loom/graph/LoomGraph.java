@@ -34,8 +34,7 @@ public final class LoomGraph implements HasToJsonString {
   private final LoomEnvironment env;
 
   @ToString.Include
-  @Nullable
-  private UUID id;
+  @Nullable private UUID id;
 
   @ToString.Include
   @JsonProperty(value = "nodes")
@@ -99,8 +98,7 @@ public final class LoomGraph implements HasToJsonString {
    * @param id the ID of the node to get.
    * @return the node, or null if not found.
    */
-  @Nullable
-  public LoomNode<?, ?> getNode(UUID id) {
+  @Nullable public LoomNode<?, ?> getNode(UUID id) {
     return nodeMap.get(id);
   }
 
@@ -110,8 +108,7 @@ public final class LoomGraph implements HasToJsonString {
    * @param id the ID of the node to get.
    * @return the node, or null if not found.
    */
-  @Nullable
-  public LoomNode<?, ?> getNode(String id) {
+  @Nullable public LoomNode<?, ?> getNode(String id) {
     return getNode(UUID.fromString(id));
   }
 
@@ -196,11 +193,9 @@ public final class LoomGraph implements HasToJsonString {
     @Nonnull
     private final LoomGraph graph;
 
-    @Nullable
-    private String type;
+    @Nullable private String type;
 
-    @Nullable
-    private Class<T> nodeClass;
+    @Nullable private Class<T> nodeClass;
 
     private NodeScanBuilder(@Nonnull LoomGraph graph) {
       this.graph = graph;
