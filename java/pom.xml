@@ -12,60 +12,16 @@
     <artifactId>library</artifactId>
     <version>1.1</version>
 
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.12.1</version>
-                <configuration>
-                    <source>21</source>
-                    <target>21</target>
-                    <annotationProcessorPaths>
-                        <path>
-                            <groupId>org.projectlombok</groupId>
-                            <artifactId>lombok</artifactId>
-                            <version>1.18.30</version>
-                        </path>
-                    </annotationProcessorPaths>
-                </configuration>
-            </plugin>
-
-            <plugin>
-                <groupId>com.diffplug.spotless</groupId>
-                <artifactId>spotless-maven-plugin</artifactId>
-                <version>2.42.0</version>
-                <configuration>
-                    <java>
-                        <prettier>
-                            <devDependencies>
-                                <prettier>2.8.8</prettier>
-                                <prettier-plugin-java>2.2.0</prettier-plugin-java>
-                            </devDependencies>
-                            <config>
-                                <parser>java</parser>
-                                <tabWidth>2</tabWidth>
-                                <printWidth>100</printWidth>
-                                <bracketSameLine>true</bracketSameLine>
-                            </config>
-                        </prettier>
-
-                        <importOrder/>
-                        <removeUnusedImports/>
-                        <formatAnnotations/>
-                        <trimTrailingWhitespace/>
-                        <indent>
-                            <spaces>true</spaces>
-                            <tabs>false</tabs>
-                            <spacesPerTab>2</spacesPerTab>
-                        </indent>
-                        <endWithNewline/>
-
-                    </java>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
+    <properties>
+        <maven.compiler.plugin.version>3.12.1</maven.compiler.plugin.version>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
+        <lombok.version>1.18.30</lombok.version>
+        <error-prone.version>2.24.1</error-prone.version>
+        <spotless.plugin.version>2.42.0</spotless.plugin.version>
+        <spotless.prettier.version>2.8.8</spotless.prettier.version>
+        <spotless.prettier.plugin.version>2.2.0</spotless.prettier.plugin.version>
+    </properties>
 
     <repositories>
         <repository>
@@ -80,7 +36,7 @@
             <dependency>
                 <groupId>org.projectlombok</groupId>
                 <artifactId>lombok</artifactId>
-                <version>1.18.30</version>
+                <version>${lombok.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
@@ -193,21 +149,18 @@
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
                 <version>4.13.2</version>
-                <scope>test</scope>
             </dependency>
 
             <dependency>
                 <groupId>org.assertj</groupId>
                 <artifactId>assertj-core</artifactId>
                 <version>3.24.2</version>
-                <scope>test</scope>
             </dependency>
 
             <dependency>
                 <groupId>org.mockito</groupId>
                 <artifactId>mockito-core</artifactId>
                 <version>5.3.1</version>
-                <scope>test</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -286,10 +239,12 @@
             <groupId>guru.nidi</groupId>
             <artifactId>graphviz-java</artifactId>
         </dependency>
+        <!--
         <dependency>
             <groupId>org.graalvm.js</groupId>
             <artifactId>js</artifactId>
         </dependency>
+        -->
         <dependency>
             <groupId>org.dom4j</groupId>
             <artifactId>dom4j</artifactId>
@@ -321,5 +276,69 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${maven.compiler.plugin.version}</version>
+                <configuration>
+                    <source>${maven.compiler.source}</source>
+                    <target>${maven.compiler.target}</target>
+                    <compilerArgs>
+                        <arg>-XDcompilePolicy=simple</arg>
+                        <arg>-Xplugin:ErrorProne</arg>
+                    </compilerArgs>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                            <version>${lombok.version}</version>
+                        </path>
+                        <path>
+                            <groupId>com.google.errorprone</groupId>
+                            <artifactId>error_prone_core</artifactId>
+                            <version>${error-prone.version}</version>
+                        </path>
+                    </annotationProcessorPaths>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>com.diffplug.spotless</groupId>
+                <artifactId>spotless-maven-plugin</artifactId>
+                <version>${spotless.plugin.version}</version>
+                <configuration>
+                    <java>
+                        <prettier>
+                            <devDependencies>
+                                <prettier>${spotless.prettier.version}</prettier>
+                                <prettier-plugin-java>${spotless.prettier.plugin.version}</prettier-plugin-java>
+                            </devDependencies>
+                            <config>
+                                <parser>java</parser>
+                                <tabWidth>2</tabWidth>
+                                <printWidth>100</printWidth>
+                                <bracketSameLine>true</bracketSameLine>
+                            </config>
+                        </prettier>
+
+                        <importOrder/>
+                        <removeUnusedImports/>
+                        <formatAnnotations/>
+                        <trimTrailingWhitespace/>
+                        <indent>
+                            <spaces>true</spaces>
+                            <tabs>false</tabs>
+                            <spacesPerTab>2</spacesPerTab>
+                        </indent>
+                        <endWithNewline/>
+
+                    </java>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>
