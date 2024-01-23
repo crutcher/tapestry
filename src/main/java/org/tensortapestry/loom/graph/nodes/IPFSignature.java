@@ -12,6 +12,7 @@ import lombok.Value;
 import lombok.extern.jackson.Jacksonized;
 import org.tensortapestry.loom.common.json.HasToJsonString;
 import org.tensortapestry.loom.common.json.WithSchema;
+import org.tensortapestry.loom.graph.LoomConstants;
 import org.tensortapestry.loom.polyhedral.IndexProjectionFunction;
 
 @Value
@@ -79,7 +80,9 @@ import org.tensortapestry.loom.polyhedral.IndexProjectionFunction;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class IPFSignature implements HasToJsonString {
 
-  public static final String ANNOTATION_TYPE = "IPFSignature";
+  public static final String ANNOTATION_TYPE = LoomConstants.LOOM_CORE_ANNOTATION_TYPE.apply(
+    "IPFSignature"
+  );
 
   @SuppressWarnings("unused")
   public static class IPFSignatureBuilder {

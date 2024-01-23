@@ -22,6 +22,9 @@ import org.tensortapestry.loom.validation.ValidationIssue;
 
 public class JsonSchemaFactoryManagerTest extends BaseTestClass {
 
+  @Nonnull
+  private final JsonSchemaFactoryManager manager = new JsonSchemaFactoryManager();
+
   @Value
   @Jacksonized
   @Builder
@@ -37,19 +40,17 @@ public class JsonSchemaFactoryManagerTest extends BaseTestClass {
   @Test
   @SuppressWarnings("ResultOfMethodCallIgnored")
   public void test_unmapped_uri() {
-    var manager = new JsonSchemaFactoryManager();
     assertThatExceptionOfType(RuntimeException.class)
       .isThrownBy(() -> manager.loadSchema(URI.create("http://loom.example/data")));
   }
 
   @Test
   public void test_if() {
-    var manager = new JsonSchemaFactoryManager();
     manager.addSchema(
       "http://loom.example/data",
       """
            {
-                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "$schema": "https://json-schema.org/draft/2020-12/schema#",
                 "allOf": [
                    {
                        "if": {
@@ -123,7 +124,6 @@ public class JsonSchemaFactoryManagerTest extends BaseTestClass {
 
   @Test
   public void test() {
-    var manager = new JsonSchemaFactoryManager();
     manager.addSchema(
       "http://loom.example/data",
       """
@@ -185,6 +185,35 @@ public class JsonSchemaFactoryManagerTest extends BaseTestClass {
       .isEqualTo("N");
   }
 
+  @Test
+  public void test_lookup_by_pointer() {
+    manager.addSchema(
+      "http://loom.example/data",
+      """
+          {
+            "$schema": "http://json-schema.org/draft/2020-12/schema",
+            "type": "object",
+            "$defs": {
+              "nodes": {
+                "$defs": {
+                  "ztype": {
+                      "type": "string",
+                      "enum": ["A", "B", "C"]
+                  }
+                }
+              }
+            }
+          }
+          """
+    );
+    var schema = manager.loadSchema(
+      URI.create("http://loom.example/data#/$defs/nodes/$defs/ztype")
+    );
+
+    assertThat(schema.validate(JsonUtil.valueToJsonNodeTree("A"))).isEmpty();
+    assertThat(schema.validate(JsonUtil.valueToJsonNodeTree("X"))).hasSize(1);
+  }
+
   @Data
   @Jacksonized
   @Builder
@@ -196,8 +225,6 @@ public class JsonSchemaFactoryManagerTest extends BaseTestClass {
 
   @Test
   public void test_adapt_scan() {
-    var manager = new JsonSchemaFactoryManager();
-
     manager.addSchema(
       """
     {

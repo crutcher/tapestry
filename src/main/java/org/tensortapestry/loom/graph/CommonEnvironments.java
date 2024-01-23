@@ -29,6 +29,7 @@ public final class CommonEnvironments {
     return LoomEnvironment
       .builder()
       .build()
+      .addUrlAlias(LoomConstants.LOOM_CORE_SCHEMA, "loom")
       .autowireNodeTypeClass(NoteNode.TYPE, NoteNode.class)
       .autowireNodeTypeClass(TensorNode.TYPE, TensorNode.class)
       .addConstraint(

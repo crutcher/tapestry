@@ -6,6 +6,7 @@ import com.google.errorprone.annotations.CheckReturnValue;
 import com.networknt.schema.*;
 import com.networknt.schema.uri.URIFetcher;
 import java.io.ByteArrayInputStream;
+import java.io.FileNotFoundException;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
@@ -16,6 +17,7 @@ import java.util.function.Supplier;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.Singular;
 import org.tensortapestry.loom.validation.ValidationIssue;
 import org.tensortapestry.loom.validation.ValidationIssueCollector;
@@ -29,12 +31,23 @@ public class JsonSchemaFactoryManager {
 
   public static final String JSD_ERROR = "JSD_ERROR";
   private final Map<URI, String> schemas = new HashMap<>();
+
+  private static URI baseURL(URI uri) {
+    uri = uri.normalize();
+    try {
+      return new URI(uri.getScheme(), uri.getAuthority(), uri.getPath(), uri.getQuery(), null);
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
+  }
+
   private final URIFetcher uriFetcher = uri -> {
-    var schemaSource = schemas.get(uri.normalize());
+    uri = baseURL(uri);
+    var schemaSource = schemas.get(uri);
     if (schemaSource != null) {
       return new ByteArrayInputStream(schemaSource.getBytes(StandardCharsets.UTF_8));
     }
-    throw new RuntimeException("Unknown URI: " + uri);
+    throw new FileNotFoundException("Unknown URI: " + uri);
   };
 
   private final JsonMetaSchema metaSchema = new Version202012().getInstance();
@@ -54,6 +67,7 @@ public class JsonSchemaFactoryManager {
     )
     .build();
 
+  @Getter
   private final JsonSchemaFactory factory = JsonSchemaFactory
     .builder()
     .defaultMetaSchemaURI(metaSchema.getUri())
@@ -84,7 +98,10 @@ public class JsonSchemaFactoryManager {
 
   @CanIgnoreReturnValue
   public JsonSchemaFactoryManager addSchema(URI uri, String schema) {
-    URI normUri = uri.normalize();
+    if (uri.getFragment() != null) {
+      throw new IllegalArgumentException("URI must not have a fragment: " + uri);
+    }
+    URI normUri = baseURL(uri);
     if (hasSchema(normUri)) {
       throw new IllegalArgumentException("Schema already registered for URI: " + normUri);
     }

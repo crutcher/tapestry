@@ -118,6 +118,28 @@ public final class LoomEnvironment {
     }
   }
 
+  @Builder.Default
+  private Map<String, String> urlAliasMap = new HashMap<>();
+
+  public LoomEnvironment addUrlAlias(String url, String alias) {
+    urlAliasMap.put(url, alias);
+    return this;
+  }
+
+  public String urlAlias(String type) {
+    if (type.contains("#")) {
+      var parts = type.split("#", 2);
+      var url = parts[0];
+      var path = parts[1];
+
+      var alias = urlAliasMap.get(url);
+      if (alias != null) {
+        return alias + ":" + path.substring(path.lastIndexOf('/') + 1);
+      }
+    }
+      return type;
+  }
+
   /**
    * Get the type alias for a given node type.
    *
@@ -127,18 +149,12 @@ public final class LoomEnvironment {
   public String getTypeAlias(String type) {
     // TODO: something real.
     assertSupportsNodeType(type);
-    if (type.contains("#")) {
-      return "loom:" + type.substring(type.indexOf("#") + 1);
-    }
-    return "loom:" + type;
+    return urlAlias(type);
   }
 
   public String getAnnotationTypeAlias(String type) {
     // TODO: something real.
-    if (type.contains("#")) {
-      return "loom:" + type.substring(type.indexOf("#") + 1);
-    }
-    return "loom:" + type;
+    return urlAlias(type);
   }
 
   /**
