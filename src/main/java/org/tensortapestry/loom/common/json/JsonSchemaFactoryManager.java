@@ -186,7 +186,6 @@ public class JsonSchemaFactoryManager {
       return builder.build();
     }
 
-    @SuppressWarnings("ConstantConditions")
     public void scan() {
       for (var error : schema.validate(data)) {
         issueCollector.addIssue(adaptValidationMessage(error));
