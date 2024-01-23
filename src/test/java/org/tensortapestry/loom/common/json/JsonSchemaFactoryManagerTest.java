@@ -15,10 +15,10 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.Value;
 import lombok.extern.jackson.Jacksonized;
+import org.junit.Test;
 import org.tensortapestry.loom.testing.BaseTestClass;
 import org.tensortapestry.loom.validation.ListValidationIssueCollector;
 import org.tensortapestry.loom.validation.ValidationIssue;
-import org.junit.Test;
 
 public class JsonSchemaFactoryManagerTest extends BaseTestClass {
 

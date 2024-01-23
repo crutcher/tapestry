@@ -1,7 +1,7 @@
 package org.tensortapestry.loom.zspace;
 
-import org.tensortapestry.loom.testing.CommonAssertions;
 import org.junit.Test;
+import org.tensortapestry.loom.testing.CommonAssertions;
 
 public class IndexingFnsTest implements CommonAssertions {
 

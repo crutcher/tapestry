@@ -3,6 +3,7 @@ package org.tensortapestry.loom.graph;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import org.junit.Test;
 import org.tensortapestry.loom.common.json.JsonUtil;
 import org.tensortapestry.loom.graph.nodes.GenericNode;
 import org.tensortapestry.loom.graph.nodes.NoteNode;
@@ -11,7 +12,6 @@ import org.tensortapestry.loom.testing.BaseTestClass;
 import org.tensortapestry.loom.zspace.ZPoint;
 import org.tensortapestry.loom.zspace.ZRange;
 import org.tensortapestry.loom.zspace.ZTensor;
-import org.junit.Test;
 
 public class LoomGraphTest extends BaseTestClass {
 
@@ -200,7 +200,7 @@ public class LoomGraphTest extends BaseTestClass {
                "nodes": [
                   {
                     "id": "00000000-0000-0000-0000-000000000001",
-                    "type": "TensorNode",
+                    "type": "%1$s",
                     "label": "foo",
                     "body": {
                       "dtype": "int32",
@@ -209,7 +209,7 @@ public class LoomGraphTest extends BaseTestClass {
                   },
                   {
                     "id": "00000000-0000-0000-0000-000000000002",
-                    "type": "TensorNode",
+                    "type": "%1$s",
                     "label": "bar",
                     "body": {
                       "dtype": "float32",
@@ -218,7 +218,9 @@ public class LoomGraphTest extends BaseTestClass {
                   }
                ]
             }
-            """;
+            """.formatted(
+          TensorNode.TYPE
+        );
 
     var env = LoomEnvironment.builder().build().addNodeTypeClass(TensorNode.TYPE, TensorNode.class);
 

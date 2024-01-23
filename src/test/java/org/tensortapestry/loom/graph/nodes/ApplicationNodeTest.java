@@ -2,10 +2,10 @@ package org.tensortapestry.loom.graph.nodes;
 
 import java.util.List;
 import java.util.UUID;
+import org.junit.Test;
 import org.tensortapestry.loom.graph.CommonEnvironments;
 import org.tensortapestry.loom.testing.BaseTestClass;
 import org.tensortapestry.loom.zspace.ZRange;
-import org.junit.Test;
 
 public class ApplicationNodeTest extends BaseTestClass {
 

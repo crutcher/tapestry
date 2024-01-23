@@ -1,11 +1,11 @@
 package org.tensortapestry.loom.graphviz;
 
-import org.tensortapestry.loom.graph.export.graphviz.GH;
-import org.tensortapestry.loom.testing.BaseTestClass;
-import org.tensortapestry.loom.testing.XmlAssertions;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Text;
 import org.junit.Test;
+import org.tensortapestry.loom.graph.export.graphviz.GH;
+import org.tensortapestry.loom.testing.BaseTestClass;
+import org.tensortapestry.loom.testing.XmlAssertions;
 
 public class GHTest extends BaseTestClass implements XmlAssertions {
 

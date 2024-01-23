@@ -7,9 +7,9 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.function.IntBinaryOperator;
+import org.junit.Test;
 import org.tensortapestry.loom.common.json.JsonUtil;
 import org.tensortapestry.loom.testing.CommonAssertions;
-import org.junit.Test;
 
 public class ZTensorTest implements CommonAssertions {
 

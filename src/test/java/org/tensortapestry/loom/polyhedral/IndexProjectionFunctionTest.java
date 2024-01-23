@@ -1,7 +1,7 @@
 package org.tensortapestry.loom.polyhedral;
 
-import org.tensortapestry.loom.testing.BaseTestClass;
 import org.junit.Test;
+import org.tensortapestry.loom.testing.BaseTestClass;
 import org.tensortapestry.loom.zspace.*;
 
 public class IndexProjectionFunctionTest extends BaseTestClass {

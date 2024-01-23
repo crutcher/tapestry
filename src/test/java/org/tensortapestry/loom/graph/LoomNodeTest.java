@@ -2,11 +2,11 @@ package org.tensortapestry.loom.graph;
 
 import java.util.Map;
 import java.util.UUID;
+import org.junit.Test;
 import org.tensortapestry.loom.common.json.JsonUtil;
 import org.tensortapestry.loom.graph.nodes.NoteNode;
 import org.tensortapestry.loom.testing.BaseTestClass;
 import org.tensortapestry.loom.validation.ValidationIssue;
-import org.junit.Test;
 
 public class LoomNodeTest extends BaseTestClass {
 

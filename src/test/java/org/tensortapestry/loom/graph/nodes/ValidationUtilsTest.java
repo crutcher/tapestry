@@ -1,6 +1,7 @@
 package org.tensortapestry.loom.graph.nodes;
 
 import java.util.UUID;
+import org.junit.Test;
 import org.tensortapestry.loom.common.lazy.LazyString;
 import org.tensortapestry.loom.graph.LoomConstants;
 import org.tensortapestry.loom.graph.LoomEnvironment;
@@ -8,7 +9,6 @@ import org.tensortapestry.loom.graph.LoomGraph;
 import org.tensortapestry.loom.testing.BaseTestClass;
 import org.tensortapestry.loom.validation.ListValidationIssueCollector;
 import org.tensortapestry.loom.validation.ValidationIssue;
-import org.junit.Test;
 
 public class ValidationUtilsTest extends BaseTestClass {
 

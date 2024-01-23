@@ -1,12 +1,12 @@
 package org.tensortapestry.loom.graph;
 
+import org.junit.Test;
 import org.tensortapestry.loom.graph.constraints.NodeBodySchemaConstraint;
 import org.tensortapestry.loom.graph.nodes.ApplicationNode;
 import org.tensortapestry.loom.graph.nodes.NoteNode;
 import org.tensortapestry.loom.graph.nodes.TensorNode;
 import org.tensortapestry.loom.testing.BaseTestClass;
 import org.tensortapestry.loom.validation.ValidationIssueCollector;
-import org.junit.Test;
 
 public class LoomEnvironmentTest extends BaseTestClass {
 
@@ -73,7 +73,7 @@ public class LoomEnvironmentTest extends BaseTestClass {
                   "nodes": [
                     {
                       "id": "00000000-0000-0000-0000-000000000000",
-                      "type": "TensorNode",
+                      "type": "%1$s",
                       "label": "foo",
                       "body": {
                         "dtype": "int32",
@@ -82,7 +82,9 @@ public class LoomEnvironmentTest extends BaseTestClass {
                     }
                   ]
                  }
-                """;
+                """.formatted(
+          TensorNode.TYPE
+        );
 
     var env = LoomEnvironment.builder().build().addNodeTypeClass(TensorNode.TYPE, TensorNode.class);
 

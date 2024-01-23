@@ -6,16 +6,16 @@ import static org.tensortapestry.loom.graph.LoomConstants.NODE_VALIDATION_ERROR;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import org.junit.Test;
 import org.tensortapestry.loom.graph.CommonEnvironments;
 import org.tensortapestry.loom.graph.LoomConstants;
 import org.tensortapestry.loom.graph.LoomGraph;
-import org.tensortapestry.loom.testing.BaseTestClass;
 import org.tensortapestry.loom.graph.nodes.*;
+import org.tensortapestry.loom.testing.BaseTestClass;
 import org.tensortapestry.loom.validation.ListValidationIssueCollector;
 import org.tensortapestry.loom.validation.ValidationIssue;
 import org.tensortapestry.loom.zspace.ZPoint;
 import org.tensortapestry.loom.zspace.ZRange;
-import org.junit.Test;
 
 public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
 

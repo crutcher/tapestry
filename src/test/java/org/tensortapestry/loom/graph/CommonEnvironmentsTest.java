@@ -1,6 +1,7 @@
 package org.tensortapestry.loom.graph;
 
 import java.util.stream.Collectors;
+import org.junit.Test;
 import org.tensortapestry.loom.common.json.WithSchema;
 import org.tensortapestry.loom.graph.constraints.NodeBodySchemaConstraint;
 import org.tensortapestry.loom.graph.constraints.OperationReferenceAgreementConstraint;
@@ -10,7 +11,6 @@ import org.tensortapestry.loom.graph.nodes.NoteNode;
 import org.tensortapestry.loom.graph.nodes.OperationSignatureNode;
 import org.tensortapestry.loom.graph.nodes.TensorNode;
 import org.tensortapestry.loom.testing.BaseTestClass;
-import org.junit.Test;
 
 public class CommonEnvironmentsTest extends BaseTestClass {
 

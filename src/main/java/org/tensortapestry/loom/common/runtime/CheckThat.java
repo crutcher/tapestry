@@ -3,8 +3,8 @@ package org.tensortapestry.loom.common.runtime;
 import com.google.errorprone.annotations.FormatMethod;
 import com.google.errorprone.annotations.FormatString;
 import lombok.experimental.UtilityClass;
-import org.tensortapestry.loom.common.lazy.LazyString;
 import org.jetbrains.annotations.Contract;
+import org.tensortapestry.loom.common.lazy.LazyString;
 
 @UtilityClass
 public class CheckThat {

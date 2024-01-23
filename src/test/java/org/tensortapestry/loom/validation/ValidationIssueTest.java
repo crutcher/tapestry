@@ -3,8 +3,8 @@ package org.tensortapestry.loom.validation;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
-import org.tensortapestry.loom.testing.BaseTestClass;
 import org.junit.Test;
+import org.tensortapestry.loom.testing.BaseTestClass;
 
 public class ValidationIssueTest extends BaseTestClass {
 

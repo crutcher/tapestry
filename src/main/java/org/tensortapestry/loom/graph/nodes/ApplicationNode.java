@@ -1,5 +1,7 @@
 package org.tensortapestry.loom.graph.nodes;
 
+import static org.tensortapestry.loom.graph.LoomConstants.LOOM_CORE_NODE_TYPE;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import java.util.List;
@@ -27,7 +29,7 @@ public final class ApplicationNode extends LoomNode<ApplicationNode, Application
   /**
    * The node type.
    */
-  public static final String TYPE = "ApplicationNode";
+  public static final String TYPE = LOOM_CORE_NODE_TYPE.apply("application");
 
   /**
    * Extensions to the ApplicationNodeBuilder.

@@ -5,8 +5,8 @@ import static org.junit.Assert.*;
 import lombok.Builder;
 import lombok.Data;
 import lombok.extern.jackson.Jacksonized;
-import org.tensortapestry.loom.testing.BaseTestClass;
 import org.junit.Test;
+import org.tensortapestry.loom.testing.BaseTestClass;
 
 public class HasToJsonStringTest extends BaseTestClass {
 

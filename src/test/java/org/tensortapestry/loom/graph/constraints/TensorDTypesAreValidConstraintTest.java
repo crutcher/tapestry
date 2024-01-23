@@ -1,6 +1,7 @@
 package org.tensortapestry.loom.graph.constraints;
 
 import java.util.Set;
+import org.junit.Test;
 import org.tensortapestry.loom.graph.LoomConstants;
 import org.tensortapestry.loom.graph.LoomEnvironment;
 import org.tensortapestry.loom.graph.LoomGraph;
@@ -10,7 +11,6 @@ import org.tensortapestry.loom.testing.BaseTestClass;
 import org.tensortapestry.loom.validation.ListValidationIssueCollector;
 import org.tensortapestry.loom.validation.ValidationIssue;
 import org.tensortapestry.loom.zspace.ZPoint;
-import org.junit.Test;
 
 public class TensorDTypesAreValidConstraintTest extends BaseTestClass {
 

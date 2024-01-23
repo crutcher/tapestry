@@ -1,8 +1,8 @@
 package org.tensortapestry.loom.zspace;
 
 import javax.annotation.Nonnull;
-import org.tensortapestry.loom.testing.BaseTestClass;
 import org.junit.Test;
+import org.tensortapestry.loom.testing.BaseTestClass;
 
 public class ImmutableZTensorWrapperTest extends BaseTestClass {
 

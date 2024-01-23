@@ -1,5 +1,7 @@
 package org.tensortapestry.loom.graph.nodes;
 
+import static org.tensortapestry.loom.graph.LoomConstants.LOOM_CORE_NODE_TYPE;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -27,7 +29,7 @@ import org.tensortapestry.loom.graph.constraints.OperationReferenceAgreementCons
 public final class OperationSignatureNode
   extends LoomNode<OperationSignatureNode, OperationSignatureNode.Body> {
 
-  public static final String TYPE = "OperationSignature";
+  public static final String TYPE = LOOM_CORE_NODE_TYPE.apply("operation");
 
   @SuppressWarnings("unused")
   public abstract static class OperationSignatureNodeBuilder<

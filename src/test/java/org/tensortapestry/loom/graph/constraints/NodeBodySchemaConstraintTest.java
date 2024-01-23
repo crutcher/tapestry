@@ -1,13 +1,13 @@
 package org.tensortapestry.loom.graph.constraints;
 
 import java.util.regex.Pattern;
+import org.junit.Test;
 import org.tensortapestry.loom.common.json.WithSchema;
 import org.tensortapestry.loom.graph.LoomEnvironment;
 import org.tensortapestry.loom.graph.nodes.NoteNode;
 import org.tensortapestry.loom.graph.nodes.TensorNode;
 import org.tensortapestry.loom.testing.BaseTestClass;
 import org.tensortapestry.loom.zspace.ZPoint;
-import org.junit.Test;
 
 public class NodeBodySchemaConstraintTest extends BaseTestClass {
 

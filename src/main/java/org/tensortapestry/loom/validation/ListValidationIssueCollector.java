@@ -4,8 +4,8 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
-import org.tensortapestry.loom.common.json.HasToJsonString;
 import org.jetbrains.annotations.Nullable;
+import org.tensortapestry.loom.common.json.HasToJsonString;
 
 @Getter
 public class ListValidationIssueCollector implements ValidationIssueCollector, HasToJsonString {

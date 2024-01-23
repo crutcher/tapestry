@@ -1,8 +1,8 @@
 package org.tensortapestry.loom.zspace;
 
 import java.util.List;
-import org.tensortapestry.loom.testing.CommonAssertions;
 import org.junit.Test;
+import org.tensortapestry.loom.testing.CommonAssertions;
 
 public class ZRangeTest implements CommonAssertions {
 

@@ -12,10 +12,10 @@ import javax.annotation.Nonnull;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.UtilityClass;
-import org.tensortapestry.loom.common.runtime.ExcludeFromJacocoGeneratedReport;
 import org.dom4j.*;
 import org.dom4j.io.OutputFormat;
 import org.dom4j.io.XMLWriter;
+import org.tensortapestry.loom.common.runtime.ExcludeFromJacocoGeneratedReport;
 
 /**
  * A fluent api for creating GraphViz HTML-Like labels.

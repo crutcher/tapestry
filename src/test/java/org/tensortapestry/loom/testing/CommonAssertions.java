@@ -4,11 +4,11 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
+import org.assertj.core.api.WithAssertions;
 import org.tensortapestry.loom.common.json.JsonUtil;
 import org.tensortapestry.loom.common.text.PrettyDiffUtils;
 import org.tensortapestry.loom.validation.ListValidationIssueCollector;
 import org.tensortapestry.loom.validation.ValidationIssue;
-import org.assertj.core.api.WithAssertions;
 
 public interface CommonAssertions extends WithAssertions {
   default void assertValidationIssues(

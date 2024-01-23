@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.UUID;
 import javax.annotation.Nonnull;
 import lombok.experimental.UtilityClass;
-import org.tensortapestry.loom.graph.nodes.OperationSignatureNode;
 import org.jgrapht.Graph;
 import org.jgrapht.alg.color.GreedyColoring;
 import org.jgrapht.alg.cycle.TarjanSimpleCycles;
@@ -13,6 +12,7 @@ import org.jgrapht.alg.interfaces.VertexColoringAlgorithm;
 import org.jgrapht.graph.DefaultDirectedGraph;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.DefaultUndirectedGraph;
+import org.tensortapestry.loom.graph.nodes.OperationSignatureNode;
 
 @UtilityClass
 public class TraversalUtils {

@@ -1,10 +1,10 @@
 package org.tensortapestry.loom.graph.nodes;
 
+import org.junit.Test;
 import org.tensortapestry.loom.testing.BaseTestClass;
 import org.tensortapestry.loom.zspace.ZPoint;
 import org.tensortapestry.loom.zspace.ZRange;
 import org.tensortapestry.loom.zspace.ZTensor;
-import org.junit.Test;
 
 public class TensorNodeTest extends BaseTestClass {
 

@@ -1,8 +1,8 @@
 package org.tensortapestry.loom.zspace;
 
 import java.util.List;
-import org.tensortapestry.loom.testing.BaseTestClass;
 import org.junit.Test;
+import org.tensortapestry.loom.testing.BaseTestClass;
 
 public class IdentifiersFnsTest extends BaseTestClass {
 

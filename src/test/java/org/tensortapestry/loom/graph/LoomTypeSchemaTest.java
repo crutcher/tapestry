@@ -6,14 +6,14 @@ import java.util.UUID;
 import lombok.Builder;
 import lombok.Value;
 import lombok.extern.jackson.Jacksonized;
+import org.apache.commons.lang3.tuple.Pair;
+import org.junit.Test;
 import org.tensortapestry.loom.common.json.JsonUtil;
 import org.tensortapestry.loom.graph.nodes.NoteNode;
 import org.tensortapestry.loom.graph.nodes.TensorNode;
 import org.tensortapestry.loom.testing.BaseTestClass;
 import org.tensortapestry.loom.validation.ListValidationIssueCollector;
 import org.tensortapestry.loom.validation.ValidationIssue;
-import org.apache.commons.lang3.tuple.Pair;
-import org.junit.Test;
 
 public class LoomTypeSchemaTest extends BaseTestClass {
 

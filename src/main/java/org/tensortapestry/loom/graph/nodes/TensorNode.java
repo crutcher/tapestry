@@ -10,6 +10,7 @@ import lombok.experimental.SuperBuilder;
 import lombok.extern.jackson.Jacksonized;
 import org.tensortapestry.loom.common.json.HasToJsonString;
 import org.tensortapestry.loom.common.json.WithSchema;
+import org.tensortapestry.loom.graph.LoomConstants;
 import org.tensortapestry.loom.graph.LoomNode;
 import org.tensortapestry.loom.zspace.*;
 
@@ -19,7 +20,7 @@ import org.tensortapestry.loom.zspace.*;
 @Setter
 public final class TensorNode extends LoomNode<TensorNode, TensorNode.Body> {
 
-  public static final String TYPE = "TensorNode";
+  public static final String TYPE = LoomConstants.LOOM_CORE_NODE_TYPE.apply("tensor");
 
   @SuppressWarnings("unused")
   public abstract static class TensorNodeBuilder<

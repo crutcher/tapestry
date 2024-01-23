@@ -16,9 +16,9 @@ import org.tensortapestry.loom.common.runtime.CheckThat;
 import org.tensortapestry.loom.common.runtime.ExcludeFromJacocoGeneratedReport;
 import org.tensortapestry.loom.graph.constraints.NodeBodySchemaConstraint;
 import org.tensortapestry.loom.validation.ListValidationIssueCollector;
+import org.tensortapestry.loom.validation.LoomValidationError;
 import org.tensortapestry.loom.validation.ValidationIssue;
 import org.tensortapestry.loom.validation.ValidationIssueCollector;
-import org.tensortapestry.loom.validation.LoomValidationError;
 
 /**
  * Loom Graph Environment.
@@ -127,12 +127,18 @@ public final class LoomEnvironment {
   public String getTypeAlias(String type) {
     // TODO: something real.
     assertSupportsNodeType(type);
+    if (type.contains("#")) {
+      return "loom:" + type.substring(type.indexOf("#") + 1);
+    }
     return "loom:" + type;
   }
 
-  public String getAnnotationTypeAlias(String key) {
+  public String getAnnotationTypeAlias(String type) {
     // TODO: something real.
-    return "loom:" + key;
+    if (type.contains("#")) {
+      return "loom:" + type.substring(type.indexOf("#") + 1);
+    }
+    return "loom:" + type;
   }
 
   /**

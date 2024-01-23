@@ -4,8 +4,8 @@ import java.util.List;
 import javax.annotation.Nonnull;
 import lombok.Builder;
 import lombok.Value;
-import org.tensortapestry.loom.testing.BaseTestClass;
 import org.junit.Test;
+import org.tensortapestry.loom.testing.BaseTestClass;
 
 public class HasNamedPermuteTest extends BaseTestClass {
 

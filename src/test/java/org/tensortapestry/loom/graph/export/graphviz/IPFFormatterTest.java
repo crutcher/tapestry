@@ -1,11 +1,11 @@
 package org.tensortapestry.loom.graph.export.graphviz;
 
+import org.junit.Test;
 import org.tensortapestry.loom.polyhedral.IndexProjectionFunction;
 import org.tensortapestry.loom.testing.BaseTestClass;
 import org.tensortapestry.loom.testing.XmlAssertions;
 import org.tensortapestry.loom.zspace.ZAffineMap;
 import org.tensortapestry.loom.zspace.ZTensor;
-import org.junit.Test;
 
 public class IPFFormatterTest extends BaseTestClass implements XmlAssertions {
 

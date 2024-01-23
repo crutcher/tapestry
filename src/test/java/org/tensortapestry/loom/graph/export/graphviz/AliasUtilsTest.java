@@ -2,8 +2,8 @@ package org.tensortapestry.loom.graph.export.graphviz;
 
 import java.util.List;
 import java.util.UUID;
-import org.tensortapestry.loom.testing.BaseTestClass;
 import org.junit.Test;
+import org.tensortapestry.loom.testing.BaseTestClass;
 
 public class AliasUtilsTest extends BaseTestClass {
 

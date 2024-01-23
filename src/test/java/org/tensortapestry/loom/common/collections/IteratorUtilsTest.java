@@ -2,8 +2,8 @@ package org.tensortapestry.loom.common.collections;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.tensortapestry.loom.testing.BaseTestClass;
 import org.junit.Test;
+import org.tensortapestry.loom.testing.BaseTestClass;
 
 public class IteratorUtilsTest extends BaseTestClass {
 

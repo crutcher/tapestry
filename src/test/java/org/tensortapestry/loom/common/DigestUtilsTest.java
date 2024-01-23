@@ -1,7 +1,7 @@
 package org.tensortapestry.loom.common;
 
-import org.tensortapestry.loom.testing.BaseTestClass;
 import org.junit.Test;
+import org.tensortapestry.loom.testing.BaseTestClass;
 
 public class DigestUtilsTest extends BaseTestClass {
 

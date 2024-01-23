@@ -17,6 +17,7 @@ import javax.annotation.Nullable;
 import lombok.Builder;
 import lombok.Data;
 import lombok.Getter;
+import org.apache.commons.lang3.tuple.Pair;
 import org.tensortapestry.loom.common.collections.IteratorUtils;
 import org.tensortapestry.loom.common.json.JsonUtil;
 import org.tensortapestry.loom.graph.LoomGraph;
@@ -25,7 +26,6 @@ import org.tensortapestry.loom.graph.TraversalUtils;
 import org.tensortapestry.loom.graph.nodes.*;
 import org.tensortapestry.loom.polyhedral.IndexProjectionFunction;
 import org.tensortapestry.loom.zspace.ZRange;
-import org.apache.commons.lang3.tuple.Pair;
 
 @Data
 @Builder

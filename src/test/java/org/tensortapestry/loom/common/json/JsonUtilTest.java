@@ -8,8 +8,8 @@ import com.jayway.jsonpath.TypeRef;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import org.tensortapestry.loom.testing.CommonAssertions;
 import org.junit.Test;
+import org.tensortapestry.loom.testing.CommonAssertions;
 
 public class JsonUtilTest implements CommonAssertions, JsonUtil.WithNodeBuilders {
 
