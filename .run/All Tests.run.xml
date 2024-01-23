@@ -6,7 +6,6 @@
     <option name="TEST_OBJECT" value="directory" />
     <dir value="$PROJECT_DIR$/src/test/java" />
     <method v="2">
-      <option name="RunConfigurationTask" enabled="true" run_configuration_name="Format" run_configuration_type="MavenRunConfiguration" />
       <option name="Make" enabled="true" />
     </method>
   </configuration>
