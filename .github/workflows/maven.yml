@@ -22,17 +22,11 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
-    - name: Set up JDK 21
-      uses: actions/setup-java@v3
-      with:
-        java-version: '21'
-        distribution: 'temurin'
-        cache: maven
-
     - name: Setup Maven Action
       uses: s4u/setup-maven-action@< version >
       with:
-        maven-version: '3.9.6'
+        java-version: '21'
+        maven-version: '3.9.5'
 
     - name: Build with Maven
       run: mvn -B package --file pom.xml
