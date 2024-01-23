@@ -30,7 +30,9 @@ jobs:
         cache: maven
 
     - name: Setup Maven Action
-      uses: s4u/setup-maven-action@3.9.6
+      uses: s4u/setup-maven-action@< version >
+      with:
+        maven-version: '3.9.6'
 
     - name: Build with Maven
       run: mvn -B package --file pom.xml
