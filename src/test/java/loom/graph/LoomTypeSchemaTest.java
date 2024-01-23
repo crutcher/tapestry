@@ -109,11 +109,11 @@ public class LoomTypeSchemaTest extends BaseTestClass {
       ValidationIssue
         .builder()
         .type(LoomConstants.Errors.NODE_SCHEMA_ERROR)
-        .param("path", "$.foo.inputs")
+        .param("path", "$.foo.inputs.9")
         .param("keyword", "additionalProperties")
         .param("keywordArgs", List.of("9"))
         .param("schemaPath", "#/properties/inputs/additionalProperties")
-        .summary("Body [additionalProperties] :: $.inputs")
+        .summary("Body [additionalProperties] :: $.inputs.9: []")
         .message(
           "$.inputs.9: is not defined in the schema and the schema does not allow additional properties"
         )
@@ -121,8 +121,8 @@ public class LoomTypeSchemaTest extends BaseTestClass {
           ValidationIssue.Context
             .builder()
             .name("Data")
-            .data(data.getInputs())
-            .jsonpath(prefix, "inputs")
+            .data(data.getInputs().get("9"))
+            .jsonpath(prefix, "inputs.9")
         )
         .context(ValidationIssue.Context.builder().name("Body").jsonpath(prefix).data(data))
         .build(),
@@ -132,7 +132,10 @@ public class LoomTypeSchemaTest extends BaseTestClass {
         .param("path", "$.foo.inputs.b[3]")
         .param("keyword", "format")
         .param("keywordArgs", "[uuid, must be a valid RFC 4122 UUID]")
-        .param("schemaPath", "^[a-zA-Z_][a-zA-Z0-9_]*$/items")
+        .param(
+          "schemaPath",
+          "#/properties/inputs/patternProperties/^[a-zA-Z_][a-zA-Z0-9_]*$/items/format"
+        )
         .summary("Body [format] :: $.inputs.b[3]: \"garbage\"")
         .message("$.inputs.b[3]: does not match the uuid pattern must be a valid RFC 4122 UUID")
         .context(

@@ -154,7 +154,7 @@ public class JsonSchemaFactoryManager {
     private ValidationIssue adaptValidationMessage(ValidationMessage error) {
       var builder = ValidationIssue.builder().type(type);
 
-      String relPath = error.getPath();
+      String relPath = error.getInstanceLocation().toString();
       var actual = JsonUtil.jsonPathOnValue(data, relPath, JsonNode.class);
 
       var displayData = JsonUtil.toJson(actual);
@@ -162,12 +162,12 @@ public class JsonSchemaFactoryManager {
       String absPath = JsonPathUtils.concatJsonPath(jsonPathPrefix, relPath);
 
       builder.param("path", absPath);
-      builder.param("schemaPath", error.getSchemaPath());
+      builder.param("schemaPath", error.getSchemaLocation());
       builder.param("keyword", error.getType());
       builder.param("keywordArgs", JsonUtil.toSimpleJson(error.getArguments()));
       builder.params(params);
 
-      String summary = "[%s] :: %s".formatted(error.getType(), error.getPath());
+      String summary = "[%s] :: %s".formatted(error.getType(), relPath);
       if (displayData.length() < 50) {
         summary += ": " + displayData;
       }

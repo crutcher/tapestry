@@ -182,7 +182,10 @@ public class JsonSchemaFactoryManagerTest extends BaseTestClass {
     assertThat(errors).hasSize(1);
 
     var msg = errors.stream().findAny().orElseThrow();
-    assertThat(JsonUtil.jsonPathOnValue(exampleTree, msg.getPath(), String.class)).isEqualTo("N");
+    assertThat(
+      JsonUtil.jsonPathOnValue(exampleTree, msg.getInstanceLocation().toString(), String.class)
+    )
+      .isEqualTo("N");
   }
 
   @Data
@@ -270,7 +273,7 @@ public class JsonSchemaFactoryManagerTest extends BaseTestClass {
         .param("keyword", "minimum")
         .param("keywordArgs", List.of(1))
         .param("path", "$.nodes[@.id = 'foo'].shape[3]")
-        .param("schemaPath", "#/definitions/Shape/items/minimum")
+        .param("schemaPath", "http://loom.example/data#/definitions/Shape/items/minimum")
         .summary("Body [minimum] :: $.shape[3]: -1")
         .message("$.shape[3]: must have a minimum value of 1")
         .context(
