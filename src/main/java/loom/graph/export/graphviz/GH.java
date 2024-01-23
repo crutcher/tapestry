@@ -317,7 +317,7 @@ public class GH {
       }
       var root = document.getRootElement();
       while (root.hasContent()) {
-        add(root.content().getFirst().detach());
+        add(((Node) root.content().getFirst()).detach());
       }
       return self();
     }
