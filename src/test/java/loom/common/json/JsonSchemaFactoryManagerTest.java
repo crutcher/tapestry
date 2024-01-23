@@ -43,9 +43,6 @@ public class JsonSchemaFactoryManagerTest extends BaseTestClass {
   }
 
   @Test
-  public void test_bad_schema() {}
-
-  @Test
   public void test_if() {
     var manager = new JsonSchemaFactoryManager();
     manager.addSchema(
