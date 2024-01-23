@@ -1,0 +1,1139 @@
+<svg width="3088px" height="3485px"
+ viewBox="0.00 0.00 1234.50 1393.80" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1.0 1.0) rotate(0.0) translate(4.0 1389.8)">
+<title>graph</title>
+<polygon fill="#e2e2e2" stroke="none" points="-4,4 -4,-1389.8 1230.5,-1389.8 1230.5,4 -4,4"/>
+<g id="clust2" class="cluster">
+<title>cluster_cluster_ba8a39f6&#45;5698&#45;4239&#45;b432&#45;88aaa908e9ad_inputs</title>
+<polygon fill="#e2e2e2" stroke="black" stroke-dasharray="5,2" points="8,-1142.4 8,-1214 304,-1214 304,-1142.4 8,-1142.4"/>
+</g>
+<g id="clust8" class="cluster">
+<title>cluster_cluster_dae5e709&#45;16b9&#45;4d4f&#45;8d8d&#45;2c6a144ac306_inputs</title>
+<polygon fill="#e2e2e2" stroke="black" stroke-dasharray="5,2" points="312,-1142.4 312,-1214 608,-1214 608,-1142.4 312,-1142.4"/>
+</g>
+<g id="clust12" class="cluster">
+<title>cluster_cluster_299b0afc&#45;1844&#45;4bbc&#45;80a5&#45;d4c5fd5833c1_inputs</title>
+<polygon fill="#e2e2e2" stroke="black" stroke-dasharray="5,2" points="616,-1142.4 616,-1214 912,-1214 912,-1142.4 616,-1142.4"/>
+</g>
+<!-- ba8a39f6&#45;5698&#45;4239&#45;b432&#45;88aaa908e9ad -->
+<g id="node1" class="node">
+<title>ba8a39f6&#45;5698&#45;4239&#45;b432&#45;88aaa908e9ad</title>
+<defs>
+<linearGradient id="node1_l_0" gradientUnits="userSpaceOnUse" x1="319.39" y1="-1024.06" x2="404.61" y2="-907.74" >
+<stop offset="0" style="stop-color:#ef7bde;stop-opacity:1.;"/>
+<stop offset="1" style="stop-color:#44dd88;stop-opacity:1.;"/>
+</linearGradient>
+</defs>
+<polygon fill="url(#node1_l_0)" stroke="black" stroke-width="2" points="416.26,-1048.15 301.74,-1048.15 301.74,-883.65 422.26,-883.65 422.26,-1042.15 416.26,-1048.15"/>
+<polyline fill="none" stroke="black" stroke-width="2" points="416.26,-1048.15 416.26,-1042.15"/>
+<polyline fill="none" stroke="black" stroke-width="2" points="422.26,-1042.15 416.26,-1042.15"/>
+<polygon fill="#ee9944" stroke="none" points="309.5,-1026.15 309.5,-1046.15 319.5,-1046.15 319.5,-1026.15 309.5,-1026.15"/>
+<polygon fill="none" stroke="black" points="309.5,-1026.15 309.5,-1046.15 319.5,-1046.15 319.5,-1026.15 309.5,-1026.15"/>
+<text text-anchor="start" x="311.12" y="-1031.85" font-family="Times,serif" font-weight="bold" font-size="14.00">0</text>
+<text text-anchor="start" x="320.12" y="-1031.1" font-family="Times,serif" font-size="14.00"> </text>
+<polygon fill="#38dae0" stroke="none" points="324.5,-1026.15 324.5,-1046.15 334.5,-1046.15 334.5,-1026.15 324.5,-1026.15"/>
+<polygon fill="none" stroke="black" points="324.5,-1026.15 324.5,-1046.15 334.5,-1046.15 334.5,-1026.15 324.5,-1026.15"/>
+<text text-anchor="start" x="326.12" y="-1031.85" font-family="Times,serif" font-weight="bold" font-size="14.00">0</text>
+<polygon fill="white" stroke="none" points="309.5,-1006.15 309.5,-1026.15 319.5,-1026.15 319.5,-1006.15 309.5,-1006.15"/>
+<polygon fill="none" stroke="black" points="309.5,-1006.15 309.5,-1026.15 319.5,-1026.15 319.5,-1006.15 309.5,-1006.15"/>
+<text text-anchor="start" x="311.12" y="-1011.85" font-family="Times,serif" font-weight="bold" font-size="14.00">x</text>
+<text text-anchor="start" x="320.12" y="-1011.1" font-family="Times,serif" font-size="14.00"> </text>
+<polygon fill="white" stroke="none" points="324.5,-1006.15 324.5,-1026.15 334.5,-1026.15 334.5,-1006.15 324.5,-1006.15"/>
+<polygon fill="none" stroke="black" points="324.5,-1006.15 324.5,-1026.15 334.5,-1026.15 334.5,-1006.15 324.5,-1006.15"/>
+<text text-anchor="start" x="326.12" y="-1011.85" font-family="Times,serif" font-weight="bold" font-size="14.00">y</text>
+<polygon fill="white" stroke="none" points="309.5,-983.65 309.5,-1002.15 414.5,-1002.15 414.5,-983.65 309.5,-983.65"/>
+<polygon fill="none" stroke="black" points="309.5,-983.65 309.5,-1002.15 414.5,-1002.15 414.5,-983.65 309.5,-983.65"/>
+<text text-anchor="start" x="331.25" y="-988.85" font-family="Times,serif" font-weight="bold" font-size="14.00">&quot;matmul&quot;</text>
+<polygon fill="white" stroke="none" points="309.5,-930.65 309.5,-979.65 414.5,-979.65 414.5,-930.65 309.5,-930.65"/>
+<polygon fill="none" stroke="black" points="309.5,-930.65 309.5,-979.65 352,-979.65 352,-930.65 309.5,-930.65"/>
+<text text-anchor="start" x="310.5" y="-966.35" font-family="Times,serif" font-weight="bold" font-size="14.00"> range </text>
+<polygon fill="none" stroke="black" points="352,-930.65 352,-979.65 414.5,-979.65 414.5,-930.65 352,-930.65"/>
+<text text-anchor="start" x="357" y="-962.35" font-family="Times,serif" font-weight="bold" font-size="14.00">[0:3, 2:4]</text>
+<text text-anchor="start" x="368.25" y="-939.85" font-family="Times,serif" font-weight="bold" font-size="14.00">‖3, 2‖</text>
+<polygon fill="white" stroke="none" points="309.5,-906.15 309.5,-926.65 320.25,-926.65 320.25,-906.15 309.5,-906.15"/>
+<polygon fill="none" stroke="black" points="309.5,-906.15 309.5,-926.65 320.25,-926.65 320.25,-906.15 309.5,-906.15"/>
+<text text-anchor="start" x="311.88" y="-912.35" font-family="Times,serif" font-weight="bold" font-size="14.00">z</text>
+<polygon fill="#99dd55" stroke="none" points="309.5,-885.65 309.5,-906.15 320.25,-906.15 320.25,-885.65 309.5,-885.65"/>
+<polygon fill="none" stroke="black" points="309.5,-885.65 309.5,-906.15 320.25,-906.15 320.25,-885.65 309.5,-885.65"/>
+<text text-anchor="start" x="311.5" y="-891.85" font-family="Times,serif" font-weight="bold" font-size="14.00">0</text>
+<polygon fill="#ccbbff" stroke="none" points="260.49,-1048.15 260.49,-1064.65 273.99,-1064.65 273.99,-1048.15 260.49,-1048.15"/>
+<text text-anchor="start" x="260.49" y="-1052.35" font-family="Times,serif" font-weight="bold" font-size="14.00">a3</text>
+<polygon fill="#ffbbbb" stroke="none" points="273.99,-1048.15 273.99,-1064.65 287.49,-1064.65 287.49,-1048.15 273.99,-1048.15"/>
+<text text-anchor="start" x="273.99" y="-1052.35" font-family="Times,serif" font-weight="bold" font-size="14.00">46</text>
+<polygon fill="#ffbbaa" stroke="none" points="287.49,-1048.15 287.49,-1064.65 301.74,-1064.65 301.74,-1048.15 287.49,-1048.15"/>
+<text text-anchor="start" x="287.49" y="-1052.35" font-family="Times,serif" font-weight="bold" font-size="14.00">d1</text>
+</g>
+<!-- dae5e709&#45;16b9&#45;4d4f&#45;8d8d&#45;2c6a144ac306 -->
+<g id="node2" class="node">
+<title>dae5e709&#45;16b9&#45;4d4f&#45;8d8d&#45;2c6a144ac306</title>
+<defs>
+<linearGradient id="node2_l_1" gradientUnits="userSpaceOnUse" x1="461.39" y1="-1024.06" x2="546.61" y2="-907.74" >
+<stop offset="0" style="stop-color:#ef7bde;stop-opacity:1.;"/>
+<stop offset="1" style="stop-color:#44dd88;stop-opacity:1.;"/>
+</linearGradient>
+</defs>
+<polygon fill="url(#node2_l_1)" stroke="black" stroke-width="2" points="558.26,-1048.15 443.74,-1048.15 443.74,-883.65 564.26,-883.65 564.26,-1042.15 558.26,-1048.15"/>
+<polyline fill="none" stroke="black" stroke-width="2" points="558.26,-1048.15 558.26,-1042.15"/>
+<polyline fill="none" stroke="black" stroke-width="2" points="564.26,-1042.15 558.26,-1042.15"/>
+<polygon fill="#ee9944" stroke="none" points="451.5,-1026.15 451.5,-1046.15 461.5,-1046.15 461.5,-1026.15 451.5,-1026.15"/>
+<polygon fill="none" stroke="black" points="451.5,-1026.15 451.5,-1046.15 461.5,-1046.15 461.5,-1026.15 451.5,-1026.15"/>
+<text text-anchor="start" x="453.12" y="-1031.85" font-family="Times,serif" font-weight="bold" font-size="14.00">0</text>
+<text text-anchor="start" x="462.12" y="-1031.1" font-family="Times,serif" font-size="14.00"> </text>
+<polygon fill="#38dae0" stroke="none" points="466.5,-1026.15 466.5,-1046.15 476.5,-1046.15 476.5,-1026.15 466.5,-1026.15"/>
+<polygon fill="none" stroke="black" points="466.5,-1026.15 466.5,-1046.15 476.5,-1046.15 476.5,-1026.15 466.5,-1026.15"/>
+<text text-anchor="start" x="468.12" y="-1031.85" font-family="Times,serif" font-weight="bold" font-size="14.00">0</text>
+<polygon fill="white" stroke="none" points="451.5,-1006.15 451.5,-1026.15 461.5,-1026.15 461.5,-1006.15 451.5,-1006.15"/>
+<polygon fill="none" stroke="black" points="451.5,-1006.15 451.5,-1026.15 461.5,-1026.15 461.5,-1006.15 451.5,-1006.15"/>
+<text text-anchor="start" x="453.12" y="-1011.85" font-family="Times,serif" font-weight="bold" font-size="14.00">x</text>
+<text text-anchor="start" x="462.12" y="-1011.1" font-family="Times,serif" font-size="14.00"> </text>
+<polygon fill="white" stroke="none" points="466.5,-1006.15 466.5,-1026.15 476.5,-1026.15 476.5,-1006.15 466.5,-1006.15"/>
+<polygon fill="none" stroke="black" points="466.5,-1006.15 466.5,-1026.15 476.5,-1026.15 476.5,-1006.15 466.5,-1006.15"/>
+<text text-anchor="start" x="468.12" y="-1011.85" font-family="Times,serif" font-weight="bold" font-size="14.00">y</text>
+<polygon fill="white" stroke="none" points="451.5,-983.65 451.5,-1002.15 556.5,-1002.15 556.5,-983.65 451.5,-983.65"/>
+<polygon fill="none" stroke="black" points="451.5,-983.65 451.5,-1002.15 556.5,-1002.15 556.5,-983.65 451.5,-983.65"/>
+<text text-anchor="start" x="473.25" y="-988.85" font-family="Times,serif" font-weight="bold" font-size="14.00">&quot;matmul&quot;</text>
+<polygon fill="white" stroke="none" points="451.5,-930.65 451.5,-979.65 556.5,-979.65 556.5,-930.65 451.5,-930.65"/>
+<polygon fill="none" stroke="black" points="451.5,-930.65 451.5,-979.65 494,-979.65 494,-930.65 451.5,-930.65"/>
+<text text-anchor="start" x="452.5" y="-966.35" font-family="Times,serif" font-weight="bold" font-size="14.00"> range </text>
+<polygon fill="none" stroke="black" points="494,-930.65 494,-979.65 556.5,-979.65 556.5,-930.65 494,-930.65"/>
+<text text-anchor="start" x="499" y="-962.35" font-family="Times,serif" font-weight="bold" font-size="14.00">[0:3, 4:5]</text>
+<text text-anchor="start" x="510.25" y="-939.85" font-family="Times,serif" font-weight="bold" font-size="14.00">‖3, 1‖</text>
+<polygon fill="white" stroke="none" points="451.5,-906.15 451.5,-926.65 462.25,-926.65 462.25,-906.15 451.5,-906.15"/>
+<polygon fill="none" stroke="black" points="451.5,-906.15 451.5,-926.65 462.25,-926.65 462.25,-906.15 451.5,-906.15"/>
+<text text-anchor="start" x="453.88" y="-912.35" font-family="Times,serif" font-weight="bold" font-size="14.00">z</text>
+<polygon fill="#99dd55" stroke="none" points="451.5,-885.65 451.5,-906.15 462.25,-906.15 462.25,-885.65 451.5,-885.65"/>
+<polygon fill="none" stroke="black" points="451.5,-885.65 451.5,-906.15 462.25,-906.15 462.25,-885.65 451.5,-885.65"/>
+<text text-anchor="start" x="453.5" y="-891.85" font-family="Times,serif" font-weight="bold" font-size="14.00">0</text>
+<polygon fill="#aabbff" stroke="none" points="405.49,-1048.15 405.49,-1064.65 418.99,-1064.65 418.99,-1048.15 405.49,-1048.15"/>
+<text text-anchor="start" x="405.49" y="-1052.35" font-family="Times,serif" font-weight="bold" font-size="14.00">92</text>
+<polygon fill="#aaffbb" stroke="none" points="418.99,-1048.15 418.99,-1064.65 433.24,-1064.65 433.24,-1048.15 418.99,-1048.15"/>
+<text text-anchor="start" x="418.99" y="-1052.35" font-family="Times,serif" font-weight="bold" font-size="14.00">3d</text>
+<polygon fill="#ffbbaa" stroke="none" points="433.24,-1048.15 433.24,-1064.65 443.74,-1064.65 443.74,-1048.15 433.24,-1048.15"/>
+<text text-anchor="start" x="433.24" y="-1052.35" font-family="Times,serif" font-weight="bold" font-size="14.00">fe</text>
+</g>
+<!-- ba8a39f6&#45;5698&#45;4239&#45;b432&#45;88aaa908e9ad&#45;&gt;dae5e709&#45;16b9&#45;4d4f&#45;8d8d&#45;2c6a144ac306 -->
+<g id="edge5" class="edge">
+<title>ba8a39f6&#45;5698&#45;4239&#45;b432&#45;88aaa908e9ad:e&#45;&gt;dae5e709&#45;16b9&#45;4d4f&#45;8d8d&#45;2c6a144ac306:w</title>
+<path fill="none" stroke="black" stroke-dasharray="1,5" d="M422.26,-965.9C426.74,-965.9 429.64,-965.9 432.44,-965.9"/>
+<polygon fill="black" stroke="black" points="432.23,-969.4 442.23,-965.9 432.23,-962.4 432.23,-969.4"/>
+</g>
+<!-- ba8a39f6&#45;5698&#45;4239&#45;b432&#45;88aaa908e9ad#z#0 -->
+<g id="node7" class="node">
+<title>ba8a39f6&#45;5698&#45;4239&#45;b432&#45;88aaa908e9ad#z#0</title>
+<defs>
+<linearGradient id="node7_l_2" gradientUnits="userSpaceOnUse" x1="271.3" y1="-773.26" x2="358.7" y2="-733.94" >
+<stop offset="0" style="stop-color:#99dd55;stop-opacity:1.;"/>
+<stop offset="1" style="stop-color:#ef7bde;stop-opacity:1.;"/>
+</linearGradient>
+</defs>
+<polygon fill="url(#node7_l_2)" stroke="black" stroke-width="2" points="376.8,-781.4 257.2,-781.4 253.2,-777.4 253.2,-725.8 372.8,-725.8 376.8,-729.8 376.8,-781.4"/>
+<polyline fill="none" stroke="black" stroke-width="2" points="372.8,-777.4 253.2,-777.4"/>
+<polyline fill="none" stroke="black" stroke-width="2" points="372.8,-777.4 372.8,-725.8"/>
+<polyline fill="none" stroke="black" stroke-width="2" points="372.8,-777.4 376.8,-781.4"/>
+<polygon fill="white" stroke="none" points="264,-736.6 264,-770.6 366,-770.6 366,-736.6 264,-736.6"/>
+<text text-anchor="start" x="264.75" y="-757.3" font-family="Times,serif" font-weight="bold" font-size="14.00"> range </text>
+<text text-anchor="start" x="305" y="-757.3" font-family="Times,serif" font-weight="bold" font-size="14.00"> [0:3, 2:4] </text>
+<text text-anchor="start" x="264.75" y="-741.3" font-family="Times,serif" font-weight="bold" font-size="14.00"> shape </text>
+<text text-anchor="start" x="305" y="-741.3" font-family="Times,serif" font-weight="bold" font-size="14.00"> ‖3, 2‖ </text>
+<polygon fill="none" stroke="black" points="264,-736.6 264,-770.6 366,-770.6 366,-736.6 264,-736.6"/>
+</g>
+<!-- ba8a39f6&#45;5698&#45;4239&#45;b432&#45;88aaa908e9ad&#45;&gt;ba8a39f6&#45;5698&#45;4239&#45;b432&#45;88aaa908e9ad#z#0 -->
+<g id="edge4" class="edge">
+<title>ba8a39f6&#45;5698&#45;4239&#45;b432&#45;88aaa908e9ad:s&#45;&gt;ba8a39f6&#45;5698&#45;4239&#45;b432&#45;88aaa908e9ad#z#0:n</title>
+<path fill="none" stroke="#99dd55" stroke-width="6" d="M313,-884.9C313,-844.83 313,-830.94 313,-797.62"/>
+<path fill="none" stroke="black" stroke-width="6" d="M315,-884.9C315,-844.83 315,-830.94 315,-797.62"/>
+<path fill="none" stroke="#99dd55" stroke-width="6" d="M317,-884.9C317,-844.83 317,-830.94 317,-797.62"/>
+<polygon fill="#99dd55" stroke="#99dd55" stroke-width="6" points="320.25,-797.85 315,-787.85 309.75,-797.85 320.25,-797.85"/>
+</g>
+<!-- 299b0afc&#45;1844&#45;4bbc&#45;80a5&#45;d4c5fd5833c1 -->
+<g id="node14" class="node">
+<title>299b0afc&#45;1844&#45;4bbc&#45;80a5&#45;d4c5fd5833c1</title>
+<defs>
+<linearGradient id="node14_l_3" gradientUnits="userSpaceOnUse" x1="603.39" y1="-1024.06" x2="688.61" y2="-907.74" >
+<stop offset="0" style="stop-color:#ef7bde;stop-opacity:1.;"/>
+<stop offset="1" style="stop-color:#44dd88;stop-opacity:1.;"/>
+</linearGradient>
+</defs>
+<polygon fill="url(#node14_l_3)" stroke="black" stroke-width="2" points="700.26,-1048.15 585.74,-1048.15 585.74,-883.65 706.26,-883.65 706.26,-1042.15 700.26,-1048.15"/>
+<polyline fill="none" stroke="black" stroke-width="2" points="700.26,-1048.15 700.26,-1042.15"/>
+<polyline fill="none" stroke="black" stroke-width="2" points="706.26,-1042.15 700.26,-1042.15"/>
+<polygon fill="#ee9944" stroke="none" points="593.5,-1026.15 593.5,-1046.15 603.5,-1046.15 603.5,-1026.15 593.5,-1026.15"/>
+<polygon fill="none" stroke="black" points="593.5,-1026.15 593.5,-1046.15 603.5,-1046.15 603.5,-1026.15 593.5,-1026.15"/>
+<text text-anchor="start" x="595.12" y="-1031.85" font-family="Times,serif" font-weight="bold" font-size="14.00">0</text>
+<text text-anchor="start" x="604.12" y="-1031.1" font-family="Times,serif" font-size="14.00"> </text>
+<polygon fill="#38dae0" stroke="none" points="608.5,-1026.15 608.5,-1046.15 618.5,-1046.15 618.5,-1026.15 608.5,-1026.15"/>
+<polygon fill="none" stroke="black" points="608.5,-1026.15 608.5,-1046.15 618.5,-1046.15 618.5,-1026.15 608.5,-1026.15"/>
+<text text-anchor="start" x="610.12" y="-1031.85" font-family="Times,serif" font-weight="bold" font-size="14.00">0</text>
+<polygon fill="white" stroke="none" points="593.5,-1006.15 593.5,-1026.15 603.5,-1026.15 603.5,-1006.15 593.5,-1006.15"/>
+<polygon fill="none" stroke="black" points="593.5,-1006.15 593.5,-1026.15 603.5,-1026.15 603.5,-1006.15 593.5,-1006.15"/>
+<text text-anchor="start" x="595.12" y="-1011.85" font-family="Times,serif" font-weight="bold" font-size="14.00">x</text>
+<text text-anchor="start" x="604.12" y="-1011.1" font-family="Times,serif" font-size="14.00"> </text>
+<polygon fill="white" stroke="none" points="608.5,-1006.15 608.5,-1026.15 618.5,-1026.15 618.5,-1006.15 608.5,-1006.15"/>
+<polygon fill="none" stroke="black" points="608.5,-1006.15 608.5,-1026.15 618.5,-1026.15 618.5,-1006.15 608.5,-1006.15"/>
+<text text-anchor="start" x="610.12" y="-1011.85" font-family="Times,serif" font-weight="bold" font-size="14.00">y</text>
+<polygon fill="white" stroke="none" points="593.5,-983.65 593.5,-1002.15 698.5,-1002.15 698.5,-983.65 593.5,-983.65"/>
+<polygon fill="none" stroke="black" points="593.5,-983.65 593.5,-1002.15 698.5,-1002.15 698.5,-983.65 593.5,-983.65"/>
+<text text-anchor="start" x="615.25" y="-988.85" font-family="Times,serif" font-weight="bold" font-size="14.00">&quot;matmul&quot;</text>
+<polygon fill="white" stroke="none" points="593.5,-930.65 593.5,-979.65 698.5,-979.65 698.5,-930.65 593.5,-930.65"/>
+<polygon fill="none" stroke="black" points="593.5,-930.65 593.5,-979.65 636,-979.65 636,-930.65 593.5,-930.65"/>
+<text text-anchor="start" x="594.5" y="-966.35" font-family="Times,serif" font-weight="bold" font-size="14.00"> range </text>
+<polygon fill="none" stroke="black" points="636,-930.65 636,-979.65 698.5,-979.65 698.5,-930.65 636,-930.65"/>
+<text text-anchor="start" x="641" y="-962.35" font-family="Times,serif" font-weight="bold" font-size="14.00">[0:3, 0:2]</text>
+<text text-anchor="start" x="652.25" y="-939.85" font-family="Times,serif" font-weight="bold" font-size="14.00">‖3, 2‖</text>
+<polygon fill="white" stroke="none" points="593.5,-906.15 593.5,-926.65 604.25,-926.65 604.25,-906.15 593.5,-906.15"/>
+<polygon fill="none" stroke="black" points="593.5,-906.15 593.5,-926.65 604.25,-926.65 604.25,-906.15 593.5,-906.15"/>
+<text text-anchor="start" x="595.88" y="-912.35" font-family="Times,serif" font-weight="bold" font-size="14.00">z</text>
+<polygon fill="#99dd55" stroke="none" points="593.5,-885.65 593.5,-906.15 604.25,-906.15 604.25,-885.65 593.5,-885.65"/>
+<polygon fill="none" stroke="black" points="593.5,-885.65 593.5,-906.15 604.25,-906.15 604.25,-885.65 593.5,-885.65"/>
+<text text-anchor="start" x="595.5" y="-891.85" font-family="Times,serif" font-weight="bold" font-size="14.00">0</text>
+<polygon fill="#aabbff" stroke="none" points="544.49,-1048.15 544.49,-1064.65 557.99,-1064.65 557.99,-1048.15 544.49,-1048.15"/>
+<text text-anchor="start" x="544.49" y="-1052.35" font-family="Times,serif" font-weight="bold" font-size="14.00">1a</text>
+<polygon fill="#aaffbb" stroke="none" points="557.99,-1048.15 557.99,-1064.65 572.24,-1064.65 572.24,-1048.15 557.99,-1048.15"/>
+<text text-anchor="start" x="557.99" y="-1052.35" font-family="Times,serif" font-weight="bold" font-size="14.00">d3</text>
+<polygon fill="#ffbbbb" stroke="none" points="572.24,-1048.15 572.24,-1064.65 585.74,-1064.65 585.74,-1048.15 572.24,-1048.15"/>
+<text text-anchor="start" x="572.24" y="-1052.35" font-family="Times,serif" font-weight="bold" font-size="14.00">78</text>
+</g>
+<!-- dae5e709&#45;16b9&#45;4d4f&#45;8d8d&#45;2c6a144ac306&#45;&gt;299b0afc&#45;1844&#45;4bbc&#45;80a5&#45;d4c5fd5833c1 -->
+<g id="edge7" class="edge">
+<title>dae5e709&#45;16b9&#45;4d4f&#45;8d8d&#45;2c6a144ac306:e&#45;&gt;299b0afc&#45;1844&#45;4bbc&#45;80a5&#45;d4c5fd5833c1:w</title>
+<path fill="none" stroke="black" stroke-dasharray="1,5" d="M564.26,-965.9C568.74,-965.9 571.64,-965.9 574.44,-965.9"/>
+<polygon fill="black" stroke="black" points="574.23,-969.4 584.23,-965.9 574.23,-962.4 574.23,-969.4"/>
+</g>
+<!-- dae5e709&#45;16b9&#45;4d4f&#45;8d8d&#45;2c6a144ac306#z#0 -->
+<g id="node17" class="node">
+<title>dae5e709&#45;16b9&#45;4d4f&#45;8d8d&#45;2c6a144ac306#z#0</title>
+<defs>
+<linearGradient id="node17_l_4" gradientUnits="userSpaceOnUse" x1="413.3" y1="-773.26" x2="500.7" y2="-733.94" >
+<stop offset="0" style="stop-color:#99dd55;stop-opacity:1.;"/>
+<stop offset="1" style="stop-color:#ef7bde;stop-opacity:1.;"/>
+</linearGradient>
+</defs>
+<polygon fill="url(#node17_l_4)" stroke="black" stroke-width="2" points="518.8,-781.4 399.2,-781.4 395.2,-777.4 395.2,-725.8 514.8,-725.8 518.8,-729.8 518.8,-781.4"/>
+<polyline fill="none" stroke="black" stroke-width="2" points="514.8,-777.4 395.2,-777.4"/>
+<polyline fill="none" stroke="black" stroke-width="2" points="514.8,-777.4 514.8,-725.8"/>
+<polyline fill="none" stroke="black" stroke-width="2" points="514.8,-777.4 518.8,-781.4"/>
+<polygon fill="white" stroke="none" points="406,-736.6 406,-770.6 508,-770.6 508,-736.6 406,-736.6"/>
+<text text-anchor="start" x="406.75" y="-757.3" font-family="Times,serif" font-weight="bold" font-size="14.00"> range </text>
+<text text-anchor="start" x="447" y="-757.3" font-family="Times,serif" font-weight="bold" font-size="14.00"> [0:3, 4:5] </text>
+<text text-anchor="start" x="406.75" y="-741.3" font-family="Times,serif" font-weight="bold" font-size="14.00"> shape </text>
+<text text-anchor="start" x="447" y="-741.3" font-family="Times,serif" font-weight="bold" font-size="14.00"> ‖3, 1‖ </text>
+<polygon fill="none" stroke="black" points="406,-736.6 406,-770.6 508,-770.6 508,-736.6 406,-736.6"/>
+</g>
+<!-- dae5e709&#45;16b9&#45;4d4f&#45;8d8d&#45;2c6a144ac306&#45;&gt;dae5e709&#45;16b9&#45;4d4f&#45;8d8d&#45;2c6a144ac306#z#0 -->
+<g id="edge6" class="edge">
+<title>dae5e709&#45;16b9&#45;4d4f&#45;8d8d&#45;2c6a144ac306:s&#45;&gt;dae5e709&#45;16b9&#45;4d4f&#45;8d8d&#45;2c6a144ac306#z#0:n</title>
+<path fill="none" stroke="#99dd55" stroke-width="6" d="M455,-884.9C455,-844.83 455,-830.94 455,-797.62"/>
+<path fill="none" stroke="black" stroke-width="6" d="M457,-884.9C457,-844.83 457,-830.94 457,-797.62"/>
+<path fill="none" stroke="#99dd55" stroke-width="6" d="M459,-884.9C459,-844.83 459,-830.94 459,-797.62"/>
+<polygon fill="#99dd55" stroke="#99dd55" stroke-width="6" points="462.25,-797.85 457,-787.85 451.75,-797.85 462.25,-797.85"/>
+</g>
+<!-- ba8a39f6&#45;5698&#45;4239&#45;b432&#45;88aaa908e9ad#x#0 -->
+<g id="node3" class="node">
+<title>ba8a39f6&#45;5698&#45;4239&#45;b432&#45;88aaa908e9ad#x#0</title>
+<defs>
+<linearGradient id="node3_l_5" gradientUnits="userSpaceOnUse" x1="36" y1="-1197.86" x2="134" y2="-1158.54" >
+<stop offset="0" style="stop-color:#ee9944;stop-opacity:1.;"/>
+<stop offset="1" style="stop-color:#22ccbb;stop-opacity:1.;"/>
+</linearGradient>
+</defs>
+<polygon fill="url(#node3_l_5)" stroke="black" stroke-width="2" points="154.3,-1206 19.7,-1206 15.7,-1202 15.7,-1150.4 150.3,-1150.4 154.3,-1154.4 154.3,-1206"/>
+<polyline fill="none" stroke="black" stroke-width="2" points="150.3,-1202 15.7,-1202"/>
+<polyline fill="none" stroke="black" stroke-width="2" points="150.3,-1202 150.3,-1150.4"/>
+<polyline fill="none" stroke="black" stroke-width="2" points="150.3,-1202 154.3,-1206"/>
+<polygon fill="white" stroke="none" points="26.5,-1161.2 26.5,-1195.2 143.5,-1195.2 143.5,-1161.2 26.5,-1161.2"/>
+<text text-anchor="start" x="27.25" y="-1181.9" font-family="Times,serif" font-weight="bold" font-size="14.00"> range </text>
+<text text-anchor="start" x="67.12" y="-1181.9" font-family="Times,serif" font-weight="bold" font-size="14.00"> [&#45;10:&#45;7, 4:8] </text>
+<text text-anchor="start" x="27.25" y="-1165.9" font-family="Times,serif" font-weight="bold" font-size="14.00"> shape </text>
+<text text-anchor="start" x="67.5" y="-1165.9" font-family="Times,serif" font-weight="bold" font-size="14.00"> ‖3, 4‖ </text>
+<polygon fill="none" stroke="black" points="26.5,-1161.2 26.5,-1195.2 143.5,-1195.2 143.5,-1161.2 26.5,-1161.2"/>
+</g>
+<!-- ba8a39f6&#45;5698&#45;4239&#45;b432&#45;88aaa908e9ad#x#0&#45;&gt;ba8a39f6&#45;5698&#45;4239&#45;b432&#45;88aaa908e9ad -->
+<g id="edge8" class="edge">
+<title>ba8a39f6&#45;5698&#45;4239&#45;b432&#45;88aaa908e9ad#x#0:s&#45;&gt;ba8a39f6&#45;5698&#45;4239&#45;b432&#45;88aaa908e9ad:n</title>
+<path fill="none" stroke="#ee9944" stroke-width="6" d="M83,-1148.2C85.9,-1041.21 290.53,-1143.83 310.09,-1062.62"/>
+<path fill="none" stroke="black" stroke-width="6" d="M85,-1148.2C85,-1043 289.64,-1145.62 312.02,-1063.15"/>
+<path fill="none" stroke="#ee9944" stroke-width="6" d="M87,-1148.2C84.1,-1044.78 288.74,-1147.41 313.95,-1063.67"/>
+<polygon fill="#ee9944" stroke="#ee9944" stroke-width="6" points="317.22,-1063.87 313.22,-1053.31 306.8,-1062.6 317.22,-1063.87"/>
+</g>
+<!-- ba8a39f6&#45;5698&#45;4239&#45;b432&#45;88aaa908e9ad#y#0 -->
+<g id="node5" class="node">
+<title>ba8a39f6&#45;5698&#45;4239&#45;b432&#45;88aaa908e9ad#y#0</title>
+<defs>
+<linearGradient id="node5_l_6" gradientUnits="userSpaceOnUse" x1="190.3" y1="-1197.86" x2="277.7" y2="-1158.54" >
+<stop offset="0" style="stop-color:#38dae0;stop-opacity:1.;"/>
+<stop offset="1" style="stop-color:#e98fa5;stop-opacity:1.;"/>
+</linearGradient>
+</defs>
+<polygon fill="url(#node5_l_6)" stroke="black" stroke-width="2" points="295.8,-1206 176.2,-1206 172.2,-1202 172.2,-1150.4 291.8,-1150.4 295.8,-1154.4 295.8,-1206"/>
+<polyline fill="none" stroke="black" stroke-width="2" points="291.8,-1202 172.2,-1202"/>
+<polyline fill="none" stroke="black" stroke-width="2" points="291.8,-1202 291.8,-1150.4"/>
+<polyline fill="none" stroke="black" stroke-width="2" points="291.8,-1202 295.8,-1206"/>
+<polygon fill="white" stroke="none" points="183,-1161.2 183,-1195.2 285,-1195.2 285,-1161.2 183,-1161.2"/>
+<text text-anchor="start" x="183.75" y="-1181.9" font-family="Times,serif" font-weight="bold" font-size="14.00"> range </text>
+<text text-anchor="start" x="224" y="-1181.9" font-family="Times,serif" font-weight="bold" font-size="14.00"> [0:4, 2:4] </text>
+<text text-anchor="start" x="183.75" y="-1165.9" font-family="Times,serif" font-weight="bold" font-size="14.00"> shape </text>
+<text text-anchor="start" x="224" y="-1165.9" font-family="Times,serif" font-weight="bold" font-size="14.00"> ‖4, 2‖ </text>
+<polygon fill="none" stroke="black" points="183,-1161.2 183,-1195.2 285,-1195.2 285,-1161.2 183,-1161.2"/>
+</g>
+<!-- ba8a39f6&#45;5698&#45;4239&#45;b432&#45;88aaa908e9ad#x#0&#45;&gt;ba8a39f6&#45;5698&#45;4239&#45;b432&#45;88aaa908e9ad#y#0 -->
+<!-- c36771fb&#45;a799&#45;40c2&#45;b57e&#45;46d4637c4154 -->
+<g id="node4" class="node">
+<title>c36771fb&#45;a799&#45;40c2&#45;b57e&#45;46d4637c4154</title>
+<defs>
+<linearGradient id="node4_l_7" gradientUnits="userSpaceOnUse" x1="324.62" y1="-1336.57" x2="433.38" y2="-1258.23" >
+<stop offset="0" style="stop-color:#ee9944;stop-opacity:1.;"/>
+<stop offset="1" style="stop-color:#22ccbb;stop-opacity:1.;"/>
+</linearGradient>
+</defs>
+<polygon fill="url(#node4_l_7)" stroke="black" stroke-width="2" points="455.9,-1352.8 306.1,-1352.8 302.1,-1348.8 302.1,-1242 451.9,-1242 455.9,-1246 455.9,-1352.8"/>
+<polyline fill="none" stroke="black" stroke-width="2" points="451.9,-1348.8 302.1,-1348.8"/>
+<polyline fill="none" stroke="black" stroke-width="2" points="451.9,-1348.8 451.9,-1242"/>
+<polyline fill="none" stroke="black" stroke-width="2" points="451.9,-1348.8 455.9,-1352.8"/>
+<polygon fill="white" stroke="none" points="316.5,-1256.4 316.5,-1338.4 441.5,-1338.4 441.5,-1256.4 316.5,-1256.4"/>
+<text text-anchor="start" x="319.5" y="-1323.1" font-family="Times,serif" font-weight="bold" font-size="14.00"> loom:TensorNode </text>
+<text text-anchor="start" x="319.75" y="-1303.1" font-family="Times,serif" font-weight="bold" font-size="14.00"> dtype </text>
+<text text-anchor="start" x="363.5" y="-1303.1" font-family="Times,serif" font-weight="bold" font-size="14.00"> int32 </text>
+<text text-anchor="start" x="319.25" y="-1283.1" font-family="Times,serif" font-weight="bold" font-size="14.00"> range </text>
+<text text-anchor="start" x="363.12" y="-1283.1" font-family="Times,serif" font-weight="bold" font-size="14.00"> [&#45;10:&#45;7, 4:8] </text>
+<text text-anchor="start" x="319.25" y="-1263.1" font-family="Times,serif" font-weight="bold" font-size="14.00"> shape </text>
+<text text-anchor="start" x="363.5" y="-1263.1" font-family="Times,serif" font-weight="bold" font-size="14.00"> ‖3, 4‖ </text>
+<polygon fill="none" stroke="black" points="316.5,-1256.4 316.5,-1338.4 441.5,-1338.4 441.5,-1256.4 316.5,-1256.4"/>
+<polygon fill="#ccbbff" stroke="none" points="262.35,-1369.3 262.35,-1385.8 275.85,-1385.8 275.85,-1369.3 262.35,-1369.3"/>
+<text text-anchor="start" x="262.35" y="-1373.5" font-family="Times,serif" font-weight="bold" font-size="14.00">53</text>
+<polygon fill="#ffbbbb" stroke="none" points="275.85,-1369.3 275.85,-1385.8 288.6,-1385.8 288.6,-1369.3 275.85,-1369.3"/>
+<text text-anchor="start" x="275.85" y="-1373.5" font-family="Times,serif" font-weight="bold" font-size="14.00">1e</text>
+<polygon fill="#ccbbff" stroke="none" points="288.6,-1369.3 288.6,-1385.8 302.1,-1385.8 302.1,-1369.3 288.6,-1369.3"/>
+<text text-anchor="start" x="288.6" y="-1373.5" font-family="Times,serif" font-weight="bold" font-size="14.00">71</text>
+<text text-anchor="start" x="269.85" y="-1357" font-family="Times,serif" font-weight="bold" font-size="14.00" fill="green">&quot;A&quot;</text>
+</g>
+<!-- c36771fb&#45;a799&#45;40c2&#45;b57e&#45;46d4637c4154&#45;&gt;ba8a39f6&#45;5698&#45;4239&#45;b432&#45;88aaa908e9ad#x#0 -->
+<g id="edge11" class="edge">
+<title>c36771fb&#45;a799&#45;40c2&#45;b57e&#45;46d4637c4154:s&#45;&gt;ba8a39f6&#45;5698&#45;4239&#45;b432&#45;88aaa908e9ad#x#0:n</title>
+<path fill="none" stroke="#ee9944" stroke-width="6" d="M377,-1242C379.59,-1184.31 138.13,-1258.99 91.06,-1224.25"/>
+<path fill="none" stroke="black" stroke-width="6" d="M379,-1242C379,-1182.4 137.54,-1257.08 92.27,-1222.65"/>
+<path fill="none" stroke="#ee9944" stroke-width="6" d="M381,-1242C378.41,-1180.49 136.95,-1255.17 93.48,-1221.06"/>
+<polygon fill="#ee9944" stroke="#ee9944" stroke-width="6" points="97.08,-1220.54 87.9,-1213.97 87.7,-1225.26 97.08,-1220.54"/>
+</g>
+<!-- dae5e709&#45;16b9&#45;4d4f&#45;8d8d&#45;2c6a144ac306#x#0 -->
+<g id="node15" class="node">
+<title>dae5e709&#45;16b9&#45;4d4f&#45;8d8d&#45;2c6a144ac306#x#0</title>
+<defs>
+<linearGradient id="node15_l_8" gradientUnits="userSpaceOnUse" x1="340" y1="-1197.86" x2="438" y2="-1158.54" >
+<stop offset="0" style="stop-color:#ee9944;stop-opacity:1.;"/>
+<stop offset="1" style="stop-color:#22ccbb;stop-opacity:1.;"/>
+</linearGradient>
+</defs>
+<polygon fill="url(#node15_l_8)" stroke="black" stroke-width="2" points="458.3,-1206 323.7,-1206 319.7,-1202 319.7,-1150.4 454.3,-1150.4 458.3,-1154.4 458.3,-1206"/>
+<polyline fill="none" stroke="black" stroke-width="2" points="454.3,-1202 319.7,-1202"/>
+<polyline fill="none" stroke="black" stroke-width="2" points="454.3,-1202 454.3,-1150.4"/>
+<polyline fill="none" stroke="black" stroke-width="2" points="454.3,-1202 458.3,-1206"/>
+<polygon fill="white" stroke="none" points="330.5,-1161.2 330.5,-1195.2 447.5,-1195.2 447.5,-1161.2 330.5,-1161.2"/>
+<text text-anchor="start" x="331.25" y="-1181.9" font-family="Times,serif" font-weight="bold" font-size="14.00"> range </text>
+<text text-anchor="start" x="371.12" y="-1181.9" font-family="Times,serif" font-weight="bold" font-size="14.00"> [&#45;10:&#45;7, 4:8] </text>
+<text text-anchor="start" x="331.25" y="-1165.9" font-family="Times,serif" font-weight="bold" font-size="14.00"> shape </text>
+<text text-anchor="start" x="371.5" y="-1165.9" font-family="Times,serif" font-weight="bold" font-size="14.00"> ‖3, 4‖ </text>
+<polygon fill="none" stroke="black" points="330.5,-1161.2 330.5,-1195.2 447.5,-1195.2 447.5,-1161.2 330.5,-1161.2"/>
+</g>
+<!-- c36771fb&#45;a799&#45;40c2&#45;b57e&#45;46d4637c4154&#45;&gt;dae5e709&#45;16b9&#45;4d4f&#45;8d8d&#45;2c6a144ac306#x#0 -->
+<g id="edge10" class="edge">
+<title>c36771fb&#45;a799&#45;40c2&#45;b57e&#45;46d4637c4154:s&#45;&gt;dae5e709&#45;16b9&#45;4d4f&#45;8d8d&#45;2c6a144ac306#x#0:n</title>
+<path fill="none" stroke="#ee9944" stroke-width="6" d="M377,-1242C377.32,-1232.35 380.31,-1227.73 382.94,-1222.87"/>
+<path fill="none" stroke="black" stroke-width="6" d="M379,-1242C379,-1233.43 381.99,-1228.81 384.7,-1223.82"/>
+<path fill="none" stroke="#ee9944" stroke-width="6" d="M381,-1242C380.68,-1234.52 383.67,-1229.9 386.46,-1224.78"/>
+<polygon fill="#ee9944" stroke="#ee9944" stroke-width="6" points="389.7,-1225.46 387.29,-1214.42 379.57,-1222.67 389.7,-1225.46"/>
+</g>
+<!-- 299b0afc&#45;1844&#45;4bbc&#45;80a5&#45;d4c5fd5833c1#x#0 -->
+<g id="node20" class="node">
+<title>299b0afc&#45;1844&#45;4bbc&#45;80a5&#45;d4c5fd5833c1#x#0</title>
+<defs>
+<linearGradient id="node20_l_9" gradientUnits="userSpaceOnUse" x1="644" y1="-1197.86" x2="742" y2="-1158.54" >
+<stop offset="0" style="stop-color:#ee9944;stop-opacity:1.;"/>
+<stop offset="1" style="stop-color:#22ccbb;stop-opacity:1.;"/>
+</linearGradient>
+</defs>
+<polygon fill="url(#node20_l_9)" stroke="black" stroke-width="2" points="762.3,-1206 627.7,-1206 623.7,-1202 623.7,-1150.4 758.3,-1150.4 762.3,-1154.4 762.3,-1206"/>
+<polyline fill="none" stroke="black" stroke-width="2" points="758.3,-1202 623.7,-1202"/>
+<polyline fill="none" stroke="black" stroke-width="2" points="758.3,-1202 758.3,-1150.4"/>
+<polyline fill="none" stroke="black" stroke-width="2" points="758.3,-1202 762.3,-1206"/>
+<polygon fill="white" stroke="none" points="634.5,-1161.2 634.5,-1195.2 751.5,-1195.2 751.5,-1161.2 634.5,-1161.2"/>
+<text text-anchor="start" x="635.25" y="-1181.9" font-family="Times,serif" font-weight="bold" font-size="14.00"> range </text>
+<text text-anchor="start" x="675.12" y="-1181.9" font-family="Times,serif" font-weight="bold" font-size="14.00"> [&#45;10:&#45;7, 4:8] </text>
+<text text-anchor="start" x="635.25" y="-1165.9" font-family="Times,serif" font-weight="bold" font-size="14.00"> shape </text>
+<text text-anchor="start" x="675.5" y="-1165.9" font-family="Times,serif" font-weight="bold" font-size="14.00"> ‖3, 4‖ </text>
+<polygon fill="none" stroke="black" points="634.5,-1161.2 634.5,-1195.2 751.5,-1195.2 751.5,-1161.2 634.5,-1161.2"/>
+</g>
+<!-- c36771fb&#45;a799&#45;40c2&#45;b57e&#45;46d4637c4154&#45;&gt;299b0afc&#45;1844&#45;4bbc&#45;80a5&#45;d4c5fd5833c1#x#0 -->
+<g id="edge9" class="edge">
+<title>c36771fb&#45;a799&#45;40c2&#45;b57e&#45;46d4637c4154:s&#45;&gt;299b0afc&#45;1844&#45;4bbc&#45;80a5&#45;d4c5fd5833c1#x#0:n</title>
+<path fill="none" stroke="#ee9944" stroke-width="6" d="M377,-1242C379.61,-1176.08 640.84,-1259.11 684.87,-1221.31"/>
+<path fill="none" stroke="black" stroke-width="6" d="M379,-1242C379,-1177.99 640.23,-1261.01 686.15,-1222.85"/>
+<path fill="none" stroke="#ee9944" stroke-width="6" d="M381,-1242C378.39,-1179.89 639.62,-1262.92 687.43,-1224.39"/>
+<polygon fill="#ee9944" stroke="#ee9944" stroke-width="6" points="690.79,-1225.33 690.27,-1214.05 681.27,-1220.88 690.79,-1225.33"/>
+</g>
+<!-- ba8a39f6&#45;5698&#45;4239&#45;b432&#45;88aaa908e9ad#y#0&#45;&gt;ba8a39f6&#45;5698&#45;4239&#45;b432&#45;88aaa908e9ad -->
+<g id="edge12" class="edge">
+<title>ba8a39f6&#45;5698&#45;4239&#45;b432&#45;88aaa908e9ad#y#0:s&#45;&gt;ba8a39f6&#45;5698&#45;4239&#45;b432&#45;88aaa908e9ad:n</title>
+<path fill="none" stroke="#38dae0" stroke-width="6" d="M232,-1149.2C234.31,-1091.36 311.33,-1103.46 324.48,-1062.43"/>
+<path fill="none" stroke="black" stroke-width="6" d="M234,-1149.2C234,-1093.33 311.02,-1105.44 326.36,-1063.11"/>
+<path fill="none" stroke="#38dae0" stroke-width="6" d="M236,-1149.2C233.69,-1095.31 310.71,-1107.41 328.24,-1063.79"/>
+<polygon fill="#38dae0" stroke="#38dae0" stroke-width="6" points="331.54,-1063.98 327.96,-1053.27 321.17,-1062.3 331.54,-1063.98"/>
+</g>
+<!-- c0861e27&#45;a898&#45;4ead&#45;ac83&#45;dc047b8eee47 -->
+<g id="node6" class="node">
+<title>c0861e27&#45;a898&#45;4ead&#45;ac83&#45;dc047b8eee47</title>
+<defs>
+<linearGradient id="node6_l_10" gradientUnits="userSpaceOnUse" x1="495.45" y1="-1336.57" x2="598.55" y2="-1258.23" >
+<stop offset="0" style="stop-color:#38dae0;stop-opacity:1.;"/>
+<stop offset="1" style="stop-color:#e98fa5;stop-opacity:1.;"/>
+</linearGradient>
+</defs>
+<polygon fill="url(#node6_l_10)" stroke="black" stroke-width="2" points="619.9,-1352.8 478.1,-1352.8 474.1,-1348.8 474.1,-1242 615.9,-1242 619.9,-1246 619.9,-1352.8"/>
+<polyline fill="none" stroke="black" stroke-width="2" points="615.9,-1348.8 474.1,-1348.8"/>
+<polyline fill="none" stroke="black" stroke-width="2" points="615.9,-1348.8 615.9,-1242"/>
+<polyline fill="none" stroke="black" stroke-width="2" points="615.9,-1348.8 619.9,-1352.8"/>
+<polygon fill="white" stroke="none" points="488.5,-1256.4 488.5,-1338.4 605.5,-1338.4 605.5,-1256.4 488.5,-1256.4"/>
+<text text-anchor="start" x="491.5" y="-1323.1" font-family="Times,serif" font-weight="bold" font-size="14.00"> loom:TensorNode </text>
+<text text-anchor="start" x="494.75" y="-1303.1" font-family="Times,serif" font-weight="bold" font-size="14.00"> dtype </text>
+<text text-anchor="start" x="538.5" y="-1303.1" font-family="Times,serif" font-weight="bold" font-size="14.00"> int32 </text>
+<text text-anchor="start" x="494" y="-1283.1" font-family="Times,serif" font-weight="bold" font-size="14.00"> range </text>
+<text text-anchor="start" x="538.5" y="-1283.1" font-family="Times,serif" font-weight="bold" font-size="14.00"> [0:4, 0:5] </text>
+<text text-anchor="start" x="494" y="-1263.1" font-family="Times,serif" font-weight="bold" font-size="14.00"> shape </text>
+<text text-anchor="start" x="538.5" y="-1263.1" font-family="Times,serif" font-weight="bold" font-size="14.00"> ‖4, 5‖ </text>
+<polygon fill="none" stroke="black" points="488.5,-1256.4 488.5,-1338.4 605.5,-1338.4 605.5,-1256.4 488.5,-1256.4"/>
+<polygon fill="#ffbbaa" stroke="none" points="434.35,-1369.3 434.35,-1385.8 447.1,-1385.8 447.1,-1369.3 434.35,-1369.3"/>
+<text text-anchor="start" x="434.35" y="-1373.5" font-family="Times,serif" font-weight="bold" font-size="14.00">7c</text>
+<polygon fill="#aaffbb" stroke="none" points="447.1,-1369.3 447.1,-1385.8 460.6,-1385.8 460.6,-1369.3 447.1,-1369.3"/>
+<text text-anchor="start" x="447.1" y="-1373.5" font-family="Times,serif" font-weight="bold" font-size="14.00">48</text>
+<polygon fill="#ffbbbb" stroke="none" points="460.6,-1369.3 460.6,-1385.8 474.1,-1385.8 474.1,-1369.3 460.6,-1369.3"/>
+<text text-anchor="start" x="460.6" y="-1373.5" font-family="Times,serif" font-weight="bold" font-size="14.00">eb</text>
+<text text-anchor="start" x="442.23" y="-1357" font-family="Times,serif" font-weight="bold" font-size="14.00" fill="green">&quot;B&quot;</text>
+</g>
+<!-- c0861e27&#45;a898&#45;4ead&#45;ac83&#45;dc047b8eee47&#45;&gt;ba8a39f6&#45;5698&#45;4239&#45;b432&#45;88aaa908e9ad#y#0 -->
+<g id="edge15" class="edge">
+<title>c0861e27&#45;a898&#45;4ead&#45;ac83&#45;dc047b8eee47:s&#45;&gt;ba8a39f6&#45;5698&#45;4239&#45;b432&#45;88aaa908e9ad#y#0:n</title>
+<path fill="none" stroke="#38dae0" stroke-width="6" d="M545,-1242C547.6,-1180.07 287.2,-1261.96 239.55,-1223.37"/>
+<path fill="none" stroke="black" stroke-width="6" d="M547,-1242C547,-1178.17 286.6,-1260.05 240.83,-1221.83"/>
+<path fill="none" stroke="#38dae0" stroke-width="6" d="M549,-1242C546.4,-1176.26 286,-1258.14 242.11,-1220.3"/>
+<polygon fill="#38dae0" stroke="#38dae0" stroke-width="6" points="245.72,-1219.89 236.73,-1213.05 236.2,-1224.33 245.72,-1219.89"/>
+</g>
+<!-- dae5e709&#45;16b9&#45;4d4f&#45;8d8d&#45;2c6a144ac306#y#0 -->
+<g id="node16" class="node">
+<title>dae5e709&#45;16b9&#45;4d4f&#45;8d8d&#45;2c6a144ac306#y#0</title>
+<defs>
+<linearGradient id="node16_l_11" gradientUnits="userSpaceOnUse" x1="494.3" y1="-1197.86" x2="581.7" y2="-1158.54" >
+<stop offset="0" style="stop-color:#38dae0;stop-opacity:1.;"/>
+<stop offset="1" style="stop-color:#e98fa5;stop-opacity:1.;"/>
+</linearGradient>
+</defs>
+<polygon fill="url(#node16_l_11)" stroke="black" stroke-width="2" points="599.8,-1206 480.2,-1206 476.2,-1202 476.2,-1150.4 595.8,-1150.4 599.8,-1154.4 599.8,-1206"/>
+<polyline fill="none" stroke="black" stroke-width="2" points="595.8,-1202 476.2,-1202"/>
+<polyline fill="none" stroke="black" stroke-width="2" points="595.8,-1202 595.8,-1150.4"/>
+<polyline fill="none" stroke="black" stroke-width="2" points="595.8,-1202 599.8,-1206"/>
+<polygon fill="white" stroke="none" points="487,-1161.2 487,-1195.2 589,-1195.2 589,-1161.2 487,-1161.2"/>
+<text text-anchor="start" x="487.75" y="-1181.9" font-family="Times,serif" font-weight="bold" font-size="14.00"> range </text>
+<text text-anchor="start" x="528" y="-1181.9" font-family="Times,serif" font-weight="bold" font-size="14.00"> [0:4, 4:5] </text>
+<text text-anchor="start" x="487.75" y="-1165.9" font-family="Times,serif" font-weight="bold" font-size="14.00"> shape </text>
+<text text-anchor="start" x="528" y="-1165.9" font-family="Times,serif" font-weight="bold" font-size="14.00"> ‖4, 1‖ </text>
+<polygon fill="none" stroke="black" points="487,-1161.2 487,-1195.2 589,-1195.2 589,-1161.2 487,-1161.2"/>
+</g>
+<!-- c0861e27&#45;a898&#45;4ead&#45;ac83&#45;dc047b8eee47&#45;&gt;dae5e709&#45;16b9&#45;4d4f&#45;8d8d&#45;2c6a144ac306#y#0 -->
+<g id="edge14" class="edge">
+<title>c0861e27&#45;a898&#45;4ead&#45;ac83&#45;dc047b8eee47:s&#45;&gt;dae5e709&#45;16b9&#45;4d4f&#45;8d8d&#45;2c6a144ac306#y#0:n</title>
+<path fill="none" stroke="#38dae0" stroke-width="6" d="M545,-1242C545.28,-1234.03 542.43,-1229.2 539.85,-1223.67"/>
+<path fill="none" stroke="black" stroke-width="6" d="M547,-1242C547,-1233.01 544.15,-1228.18 541.66,-1222.83"/>
+<path fill="none" stroke="#38dae0" stroke-width="6" d="M549,-1242C548.72,-1232 545.88,-1227.17 543.47,-1221.98"/>
+<polygon fill="#38dae0" stroke="#38dae0" stroke-width="6" points="546.86,-1222.02 539.47,-1213.48 536.64,-1224.42 546.86,-1222.02"/>
+</g>
+<!-- 299b0afc&#45;1844&#45;4bbc&#45;80a5&#45;d4c5fd5833c1#y#0 -->
+<g id="node21" class="node">
+<title>299b0afc&#45;1844&#45;4bbc&#45;80a5&#45;d4c5fd5833c1#y#0</title>
+<defs>
+<linearGradient id="node21_l_12" gradientUnits="userSpaceOnUse" x1="798.3" y1="-1197.86" x2="885.7" y2="-1158.54" >
+<stop offset="0" style="stop-color:#38dae0;stop-opacity:1.;"/>
+<stop offset="1" style="stop-color:#e98fa5;stop-opacity:1.;"/>
+</linearGradient>
+</defs>
+<polygon fill="url(#node21_l_12)" stroke="black" stroke-width="2" points="903.8,-1206 784.2,-1206 780.2,-1202 780.2,-1150.4 899.8,-1150.4 903.8,-1154.4 903.8,-1206"/>
+<polyline fill="none" stroke="black" stroke-width="2" points="899.8,-1202 780.2,-1202"/>
+<polyline fill="none" stroke="black" stroke-width="2" points="899.8,-1202 899.8,-1150.4"/>
+<polyline fill="none" stroke="black" stroke-width="2" points="899.8,-1202 903.8,-1206"/>
+<polygon fill="white" stroke="none" points="791,-1161.2 791,-1195.2 893,-1195.2 893,-1161.2 791,-1161.2"/>
+<text text-anchor="start" x="791.75" y="-1181.9" font-family="Times,serif" font-weight="bold" font-size="14.00"> range </text>
+<text text-anchor="start" x="832" y="-1181.9" font-family="Times,serif" font-weight="bold" font-size="14.00"> [0:4, 0:2] </text>
+<text text-anchor="start" x="791.75" y="-1165.9" font-family="Times,serif" font-weight="bold" font-size="14.00"> shape </text>
+<text text-anchor="start" x="832" y="-1165.9" font-family="Times,serif" font-weight="bold" font-size="14.00"> ‖4, 2‖ </text>
+<polygon fill="none" stroke="black" points="791,-1161.2 791,-1195.2 893,-1195.2 893,-1161.2 791,-1161.2"/>
+</g>
+<!-- c0861e27&#45;a898&#45;4ead&#45;ac83&#45;dc047b8eee47&#45;&gt;299b0afc&#45;1844&#45;4bbc&#45;80a5&#45;d4c5fd5833c1#y#0 -->
+<g id="edge13" class="edge">
+<title>c0861e27&#45;a898&#45;4ead&#45;ac83&#45;dc047b8eee47:s&#45;&gt;299b0afc&#45;1844&#45;4bbc&#45;80a5&#45;d4c5fd5833c1#y#0:n</title>
+<path fill="none" stroke="#38dae0" stroke-width="6" d="M545,-1242C547.59,-1180.27 789.87,-1254.5 833.49,-1220.14"/>
+<path fill="none" stroke="black" stroke-width="6" d="M547,-1242C547,-1182.18 789.28,-1256.42 834.71,-1221.73"/>
+<path fill="none" stroke="#38dae0" stroke-width="6" d="M549,-1242C546.41,-1184.09 788.69,-1258.33 835.92,-1223.32"/>
+<polygon fill="#38dae0" stroke="#38dae0" stroke-width="6" points="839.31,-1224.26 839.11,-1212.97 829.93,-1219.55 839.31,-1224.26"/>
+</g>
+<!-- 504fc4bc&#45;9718&#45;453f&#45;a7a1&#45;3f5c1ec24bc0 -->
+<g id="node8" class="node">
+<title>504fc4bc&#45;9718&#45;453f&#45;a7a1&#45;3f5c1ec24bc0</title>
+<defs>
+<linearGradient id="node8_l_13" gradientUnits="userSpaceOnUse" x1="405.45" y1="-673.57" x2="508.55" y2="-595.23" >
+<stop offset="0" style="stop-color:#99dd55;stop-opacity:1.;"/>
+<stop offset="1" style="stop-color:#ef7bde;stop-opacity:1.;"/>
+</linearGradient>
+</defs>
+<polygon fill="url(#node8_l_13)" stroke="black" stroke-width="2" points="529.9,-689.8 388.1,-689.8 384.1,-685.8 384.1,-579 525.9,-579 529.9,-583 529.9,-689.8"/>
+<polyline fill="none" stroke="black" stroke-width="2" points="525.9,-685.8 384.1,-685.8"/>
+<polyline fill="none" stroke="black" stroke-width="2" points="525.9,-685.8 525.9,-579"/>
+<polyline fill="none" stroke="black" stroke-width="2" points="525.9,-685.8 529.9,-689.8"/>
+<polygon fill="white" stroke="none" points="398.5,-593.4 398.5,-675.4 515.5,-675.4 515.5,-593.4 398.5,-593.4"/>
+<text text-anchor="start" x="401.5" y="-660.1" font-family="Times,serif" font-weight="bold" font-size="14.00"> loom:TensorNode </text>
+<text text-anchor="start" x="404.75" y="-640.1" font-family="Times,serif" font-weight="bold" font-size="14.00"> dtype </text>
+<text text-anchor="start" x="448.5" y="-640.1" font-family="Times,serif" font-weight="bold" font-size="14.00"> int32 </text>
+<text text-anchor="start" x="404" y="-620.1" font-family="Times,serif" font-weight="bold" font-size="14.00"> range </text>
+<text text-anchor="start" x="448.5" y="-620.1" font-family="Times,serif" font-weight="bold" font-size="14.00"> [0:3, 0:5] </text>
+<text text-anchor="start" x="404" y="-600.1" font-family="Times,serif" font-weight="bold" font-size="14.00"> shape </text>
+<text text-anchor="start" x="448.5" y="-600.1" font-family="Times,serif" font-weight="bold" font-size="14.00"> ‖3, 5‖ </text>
+<polygon fill="none" stroke="black" points="398.5,-593.4 398.5,-675.4 515.5,-675.4 515.5,-593.4 398.5,-593.4"/>
+<polygon fill="#aabbff" stroke="none" points="320.35,-706.3 320.35,-722.8 333.85,-722.8 333.85,-706.3 320.35,-706.3"/>
+<text text-anchor="start" x="320.35" y="-710.5" font-family="Times,serif" font-weight="bold" font-size="14.00">cd</text>
+<polygon fill="#ffbbaa" stroke="none" points="333.85,-706.3 333.85,-722.8 347.35,-722.8 347.35,-706.3 333.85,-706.3"/>
+<text text-anchor="start" x="333.85" y="-710.5" font-family="Times,serif" font-weight="bold" font-size="14.00">a9</text>
+<polygon fill="#aaffbb" stroke="none" points="347.35,-706.3 347.35,-722.8 360.85,-722.8 360.85,-706.3 347.35,-706.3"/>
+<text text-anchor="start" x="347.35" y="-710.5" font-family="Times,serif" font-weight="bold" font-size="14.00">02</text>
+<text text-anchor="start" x="297.1" y="-694" font-family="Times,serif" font-weight="bold" font-size="14.00" fill="green">&quot;matmul/z[0]&quot;</text>
+</g>
+<!-- ba8a39f6&#45;5698&#45;4239&#45;b432&#45;88aaa908e9ad#z#0&#45;&gt;504fc4bc&#45;9718&#45;453f&#45;a7a1&#45;3f5c1ec24bc0 -->
+<g id="edge16" class="edge">
+<title>ba8a39f6&#45;5698&#45;4239&#45;b432&#45;88aaa908e9ad#z#0:s&#45;&gt;504fc4bc&#45;9718&#45;453f&#45;a7a1&#45;3f5c1ec24bc0:n</title>
+<path fill="none" stroke="#99dd55" stroke-width="6" d="M313,-725.8C316.04,-665.85 429.67,-735.1 451.01,-704.24"/>
+<path fill="none" stroke="black" stroke-width="6" d="M315,-725.8C315,-667.56 428.63,-736.81 452.59,-705.46"/>
+<path fill="none" stroke="#99dd55" stroke-width="6" d="M317,-725.8C313.96,-669.27 427.59,-738.51 454.18,-706.67"/>
+<polygon fill="#99dd55" stroke="#99dd55" stroke-width="6" points="457.6,-707.06 455.25,-696.01 447.49,-704.22 457.6,-707.06"/>
+</g>
+<!-- 34ff6d74&#45;4fbb&#45;4f32&#45;b596&#45;124482fbf9db#tensor#0 -->
+<g id="node11" class="node">
+<title>34ff6d74&#45;4fbb&#45;4f32&#45;b596&#45;124482fbf9db#tensor#0</title>
+<defs>
+<linearGradient id="node11_l_14" gradientUnits="userSpaceOnUse" x1="484.3" y1="-534.86" x2="571.7" y2="-495.54" >
+<stop offset="0" style="stop-color:#99dd55;stop-opacity:1.;"/>
+<stop offset="1" style="stop-color:#ef7bde;stop-opacity:1.;"/>
+</linearGradient>
+</defs>
+<polygon fill="url(#node11_l_14)" stroke="black" stroke-width="2" points="589.8,-543 470.2,-543 466.2,-539 466.2,-487.4 585.8,-487.4 589.8,-491.4 589.8,-543"/>
+<polyline fill="none" stroke="black" stroke-width="2" points="585.8,-539 466.2,-539"/>
+<polyline fill="none" stroke="black" stroke-width="2" points="585.8,-539 585.8,-487.4"/>
+<polyline fill="none" stroke="black" stroke-width="2" points="585.8,-539 589.8,-543"/>
+<polygon fill="white" stroke="none" points="477,-498.2 477,-532.2 579,-532.2 579,-498.2 477,-498.2"/>
+<text text-anchor="start" x="477.75" y="-518.9" font-family="Times,serif" font-weight="bold" font-size="14.00"> range </text>
+<text text-anchor="start" x="518" y="-518.9" font-family="Times,serif" font-weight="bold" font-size="14.00"> [0:2, 0:5] </text>
+<text text-anchor="start" x="477.75" y="-502.9" font-family="Times,serif" font-weight="bold" font-size="14.00"> shape </text>
+<text text-anchor="start" x="518" y="-502.9" font-family="Times,serif" font-weight="bold" font-size="14.00"> ‖2, 5‖ </text>
+<polygon fill="none" stroke="black" points="477,-498.2 477,-532.2 579,-532.2 579,-498.2 477,-498.2"/>
+</g>
+<!-- 504fc4bc&#45;9718&#45;453f&#45;a7a1&#45;3f5c1ec24bc0&#45;&gt;34ff6d74&#45;4fbb&#45;4f32&#45;b596&#45;124482fbf9db#tensor#0 -->
+<g id="edge18" class="edge">
+<title>504fc4bc&#45;9718&#45;453f&#45;a7a1&#45;3f5c1ec24bc0:s&#45;&gt;34ff6d74&#45;4fbb&#45;4f32&#45;b596&#45;124482fbf9db#tensor#0:n</title>
+<path fill="none" stroke="#99dd55" stroke-width="6" d="M455,-579C457.68,-549.06 502.32,-565.11 519.19,-555.43"/>
+<path fill="none" stroke="black" stroke-width="6" d="M457,-579C457,-550.94 501.64,-566.99 520.13,-557.2"/>
+<path fill="none" stroke="#99dd55" stroke-width="6" d="M459,-579C456.32,-552.83 500.97,-568.88 521.07,-558.97"/>
+<polygon fill="#99dd55" stroke="#99dd55" stroke-width="6" points="524.62,-559.94 524.87,-548.65 515.43,-554.85 524.62,-559.94"/>
+</g>
+<!-- 9fdb88c8&#45;4105&#45;48e1&#45;90c2&#45;f4d44938f513#tensor#0 -->
+<g id="node24" class="node">
+<title>9fdb88c8&#45;4105&#45;48e1&#45;90c2&#45;f4d44938f513#tensor#0</title>
+<defs>
+<linearGradient id="node24_l_15" gradientUnits="userSpaceOnUse" x1="342.3" y1="-534.86" x2="429.7" y2="-495.54" >
+<stop offset="0" style="stop-color:#99dd55;stop-opacity:1.;"/>
+<stop offset="1" style="stop-color:#ef7bde;stop-opacity:1.;"/>
+</linearGradient>
+</defs>
+<polygon fill="url(#node24_l_15)" stroke="black" stroke-width="2" points="447.8,-543 328.2,-543 324.2,-539 324.2,-487.4 443.8,-487.4 447.8,-491.4 447.8,-543"/>
+<polyline fill="none" stroke="black" stroke-width="2" points="443.8,-539 324.2,-539"/>
+<polyline fill="none" stroke="black" stroke-width="2" points="443.8,-539 443.8,-487.4"/>
+<polyline fill="none" stroke="black" stroke-width="2" points="443.8,-539 447.8,-543"/>
+<polygon fill="white" stroke="none" points="335,-498.2 335,-532.2 437,-532.2 437,-498.2 335,-498.2"/>
+<text text-anchor="start" x="335.75" y="-518.9" font-family="Times,serif" font-weight="bold" font-size="14.00"> range </text>
+<text text-anchor="start" x="376" y="-518.9" font-family="Times,serif" font-weight="bold" font-size="14.00"> [2:3, 0:5] </text>
+<text text-anchor="start" x="335.75" y="-502.9" font-family="Times,serif" font-weight="bold" font-size="14.00"> shape </text>
+<text text-anchor="start" x="376" y="-502.9" font-family="Times,serif" font-weight="bold" font-size="14.00"> ‖1, 5‖ </text>
+<polygon fill="none" stroke="black" points="335,-498.2 335,-532.2 437,-532.2 437,-498.2 335,-498.2"/>
+</g>
+<!-- 504fc4bc&#45;9718&#45;453f&#45;a7a1&#45;3f5c1ec24bc0&#45;&gt;9fdb88c8&#45;4105&#45;48e1&#45;90c2&#45;f4d44938f513#tensor#0 -->
+<g id="edge17" class="edge">
+<title>504fc4bc&#45;9718&#45;453f&#45;a7a1&#45;3f5c1ec24bc0:s&#45;&gt;9fdb88c8&#45;4105&#45;48e1&#45;90c2&#45;f4d44938f513#tensor#0:n</title>
+<path fill="none" stroke="#99dd55" stroke-width="6" d="M455,-579C457.68,-552.83 413.03,-568.88 392.93,-558.97"/>
+<path fill="none" stroke="black" stroke-width="6" d="M457,-579C457,-550.94 412.36,-566.99 393.87,-557.2"/>
+<path fill="none" stroke="#99dd55" stroke-width="6" d="M459,-579C456.32,-549.06 411.68,-565.11 394.81,-555.43"/>
+<polygon fill="#99dd55" stroke="#99dd55" stroke-width="6" points="398.57,-554.85 389.13,-548.65 389.38,-559.94 398.57,-554.85"/>
+</g>
+<!-- 34ff6d74&#45;4fbb&#45;4f32&#45;b596&#45;124482fbf9db -->
+<g id="node9" class="node">
+<title>34ff6d74&#45;4fbb&#45;4f32&#45;b596&#45;124482fbf9db</title>
+<defs>
+<linearGradient id="node9_l_16" gradientUnits="userSpaceOnUse" x1="500.41" y1="-409.6" x2="567.59" y2="-280.2" >
+<stop offset="0" style="stop-color:#ef7bde;stop-opacity:1.;"/>
+<stop offset="1" style="stop-color:#e98fa5;stop-opacity:1.;"/>
+</linearGradient>
+</defs>
+<polygon fill="url(#node9_l_16)" stroke="black" stroke-width="2" points="575.51,-436.4 486.49,-436.4 486.49,-253.4 581.51,-253.4 581.51,-430.4 575.51,-436.4"/>
+<polyline fill="none" stroke="black" stroke-width="2" points="575.51,-436.4 575.51,-430.4"/>
+<polyline fill="none" stroke="black" stroke-width="2" points="581.51,-430.4 575.51,-430.4"/>
+<polygon fill="#99dd55" stroke="none" points="494.25,-413.9 494.25,-434.4 534.25,-434.4 534.25,-413.9 494.25,-413.9"/>
+<polygon fill="none" stroke="black" points="494.25,-413.9 494.25,-434.4 534.25,-434.4 534.25,-413.9 494.25,-413.9"/>
+<text text-anchor="start" x="510.88" y="-420.1" font-family="Times,serif" font-weight="bold" font-size="14.00">0</text>
+<polygon fill="white" stroke="none" points="494.25,-393.4 494.25,-413.9 534.25,-413.9 534.25,-393.4 494.25,-393.4"/>
+<polygon fill="none" stroke="black" points="494.25,-393.4 494.25,-413.9 534.25,-413.9 534.25,-393.4 494.25,-393.4"/>
+<text text-anchor="start" x="496.25" y="-399.6" font-family="Times,serif" font-weight="bold" font-size="14.00">tensor</text>
+<polygon fill="white" stroke="none" points="494.25,-353.4 494.25,-389.4 573.75,-389.4 573.75,-353.4 494.25,-353.4"/>
+<polygon fill="none" stroke="black" points="494.25,-371.4 494.25,-389.4 573.75,-389.4 573.75,-371.4 494.25,-371.4"/>
+<text text-anchor="start" x="499.5" y="-376.1" font-family="Times,serif" font-weight="bold" font-size="14.00">&quot;row_sum&quot;</text>
+<polygon fill="none" stroke="black" points="494.25,-353.4 494.25,-371.4 541.5,-371.4 541.5,-353.4 494.25,-353.4"/>
+<text text-anchor="start" x="510.5" y="-358.1" font-family="Times,serif" font-weight="bold" font-size="14.00"> axis </text>
+<polygon fill="none" stroke="black" points="541.5,-353.4 541.5,-371.4 573.75,-371.4 573.75,-353.4 541.5,-353.4"/>
+<text text-anchor="start" x="542.5" y="-358.1" font-family="Times,serif" font-weight="bold" font-size="14.00"> </text>
+<text text-anchor="start" x="546.25" y="-358.1" font-family="Times,serif" font-weight="bold" font-size="14.00">1</text>
+<text text-anchor="start" x="553" y="-358.1" font-family="Times,serif" font-weight="bold" font-size="14.00"> </text>
+<polygon fill="white" stroke="none" points="494.25,-300.4 494.25,-349.4 573.75,-349.4 573.75,-300.4 494.25,-300.4"/>
+<polygon fill="none" stroke="black" points="494.25,-300.4 494.25,-349.4 536.75,-349.4 536.75,-300.4 494.25,-300.4"/>
+<text text-anchor="start" x="495.25" y="-336.1" font-family="Times,serif" font-weight="bold" font-size="14.00"> range </text>
+<polygon fill="none" stroke="black" points="536.75,-300.4 536.75,-349.4 573.75,-349.4 573.75,-300.4 536.75,-300.4"/>
+<text text-anchor="start" x="541.75" y="-332.1" font-family="Times,serif" font-weight="bold" font-size="14.00">[0:2]</text>
+<text text-anchor="start" x="547.38" y="-309.6" font-family="Times,serif" font-weight="bold" font-size="14.00">‖2‖</text>
+<polygon fill="white" stroke="none" points="494.25,-275.9 494.25,-296.4 531.25,-296.4 531.25,-275.9 494.25,-275.9"/>
+<polygon fill="none" stroke="black" points="494.25,-275.9 494.25,-296.4 531.25,-296.4 531.25,-275.9 494.25,-275.9"/>
+<text text-anchor="start" x="496.25" y="-282.1" font-family="Times,serif" font-weight="bold" font-size="14.00">result</text>
+<polygon fill="#38dae0" stroke="none" points="494.25,-255.4 494.25,-275.9 531.25,-275.9 531.25,-255.4 494.25,-255.4"/>
+<polygon fill="none" stroke="black" points="494.25,-255.4 494.25,-275.9 531.25,-275.9 531.25,-255.4 494.25,-255.4"/>
+<text text-anchor="start" x="509.38" y="-261.6" font-family="Times,serif" font-weight="bold" font-size="14.00">0</text>
+<polygon fill="#aabbff" stroke="none" points="445.24,-436.4 445.24,-452.9 459.49,-452.9 459.49,-436.4 445.24,-436.4"/>
+<text text-anchor="start" x="445.24" y="-440.6" font-family="Times,serif" font-weight="bold" font-size="14.00">7d</text>
+<polygon fill="#aaffbb" stroke="none" points="459.49,-436.4 459.49,-452.9 472.99,-452.9 472.99,-436.4 459.49,-436.4"/>
+<text text-anchor="start" x="459.49" y="-440.6" font-family="Times,serif" font-weight="bold" font-size="14.00">29</text>
+<polygon fill="#ffbbaa" stroke="none" points="472.99,-436.4 472.99,-452.9 486.49,-452.9 486.49,-436.4 472.99,-436.4"/>
+<text text-anchor="start" x="472.99" y="-440.6" font-family="Times,serif" font-weight="bold" font-size="14.00">81</text>
+</g>
+<!-- 1f01c044&#45;5daa&#45;41b0&#45;bbfb&#45;0bd26b2884ea -->
+<g id="node10" class="node">
+<title>1f01c044&#45;5daa&#45;41b0&#45;bbfb&#45;0bd26b2884ea</title>
+<defs>
+<linearGradient id="node10_l_17" gradientUnits="userSpaceOnUse" x1="641.01" y1="-402.05" x2="838.99" y2="-291.75" >
+<stop offset="0" style="stop-color:#ef7bde;stop-opacity:1.;"/>
+<stop offset="1" style="stop-color:#e98fa5;stop-opacity:1.;"/>
+</linearGradient>
+</defs>
+<polygon fill="url(#node10_l_17)" stroke="black" stroke-width="2" points="880,-420.9 612,-420.9 612,-424.9 600,-424.9 600,-268.9 880,-268.9 880,-420.9"/>
+<polyline fill="none" stroke="black" stroke-width="2" points="600,-420.9 612,-420.9"/>
+<polygon fill="white" stroke="none" points="608,-272.9 608,-416.9 872,-416.9 872,-272.9 608,-272.9"/>
+<polygon fill="none" stroke="black" points="610,-396.9 610,-414.9 870,-414.9 870,-396.9 610,-396.9"/>
+<text text-anchor="start" x="611" y="-401.6" font-family="Times,serif" font-weight="bold" font-size="14.00" fill="teal"> loom:OperationSignature </text>
+<polygon fill="none" stroke="black" points="610,-378.9 610,-396.9 663,-396.9 663,-378.9 610,-378.9"/>
+<text text-anchor="start" x="617.75" y="-383.6" font-family="Times,serif" font-weight="bold" font-size="14.00"> kernel </text>
+<polygon fill="none" stroke="black" points="663,-378.9 663,-396.9 870,-396.9 870,-378.9 663,-378.9"/>
+<text text-anchor="start" x="664" y="-383.6" font-family="Times,serif" font-weight="bold" font-size="14.00"> </text>
+<text text-anchor="start" x="667.75" y="-383.6" font-family="Times,serif" font-weight="bold" font-size="14.00">row_sum</text>
+<text text-anchor="start" x="721.75" y="-383.6" font-family="Times,serif" font-weight="bold" font-size="14.00"> </text>
+<polygon fill="none" stroke="black" points="610,-354.9 610,-378.9 663,-378.9 663,-354.9 610,-354.9"/>
+<text text-anchor="start" x="610.62" y="-365.6" font-family="Times,serif" font-weight="bold" font-size="14.00"> params </text>
+<polygon fill="none" stroke="black" points="663,-354.9 663,-378.9 870,-378.9 870,-354.9 663,-354.9"/>
+<polygon fill="none" stroke="black" points="664,-355.4 664,-377.9 774.38,-377.9 774.38,-355.4 664,-355.4"/>
+<text text-anchor="start" x="741.38" y="-362.6" font-family="Times,serif" font-weight="bold" font-size="14.00"> axis </text>
+<polygon fill="none" stroke="black" points="774.38,-355.4 774.38,-377.9 869,-377.9 869,-355.4 774.38,-355.4"/>
+<text text-anchor="start" x="777.38" y="-362.6" font-family="Times,serif" font-weight="bold" font-size="14.00"> </text>
+<text text-anchor="start" x="781.12" y="-362.6" font-family="Times,serif" font-weight="bold" font-size="14.00">1</text>
+<text text-anchor="start" x="787.88" y="-362.6" font-family="Times,serif" font-weight="bold" font-size="14.00"> </text>
+<polygon fill="none" stroke="black" points="610,-314.9 610,-354.9 663,-354.9 663,-314.9 610,-314.9"/>
+<text text-anchor="start" x="618.5" y="-341.6" font-family="Times,serif" font-weight="bold" font-size="14.00"> inputs </text>
+<polygon fill="none" stroke="black" points="663,-314.9 663,-354.9 870,-354.9 870,-314.9 663,-314.9"/>
+<polygon fill="none" stroke="black" points="664,-315.4 664,-353.9 712.75,-353.9 712.75,-315.4 664,-315.4"/>
+<text text-anchor="start" x="667" y="-338.6" font-family="Times,serif" font-weight="bold" font-size="14.00"> tensor </text>
+<polygon fill="none" stroke="black" points="712.75,-315.4 712.75,-353.9 869.75,-353.9 869.75,-315.4 712.75,-315.4"/>
+<polygon fill="#aabbff" stroke="none" points="723.75,-326.4 723.75,-342.9 737.25,-342.9 737.25,-326.4 723.75,-326.4"/>
+<text text-anchor="start" x="723.75" y="-330.6" font-family="Times,serif" font-weight="bold" font-size="14.00">cd</text>
+<polygon fill="#ffbbaa" stroke="none" points="737.25,-326.4 737.25,-342.9 750.75,-342.9 750.75,-326.4 737.25,-326.4"/>
+<text text-anchor="start" x="737.25" y="-330.6" font-family="Times,serif" font-weight="bold" font-size="14.00">a9</text>
+<polygon fill="#aaffbb" stroke="none" points="750.75,-326.4 750.75,-342.9 764.25,-342.9 764.25,-326.4 750.75,-326.4"/>
+<text text-anchor="start" x="750.75" y="-330.6" font-family="Times,serif" font-weight="bold" font-size="14.00">02</text>
+<text text-anchor="start" x="770.25" y="-330.6" font-family="Times,serif" font-weight="bold" font-size="14.00">[0:3, 0:5]</text>
+<text text-anchor="start" x="828.75" y="-330.6" font-family="Times,serif" font-weight="bold" font-size="14.00">‖3, 5‖</text>
+<polygon fill="none" stroke="black" points="610,-274.9 610,-314.9 663,-314.9 663,-274.9 610,-274.9"/>
+<text text-anchor="start" x="611" y="-301.6" font-family="Times,serif" font-weight="bold" font-size="14.00"> outputs </text>
+<polygon fill="none" stroke="black" points="663,-274.9 663,-314.9 870,-314.9 870,-274.9 663,-274.9"/>
+<polygon fill="none" stroke="black" points="664,-275.4 664,-313.9 732.62,-313.9 732.62,-275.4 664,-275.4"/>
+<text text-anchor="start" x="689.12" y="-298.6" font-family="Times,serif" font-weight="bold" font-size="14.00"> result </text>
+<polygon fill="none" stroke="black" points="732.62,-275.4 732.62,-313.9 869,-313.9 869,-275.4 732.62,-275.4"/>
+<polygon fill="#ffbbaa" stroke="none" points="747.31,-286.4 747.31,-302.9 757.81,-302.9 757.81,-286.4 747.31,-286.4"/>
+<text text-anchor="start" x="747.31" y="-290.6" font-family="Times,serif" font-weight="bold" font-size="14.00">fe</text>
+<polygon fill="#ccbbff" stroke="none" points="757.81,-286.4 757.81,-302.9 771.31,-302.9 771.31,-286.4 757.81,-286.4"/>
+<text text-anchor="start" x="757.81" y="-290.6" font-family="Times,serif" font-weight="bold" font-size="14.00">08</text>
+<polygon fill="#ffbbbb" stroke="none" points="771.31,-286.4 771.31,-302.9 784.81,-302.9 784.81,-286.4 771.31,-286.4"/>
+<text text-anchor="start" x="771.31" y="-290.6" font-family="Times,serif" font-weight="bold" font-size="14.00">0a</text>
+<text text-anchor="start" x="798.19" y="-290.6" font-family="Times,serif" font-weight="bold" font-size="14.00">[0:3]</text>
+<text text-anchor="start" x="838.56" y="-290.6" font-family="Times,serif" font-weight="bold" font-size="14.00">‖3‖</text>
+<polygon fill="#ccbbff" stroke="none" points="600,-420.9 600,-437.4 612.75,-437.4 612.75,-420.9 600,-420.9"/>
+<text text-anchor="start" x="600" y="-425.1" font-family="Times,serif" font-weight="bold" font-size="14.00">e4</text>
+<polygon fill="#ffbbbb" stroke="none" points="612.75,-420.9 612.75,-437.4 625.5,-437.4 625.5,-420.9 612.75,-420.9"/>
+<text text-anchor="start" x="612.75" y="-425.1" font-family="Times,serif" font-weight="bold" font-size="14.00">8c</text>
+<polygon fill="#ffbbaa" stroke="none" points="625.5,-420.9 625.5,-437.4 638.25,-437.4 638.25,-420.9 625.5,-420.9"/>
+<text text-anchor="start" x="625.5" y="-425.1" font-family="Times,serif" font-weight="bold" font-size="14.00">e0</text>
+</g>
+<!-- 34ff6d74&#45;4fbb&#45;4f32&#45;b596&#45;124482fbf9db&#45;&gt;1f01c044&#45;5daa&#45;41b0&#45;bbfb&#45;0bd26b2884ea -->
+<g id="edge20" class="edge">
+<title>34ff6d74&#45;4fbb&#45;4f32&#45;b596&#45;124482fbf9db:e&#45;&gt;1f01c044&#45;5daa&#45;41b0&#45;bbfb&#45;0bd26b2884ea:w</title>
+<path fill="none" stroke="black" stroke-dasharray="1,5" d="M581.51,-344.9C584.46,-344.9 586.62,-344.9 588.55,-344.9"/>
+<polygon fill="black" stroke="black" points="588.49,-348.4 598.49,-344.9 588.49,-341.4 588.49,-348.4"/>
+</g>
+<!-- 34ff6d74&#45;4fbb&#45;4f32&#45;b596&#45;124482fbf9db#result#0 -->
+<g id="node12" class="node">
+<title>34ff6d74&#45;4fbb&#45;4f32&#45;b596&#45;124482fbf9db#result#0</title>
+<defs>
+<linearGradient id="node12_l_18" gradientUnits="userSpaceOnUse" x1="479.49" y1="-194.26" x2="548.51" y2="-154.94" >
+<stop offset="0" style="stop-color:#38dae0;stop-opacity:1.;"/>
+<stop offset="1" style="stop-color:#22ccbb;stop-opacity:1.;"/>
+</linearGradient>
+</defs>
+<polygon fill="url(#node12_l_18)" stroke="black" stroke-width="2" points="562.8,-202.4 469.2,-202.4 465.2,-198.4 465.2,-146.8 558.8,-146.8 562.8,-150.8 562.8,-202.4"/>
+<polyline fill="none" stroke="black" stroke-width="2" points="558.8,-198.4 465.2,-198.4"/>
+<polyline fill="none" stroke="black" stroke-width="2" points="558.8,-198.4 558.8,-146.8"/>
+<polyline fill="none" stroke="black" stroke-width="2" points="558.8,-198.4 562.8,-202.4"/>
+<polygon fill="white" stroke="none" points="476,-157.6 476,-191.6 552,-191.6 552,-157.6 476,-157.6"/>
+<text text-anchor="start" x="476.75" y="-178.3" font-family="Times,serif" font-weight="bold" font-size="14.00"> range </text>
+<text text-anchor="start" x="516.75" y="-178.3" font-family="Times,serif" font-weight="bold" font-size="14.00"> [0:2] </text>
+<text text-anchor="start" x="476.75" y="-162.3" font-family="Times,serif" font-weight="bold" font-size="14.00"> shape </text>
+<text text-anchor="start" x="517" y="-162.3" font-family="Times,serif" font-weight="bold" font-size="14.00"> ‖2‖ </text>
+<polygon fill="none" stroke="black" points="476,-157.6 476,-191.6 552,-191.6 552,-157.6 476,-157.6"/>
+</g>
+<!-- 34ff6d74&#45;4fbb&#45;4f32&#45;b596&#45;124482fbf9db&#45;&gt;34ff6d74&#45;4fbb&#45;4f32&#45;b596&#45;124482fbf9db#result#0 -->
+<g id="edge19" class="edge">
+<title>34ff6d74&#45;4fbb&#45;4f32&#45;b596&#45;124482fbf9db:s&#45;&gt;34ff6d74&#45;4fbb&#45;4f32&#45;b596&#45;124482fbf9db#result#0:n</title>
+<path fill="none" stroke="#38dae0" stroke-width="6" d="M511,-253.9C511,-237.49 511.51,-229.9 511.8,-218.72"/>
+<path fill="none" stroke="black" stroke-width="6" d="M513,-253.9C513,-237.62 513.51,-230.03 513.8,-218.78"/>
+<path fill="none" stroke="#38dae0" stroke-width="6" d="M515,-253.9C515,-237.76 515.5,-230.16 515.8,-218.83"/>
+<polygon fill="#38dae0" stroke="#38dae0" stroke-width="6" points="519.05,-218.92 513.92,-208.85 508.55,-218.79 519.05,-218.92"/>
+</g>
+<!-- 1f01c044&#45;5daa&#45;41b0&#45;bbfb&#45;0bd26b2884ea#annotations -->
+<g id="node18" class="node">
+<title>1f01c044&#45;5daa&#45;41b0&#45;bbfb&#45;0bd26b2884ea#annotations</title>
+<polygon fill="#45eebf" stroke="black" stroke-width="2" points="1119.5,-451.4 898.5,-451.4 898.5,-447.4 894.5,-447.4 894.5,-443.4 898.5,-443.4 898.5,-246.4 894.5,-246.4 894.5,-242.4 898.5,-242.4 898.5,-238.4 1119.5,-238.4 1119.5,-451.4"/>
+<polyline fill="none" stroke="black" stroke-width="2" points="898.5,-447.4 902.5,-447.4 902.5,-443.4 898.5,-443.4"/>
+<polyline fill="none" stroke="black" stroke-width="2" points="898.5,-246.4 902.5,-246.4 902.5,-242.4 898.5,-242.4"/>
+<polygon fill="white" stroke="none" points="910.5,-376.4 910.5,-443.4 1107.5,-443.4 1107.5,-376.4 910.5,-376.4"/>
+<polygon fill="none" stroke="black" points="910.5,-425.4 910.5,-443.4 1107.5,-443.4 1107.5,-425.4 910.5,-425.4"/>
+<text text-anchor="start" x="911.5" y="-430.1" font-family="Times,serif" font-weight="bold" font-size="14.00" fill="teal"> loom:IPFIndex </text>
+<polygon fill="none" stroke="black" points="910.5,-376.4 910.5,-425.4 1011,-425.4 1011,-376.4 910.5,-376.4"/>
+<text text-anchor="start" x="969.5" y="-412.1" font-family="Times,serif" font-weight="bold" font-size="14.00"> range </text>
+<polygon fill="none" stroke="black" points="1011,-376.4 1011,-425.4 1107.5,-425.4 1107.5,-376.4 1011,-376.4"/>
+<text text-anchor="start" x="1045.75" y="-408.1" font-family="Times,serif" font-weight="bold" font-size="14.00">[0:3]</text>
+<text text-anchor="start" x="1051.38" y="-385.6" font-family="Times,serif" font-weight="bold" font-size="14.00">‖3‖</text>
+<polygon fill="white" stroke="none" points="910.5,-246.4 910.5,-370.4 1107.5,-370.4 1107.5,-246.4 910.5,-246.4"/>
+<polygon fill="none" stroke="black" points="910.5,-352.4 910.5,-370.4 1107.5,-370.4 1107.5,-352.4 910.5,-352.4"/>
+<text text-anchor="start" x="911.5" y="-357.1" font-family="Times,serif" font-weight="bold" font-size="14.00" fill="teal"> loom:IPFSignature </text>
+<polygon fill="none" stroke="black" points="910.5,-288.4 910.5,-352.4 963.5,-352.4 963.5,-288.4 910.5,-288.4"/>
+<text text-anchor="start" x="919" y="-339.1" font-family="Times,serif" font-weight="bold" font-size="14.00"> inputs </text>
+<polygon fill="none" stroke="black" points="963.5,-288.4 963.5,-352.4 1107.5,-352.4 1107.5,-288.4 963.5,-288.4"/>
+<polygon fill="none" stroke="black" points="964.5,-289.4 964.5,-351.4 1013.25,-351.4 1013.25,-289.4 964.5,-289.4"/>
+<text text-anchor="start" x="967.5" y="-336.1" font-family="Times,serif" font-weight="bold" font-size="14.00"> tensor </text>
+<polygon fill="none" stroke="black" points="1013.25,-289.4 1013.25,-351.4 1107.25,-351.4 1107.25,-289.4 1013.25,-289.4"/>
+<polyline fill="none" stroke="black" points="1022.25,-342.4 1022.25,-320.4"/>
+<polyline fill="none" stroke="black" points="1034.25,-320.4 1034.25,-342.4"/>
+<text text-anchor="start" x="1024.88" y="-327.1" font-family="Times,serif" font-weight="bold" font-size="14.00">1</text>
+<polyline fill="none" stroke="black" points="1046.25,-320.4 1046.25,-342.4"/>
+<text text-anchor="start" x="1036.88" y="-327.1" font-family="Times,serif" font-weight="bold" font-size="14.00">0</text>
+<polyline fill="none" stroke="black" points="1022.25,-320.4 1022.25,-298.4"/>
+<polyline fill="none" stroke="black" points="1034.25,-298.4 1034.25,-320.4"/>
+<text text-anchor="start" x="1024.88" y="-305.1" font-family="Times,serif" font-weight="bold" font-size="14.00">0</text>
+<polyline fill="none" stroke="black" points="1046.25,-298.4 1046.25,-320.4"/>
+<text text-anchor="start" x="1036.88" y="-305.1" font-family="Times,serif" font-weight="bold" font-size="14.00">0</text>
+<text text-anchor="start" x="1050.25" y="-316.72" font-family="Times,serif" font-weight="bold" font-size="14.00"> ⊕ [1, 5]</text>
+<polygon fill="none" stroke="black" points="910.5,-246.4 910.5,-288.4 963.5,-288.4 963.5,-246.4 910.5,-246.4"/>
+<text text-anchor="start" x="911.5" y="-275.1" font-family="Times,serif" font-weight="bold" font-size="14.00"> outputs </text>
+<polygon fill="none" stroke="black" points="963.5,-246.4 963.5,-288.4 1107.5,-288.4 1107.5,-246.4 963.5,-246.4"/>
+<polygon fill="none" stroke="black" points="964.5,-246.9 964.5,-287.4 1018.12,-287.4 1018.12,-246.9 964.5,-246.9"/>
+<text text-anchor="start" x="974.62" y="-272.1" font-family="Times,serif" font-weight="bold" font-size="14.00"> result </text>
+<polygon fill="none" stroke="black" points="1018.12,-246.9 1018.12,-287.4 1106.5,-287.4 1106.5,-246.9 1018.12,-246.9"/>
+<polyline fill="none" stroke="black" points="1027.12,-278.4 1027.12,-255.9"/>
+<polyline fill="none" stroke="black" points="1041.66,-255.9 1041.66,-278.4"/>
+<text text-anchor="start" x="1031.02" y="-263.1" font-family="Times,serif" font-weight="bold" font-size="14.00">1</text>
+<polyline fill="none" stroke="black" points="1056.19,-255.9 1056.19,-278.4"/>
+<text text-anchor="start" x="1045.55" y="-263.1" font-family="Times,serif" font-weight="bold" font-size="14.00">0</text>
+<text text-anchor="start" x="1061.97" y="-263.47" font-family="Times,serif" font-weight="bold" font-size="14.00"> ⊕ [1]</text>
+</g>
+<!-- 1f01c044&#45;5daa&#45;41b0&#45;bbfb&#45;0bd26b2884ea&#45;&gt;1f01c044&#45;5daa&#45;41b0&#45;bbfb&#45;0bd26b2884ea#annotations -->
+<g id="edge21" class="edge">
+<title>1f01c044&#45;5daa&#45;41b0&#45;bbfb&#45;0bd26b2884ea&#45;&gt;1f01c044&#45;5daa&#45;41b0&#45;bbfb&#45;0bd26b2884ea#annotations</title>
+<path fill="none" stroke="black" stroke-width="2" d="M880.8,-344.9C880.89,-344.9 880.98,-344.9 881.07,-344.9"/>
+<ellipse fill="none" stroke="black" stroke-width="2" cx="892.58" cy="-344.9" rx="4" ry="4"/>
+<ellipse fill="none" stroke="black" stroke-width="2" cx="882.58" cy="-344.9" rx="4" ry="4"/>
+</g>
+<!-- 34ff6d74&#45;4fbb&#45;4f32&#45;b596&#45;124482fbf9db#tensor#0&#45;&gt;34ff6d74&#45;4fbb&#45;4f32&#45;b596&#45;124482fbf9db -->
+<g id="edge22" class="edge">
+<title>34ff6d74&#45;4fbb&#45;4f32&#45;b596&#45;124482fbf9db#tensor#0:s&#45;&gt;34ff6d74&#45;4fbb&#45;4f32&#45;b596&#45;124482fbf9db:n</title>
+<path fill="none" stroke="#99dd55" stroke-width="6" d="M526,-487.4C526.62,-471.8 519.39,-464.91 514.82,-452.8"/>
+<path fill="none" stroke="black" stroke-width="6" d="M528,-487.4C528,-470.35 520.77,-463.46 516.7,-452.12"/>
+<path fill="none" stroke="#99dd55" stroke-width="6" d="M530,-487.4C529.38,-468.9 522.15,-462.01 518.58,-451.45"/>
+<polygon fill="#99dd55" stroke="#99dd55" stroke-width="6" points="521.88,-451.27 515.06,-442.27 511.52,-452.99 521.88,-451.27"/>
+</g>
+<!-- 32b61a84&#45;547d&#45;4997&#45;b351&#45;fbcce9f05a77 -->
+<g id="node13" class="node">
+<title>32b61a84&#45;547d&#45;4997&#45;b351&#45;fbcce9f05a77</title>
+<defs>
+<linearGradient id="node13_l_19" gradientUnits="userSpaceOnUse" x1="404.45" y1="-94.57" x2="507.55" y2="-16.23" >
+<stop offset="0" style="stop-color:#38dae0;stop-opacity:1.;"/>
+<stop offset="1" style="stop-color:#22ccbb;stop-opacity:1.;"/>
+</linearGradient>
+</defs>
+<polygon fill="url(#node13_l_19)" stroke="black" stroke-width="2" points="528.9,-110.8 387.1,-110.8 383.1,-106.8 383.1,0 524.9,0 528.9,-4 528.9,-110.8"/>
+<polyline fill="none" stroke="black" stroke-width="2" points="524.9,-106.8 383.1,-106.8"/>
+<polyline fill="none" stroke="black" stroke-width="2" points="524.9,-106.8 524.9,0"/>
+<polyline fill="none" stroke="black" stroke-width="2" points="524.9,-106.8 528.9,-110.8"/>
+<polygon fill="white" stroke="none" points="397.5,-14.4 397.5,-96.4 514.5,-96.4 514.5,-14.4 397.5,-14.4"/>
+<text text-anchor="start" x="400.5" y="-81.1" font-family="Times,serif" font-weight="bold" font-size="14.00"> loom:TensorNode </text>
+<text text-anchor="start" x="415.75" y="-61.1" font-family="Times,serif" font-weight="bold" font-size="14.00"> dtype </text>
+<text text-anchor="start" x="459.5" y="-61.1" font-family="Times,serif" font-weight="bold" font-size="14.00"> int32 </text>
+<text text-anchor="start" x="415" y="-41.1" font-family="Times,serif" font-weight="bold" font-size="14.00"> range </text>
+<text text-anchor="start" x="459.5" y="-41.1" font-family="Times,serif" font-weight="bold" font-size="14.00"> [0:3] </text>
+<text text-anchor="start" x="415" y="-21.1" font-family="Times,serif" font-weight="bold" font-size="14.00"> shape </text>
+<text text-anchor="start" x="459.5" y="-21.1" font-family="Times,serif" font-weight="bold" font-size="14.00"> ‖3‖ </text>
+<polygon fill="none" stroke="black" points="397.5,-14.4 397.5,-96.4 514.5,-96.4 514.5,-14.4 397.5,-14.4"/>
+<polygon fill="#ffbbaa" stroke="none" points="303.6,-127.3 303.6,-143.8 314.1,-143.8 314.1,-127.3 303.6,-127.3"/>
+<text text-anchor="start" x="303.6" y="-131.5" font-family="Times,serif" font-weight="bold" font-size="14.00">fe</text>
+<polygon fill="#ccbbff" stroke="none" points="314.1,-127.3 314.1,-143.8 327.6,-143.8 327.6,-127.3 314.1,-127.3"/>
+<text text-anchor="start" x="314.1" y="-131.5" font-family="Times,serif" font-weight="bold" font-size="14.00">08</text>
+<polygon fill="#ffbbbb" stroke="none" points="327.6,-127.3 327.6,-143.8 341.1,-143.8 341.1,-127.3 327.6,-127.3"/>
+<text text-anchor="start" x="327.6" y="-131.5" font-family="Times,serif" font-weight="bold" font-size="14.00">0a</text>
+<text text-anchor="start" x="261.6" y="-115" font-family="Times,serif" font-weight="bold" font-size="14.00" fill="green">&quot;row_sum/result[0]&quot;</text>
+</g>
+<!-- 34ff6d74&#45;4fbb&#45;4f32&#45;b596&#45;124482fbf9db#result#0&#45;&gt;32b61a84&#45;547d&#45;4997&#45;b351&#45;fbcce9f05a77 -->
+<g id="edge23" class="edge">
+<title>34ff6d74&#45;4fbb&#45;4f32&#45;b596&#45;124482fbf9db#result#0:s&#45;&gt;32b61a84&#45;547d&#45;4997&#45;b351&#45;fbcce9f05a77:n</title>
+<path fill="none" stroke="#38dae0" stroke-width="6" d="M512,-146.8C514.5,-125.74 481.19,-134.35 463.7,-126.53"/>
+<path fill="none" stroke="black" stroke-width="6" d="M514,-146.8C514,-123.81 480.69,-132.41 464.56,-124.73"/>
+<path fill="none" stroke="#38dae0" stroke-width="6" d="M516,-146.8C513.5,-121.87 480.19,-130.48 465.42,-122.92"/>
+<polygon fill="#38dae0" stroke="#38dae0" stroke-width="6" points="469.09,-122.07 459.38,-116.3 460.14,-127.57 469.09,-122.07"/>
+</g>
+<!-- ded1b3f0&#45;86e8&#45;4616&#45;ae83&#45;eb248717dba3 -->
+<g id="node19" class="node">
+<title>ded1b3f0&#45;86e8&#45;4616&#45;ae83&#45;eb248717dba3</title>
+<defs>
+<linearGradient id="node19_l_20" gradientUnits="userSpaceOnUse" x1="763.6" y1="-1028" x2="952.4" y2="-907.8" >
+<stop offset="0" style="stop-color:#ef7bde;stop-opacity:1.;"/>
+<stop offset="1" style="stop-color:#44dd88;stop-opacity:1.;"/>
+</linearGradient>
+</defs>
+<polygon fill="url(#node19_l_20)" stroke="black" stroke-width="2" points="991.5,-1048.9 736.5,-1048.9 736.5,-1052.9 724.5,-1052.9 724.5,-882.9 991.5,-882.9 991.5,-1048.9"/>
+<polyline fill="none" stroke="black" stroke-width="2" points="724.5,-1048.9 736.5,-1048.9"/>
+<polygon fill="white" stroke="none" points="732.5,-886.9 732.5,-1044.9 983.5,-1044.9 983.5,-886.9 732.5,-886.9"/>
+<polygon fill="none" stroke="black" points="734.5,-1024.9 734.5,-1042.9 981.5,-1042.9 981.5,-1024.9 734.5,-1024.9"/>
+<text text-anchor="start" x="735.5" y="-1029.6" font-family="Times,serif" font-weight="bold" font-size="14.00" fill="teal"> loom:OperationSignature </text>
+<polygon fill="none" stroke="black" points="734.5,-1006.9 734.5,-1024.9 787.5,-1024.9 787.5,-1006.9 734.5,-1006.9"/>
+<text text-anchor="start" x="742.25" y="-1011.6" font-family="Times,serif" font-weight="bold" font-size="14.00"> kernel </text>
+<polygon fill="none" stroke="black" points="787.5,-1006.9 787.5,-1024.9 981.5,-1024.9 981.5,-1006.9 787.5,-1006.9"/>
+<text text-anchor="start" x="788.5" y="-1011.6" font-family="Times,serif" font-weight="bold" font-size="14.00"> </text>
+<text text-anchor="start" x="792.25" y="-1011.6" font-family="Times,serif" font-weight="bold" font-size="14.00">matmul</text>
+<text text-anchor="start" x="838.75" y="-1011.6" font-family="Times,serif" font-weight="bold" font-size="14.00"> </text>
+<polygon fill="none" stroke="black" points="734.5,-928.9 734.5,-1006.9 787.5,-1006.9 787.5,-928.9 734.5,-928.9"/>
+<text text-anchor="start" x="743" y="-993.6" font-family="Times,serif" font-weight="bold" font-size="14.00"> inputs </text>
+<polygon fill="none" stroke="black" points="787.5,-928.9 787.5,-1006.9 981.5,-1006.9 981.5,-928.9 787.5,-928.9"/>
+<polygon fill="none" stroke="black" points="788.5,-967.9 788.5,-1005.9 808.5,-1005.9 808.5,-967.9 788.5,-967.9"/>
+<text text-anchor="start" x="791.38" y="-990.6" font-family="Times,serif" font-weight="bold" font-size="14.00"> x </text>
+<polygon fill="none" stroke="black" points="808.5,-967.9 808.5,-1005.9 980.5,-1005.9 980.5,-967.9 808.5,-967.9"/>
+<polygon fill="#ccbbff" stroke="none" points="819.5,-978.4 819.5,-994.9 833,-994.9 833,-978.4 819.5,-978.4"/>
+<text text-anchor="start" x="819.5" y="-982.6" font-family="Times,serif" font-weight="bold" font-size="14.00">53</text>
+<polygon fill="#ffbbbb" stroke="none" points="833,-978.4 833,-994.9 845.75,-994.9 845.75,-978.4 833,-978.4"/>
+<text text-anchor="start" x="833" y="-982.6" font-family="Times,serif" font-weight="bold" font-size="14.00">1e</text>
+<polygon fill="#ccbbff" stroke="none" points="845.75,-978.4 845.75,-994.9 859.25,-994.9 859.25,-978.4 845.75,-978.4"/>
+<text text-anchor="start" x="845.75" y="-982.6" font-family="Times,serif" font-weight="bold" font-size="14.00">71</text>
+<text text-anchor="start" x="865.25" y="-982.6" font-family="Times,serif" font-weight="bold" font-size="14.00">[&#45;10:&#45;7, 4:8]</text>
+<text text-anchor="start" x="939.5" y="-982.6" font-family="Times,serif" font-weight="bold" font-size="14.00">‖3, 4‖</text>
+<polygon fill="none" stroke="black" points="788.5,-929.9 788.5,-967.9 808.5,-967.9 808.5,-929.9 788.5,-929.9"/>
+<text text-anchor="start" x="791.38" y="-952.6" font-family="Times,serif" font-weight="bold" font-size="14.00"> y </text>
+<polygon fill="none" stroke="black" points="808.5,-929.9 808.5,-967.9 980.5,-967.9 980.5,-929.9 808.5,-929.9"/>
+<polygon fill="#ffbbaa" stroke="none" points="822.12,-940.4 822.12,-956.9 834.88,-956.9 834.88,-940.4 822.12,-940.4"/>
+<text text-anchor="start" x="822.12" y="-944.6" font-family="Times,serif" font-weight="bold" font-size="14.00">7c</text>
+<polygon fill="#aaffbb" stroke="none" points="834.88,-940.4 834.88,-956.9 848.38,-956.9 848.38,-940.4 834.88,-940.4"/>
+<text text-anchor="start" x="834.88" y="-944.6" font-family="Times,serif" font-weight="bold" font-size="14.00">48</text>
+<polygon fill="#ffbbbb" stroke="none" points="848.38,-940.4 848.38,-956.9 861.88,-956.9 861.88,-940.4 848.38,-940.4"/>
+<text text-anchor="start" x="848.38" y="-944.6" font-family="Times,serif" font-weight="bold" font-size="14.00">eb</text>
+<text text-anchor="start" x="873.12" y="-944.6" font-family="Times,serif" font-weight="bold" font-size="14.00">[0:4, 0:5]</text>
+<text text-anchor="start" x="936.88" y="-944.6" font-family="Times,serif" font-weight="bold" font-size="14.00">‖4, 5‖</text>
+<polygon fill="none" stroke="black" points="734.5,-888.9 734.5,-928.9 787.5,-928.9 787.5,-888.9 734.5,-888.9"/>
+<text text-anchor="start" x="735.5" y="-915.6" font-family="Times,serif" font-weight="bold" font-size="14.00"> outputs </text>
+<polygon fill="none" stroke="black" points="787.5,-888.9 787.5,-928.9 981.5,-928.9 981.5,-888.9 787.5,-888.9"/>
+<polygon fill="none" stroke="black" points="788.5,-889.4 788.5,-927.9 815.75,-927.9 815.75,-889.4 788.5,-889.4"/>
+<text text-anchor="start" x="799.25" y="-912.6" font-family="Times,serif" font-weight="bold" font-size="14.00"> z </text>
+<polygon fill="none" stroke="black" points="815.75,-889.4 815.75,-927.9 980.5,-927.9 980.5,-889.4 815.75,-889.4"/>
+<polygon fill="#aabbff" stroke="none" points="828.04,-900.4 828.04,-916.9 841.54,-916.9 841.54,-900.4 828.04,-900.4"/>
+<text text-anchor="start" x="828.04" y="-904.6" font-family="Times,serif" font-weight="bold" font-size="14.00">cd</text>
+<polygon fill="#ffbbaa" stroke="none" points="841.54,-900.4 841.54,-916.9 855.04,-916.9 855.04,-900.4 841.54,-900.4"/>
+<text text-anchor="start" x="841.54" y="-904.6" font-family="Times,serif" font-weight="bold" font-size="14.00">a9</text>
+<polygon fill="#aaffbb" stroke="none" points="855.04,-900.4 855.04,-916.9 868.54,-916.9 868.54,-900.4 855.04,-900.4"/>
+<text text-anchor="start" x="855.04" y="-904.6" font-family="Times,serif" font-weight="bold" font-size="14.00">02</text>
+<text text-anchor="start" x="877.12" y="-904.6" font-family="Times,serif" font-weight="bold" font-size="14.00">[0:3, 0:5]</text>
+<text text-anchor="start" x="938.21" y="-904.6" font-family="Times,serif" font-weight="bold" font-size="14.00">‖3, 5‖</text>
+<polygon fill="#ffbbaa" stroke="none" points="684,-1048.9 684,-1065.4 697.5,-1065.4 697.5,-1048.9 684,-1048.9"/>
+<text text-anchor="start" x="684" y="-1053.1" font-family="Times,serif" font-weight="bold" font-size="14.00">54</text>
+<polygon fill="#ffbbbb" stroke="none" points="697.5,-1048.9 697.5,-1065.4 710.25,-1065.4 710.25,-1048.9 697.5,-1048.9"/>
+<text text-anchor="start" x="697.5" y="-1053.1" font-family="Times,serif" font-weight="bold" font-size="14.00">2c</text>
+<polygon fill="#aabbff" stroke="none" points="710.25,-1048.9 710.25,-1065.4 724.5,-1065.4 724.5,-1048.9 710.25,-1048.9"/>
+<text text-anchor="start" x="710.25" y="-1053.1" font-family="Times,serif" font-weight="bold" font-size="14.00">d7</text>
+</g>
+<!-- 299b0afc&#45;1844&#45;4bbc&#45;80a5&#45;d4c5fd5833c1&#45;&gt;ded1b3f0&#45;86e8&#45;4616&#45;ae83&#45;eb248717dba3 -->
+<g id="edge25" class="edge">
+<title>299b0afc&#45;1844&#45;4bbc&#45;80a5&#45;d4c5fd5833c1:e&#45;&gt;ded1b3f0&#45;86e8&#45;4616&#45;ae83&#45;eb248717dba3:w</title>
+<path fill="none" stroke="black" stroke-dasharray="1,5" d="M706.26,-965.9C709.17,-965.9 711.3,-965.9 713.21,-965.9"/>
+<polygon fill="black" stroke="black" points="712.99,-969.4 722.99,-965.9 712.99,-962.4 712.99,-969.4"/>
+</g>
+<!-- 299b0afc&#45;1844&#45;4bbc&#45;80a5&#45;d4c5fd5833c1#z#0 -->
+<g id="node22" class="node">
+<title>299b0afc&#45;1844&#45;4bbc&#45;80a5&#45;d4c5fd5833c1#z#0</title>
+<defs>
+<linearGradient id="node22_l_21" gradientUnits="userSpaceOnUse" x1="555.3" y1="-773.26" x2="642.7" y2="-733.94" >
+<stop offset="0" style="stop-color:#99dd55;stop-opacity:1.;"/>
+<stop offset="1" style="stop-color:#ef7bde;stop-opacity:1.;"/>
+</linearGradient>
+</defs>
+<polygon fill="url(#node22_l_21)" stroke="black" stroke-width="2" points="660.8,-781.4 541.2,-781.4 537.2,-777.4 537.2,-725.8 656.8,-725.8 660.8,-729.8 660.8,-781.4"/>
+<polyline fill="none" stroke="black" stroke-width="2" points="656.8,-777.4 537.2,-777.4"/>
+<polyline fill="none" stroke="black" stroke-width="2" points="656.8,-777.4 656.8,-725.8"/>
+<polyline fill="none" stroke="black" stroke-width="2" points="656.8,-777.4 660.8,-781.4"/>
+<polygon fill="white" stroke="none" points="548,-736.6 548,-770.6 650,-770.6 650,-736.6 548,-736.6"/>
+<text text-anchor="start" x="548.75" y="-757.3" font-family="Times,serif" font-weight="bold" font-size="14.00"> range </text>
+<text text-anchor="start" x="589" y="-757.3" font-family="Times,serif" font-weight="bold" font-size="14.00"> [0:3, 0:2] </text>
+<text text-anchor="start" x="548.75" y="-741.3" font-family="Times,serif" font-weight="bold" font-size="14.00"> shape </text>
+<text text-anchor="start" x="589" y="-741.3" font-family="Times,serif" font-weight="bold" font-size="14.00"> ‖3, 2‖ </text>
+<polygon fill="none" stroke="black" points="548,-736.6 548,-770.6 650,-770.6 650,-736.6 548,-736.6"/>
+</g>
+<!-- 299b0afc&#45;1844&#45;4bbc&#45;80a5&#45;d4c5fd5833c1&#45;&gt;299b0afc&#45;1844&#45;4bbc&#45;80a5&#45;d4c5fd5833c1#z#0 -->
+<g id="edge24" class="edge">
+<title>299b0afc&#45;1844&#45;4bbc&#45;80a5&#45;d4c5fd5833c1:s&#45;&gt;299b0afc&#45;1844&#45;4bbc&#45;80a5&#45;d4c5fd5833c1#z#0:n</title>
+<path fill="none" stroke="#99dd55" stroke-width="6" d="M597,-884.9C597,-844.83 597,-830.94 597,-797.62"/>
+<path fill="none" stroke="black" stroke-width="6" d="M599,-884.9C599,-844.83 599,-830.94 599,-797.62"/>
+<path fill="none" stroke="#99dd55" stroke-width="6" d="M601,-884.9C601,-844.83 601,-830.94 601,-797.62"/>
+<polygon fill="#99dd55" stroke="#99dd55" stroke-width="6" points="604.25,-797.85 599,-787.85 593.75,-797.85 604.25,-797.85"/>
+</g>
+<!-- dae5e709&#45;16b9&#45;4d4f&#45;8d8d&#45;2c6a144ac306#x#0&#45;&gt;dae5e709&#45;16b9&#45;4d4f&#45;8d8d&#45;2c6a144ac306 -->
+<g id="edge26" class="edge">
+<title>dae5e709&#45;16b9&#45;4d4f&#45;8d8d&#45;2c6a144ac306#x#0:s&#45;&gt;dae5e709&#45;16b9&#45;4d4f&#45;8d8d&#45;2c6a144ac306:n</title>
+<path fill="none" stroke="#ee9944" stroke-width="6" d="M387,-1148.2C389.65,-1122.35 417.65,-1131.95 429.38,-1113.23 444.46,-1092.28 451.48,-1082.02 453.28,-1062.86"/>
+<path fill="none" stroke="black" stroke-width="6" d="M389,-1148.2C389,-1124.24 417,-1133.85 431,-1114.4 446.11,-1093.41 453.13,-1083.15 455.26,-1063.08"/>
+<path fill="none" stroke="#ee9944" stroke-width="6" d="M391,-1148.2C388.35,-1126.13 416.35,-1135.74 432.62,-1115.57 447.76,-1094.53 454.78,-1084.28 457.25,-1063.29"/>
+<polygon fill="#ee9944" stroke="#ee9944" stroke-width="6" points="460.5,-1063.58 455.71,-1053.35 450.01,-1063.1 460.5,-1063.58"/>
+</g>
+<!-- dae5e709&#45;16b9&#45;4d4f&#45;8d8d&#45;2c6a144ac306#x#0&#45;&gt;dae5e709&#45;16b9&#45;4d4f&#45;8d8d&#45;2c6a144ac306#y#0 -->
+<!-- dae5e709&#45;16b9&#45;4d4f&#45;8d8d&#45;2c6a144ac306#y#0&#45;&gt;dae5e709&#45;16b9&#45;4d4f&#45;8d8d&#45;2c6a144ac306 -->
+<g id="edge27" class="edge">
+<title>dae5e709&#45;16b9&#45;4d4f&#45;8d8d&#45;2c6a144ac306#y#0:s&#45;&gt;dae5e709&#45;16b9&#45;4d4f&#45;8d8d&#45;2c6a144ac306:n</title>
+<path fill="none" stroke="#38dae0" stroke-width="6" d="M536,-1149.2C537.99,-1102.79 484.85,-1102.58 471.32,-1063.3"/>
+<path fill="none" stroke="black" stroke-width="6" d="M538,-1149.2C538,-1100.79 484.85,-1100.58 473.23,-1062.71"/>
+<path fill="none" stroke="#38dae0" stroke-width="6" d="M540,-1149.2C538.01,-1098.79 484.86,-1098.58 475.14,-1062.13"/>
+<polygon fill="#38dae0" stroke="#38dae0" stroke-width="6" points="478.5,-1062.46 471.9,-1053.29 468.1,-1063.93 478.5,-1062.46"/>
+</g>
+<!-- dae5e709&#45;16b9&#45;4d4f&#45;8d8d&#45;2c6a144ac306#z#0&#45;&gt;504fc4bc&#45;9718&#45;453f&#45;a7a1&#45;3f5c1ec24bc0 -->
+<g id="edge28" class="edge">
+<title>dae5e709&#45;16b9&#45;4d4f&#45;8d8d&#45;2c6a144ac306#z#0:s&#45;&gt;504fc4bc&#45;9718&#45;453f&#45;a7a1&#45;3f5c1ec24bc0:n</title>
+<path fill="none" stroke="#99dd55" stroke-width="6" d="M455,-725.8C455,-716.8 455,-711.6 455,-705.92"/>
+<path fill="none" stroke="black" stroke-width="6" d="M457,-725.8C457,-716.8 457,-711.6 457,-705.92"/>
+<path fill="none" stroke="#99dd55" stroke-width="6" d="M459,-725.8C459,-716.8 459,-711.6 459,-705.92"/>
+<polygon fill="#99dd55" stroke="#99dd55" stroke-width="6" points="462.25,-706.25 457,-696.25 451.75,-706.25 462.25,-706.25"/>
+</g>
+<!-- ded1b3f0&#45;86e8&#45;4616&#45;ae83&#45;eb248717dba3#annotations -->
+<g id="node26" class="node">
+<title>ded1b3f0&#45;86e8&#45;4616&#45;ae83&#45;eb248717dba3#annotations</title>
+<polygon fill="#45eebf" stroke="black" stroke-width="2" points="1226.5,-1114.4 1009.5,-1114.4 1009.5,-1110.4 1005.5,-1110.4 1005.5,-1106.4 1009.5,-1106.4 1009.5,-825.4 1005.5,-825.4 1005.5,-821.4 1009.5,-821.4 1009.5,-817.4 1226.5,-817.4 1226.5,-1114.4"/>
+<polyline fill="none" stroke="black" stroke-width="2" points="1009.5,-1110.4 1013.5,-1110.4 1013.5,-1106.4 1009.5,-1106.4"/>
+<polyline fill="none" stroke="black" stroke-width="2" points="1009.5,-825.4 1013.5,-825.4 1013.5,-821.4 1009.5,-821.4"/>
+<polygon fill="white" stroke="none" points="1021.5,-1039.4 1021.5,-1106.4 1214.5,-1106.4 1214.5,-1039.4 1021.5,-1039.4"/>
+<polygon fill="none" stroke="black" points="1021.5,-1088.4 1021.5,-1106.4 1214.5,-1106.4 1214.5,-1088.4 1021.5,-1088.4"/>
+<text text-anchor="start" x="1022.5" y="-1093.1" font-family="Times,serif" font-weight="bold" font-size="14.00" fill="teal"> loom:IPFIndex </text>
+<polygon fill="none" stroke="black" points="1021.5,-1039.4 1021.5,-1088.4 1108,-1088.4 1108,-1039.4 1021.5,-1039.4"/>
+<text text-anchor="start" x="1066.5" y="-1075.1" font-family="Times,serif" font-weight="bold" font-size="14.00"> range </text>
+<polygon fill="none" stroke="black" points="1108,-1039.4 1108,-1088.4 1214.5,-1088.4 1214.5,-1039.4 1108,-1039.4"/>
+<text text-anchor="start" x="1135" y="-1071.1" font-family="Times,serif" font-weight="bold" font-size="14.00">[0:3, 0:5]</text>
+<text text-anchor="start" x="1146.25" y="-1048.6" font-family="Times,serif" font-weight="bold" font-size="14.00">‖3, 5‖</text>
+<polygon fill="white" stroke="none" points="1021.5,-825.4 1021.5,-1033.4 1214.5,-1033.4 1214.5,-825.4 1021.5,-825.4"/>
+<polygon fill="none" stroke="black" points="1021.5,-1015.4 1021.5,-1033.4 1214.5,-1033.4 1214.5,-1015.4 1021.5,-1015.4"/>
+<text text-anchor="start" x="1022.5" y="-1020.1" font-family="Times,serif" font-weight="bold" font-size="14.00" fill="teal"> loom:IPFSignature </text>
+<polygon fill="none" stroke="black" points="1021.5,-889.4 1021.5,-1015.4 1074.5,-1015.4 1074.5,-889.4 1021.5,-889.4"/>
+<text text-anchor="start" x="1030" y="-1002.1" font-family="Times,serif" font-weight="bold" font-size="14.00"> inputs </text>
+<polygon fill="none" stroke="black" points="1074.5,-889.4 1074.5,-1015.4 1214.5,-1015.4 1214.5,-889.4 1074.5,-889.4"/>
+<polygon fill="none" stroke="black" points="1075.5,-952.4 1075.5,-1014.4 1095.5,-1014.4 1095.5,-952.4 1075.5,-952.4"/>
+<text text-anchor="start" x="1078.38" y="-999.1" font-family="Times,serif" font-weight="bold" font-size="14.00"> x </text>
+<polygon fill="none" stroke="black" points="1095.5,-952.4 1095.5,-1014.4 1213.5,-1014.4 1213.5,-952.4 1095.5,-952.4"/>
+<polyline fill="none" stroke="black" points="1104.5,-1005.4 1104.5,-983.4"/>
+<text text-anchor="start" x="1107.12" y="-990.1" font-family="Times,serif" font-weight="bold" font-size="14.00">1</text>
+<polyline fill="none" stroke="black" points="1128.5,-983.4 1128.5,-1005.4"/>
+<text text-anchor="start" x="1119.12" y="-990.1" font-family="Times,serif" font-weight="bold" font-size="14.00">0</text>
+<polyline fill="none" stroke="black" points="1152.5,-983.4 1152.5,-1005.4"/>
+<text text-anchor="start" x="1131.5" y="-990.1" font-family="Times,serif" font-weight="bold" font-size="14.00">&#45;10</text>
+<polyline fill="none" stroke="black" points="1104.5,-983.4 1104.5,-961.4"/>
+<text text-anchor="start" x="1107.12" y="-968.1" font-family="Times,serif" font-weight="bold" font-size="14.00">0</text>
+<polyline fill="none" stroke="black" points="1128.5,-961.4 1128.5,-983.4"/>
+<text text-anchor="start" x="1119.12" y="-968.1" font-family="Times,serif" font-weight="bold" font-size="14.00">0</text>
+<polyline fill="none" stroke="black" points="1152.5,-961.4 1152.5,-983.4"/>
+<text text-anchor="start" x="1137.12" y="-968.1" font-family="Times,serif" font-weight="bold" font-size="14.00">4</text>
+<text text-anchor="start" x="1156.5" y="-979.73" font-family="Times,serif" font-weight="bold" font-size="14.00"> ⊕ [1, 4]</text>
+<polygon fill="none" stroke="black" points="1075.5,-890.4 1075.5,-952.4 1095.5,-952.4 1095.5,-890.4 1075.5,-890.4"/>
+<text text-anchor="start" x="1078.38" y="-937.1" font-family="Times,serif" font-weight="bold" font-size="14.00"> y </text>
+<polygon fill="none" stroke="black" points="1095.5,-890.4 1095.5,-952.4 1213.5,-952.4 1213.5,-890.4 1095.5,-890.4"/>
+<polyline fill="none" stroke="black" points="1104.5,-943.4 1104.5,-921.4"/>
+<text text-anchor="start" x="1108.12" y="-928.1" font-family="Times,serif" font-weight="bold" font-size="14.00">0</text>
+<polyline fill="none" stroke="black" points="1132.5,-921.4 1132.5,-943.4"/>
+<text text-anchor="start" x="1122.12" y="-928.1" font-family="Times,serif" font-weight="bold" font-size="14.00">0</text>
+<polyline fill="none" stroke="black" points="1146.5,-921.4 1146.5,-943.4"/>
+<text text-anchor="start" x="1136.12" y="-928.1" font-family="Times,serif" font-weight="bold" font-size="14.00">0</text>
+<polyline fill="none" stroke="black" points="1104.5,-921.4 1104.5,-899.4"/>
+<text text-anchor="start" x="1108.12" y="-906.1" font-family="Times,serif" font-weight="bold" font-size="14.00">0</text>
+<polyline fill="none" stroke="black" points="1132.5,-899.4 1132.5,-921.4"/>
+<text text-anchor="start" x="1122.12" y="-906.1" font-family="Times,serif" font-weight="bold" font-size="14.00">1</text>
+<polyline fill="none" stroke="black" points="1146.5,-899.4 1146.5,-921.4"/>
+<text text-anchor="start" x="1136.12" y="-906.1" font-family="Times,serif" font-weight="bold" font-size="14.00">0</text>
+<text text-anchor="start" x="1153.5" y="-917.73" font-family="Times,serif" font-weight="bold" font-size="14.00"> ⊕ [4, 1]</text>
+<polygon fill="none" stroke="black" points="1021.5,-825.4 1021.5,-889.4 1074.5,-889.4 1074.5,-825.4 1021.5,-825.4"/>
+<text text-anchor="start" x="1022.5" y="-876.1" font-family="Times,serif" font-weight="bold" font-size="14.00"> outputs </text>
+<polygon fill="none" stroke="black" points="1074.5,-825.4 1074.5,-889.4 1214.5,-889.4 1214.5,-825.4 1074.5,-825.4"/>
+<polygon fill="none" stroke="black" points="1075.5,-826.4 1075.5,-888.4 1101.25,-888.4 1101.25,-826.4 1075.5,-826.4"/>
+<text text-anchor="start" x="1084.75" y="-873.1" font-family="Times,serif" font-weight="bold" font-size="14.00"> z </text>
+<polygon fill="none" stroke="black" points="1101.25,-826.4 1101.25,-888.4 1213.5,-888.4 1213.5,-826.4 1101.25,-826.4"/>
+<polyline fill="none" stroke="black" points="1110.25,-879.4 1110.25,-857.4"/>
+<text text-anchor="start" x="1113.4" y="-864.1" font-family="Times,serif" font-weight="bold" font-size="14.00">1</text>
+<polyline fill="none" stroke="black" points="1136.33,-857.4 1136.33,-879.4"/>
+<text text-anchor="start" x="1126.44" y="-864.1" font-family="Times,serif" font-weight="bold" font-size="14.00">0</text>
+<polyline fill="none" stroke="black" points="1149.38,-857.4 1149.38,-879.4"/>
+<text text-anchor="start" x="1139.48" y="-864.1" font-family="Times,serif" font-weight="bold" font-size="14.00">0</text>
+<polyline fill="none" stroke="black" points="1110.25,-857.4 1110.25,-835.4"/>
+<text text-anchor="start" x="1113.4" y="-842.1" font-family="Times,serif" font-weight="bold" font-size="14.00">0</text>
+<polyline fill="none" stroke="black" points="1136.33,-835.4 1136.33,-857.4"/>
+<text text-anchor="start" x="1126.44" y="-842.1" font-family="Times,serif" font-weight="bold" font-size="14.00">1</text>
+<polyline fill="none" stroke="black" points="1149.38,-835.4 1149.38,-857.4"/>
+<text text-anchor="start" x="1139.48" y="-842.1" font-family="Times,serif" font-weight="bold" font-size="14.00">0</text>
+<text text-anchor="start" x="1154.94" y="-853.73" font-family="Times,serif" font-weight="bold" font-size="14.00"> ⊕ [1, 1]</text>
+</g>
+<!-- ded1b3f0&#45;86e8&#45;4616&#45;ae83&#45;eb248717dba3&#45;&gt;ded1b3f0&#45;86e8&#45;4616&#45;ae83&#45;eb248717dba3#annotations -->
+<g id="edge29" class="edge">
+<title>ded1b3f0&#45;86e8&#45;4616&#45;ae83&#45;eb248717dba3&#45;&gt;ded1b3f0&#45;86e8&#45;4616&#45;ae83&#45;eb248717dba3#annotations</title>
+<path fill="none" stroke="black" stroke-width="2" d="M992.32,-965.9C992.4,-965.9 992.49,-965.9 992.57,-965.9"/>
+<ellipse fill="none" stroke="black" stroke-width="2" cx="1003.52" cy="-965.9" rx="4" ry="4"/>
+<ellipse fill="none" stroke="black" stroke-width="2" cx="993.52" cy="-965.9" rx="4" ry="4"/>
+</g>
+<!-- 299b0afc&#45;1844&#45;4bbc&#45;80a5&#45;d4c5fd5833c1#x#0&#45;&gt;299b0afc&#45;1844&#45;4bbc&#45;80a5&#45;d4c5fd5833c1 -->
+<g id="edge30" class="edge">
+<title>299b0afc&#45;1844&#45;4bbc&#45;80a5&#45;d4c5fd5833c1#x#0:s&#45;&gt;299b0afc&#45;1844&#45;4bbc&#45;80a5&#45;d4c5fd5833c1:n</title>
+<path fill="none" stroke="#ee9944" stroke-width="6" d="M691,-1148.2C693.32,-1094.6 616.3,-1107.02 598.76,-1063.7"/>
+<path fill="none" stroke="black" stroke-width="6" d="M693,-1148.2C693,-1092.63 615.98,-1105.04 600.64,-1063.01"/>
+<path fill="none" stroke="#ee9944" stroke-width="6" d="M695,-1148.2C692.68,-1090.65 615.66,-1103.07 602.52,-1062.33"/>
+<polygon fill="#ee9944" stroke="#ee9944" stroke-width="6" points="605.84,-1062.29 599.04,-1053.27 595.48,-1063.99 605.84,-1062.29"/>
+</g>
+<!-- 299b0afc&#45;1844&#45;4bbc&#45;80a5&#45;d4c5fd5833c1#x#0&#45;&gt;299b0afc&#45;1844&#45;4bbc&#45;80a5&#45;d4c5fd5833c1#y#0 -->
+<!-- 299b0afc&#45;1844&#45;4bbc&#45;80a5&#45;d4c5fd5833c1#y#0&#45;&gt;299b0afc&#45;1844&#45;4bbc&#45;80a5&#45;d4c5fd5833c1 -->
+<g id="edge31" class="edge">
+<title>299b0afc&#45;1844&#45;4bbc&#45;80a5&#45;d4c5fd5833c1#y#0:s&#45;&gt;299b0afc&#45;1844&#45;4bbc&#45;80a5&#45;d4c5fd5833c1:n</title>
+<path fill="none" stroke="#38dae0" stroke-width="6" d="M840,-1149.2C843.09,-1092.78 770.02,-1140.02 715.18,-1116.22 672.01,-1096.38 625.23,-1101.82 613.03,-1063.68"/>
+<path fill="none" stroke="black" stroke-width="6" d="M842,-1149.2C842,-1091.1 768.93,-1138.34 716,-1114.4 671.78,-1094.4 625,-1099.83 614.96,-1063.16"/>
+<path fill="none" stroke="#38dae0" stroke-width="6" d="M844,-1149.2C840.91,-1089.42 767.85,-1136.66 716.82,-1112.58 671.55,-1092.41 624.77,-1097.84 616.89,-1062.63"/>
+<polygon fill="#38dae0" stroke="#38dae0" stroke-width="6" points="620.19,-1062.61 613.77,-1053.31 609.76,-1063.86 620.19,-1062.61"/>
+</g>
+<!-- 299b0afc&#45;1844&#45;4bbc&#45;80a5&#45;d4c5fd5833c1#z#0&#45;&gt;504fc4bc&#45;9718&#45;453f&#45;a7a1&#45;3f5c1ec24bc0 -->
+<g id="edge32" class="edge">
+<title>299b0afc&#45;1844&#45;4bbc&#45;80a5&#45;d4c5fd5833c1#z#0:s&#45;&gt;504fc4bc&#45;9718&#45;453f&#45;a7a1&#45;3f5c1ec24bc0:n</title>
+<path fill="none" stroke="#99dd55" stroke-width="6" d="M597,-725.8C600.04,-669.27 486.41,-738.51 459.82,-706.67"/>
+<path fill="none" stroke="black" stroke-width="6" d="M599,-725.8C599,-667.56 485.37,-736.81 461.41,-705.46"/>
+<path fill="none" stroke="#99dd55" stroke-width="6" d="M601,-725.8C597.96,-665.85 484.33,-735.1 462.99,-704.24"/>
+<polygon fill="#99dd55" stroke="#99dd55" stroke-width="6" points="466.51,-704.22 458.75,-696.01 456.4,-707.06 466.51,-704.22"/>
+</g>
+<!-- 9fdb88c8&#45;4105&#45;48e1&#45;90c2&#45;f4d44938f513 -->
+<g id="node23" class="node">
+<title>9fdb88c8&#45;4105&#45;48e1&#45;90c2&#45;f4d44938f513</title>
+<defs>
+<linearGradient id="node23_l_22" gradientUnits="userSpaceOnUse" x1="386.41" y1="-409.6" x2="453.59" y2="-280.2" >
+<stop offset="0" style="stop-color:#ef7bde;stop-opacity:1.;"/>
+<stop offset="1" style="stop-color:#e98fa5;stop-opacity:1.;"/>
+</linearGradient>
+</defs>
+<polygon fill="url(#node23_l_22)" stroke="black" stroke-width="2" points="461.51,-436.4 372.49,-436.4 372.49,-253.4 467.51,-253.4 467.51,-430.4 461.51,-436.4"/>
+<polyline fill="none" stroke="black" stroke-width="2" points="461.51,-436.4 461.51,-430.4"/>
+<polyline fill="none" stroke="black" stroke-width="2" points="467.51,-430.4 461.51,-430.4"/>
+<polygon fill="#99dd55" stroke="none" points="380.25,-413.9 380.25,-434.4 420.25,-434.4 420.25,-413.9 380.25,-413.9"/>
+<polygon fill="none" stroke="black" points="380.25,-413.9 380.25,-434.4 420.25,-434.4 420.25,-413.9 380.25,-413.9"/>
+<text text-anchor="start" x="396.88" y="-420.1" font-family="Times,serif" font-weight="bold" font-size="14.00">0</text>
+<polygon fill="white" stroke="none" points="380.25,-393.4 380.25,-413.9 420.25,-413.9 420.25,-393.4 380.25,-393.4"/>
+<polygon fill="none" stroke="black" points="380.25,-393.4 380.25,-413.9 420.25,-413.9 420.25,-393.4 380.25,-393.4"/>
+<text text-anchor="start" x="382.25" y="-399.6" font-family="Times,serif" font-weight="bold" font-size="14.00">tensor</text>
+<polygon fill="white" stroke="none" points="380.25,-353.4 380.25,-389.4 459.75,-389.4 459.75,-353.4 380.25,-353.4"/>
+<polygon fill="none" stroke="black" points="380.25,-371.4 380.25,-389.4 459.75,-389.4 459.75,-371.4 380.25,-371.4"/>
+<text text-anchor="start" x="385.5" y="-376.1" font-family="Times,serif" font-weight="bold" font-size="14.00">&quot;row_sum&quot;</text>
+<polygon fill="none" stroke="black" points="380.25,-353.4 380.25,-371.4 427.5,-371.4 427.5,-353.4 380.25,-353.4"/>
+<text text-anchor="start" x="396.5" y="-358.1" font-family="Times,serif" font-weight="bold" font-size="14.00"> axis </text>
+<polygon fill="none" stroke="black" points="427.5,-353.4 427.5,-371.4 459.75,-371.4 459.75,-353.4 427.5,-353.4"/>
+<text text-anchor="start" x="428.5" y="-358.1" font-family="Times,serif" font-weight="bold" font-size="14.00"> </text>
+<text text-anchor="start" x="432.25" y="-358.1" font-family="Times,serif" font-weight="bold" font-size="14.00">1</text>
+<text text-anchor="start" x="439" y="-358.1" font-family="Times,serif" font-weight="bold" font-size="14.00"> </text>
+<polygon fill="white" stroke="none" points="380.25,-300.4 380.25,-349.4 459.75,-349.4 459.75,-300.4 380.25,-300.4"/>
+<polygon fill="none" stroke="black" points="380.25,-300.4 380.25,-349.4 422.75,-349.4 422.75,-300.4 380.25,-300.4"/>
+<text text-anchor="start" x="381.25" y="-336.1" font-family="Times,serif" font-weight="bold" font-size="14.00"> range </text>
+<polygon fill="none" stroke="black" points="422.75,-300.4 422.75,-349.4 459.75,-349.4 459.75,-300.4 422.75,-300.4"/>
+<text text-anchor="start" x="427.75" y="-332.1" font-family="Times,serif" font-weight="bold" font-size="14.00">[2:3]</text>
+<text text-anchor="start" x="433.38" y="-309.6" font-family="Times,serif" font-weight="bold" font-size="14.00">‖1‖</text>
+<polygon fill="white" stroke="none" points="380.25,-275.9 380.25,-296.4 417.25,-296.4 417.25,-275.9 380.25,-275.9"/>
+<polygon fill="none" stroke="black" points="380.25,-275.9 380.25,-296.4 417.25,-296.4 417.25,-275.9 380.25,-275.9"/>
+<text text-anchor="start" x="382.25" y="-282.1" font-family="Times,serif" font-weight="bold" font-size="14.00">result</text>
+<polygon fill="#38dae0" stroke="none" points="380.25,-255.4 380.25,-275.9 417.25,-275.9 417.25,-255.4 380.25,-255.4"/>
+<polygon fill="none" stroke="black" points="380.25,-255.4 380.25,-275.9 417.25,-275.9 417.25,-255.4 380.25,-255.4"/>
+<text text-anchor="start" x="395.38" y="-261.6" font-family="Times,serif" font-weight="bold" font-size="14.00">0</text>
+<polygon fill="#ffbbaa" stroke="none" points="332.74,-436.4 332.74,-452.9 346.99,-452.9 346.99,-436.4 332.74,-436.4"/>
+<text text-anchor="start" x="332.74" y="-440.6" font-family="Times,serif" font-weight="bold" font-size="14.00">b3</text>
+<polygon fill="#aaffbb" stroke="none" points="346.99,-436.4 346.99,-452.9 360.49,-452.9 360.49,-436.4 346.99,-436.4"/>
+<text text-anchor="start" x="346.99" y="-440.6" font-family="Times,serif" font-weight="bold" font-size="14.00">16</text>
+<polygon fill="#aabbff" stroke="none" points="360.49,-436.4 360.49,-452.9 372.49,-452.9 372.49,-436.4 360.49,-436.4"/>
+<text text-anchor="start" x="360.49" y="-440.6" font-family="Times,serif" font-weight="bold" font-size="14.00">ec</text>
+</g>
+<!-- 9fdb88c8&#45;4105&#45;48e1&#45;90c2&#45;f4d44938f513&#45;&gt;34ff6d74&#45;4fbb&#45;4f32&#45;b596&#45;124482fbf9db -->
+<g id="edge34" class="edge">
+<title>9fdb88c8&#45;4105&#45;48e1&#45;90c2&#45;f4d44938f513:e&#45;&gt;34ff6d74&#45;4fbb&#45;4f32&#45;b596&#45;124482fbf9db:w</title>
+<path fill="none" stroke="black" stroke-dasharray="1,5" d="M467.51,-344.9C470.67,-344.9 472.95,-344.9 475,-344.9"/>
+<polygon fill="black" stroke="black" points="474.98,-348.4 484.98,-344.9 474.98,-341.4 474.98,-348.4"/>
+</g>
+<!-- 9fdb88c8&#45;4105&#45;48e1&#45;90c2&#45;f4d44938f513#result#0 -->
+<g id="node25" class="node">
+<title>9fdb88c8&#45;4105&#45;48e1&#45;90c2&#45;f4d44938f513#result#0</title>
+<defs>
+<linearGradient id="node25_l_23" gradientUnits="userSpaceOnUse" x1="363.49" y1="-194.26" x2="432.51" y2="-154.94" >
+<stop offset="0" style="stop-color:#38dae0;stop-opacity:1.;"/>
+<stop offset="1" style="stop-color:#22ccbb;stop-opacity:1.;"/>
+</linearGradient>
+</defs>
+<polygon fill="url(#node25_l_23)" stroke="black" stroke-width="2" points="446.8,-202.4 353.2,-202.4 349.2,-198.4 349.2,-146.8 442.8,-146.8 446.8,-150.8 446.8,-202.4"/>
+<polyline fill="none" stroke="black" stroke-width="2" points="442.8,-198.4 349.2,-198.4"/>
+<polyline fill="none" stroke="black" stroke-width="2" points="442.8,-198.4 442.8,-146.8"/>
+<polyline fill="none" stroke="black" stroke-width="2" points="442.8,-198.4 446.8,-202.4"/>
+<polygon fill="white" stroke="none" points="360,-157.6 360,-191.6 436,-191.6 436,-157.6 360,-157.6"/>
+<text text-anchor="start" x="360.75" y="-178.3" font-family="Times,serif" font-weight="bold" font-size="14.00"> range </text>
+<text text-anchor="start" x="400.75" y="-178.3" font-family="Times,serif" font-weight="bold" font-size="14.00"> [2:3] </text>
+<text text-anchor="start" x="360.75" y="-162.3" font-family="Times,serif" font-weight="bold" font-size="14.00"> shape </text>
+<text text-anchor="start" x="401" y="-162.3" font-family="Times,serif" font-weight="bold" font-size="14.00"> ‖1‖ </text>
+<polygon fill="none" stroke="black" points="360,-157.6 360,-191.6 436,-191.6 436,-157.6 360,-157.6"/>
+</g>
+<!-- 9fdb88c8&#45;4105&#45;48e1&#45;90c2&#45;f4d44938f513&#45;&gt;9fdb88c8&#45;4105&#45;48e1&#45;90c2&#45;f4d44938f513#result#0 -->
+<g id="edge33" class="edge">
+<title>9fdb88c8&#45;4105&#45;48e1&#45;90c2&#45;f4d44938f513:s&#45;&gt;9fdb88c8&#45;4105&#45;48e1&#45;90c2&#45;f4d44938f513#result#0:n</title>
+<path fill="none" stroke="#38dae0" stroke-width="6" d="M397,-253.9C397,-237.76 396.5,-230.16 396.2,-218.83"/>
+<path fill="none" stroke="black" stroke-width="6" d="M399,-253.9C399,-237.62 398.49,-230.03 398.2,-218.78"/>
+<path fill="none" stroke="#38dae0" stroke-width="6" d="M401,-253.9C401,-237.49 400.49,-229.9 400.2,-218.72"/>
+<polygon fill="#38dae0" stroke="#38dae0" stroke-width="6" points="403.45,-218.79 398.08,-208.85 392.95,-218.92 403.45,-218.79"/>
+</g>
+<!-- 9fdb88c8&#45;4105&#45;48e1&#45;90c2&#45;f4d44938f513#tensor#0&#45;&gt;9fdb88c8&#45;4105&#45;48e1&#45;90c2&#45;f4d44938f513 -->
+<g id="edge35" class="edge">
+<title>9fdb88c8&#45;4105&#45;48e1&#45;90c2&#45;f4d44938f513#tensor#0:s&#45;&gt;9fdb88c8&#45;4105&#45;48e1&#45;90c2&#45;f4d44938f513:n</title>
+<path fill="none" stroke="#99dd55" stroke-width="6" d="M384,-487.4C384.62,-468.9 391.85,-462.01 395.42,-451.45"/>
+<path fill="none" stroke="black" stroke-width="6" d="M386,-487.4C386,-470.35 393.23,-463.46 397.3,-452.12"/>
+<path fill="none" stroke="#99dd55" stroke-width="6" d="M388,-487.4C387.38,-471.8 394.61,-464.91 399.18,-452.8"/>
+<polygon fill="#99dd55" stroke="#99dd55" stroke-width="6" points="402.48,-452.99 398.94,-442.27 392.12,-451.27 402.48,-452.99"/>
+</g>
+<!-- 9fdb88c8&#45;4105&#45;48e1&#45;90c2&#45;f4d44938f513#result#0&#45;&gt;32b61a84&#45;547d&#45;4997&#45;b351&#45;fbcce9f05a77 -->
+<g id="edge36" class="edge">
+<title>9fdb88c8&#45;4105&#45;48e1&#45;90c2&#45;f4d44938f513#result#0:s&#45;&gt;32b61a84&#45;547d&#45;4997&#45;b351&#45;fbcce9f05a77:n</title>
+<path fill="none" stroke="#38dae0" stroke-width="6" d="M396,-146.8C398.5,-121.87 431.81,-130.48 446.58,-122.92"/>
+<path fill="none" stroke="black" stroke-width="6" d="M398,-146.8C398,-123.81 431.31,-132.41 447.44,-124.73"/>
+<path fill="none" stroke="#38dae0" stroke-width="6" d="M400,-146.8C397.5,-125.74 430.81,-134.35 448.3,-126.53"/>
+<polygon fill="#38dae0" stroke="#38dae0" stroke-width="6" points="451.86,-127.57 452.62,-116.3 442.91,-122.07 451.86,-127.57"/>
+</g>
+</g>
+</svg>

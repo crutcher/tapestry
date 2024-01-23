@@ -2,6 +2,8 @@
 
 **loom** is an experimental optimizing tensor expression compiler.
 
+![example](docs/media/example.svg)
+
 The goal of **loom** is to provide an ecosystem for a high-performance stochastic pareto-front optimizer
 for distributed tensor expressions, targeting optimizations which are permitted to search for extended
 time on a large number of machines.
