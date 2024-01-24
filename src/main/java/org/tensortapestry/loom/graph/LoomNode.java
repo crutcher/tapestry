@@ -15,9 +15,9 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
+import lombok.experimental.UtilityClass;
 import org.tensortapestry.loom.common.json.HasToJsonString;
 import org.tensortapestry.loom.common.json.JsonUtil;
 import org.tensortapestry.loom.common.runtime.ReflectionUtils;
@@ -361,7 +361,7 @@ public abstract class LoomNode<NodeType extends LoomNode<NodeType, BodyType>, Bo
     setBody(JsonUtil.convertValue(tree, getBodyClass()));
   }
 
-  @NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
+  @UtilityClass
   public static final class Serialization {
 
     /**

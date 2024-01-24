@@ -1,10 +1,10 @@
 package org.tensortapestry.loom.zspace;
 
 import javax.annotation.Nonnull;
-import lombok.NoArgsConstructor;
+import lombok.experimental.UtilityClass;
 
 /** Namespace of ZPoint operations. */
-@NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
+@UtilityClass
 public final class DominanceOrderingOperations {
 
   /**

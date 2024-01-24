@@ -2,13 +2,13 @@ package org.tensortapestry.loom.graph;
 
 import java.util.Set;
 import java.util.regex.Pattern;
-import lombok.NoArgsConstructor;
+import lombok.experimental.UtilityClass;
 import org.tensortapestry.loom.graph.constraints.NodeBodySchemaConstraint;
 import org.tensortapestry.loom.graph.constraints.TensorDTypesAreValidConstraint;
 import org.tensortapestry.loom.graph.constraints.TypeSchemaConstraint;
 import org.tensortapestry.loom.graph.nodes.*;
 
-@NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
+@UtilityClass
 public final class CommonEnvironments {
 
   public static LoomEnvironment genericEnvironment() {
