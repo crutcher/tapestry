@@ -128,7 +128,7 @@ public class JsonSchemaFactoryManagerTest extends BaseTestClass {
       "http://loom.example/data",
       """
            {
-                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "$schema": "https://json-schema.org/draft/2020-12/schema#",
                 "definitions": {
                     "ZType": {
                         "$anchor": "zz",
@@ -144,7 +144,7 @@ public class JsonSchemaFactoryManagerTest extends BaseTestClass {
       """
                 {
                     "$id": "http://loom.example/example",
-                    "$schema": "https://json-schema.org/draft/2020-12/schema",
+                    "$schema": "https://json-schema.org/draft/2020-12/schema#",
                     "title": "Example Schema",
                     "type": "object",
                     "properties": {
@@ -191,7 +191,7 @@ public class JsonSchemaFactoryManagerTest extends BaseTestClass {
       "http://loom.example/data",
       """
           {
-            "$schema": "http://json-schema.org/draft/2020-12/schema",
+            "$schema": "http://json-schema.org/draft/2020-12/schema#",
             "type": "object",
             "$defs": {
               "nodes": {
@@ -212,6 +212,65 @@ public class JsonSchemaFactoryManagerTest extends BaseTestClass {
 
     assertThat(schema.validate(JsonUtil.valueToJsonNodeTree("A"))).isEmpty();
     assertThat(schema.validate(JsonUtil.valueToJsonNodeTree("X"))).hasSize(1);
+  }
+
+  @Test
+  public void test_nested_schemas() {
+    manager.addSchema(
+      "http://loom.example/schema1",
+      """
+                {
+                  "innerA": {
+                    "$schema": "http://json-schema.org/draft/2020-12/schema#",
+                    "type": "object",
+                    "$defs": {
+                      "ztype": {
+                          "type": "string",
+                          "enum": ["A", "B", "C"]
+                      }
+                    }
+                  },
+                  "innerB": {
+                    "$schema": "http://json-schema.org/draft/2020-12/schema#",
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/innerA/$defs/ztype"
+                    }
+                  }
+                }
+                """
+    );
+    manager.addSchema(
+      "http://loom.example/schema2",
+      """
+                {
+                  "innerC": {
+                    "$schema": "http://json-schema.org/draft/2020-12/schema#",
+                    "$ref": "http://loom.example/schema1#/innerB"
+                  }
+                }
+                """
+    );
+
+    {
+      var schema = manager.loadSchema(
+        URI.create("http://loom.example/schema1#/innerA/$defs/ztype")
+      );
+      assertThat(schema.validate(JsonUtil.valueToJsonNodeTree("A"))).isEmpty();
+      assertThat(schema.validate(JsonUtil.valueToJsonNodeTree("X"))).hasSize(1);
+    }
+
+    {
+      var schema = manager.loadSchema(URI.create("http://loom.example/schema1#/innerB"));
+      assertThat(schema.validate(JsonUtil.valueToJsonNodeTree(List.of("A", "B")))).isEmpty();
+      assertThat(schema.validate(JsonUtil.valueToJsonNodeTree(List.of("X")))).hasSize(1);
+    }
+
+    {
+      var schema = manager.loadSchema(URI.create("http://loom.example/schema2#/innerC"));
+      assertThat(schema.validate(JsonUtil.valueToJsonNodeTree(List.of("A", "B")))).isEmpty();
+      assertThat(schema.validate(JsonUtil.valueToJsonNodeTree(List.of("X")))).hasSize(1);
+    }
   }
 
   @Data

@@ -137,7 +137,7 @@ public final class LoomEnvironment {
         return alias + ":" + path.substring(path.lastIndexOf('/') + 1);
       }
     }
-      return type;
+    return type;
   }
 
   /**
