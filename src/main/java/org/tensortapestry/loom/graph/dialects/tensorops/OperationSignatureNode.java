@@ -2,7 +2,6 @@ package org.tensortapestry.loom.graph.dialects.tensorops;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import java.util.Comparator;
 import java.util.List;
@@ -45,7 +44,6 @@ public final class OperationSignatureNode
   @JsdType(TensorOpNodes.OPERATION_SIGNATURE_NODE_TYPE)
   public static class Body implements HasToJsonString {
 
-    @JsonProperty(required = true)
     @Nonnull
     String kernel;
 

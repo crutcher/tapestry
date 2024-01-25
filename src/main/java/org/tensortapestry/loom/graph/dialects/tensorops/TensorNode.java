@@ -1,7 +1,6 @@
 package org.tensortapestry.loom.graph.dialects.tensorops;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.function.Consumer;
 import javax.annotation.Nonnull;
 import lombok.*;
@@ -30,35 +29,14 @@ public final class TensorNode extends LoomNode<TensorNode, TensorNode.Body> {
     }
   }
 
-  @Data
+  @Value
   @Jacksonized
   @Builder
   @JsdType(TensorOpNodes.TENSOR_NODE_TYPE)
-  public static final class Body implements HasDimension, HasToJsonString, HasSize {
+  @ToString(onlyExplicitlyIncluded = true)
+  public static class Body implements HasDimension, HasToJsonString, HasSize {
 
     public static class BodyBuilder {
-
-      /**
-       * Helper to set the range via {@code ZRange.fromShape(shape)}.
-       *
-       * @param shape the shape to set the range to.
-       * @return this builder.
-       */
-      @JsonIgnore
-      public BodyBuilder shape(@Nonnull ZPoint shape) {
-        return range(ZRange.newFromShape(shape));
-      }
-
-      /**
-       * Helper to set the range via {@code ZRange.fromShape(shape)}.
-       *
-       * @param shape the shape to set the range to.
-       * @return this builder.
-       */
-      @JsonIgnore
-      public BodyBuilder shape(@Nonnull ZTensor shape) {
-        return range(ZRange.newFromShape(shape));
-      }
 
       /**
        * Helper to set the range via {@code ZRange.fromShape(shape)}.
@@ -70,17 +48,26 @@ public final class TensorNode extends LoomNode<TensorNode, TensorNode.Body> {
       public BodyBuilder shape(int... shape) {
         return range(ZRange.newFromShape(shape));
       }
+
+      /**
+       * Helper to set the range via {@code ZRange.fromShape(shape)}.
+       *
+       * @param shape the shape to set the range to.
+       * @return this builder.
+       */
+      @JsonIgnore
+      public BodyBuilder shape(@Nonnull HasZTensor shape) {
+        return range(ZRange.newFromShape(shape));
+      }
     }
 
-    @JsonProperty(required = true)
     @ToString.Include
     @Nonnull
-    private final String dtype;
+    String dtype;
 
-    @JsonProperty(required = true)
     @ToString.Include
     @Nonnull
-    private final ZRange range;
+    ZRange range;
 
     @Override
     public int getNDim() {
