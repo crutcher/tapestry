@@ -54,7 +54,7 @@ public class TensorDTypesAreValidConstraintTest extends BaseTestClass {
       collector.getIssues(),
       ValidationIssue
         .builder()
-        .type(LoomConstants.NODE_VALIDATION_ERROR)
+        .type(LoomConstants.Errors.NODE_VALIDATION_ERROR)
         .param("nodeType", TensorNode.TYPE)
         .summary("Tensor dtype (nonesuch) not a recognized type")
         .context(badTensor.asValidationContext("Tensor"))

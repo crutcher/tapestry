@@ -5,11 +5,11 @@ import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.errorprone.annotations.CheckReturnValue;
 import com.networknt.schema.*;
 import com.networknt.schema.uri.URIFetcher;
+import com.networknt.schema.uri.URITranslator;
 import java.io.ByteArrayInputStream;
 import java.io.FileNotFoundException;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -41,52 +41,79 @@ public class JsonSchemaFactoryManager {
     }
   }
 
+  private final Map<String, String> resourceDirMap = new HashMap<>();
+
   private final URIFetcher uriFetcher = uri -> {
-    uri = baseURL(uri);
-    var schemaSource = schemas.get(uri);
+    URI burl = baseURL(uri);
+
+    var schemaSource = schemas.get(burl);
     if (schemaSource != null) {
       return new ByteArrayInputStream(schemaSource.getBytes(StandardCharsets.UTF_8));
     }
-    throw new FileNotFoundException("Unknown URI: " + uri);
+
+    // TODO: Fix this hack.
+    // There is a bug in JsonSchemaFactory which breaks the lookup of fragment references
+    // in some cases. The *correct* approach to this is to use a URITranslator to map
+    // the URI to a local file path, but the resulting mappings have broken fragment
+    // mapping semantics.
+    //
+    // I fixed at least part of this upstream, waiting for a release:
+    // See: https://github.com/networknt/json-schema-validator/pull/930
+
+    var urlStr = burl.toString();
+    for (var entry : resourceDirMap.entrySet()) {
+      var prefix = entry.getKey();
+      var dir = entry.getValue();
+
+      if (urlStr.startsWith(prefix)) {
+        var path = urlStr.substring(prefix.length());
+        var resource = dir + path;
+        var stream = Thread.currentThread().getContextClassLoader().getResourceAsStream(resource);
+        if (stream != null) {
+          return stream;
+        }
+      }
+    }
+
+    throw new FileNotFoundException("Unknown URI: " + burl);
   };
 
-  private final JsonMetaSchema metaSchema = new Version202012().getInstance();
+  @Getter
+  private final URITranslator.CompositeURITranslator uriTranslator =
+    new URITranslator.CompositeURITranslator();
 
-  private final JsonMetaSchema validationSchema = new JsonMetaSchema.Builder(
-    metaSchema.getUri() + "/validation"
-  )
-    .idKeyword(metaSchema.getIdKeyword())
-    .addFormats(JsonSchemaVersion.BUILTIN_FORMATS)
-    .addKeywords(metaSchema.getKeywords().values())
-    .addKeywords(
-      Arrays.asList(
-        new NonValidationKeyword("$vocabulary"),
-        new NonValidationKeyword("$dynamicAnchor"),
-        new NonValidationKeyword("$dynamicRef")
-      )
-    )
-    .build();
+  @Getter
+  private final JsonMetaSchema metaSchema = new Version202012().getInstance();
 
   @Getter
   private final JsonSchemaFactory factory = JsonSchemaFactory
     .builder()
     .defaultMetaSchemaURI(metaSchema.getUri())
     .addMetaSchema(metaSchema)
-    .addMetaSchema(validationSchema)
     .objectMapper(JsonUtil.getObjectMapper())
+    .addUriTranslator(uriTranslator)
     .uriFetcher(uriFetcher, "http")
     .enableUriSchemaCache(true)
     .build();
 
+  @Getter
   private final SchemaValidatorsConfig config = new SchemaValidatorsConfig();
 
   {
+    // See: https://github.com/networknt/json-schema-validator/blob/master/doc/ecma-262.md
+    // config.setEcma262Validator(true);
     config.setReadOnly(true);
     config.setCustomMessageSupported(true);
   }
 
   public boolean hasSchema(URI uri) {
     return schemas.containsKey(uri.normalize());
+  }
+
+  @CanIgnoreReturnValue
+  public JsonSchemaFactoryManager bindResourcePath(String urlPrefix, String resourceDir) {
+    resourceDirMap.put(urlPrefix, resourceDir);
+    return this;
   }
 
   @CanIgnoreReturnValue
@@ -115,7 +142,6 @@ public class JsonSchemaFactoryManager {
     return addSchema(URI.create(uri), schema);
   }
 
-  @Nonnull
   @CheckReturnValue
   public JsonSchema loadSchema(@Nonnull URI uri) {
     return factory.getSchema(uri, config);

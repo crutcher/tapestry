@@ -35,7 +35,7 @@ public class ValidationUtils {
       issueCollector.addIssue(
         ValidationIssue
           .builder()
-          .type(LoomConstants.NODE_REFERENCE_ERROR)
+          .type(LoomConstants.Errors.NODE_REFERENCE_ERROR)
           .param("nodeId", nodeId)
           .param("nodeType", nodeType)
           .summary("Referenced node does not exist")
@@ -49,7 +49,7 @@ public class ValidationUtils {
       issueCollector.addIssue(
         ValidationIssue
           .builder()
-          .type(LoomConstants.NODE_REFERENCE_ERROR)
+          .type(LoomConstants.Errors.NODE_REFERENCE_ERROR)
           .param("nodeId", nodeId)
           .param("expectedType", nodeType)
           .param("actualType", node.getType())
@@ -64,7 +64,7 @@ public class ValidationUtils {
       issueCollector.addIssue(
         ValidationIssue
           .builder()
-          .type(LoomConstants.NODE_REFERENCE_ERROR)
+          .type(LoomConstants.Errors.NODE_REFERENCE_ERROR)
           .param("expectedClass", nodeClass.getSimpleName())
           .param("actualClass", node.getClass().getSimpleName())
           .summary("Referenced node has the wrong class")

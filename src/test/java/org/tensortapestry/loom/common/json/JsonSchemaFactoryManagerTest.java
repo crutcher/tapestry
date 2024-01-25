@@ -5,10 +5,8 @@ import static org.tensortapestry.loom.common.json.JsonSchemaFactoryManager.JSD_E
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.ValidationMessage;
 import java.net.URI;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
+import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 import javax.annotation.Nonnull;
 import lombok.Builder;
@@ -16,9 +14,12 @@ import lombok.Data;
 import lombok.Value;
 import lombok.extern.jackson.Jacksonized;
 import org.junit.Test;
+import org.tensortapestry.loom.graph.LoomConstants;
+import org.tensortapestry.loom.graph.nodes.TensorNode;
 import org.tensortapestry.loom.testing.BaseTestClass;
 import org.tensortapestry.loom.validation.ListValidationIssueCollector;
 import org.tensortapestry.loom.validation.ValidationIssue;
+import org.tensortapestry.loom.zspace.ZRange;
 
 public class JsonSchemaFactoryManagerTest extends BaseTestClass {
 
@@ -42,6 +43,40 @@ public class JsonSchemaFactoryManagerTest extends BaseTestClass {
   public void test_unmapped_uri() {
     assertThatExceptionOfType(RuntimeException.class)
       .isThrownBy(() -> manager.loadSchema(URI.create("http://loom.example/data")));
+  }
+
+  @Test
+  public void test_core_schema() {
+    JsonSchemaFactoryManager manager = new JsonSchemaFactoryManager()
+      .bindResourcePath(
+        "http://tensortapestry.org/schemas",
+        LoomConstants.LOOM_SCHEMA_RESOURCES.getPath()
+      );
+
+    BiConsumer<String, Object> check = (path, value) -> {
+      var schema = manager.loadSchema(URI.create(path));
+      assert schema != null;
+      assertThat(schema.validate(JsonUtil.valueToJsonNodeTree(value))).isEqualTo(Set.of());
+    };
+
+    check.accept(
+      "http://tensortapestry.org/schemas/loom/2024-01/node_types.jsd#/$defs/Tensor",
+      TensorNode.Body
+        .builder()
+        .dtype("float32")
+        .range(ZRange.builder().start(0, 2).end(3, 4).build())
+        .build()
+    );
+
+    check.accept(
+      "http://tensortapestry.org/schemas/loom/2024-01/data_types.jsd#/$defs/ZRange",
+      ZRange.newFromShape(1, 2, 3)
+    );
+
+    check.accept(
+      "http://tensortapestry.org/schemas/loom/2024-01/annotation_types.jsd#/$defs/IPFIndex",
+      ZRange.newFromShape(1, 2, 3)
+    );
   }
 
   @Test
@@ -120,6 +155,21 @@ public class JsonSchemaFactoryManagerTest extends BaseTestClass {
 
     assertThat(schema.validate(JsonUtil.valueToJsonNodeTree(Map.of("type", "A", "a", 12))))
       .hasSize(1);
+  }
+
+  @Test
+  public void test_load_resource() {
+    var manager = new JsonSchemaFactoryManager();
+
+    var schema = manager.loadSchema(
+      URI.create("resource:schemas/test_schema.jsd#/definitions/example")
+    );
+
+    var example = Example.builder().id(UUID.randomUUID()).name("N").build();
+    JsonNode exampleTree = JsonUtil.valueToJsonNodeTree(example);
+
+    Set<ValidationMessage> errors = schema.validate(exampleTree);
+    assertThat(errors).hasSize(1);
   }
 
   @Test

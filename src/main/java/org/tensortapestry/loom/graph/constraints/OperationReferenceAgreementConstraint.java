@@ -80,7 +80,7 @@ public class OperationReferenceAgreementConstraint implements LoomEnvironment.Co
         issueCollector.addIssue(
           ValidationIssue
             .builder()
-            .type(LoomConstants.REFERENCE_CYCLE_ERROR)
+            .type(LoomConstants.Errors.REFERENCE_CYCLE_ERROR)
             .summary("Reference Cycle detected")
             .context(b -> b.name("Cycle").data(cycleDesc))
         );
@@ -124,7 +124,7 @@ public class OperationReferenceAgreementConstraint implements LoomEnvironment.Co
       issueCollector.addIssue(
         ValidationIssue
           .builder()
-          .type(LoomConstants.NODE_VALIDATION_ERROR)
+          .type(LoomConstants.Errors.NODE_VALIDATION_ERROR)
           .summary("Operation Signature has no Application shards")
           .withContexts(lazyContexts)
       );
@@ -181,7 +181,7 @@ public class OperationReferenceAgreementConstraint implements LoomEnvironment.Co
           issueCollector.addIssue(
             ValidationIssue
               .builder()
-              .type(LoomConstants.NODE_VALIDATION_ERROR)
+              .type(LoomConstants.Errors.NODE_VALIDATION_ERROR)
               .summary("Overlapping Application output key \"%s[%d]\" ranges", ioName, idx)
               .context(
                 ValidationIssue.Context
@@ -232,7 +232,7 @@ public class OperationReferenceAgreementConstraint implements LoomEnvironment.Co
           issueCollector.addIssue(
             ValidationIssue
               .builder()
-              .type(LoomConstants.NODE_VALIDATION_ERROR)
+              .type(LoomConstants.Errors.NODE_VALIDATION_ERROR)
               .summary(
                 "Operation Signature %s key \"%s[%d]\" range %s != shard bounding range %s",
                 sliceMapName,
@@ -317,7 +317,7 @@ public class OperationReferenceAgreementConstraint implements LoomEnvironment.Co
       issueCollector.addIssue(
         ValidationIssue
           .builder()
-          .type(LoomConstants.NODE_VALIDATION_ERROR)
+          .type(LoomConstants.Errors.NODE_VALIDATION_ERROR)
           .summary(
             "Application Node %s keys %s != Operation Signature %s keys %s",
             sliceMapName,
@@ -338,7 +338,7 @@ public class OperationReferenceAgreementConstraint implements LoomEnvironment.Co
           issueCollector.addIssue(
             ValidationIssue
               .builder()
-              .type(LoomConstants.NODE_VALIDATION_ERROR)
+              .type(LoomConstants.Errors.NODE_VALIDATION_ERROR)
               .summary(
                 "Application %s key \"%s\" selection size (%d) != Signature selection size (%d)",
                 sliceMapName,
@@ -392,7 +392,7 @@ public class OperationReferenceAgreementConstraint implements LoomEnvironment.Co
               issueCollector.addIssue(
                 ValidationIssue
                   .builder()
-                  .type(LoomConstants.NODE_VALIDATION_ERROR)
+                  .type(LoomConstants.Errors.NODE_VALIDATION_ERROR)
                   .summary("Application Tensor Selection Tensor Id != Signature Tensor Id")
                   .withContexts(localContext)
                   .withContexts(contextsSupplier)
@@ -403,7 +403,7 @@ public class OperationReferenceAgreementConstraint implements LoomEnvironment.Co
                 issueCollector.addIssue(
                   ValidationIssue
                     .builder()
-                    .type(LoomConstants.NODE_VALIDATION_ERROR)
+                    .type(LoomConstants.Errors.NODE_VALIDATION_ERROR)
                     .summary(
                       "Application Tensor Selection range %s is outside signature range %s",
                       appSelection.getRange(),
@@ -474,7 +474,7 @@ public class OperationReferenceAgreementConstraint implements LoomEnvironment.Co
           issueCollector.addIssue(
             ValidationIssue
               .builder()
-              .type(LoomConstants.NODE_VALIDATION_ERROR)
+              .type(LoomConstants.Errors.NODE_VALIDATION_ERROR)
               .param("nodeType", OperationSignatureNode.TYPE)
               .param("expectedDimensions", selectionRange.getNDim())
               .param("actualDimensions", tensorRange.getNDim())
@@ -492,7 +492,7 @@ public class OperationReferenceAgreementConstraint implements LoomEnvironment.Co
           issueCollector.addIssue(
             ValidationIssue
               .builder()
-              .type(LoomConstants.NODE_VALIDATION_ERROR)
+              .type(LoomConstants.Errors.NODE_VALIDATION_ERROR)
               .param("nodeType", OperationSignatureNode.TYPE)
               .summary("Tensor selection is out of bounds")
               .context(lazySelectionRangeContext)

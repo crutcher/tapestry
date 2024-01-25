@@ -149,7 +149,7 @@ public class LoomTypeSchemaTest extends BaseTestClass {
         .build(),
       ValidationIssue
         .builder()
-        .type(LoomConstants.NODE_REFERENCE_ERROR)
+        .type(LoomConstants.Errors.NODE_REFERENCE_ERROR)
         .param("nodeId", tensor.getId())
         .param("expectedType", List.of(NoteNode.TYPE))
         .param("actualType", TensorNode.TYPE)
@@ -173,7 +173,7 @@ public class LoomTypeSchemaTest extends BaseTestClass {
         .build(),
       ValidationIssue
         .builder()
-        .type(LoomConstants.NODE_REFERENCE_ERROR)
+        .type(LoomConstants.Errors.NODE_REFERENCE_ERROR)
         .param("nodeId", missingId)
         .param("nodeType", List.of(NoteNode.TYPE))
         .summary("Referenced node does not exist")
@@ -195,7 +195,7 @@ public class LoomTypeSchemaTest extends BaseTestClass {
         .build(),
       ValidationIssue
         .builder()
-        .type(LoomConstants.NODE_REFERENCE_ERROR)
+        .type(LoomConstants.Errors.NODE_REFERENCE_ERROR)
         .summary("Malformed node reference is not an ID")
         .context(
           ValidationIssue.Context

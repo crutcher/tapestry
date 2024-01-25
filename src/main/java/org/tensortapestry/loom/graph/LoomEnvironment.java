@@ -365,7 +365,7 @@ public final class LoomEnvironment {
         issueCollector.addIssue(
           ValidationIssue
             .builder()
-            .type(LoomConstants.NODE_VALIDATION_ERROR)
+            .type(LoomConstants.Errors.NODE_VALIDATION_ERROR)
             .summary("Unknown node type: " + type)
             .context(node.asValidationContext("Node"))
             .build()
@@ -374,7 +374,7 @@ public final class LoomEnvironment {
         issueCollector.addIssue(
           ValidationIssue
             .builder()
-            .type(LoomConstants.NODE_VALIDATION_ERROR)
+            .type(LoomConstants.Errors.NODE_VALIDATION_ERROR)
             .summary("Node type mismatch: " + type + " is " + nodeClass)
             .context(node.asValidationContext("Node"))
             .build()
@@ -391,7 +391,7 @@ public final class LoomEnvironment {
           issueCollector.addIssue(
             ValidationIssue
               .builder()
-              .type(LoomConstants.NODE_VALIDATION_ERROR)
+              .type(LoomConstants.Errors.NODE_VALIDATION_ERROR)
               .summary("Unknown annotation key: " + key)
               .context(node.asValidationContext("Node"))
               .build()
@@ -400,7 +400,7 @@ public final class LoomEnvironment {
           issueCollector.addIssue(
             ValidationIssue
               .builder()
-              .type(LoomConstants.NODE_VALIDATION_ERROR)
+              .type(LoomConstants.Errors.NODE_VALIDATION_ERROR)
               .summary("Annotation type mismatch: " + key + " is " + annotationClass)
               .context(node.asValidationContext("Node"))
               .build()

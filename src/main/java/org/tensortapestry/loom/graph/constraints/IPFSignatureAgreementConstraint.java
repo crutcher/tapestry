@@ -73,7 +73,7 @@ public class IPFSignatureAgreementConstraint implements LoomEnvironment.Constrai
         issueCollector.addIssue(
           ValidationIssue
             .builder()
-            .type(LoomConstants.NODE_VALIDATION_ERROR)
+            .type(LoomConstants.Errors.NODE_VALIDATION_ERROR)
             .param("opSigId", opSig.getId())
             .summary("Operation signature does not have an IPF index")
             .context(opSig.asValidationContext("Operation Signature"))
@@ -106,7 +106,7 @@ public class IPFSignatureAgreementConstraint implements LoomEnvironment.Constrai
         issueCollector.addIssue(
           ValidationIssue
             .builder()
-            .type(LoomConstants.NODE_VALIDATION_ERROR)
+            .type(LoomConstants.Errors.NODE_VALIDATION_ERROR)
             .param("appNodeId", appNode.getId())
             .param("opSigId", opSig.getId())
             .summary("Application node does not have an IPF index")
@@ -148,7 +148,7 @@ public class IPFSignatureAgreementConstraint implements LoomEnvironment.Constrai
       issueCollector.addIssue(
         ValidationIssue
           .builder()
-          .type(LoomConstants.NODE_VALIDATION_ERROR)
+          .type(LoomConstants.Errors.NODE_VALIDATION_ERROR)
           .param("selectionMapName", selectionMapName)
           .param("selectionMapKeys", selectionMap.keySet())
           .param("projectionMapKeys", projectionMap.keySet())
@@ -169,7 +169,7 @@ public class IPFSignatureAgreementConstraint implements LoomEnvironment.Constrai
         issueCollector.addIssue(
           ValidationIssue
             .builder()
-            .type(LoomConstants.NODE_VALIDATION_ERROR)
+            .type(LoomConstants.Errors.NODE_VALIDATION_ERROR)
             .param("selectionMapName", selectionMapName)
             .param("ioName", ioName)
             .param("selections", selections)
@@ -191,7 +191,7 @@ public class IPFSignatureAgreementConstraint implements LoomEnvironment.Constrai
           issueCollector.addIssue(
             ValidationIssue
               .builder()
-              .type(LoomConstants.NODE_VALIDATION_ERROR)
+              .type(LoomConstants.Errors.NODE_VALIDATION_ERROR)
               .param("selectionMapName", selectionMapName)
               .param("ioName", ioName)
               .param("selection", selection)

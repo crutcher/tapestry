@@ -1,7 +1,7 @@
 package org.tensortapestry.loom.graph.constraints;
 
-import static org.tensortapestry.loom.graph.LoomConstants.NODE_REFERENCE_ERROR;
-import static org.tensortapestry.loom.graph.LoomConstants.NODE_VALIDATION_ERROR;
+import static org.tensortapestry.loom.graph.LoomConstants.Errors.NODE_REFERENCE_ERROR;
+import static org.tensortapestry.loom.graph.LoomConstants.Errors.NODE_VALIDATION_ERROR;
 
 import java.util.List;
 import java.util.Map;
@@ -148,7 +148,7 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
       issueCollector.getIssues(),
       ValidationIssue
         .builder()
-        .type(LoomConstants.NODE_VALIDATION_ERROR)
+        .type(LoomConstants.Errors.NODE_VALIDATION_ERROR)
         .summary("Operation Signature has no Application shards")
         .context(op.asValidationContext("Operation Node"))
         .build()
@@ -211,7 +211,7 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
       issueCollector.getIssues(),
       ValidationIssue
         .builder()
-        .type(LoomConstants.NODE_VALIDATION_ERROR)
+        .type(LoomConstants.Errors.NODE_VALIDATION_ERROR)
         .summary(
           "Application inputs key \"foo\" selection size (0) != Signature selection size (1)"
         )
@@ -220,14 +220,14 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
         .build(),
       ValidationIssue
         .builder()
-        .type(LoomConstants.NODE_VALIDATION_ERROR)
+        .type(LoomConstants.Errors.NODE_VALIDATION_ERROR)
         .summary("Application Node inputs keys [bar] != Operation Signature inputs keys [foo]")
         .context(app2.asValidationContext("Application Node"))
         .context(sourceOp.asValidationContext("Operation Node"))
         .build(),
       ValidationIssue
         .builder()
-        .type(LoomConstants.NODE_VALIDATION_ERROR)
+        .type(LoomConstants.Errors.NODE_VALIDATION_ERROR)
         .summary("Application Node outputs keys [bar] != Operation Signature outputs keys []")
         .context(app3.asValidationContext("Application Node"))
         .context(sourceOp.asValidationContext("Operation Node"))
@@ -331,7 +331,7 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
       issueCollector.getIssues(),
       ValidationIssue
         .builder()
-        .type(LoomConstants.NODE_VALIDATION_ERROR)
+        .type(LoomConstants.Errors.NODE_VALIDATION_ERROR)
         .summary(
           "Operation Signature inputs key \"input[0]\" range zr[0:2, 0:3] != shard bounding range zr[0:2, 0:2]"
         )
@@ -351,7 +351,7 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
         .build(),
       ValidationIssue
         .builder()
-        .type(LoomConstants.NODE_VALIDATION_ERROR)
+        .type(LoomConstants.Errors.NODE_VALIDATION_ERROR)
         .summary(
           "Operation Signature outputs key \"output[0]\" range zr[0:2, 0:3] != shard bounding range zr[0:2, 0:2]"
         )
@@ -371,7 +371,7 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
         .build(),
       ValidationIssue
         .builder()
-        .type(LoomConstants.NODE_VALIDATION_ERROR)
+        .type(LoomConstants.Errors.NODE_VALIDATION_ERROR)
         .summary("Overlapping Application output key \"output[0]\" ranges")
         .context(context ->
           context
@@ -732,7 +732,7 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
       issueCollector.getIssues(),
       ValidationIssue
         .builder()
-        .type(LoomConstants.NODE_VALIDATION_ERROR)
+        .type(LoomConstants.Errors.NODE_VALIDATION_ERROR)
         .param("nodeType", OperationSignatureNode.TYPE)
         .param("expectedDimensions", 1)
         .param("actualDimensions", 2)
@@ -748,7 +748,7 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
         .build(),
       ValidationIssue
         .builder()
-        .type(LoomConstants.NODE_VALIDATION_ERROR)
+        .type(LoomConstants.Errors.NODE_VALIDATION_ERROR)
         .param("nodeType", OperationSignatureNode.TYPE)
         .param("expectedDimensions", 1)
         .param("actualDimensions", 2)
@@ -818,7 +818,7 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
       issueCollector.getIssues(),
       ValidationIssue
         .builder()
-        .type(LoomConstants.NODE_VALIDATION_ERROR)
+        .type(LoomConstants.Errors.NODE_VALIDATION_ERROR)
         .param("nodeType", OperationSignatureNode.TYPE)
         .summary("Tensor selection is out of bounds")
         .context(context ->
@@ -832,7 +832,7 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
         .build(),
       ValidationIssue
         .builder()
-        .type(LoomConstants.NODE_VALIDATION_ERROR)
+        .type(LoomConstants.Errors.NODE_VALIDATION_ERROR)
         .param("nodeType", OperationSignatureNode.TYPE)
         .summary("Tensor selection is out of bounds")
         .context(context ->
@@ -924,7 +924,7 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
       issueCollector.getIssues(),
       ValidationIssue
         .builder()
-        .type(LoomConstants.REFERENCE_CYCLE_ERROR)
+        .type(LoomConstants.Errors.REFERENCE_CYCLE_ERROR)
         .summary("Reference Cycle detected")
         .context(
           ValidationIssue.Context

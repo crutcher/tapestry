@@ -68,7 +68,7 @@ public class ValidationUtilsTest extends BaseTestClass {
       .containsExactly(
         ValidationIssue
           .builder()
-          .type(LoomConstants.NODE_REFERENCE_ERROR)
+          .type(LoomConstants.Errors.NODE_REFERENCE_ERROR)
           .param("nodeId", id)
           .param("nodeType", NoteNode.TYPE)
           .summary("Referenced node does not exist")
@@ -106,7 +106,7 @@ public class ValidationUtilsTest extends BaseTestClass {
       .containsExactly(
         ValidationIssue
           .builder()
-          .type(LoomConstants.NODE_REFERENCE_ERROR)
+          .type(LoomConstants.Errors.NODE_REFERENCE_ERROR)
           .param("nodeId", node.getId())
           .param("expectedType", TensorNode.TYPE)
           .param("actualType", NoteNode.TYPE)
@@ -145,7 +145,7 @@ public class ValidationUtilsTest extends BaseTestClass {
       .containsExactly(
         ValidationIssue
           .builder()
-          .type(LoomConstants.NODE_REFERENCE_ERROR)
+          .type(LoomConstants.Errors.NODE_REFERENCE_ERROR)
           .param("expectedClass", TensorNode.class.getSimpleName())
           .param("actualClass", NoteNode.class.getSimpleName())
           .summary("Referenced node has the wrong class")

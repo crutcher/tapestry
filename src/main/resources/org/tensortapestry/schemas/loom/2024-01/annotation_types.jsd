@@ -1,0 +1,17 @@
+{
+  "$schema" : "https://json-schema.org/draft/2020-12/schema#",
+  "$id" : "http://tensortapestry.org/schemas/loom/2024-01/annotation_types.jsd",
+  "title" : "Loom Core Annotation Type Definitions",
+  "type" : "null",
+  "description" : "The top-level schema is 'null' to prevent accidental use of the outer schema.",
+  "$defs" : {
+    "IPFSignature" : {
+      "$anchor" : "IPFSignature",
+      "$ref" : "data_types.jsd#/$defs/IPFSignature"
+    },
+    "IPFIndex" : {
+      "$anchor" : "IPFIndex",
+      "$ref" : "data_types.jsd#/$defs/ZRange"
+    }
+  }
+}

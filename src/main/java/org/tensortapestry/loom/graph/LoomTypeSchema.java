@@ -183,7 +183,7 @@ public class LoomTypeSchema {
                 collector.addIssue(
                   ValidationIssue
                     .builder()
-                    .type(LoomConstants.NODE_REFERENCE_ERROR)
+                    .type(LoomConstants.Errors.NODE_REFERENCE_ERROR)
                     .summary("Malformed node reference is not an ID")
                     .context(
                       ValidationIssue.Context
@@ -203,7 +203,7 @@ public class LoomTypeSchema {
                 collector.addIssue(
                   ValidationIssue
                     .builder()
-                    .type(LoomConstants.NODE_REFERENCE_ERROR)
+                    .type(LoomConstants.Errors.NODE_REFERENCE_ERROR)
                     .param("nodeId", id)
                     .param("nodeType", rschema.types)
                     .summary("Referenced node does not exist")
@@ -221,7 +221,7 @@ public class LoomTypeSchema {
                 collector.addIssue(
                   ValidationIssue
                     .builder()
-                    .type(LoomConstants.NODE_REFERENCE_ERROR)
+                    .type(LoomConstants.Errors.NODE_REFERENCE_ERROR)
                     .param("nodeId", id)
                     .param("expectedType", rschema.types)
                     .param("actualType", node.getType())

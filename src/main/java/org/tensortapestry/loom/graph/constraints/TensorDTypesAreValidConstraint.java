@@ -44,7 +44,7 @@ public class TensorDTypesAreValidConstraint implements LoomEnvironment.Constrain
       issueCollector.addIssue(
         ValidationIssue
           .builder()
-          .type(LoomConstants.NODE_VALIDATION_ERROR)
+          .type(LoomConstants.Errors.NODE_VALIDATION_ERROR)
           .param("nodeType", TensorNode.TYPE)
           .context(
             ValidationIssue.Context
