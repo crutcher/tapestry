@@ -14,7 +14,7 @@ public class ApplicationNodeTest extends BaseTestClass {
     UUID operationId = UUID.randomUUID();
     UUID tensorIdA = UUID.randomUUID();
     UUID tensorIdB = UUID.randomUUID();
-    ApplicationNode.Body body = ApplicationNode.Body
+    ApplicationNode.ApplicationBody body = ApplicationNode.ApplicationBody
       .builder()
       .operationId(operationId)
       .input(
@@ -67,7 +67,7 @@ public class ApplicationNodeTest extends BaseTestClass {
     var inputTensor = TensorNode.withBody(b -> b.shape(2, 3).dtype("float32")).addTo(graph);
     var outputTensor = TensorNode.withBody(b -> b.shape(10).dtype("int32")).addTo(graph);
 
-    var opSig = OperationSignatureNode
+    var opSig = OperationNode
       .withBody(b ->
         b
           .kernel("increment")

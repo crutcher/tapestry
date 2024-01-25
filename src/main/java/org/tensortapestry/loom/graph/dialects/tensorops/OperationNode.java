@@ -22,17 +22,16 @@ import org.tensortapestry.loom.graph.dialects.common.JsdType;
 @Getter
 @Setter
 @LoomEnvironment.WithConstraints({ OperationReferenceAgreementConstraint.class })
-public final class OperationSignatureNode
-  extends LoomNode<OperationSignatureNode, OperationSignatureNode.Body> {
+public final class OperationNode extends LoomNode<OperationNode, OperationNode.OperationBody> {
 
   @SuppressWarnings("unused")
-  public abstract static class OperationSignatureNodeBuilder<
-    C extends OperationSignatureNode, B extends OperationSignatureNodeBuilder<C, B>
+  public abstract static class OperationNodeBuilder<
+    C extends OperationNode, B extends OperationNodeBuilder<C, B>
   >
-    extends LoomNodeBuilder<OperationSignatureNode, Body, C, B> {
+    extends LoomNodeBuilder<OperationNode, OperationBody, C, B> {
     {
       // Set the node type.
-      type(TensorOpNodes.OPERATION_SIGNATURE_NODE_TYPE);
+      type(TensorOpNodes.OPERATION_NODE_TYPE);
     }
   }
 
@@ -41,8 +40,8 @@ public final class OperationSignatureNode
   @Builder
   @JsonInclude(JsonInclude.Include.NON_EMPTY)
   @JsonPropertyOrder({ "kernel", "params", "inputs", "outputs" })
-  @JsdType(TensorOpNodes.OPERATION_SIGNATURE_NODE_TYPE)
-  public static class Body implements HasToJsonString {
+  @JsdType(TensorOpNodes.OPERATION_NODE_TYPE)
+  public static class OperationBody implements HasToJsonString {
 
     @Nonnull
     String kernel;
@@ -59,15 +58,17 @@ public final class OperationSignatureNode
     Map<String, List<TensorSelection>> outputs;
   }
 
-  public static OperationSignatureNodeBuilder<?, ?> withBody(Consumer<Body.BodyBuilder> cb) {
-    var bodyBuilder = Body.builder();
+  public static OperationNodeBuilder<?, ?> withBody(
+    Consumer<OperationBody.OperationBodyBuilder> cb
+  ) {
+    var bodyBuilder = OperationBody.builder();
     cb.accept(bodyBuilder);
     return builder().body(bodyBuilder.build());
   }
 
   @Delegate(excludes = { HasToJsonString.class })
   @Nonnull
-  private Body body;
+  private OperationBody body;
 
   @JsonIgnore
   public List<ApplicationNode> getApplicationNodes() {

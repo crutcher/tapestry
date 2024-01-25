@@ -62,7 +62,7 @@ public class JsonSchemaFactoryManagerTest extends BaseTestClass {
 
     check.accept(
       "http://tensortapestry.org/schemas/loom/2024-01/node_types.jsd#/$defs/Tensor",
-      TensorNode.Body
+      TensorNode.TensorBody
         .builder()
         .dtype("float32")
         .range(ZRange.builder().start(0, 2).end(3, 4).build())

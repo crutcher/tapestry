@@ -36,9 +36,9 @@
       "required" : [ "dtype", "range" ],
       "additionalProperties" : false
     },
-    "OperationSignature" : {
-      "$anchor" : "OperationSignature",
-      "title" : "Operation Signature",
+    "Operation" : {
+      "$anchor" : "Operation",
+      "title" : "Operation",
       "type" : "object",
       "description" : "The signature of an operation.",
       "properties" : {

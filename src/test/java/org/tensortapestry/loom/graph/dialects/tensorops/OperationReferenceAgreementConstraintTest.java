@@ -43,7 +43,7 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
       .label("A")
       .addTo(graph);
 
-    var sourceOp = OperationSignatureNode
+    var sourceOp = OperationNode
       .withBody(b -> {
         b.kernel("source");
         b.output("output", List.of(new TensorSelection(tensorA.getId(), tensorA.getRange())));
@@ -81,7 +81,7 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
       })
       .addTo(graph);
 
-    var sinkOp = OperationSignatureNode
+    var sinkOp = OperationNode
       .withBody(b -> {
         b.kernel("sink");
         b.input("input", List.of(new TensorSelection(tensorA.getId(), tensorA.getRange())));
@@ -134,7 +134,7 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
       .label("A")
       .addTo(graph);
 
-    var op = OperationSignatureNode
+    var op = OperationNode
       .withBody(b -> {
         b.kernel("source");
         b.output("output", List.of(new TensorSelection(tensorA.getId(), tensorA.getRange())));
@@ -166,7 +166,7 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
       .label("A")
       .addTo(graph);
 
-    var sourceOp = OperationSignatureNode
+    var sourceOp = OperationNode
       .withBody(b -> {
         b.kernel("source");
         b.input("foo", List.of(new TensorSelection(tensorA.getId(), tensorA.getRange())));
@@ -248,7 +248,7 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
       .label("A")
       .addTo(graph);
 
-    var sourceOp = OperationSignatureNode
+    var sourceOp = OperationNode
       .withBody(b -> {
         b.kernel("source");
         b.output("output", List.of(new TensorSelection(tensorA.getId(), tensorA.getRange())));
@@ -286,7 +286,7 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
       })
       .addTo(graph);
 
-    var sinkOp = OperationSignatureNode
+    var sinkOp = OperationNode
       .withBody(b -> {
         b.kernel("sink");
         b.input("input", List.of(new TensorSelection(tensorA.getId(), tensorA.getRange())));
@@ -410,7 +410,7 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
       .label("A")
       .addTo(graph);
 
-    var opSig = OperationSignatureNode
+    var opSig = OperationNode
       .withBody(b -> {
         b.kernel("source");
         b.output("output", List.of(new TensorSelection(tensorA.getId(), tensorA.getRange())));
@@ -510,7 +510,7 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
         .builder()
         .type(NODE_REFERENCE_ERROR)
         .param("nodeId", missingOperationId)
-        .param("nodeType", TensorOpNodes.OPERATION_SIGNATURE_NODE_TYPE)
+        .param("nodeType", TensorOpNodes.OPERATION_NODE_TYPE)
         .summary("Referenced node does not exist")
         .context(context ->
           context
@@ -531,7 +531,7 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
     var missingOutputId = UUID.randomUUID();
 
     @SuppressWarnings("unused")
-    var op = OperationSignatureNode
+    var op = OperationNode
       .withBody(b -> {
         b.kernel("source");
         b.input("source", List.of(new TensorSelection(missingInputId, ZRange.newFromShape(1, 2))));
@@ -608,7 +608,7 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
     var noteNode = NoteNode.withBody(b -> b.message("hello")).addTo(graph);
 
     @SuppressWarnings("unused")
-    var op = OperationSignatureNode
+    var op = OperationNode
       .withBody(b -> {
         b.kernel("source");
         b.input(
@@ -696,7 +696,7 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
       .label("A")
       .addTo(graph);
 
-    var sourceOp = OperationSignatureNode
+    var sourceOp = OperationNode
       .withBody(b -> {
         b.kernel("source");
         b.output("output", List.of(new TensorSelection(tensorA.getId(), ZRange.newFromShape(200))));
@@ -710,7 +710,7 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
       })
       .addTo(graph);
 
-    var sinkOp = OperationSignatureNode
+    var sinkOp = OperationNode
       .withBody(b -> {
         b.kernel("sink");
         b.input("input", List.of(new TensorSelection(tensorA.getId(), ZRange.newFromShape(200))));
@@ -733,7 +733,7 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
       ValidationIssue
         .builder()
         .type(LoomConstants.Errors.NODE_VALIDATION_ERROR)
-        .param("nodeType", TensorOpNodes.OPERATION_SIGNATURE_NODE_TYPE)
+        .param("nodeType", TensorOpNodes.OPERATION_NODE_TYPE)
         .param("expectedDimensions", 1)
         .param("actualDimensions", 2)
         .summary("Tensor selection has the wrong number of dimensions")
@@ -749,7 +749,7 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
       ValidationIssue
         .builder()
         .type(LoomConstants.Errors.NODE_VALIDATION_ERROR)
-        .param("nodeType", TensorOpNodes.OPERATION_SIGNATURE_NODE_TYPE)
+        .param("nodeType", TensorOpNodes.OPERATION_NODE_TYPE)
         .param("expectedDimensions", 1)
         .param("actualDimensions", 2)
         .summary("Tensor selection has the wrong number of dimensions")
@@ -777,7 +777,7 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
       .label("A")
       .addTo(graph);
 
-    var sourceOp = OperationSignatureNode
+    var sourceOp = OperationNode
       .withBody(b -> {
         b.kernel("source");
         b.output(
@@ -797,7 +797,7 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
       })
       .addTo(graph);
 
-    var sinkOp = OperationSignatureNode
+    var sinkOp = OperationNode
       .withBody(b -> {
         b.kernel("sink");
         b.input("input", List.of(new TensorSelection(tensorA.getId(), ZRange.newFromShape(2, 8))));
@@ -819,7 +819,7 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
       ValidationIssue
         .builder()
         .type(LoomConstants.Errors.NODE_VALIDATION_ERROR)
-        .param("nodeType", TensorOpNodes.OPERATION_SIGNATURE_NODE_TYPE)
+        .param("nodeType", TensorOpNodes.OPERATION_NODE_TYPE)
         .summary("Tensor selection is out of bounds")
         .context(context ->
           context
@@ -833,7 +833,7 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
       ValidationIssue
         .builder()
         .type(LoomConstants.Errors.NODE_VALIDATION_ERROR)
-        .param("nodeType", TensorOpNodes.OPERATION_SIGNATURE_NODE_TYPE)
+        .param("nodeType", TensorOpNodes.OPERATION_NODE_TYPE)
         .summary("Tensor selection is out of bounds")
         .context(context ->
           context
@@ -875,7 +875,7 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
       .label("C")
       .addTo(graph);
 
-    var opNode = OperationSignatureNode
+    var opNode = OperationNode
       .withBody(b -> {
         b.kernel("increment");
         b.input(
@@ -936,7 +936,7 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
                   "id",
                   opNode.getId(),
                   "type",
-                  TensorOpNodes.OPERATION_SIGNATURE_NODE_TYPE,
+                  TensorOpNodes.OPERATION_NODE_TYPE,
                   "label",
                   "Add"
                 ),

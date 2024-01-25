@@ -45,10 +45,7 @@ public final class CommonEnvironments {
         TensorDTypesAreValidConstraint.builder().validDTypes(Set.of("int32", "float32")).build()
       )
       .autowireNodeTypeClass(TensorOpNodes.APPLICATION_NODE_TYPE, ApplicationNode.class)
-      .autowireNodeTypeClass(
-        TensorOpNodes.OPERATION_SIGNATURE_NODE_TYPE,
-        OperationSignatureNode.class
-      )
+      .autowireNodeTypeClass(TensorOpNodes.OPERATION_NODE_TYPE, OperationNode.class)
       .addAnnotationTypeClass(TensorOpNodes.IPF_SIGNATURE_ANNOTATION_TYPE, IPFSignature.class)
       .addAnnotationTypeClass(TensorOpNodes.IPF_INDEX_ANNOTATION_TYPE, ZRange.class);
   }

@@ -81,7 +81,7 @@ public class GraphVisualizer {
       .put(TensorOpNodes.APPLICATION_NODE_TYPE, new ApplicationNodeExporter());
     exporter
       .getNodeTypeExporters()
-      .put(TensorOpNodes.OPERATION_SIGNATURE_NODE_TYPE, new OperationNodeExporter());
+      .put(TensorOpNodes.OPERATION_NODE_TYPE, new OperationNodeExporter());
     return exporter;
   }
 

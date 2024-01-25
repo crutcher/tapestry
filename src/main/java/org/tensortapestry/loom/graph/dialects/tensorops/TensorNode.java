@@ -16,13 +16,13 @@ import org.tensortapestry.loom.zspace.*;
 @SuperBuilder
 @Getter
 @Setter
-public final class TensorNode extends LoomNode<TensorNode, TensorNode.Body> {
+public final class TensorNode extends LoomNode<TensorNode, TensorNode.TensorBody> {
 
   @SuppressWarnings("unused")
   public abstract static class TensorNodeBuilder<
     C extends TensorNode, B extends TensorNodeBuilder<C, B>
   >
-    extends LoomNodeBuilder<TensorNode, Body, C, B> {
+    extends LoomNodeBuilder<TensorNode, TensorBody, C, B> {
     {
       // Set the node type.
       type(TensorOpNodes.TENSOR_NODE_TYPE);
@@ -34,9 +34,9 @@ public final class TensorNode extends LoomNode<TensorNode, TensorNode.Body> {
   @Builder
   @JsdType(TensorOpNodes.TENSOR_NODE_TYPE)
   @ToString(onlyExplicitlyIncluded = true)
-  public static class Body implements HasDimension, HasToJsonString, HasSize {
+  public static class TensorBody implements HasDimension, HasToJsonString, HasSize {
 
-    public static class BodyBuilder {
+    public static class TensorBodyBuilder {
 
       /**
        * Helper to set the range via {@code ZRange.fromShape(shape)}.
@@ -45,7 +45,7 @@ public final class TensorNode extends LoomNode<TensorNode, TensorNode.Body> {
        * @return this builder.
        */
       @JsonIgnore
-      public BodyBuilder shape(int... shape) {
+      public TensorBodyBuilder shape(int... shape) {
         return range(ZRange.newFromShape(shape));
       }
 
@@ -56,7 +56,7 @@ public final class TensorNode extends LoomNode<TensorNode, TensorNode.Body> {
        * @return this builder.
        */
       @JsonIgnore
-      public BodyBuilder shape(@Nonnull HasZTensor shape) {
+      public TensorBodyBuilder shape(@Nonnull HasZTensor shape) {
         return range(ZRange.newFromShape(shape));
       }
     }
@@ -85,8 +85,8 @@ public final class TensorNode extends LoomNode<TensorNode, TensorNode.Body> {
     }
   }
 
-  public static TensorNodeBuilder<?, ?> withBody(Consumer<Body.BodyBuilder> cb) {
-    var bodyBuilder = Body.builder();
+  public static TensorNodeBuilder<?, ?> withBody(Consumer<TensorBody.TensorBodyBuilder> cb) {
+    var bodyBuilder = TensorBody.builder();
     cb.accept(bodyBuilder);
     return builder().body(bodyBuilder.build());
   }
@@ -98,5 +98,5 @@ public final class TensorNode extends LoomNode<TensorNode, TensorNode.Body> {
 
   @Delegate(excludes = { HasToJsonString.class })
   @Nonnull
-  private Body body;
+  private TensorBody body;
 }

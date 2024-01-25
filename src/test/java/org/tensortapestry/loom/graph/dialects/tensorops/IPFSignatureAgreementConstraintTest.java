@@ -74,8 +74,7 @@ public class IPFSignatureAgreementConstraintTest extends BaseTestClass {
       null
     );
 
-    assertThat(graph.nodeScan().nodeClass(OperationSignatureNode.class).asStream().count())
-      .isEqualTo(1);
+    assertThat(graph.nodeScan().nodeClass(OperationNode.class).asStream().count()).isEqualTo(1);
 
     TensorNode tensorC = graph.assertNode(
       op.getOutputs().get("z").getFirst().getTensorId(),

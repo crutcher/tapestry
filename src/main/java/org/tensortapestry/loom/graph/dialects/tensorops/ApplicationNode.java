@@ -22,7 +22,8 @@ import org.tensortapestry.loom.graph.dialects.common.JsdType;
 @SuperBuilder
 @Getter
 @Setter
-public final class ApplicationNode extends LoomNode<ApplicationNode, ApplicationNode.Body> {
+public final class ApplicationNode
+  extends LoomNode<ApplicationNode, ApplicationNode.ApplicationBody> {
 
   /**
    * Extensions to the ApplicationNodeBuilder.
@@ -33,7 +34,7 @@ public final class ApplicationNode extends LoomNode<ApplicationNode, Application
   public abstract static class ApplicationNodeBuilder<
     C extends ApplicationNode, B extends ApplicationNodeBuilder<C, B>
   >
-    extends LoomNodeBuilder<ApplicationNode, Body, C, B> {
+    extends LoomNodeBuilder<ApplicationNode, ApplicationBody, C, B> {
     {
       // Set the node type.
       type(TensorOpNodes.APPLICATION_NODE_TYPE);
@@ -49,7 +50,7 @@ public final class ApplicationNode extends LoomNode<ApplicationNode, Application
   @JsonInclude(JsonInclude.Include.NON_EMPTY)
   @JsonPropertyOrder({ "operationId", "inputs", "outputs" })
   @JsdType(TensorOpNodes.APPLICATION_NODE_TYPE)
-  public static class Body implements HasToJsonString {
+  public static class ApplicationBody implements HasToJsonString {
 
     @Nonnull
     UUID operationId;
@@ -79,26 +80,24 @@ public final class ApplicationNode extends LoomNode<ApplicationNode, Application
    * @param cb the body builder callback.
    * @return the ApplicationNodeBuilder.
    */
-  public static ApplicationNodeBuilder<?, ?> withBody(Consumer<Body.BodyBuilder> cb) {
-    var bodyBuilder = Body.builder();
+  public static ApplicationNodeBuilder<?, ?> withBody(
+    Consumer<ApplicationBody.ApplicationBodyBuilder> cb
+  ) {
+    var bodyBuilder = ApplicationBody.builder();
     cb.accept(bodyBuilder);
     return builder().body(bodyBuilder.build());
   }
 
   @Delegate(excludes = { HasToJsonString.class })
   @Nonnull
-  private Body body;
+  private ApplicationBody body;
 
   /**
    * Get the operation signature node.
    * @return the operation signature node.
    */
-  public OperationSignatureNode getOperationSignatureNode() {
+  public OperationNode getOperationSignatureNode() {
     return assertGraph()
-      .assertNode(
-        getOperationId(),
-        TensorOpNodes.OPERATION_SIGNATURE_NODE_TYPE,
-        OperationSignatureNode.class
-      );
+      .assertNode(getOperationId(), TensorOpNodes.OPERATION_NODE_TYPE, OperationNode.class);
   }
 }

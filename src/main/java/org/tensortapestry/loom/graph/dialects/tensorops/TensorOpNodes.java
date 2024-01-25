@@ -12,8 +12,8 @@ public class TensorOpNodes {
     "http://tensortapestry.org/schemas/loom/2024-01/node_types.jsd#/$defs/Tensor";
   public final String APPLICATION_NODE_TYPE =
     "http://tensortapestry.org/schemas/loom/2024-01/node_types.jsd#/$defs/Application";
-  public final String OPERATION_SIGNATURE_NODE_TYPE =
-    "http://tensortapestry.org/schemas/loom/2024-01/node_types.jsd#/$defs/OperationSignature";
+  public final String OPERATION_NODE_TYPE =
+    "http://tensortapestry.org/schemas/loom/2024-01/node_types.jsd#/$defs/Operation";
 
   public final String IPF_SIGNATURE_ANNOTATION_TYPE =
     "http://tensortapestry.org/schemas/loom/2024-01/annotation_types.jsd#/$defs/IPFSignature";

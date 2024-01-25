@@ -17,10 +17,7 @@ public class IPFSignatureAgreementConstraint implements LoomEnvironment.Constrai
   @Override
   public void checkRequirements(LoomEnvironment env) {
     env.assertClassForType(TensorOpNodes.TENSOR_NODE_TYPE, TensorNode.class);
-    env.assertClassForType(
-      TensorOpNodes.OPERATION_SIGNATURE_NODE_TYPE,
-      OperationSignatureNode.class
-    );
+    env.assertClassForType(TensorOpNodes.OPERATION_NODE_TYPE, OperationNode.class);
     env.assertClassForType(TensorOpNodes.APPLICATION_NODE_TYPE, ApplicationNode.class);
     env.assertConstraint(OperationReferenceAgreementConstraint.class);
   }
@@ -34,8 +31,8 @@ public class IPFSignatureAgreementConstraint implements LoomEnvironment.Constrai
     for (
       var it = graph
         .nodeScan()
-        .type(TensorOpNodes.OPERATION_SIGNATURE_NODE_TYPE)
-        .nodeClass(OperationSignatureNode.class)
+        .type(TensorOpNodes.OPERATION_NODE_TYPE)
+        .nodeClass(OperationNode.class)
         .asStream()
         .iterator();
       it.hasNext();
@@ -47,10 +44,7 @@ public class IPFSignatureAgreementConstraint implements LoomEnvironment.Constrai
     }
   }
 
-  private void checkOperation(
-    OperationSignatureNode opSig,
-    ValidationIssueCollector issueCollector
-  ) {
+  private void checkOperation(OperationNode opSig, ValidationIssueCollector issueCollector) {
     var ipfSignature = opSig.assertAnnotation(
       TensorOpNodes.IPF_SIGNATURE_ANNOTATION_TYPE,
       IPFSignature.class

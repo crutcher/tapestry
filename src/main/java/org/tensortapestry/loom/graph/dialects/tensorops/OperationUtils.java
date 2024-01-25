@@ -15,7 +15,7 @@ import org.tensortapestry.loom.zspace.ZRange;
 @UtilityClass
 public class OperationUtils {
 
-  public OperationSignatureNode applyRelativeSignature(
+  public OperationNode applyRelativeSignature(
     LoomGraph graph,
     String kernelName,
     IPFSignature ipfSignature,
@@ -55,7 +55,7 @@ public class OperationUtils {
     );
   }
 
-  public OperationSignatureNode applyFixedSignature(
+  public OperationNode applyFixedSignature(
     LoomGraph graph,
     String kernelName,
     IPFSignature ipfSignature,
@@ -79,7 +79,7 @@ public class OperationUtils {
 
     var ipfIndex = indexBuilder.apply(inputs);
 
-    var opSigNode = OperationSignatureNode
+    var opSigNode = OperationNode
       .withBody(b -> {
         b.kernel(kernelName);
 
@@ -133,15 +133,12 @@ public class OperationUtils {
   }
 
   @CanIgnoreReturnValue
-  public List<ApplicationNode> createIpfShards(
-    OperationSignatureNode sig,
-    Collection<ZRange> shardIndexes
-  ) {
+  public List<ApplicationNode> createIpfShards(OperationNode sig, Collection<ZRange> shardIndexes) {
     return shardIndexes.stream().map(shardIndex -> createIpfShard(sig, shardIndex)).toList();
   }
 
   @CanIgnoreReturnValue
-  public ApplicationNode createIpfShard(OperationSignatureNode sig, ZRange shardIndex) {
+  public ApplicationNode createIpfShard(OperationNode sig, ZRange shardIndex) {
     var graph = sig.assertGraph();
 
     var ipfSig = sig.assertAnnotation(
