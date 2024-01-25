@@ -129,6 +129,20 @@
         }
       }
     },
+    "ZTensor" : {
+      "$anchor" : "ZTensor",
+      "title" : "ZTensor",
+      "description" : "A non-ragged data tensor in ZSpace",
+      "$comment" : "JSD is insufficient to describe matched sizes of children",
+      "anyOf" : [ {
+        "type" : "integer"
+      }, {
+        "type" : "array",
+        "items" : {
+          "$ref" : "#/$defs/ZTensor"
+        }
+      } ]
+    },
     "TensorSelectionMap" : {
       "$anchor" : "TensorSelectionMap",
       "title" : "Tensor Selection Map",

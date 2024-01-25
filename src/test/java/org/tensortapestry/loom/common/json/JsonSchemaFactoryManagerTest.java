@@ -20,6 +20,7 @@ import org.tensortapestry.loom.testing.BaseTestClass;
 import org.tensortapestry.loom.validation.ListValidationIssueCollector;
 import org.tensortapestry.loom.validation.ValidationIssue;
 import org.tensortapestry.loom.zspace.ZRange;
+import org.tensortapestry.loom.zspace.ZTensor;
 
 public class JsonSchemaFactoryManagerTest extends BaseTestClass {
 
@@ -77,6 +78,13 @@ public class JsonSchemaFactoryManagerTest extends BaseTestClass {
       "http://tensortapestry.org/schemas/loom/2024-01/annotation_types.jsd#/$defs/IPFIndex",
       ZRange.newFromShape(1, 2, 3)
     );
+
+    check.accept(
+            "http://tensortapestry.org/schemas/loom/2024-01/data_types.jsd#/$defs/ZTensor",
+            ZTensor.newScalar(9));
+    check.accept(
+            "http://tensortapestry.org/schemas/loom/2024-01/data_types.jsd#/$defs/ZTensor",
+            ZTensor.newZeros(2, 3, 4));
   }
 
   @Test
