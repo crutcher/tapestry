@@ -1,4 +1,4 @@
-package org.tensortapestry.loom.graph.nodes;
+package org.tensortapestry.loom.graph.dialects.tensorops;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
@@ -11,21 +11,13 @@ import lombok.Builder;
 import lombok.Value;
 import lombok.extern.jackson.Jacksonized;
 import org.tensortapestry.loom.common.json.HasToJsonString;
-import org.tensortapestry.loom.graph.LoomConstants;
-import org.tensortapestry.loom.polyhedral.IndexProjectionFunction;
+import org.tensortapestry.loom.zspace.IndexProjectionFunction;
 
 @Value
 @Jacksonized
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class IPFSignature implements HasToJsonString {
-
-  public static final String ANNOTATION_TYPE = LoomConstants.LOOM_CORE_ANNOTATION_TYPE.apply(
-    "IPFSignature"
-  );
-  public static final String IPF_INDEX_TYPE = LoomConstants.LOOM_CORE_ANNOTATION_TYPE.apply(
-    "IPFIndex"
-  );
 
   @SuppressWarnings("unused")
   public static class IPFSignatureBuilder {

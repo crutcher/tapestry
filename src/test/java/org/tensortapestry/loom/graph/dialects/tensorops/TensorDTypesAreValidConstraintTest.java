@@ -1,12 +1,11 @@
-package org.tensortapestry.loom.graph.constraints;
+package org.tensortapestry.loom.graph.dialects.tensorops;
 
 import java.util.Set;
 import org.junit.Test;
 import org.tensortapestry.loom.graph.LoomConstants;
 import org.tensortapestry.loom.graph.LoomEnvironment;
 import org.tensortapestry.loom.graph.LoomGraph;
-import org.tensortapestry.loom.graph.nodes.NoteNode;
-import org.tensortapestry.loom.graph.nodes.TensorNode;
+import org.tensortapestry.loom.graph.dialects.common.NoteNode;
 import org.tensortapestry.loom.testing.BaseTestClass;
 import org.tensortapestry.loom.validation.ListValidationIssueCollector;
 import org.tensortapestry.loom.validation.ValidationIssue;
@@ -18,8 +17,8 @@ public class TensorDTypesAreValidConstraintTest extends BaseTestClass {
     return LoomEnvironment
       .builder()
       .build()
-      .addNodeTypeClass(NoteNode.TYPE, NoteNode.class)
-      .addNodeTypeClass(TensorNode.TYPE, TensorNode.class)
+      .addNodeTypeClass(NoteNode.NOTE_NODE_TYPE, NoteNode.class)
+      .addNodeTypeClass(TensorOpNodes.TENSOR_NODE_TYPE, TensorNode.class)
       .addConstraint(new TensorDTypesAreValidConstraint(Set.of("int32", "float32")));
   }
 
@@ -55,7 +54,7 @@ public class TensorDTypesAreValidConstraintTest extends BaseTestClass {
       ValidationIssue
         .builder()
         .type(LoomConstants.Errors.NODE_VALIDATION_ERROR)
-        .param("nodeType", TensorNode.TYPE)
+        .param("nodeType", TensorOpNodes.TENSOR_NODE_TYPE)
         .summary("Tensor dtype (nonesuch) not a recognized type")
         .context(badTensor.asValidationContext("Tensor"))
         .build()

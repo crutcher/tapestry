@@ -3,9 +3,11 @@ package org.tensortapestry.loom.graph;
 import java.util.Set;
 import lombok.experimental.UtilityClass;
 import org.tensortapestry.loom.common.json.JsonSchemaFactoryManager;
-import org.tensortapestry.loom.graph.constraints.SchemaTypeConstraint;
-import org.tensortapestry.loom.graph.constraints.TensorDTypesAreValidConstraint;
-import org.tensortapestry.loom.graph.nodes.*;
+import org.tensortapestry.loom.graph.dialects.common.GenericNode;
+import org.tensortapestry.loom.graph.dialects.common.NoteNode;
+import org.tensortapestry.loom.graph.dialects.common.SchemaTypeConstraint;
+import org.tensortapestry.loom.graph.dialects.tensorops.*;
+import org.tensortapestry.loom.graph.dialects.tensorops.TensorDTypesAreValidConstraint;
 import org.tensortapestry.loom.zspace.ZRange;
 
 @UtilityClass
@@ -33,14 +35,17 @@ public final class CommonEnvironments {
       .addConstraint(new SchemaTypeConstraint())
       .addUrlAlias(LoomConstants.LOOM_NODE_TYPES_SCHEMA, "loom")
       .addUrlAlias(LoomConstants.LOOM_ANNOTATION_TYPES_SCHEMA, "loom")
-      .autowireNodeTypeClass(NoteNode.TYPE, NoteNode.class)
-      .autowireNodeTypeClass(TensorNode.TYPE, TensorNode.class)
+      .autowireNodeTypeClass(NoteNode.NOTE_NODE_TYPE, NoteNode.class)
+      .autowireNodeTypeClass(TensorOpNodes.TENSOR_NODE_TYPE, TensorNode.class)
       .addConstraint(
         TensorDTypesAreValidConstraint.builder().validDTypes(Set.of("int32", "float32")).build()
       )
-      .autowireNodeTypeClass(ApplicationNode.TYPE, ApplicationNode.class)
-      .autowireNodeTypeClass(OperationSignatureNode.TYPE, OperationSignatureNode.class)
-      .addAnnotationTypeClass(IPFSignature.ANNOTATION_TYPE, IPFSignature.class)
-      .addAnnotationTypeClass(IPFSignature.IPF_INDEX_TYPE, ZRange.class);
+      .autowireNodeTypeClass(TensorOpNodes.APPLICATION_NODE_TYPE, ApplicationNode.class)
+      .autowireNodeTypeClass(
+        TensorOpNodes.OPERATION_SIGNATURE_NODE_TYPE,
+        OperationSignatureNode.class
+      )
+      .addAnnotationTypeClass(TensorOpNodes.IPF_SIGNATURE_ANNOTATION_TYPE, IPFSignature.class)
+      .addAnnotationTypeClass(TensorOpNodes.IPF_INDEX_ANNOTATION_TYPE, ZRange.class);
   }
 }

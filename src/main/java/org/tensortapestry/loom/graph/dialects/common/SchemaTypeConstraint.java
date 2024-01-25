@@ -1,4 +1,4 @@
-package org.tensortapestry.loom.graph.constraints;
+package org.tensortapestry.loom.graph.dialects.common;
 
 import java.net.URI;
 import java.util.List;

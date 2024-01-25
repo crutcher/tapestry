@@ -1,4 +1,4 @@
-package org.tensortapestry.loom.graph.nodes;
+package org.tensortapestry.loom.graph.dialects.tensorops;
 
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.util.ArrayList;
@@ -9,7 +9,7 @@ import java.util.function.Function;
 import javax.annotation.Nullable;
 import lombok.experimental.UtilityClass;
 import org.tensortapestry.loom.graph.LoomGraph;
-import org.tensortapestry.loom.polyhedral.IndexProjectionFunction;
+import org.tensortapestry.loom.zspace.IndexProjectionFunction;
 import org.tensortapestry.loom.zspace.ZRange;
 
 @UtilityClass
@@ -123,8 +123,8 @@ public class OperationUtils {
           b.output(name, selections);
         }
       })
-      .annotation(IPFSignature.ANNOTATION_TYPE, ipfSignature)
-      .annotation(IPFSignature.IPF_INDEX_TYPE, ipfIndex)
+      .annotation(TensorOpNodes.IPF_SIGNATURE_ANNOTATION_TYPE, ipfSignature)
+      .annotation(TensorOpNodes.IPF_INDEX_ANNOTATION_TYPE, ipfIndex)
       .addTo(graph);
 
     createIpfShards(opSigNode, shardBuilder.apply(ipfIndex));
@@ -144,8 +144,11 @@ public class OperationUtils {
   public ApplicationNode createIpfShard(OperationSignatureNode sig, ZRange shardIndex) {
     var graph = sig.assertGraph();
 
-    var ipfSig = sig.assertAnnotation(IPFSignature.ANNOTATION_TYPE, IPFSignature.class);
-    var ipfIndex = sig.assertAnnotation(IPFSignature.IPF_INDEX_TYPE, ZRange.class);
+    var ipfSig = sig.assertAnnotation(
+      TensorOpNodes.IPF_SIGNATURE_ANNOTATION_TYPE,
+      IPFSignature.class
+    );
+    var ipfIndex = sig.assertAnnotation(TensorOpNodes.IPF_INDEX_ANNOTATION_TYPE, ZRange.class);
 
     assert ipfIndex.contains(shardIndex);
 
@@ -183,7 +186,7 @@ public class OperationUtils {
           b.output(name, selections);
         }
       })
-      .annotation(IPFSignature.IPF_INDEX_TYPE, shardIndex)
+      .annotation(TensorOpNodes.IPF_INDEX_ANNOTATION_TYPE, shardIndex)
       .addTo(graph);
   }
 }

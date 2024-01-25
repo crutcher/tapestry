@@ -1,4 +1,4 @@
-package org.tensortapestry.loom.graph.nodes;
+package org.tensortapestry.loom.graph.dialects.common;
 
 import java.util.Map;
 import org.junit.Test;

@@ -1,4 +1,4 @@
-package org.tensortapestry.loom.graph.constraints;
+package org.tensortapestry.loom.graph.dialects.tensorops;
 
 import java.util.Set;
 import lombok.Builder;
@@ -7,7 +7,6 @@ import lombok.Singular;
 import org.tensortapestry.loom.graph.LoomConstants;
 import org.tensortapestry.loom.graph.LoomEnvironment;
 import org.tensortapestry.loom.graph.LoomGraph;
-import org.tensortapestry.loom.graph.nodes.TensorNode;
 import org.tensortapestry.loom.validation.ValidationIssue;
 import org.tensortapestry.loom.validation.ValidationIssueCollector;
 
@@ -20,7 +19,7 @@ public class TensorDTypesAreValidConstraint implements LoomEnvironment.Constrain
 
   @Override
   public void checkRequirements(LoomEnvironment env) {
-    env.assertClassForType(TensorNode.TYPE, TensorNode.class);
+    env.assertClassForType(TensorOpNodes.TENSOR_NODE_TYPE, TensorNode.class);
   }
 
   @Override
@@ -31,7 +30,7 @@ public class TensorDTypesAreValidConstraint implements LoomEnvironment.Constrain
   ) {
     for (var tensorNode : graph
       .nodeScan()
-      .type(TensorNode.TYPE)
+      .type(TensorOpNodes.TENSOR_NODE_TYPE)
       .nodeClass(TensorNode.class)
       .asList()) {
       checkTensor(tensorNode, issueCollector);
@@ -45,7 +44,7 @@ public class TensorDTypesAreValidConstraint implements LoomEnvironment.Constrain
         ValidationIssue
           .builder()
           .type(LoomConstants.Errors.NODE_VALIDATION_ERROR)
-          .param("nodeType", TensorNode.TYPE)
+          .param("nodeType", TensorOpNodes.TENSOR_NODE_TYPE)
           .context(
             ValidationIssue.Context
               .builder()

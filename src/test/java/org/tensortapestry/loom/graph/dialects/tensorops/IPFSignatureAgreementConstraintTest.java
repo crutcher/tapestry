@@ -1,4 +1,4 @@
-package org.tensortapestry.loom.graph.constraints;
+package org.tensortapestry.loom.graph.dialects.tensorops;
 
 import guru.nidi.graphviz.engine.Format;
 import java.util.List;
@@ -6,9 +6,8 @@ import java.util.Map;
 import org.junit.Test;
 import org.tensortapestry.loom.graph.CommonEnvironments;
 import org.tensortapestry.loom.graph.export.graphviz.GraphVisualizer;
-import org.tensortapestry.loom.graph.nodes.*;
-import org.tensortapestry.loom.polyhedral.IndexProjectionFunction;
 import org.tensortapestry.loom.testing.BaseTestClass;
+import org.tensortapestry.loom.zspace.IndexProjectionFunction;
 import org.tensortapestry.loom.zspace.ZPoint;
 import org.tensortapestry.loom.zspace.ZRange;
 
@@ -80,7 +79,7 @@ public class IPFSignatureAgreementConstraintTest extends BaseTestClass {
 
     TensorNode tensorC = graph.assertNode(
       op.getOutputs().get("z").getFirst().getTensorId(),
-      TensorNode.TYPE,
+      TensorOpNodes.TENSOR_NODE_TYPE,
       TensorNode.class
     );
 
@@ -90,7 +89,7 @@ public class IPFSignatureAgreementConstraintTest extends BaseTestClass {
 
     var matmulResult = graph.assertNode(
       op.getOutputs().get("z").getFirst().getTensorId(),
-      TensorNode.TYPE,
+      TensorOpNodes.TENSOR_NODE_TYPE,
       TensorNode.class
     );
 

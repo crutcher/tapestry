@@ -1,7 +1,7 @@
 package org.tensortapestry.loom.graph.export.graphviz;
 
 import lombok.experimental.UtilityClass;
-import org.tensortapestry.loom.polyhedral.IndexProjectionFunction;
+import org.tensortapestry.loom.zspace.IndexProjectionFunction;
 
 @UtilityClass
 public class IPFFormatter {

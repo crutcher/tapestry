@@ -1,4 +1,4 @@
-package org.tensortapestry.loom.graph.constraints;
+package org.tensortapestry.loom.graph.dialects.tensorops;
 
 import com.google.common.collect.Streams;
 import java.util.HashMap;
@@ -12,7 +12,6 @@ import org.tensortapestry.loom.common.json.JsonPathUtils;
 import org.tensortapestry.loom.common.lazy.LazyString;
 import org.tensortapestry.loom.common.lazy.Thunk;
 import org.tensortapestry.loom.graph.*;
-import org.tensortapestry.loom.graph.nodes.*;
 import org.tensortapestry.loom.validation.ValidationIssue;
 import org.tensortapestry.loom.validation.ValidationIssueCollector;
 import org.tensortapestry.loom.zspace.ZRange;
@@ -21,9 +20,12 @@ public class OperationReferenceAgreementConstraint implements LoomEnvironment.Co
 
   @Override
   public void checkRequirements(LoomEnvironment env) {
-    env.assertClassForType(TensorNode.TYPE, TensorNode.class);
-    env.assertClassForType(OperationSignatureNode.TYPE, OperationSignatureNode.class);
-    env.assertClassForType(ApplicationNode.TYPE, ApplicationNode.class);
+    env.assertClassForType(TensorOpNodes.TENSOR_NODE_TYPE, TensorNode.class);
+    env.assertClassForType(
+      TensorOpNodes.OPERATION_SIGNATURE_NODE_TYPE,
+      OperationSignatureNode.class
+    );
+    env.assertClassForType(TensorOpNodes.APPLICATION_NODE_TYPE, ApplicationNode.class);
   }
 
   @Override
@@ -35,13 +37,13 @@ public class OperationReferenceAgreementConstraint implements LoomEnvironment.Co
     boolean valid = true;
     for (var node : graph
       .nodeScan()
-      .type(ApplicationNode.TYPE)
+      .type(TensorOpNodes.APPLICATION_NODE_TYPE)
       .nodeClass(ApplicationNode.class)
       .asList()) {
       var opNode = ValidationUtils.validateNodeReference(
         graph,
         node.getOperationId(),
-        OperationSignatureNode.TYPE,
+        TensorOpNodes.OPERATION_SIGNATURE_NODE_TYPE,
         OperationSignatureNode.class,
         new LazyString(() -> JsonPathUtils.concatJsonPath(node.getJsonPath(), "body", "operationId")
         ),
@@ -56,7 +58,7 @@ public class OperationReferenceAgreementConstraint implements LoomEnvironment.Co
 
     for (var node : graph
       .nodeScan()
-      .type(OperationSignatureNode.TYPE)
+      .type(TensorOpNodes.OPERATION_SIGNATURE_NODE_TYPE)
       .nodeClass(OperationSignatureNode.class)
       .asList()) {
       valid &= validateOperationSignatureNode(graph, node, issueCollector);
@@ -447,7 +449,7 @@ public class OperationReferenceAgreementConstraint implements LoomEnvironment.Co
         TensorNode tensorNode = ValidationUtils.validateNodeReference(
           graph,
           tensorSelection.getTensorId(),
-          TensorNode.TYPE,
+          TensorOpNodes.TENSOR_NODE_TYPE,
           TensorNode.class,
           itemPath,
           issueCollector,
@@ -475,7 +477,7 @@ public class OperationReferenceAgreementConstraint implements LoomEnvironment.Co
             ValidationIssue
               .builder()
               .type(LoomConstants.Errors.NODE_VALIDATION_ERROR)
-              .param("nodeType", OperationSignatureNode.TYPE)
+              .param("nodeType", TensorOpNodes.OPERATION_SIGNATURE_NODE_TYPE)
               .param("expectedDimensions", selectionRange.getNDim())
               .param("actualDimensions", tensorRange.getNDim())
               .summary("Tensor selection has the wrong number of dimensions")
@@ -493,7 +495,7 @@ public class OperationReferenceAgreementConstraint implements LoomEnvironment.Co
             ValidationIssue
               .builder()
               .type(LoomConstants.Errors.NODE_VALIDATION_ERROR)
-              .param("nodeType", OperationSignatureNode.TYPE)
+              .param("nodeType", TensorOpNodes.OPERATION_SIGNATURE_NODE_TYPE)
               .summary("Tensor selection is out of bounds")
               .context(lazySelectionRangeContext)
               .context(tensorNode.asValidationContext("Tensor Node"))

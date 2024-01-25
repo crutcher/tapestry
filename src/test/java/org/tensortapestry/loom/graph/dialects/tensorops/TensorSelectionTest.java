@@ -1,4 +1,4 @@
-package org.tensortapestry.loom.graph.nodes;
+package org.tensortapestry.loom.graph.dialects.tensorops;
 
 import java.util.UUID;
 import org.junit.Test;

@@ -1,4 +1,4 @@
-package org.tensortapestry.loom.graph.nodes;
+package org.tensortapestry.loom.graph.dialects.common;
 
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;

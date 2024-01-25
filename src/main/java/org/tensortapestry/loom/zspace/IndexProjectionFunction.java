@@ -1,4 +1,4 @@
-package org.tensortapestry.loom.polyhedral;
+package org.tensortapestry.loom.zspace;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -11,10 +11,6 @@ import javax.annotation.concurrent.ThreadSafe;
 import lombok.Builder;
 import lombok.Value;
 import org.tensortapestry.loom.common.json.HasToJsonString;
-import org.tensortapestry.loom.zspace.HasZTensor;
-import org.tensortapestry.loom.zspace.ZAffineMap;
-import org.tensortapestry.loom.zspace.ZPoint;
-import org.tensortapestry.loom.zspace.ZRange;
 
 /** A function which maps coordinates in a space to ranges in another space. */
 @ThreadSafe

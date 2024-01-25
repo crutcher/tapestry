@@ -1,6 +1,4 @@
-package org.tensortapestry.loom.graph.nodes;
-
-import static org.tensortapestry.loom.graph.LoomConstants.LOOM_CORE_NODE_TYPE;
+package org.tensortapestry.loom.graph.dialects.tensorops;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -18,7 +16,6 @@ import lombok.extern.jackson.Jacksonized;
 import org.tensortapestry.loom.common.json.HasToJsonString;
 import org.tensortapestry.loom.graph.LoomEnvironment;
 import org.tensortapestry.loom.graph.LoomNode;
-import org.tensortapestry.loom.graph.constraints.OperationReferenceAgreementConstraint;
 
 @Jacksonized
 @SuperBuilder
@@ -28,8 +25,6 @@ import org.tensortapestry.loom.graph.constraints.OperationReferenceAgreementCons
 public final class OperationSignatureNode
   extends LoomNode<OperationSignatureNode, OperationSignatureNode.Body> {
 
-  public static final String TYPE = LOOM_CORE_NODE_TYPE.apply("OperationSignature");
-
   @SuppressWarnings("unused")
   public abstract static class OperationSignatureNodeBuilder<
     C extends OperationSignatureNode, B extends OperationSignatureNodeBuilder<C, B>
@@ -37,7 +32,7 @@ public final class OperationSignatureNode
     extends LoomNodeBuilder<OperationSignatureNode, Body, C, B> {
     {
       // Set the node type.
-      type(TYPE);
+      type(TensorOpNodes.OPERATION_SIGNATURE_NODE_TYPE);
     }
   }
 
@@ -79,7 +74,7 @@ public final class OperationSignatureNode
     var id = getId();
     return assertGraph()
       .nodeScan()
-      .type(ApplicationNode.TYPE)
+      .type(TensorOpNodes.APPLICATION_NODE_TYPE)
       .nodeClass(ApplicationNode.class)
       .asStream()
       .filter(appNode -> appNode.getOperationId().equals(id))

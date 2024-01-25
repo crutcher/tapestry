@@ -1,4 +1,4 @@
-package org.tensortapestry.loom.graph.nodes;
+package org.tensortapestry.loom.graph.dialects.tensorops;
 
 import org.junit.Test;
 import org.tensortapestry.loom.testing.BaseTestClass;

@@ -13,9 +13,9 @@ import java.util.*;
 import java.util.function.Function;
 import org.tensortapestry.loom.common.json.JsonUtil;
 import org.tensortapestry.loom.graph.LoomNode;
-import org.tensortapestry.loom.graph.nodes.ApplicationNode;
-import org.tensortapestry.loom.graph.nodes.IPFSignature;
-import org.tensortapestry.loom.graph.nodes.TensorSelection;
+import org.tensortapestry.loom.graph.dialects.tensorops.ApplicationNode;
+import org.tensortapestry.loom.graph.dialects.tensorops.TensorOpNodes;
+import org.tensortapestry.loom.graph.dialects.tensorops.TensorSelection;
 import org.tensortapestry.loom.zspace.ZRange;
 
 public class ApplicationNodeExporter implements GraphVisualizer.NodeTypeExporter {
@@ -109,7 +109,7 @@ public class ApplicationNodeExporter implements GraphVisualizer.NodeTypeExporter
       // Annotations
       {
         var annotationMap = new HashMap<>(appNode.getAnnotations());
-        var ipfIndex = (ZRange) annotationMap.remove(IPFSignature.IPF_INDEX_TYPE);
+        var ipfIndex = (ZRange) annotationMap.remove(TensorOpNodes.IPF_INDEX_ANNOTATION_TYPE);
         if (ipfIndex != null) {
           // If the index is present, render it in the node.
           GH

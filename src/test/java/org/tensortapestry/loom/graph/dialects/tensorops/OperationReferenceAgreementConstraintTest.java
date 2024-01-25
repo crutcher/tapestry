@@ -1,4 +1,4 @@
-package org.tensortapestry.loom.graph.constraints;
+package org.tensortapestry.loom.graph.dialects.tensorops;
 
 import static org.tensortapestry.loom.graph.LoomConstants.Errors.NODE_REFERENCE_ERROR;
 import static org.tensortapestry.loom.graph.LoomConstants.Errors.NODE_VALIDATION_ERROR;
@@ -10,7 +10,7 @@ import org.junit.Test;
 import org.tensortapestry.loom.graph.CommonEnvironments;
 import org.tensortapestry.loom.graph.LoomConstants;
 import org.tensortapestry.loom.graph.LoomGraph;
-import org.tensortapestry.loom.graph.nodes.*;
+import org.tensortapestry.loom.graph.dialects.common.NoteNode;
 import org.tensortapestry.loom.testing.BaseTestClass;
 import org.tensortapestry.loom.validation.ListValidationIssueCollector;
 import org.tensortapestry.loom.validation.ValidationIssue;
@@ -510,7 +510,7 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
         .builder()
         .type(NODE_REFERENCE_ERROR)
         .param("nodeId", missingOperationId)
-        .param("nodeType", OperationSignatureNode.TYPE)
+        .param("nodeType", TensorOpNodes.OPERATION_SIGNATURE_NODE_TYPE)
         .summary("Referenced node does not exist")
         .context(context ->
           context
@@ -574,7 +574,7 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
         .builder()
         .type(NODE_REFERENCE_ERROR)
         .param("nodeId", missingInputId)
-        .param("nodeType", TensorNode.TYPE)
+        .param("nodeType", TensorOpNodes.TENSOR_NODE_TYPE)
         .summary("Referenced node does not exist")
         .context(context ->
           context
@@ -588,7 +588,7 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
         .builder()
         .type(NODE_REFERENCE_ERROR)
         .param("nodeId", missingOutputId)
-        .param("nodeType", TensorNode.TYPE)
+        .param("nodeType", TensorOpNodes.TENSOR_NODE_TYPE)
         .summary("Referenced node does not exist")
         .context(context ->
           context
@@ -655,7 +655,7 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
         .builder()
         .type(NODE_REFERENCE_ERROR)
         .param("nodeId", noteNode.getId())
-        .param("expectedType", TensorNode.TYPE)
+        .param("expectedType", TensorOpNodes.TENSOR_NODE_TYPE)
         .param("actualType", noteNode.getType())
         .summary("Referenced node has the wrong type")
         .context(context ->
@@ -670,7 +670,7 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
         .builder()
         .type(NODE_REFERENCE_ERROR)
         .param("nodeId", noteNode.getId())
-        .param("expectedType", TensorNode.TYPE)
+        .param("expectedType", TensorOpNodes.TENSOR_NODE_TYPE)
         .param("actualType", noteNode.getType())
         .summary("Referenced node has the wrong type")
         .context(context ->
@@ -733,7 +733,7 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
       ValidationIssue
         .builder()
         .type(LoomConstants.Errors.NODE_VALIDATION_ERROR)
-        .param("nodeType", OperationSignatureNode.TYPE)
+        .param("nodeType", TensorOpNodes.OPERATION_SIGNATURE_NODE_TYPE)
         .param("expectedDimensions", 1)
         .param("actualDimensions", 2)
         .summary("Tensor selection has the wrong number of dimensions")
@@ -749,7 +749,7 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
       ValidationIssue
         .builder()
         .type(LoomConstants.Errors.NODE_VALIDATION_ERROR)
-        .param("nodeType", OperationSignatureNode.TYPE)
+        .param("nodeType", TensorOpNodes.OPERATION_SIGNATURE_NODE_TYPE)
         .param("expectedDimensions", 1)
         .param("actualDimensions", 2)
         .summary("Tensor selection has the wrong number of dimensions")
@@ -819,7 +819,7 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
       ValidationIssue
         .builder()
         .type(LoomConstants.Errors.NODE_VALIDATION_ERROR)
-        .param("nodeType", OperationSignatureNode.TYPE)
+        .param("nodeType", TensorOpNodes.OPERATION_SIGNATURE_NODE_TYPE)
         .summary("Tensor selection is out of bounds")
         .context(context ->
           context
@@ -833,7 +833,7 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
       ValidationIssue
         .builder()
         .type(LoomConstants.Errors.NODE_VALIDATION_ERROR)
-        .param("nodeType", OperationSignatureNode.TYPE)
+        .param("nodeType", TensorOpNodes.OPERATION_SIGNATURE_NODE_TYPE)
         .summary("Tensor selection is out of bounds")
         .context(context ->
           context
@@ -932,8 +932,15 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
             .name("Cycle")
             .data(
               List.of(
-                Map.of("id", opNode.getId(), "type", OperationSignatureNode.TYPE, "label", "Add"),
-                Map.of("id", tensorA.getId(), "type", TensorNode.TYPE, "label", "A")
+                Map.of(
+                  "id",
+                  opNode.getId(),
+                  "type",
+                  TensorOpNodes.OPERATION_SIGNATURE_NODE_TYPE,
+                  "label",
+                  "Add"
+                ),
+                Map.of("id", tensorA.getId(), "type", TensorOpNodes.TENSOR_NODE_TYPE, "label", "A")
               )
             )
         )

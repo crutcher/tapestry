@@ -12,7 +12,8 @@ import org.jgrapht.alg.interfaces.VertexColoringAlgorithm;
 import org.jgrapht.graph.DefaultDirectedGraph;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.DefaultUndirectedGraph;
-import org.tensortapestry.loom.graph.nodes.OperationSignatureNode;
+import org.tensortapestry.loom.graph.dialects.tensorops.OperationSignatureNode;
+import org.tensortapestry.loom.graph.dialects.tensorops.TensorOpNodes;
 
 @UtilityClass
 public class TraversalUtils {
@@ -48,7 +49,7 @@ public class TraversalUtils {
 
     for (var node : graph
       .nodeScan()
-      .type(OperationSignatureNode.TYPE)
+      .type(TensorOpNodes.OPERATION_SIGNATURE_NODE_TYPE)
       .nodeClass(OperationSignatureNode.class)
       .asList()) {
       linkGraph.addVertex(node);
@@ -83,7 +84,7 @@ public class TraversalUtils {
     );
     for (var opNode : graph
       .nodeScan()
-      .type(OperationSignatureNode.TYPE)
+      .type(TensorOpNodes.OPERATION_SIGNATURE_NODE_TYPE)
       .nodeClass(OperationSignatureNode.class)
       .asList()) {
       var opId = opNode.getId();

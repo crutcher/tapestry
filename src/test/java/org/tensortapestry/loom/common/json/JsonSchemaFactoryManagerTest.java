@@ -15,7 +15,7 @@ import lombok.Value;
 import lombok.extern.jackson.Jacksonized;
 import org.junit.Test;
 import org.tensortapestry.loom.graph.LoomConstants;
-import org.tensortapestry.loom.graph.nodes.TensorNode;
+import org.tensortapestry.loom.graph.dialects.tensorops.TensorNode;
 import org.tensortapestry.loom.testing.BaseTestClass;
 import org.tensortapestry.loom.validation.ListValidationIssueCollector;
 import org.tensortapestry.loom.validation.ValidationIssue;
@@ -80,11 +80,13 @@ public class JsonSchemaFactoryManagerTest extends BaseTestClass {
     );
 
     check.accept(
-            "http://tensortapestry.org/schemas/loom/2024-01/data_types.jsd#/$defs/ZTensor",
-            ZTensor.newScalar(9));
+      "http://tensortapestry.org/schemas/loom/2024-01/data_types.jsd#/$defs/ZTensor",
+      ZTensor.newScalar(9)
+    );
     check.accept(
-            "http://tensortapestry.org/schemas/loom/2024-01/data_types.jsd#/$defs/ZTensor",
-            ZTensor.newZeros(2, 3, 4));
+      "http://tensortapestry.org/schemas/loom/2024-01/data_types.jsd#/$defs/ZTensor",
+      ZTensor.newZeros(2, 3, 4)
+    );
   }
 
   @Test

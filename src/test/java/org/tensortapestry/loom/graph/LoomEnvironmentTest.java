@@ -1,9 +1,10 @@
 package org.tensortapestry.loom.graph;
 
 import org.junit.Test;
-import org.tensortapestry.loom.graph.nodes.ApplicationNode;
-import org.tensortapestry.loom.graph.nodes.NoteNode;
-import org.tensortapestry.loom.graph.nodes.TensorNode;
+import org.tensortapestry.loom.graph.dialects.common.NoteNode;
+import org.tensortapestry.loom.graph.dialects.tensorops.ApplicationNode;
+import org.tensortapestry.loom.graph.dialects.tensorops.TensorNode;
+import org.tensortapestry.loom.graph.dialects.tensorops.TensorOpNodes;
 import org.tensortapestry.loom.testing.BaseTestClass;
 import org.tensortapestry.loom.validation.ValidationIssueCollector;
 
@@ -14,18 +15,18 @@ public class LoomEnvironmentTest extends BaseTestClass {
     var env = LoomEnvironment
       .builder()
       .build()
-      .addNodeTypeClass(TensorNode.TYPE, TensorNode.class)
-      .addNodeTypeClass(NoteNode.TYPE, NoteNode.class);
+      .addNodeTypeClass(TensorOpNodes.TENSOR_NODE_TYPE, TensorNode.class)
+      .addNodeTypeClass(NoteNode.NOTE_NODE_TYPE, NoteNode.class);
 
-    assertThat(env.supportsNodeType(TensorNode.TYPE)).isTrue();
-    assertThat(env.supportsNodeType(NoteNode.TYPE)).isTrue();
+    assertThat(env.supportsNodeType(TensorOpNodes.TENSOR_NODE_TYPE)).isTrue();
+    assertThat(env.supportsNodeType(NoteNode.NOTE_NODE_TYPE)).isTrue();
 
-    assertThat(env.classForType(TensorNode.TYPE)).isEqualTo(TensorNode.class);
-    assertThat(env.classForType(NoteNode.TYPE)).isEqualTo(NoteNode.class);
+    assertThat(env.classForType(TensorOpNodes.TENSOR_NODE_TYPE)).isEqualTo(TensorNode.class);
+    assertThat(env.classForType(NoteNode.NOTE_NODE_TYPE)).isEqualTo(NoteNode.class);
 
-    assertThat(env.supportsNodeType(ApplicationNode.TYPE)).isFalse();
+    assertThat(env.supportsNodeType(TensorOpNodes.APPLICATION_NODE_TYPE)).isFalse();
     assertThatExceptionOfType(IllegalStateException.class)
-      .isThrownBy(() -> env.assertClassForType(ApplicationNode.TYPE));
+      .isThrownBy(() -> env.assertClassForType(TensorOpNodes.APPLICATION_NODE_TYPE));
   }
 
   @Test
@@ -82,10 +83,13 @@ public class LoomEnvironmentTest extends BaseTestClass {
                   ]
                  }
                 """.formatted(
-          TensorNode.TYPE
+          TensorOpNodes.TENSOR_NODE_TYPE
         );
 
-    var env = LoomEnvironment.builder().build().addNodeTypeClass(TensorNode.TYPE, TensorNode.class);
+    var env = LoomEnvironment
+      .builder()
+      .build()
+      .addNodeTypeClass(TensorOpNodes.TENSOR_NODE_TYPE, TensorNode.class);
 
     var graph = env.graphFromJson(source);
 
@@ -104,12 +108,14 @@ public class LoomEnvironmentTest extends BaseTestClass {
   public void test_assertNodeTypeClass() {
     var env = CommonEnvironments.expressionEnvironment();
 
-    env.assertClassForType(TensorNode.TYPE, TensorNode.class);
+    env.assertClassForType(TensorOpNodes.TENSOR_NODE_TYPE, TensorNode.class);
     assertThatExceptionOfType(IllegalStateException.class)
-      .isThrownBy(() -> env.assertClassForType(TensorNode.TYPE, ApplicationNode.class));
+      .isThrownBy(() ->
+        env.assertClassForType(TensorOpNodes.TENSOR_NODE_TYPE, ApplicationNode.class)
+      );
 
-    assertThat(env.supportsNodeType(TensorNode.TYPE)).isTrue();
-    env.assertSupportsNodeType(TensorNode.TYPE);
+    assertThat(env.supportsNodeType(TensorOpNodes.TENSOR_NODE_TYPE)).isTrue();
+    env.assertSupportsNodeType(TensorOpNodes.TENSOR_NODE_TYPE);
 
     assertThat(env.supportsNodeType("foo")).isFalse();
     assertThatExceptionOfType(IllegalStateException.class)
@@ -121,7 +127,7 @@ public class LoomEnvironmentTest extends BaseTestClass {
     var constraint = new LoomEnvironment.Constraint() {
       @Override
       public void checkRequirements(LoomEnvironment env) {
-        env.assertSupportsNodeType(TensorNode.TYPE);
+        env.assertSupportsNodeType(TensorOpNodes.TENSOR_NODE_TYPE);
       }
 
       @Override
@@ -140,7 +146,7 @@ public class LoomEnvironmentTest extends BaseTestClass {
     assertThatExceptionOfType(IllegalStateException.class)
       .isThrownBy(() -> env.addConstraint(constraint));
 
-    env.addNodeTypeClass(TensorNode.TYPE, TensorNode.class);
+    env.addNodeTypeClass(TensorOpNodes.TENSOR_NODE_TYPE, TensorNode.class);
 
     assertThat(env.lookupConstraint(constraint.getClass())).isNull();
 

@@ -3,7 +3,7 @@ package org.tensortapestry.loom.graph.export.graphviz;
 import guru.nidi.graphviz.attribute.Shape;
 import guru.nidi.graphviz.attribute.Style;
 import org.tensortapestry.loom.graph.LoomNode;
-import org.tensortapestry.loom.graph.nodes.TensorNode;
+import org.tensortapestry.loom.graph.dialects.tensorops.TensorNode;
 
 public class TensorNodeExporter implements GraphVisualizer.NodeTypeExporter {
 

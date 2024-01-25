@@ -1,7 +1,7 @@
 package org.tensortapestry.loom.graph;
 
 import lombok.experimental.UtilityClass;
-import org.tensortapestry.loom.graph.nodes.TensorNode;
+import org.tensortapestry.loom.graph.dialects.tensorops.TensorOpNodes;
 
 @SuppressWarnings("unused")
 @UtilityClass
@@ -111,7 +111,7 @@ public class CommonSchemas {
       LoomTypeSchema.ReferenceSchema
         .builder()
         .path("$.inputs.*[*].tensorId")
-        .type(TensorNode.TYPE)
+        .type(TensorOpNodes.TENSOR_NODE_TYPE)
         .build()
     )
     .referenceSchema(
@@ -119,7 +119,7 @@ public class CommonSchemas {
       LoomTypeSchema.ReferenceSchema
         .builder()
         .path("$.outputs.*[*].tensorId")
-        .type(TensorNode.TYPE)
+        .type(TensorOpNodes.TENSOR_NODE_TYPE)
         .build()
     )
     .jsonSchema(
@@ -187,7 +187,7 @@ public class CommonSchemas {
       LoomTypeSchema.ReferenceSchema
         .builder()
         .path("$.inputs.*[*].tensorId")
-        .type(TensorNode.TYPE)
+        .type(TensorOpNodes.TENSOR_NODE_TYPE)
         .build()
     )
     .referenceSchema(
@@ -195,7 +195,7 @@ public class CommonSchemas {
       LoomTypeSchema.ReferenceSchema
         .builder()
         .path("$.outputs.*[*].tensorId")
-        .type(TensorNode.TYPE)
+        .type(TensorOpNodes.TENSOR_NODE_TYPE)
         .build()
     )
     .jsonSchema(

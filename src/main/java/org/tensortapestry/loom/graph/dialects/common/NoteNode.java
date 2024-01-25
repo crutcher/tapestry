@@ -1,4 +1,4 @@
-package org.tensortapestry.loom.graph.nodes;
+package org.tensortapestry.loom.graph.dialects.common;
 
 import static org.tensortapestry.loom.graph.LoomConstants.LOOM_CORE_NODE_TYPE;
 
@@ -19,7 +19,7 @@ import org.tensortapestry.loom.graph.LoomNode;
 @Setter
 public final class NoteNode extends LoomNode<NoteNode, NoteNode.Body> {
 
-  public static final String TYPE = LOOM_CORE_NODE_TYPE.apply("Note");
+  public static final String NOTE_NODE_TYPE = LOOM_CORE_NODE_TYPE.apply("Note");
 
   @Data
   @Jacksonized
@@ -34,7 +34,7 @@ public final class NoteNode extends LoomNode<NoteNode, NoteNode.Body> {
   public abstract static class NoteNodeBuilder<C extends NoteNode, B extends NoteNodeBuilder<C, B>>
     extends LoomNodeBuilder<NoteNode, Body, C, B> {
     {
-      type(TYPE);
+      type(NOTE_NODE_TYPE);
     }
   }
 

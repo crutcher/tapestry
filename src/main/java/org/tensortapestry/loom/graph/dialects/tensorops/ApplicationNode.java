@@ -1,6 +1,4 @@
-package org.tensortapestry.loom.graph.nodes;
-
-import static org.tensortapestry.loom.graph.LoomConstants.LOOM_CORE_NODE_TYPE;
+package org.tensortapestry.loom.graph.dialects.tensorops;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
@@ -26,11 +24,6 @@ import org.tensortapestry.loom.graph.LoomNode;
 public final class ApplicationNode extends LoomNode<ApplicationNode, ApplicationNode.Body> {
 
   /**
-   * The node type.
-   */
-  public static final String TYPE = LOOM_CORE_NODE_TYPE.apply("Application");
-
-  /**
    * Extensions to the ApplicationNodeBuilder.
    * @param <C> the concrete ApplicationNode type.
    * @param <B> the concrete ApplicationNodeBuilder type.
@@ -42,7 +35,7 @@ public final class ApplicationNode extends LoomNode<ApplicationNode, Application
     extends LoomNodeBuilder<ApplicationNode, Body, C, B> {
     {
       // Set the node type.
-      type(TYPE);
+      type(TensorOpNodes.APPLICATION_NODE_TYPE);
     }
   }
 
@@ -100,6 +93,10 @@ public final class ApplicationNode extends LoomNode<ApplicationNode, Application
    */
   public OperationSignatureNode getOperationSignatureNode() {
     return assertGraph()
-      .assertNode(getOperationId(), OperationSignatureNode.TYPE, OperationSignatureNode.class);
+      .assertNode(
+        getOperationId(),
+        TensorOpNodes.OPERATION_SIGNATURE_NODE_TYPE,
+        OperationSignatureNode.class
+      );
   }
 }

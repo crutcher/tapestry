@@ -1,12 +1,10 @@
-package org.tensortapestry.loom.graph.nodes;
+package org.tensortapestry.loom.graph;
 
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Supplier;
 import org.tensortapestry.loom.common.lazy.LazyString;
 import org.tensortapestry.loom.common.lazy.Thunk;
-import org.tensortapestry.loom.graph.LoomConstants;
-import org.tensortapestry.loom.graph.LoomGraph;
 import org.tensortapestry.loom.validation.ValidationIssue;
 import org.tensortapestry.loom.validation.ValidationIssueCollector;
 

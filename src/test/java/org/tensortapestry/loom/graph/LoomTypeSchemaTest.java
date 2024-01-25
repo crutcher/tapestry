@@ -9,8 +9,9 @@ import lombok.extern.jackson.Jacksonized;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.Test;
 import org.tensortapestry.loom.common.json.JsonUtil;
-import org.tensortapestry.loom.graph.nodes.NoteNode;
-import org.tensortapestry.loom.graph.nodes.TensorNode;
+import org.tensortapestry.loom.graph.dialects.common.NoteNode;
+import org.tensortapestry.loom.graph.dialects.tensorops.TensorNode;
+import org.tensortapestry.loom.graph.dialects.tensorops.TensorOpNodes;
 import org.tensortapestry.loom.testing.BaseTestClass;
 import org.tensortapestry.loom.validation.ListValidationIssueCollector;
 import org.tensortapestry.loom.validation.ValidationIssue;
@@ -31,7 +32,11 @@ public class LoomTypeSchemaTest extends BaseTestClass {
       .builder()
       .referenceSchema(
         "inputs",
-        LoomTypeSchema.ReferenceSchema.builder().path("$.inputs.*[*]").type(NoteNode.TYPE).build()
+        LoomTypeSchema.ReferenceSchema
+          .builder()
+          .path("$.inputs.*[*]")
+          .type(NoteNode.NOTE_NODE_TYPE)
+          .build()
       )
       .build();
 
@@ -54,7 +59,11 @@ public class LoomTypeSchemaTest extends BaseTestClass {
       .builder()
       .referenceSchema(
         "inputs",
-        LoomTypeSchema.ReferenceSchema.builder().path("$.inputs.*[*]").type(NoteNode.TYPE).build()
+        LoomTypeSchema.ReferenceSchema
+          .builder()
+          .path("$.inputs.*[*]")
+          .type(NoteNode.NOTE_NODE_TYPE)
+          .build()
       )
       .jsonSchema(
         """
@@ -151,8 +160,8 @@ public class LoomTypeSchemaTest extends BaseTestClass {
         .builder()
         .type(LoomConstants.Errors.NODE_REFERENCE_ERROR)
         .param("nodeId", tensor.getId())
-        .param("expectedType", List.of(NoteNode.TYPE))
-        .param("actualType", TensorNode.TYPE)
+        .param("expectedType", List.of(NoteNode.NOTE_NODE_TYPE))
+        .param("actualType", TensorOpNodes.TENSOR_NODE_TYPE)
         .summary("Referenced node has the wrong type")
         .context(
           ValidationIssue.Context
@@ -175,7 +184,7 @@ public class LoomTypeSchemaTest extends BaseTestClass {
         .builder()
         .type(LoomConstants.Errors.NODE_REFERENCE_ERROR)
         .param("nodeId", missingId)
-        .param("nodeType", List.of(NoteNode.TYPE))
+        .param("nodeType", List.of(NoteNode.NOTE_NODE_TYPE))
         .summary("Referenced node does not exist")
         .context(
           ValidationIssue.Context

@@ -1,11 +1,11 @@
-package org.tensortapestry.loom.graph.nodes;
+package org.tensortapestry.loom.graph;
 
 import java.util.UUID;
 import org.junit.Test;
 import org.tensortapestry.loom.common.lazy.LazyString;
-import org.tensortapestry.loom.graph.LoomConstants;
-import org.tensortapestry.loom.graph.LoomEnvironment;
-import org.tensortapestry.loom.graph.LoomGraph;
+import org.tensortapestry.loom.graph.dialects.common.NoteNode;
+import org.tensortapestry.loom.graph.dialects.tensorops.TensorNode;
+import org.tensortapestry.loom.graph.dialects.tensorops.TensorOpNodes;
 import org.tensortapestry.loom.testing.BaseTestClass;
 import org.tensortapestry.loom.validation.ListValidationIssueCollector;
 import org.tensortapestry.loom.validation.ValidationIssue;
@@ -16,8 +16,8 @@ public class ValidationUtilsTest extends BaseTestClass {
     return LoomEnvironment
       .builder()
       .build()
-      .addNodeTypeClass(NoteNode.TYPE, NoteNode.class)
-      .addNodeTypeClass(TensorNode.TYPE, TensorNode.class);
+      .addNodeTypeClass(NoteNode.NOTE_NODE_TYPE, NoteNode.class)
+      .addNodeTypeClass(TensorOpNodes.TENSOR_NODE_TYPE, TensorNode.class);
   }
 
   public LoomGraph createGraph() {
@@ -34,7 +34,7 @@ public class ValidationUtilsTest extends BaseTestClass {
     NoteNode result = ValidationUtils.validateNodeReference(
       graph,
       node.getId(),
-      NoteNode.TYPE,
+      NoteNode.NOTE_NODE_TYPE,
       NoteNode.class,
       LazyString.fixed("message"),
       collector,
@@ -56,7 +56,7 @@ public class ValidationUtilsTest extends BaseTestClass {
     NoteNode result = ValidationUtils.validateNodeReference(
       graph,
       id,
-      NoteNode.TYPE,
+      NoteNode.NOTE_NODE_TYPE,
       NoteNode.class,
       LazyString.fixed("message"),
       collector,
@@ -70,7 +70,7 @@ public class ValidationUtilsTest extends BaseTestClass {
           .builder()
           .type(LoomConstants.Errors.NODE_REFERENCE_ERROR)
           .param("nodeId", id)
-          .param("nodeType", NoteNode.TYPE)
+          .param("nodeType", NoteNode.NOTE_NODE_TYPE)
           .summary("Referenced node does not exist")
           .context(
             ValidationIssue.Context
@@ -94,7 +94,7 @@ public class ValidationUtilsTest extends BaseTestClass {
     NoteNode result = ValidationUtils.validateNodeReference(
       graph,
       node.getId(),
-      TensorNode.TYPE,
+      TensorOpNodes.TENSOR_NODE_TYPE,
       NoteNode.class,
       LazyString.fixed("message"),
       collector,
@@ -108,8 +108,8 @@ public class ValidationUtilsTest extends BaseTestClass {
           .builder()
           .type(LoomConstants.Errors.NODE_REFERENCE_ERROR)
           .param("nodeId", node.getId())
-          .param("expectedType", TensorNode.TYPE)
-          .param("actualType", NoteNode.TYPE)
+          .param("expectedType", TensorOpNodes.TENSOR_NODE_TYPE)
+          .param("actualType", NoteNode.NOTE_NODE_TYPE)
           .summary("Referenced node has the wrong type")
           .context(
             ValidationIssue.Context
@@ -133,7 +133,7 @@ public class ValidationUtilsTest extends BaseTestClass {
     TensorNode result = ValidationUtils.validateNodeReference(
       graph,
       node.getId(),
-      NoteNode.TYPE,
+      NoteNode.NOTE_NODE_TYPE,
       TensorNode.class,
       LazyString.fixed("message"),
       collector,

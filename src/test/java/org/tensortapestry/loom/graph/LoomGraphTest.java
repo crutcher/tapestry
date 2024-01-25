@@ -5,9 +5,10 @@ import java.util.Map;
 import java.util.UUID;
 import org.junit.Test;
 import org.tensortapestry.loom.common.json.JsonUtil;
-import org.tensortapestry.loom.graph.nodes.GenericNode;
-import org.tensortapestry.loom.graph.nodes.NoteNode;
-import org.tensortapestry.loom.graph.nodes.TensorNode;
+import org.tensortapestry.loom.graph.dialects.common.GenericNode;
+import org.tensortapestry.loom.graph.dialects.common.NoteNode;
+import org.tensortapestry.loom.graph.dialects.tensorops.TensorNode;
+import org.tensortapestry.loom.graph.dialects.tensorops.TensorOpNodes;
 import org.tensortapestry.loom.testing.BaseTestClass;
 import org.tensortapestry.loom.zspace.ZPoint;
 import org.tensortapestry.loom.zspace.ZRange;
@@ -176,7 +177,7 @@ public class LoomGraphTest extends BaseTestClass {
            ]
         }
         """.formatted(
-          TensorNode.TYPE
+          TensorOpNodes.TENSOR_NODE_TYPE
         );
 
     var env = CommonEnvironments.genericEnvironment();
@@ -221,10 +222,13 @@ public class LoomGraphTest extends BaseTestClass {
                ]
             }
             """.formatted(
-          TensorNode.TYPE
+          TensorOpNodes.TENSOR_NODE_TYPE
         );
 
-    var env = LoomEnvironment.builder().build().addNodeTypeClass(TensorNode.TYPE, TensorNode.class);
+    var env = LoomEnvironment
+      .builder()
+      .build()
+      .addNodeTypeClass(TensorOpNodes.TENSOR_NODE_TYPE, TensorNode.class);
 
     var graph = env.graphFromJson(source);
     graph.validate();
@@ -345,7 +349,7 @@ public class LoomGraphTest extends BaseTestClass {
     var env = LoomEnvironment
       .builder()
       .build()
-      .autowireNodeTypeClass(NoteNode.TYPE, NoteNode.class)
+      .autowireNodeTypeClass(NoteNode.NOTE_NODE_TYPE, NoteNode.class)
       .autowireNodeTypeClass(ExampleNode.TYPE, ExampleNode.class);
     var graph = env.newGraph();
 
@@ -388,16 +392,22 @@ public class LoomGraphTest extends BaseTestClass {
 
     var noteNode = NoteNode.withBody(b -> b.message("foo")).addTo(graph);
 
-    assertThat(graph.nodeScan().type(NoteNode.TYPE).asList()).containsOnly(noteNode);
-    assertThat(graph.nodeScan().type(NoteNode.TYPE).nodeClass(NoteNode.class).asList())
+    assertThat(graph.nodeScan().type(NoteNode.NOTE_NODE_TYPE).asList()).containsOnly(noteNode);
+    assertThat(graph.nodeScan().type(NoteNode.NOTE_NODE_TYPE).nodeClass(NoteNode.class).asList())
       .containsOnly(noteNode);
     assertThat(graph.nodeScan().nodeClass(NoteNode.class).asList()).containsOnly(noteNode);
 
-    assertThat(graph.nodeScan().type(TensorNode.TYPE).asList()).containsOnly(tensorNode);
-    assertThat(graph.nodeScan().type(TensorNode.TYPE).nodeClass(TensorNode.class).asList())
+    assertThat(graph.nodeScan().type(TensorOpNodes.TENSOR_NODE_TYPE).asList())
+      .containsOnly(tensorNode);
+    assertThat(
+      graph.nodeScan().type(TensorOpNodes.TENSOR_NODE_TYPE).nodeClass(TensorNode.class).asList()
+    )
       .containsOnly(tensorNode);
     assertThat(graph.nodeScan().nodeClass(TensorNode.class).asList()).containsOnly(tensorNode);
 
-    assertThat(graph.nodeScan().type(TensorNode.TYPE).nodeClass(NoteNode.class).asList()).isEmpty();
+    assertThat(
+      graph.nodeScan().type(TensorOpNodes.TENSOR_NODE_TYPE).nodeClass(NoteNode.class).asList()
+    )
+      .isEmpty();
   }
 }

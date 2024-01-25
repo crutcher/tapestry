@@ -1,4 +1,4 @@
-package org.tensortapestry.loom.graph.nodes;
+package org.tensortapestry.loom.graph.dialects.tensorops;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -9,7 +9,6 @@ import lombok.experimental.Delegate;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.jackson.Jacksonized;
 import org.tensortapestry.loom.common.json.HasToJsonString;
-import org.tensortapestry.loom.graph.LoomConstants;
 import org.tensortapestry.loom.graph.LoomNode;
 import org.tensortapestry.loom.zspace.*;
 
@@ -19,8 +18,6 @@ import org.tensortapestry.loom.zspace.*;
 @Setter
 public final class TensorNode extends LoomNode<TensorNode, TensorNode.Body> {
 
-  public static final String TYPE = LoomConstants.LOOM_CORE_NODE_TYPE.apply("Tensor");
-
   @SuppressWarnings("unused")
   public abstract static class TensorNodeBuilder<
     C extends TensorNode, B extends TensorNodeBuilder<C, B>
@@ -28,7 +25,7 @@ public final class TensorNode extends LoomNode<TensorNode, TensorNode.Body> {
     extends LoomNodeBuilder<TensorNode, Body, C, B> {
     {
       // Set the node type.
-      type(TYPE);
+      type(TensorOpNodes.TENSOR_NODE_TYPE);
     }
   }
 
