@@ -18,7 +18,7 @@ import javax.annotation.concurrent.ThreadSafe;
 @SuppressWarnings("Immutable")
 public final class ZMatrix
   extends ImmutableZTensorWrapper<ZMatrix>
-  implements HasPermuteInput<ZMatrix>, HasPermuteOutput<ZMatrix> {
+  implements HasPermuteIO<ZMatrix> {
 
   /**
    * Private constructor for Jackson.
@@ -238,20 +238,12 @@ public final class ZMatrix
     return tensor.shape(1);
   }
 
-  /**
-   * Get the output dimension of this matrix.
-   *
-   * @return the output dimension.
-   */
+  @Override
   public int outputNDim() {
     return rows();
   }
 
-  /**
-   * Get the input dimension of this matrix.
-   *
-   * @return the input dimension.
-   */
+  @Override
   public int inputNDim() {
     return cols();
   }

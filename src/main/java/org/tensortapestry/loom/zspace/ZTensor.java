@@ -564,6 +564,7 @@ public final class ZTensor
    *
    * @return a new immutable ZPoint.
    */
+  @Nonnull
   public ZPoint newZPoint() {
     return new ZPoint(this);
   }

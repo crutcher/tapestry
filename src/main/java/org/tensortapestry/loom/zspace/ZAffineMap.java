@@ -1,7 +1,6 @@
 package org.tensortapestry.loom.zspace;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import java.util.Objects;
 import javax.annotation.Nonnull;
@@ -22,8 +21,7 @@ import org.tensortapestry.loom.zspace.serialization.HasJsonOutput;
 @Jacksonized
 @Builder(toBuilder = true)
 @JsonPropertyOrder({ "projection", "offset" })
-public class ZAffineMap
-  implements HasPermuteInput<ZAffineMap>, HasPermuteOutput<ZAffineMap>, HasJsonOutput {
+public class ZAffineMap implements HasPermuteIO<ZAffineMap>, HasJsonOutput {
 
   /**
    * Create a ZAffineMap from a matrix.
@@ -65,10 +63,7 @@ public class ZAffineMap
    *         {@code projection.shape[0]}.
    */
   @JsonCreator
-  public ZAffineMap(
-    @JsonProperty(value = "projection", required = true) HasZTensor projection,
-    @Nullable @JsonProperty(value = "offset") HasZTensor offset
-  ) {
+  public ZAffineMap(@Nonnull HasZTensor projection, @Nullable HasZTensor offset) {
     this.projection = new ZMatrix(projection);
     if (offset == null) {
       offset = ZTensor.newZeros(this.projection.outputNDim());
@@ -97,20 +92,12 @@ public class ZAffineMap
     this(projection, null);
   }
 
-  /**
-   * Get the input dimension of this affine map.
-   *
-   * @return the input dimension.
-   */
+  @Override
   public int inputNDim() {
     return projection.inputNDim();
   }
 
-  /**
-   * Get the output dimension of this affine map.
-   *
-   * @return the output dimension.
-   */
+  @Override
   public int outputNDim() {
     return projection.outputNDim();
   }

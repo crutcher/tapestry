@@ -1,6 +1,7 @@
 package org.tensortapestry.loom.zspace.experimental;
 
 import java.util.Arrays;
+import java.util.List;
 import javax.annotation.Nonnull;
 import org.tensortapestry.loom.zspace.HasPermute;
 import org.tensortapestry.loom.zspace.indexing.IndexingFns;
@@ -18,7 +19,7 @@ public interface HasNamedPermute<T extends HasNamedPermute<T>> extends HasPermut
    * @return the index of the given dimension name.
    * @throws IndexOutOfBoundsException if the given dimension name is not in this dimension map.
    */
-  int indexOf(String name);
+  int indexOf(@Nonnull String name);
 
   /**
    * Returns the name of the dimension at the given index.
@@ -50,7 +51,7 @@ public interface HasNamedPermute<T extends HasNamedPermute<T>> extends HasPermut
    * @throws IndexOutOfBoundsException if the given names are not a permutation of this dimension.
    */
   @Nonnull
-  default int[] toPermutation(@Nonnull Iterable<String> names) {
+  default int[] toPermutation(@Nonnull List<String> names) {
     var perm = new int[getNDim()];
     int i = 0;
     for (var name : names) {
@@ -83,7 +84,7 @@ public interface HasNamedPermute<T extends HasNamedPermute<T>> extends HasPermut
    * @return the permuted object.
    */
   @Nonnull
-  default T permute(@Nonnull Iterable<String> permutation) {
+  default T permute(@Nonnull List<String> permutation) {
     return permute(toPermutation(permutation));
   }
 }
