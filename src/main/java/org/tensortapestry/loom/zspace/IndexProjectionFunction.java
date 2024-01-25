@@ -10,7 +10,7 @@ import javax.annotation.concurrent.Immutable;
 import javax.annotation.concurrent.ThreadSafe;
 import lombok.Builder;
 import lombok.Value;
-import org.tensortapestry.loom.zspace.serialization.HasJsonOutput;
+import org.tensortapestry.loom.zspace.impl.HasJsonOutput;
 
 /**
  * A function which maps coordinates in a space to ranges in another space.
@@ -135,13 +135,13 @@ public class IndexProjectionFunction implements HasJsonOutput {
   public IndexProjectionFunction(@Nonnull ZAffineMap affineMap, @Nullable HasZTensor shape) {
     this.affineMap = affineMap;
     this.shape =
-      shape == null ? ZPoint.newOnes(affineMap.outputNDim()) : shape.getTensor().newZPoint();
+      shape == null ? ZPoint.newOnes(affineMap.getOutputNDim()) : shape.getTensor().newZPoint();
 
-    if (this.affineMap.outputNDim() != this.shape.getNDim()) {
+    if (this.affineMap.getOutputNDim() != this.shape.getNDim()) {
       throw new IllegalArgumentException(
         String.format(
           "affineMap.outputDim() (%d) != shape.dim() (%d)",
-          this.affineMap.outputNDim(),
+          this.affineMap.getOutputNDim(),
           this.shape.getNDim()
         )
       );

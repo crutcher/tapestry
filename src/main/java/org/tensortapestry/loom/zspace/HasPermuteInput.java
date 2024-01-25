@@ -1,7 +1,9 @@
 package org.tensortapestry.loom.zspace;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.List;
 import javax.annotation.Nonnull;
+import org.tensortapestry.loom.zspace.indexing.IndexingFns;
 
 public interface HasPermuteInput<T extends HasPermuteInput<T>> {
   /**
@@ -9,7 +11,18 @@ public interface HasPermuteInput<T extends HasPermuteInput<T>> {
    *
    * @return the input dimensions.
    */
-  int inputNDim();
+  @JsonIgnore
+  int getInputNDim();
+
+  /**
+   * Resolve the given permutation to the input dimensions of this object.
+   * @param permutation the permutation to resolve.
+   * @return the resolved permutation.
+   */
+  @Nonnull
+  default int[] resolveInputPermutation(@Nonnull int... permutation) {
+    return IndexingFns.resolvePermutation(permutation, getInputNDim());
+  }
 
   /**
    * Permute the input dimensions of this object.

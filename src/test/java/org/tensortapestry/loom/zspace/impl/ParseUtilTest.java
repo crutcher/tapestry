@@ -1,4 +1,4 @@
-package org.tensortapestry.loom.zspace.serialization;
+package org.tensortapestry.loom.zspace.impl;
 
 import org.junit.Test;
 import org.tensortapestry.loom.zspace.experimental.ZSpaceTestAssertions;

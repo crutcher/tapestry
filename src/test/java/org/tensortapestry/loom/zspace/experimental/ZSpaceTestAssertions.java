@@ -1,9 +1,10 @@
 package org.tensortapestry.loom.zspace.experimental;
 
-import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
-
+import net.javacrumbs.jsonunit.assertj.JsonAssert;
+import net.javacrumbs.jsonunit.assertj.JsonAssertions;
 import org.assertj.core.api.WithAssertions;
-import org.tensortapestry.loom.zspace.serialization.ZSpaceJsonUtil;
+import org.jetbrains.annotations.Nullable;
+import org.tensortapestry.loom.zspace.impl.ZSpaceJsonUtil;
 
 public interface ZSpaceTestAssertions extends WithAssertions {
   default void assertObjectJsonEquivalence(Object obj, String json) {
@@ -14,5 +15,9 @@ public interface ZSpaceTestAssertions extends WithAssertions {
     var cleanJson = ZSpaceJsonUtil.toPrettyJson(objFromJson);
 
     assertThatJson(objJson).isEqualTo(cleanJson);
+  }
+
+  default JsonAssert.ConfigurableJsonAssert assertThatJson(@Nullable Object actual) {
+    return JsonAssertions.assertThatJson(actual);
   }
 }

@@ -1,7 +1,9 @@
 package org.tensortapestry.loom.zspace;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.List;
 import javax.annotation.Nonnull;
+import org.tensortapestry.loom.zspace.indexing.IndexingFns;
 
 public interface HasPermuteOutput<T extends HasPermuteOutput<T>> {
   /**
@@ -9,7 +11,18 @@ public interface HasPermuteOutput<T extends HasPermuteOutput<T>> {
    *
    * @return the output dimensions.
    */
-  int outputNDim();
+  @JsonIgnore
+  int getOutputNDim();
+
+  /**
+   * Resolve the given permutation to the output dimensions of this object.
+   * @param permutation the permutation to resolve.
+   * @return the resolved permutation.
+   */
+  @Nonnull
+  default int[] resolveOutputPermutation(@Nonnull int... permutation) {
+    return IndexingFns.resolvePermutation(permutation, getOutputNDim());
+  }
 
   /**
    * Permute the output dimensions of this object.

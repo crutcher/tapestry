@@ -1,4 +1,4 @@
-package org.tensortapestry.loom.zspace.serialization;
+package org.tensortapestry.loom.zspace.impl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -13,6 +13,12 @@ public class ZSpaceJsonUtil {
   private final ObjectMapper COMMON_MAPPER = new ObjectMapper()
     .configure(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS, true);
 
+  /**
+   * Serialize an object from JSON via Jackson defaults.
+   * @param obj the object to serialize.
+   * @return the JSON string.
+   * @throws IllegalArgumentException if the object cannot be serialized.
+   */
   @Nonnull
   public String toJson(@Nullable Object obj) {
     try {
@@ -37,6 +43,14 @@ public class ZSpaceJsonUtil {
     }
   }
 
+  /**
+   * Deserialize an object from JSON via Jackson defaults.
+   * @param json the JSON string.
+   * @param clazz the class of the object to deserialize.
+   * @return the deserialized object.
+   * @param <T> the type of the object to deserialize.
+   * @throws IllegalArgumentException if the object cannot be deserialized.
+   */
   @Nullable public <T> T fromJson(@Nonnull String json, @Nonnull Class<T> clazz) {
     try {
       return COMMON_MAPPER.readValue(json, clazz);

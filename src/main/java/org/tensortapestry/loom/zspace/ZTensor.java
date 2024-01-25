@@ -8,7 +8,6 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.IntNode;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
@@ -23,13 +22,13 @@ import lombok.Getter;
 import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
 import org.tensortapestry.loom.zspace.exceptions.ZDimMissMatchError;
+import org.tensortapestry.loom.zspace.impl.HasJsonOutput;
+import org.tensortapestry.loom.zspace.impl.ZSpaceJsonUtil;
 import org.tensortapestry.loom.zspace.indexing.BufferMode;
 import org.tensortapestry.loom.zspace.indexing.IndexingFns;
 import org.tensortapestry.loom.zspace.indexing.IterableCoordinates;
 import org.tensortapestry.loom.zspace.ops.CellWise;
 import org.tensortapestry.loom.zspace.ops.ReduceOps;
-import org.tensortapestry.loom.zspace.serialization.HasJsonOutput;
-import org.tensortapestry.loom.zspace.serialization.ZSpaceJsonUtil;
 
 /**
  * A multidimensional int array used for numerical operations.
@@ -1474,12 +1473,6 @@ public final class ZTensor
             }
           }
         );
-      }
-
-      @Override
-      public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
-        throws JsonMappingException {
-        visitor.expectArrayFormat(typeHint);
       }
     }
 

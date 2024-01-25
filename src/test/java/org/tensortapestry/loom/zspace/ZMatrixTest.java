@@ -103,8 +103,8 @@ public class ZMatrixTest implements ZSpaceTestAssertions {
   @Test
   public void test_ndim() {
     var matrix = ZMatrix.newMatrix(new int[][] { { 1, 2, 3 }, { 3, 4, 5 } });
-    assertThat(matrix.inputNDim()).isEqualTo(3);
-    assertThat(matrix.outputNDim()).isEqualTo(2);
+    assertThat(matrix.getInputNDim()).isEqualTo(3);
+    assertThat(matrix.getOutputNDim()).isEqualTo(2);
   }
 
   @Test

@@ -10,10 +10,10 @@ import java.util.function.IntBinaryOperator;
 import org.junit.Test;
 import org.tensortapestry.loom.zspace.exceptions.ZDimMissMatchError;
 import org.tensortapestry.loom.zspace.experimental.ZSpaceTestAssertions;
+import org.tensortapestry.loom.zspace.impl.ZSpaceJsonUtil;
 import org.tensortapestry.loom.zspace.indexing.BufferMode;
 import org.tensortapestry.loom.zspace.indexing.IterableCoordinates;
 import org.tensortapestry.loom.zspace.ops.CellWise;
-import org.tensortapestry.loom.zspace.serialization.ZSpaceJsonUtil;
 
 public class ZTensorTest implements ZSpaceTestAssertions {
 

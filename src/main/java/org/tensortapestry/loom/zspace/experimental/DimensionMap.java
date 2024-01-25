@@ -11,11 +11,11 @@ import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.Immutable;
 import javax.annotation.concurrent.ThreadSafe;
-import org.tensortapestry.loom.common.json.JsonUtil;
 import org.tensortapestry.loom.zspace.HasDimension;
 import org.tensortapestry.loom.zspace.ZPoint;
+import org.tensortapestry.loom.zspace.impl.HasJsonOutput;
+import org.tensortapestry.loom.zspace.impl.ZSpaceJsonUtil;
 import org.tensortapestry.loom.zspace.indexing.IndexingFns;
-import org.tensortapestry.loom.zspace.serialization.HasJsonOutput;
 
 @Immutable
 @ThreadSafe
@@ -73,7 +73,7 @@ public final class DimensionMap
 
   @Nonnull
   public static DimensionMap parseDimensionMap(@Nonnull String json) {
-    return JsonUtil.fromJson(json, DimensionMap.class);
+    return Objects.requireNonNull(ZSpaceJsonUtil.fromJson(json, DimensionMap.class));
   }
 
   @Override

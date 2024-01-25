@@ -6,9 +6,9 @@ import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import javax.annotation.concurrent.ThreadSafe;
 import lombok.Data;
+import org.tensortapestry.loom.zspace.impl.HasJsonOutput;
 import org.tensortapestry.loom.zspace.ops.CellWise;
 import org.tensortapestry.loom.zspace.ops.DominanceOrderingOps;
-import org.tensortapestry.loom.zspace.serialization.HasJsonOutput;
 
 /**
  * Base class for immutable wrappers around ZTensors.

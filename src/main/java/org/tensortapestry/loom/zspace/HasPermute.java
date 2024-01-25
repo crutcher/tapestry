@@ -2,6 +2,7 @@ package org.tensortapestry.loom.zspace;
 
 import java.util.List;
 import javax.annotation.Nonnull;
+import org.tensortapestry.loom.zspace.indexing.IndexingFns;
 
 /**
  * Interface for objects that can be permuted by dimension index.
@@ -9,6 +10,15 @@ import javax.annotation.Nonnull;
  * @param <T> the type of the object.
  */
 public interface HasPermute<T extends HasPermute<T>> extends HasDimension {
+  /**
+   * Resolve the given permutation to the dimensions of this object.
+   * @param permutation the permutation to resolve.
+   * @return the resolved permutation.
+   */
+  default int[] resolvePermutation(@Nonnull int... permutation) {
+    return IndexingFns.resolvePermutation(permutation, getNDim());
+  }
+
   /**
    * Permute the dimensions of this object.
    *

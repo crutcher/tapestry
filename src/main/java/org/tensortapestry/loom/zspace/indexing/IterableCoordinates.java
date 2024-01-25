@@ -6,7 +6,7 @@ import java.util.stream.Stream;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import lombok.Getter;
-import org.tensortapestry.loom.common.collections.IteratorUtils;
+import org.tensortapestry.loom.zspace.impl.ZSpaceIteratorUtils;
 
 /** An iterable and streamable view over coordinates in a range. */
 public final class IterableCoordinates implements Iterable<int[]> {
@@ -122,6 +122,6 @@ public final class IterableCoordinates implements Iterable<int[]> {
 
   @Nonnull
   public Stream<int[]> stream() {
-    return IteratorUtils.iterableToStream(this);
+    return ZSpaceIteratorUtils.iterableToStream(this);
   }
 }

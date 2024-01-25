@@ -123,6 +123,7 @@ public class ZPointTest implements ZSpaceTestAssertions {
   @Test
   public void test_permute() {
     var p = new ZPoint(8, 9, 10);
+    assertThat(p.resolvePermutation(-2, 2, 0)).isEqualTo(new int[] { 1, 2, 0 });
     assertThat(p.permute(1, 2, 0)).isEqualTo(new ZPoint(9, 10, 8));
   }
 

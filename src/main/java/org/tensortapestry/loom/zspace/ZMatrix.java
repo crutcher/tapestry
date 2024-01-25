@@ -240,12 +240,12 @@ public final class ZMatrix
   }
 
   @Override
-  public int outputNDim() {
+  public int getOutputNDim() {
     return rows();
   }
 
   @Override
-  public int inputNDim() {
+  public int getInputNDim() {
     return cols();
   }
 

@@ -17,12 +17,12 @@ public class IPFFormatter {
 
     var tableWrapper = GH.table().border(0).cellborder(0).cellspacing(0);
 
-    if (affineMap.inputNDim() == 0 || affineMap.outputNDim() == 0) {
+    if (affineMap.getInputNDim() == 0 || affineMap.getOutputNDim() == 0) {
       tableWrapper.add(
         GH.td(
           "[−]",
           GH.subscript(
-            "%d×%d".formatted(ipf.getAffineMap().outputNDim(), ipf.getAffineMap().inputNDim())
+            "%d×%d".formatted(ipf.getAffineMap().getOutputNDim(), ipf.getAffineMap().getInputNDim())
           ),
           " ⊕ ",
           ipf.getShape().toString()
@@ -36,16 +36,16 @@ public class IPFFormatter {
 
       var projection = affineMap.projection;
       var offset = affineMap.getOffset();
-      for (int i = 0; i < affineMap.outputNDim(); ++i) {
+      for (int i = 0; i < affineMap.getOutputNDim(); ++i) {
         var tr = GH.tr().withParent(projTable);
-        for (int j = 0; j < affineMap.inputNDim(); ++j) {
+        for (int j = 0; j < affineMap.getInputNDim(); ++j) {
           var td = GH.td().withParent(tr);
           String sides = "";
           if (j == 0) {
             td.border(1);
             sides += "L";
           }
-          if (j == affineMap.inputNDim() - 1) {
+          if (j == affineMap.getInputNDim() - 1) {
             td.border(1);
             sides += "R";
           }

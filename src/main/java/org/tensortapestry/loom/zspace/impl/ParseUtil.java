@@ -1,4 +1,4 @@
-package org.tensortapestry.loom.zspace.serialization;
+package org.tensortapestry.loom.zspace.impl;
 
 import java.util.ArrayList;
 import java.util.List;

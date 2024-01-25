@@ -10,13 +10,13 @@ import javax.annotation.concurrent.Immutable;
 import javax.annotation.concurrent.ThreadSafe;
 import lombok.Builder;
 import lombok.Value;
+import org.tensortapestry.loom.zspace.impl.HasJsonOutput;
+import org.tensortapestry.loom.zspace.impl.ParseUtil;
+import org.tensortapestry.loom.zspace.impl.ZSpaceJsonUtil;
 import org.tensortapestry.loom.zspace.indexing.BufferMode;
 import org.tensortapestry.loom.zspace.indexing.IterableCoordinates;
 import org.tensortapestry.loom.zspace.ops.CellWise;
 import org.tensortapestry.loom.zspace.ops.DominanceOrderingOps;
-import org.tensortapestry.loom.zspace.serialization.HasJsonOutput;
-import org.tensortapestry.loom.zspace.serialization.ParseUtil;
-import org.tensortapestry.loom.zspace.serialization.ZSpaceJsonUtil;
 
 /**
  * Represents a range of points in discrete space.
@@ -536,7 +536,7 @@ public class ZRange implements Cloneable, HasSize, HasPermute<ZRange>, HasJsonOu
     int dimSize = shape.get(dim);
 
     if (chunkSize <= 0) {
-      throw new IllegalArgumentException("chunkSize must be > 0: " + chunkSize);
+      throw new IllegalArgumentException("chunk size must be > 0: " + chunkSize);
     }
 
     if (chunkSize >= dimSize) {
@@ -579,13 +579,13 @@ public class ZRange implements Cloneable, HasSize, HasPermute<ZRange>, HasJsonOu
     int chunkTotalSize = 0;
     for (int chunk : chunks) {
       if (chunk <= 0) {
-        throw new IllegalArgumentException("chunkSize must be > 0: " + chunk);
+        throw new IllegalArgumentException("chunk size must be > 0: " + Arrays.toString(chunks));
       }
       chunkTotalSize += chunk;
     }
     if (chunkTotalSize != dimSize) {
       throw new IllegalArgumentException(
-        "total chunk size (%d) must be equal to dimSize (%d): %s".formatted(
+        "total chunk size (%d) must be equal to dim size (%d): %s".formatted(
             chunkTotalSize,
             dimSize,
             Arrays.toString(chunks)

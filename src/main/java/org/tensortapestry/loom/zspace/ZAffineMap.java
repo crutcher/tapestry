@@ -10,7 +10,7 @@ import javax.annotation.concurrent.ThreadSafe;
 import lombok.Builder;
 import lombok.Value;
 import lombok.extern.jackson.Jacksonized;
-import org.tensortapestry.loom.zspace.serialization.HasJsonOutput;
+import org.tensortapestry.loom.zspace.impl.HasJsonOutput;
 
 /**
  * A linear map from {@code Z^inDim} to {@code Z^outDim}.
@@ -66,13 +66,13 @@ public class ZAffineMap implements HasPermuteIO<ZAffineMap>, HasJsonOutput {
   public ZAffineMap(@Nonnull HasZTensor projection, @Nullable HasZTensor offset) {
     this.projection = new ZMatrix(projection);
     if (offset == null) {
-      offset = ZTensor.newZeros(this.projection.outputNDim());
+      offset = ZTensor.newZeros(this.projection.getOutputNDim());
     }
     var zoffset = offset.getTensor();
     this.offset = zoffset.newZPoint();
 
     zoffset.assertNDim(1);
-    if (zoffset.shape(0) != outputNDim()) {
+    if (zoffset.shape(0) != getOutputNDim()) {
       throw new IllegalArgumentException(
         String.format(
           "projection.shape[1] != offset.shape[0]: %s != %s",
@@ -93,13 +93,13 @@ public class ZAffineMap implements HasPermuteIO<ZAffineMap>, HasJsonOutput {
   }
 
   @Override
-  public int inputNDim() {
-    return projection.inputNDim();
+  public int getInputNDim() {
+    return projection.getInputNDim();
   }
 
   @Override
-  public int outputNDim() {
-    return projection.outputNDim();
+  public int getOutputNDim() {
+    return projection.getOutputNDim();
   }
 
   @Override

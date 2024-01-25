@@ -14,8 +14,8 @@ public class ZAffineMapTest implements ZSpaceTestAssertions {
 
     assertThat(map.apply(new ZPoint(1, 1))).isEqualTo(new ZPoint(5, 7, 9));
 
-    assertThat(map.inputNDim()).isEqualTo(2);
-    assertThat(map.outputNDim()).isEqualTo(3);
+    assertThat(map.getInputNDim()).isEqualTo(2);
+    assertThat(map.getOutputNDim()).isEqualTo(3);
 
     assertThat(map).hasToString("λx.[[1,0],[0,2],[1,2]]⋅x + [4,5,6]");
 

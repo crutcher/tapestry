@@ -14,6 +14,11 @@ public class ZRangeTest implements ZSpaceTestAssertions {
   }
 
   @Test
+  public void test_toShapeString() {
+    assertThat(ZRange.newFromShape(2, 3).toShapeString()).isEqualTo("‖2, 3‖");
+  }
+
+  @Test
   public void test_builder() {
     assertThat(ZRange.builder().start(2, 3).end(10, 10).build())
       .isEqualTo(new ZRange(new ZPoint(2, 3), new ZPoint(10, 10)));
@@ -327,7 +332,7 @@ public class ZRangeTest implements ZSpaceTestAssertions {
 
     assertThatExceptionOfType(IllegalArgumentException.class)
       .isThrownBy(() -> range.split(0, -2))
-      .withMessage("chunkSize must be > 0: -2");
+      .withMessage("chunk size must be > 0: -2");
   }
 
   @Test
@@ -348,7 +353,15 @@ public class ZRangeTest implements ZSpaceTestAssertions {
     assertThat(range.split(-1, List.of(3))).containsExactly(range);
 
     assertThatExceptionOfType(IllegalArgumentException.class)
-      .isThrownBy(() -> range.split(0, List.of(-2)))
-      .withMessage("chunkSize must be > 0: -2");
+      .isThrownBy(() -> range.split(0, List.of(1, 3)))
+      .withMessageContaining("total chunk size (4) must be equal to dim size (2): [1, 3]");
+
+    assertThatExceptionOfType(IllegalArgumentException.class)
+      .isThrownBy(() -> range.split(0, -2))
+      .withMessage("chunk size must be > 0: -2");
+
+    assertThatExceptionOfType(IllegalArgumentException.class)
+      .isThrownBy(() -> range.split(0, List.of(4, -2)))
+      .withMessage("chunk size must be > 0: [4, -2]");
   }
 }

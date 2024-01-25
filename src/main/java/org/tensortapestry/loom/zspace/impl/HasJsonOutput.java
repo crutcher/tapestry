@@ -1,4 +1,4 @@
-package org.tensortapestry.loom.zspace.serialization;
+package org.tensortapestry.loom.zspace.impl;
 
 import javax.annotation.Nonnull;
 import org.tensortapestry.loom.common.json.JsonUtil;
