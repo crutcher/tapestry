@@ -19,7 +19,7 @@ public interface HasNamedPermute<T extends HasNamedPermute<T>> extends HasPermut
    * @return the index of the given dimension name.
    * @throws IndexOutOfBoundsException if the given dimension name is not in this dimension map.
    */
-  int indexOf(@Nonnull String name);
+  int indexOfName(@Nonnull String name);
 
   /**
    * Returns the name of the dimension at the given index.
@@ -29,7 +29,7 @@ public interface HasNamedPermute<T extends HasNamedPermute<T>> extends HasPermut
    * @throws IndexOutOfBoundsException if the given index is out of bounds.
    */
   @Nonnull
-  String nameOf(int index);
+  String nameOfIndex(int index);
 
   /**
    * Maps a permutation of names to a permutation of indices.
@@ -55,7 +55,7 @@ public interface HasNamedPermute<T extends HasNamedPermute<T>> extends HasPermut
     var perm = new int[getNDim()];
     int i = 0;
     for (var name : names) {
-      perm[i++] = indexOf(name);
+      perm[i++] = indexOfName(name);
     }
     return IndexingFns.resolvePermutation(perm, getNDim());
   }
@@ -70,7 +70,7 @@ public interface HasNamedPermute<T extends HasNamedPermute<T>> extends HasPermut
    * @return the permuted object.
    */
   @Nonnull
-  default T permute(@Nonnull String... permutation) {
+  default T permuteByNames(@Nonnull String... permutation) {
     return permute(toPermutation(permutation));
   }
 
@@ -84,7 +84,7 @@ public interface HasNamedPermute<T extends HasNamedPermute<T>> extends HasPermut
    * @return the permuted object.
    */
   @Nonnull
-  default T permute(@Nonnull List<String> permutation) {
+  default T permuteByNames(@Nonnull List<String> permutation) {
     return permute(toPermutation(permutation));
   }
 }

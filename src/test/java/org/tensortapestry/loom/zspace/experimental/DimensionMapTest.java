@@ -47,13 +47,14 @@ public class DimensionMapTest implements CommonAssertions {
   public void test_lookup() {
     var dm = new DimensionMap("x", "y", "z");
 
-    assertThat(dm.indexOf("y")).isEqualTo(1);
-    assertThat(dm.nameOf(1)).isEqualTo("y");
+    assertThat(dm.indexOfName("y")).isEqualTo(1);
+    assertThat(dm.nameOfIndex(1)).isEqualTo("y");
 
-    assertThatExceptionOfType(IndexOutOfBoundsException.class).isThrownBy(() -> dm.indexOf("w"));
+    assertThatExceptionOfType(IndexOutOfBoundsException.class)
+      .isThrownBy(() -> dm.indexOfName("w"));
 
-    assertThatExceptionOfType(IndexOutOfBoundsException.class).isThrownBy(() -> dm.nameOf(-1));
-    assertThatExceptionOfType(IndexOutOfBoundsException.class).isThrownBy(() -> dm.nameOf(3));
+    assertThatExceptionOfType(IndexOutOfBoundsException.class).isThrownBy(() -> dm.nameOfIndex(-1));
+    assertThatExceptionOfType(IndexOutOfBoundsException.class).isThrownBy(() -> dm.nameOfIndex(3));
   }
 
   @Test

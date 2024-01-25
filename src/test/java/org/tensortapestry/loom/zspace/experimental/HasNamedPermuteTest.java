@@ -25,7 +25,7 @@ public class HasNamedPermuteTest extends BaseTestClass {
     }
 
     @Override
-    public int indexOf(@Nonnull String name) {
+    public int indexOfName(@Nonnull String name) {
       for (int i = 0; i < names.length; i++) {
         if (names[i].equals(name)) {
           return i;
@@ -36,7 +36,7 @@ public class HasNamedPermuteTest extends BaseTestClass {
 
     @Override
     @Nonnull
-    public String nameOf(int index) {
+    public String nameOfIndex(int index) {
       return names[index];
     }
 
@@ -113,7 +113,9 @@ public class HasNamedPermuteTest extends BaseTestClass {
       .shape(new int[] { 1, 2, 3 })
       .names(new String[] { "a", "b", "c" })
       .build();
-    assertThat(example.permute(0, 1, 2)).isEqualTo(example);
+    assertThat(example.permute(0, 1, 2))
+      .isEqualTo(example.permute(List.of(0, 1, 2)))
+      .isEqualTo(example);
     assertThat(example.permute(0, 2, 1))
       .isEqualTo(
         Example.builder().shape(new int[] { 1, 3, 2 }).names(new String[] { "a", "c", "b" }).build()
@@ -135,11 +137,11 @@ public class HasNamedPermuteTest extends BaseTestClass {
         Example.builder().shape(new int[] { 3, 2, 1 }).names(new String[] { "c", "b", "a" }).build()
       );
 
-    assertThat(example.permute("c", "b", "a"))
+    assertThat(example.permuteByNames("c", "b", "a"))
       .isEqualTo(
         Example.builder().shape(new int[] { 3, 2, 1 }).names(new String[] { "c", "b", "a" }).build()
       );
-    assertThat(example.permute(List.of("c", "b", "a")))
+    assertThat(example.permuteByNames(List.of("c", "b", "a")))
       .isEqualTo(
         Example.builder().shape(new int[] { 3, 2, 1 }).names(new String[] { "c", "b", "a" }).build()
       );
@@ -153,11 +155,11 @@ public class HasNamedPermuteTest extends BaseTestClass {
       .shape(new int[] { 1, 2, 3 })
       .names(new String[] { "a", "b", "c" })
       .build();
-    assertThat(example.indexOf("a")).isEqualTo(0);
-    assertThat(example.indexOf("b")).isEqualTo(1);
-    assertThat(example.indexOf("c")).isEqualTo(2);
+    assertThat(example.indexOfName("a")).isEqualTo(0);
+    assertThat(example.indexOfName("b")).isEqualTo(1);
+    assertThat(example.indexOfName("c")).isEqualTo(2);
     assertThatExceptionOfType(IndexOutOfBoundsException.class)
-      .isThrownBy(() -> example.indexOf("d"))
+      .isThrownBy(() -> example.indexOfName("d"))
       .withMessageContaining("d");
   }
 
@@ -169,11 +171,11 @@ public class HasNamedPermuteTest extends BaseTestClass {
       .shape(new int[] { 1, 2, 3 })
       .names(new String[] { "a", "b", "c" })
       .build();
-    assertThat(example.nameOf(0)).isEqualTo("a");
-    assertThat(example.nameOf(1)).isEqualTo("b");
-    assertThat(example.nameOf(2)).isEqualTo("c");
+    assertThat(example.nameOfIndex(0)).isEqualTo("a");
+    assertThat(example.nameOfIndex(1)).isEqualTo("b");
+    assertThat(example.nameOfIndex(2)).isEqualTo("c");
     assertThatExceptionOfType(IndexOutOfBoundsException.class)
-      .isThrownBy(() -> example.nameOf(3))
+      .isThrownBy(() -> example.nameOfIndex(3))
       .withMessageContaining("3");
   }
 

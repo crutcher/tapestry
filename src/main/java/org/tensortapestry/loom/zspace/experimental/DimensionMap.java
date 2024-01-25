@@ -82,7 +82,7 @@ public final class DimensionMap
   }
 
   @Override
-  public int indexOf(@Nonnull String name) {
+  public int indexOfName(@Nonnull String name) {
     var idx = names.indexOf(name);
     if (idx == -1) {
       throw new IndexOutOfBoundsException("no such dimension: " + name);
@@ -92,7 +92,7 @@ public final class DimensionMap
 
   @Override
   @Nonnull
-  public String nameOf(int index) {
+  public String nameOfIndex(int index) {
     return names.get(index);
   }
 
@@ -103,7 +103,7 @@ public final class DimensionMap
 
     var names = new String[getNDim()];
     for (int i = 0; i < getNDim(); ++i) {
-      names[i] = nameOf(perm[i]);
+      names[i] = nameOfIndex(perm[i]);
     }
 
     return new DimensionMap(names);
