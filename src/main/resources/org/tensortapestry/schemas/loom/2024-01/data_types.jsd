@@ -74,14 +74,14 @@
       "$anchor" : "ZAffineMap",
       "type" : "object",
       "properties" : {
-        "A" : {
+        "projection" : {
           "$ref" : "#/$defs/ZMatrix"
         },
-        "b" : {
+        "offset" : {
           "$ref" : "#/$defs/ZVector"
         }
       },
-      "required" : [ "A", "b" ],
+      "required" : [ "projection", "offset" ],
       "additionalProperties" : false
     },
     "ZMatrix" : {

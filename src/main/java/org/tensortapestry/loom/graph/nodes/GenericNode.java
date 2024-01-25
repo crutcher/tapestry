@@ -12,7 +12,6 @@ import lombok.experimental.Delegate;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.jackson.Jacksonized;
 import org.tensortapestry.loom.common.json.HasToJsonString;
-import org.tensortapestry.loom.common.json.WithSchema;
 import org.tensortapestry.loom.graph.LoomNode;
 
 /**
@@ -28,17 +27,6 @@ public final class GenericNode extends LoomNode<GenericNode, GenericNode.Body> {
   /** The Body class represents the body of a GenericNode. It contains a map of fields. */
   @Data
   @Builder
-  @WithSchema(
-    """
-  {
-    "type": "object",
-    "patternProperties": {
-      "^[a-zA-Z_][a-zA-Z0-9_]*$": {}
-    },
-    "additionalProperties": false
-  }
-  """
-  )
   public static class Body implements HasToJsonString {
 
     @Singular

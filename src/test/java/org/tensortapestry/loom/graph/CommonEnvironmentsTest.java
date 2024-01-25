@@ -1,9 +1,6 @@
 package org.tensortapestry.loom.graph;
 
-import java.util.stream.Collectors;
 import org.junit.Test;
-import org.tensortapestry.loom.common.json.WithSchema;
-import org.tensortapestry.loom.graph.constraints.NodeBodySchemaConstraint;
 import org.tensortapestry.loom.graph.constraints.OperationReferenceAgreementConstraint;
 import org.tensortapestry.loom.graph.constraints.TensorDTypesAreValidConstraint;
 import org.tensortapestry.loom.graph.nodes.ApplicationNode;
@@ -24,19 +21,5 @@ public class CommonEnvironmentsTest extends BaseTestClass {
 
     env.assertConstraint(TensorDTypesAreValidConstraint.class);
     env.assertConstraint(OperationReferenceAgreementConstraint.class);
-
-    var m = env
-      .getConstraints()
-      .stream()
-      .filter(c -> c instanceof NodeBodySchemaConstraint)
-      .collect(Collectors.toMap(c -> ((NodeBodySchemaConstraint) c).getBodySchema(), c -> c));
-    assertThat(m.get(TensorNode.Body.class.getAnnotation(WithSchema.class).value()))
-      .extracting("nodeTypes")
-      .asList()
-      .containsOnly(TensorNode.TYPE);
-    assertThat(m.get(ApplicationNode.Body.class.getAnnotation(WithSchema.class).value()))
-      .extracting("nodeTypes")
-      .asList()
-      .containsOnly(ApplicationNode.TYPE);
   }
 }

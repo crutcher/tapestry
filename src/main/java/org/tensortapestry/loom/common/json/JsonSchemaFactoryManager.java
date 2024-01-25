@@ -19,6 +19,7 @@ import javax.annotation.Nullable;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Singular;
+import org.tensortapestry.loom.graph.LoomConstants;
 import org.tensortapestry.loom.validation.ValidationIssue;
 import org.tensortapestry.loom.validation.ValidationIssueCollector;
 
@@ -29,7 +30,6 @@ import org.tensortapestry.loom.validation.ValidationIssueCollector;
  */
 public class JsonSchemaFactoryManager {
 
-  public static final String JSD_ERROR = "JSD_ERROR";
   private final Map<URI, String> schemas = new HashMap<>();
 
   private static URI baseURL(URI uri) {
@@ -144,7 +144,11 @@ public class JsonSchemaFactoryManager {
 
   @CheckReturnValue
   public JsonSchema loadSchema(@Nonnull URI uri) {
-    return factory.getSchema(uri, config);
+    try {
+      return factory.getSchema(uri, config);
+    } catch (JsonSchemaException e) {
+      throw new RuntimeException("Error loading schema: " + uri, e);
+    }
   }
 
   @Nonnull
@@ -175,7 +179,7 @@ public class JsonSchemaFactoryManager {
     private final JsonSchema schema;
 
     @Builder.Default
-    private final String type = JSD_ERROR;
+    private final String type = LoomConstants.Errors.JSD_ERROR;
 
     @Builder.Default
     private final String summaryPrefix = null;

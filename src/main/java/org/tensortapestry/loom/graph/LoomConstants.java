@@ -8,7 +8,8 @@ import org.tensortapestry.loom.common.runtime.ResourceHandle;
 @UtilityClass
 public class LoomConstants {
 
-  public String LOOM_SCHEMA_BASE_URL = "https://tensortapestry.org/schemas/loom/2024-01/";
+  // TODO: Switch this to https once I unfuck the JsonSchemaFactory lookup machinery.
+  public String LOOM_SCHEMA_BASE_URL = "http://tensortapestry.org/schemas/loom/2024-01/";
 
   public String LOOM_DATA_TYPES_SCHEMA = LOOM_SCHEMA_BASE_URL + "data_types.jsd";
   public String LOOM_NODE_TYPES_SCHEMA = LOOM_SCHEMA_BASE_URL + "node_types.jsd";
@@ -29,6 +30,7 @@ public class LoomConstants {
   @UtilityClass
   public static class Errors {
 
+    public String JSD_ERROR = "JSD_ERROR";
     public String NODE_SCHEMA_ERROR = "NodeSchemaError";
     public String NODE_VALIDATION_ERROR = "NodeValidationError";
     public String NODE_REFERENCE_ERROR = "NodeReferenceError";

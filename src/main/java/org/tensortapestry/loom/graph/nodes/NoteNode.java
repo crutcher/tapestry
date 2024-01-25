@@ -11,7 +11,6 @@ import lombok.Setter;
 import lombok.experimental.Delegate;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.jackson.Jacksonized;
-import org.tensortapestry.loom.common.json.WithSchema;
 import org.tensortapestry.loom.graph.LoomNode;
 
 @Jacksonized
@@ -20,25 +19,11 @@ import org.tensortapestry.loom.graph.LoomNode;
 @Setter
 public final class NoteNode extends LoomNode<NoteNode, NoteNode.Body> {
 
-  public static final String TYPE = LOOM_CORE_NODE_TYPE.apply("note");
+  public static final String TYPE = LOOM_CORE_NODE_TYPE.apply("Note");
 
   @Data
   @Jacksonized
   @Builder
-  @WithSchema(
-    """
-  {
-      "type": "object",
-      "properties": {
-        "message": {
-            "type": "string"
-        }
-      },
-      "required": ["message"],
-      "additionalProperties": false
-  }
-  """
-  )
   public static final class Body {
 
     @Nonnull

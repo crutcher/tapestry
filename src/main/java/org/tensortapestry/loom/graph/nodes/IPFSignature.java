@@ -11,72 +11,12 @@ import lombok.Builder;
 import lombok.Value;
 import lombok.extern.jackson.Jacksonized;
 import org.tensortapestry.loom.common.json.HasToJsonString;
-import org.tensortapestry.loom.common.json.WithSchema;
 import org.tensortapestry.loom.graph.LoomConstants;
 import org.tensortapestry.loom.polyhedral.IndexProjectionFunction;
 
 @Value
 @Jacksonized
 @Builder
-@WithSchema(
-  """
-{
-    "type": "object",
-    "properties": {
-        "inputs": { "$ref": "#/definitions/IPFMap" },
-        "outputs": { "$ref": "#/definitions/IPFMap" }
-    },
-    "required": ["inputs", "outputs"],
-    "additionalProperties": false,
-    "definitions": {
-        "IPFMap": {
-            "type": "object",
-            "patternProperties": {
-              "^[a-zA-Z_][a-zA-Z0-9_]*$": {
-                    "type": "array",
-                    "items": { "$ref": "#/definitions/IndexProjectionFunction" }
-                }
-            }
-        },
-        "IndexProjectionFunction": {
-            "type": "object",
-            "properties": {
-                "affineMap": { "$ref": "#/definitions/ZAffineMap" },
-                "shape": { "$ref": "#/definitions/ZVector" }
-            },
-            "required": ["affineMap", "shape"],
-            "additionalProperties": false
-        },
-        "ZAffineMap": {
-            "type": "object",
-            "properties": {
-                "A": { "$ref": "#/definitions/ZMatrix" },
-                "b": { "$ref": "#/definitions/ZVector" }
-            },
-            "required": ["A", "b"],
-            "additionalProperties": false
-        },
-        "ZVector": {
-            "type": "array",
-            "items": {
-              "type": "integer"
-            }
-        },
-        "ZMatrix": {
-            "description": "A matrix of integers; must be non-ragged",
-            "type": "array",
-            "items": {
-                "type": "array",
-                "items": {
-                    "type": "integer"
-                }
-            }
-        }
-      }
-    }
-}
-"""
-)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class IPFSignature implements HasToJsonString {
 

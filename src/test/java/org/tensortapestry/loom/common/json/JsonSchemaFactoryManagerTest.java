@@ -1,6 +1,6 @@
 package org.tensortapestry.loom.common.json;
 
-import static org.tensortapestry.loom.common.json.JsonSchemaFactoryManager.JSD_ERROR;
+import static org.tensortapestry.loom.graph.LoomConstants.Errors.JSD_ERROR;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.ValidationMessage;

@@ -14,7 +14,6 @@ import org.tensortapestry.loom.common.json.JsonSchemaFactoryManager;
 import org.tensortapestry.loom.common.json.JsonUtil;
 import org.tensortapestry.loom.common.runtime.CheckThat;
 import org.tensortapestry.loom.common.runtime.ExcludeFromJacocoGeneratedReport;
-import org.tensortapestry.loom.graph.constraints.NodeBodySchemaConstraint;
 import org.tensortapestry.loom.validation.ListValidationIssueCollector;
 import org.tensortapestry.loom.validation.LoomValidationError;
 import org.tensortapestry.loom.validation.ValidationIssue;
@@ -94,13 +93,6 @@ public final class LoomEnvironment {
     Class<? extends LoomNode<?, ?>> nodeTypeClass
   ) {
     addNodeTypeClass(type, nodeTypeClass);
-    addConstraint(
-      NodeBodySchemaConstraint
-        .builder()
-        .nodeType(type)
-        .withSchemaFromNodeClass(nodeTypeClass)
-        .build()
-    );
     for (var withConstraints : nodeTypeClass.getAnnotationsByType(WithConstraints.class)) {
       for (var cls : withConstraints.value()) {
         addConstraint(createConstraint(cls));

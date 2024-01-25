@@ -1,10 +1,9 @@
 package org.tensortapestry.loom.graph;
 
 import java.util.Set;
-import java.util.regex.Pattern;
 import lombok.experimental.UtilityClass;
 import org.tensortapestry.loom.common.json.JsonSchemaFactoryManager;
-import org.tensortapestry.loom.graph.constraints.NodeBodySchemaConstraint;
+import org.tensortapestry.loom.graph.constraints.SchemaTypeConstraint;
 import org.tensortapestry.loom.graph.constraints.TensorDTypesAreValidConstraint;
 import org.tensortapestry.loom.graph.constraints.TypeSchemaConstraint;
 import org.tensortapestry.loom.graph.nodes.*;
@@ -23,14 +22,7 @@ public final class CommonEnvironments {
       .builder()
       .jsonSchemaFactoryManager(buildJsonSchemaFactoryManager())
       .defaultNodeTypeClass(GenericNode.class)
-      .build()
-      .addConstraint(
-        NodeBodySchemaConstraint
-          .builder()
-          .nodeTypePattern(Pattern.compile("^.*$"))
-          .withSchemaFromBodyClass(GenericNode.Body.class)
-          .build()
-      );
+      .build();
   }
 
   public static LoomEnvironment expressionEnvironment() {
@@ -38,6 +30,7 @@ public final class CommonEnvironments {
       .builder()
       .jsonSchemaFactoryManager(buildJsonSchemaFactoryManager())
       .build()
+      .addConstraint(new SchemaTypeConstraint())
       .addUrlAlias(LoomConstants.LOOM_NODE_TYPES_SCHEMA, "loom")
       .addUrlAlias(LoomConstants.LOOM_ANNOTATION_TYPES_SCHEMA, "loom")
       .autowireNodeTypeClass(NoteNode.TYPE, NoteNode.class)

@@ -14,7 +14,6 @@ import lombok.experimental.Delegate;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.jackson.Jacksonized;
 import org.tensortapestry.loom.common.json.HasToJsonString;
-import org.tensortapestry.loom.common.json.WithSchema;
 import org.tensortapestry.loom.graph.LoomNode;
 
 /**
@@ -29,7 +28,7 @@ public final class ApplicationNode extends LoomNode<ApplicationNode, Application
   /**
    * The node type.
    */
-  public static final String TYPE = LOOM_CORE_NODE_TYPE.apply("application");
+  public static final String TYPE = LOOM_CORE_NODE_TYPE.apply("Application");
 
   /**
    * Extensions to the ApplicationNodeBuilder.
@@ -50,62 +49,6 @@ public final class ApplicationNode extends LoomNode<ApplicationNode, Application
   /**
    * The body of the ApplicationNode.
    */
-  @WithSchema(
-    """
-  {
-      "type": "object",
-      "properties": {
-          "operationId": {
-              "type": "string",
-              "format": "uuid"
-          },
-          "inputs": { "$ref": "#/definitions/TensorSelectionMap" },
-          "outputs": { "$ref": "#/definitions/TensorSelectionMap" }
-      },
-      "required": ["operationId"],
-      "additionalProperties": false,
-      "definitions": {
-          "TensorSelectionMap": {
-              "type": "object",
-              "patternProperties": {
-                  "^[a-zA-Z_][a-zA-Z0-9_]*$": {
-                      "type": "array",
-                      "items": { "$ref": "#/definitions/TensorSelection" },
-                      "minItems": 1
-                  }
-              },
-              "additionalProperties": false
-          },
-          "TensorSelection": {
-              "type": "object",
-              "properties": {
-                  "tensorId": {
-                      "type": "string",
-                      "format": "uuid"
-                  },
-                  "range": { "$ref": "#/definitions/ZRange" }
-              },
-              "required": ["tensorId", "range"],
-              "additionalProperties": false
-          },
-          "ZRange": {
-              "type": "object",
-              "properties": {
-                 "start": { "$ref": "#/definitions/ZPoint" },
-                 "end": { "$ref": "#/definitions/ZPoint" }
-              },
-              "required": ["start", "end"]
-          },
-          "ZPoint": {
-              "type": "array",
-              "items": {
-                  "type": "integer"
-              }
-          }
-      }
-  }
-  """
-  )
   @Value
   @Jacksonized
   @Builder

@@ -9,7 +9,6 @@ import lombok.Value;
 import lombok.experimental.Delegate;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.jackson.Jacksonized;
-import org.tensortapestry.loom.common.json.WithSchema;
 
 @Getter
 @Setter
@@ -30,20 +29,6 @@ public final class ExampleNode extends LoomNode<ExampleNode, ExampleNode.Body> {
     }
   }
 
-  @WithSchema(
-    """
-                    {
-                      "type": "object",
-                      "properties": {
-                        "foo": {
-                          "type": "string",
-                          "enum": ["bar", "baz"]
-                        }
-                      },
-                      "required": ["foo"]
-                    }
-                    """
-  )
   @Value
   @Jacksonized
   @Builder

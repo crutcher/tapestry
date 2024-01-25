@@ -1,7 +1,6 @@
 package org.tensortapestry.loom.graph;
 
 import org.junit.Test;
-import org.tensortapestry.loom.graph.constraints.NodeBodySchemaConstraint;
 import org.tensortapestry.loom.graph.nodes.ApplicationNode;
 import org.tensortapestry.loom.graph.nodes.NoteNode;
 import org.tensortapestry.loom.graph.nodes.TensorNode;
@@ -149,8 +148,6 @@ public class LoomEnvironmentTest extends BaseTestClass {
       .isThrownBy(() -> env.assertConstraint(constraint.getClass()));
 
     env.addConstraint(constraint);
-
-    assertThat(env.lookupConstraint(NodeBodySchemaConstraint.class)).isNull();
 
     env.assertConstraint(constraint.getClass());
   }

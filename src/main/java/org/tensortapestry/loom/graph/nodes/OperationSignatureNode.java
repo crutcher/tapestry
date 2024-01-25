@@ -16,7 +16,6 @@ import lombok.experimental.Delegate;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.jackson.Jacksonized;
 import org.tensortapestry.loom.common.json.HasToJsonString;
-import org.tensortapestry.loom.common.json.WithSchema;
 import org.tensortapestry.loom.graph.LoomEnvironment;
 import org.tensortapestry.loom.graph.LoomNode;
 import org.tensortapestry.loom.graph.constraints.OperationReferenceAgreementConstraint;
@@ -29,7 +28,7 @@ import org.tensortapestry.loom.graph.constraints.OperationReferenceAgreementCons
 public final class OperationSignatureNode
   extends LoomNode<OperationSignatureNode, OperationSignatureNode.Body> {
 
-  public static final String TYPE = LOOM_CORE_NODE_TYPE.apply("operation");
+  public static final String TYPE = LOOM_CORE_NODE_TYPE.apply("OperationSignature");
 
   @SuppressWarnings("unused")
   public abstract static class OperationSignatureNodeBuilder<
@@ -42,68 +41,6 @@ public final class OperationSignatureNode
     }
   }
 
-  @WithSchema(
-    """
-    {
-        "type": "object",
-        "properties": {
-            "kernel": {
-                "type": "string"
-            },
-            "params": {
-                "type": "object",
-                "patternProperties": {
-                    "^[a-zA-Z_][a-zA-Z0-9_]*$": {}
-                },
-                "additionalProperties": false
-            },
-            "inputs": { "$ref": "#/definitions/TensorSelectionMap" },
-            "outputs": { "$ref": "#/definitions/TensorSelectionMap" }
-        },
-        "required": ["kernel"],
-        "additionalProperties": false,
-        "definitions": {
-            "TensorSelectionMap": {
-                "type": "object",
-                "patternProperties": {
-                    "^[a-zA-Z_][a-zA-Z0-9_]*$": {
-                        "type": "array",
-                        "items": { "$ref": "#/definitions/TensorSelection" },
-                        "minItems": 1
-                    }
-                },
-                "additionalProperties": false
-            },
-            "TensorSelection": {
-                "type": "object",
-                "properties": {
-                    "tensorId": {
-                        "type": "string",
-                        "format": "uuid"
-                    },
-                    "range": { "$ref": "#/definitions/ZRange" }
-                },
-                "required": ["tensorId", "range"],
-                "additionalProperties": false
-            },
-            "ZRange": {
-                "type": "object",
-                "properties": {
-                   "start": { "$ref": "#/definitions/ZPoint" },
-                   "end": { "$ref": "#/definitions/ZPoint" }
-                },
-                "required": ["start", "end"]
-            },
-            "ZPoint": {
-                "type": "array",
-                "items": {
-                    "type": "integer"
-                }
-            }
-        }
-    }
-    """
-  )
   @Value
   @Jacksonized
   @Builder
