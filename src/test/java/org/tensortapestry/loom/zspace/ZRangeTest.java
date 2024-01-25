@@ -309,7 +309,7 @@ public class ZRangeTest implements CommonAssertions {
   }
 
   @Test
-  public void test_split() {
+  public void test_split_chunkSize() {
     var range = ZRange.newFromShape(2, 3);
 
     assertThat(range.split(1, 2))
@@ -327,6 +327,28 @@ public class ZRangeTest implements CommonAssertions {
 
     assertThatExceptionOfType(IllegalArgumentException.class)
       .isThrownBy(() -> range.split(0, -2))
+      .withMessage("chunkSize must be > 0: -2");
+  }
+
+  @Test
+  public void test_split_chunks() {
+    var range = ZRange.newFromShape(2, 3);
+
+    assertThat(range.split(1, List.of(2, 1)))
+      .containsExactly(
+        ZRange.of(new ZPoint(0, 0), new ZPoint(2, 2)),
+        ZRange.of(new ZPoint(0, 2), new ZPoint(2, 3))
+      );
+    assertThat(range.split(-1, List.of(2, 1)))
+      .containsExactly(
+        ZRange.of(new ZPoint(0, 0), new ZPoint(2, 2)),
+        ZRange.of(new ZPoint(0, 2), new ZPoint(2, 3))
+      );
+
+    assertThat(range.split(-1, List.of(3))).containsExactly(range);
+
+    assertThatExceptionOfType(IllegalArgumentException.class)
+      .isThrownBy(() -> range.split(0, List.of(-2)))
       .withMessage("chunkSize must be > 0: -2");
   }
 }

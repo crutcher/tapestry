@@ -3,9 +3,7 @@ package org.tensortapestry.loom.zspace;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.Objects;
+import java.util.*;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
@@ -532,32 +530,98 @@ public class ZRange implements Cloneable, HasSize, HasPermute<ZRange>, HasJsonOu
    */
   @Nonnull
   public ZRange[] split(int dim, int chunkSize) {
+    dim = resolveDim(dim);
+    int dimSize = shape.get(dim);
+
     if (chunkSize <= 0) {
       throw new IllegalArgumentException("chunkSize must be > 0: " + chunkSize);
     }
-
-    int d = resolveDim(dim);
-    int dimSize = shape.get(d);
 
     if (chunkSize >= dimSize) {
       return new ZRange[] { this };
     }
 
-    int n = dimSize / chunkSize;
-    if (dimSize % chunkSize != 0) {
-      ++n;
+    int numChunks = (dimSize / chunkSize) + (dimSize % chunkSize);
+
+    var chunks = new int[numChunks];
+    for (int i = 0; i < numChunks - 1; ++i) {
+      chunks[i] = chunkSize;
     }
+    chunks[numChunks - 1] = dimSize - (numChunks - 1) * chunkSize;
+
+    return _split(dim, chunks);
+  }
+
+  /**
+   * Split this range into a number of sub-ranges.
+   * @param dim the dimension to split on, resolved.
+   * @param chunks the size of each chunk, must sum to {@code shape[dim]}.
+   * @return the sub-ranges.
+   */
+  @Nonnull
+  public ZRange[] split(int dim, List<Integer> chunks) {
+    return split(dim, chunks.stream().mapToInt(i -> i).toArray());
+  }
+
+  /**
+   * Split this range into a number of sub-ranges.
+   * @param dim the dimension to split on, resolved.
+   * @param chunks the size of each chunk, must sum to {@code shape[dim]}.
+   * @return the sub-ranges.
+   */
+  @Nonnull
+  public ZRange[] split(int dim, int... chunks) {
+    dim = resolveDim(dim);
+    int dimSize = shape.get(dim);
+
+    int chunkTotalSize = 0;
+    for (int chunk : chunks) {
+      if (chunk <= 0) {
+        throw new IllegalArgumentException("chunkSize must be > 0: " + chunk);
+      }
+      chunkTotalSize += chunk;
+    }
+    if (chunkTotalSize != dimSize) {
+      throw new IllegalArgumentException(
+        "total chunk size (%d) must be equal to dimSize (%d): %s".formatted(
+            chunkTotalSize,
+            dimSize,
+            Arrays.toString(chunks)
+          )
+      );
+    }
+
+    return _split(dim, chunks);
+  }
+
+  /**
+   * Split this range into a number of sub-ranges.
+   *
+   * <p>Unchecked, dim and chunk sizes must be correct.</p>
+   *
+   * @param dim the dimension to split on.
+   * @param chunks the size of each chunk, must sum to {@code shape[dim]}.
+   * @return the sub-ranges.
+   */
+  @Nonnull
+  private ZRange[] _split(int dim, int... chunks) {
+    int numChunks = chunks.length;
+
+    if (numChunks == 1) {
+      return new ZRange[] { this };
+    }
+
+    var ranges = new ZRange[numChunks];
 
     var startArr = start.toArray();
     var endArr = end.toArray();
-    var ranges = new ZRange[n];
+    endArr[dim] = startArr[dim];
 
-    for (int i = 0; i < n; ++i) {
-      int dimStart = i * chunkSize;
-      int dimEnd = Math.min(dimStart + chunkSize, dimSize);
-      startArr[d] = dimStart;
-      endArr[d] = dimEnd;
+    for (int i = 0; i < numChunks; ++i) {
+      int k = chunks[i];
+      endArr[dim] += k;
       ranges[i] = new ZRange(new ZPoint(startArr), new ZPoint(endArr));
+      startArr[dim] += k;
     }
     return ranges;
   }
