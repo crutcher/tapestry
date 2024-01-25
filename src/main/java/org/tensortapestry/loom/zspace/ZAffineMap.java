@@ -128,10 +128,7 @@ public class ZAffineMap implements HasPermuteIO<ZAffineMap>, HasJsonOutput {
   @Override
   @Nonnull
   public ZAffineMap permuteOutput(@Nonnull int... permutation) {
-    return new ZAffineMap(
-      projection.permuteOutput(permutation),
-      offset.tensor.reorderedDimCopy(permutation, 0)
-    );
+    return new ZAffineMap(projection.permuteOutput(permutation), offset.permute(permutation));
   }
 
   /**
