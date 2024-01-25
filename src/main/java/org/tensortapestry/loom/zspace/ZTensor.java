@@ -24,6 +24,7 @@ import lombok.experimental.UtilityClass;
 import org.tensortapestry.loom.zspace.exceptions.ZDimMissMatchError;
 import org.tensortapestry.loom.zspace.impl.HasJsonOutput;
 import org.tensortapestry.loom.zspace.impl.ZSpaceJsonUtil;
+import org.tensortapestry.loom.zspace.indexing.ArrayData;
 import org.tensortapestry.loom.zspace.indexing.BufferMode;
 import org.tensortapestry.loom.zspace.indexing.IndexingFns;
 import org.tensortapestry.loom.zspace.indexing.IterableCoordinates;
@@ -546,6 +547,28 @@ public final class ZTensor
     return clone(mutable);
   }
 
+  /**
+   * Clone this tensor.
+   *
+   * <p>The clone will have the target {@link #mutable} state.
+   *
+   * <ul>
+   *     <li>If this tensor is mutable, copies the data.</li>
+   *     <li>if this tensor is immutable
+   *     <ul>
+   *         <li>and non-compact, copies the data.</li>
+   *         <li>and compact
+   *         <ul>
+   *             <li>and mutable is requested, copy the data.</li>
+   *             <li>and immutable is requested, return {@code this}.</li>
+   *         </ul>
+   *         </li>
+   *     </ul>
+   *     </li>
+   * </ul>
+   *
+   * @return a tensor with the same data.
+   */
   @Nonnull
   public ZTensor clone(boolean mutable) {
     if (isReadOnly() && isCompact() && !mutable) {
@@ -840,6 +863,16 @@ public final class ZTensor
     }
 
     return arr;
+  }
+
+  /**
+   * Convert this tensor to a flat Java array.
+   * @return an ArrayData ( shape, data ) pair.
+   */
+  @Nonnull
+  ArrayData toFlatArrayData() {
+    var compact = asImmutable();
+    return new ArrayData(compact.shape, compact.data);
   }
 
   /** Get the value of this tensor as a T0 (a scalar). */

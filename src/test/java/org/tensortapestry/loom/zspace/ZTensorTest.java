@@ -11,6 +11,7 @@ import org.junit.Test;
 import org.tensortapestry.loom.zspace.exceptions.ZDimMissMatchError;
 import org.tensortapestry.loom.zspace.experimental.ZSpaceTestAssertions;
 import org.tensortapestry.loom.zspace.impl.ZSpaceJsonUtil;
+import org.tensortapestry.loom.zspace.indexing.ArrayData;
 import org.tensortapestry.loom.zspace.indexing.BufferMode;
 import org.tensortapestry.loom.zspace.indexing.IterableCoordinates;
 import org.tensortapestry.loom.zspace.ops.CellWise;
@@ -1249,5 +1250,18 @@ public class ZTensorTest implements ZSpaceTestAssertions {
     public int hashCode() {
       return Objects.hash(tensor);
     }
+  }
+
+  @Test
+  public void test_toFlatArrayData() {
+    var tensor = ZTensor
+      .newFromArray(new int[][] { { 1, 2 }, { 3, 4 } })
+      .reverse(1)
+      .selectDim(0, 0);
+
+    assertThat(tensor).isEqualTo(ZTensor.newFromArray(new int[] { 2, 1 }));
+
+    assertThat(tensor.toFlatArrayData())
+      .isEqualTo(new ArrayData(new int[] { 2 }, new int[] { 2, 1 }));
   }
 }

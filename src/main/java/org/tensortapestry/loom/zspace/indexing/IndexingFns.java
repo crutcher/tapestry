@@ -10,7 +10,6 @@ import java.util.function.Predicate;
 import java.util.function.ToIntFunction;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
-import lombok.Value;
 import lombok.experimental.UtilityClass;
 import org.tensortapestry.loom.zspace.HasDimension;
 
@@ -316,11 +315,22 @@ public final class IndexingFns {
   /**
    * Given a shape, returns the number of elements that shape describes.
    *
+   * <p>Will return a size of 1 if there are no dimensions.</p>
+   * <p>Will return a size of 0 if any dimension is 0.</p>
+   *
    * @param shape the shape.
    * @return the product of the shape; which is 1 for a shape of `[]`.
+   * @throws IllegalArgumentException if the shape contains a negative dimension.
    */
   public int shapeToSize(@Nonnull int[] shape) {
-    return Arrays.stream(shape).reduce(1, (a, b) -> a * b);
+    int size = 1;
+    for (int k : shape) {
+      if (k < 0) {
+        throw new IllegalArgumentException("shape must be non-negative: " + Arrays.toString(shape));
+      }
+      size *= k;
+    }
+    return size;
   }
 
   /**
@@ -440,16 +450,6 @@ public final class IndexingFns {
       }
     }
     return shapeList;
-  }
-
-  /**
-   * Result of {@link #arrayFromTree}.
-   */
-  @Value
-  public static class ArrayData {
-
-    int[] shape;
-    int[] data;
   }
 
   /**
