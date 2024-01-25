@@ -5,6 +5,7 @@ import com.google.errorprone.annotations.Immutable;
 import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.ThreadSafe;
+import org.tensortapestry.loom.zspace.ops.MatrixOps;
 
 /**
  * An immutable (2x2) matrix.
@@ -262,6 +263,6 @@ public final class ZMatrix
 
   @Nonnull
   public ZTensor matmul(@Nonnull HasZTensor x) {
-    return Ops.Matrix.matmul(this, x);
+    return MatrixOps.matmul(this, x);
   }
 }

@@ -12,6 +12,7 @@ import org.tensortapestry.loom.testing.CommonAssertions;
 import org.tensortapestry.loom.zspace.exceptions.ZDimMissMatchError;
 import org.tensortapestry.loom.zspace.indexing.BufferMode;
 import org.tensortapestry.loom.zspace.indexing.IterableCoordinates;
+import org.tensortapestry.loom.zspace.ops.CellWise;
 import org.tensortapestry.loom.zspace.serialization.ZSpaceJsonUtil;
 
 public class ZTensorTest implements CommonAssertions {
@@ -652,17 +653,17 @@ public class ZTensorTest implements CommonAssertions {
 
   @Test
   public void test_Ops_map() {
-    assertThat(Ops.CellWise.map(x -> x + 2, ZTensor.newScalar(4))).isEqualTo(ZTensor.newScalar(6));
-    assertThat(Ops.CellWise.map(x -> x + 2, ZTensor.newVector())).isEqualTo(ZTensor.newVector());
-    assertThat(Ops.CellWise.map(x -> x + 2, ZTensor.newVector(2, 3)))
+    assertThat(CellWise.map(x -> x + 2, ZTensor.newScalar(4))).isEqualTo(ZTensor.newScalar(6));
+    assertThat(CellWise.map(x -> x + 2, ZTensor.newVector())).isEqualTo(ZTensor.newVector());
+    assertThat(CellWise.map(x -> x + 2, ZTensor.newVector(2, 3)))
       .isEqualTo(ZTensor.newVector(4, 5));
   }
 
   @Test
   public void test_neg() {
-    assertThat(Ops.CellWise.neg(ZTensor.newScalar(4))).isEqualTo(ZTensor.newScalar(-4));
-    assertThat(Ops.CellWise.neg(ZTensor.newVector())).isEqualTo(ZTensor.newVector());
-    assertThat(Ops.CellWise.neg(ZTensor.newVector(2, 3))).isEqualTo(ZTensor.newVector(-2, -3));
+    assertThat(CellWise.neg(ZTensor.newScalar(4))).isEqualTo(ZTensor.newScalar(-4));
+    assertThat(CellWise.neg(ZTensor.newVector())).isEqualTo(ZTensor.newVector());
+    assertThat(CellWise.neg(ZTensor.newVector(2, 3))).isEqualTo(ZTensor.newVector(-2, -3));
 
     assertThat(ZTensor.newScalar(4).neg()).isEqualTo(ZTensor.newScalar(-4));
     assertThat(ZTensor.newVector().neg()).isEqualTo(ZTensor.newVector());
@@ -671,10 +672,10 @@ public class ZTensorTest implements CommonAssertions {
 
   @Test
   public void test_abs() {
-    assertThat(Ops.CellWise.abs(ZTensor.newScalar(4))).isEqualTo(ZTensor.newScalar(4));
-    assertThat(Ops.CellWise.abs(ZTensor.newScalar(-4))).isEqualTo(ZTensor.newScalar(4));
-    assertThat(Ops.CellWise.abs(ZTensor.newVector())).isEqualTo(ZTensor.newVector());
-    assertThat(Ops.CellWise.abs(ZTensor.newVector(2, -3))).isEqualTo(ZTensor.newVector(2, 3));
+    assertThat(CellWise.abs(ZTensor.newScalar(4))).isEqualTo(ZTensor.newScalar(4));
+    assertThat(CellWise.abs(ZTensor.newScalar(-4))).isEqualTo(ZTensor.newScalar(4));
+    assertThat(CellWise.abs(ZTensor.newVector())).isEqualTo(ZTensor.newVector());
+    assertThat(CellWise.abs(ZTensor.newVector(2, -3))).isEqualTo(ZTensor.newVector(2, 3));
 
     assertThat(ZTensor.newScalar(4).abs()).isEqualTo(ZTensor.newScalar(4));
     assertThat(ZTensor.newScalar(-4).abs()).isEqualTo(ZTensor.newScalar(4));
@@ -743,17 +744,17 @@ public class ZTensorTest implements CommonAssertions {
 
       // [2], [2]
       ZTensor rhs = ZTensor.newVector(-1, 9);
-      assertThat(Ops.CellWise.zipWith(fn, empty, empty)).isEqualTo(empty);
+      assertThat(CellWise.zipWith(fn, empty, empty)).isEqualTo(empty);
 
-      assertThat(Ops.CellWise.zipWith(fn, lhs, rhs).toArray()).isEqualTo(new int[] { 1, 20 });
-      assertThatThrownBy(() -> Ops.CellWise.zipWith(fn, lhs, empty))
+      assertThat(CellWise.zipWith(fn, lhs, rhs).toArray()).isEqualTo(new int[] { 1, 20 });
+      assertThatThrownBy(() -> CellWise.zipWith(fn, lhs, empty))
         .isInstanceOf(IndexOutOfBoundsException.class)
         .hasMessageContaining("cannot broadcast shapes: [2], [0]");
 
       // Broadcast rules.
       // [2, 1], [2]
       assertThat(
-        Ops.CellWise.zipWith(
+        CellWise.zipWith(
           Integer::sum,
           ZTensor.newFromArray(new int[][] { { 1 }, { 2 } }),
           ZTensor.newVector(3, 4)
@@ -761,7 +762,7 @@ public class ZTensorTest implements CommonAssertions {
       )
         .isEqualTo(ZTensor.newFromArray(new int[][] { { 4, 5 }, { 5, 6 } }));
       assertThat(
-        Ops.CellWise.zipWith(
+        CellWise.zipWith(
           Integer::sum,
           ZTensor.newFromArray(new int[][] { { 1 }, { 2 } }),
           ZTensor.newScalar(5)
@@ -770,12 +771,12 @@ public class ZTensorTest implements CommonAssertions {
         .isEqualTo(ZTensor.newFromArray(new int[][] { { 6 }, { 7 } }));
 
       // [2], <scalar>
-      assertThat(Ops.CellWise.zipWith(fn, empty, 12)).isEqualTo(empty);
-      assertThat(Ops.CellWise.zipWith(fn, lhs, 12).toArray()).isEqualTo(new int[] { 27, 26 });
+      assertThat(CellWise.zipWith(fn, empty, 12)).isEqualTo(empty);
+      assertThat(CellWise.zipWith(fn, lhs, 12).toArray()).isEqualTo(new int[] { 27, 26 });
 
       // <scalar>, [2]
-      assertThat(Ops.CellWise.zipWith(fn, 12, empty)).isEqualTo(empty);
-      assertThat(Ops.CellWise.zipWith(fn, 12, lhs).toArray()).isEqualTo(new int[] { 18, 16 });
+      assertThat(CellWise.zipWith(fn, 12, empty)).isEqualTo(empty);
+      assertThat(CellWise.zipWith(fn, 12, lhs).toArray()).isEqualTo(new int[] { 18, 16 });
     }
 
     {
@@ -784,21 +785,21 @@ public class ZTensorTest implements CommonAssertions {
 
       // [2, 2], [2, 2]
       ZTensor rhs = ZTensor.newFromArray(new int[][] { { -1, 9 }, { 2, 0 } });
-      assertThat(Ops.CellWise.zipWith(fn, empty, empty)).isEqualTo(empty);
-      assertThat(Ops.CellWise.zipWith(fn, lhs, rhs).toArray())
+      assertThat(CellWise.zipWith(fn, empty, empty)).isEqualTo(empty);
+      assertThat(CellWise.zipWith(fn, lhs, rhs).toArray())
         .isEqualTo(new int[][] { { 1, 20 }, { 5, 1 } });
-      assertThatThrownBy(() -> Ops.CellWise.zipWith(fn, lhs, empty))
+      assertThatThrownBy(() -> CellWise.zipWith(fn, lhs, empty))
         .isInstanceOf(IndexOutOfBoundsException.class)
         .hasMessageContaining("cannot broadcast shapes: [2, 2], [0, 0]");
 
       // [2, 2], <scalar>
-      assertThat(Ops.CellWise.zipWith(fn, empty, 12)).isEqualTo(empty);
-      assertThat(Ops.CellWise.zipWith(fn, lhs, 12).toArray())
+      assertThat(CellWise.zipWith(fn, empty, 12)).isEqualTo(empty);
+      assertThat(CellWise.zipWith(fn, lhs, 12).toArray())
         .isEqualTo(new int[][] { { 27, 26 }, { 25, 25 } });
 
       // <scalar>, [2, 2]
-      assertThat(Ops.CellWise.zipWith(fn, 12, empty)).isEqualTo(empty);
-      assertThat(Ops.CellWise.zipWith(fn, 12, lhs).toArray())
+      assertThat(CellWise.zipWith(fn, 12, empty)).isEqualTo(empty);
+      assertThat(CellWise.zipWith(fn, 12, lhs).toArray())
         .isEqualTo(new int[][] { { 18, 16 }, { 14, 14 } });
     }
   }
@@ -833,26 +834,26 @@ public class ZTensorTest implements CommonAssertions {
     var lhs = ZTensor.newFromArray(new int[][] { { 3, 2 }, { 1, 1 } });
 
     // [2, 2], [2, 2]
-    assertThat(Ops.CellWise.minimum(empty, empty)).isEqualTo(empty);
+    assertThat(CellWise.minimum(empty, empty)).isEqualTo(empty);
 
     var rhs = ZTensor.newFromArray(new int[][] { { -1, 2 }, { 1, 0 } });
-    assertThat(Ops.CellWise.minimum(lhs, rhs))
+    assertThat(CellWise.minimum(lhs, rhs))
       .isEqualTo(ZTensor.newFromArray(new int[][] { { -1, 2 }, { 1, 0 } }));
 
-    assertThatThrownBy(() -> Ops.CellWise.minimum(lhs, empty))
+    assertThatThrownBy(() -> CellWise.minimum(lhs, empty))
       .isInstanceOf(IndexOutOfBoundsException.class)
       .hasMessageContaining("cannot broadcast shapes: [2, 2], [0, 0]");
 
     // [2, 2], <scalar>
-    assertThat(Ops.CellWise.minimum(empty, 2)).isEqualTo(empty);
+    assertThat(CellWise.minimum(empty, 2)).isEqualTo(empty);
 
-    assertThat(Ops.CellWise.minimum(lhs, 2))
+    assertThat(CellWise.minimum(lhs, 2))
       .isEqualTo(ZTensor.newFromArray(new int[][] { { 2, 2 }, { 1, 1 } }));
 
     // <scalar>, [2, 2]
-    assertThat(Ops.CellWise.minimum(2, empty)).isEqualTo(empty);
+    assertThat(CellWise.minimum(2, empty)).isEqualTo(empty);
 
-    assertThat(Ops.CellWise.minimum(2, lhs))
+    assertThat(CellWise.minimum(2, lhs))
       .isEqualTo(ZTensor.newFromArray(new int[][] { { 2, 2 }, { 1, 1 } }));
   }
 
@@ -862,26 +863,26 @@ public class ZTensorTest implements CommonAssertions {
     var lhs = ZTensor.newFromArray(new int[][] { { 3, 2 }, { 1, 1 } });
 
     // [2, 2], [2, 2]
-    assertThat(Ops.CellWise.maximum(empty, empty)).isEqualTo(empty);
+    assertThat(CellWise.maximum(empty, empty)).isEqualTo(empty);
 
     var rhs = ZTensor.newFromArray(new int[][] { { -1, 2 }, { 1, 6 } });
-    assertThat(Ops.CellWise.maximum(lhs, rhs))
+    assertThat(CellWise.maximum(lhs, rhs))
       .isEqualTo(ZTensor.newFromArray(new int[][] { { 3, 2 }, { 1, 6 } }));
 
-    assertThatThrownBy(() -> Ops.CellWise.maximum(lhs, empty))
+    assertThatThrownBy(() -> CellWise.maximum(lhs, empty))
       .isInstanceOf(IndexOutOfBoundsException.class)
       .hasMessageContaining("cannot broadcast shapes: [2, 2], [0, 0]");
 
     // [2, 2], <scalar>
-    assertThat(Ops.CellWise.maximum(empty, 2)).isEqualTo(empty);
+    assertThat(CellWise.maximum(empty, 2)).isEqualTo(empty);
 
-    assertThat(Ops.CellWise.maximum(lhs, 2))
+    assertThat(CellWise.maximum(lhs, 2))
       .isEqualTo(ZTensor.newFromArray(new int[][] { { 3, 2 }, { 2, 2 } }));
 
     // <scalar>, [2, 2]
-    assertThat(Ops.CellWise.maximum(2, empty)).isEqualTo(empty);
+    assertThat(CellWise.maximum(2, empty)).isEqualTo(empty);
 
-    assertThat(Ops.CellWise.maximum(2, lhs))
+    assertThat(CellWise.maximum(2, lhs))
       .isEqualTo(ZTensor.newFromArray(new int[][] { { 3, 2 }, { 2, 2 } }));
   }
 
@@ -891,33 +892,33 @@ public class ZTensorTest implements CommonAssertions {
     var lhs = ZTensor.newFromArray(new int[][] { { 3, 2 }, { 1, 1 } });
 
     // [2, 2], [2, 2]
-    assertThat(Ops.CellWise.add(empty, empty)).isEqualTo(empty.add(empty)).isEqualTo(empty);
+    assertThat(CellWise.add(empty, empty)).isEqualTo(empty.add(empty)).isEqualTo(empty);
 
     var rhs = ZTensor.newFromArray(new int[][] { { -1, 9 }, { 2, 0 } });
-    assertThat(Ops.CellWise.add(lhs, rhs))
+    assertThat(CellWise.add(lhs, rhs))
       .isEqualTo(lhs.add(rhs))
       .isEqualTo(ZTensor.newFromArray(new int[][] { { 2, 11 }, { 3, 1 } }));
 
-    assertThatThrownBy(() -> Ops.CellWise.add(lhs, empty))
+    assertThatThrownBy(() -> CellWise.add(lhs, empty))
       .isInstanceOf(IndexOutOfBoundsException.class)
       .hasMessageContaining("cannot broadcast shapes: [2, 2], [0, 0]");
 
     // [2, 2], <scalar>
-    assertThat(Ops.CellWise.add(empty, 12)).isEqualTo(empty.add(12)).isEqualTo(empty);
+    assertThat(CellWise.add(empty, 12)).isEqualTo(empty.add(12)).isEqualTo(empty);
 
-    assertThat(Ops.CellWise.add(lhs, 12))
+    assertThat(CellWise.add(lhs, 12))
       .isEqualTo(lhs.add(12))
       .isEqualTo(ZTensor.newFromArray(new int[][] { { 15, 14 }, { 13, 13 } }));
 
     // <scalar>, [2, 2]
-    assertThat(Ops.CellWise.add(12, empty)).isEqualTo(empty);
+    assertThat(CellWise.add(12, empty)).isEqualTo(empty);
 
-    assertThat(Ops.CellWise.add(12, lhs))
+    assertThat(CellWise.add(12, lhs))
       .isEqualTo(ZTensor.newFromArray(new int[][] { { 15, 14 }, { 13, 13 } }));
 
     var inplace = lhs.clone();
-    Ops.CellWise.add_(inplace, rhs);
-    Ops.CellWise.add_(inplace, 12);
+    CellWise.add_(inplace, rhs);
+    CellWise.add_(inplace, 12);
     inplace.add_(rhs);
     inplace.add_(13);
     assertThat(inplace).isEqualTo(lhs.add(rhs).add(12).add(rhs).add(13));
@@ -929,33 +930,33 @@ public class ZTensorTest implements CommonAssertions {
     var lhs = ZTensor.newFromArray(new int[][] { { 3, 2 }, { 1, 1 } });
 
     // [2, 2], [2, 2]
-    assertThat(Ops.CellWise.sub(empty, empty)).isEqualTo(empty.sub(empty)).isEqualTo(empty);
+    assertThat(CellWise.sub(empty, empty)).isEqualTo(empty.sub(empty)).isEqualTo(empty);
 
     var rhs = ZTensor.newFromArray(new int[][] { { -1, 9 }, { 2, 0 } });
-    assertThat(Ops.CellWise.sub(lhs, rhs))
+    assertThat(CellWise.sub(lhs, rhs))
       .isEqualTo(lhs.sub(rhs))
       .isEqualTo(ZTensor.newFromArray(new int[][] { { 4, -7 }, { -1, 1 } }));
 
-    assertThatThrownBy(() -> Ops.CellWise.sub(lhs, empty))
+    assertThatThrownBy(() -> CellWise.sub(lhs, empty))
       .isInstanceOf(IndexOutOfBoundsException.class)
       .hasMessageContaining("cannot broadcast shapes: [2, 2], [0, 0]");
 
     // [2, 2], <scalar>
-    assertThat(Ops.CellWise.sub(empty, 12)).isEqualTo(empty.sub(12)).isEqualTo(empty);
+    assertThat(CellWise.sub(empty, 12)).isEqualTo(empty.sub(12)).isEqualTo(empty);
 
-    assertThat(Ops.CellWise.sub(lhs, 12))
+    assertThat(CellWise.sub(lhs, 12))
       .isEqualTo(lhs.sub(12))
       .isEqualTo(ZTensor.newFromArray(new int[][] { { -9, -10 }, { -11, -11 } }));
 
     // <scalar>, [2, 2]
-    assertThat(Ops.CellWise.sub(12, empty)).isEqualTo(empty);
+    assertThat(CellWise.sub(12, empty)).isEqualTo(empty);
 
-    assertThat(Ops.CellWise.sub(12, lhs))
+    assertThat(CellWise.sub(12, lhs))
       .isEqualTo(ZTensor.newFromArray(new int[][] { { 9, 10 }, { 11, 11 } }));
 
     var inplace = lhs.clone();
-    Ops.CellWise.sub_(inplace, rhs);
-    Ops.CellWise.sub_(inplace, 12);
+    CellWise.sub_(inplace, rhs);
+    CellWise.sub_(inplace, 12);
     inplace.sub_(rhs);
     inplace.sub_(13);
     assertThat(inplace).isEqualTo(lhs.sub(rhs).sub(12).sub(rhs).sub(13));
@@ -967,33 +968,33 @@ public class ZTensorTest implements CommonAssertions {
     var lhs = ZTensor.newFromArray(new int[][] { { 3, 2 }, { 1, 1 } });
 
     // [2, 2], [2, 2]
-    assertThat(Ops.CellWise.mul(empty, empty)).isEqualTo(empty.mul(empty)).isEqualTo(empty);
+    assertThat(CellWise.mul(empty, empty)).isEqualTo(empty.mul(empty)).isEqualTo(empty);
 
     var rhs = ZTensor.newFromArray(new int[][] { { -1, 9 }, { 2, 0 } });
-    assertThat(Ops.CellWise.mul(lhs, rhs))
+    assertThat(CellWise.mul(lhs, rhs))
       .isEqualTo(lhs.mul(rhs))
       .isEqualTo(ZTensor.newFromArray(new int[][] { { -3, 18 }, { 2, 0 } }));
 
-    assertThatThrownBy(() -> Ops.CellWise.mul(lhs, empty))
+    assertThatThrownBy(() -> CellWise.mul(lhs, empty))
       .isInstanceOf(IndexOutOfBoundsException.class)
       .hasMessageContaining("cannot broadcast shapes: [2, 2], [0, 0]");
 
     // [2, 2], <scalar>
-    assertThat(Ops.CellWise.mul(empty, 12)).isEqualTo(empty.mul(12)).isEqualTo(empty);
+    assertThat(CellWise.mul(empty, 12)).isEqualTo(empty.mul(12)).isEqualTo(empty);
 
-    assertThat(Ops.CellWise.mul(lhs, 12))
+    assertThat(CellWise.mul(lhs, 12))
       .isEqualTo(lhs.mul(12))
       .isEqualTo(ZTensor.newFromArray(new int[][] { { 36, 24 }, { 12, 12 } }));
 
     // <scalar>, [2, 2]
-    assertThat(Ops.CellWise.mul(12, empty)).isEqualTo(empty);
+    assertThat(CellWise.mul(12, empty)).isEqualTo(empty);
 
-    assertThat(Ops.CellWise.mul(12, lhs))
+    assertThat(CellWise.mul(12, lhs))
       .isEqualTo(ZTensor.newFromArray(new int[][] { { 36, 24 }, { 12, 12 } }));
 
     var inplace = lhs.clone();
-    Ops.CellWise.mul_(inplace, rhs);
-    Ops.CellWise.mul_(inplace, 12);
+    CellWise.mul_(inplace, rhs);
+    CellWise.mul_(inplace, 12);
     inplace.mul_(rhs);
     inplace.mul_(13);
     assertThat(inplace).isEqualTo(lhs.mul(rhs).mul(12).mul(rhs).mul(13));
@@ -1005,42 +1006,42 @@ public class ZTensorTest implements CommonAssertions {
     var lhs = ZTensor.newFromArray(new int[][] { { 24, 12 }, { 9, 1 } });
 
     // [2, 2], [2, 2]
-    assertThat(Ops.CellWise.div(empty, empty)).isEqualTo(empty.div(empty)).isEqualTo(empty);
+    assertThat(CellWise.div(empty, empty)).isEqualTo(empty.div(empty)).isEqualTo(empty);
 
     var rhs = ZTensor.newFromArray(new int[][] { { -1, 9 }, { 2, 1 } });
-    assertThat(Ops.CellWise.div(lhs, rhs))
+    assertThat(CellWise.div(lhs, rhs))
       .isEqualTo(lhs.div(rhs))
       .isEqualTo(ZTensor.newFromArray(new int[][] { { -24, 1 }, { 4, 1 } }));
 
-    assertThatThrownBy(() -> Ops.CellWise.div(lhs, empty))
+    assertThatThrownBy(() -> CellWise.div(lhs, empty))
       .isInstanceOf(IndexOutOfBoundsException.class)
       .hasMessageContaining("cannot broadcast shapes: [2, 2], [0, 0]");
 
     // [2, 2], <scalar>
-    assertThat(Ops.CellWise.div(empty, 12)).isEqualTo(empty.div(12)).isEqualTo(empty);
+    assertThat(CellWise.div(empty, 12)).isEqualTo(empty.div(12)).isEqualTo(empty);
 
-    assertThat(Ops.CellWise.div(lhs, 12))
+    assertThat(CellWise.div(lhs, 12))
       .isEqualTo(lhs.div(12))
       .isEqualTo(ZTensor.newFromArray(new int[][] { { 2, 1 }, { 0, 0 } }));
 
     // <scalar>, [2, 2]
-    assertThat(Ops.CellWise.div(12, empty)).isEqualTo(empty);
+    assertThat(CellWise.div(12, empty)).isEqualTo(empty);
 
-    assertThat(Ops.CellWise.div(12, lhs))
+    assertThat(CellWise.div(12, lhs))
       .isEqualTo(ZTensor.newFromArray(new int[][] { { 0, 1 }, { 1, 12 } }));
 
     // Div by 0
-    assertThatThrownBy(() -> Ops.CellWise.div(lhs, ZTensor.newZerosLike(lhs)))
+    assertThatThrownBy(() -> CellWise.div(lhs, ZTensor.newZerosLike(lhs)))
       .isInstanceOf(ArithmeticException.class);
 
-    assertThatThrownBy(() -> Ops.CellWise.div(lhs, 0)).isInstanceOf(ArithmeticException.class);
+    assertThatThrownBy(() -> CellWise.div(lhs, 0)).isInstanceOf(ArithmeticException.class);
 
-    assertThatThrownBy(() -> Ops.CellWise.div(12, ZTensor.newZerosLike(lhs)))
+    assertThatThrownBy(() -> CellWise.div(12, ZTensor.newZerosLike(lhs)))
       .isInstanceOf(ArithmeticException.class);
 
     var inplace = lhs.mul(12345);
-    Ops.CellWise.div_(inplace, rhs);
-    Ops.CellWise.div_(inplace, 12);
+    CellWise.div_(inplace, rhs);
+    CellWise.div_(inplace, 12);
     inplace.div_(rhs);
     inplace.div_(13);
     assertThat(inplace).isEqualTo(lhs.mul(12345).div(rhs).div(12).div(rhs).div(13));
@@ -1052,42 +1053,42 @@ public class ZTensorTest implements CommonAssertions {
     var lhs = ZTensor.newFromArray(new int[][] { { 24, 12 }, { 9, 1 } });
 
     // [2, 2], [2, 2]
-    assertThat(Ops.CellWise.mod(empty, empty)).isEqualTo(empty.mod(empty)).isEqualTo(empty);
+    assertThat(CellWise.mod(empty, empty)).isEqualTo(empty.mod(empty)).isEqualTo(empty);
 
     var rhs = ZTensor.newFromArray(new int[][] { { -1, 9 }, { 2, 1 } });
-    assertThat(Ops.CellWise.mod(lhs, rhs))
+    assertThat(CellWise.mod(lhs, rhs))
       .isEqualTo(lhs.mod(rhs))
       .isEqualTo(ZTensor.newFromArray(new int[][] { { 0, 3 }, { 1, 0 } }));
 
-    assertThatThrownBy(() -> Ops.CellWise.mod(lhs, empty))
+    assertThatThrownBy(() -> CellWise.mod(lhs, empty))
       .isInstanceOf(IndexOutOfBoundsException.class)
       .hasMessageContaining("cannot broadcast shapes: [2, 2], [0, 0]");
 
     // [2, 2], <scalar>
-    assertThat(Ops.CellWise.mod(empty, 12)).isEqualTo(empty.mod(12)).isEqualTo(empty);
+    assertThat(CellWise.mod(empty, 12)).isEqualTo(empty.mod(12)).isEqualTo(empty);
 
-    assertThat(Ops.CellWise.mod(lhs, 12))
+    assertThat(CellWise.mod(lhs, 12))
       .isEqualTo(lhs.mod(12))
       .isEqualTo(ZTensor.newFromArray(new int[][] { { 0, 0 }, { 9, 1 } }));
 
     // <scalar>, [2, 2]
-    assertThat(Ops.CellWise.mod(12, empty)).isEqualTo(empty);
+    assertThat(CellWise.mod(12, empty)).isEqualTo(empty);
 
-    assertThat(Ops.CellWise.mod(12, lhs))
+    assertThat(CellWise.mod(12, lhs))
       .isEqualTo(ZTensor.newFromArray(new int[][] { { 12, 0 }, { 3, 0 } }));
 
     // mod by 0
-    assertThatThrownBy(() -> Ops.CellWise.mod(lhs, ZTensor.newZerosLike(lhs)))
+    assertThatThrownBy(() -> CellWise.mod(lhs, ZTensor.newZerosLike(lhs)))
       .isInstanceOf(ArithmeticException.class);
 
-    assertThatThrownBy(() -> Ops.CellWise.mod(lhs, 0)).isInstanceOf(ArithmeticException.class);
+    assertThatThrownBy(() -> CellWise.mod(lhs, 0)).isInstanceOf(ArithmeticException.class);
 
-    assertThatThrownBy(() -> Ops.CellWise.mod(12, ZTensor.newZerosLike(lhs)))
+    assertThatThrownBy(() -> CellWise.mod(12, ZTensor.newZerosLike(lhs)))
       .isInstanceOf(ArithmeticException.class);
 
     var inplace = lhs.mul(12345);
-    Ops.CellWise.mod_(inplace, rhs);
-    Ops.CellWise.mod_(inplace, 12);
+    CellWise.mod_(inplace, rhs);
+    CellWise.mod_(inplace, 12);
     inplace.mod_(rhs);
     inplace.mod_(13);
     assertThat(inplace).isEqualTo(lhs.mul(12345).mod(rhs).mod(12).mod(rhs).mod(13));
@@ -1099,33 +1100,33 @@ public class ZTensorTest implements CommonAssertions {
     var lhs = ZTensor.newFromArray(new int[][] { { 2, 3 }, { 4, 5 } });
 
     // [2, 2], [2, 2]
-    assertThat(Ops.CellWise.pow(empty, empty)).isEqualTo(empty.pow(empty)).isEqualTo(empty);
+    assertThat(CellWise.pow(empty, empty)).isEqualTo(empty.pow(empty)).isEqualTo(empty);
 
     var rhs = ZTensor.newFromArray(new int[][] { { 3, 2 }, { 1, 0 } });
-    assertThat(Ops.CellWise.pow(lhs, rhs))
+    assertThat(CellWise.pow(lhs, rhs))
       .isEqualTo(lhs.pow(rhs))
       .isEqualTo(ZTensor.newFromArray(new int[][] { { 8, 9 }, { 4, 1 } }));
 
-    assertThatThrownBy(() -> Ops.CellWise.pow(lhs, empty))
+    assertThatThrownBy(() -> CellWise.pow(lhs, empty))
       .isInstanceOf(IndexOutOfBoundsException.class)
       .hasMessageContaining("cannot broadcast shapes: [2, 2], [0, 0]");
 
     // [2, 2], <scalar>
-    assertThat(Ops.CellWise.pow(empty, 12)).isEqualTo(empty.pow(12)).isEqualTo(empty);
+    assertThat(CellWise.pow(empty, 12)).isEqualTo(empty.pow(12)).isEqualTo(empty);
 
-    assertThat(Ops.CellWise.pow(lhs, 12))
+    assertThat(CellWise.pow(lhs, 12))
       .isEqualTo(lhs.pow(12))
       .isEqualTo(ZTensor.newFromArray(new int[][] { { 4096, 531441 }, { 16777216, 244140625 } }));
 
     // <scalar>, [2, 2]
-    assertThat(Ops.CellWise.pow(12, empty)).isEqualTo(empty);
+    assertThat(CellWise.pow(12, empty)).isEqualTo(empty);
 
-    assertThat(Ops.CellWise.pow(12, lhs))
+    assertThat(CellWise.pow(12, lhs))
       .isEqualTo(ZTensor.newFromArray(new int[][] { { 144, 1728 }, { 20736, 248832 } }));
 
     var inplace = lhs.mul(12345);
-    Ops.CellWise.pow_(inplace, rhs);
-    Ops.CellWise.pow_(inplace, 12);
+    CellWise.pow_(inplace, rhs);
+    CellWise.pow_(inplace, 12);
     inplace.pow_(rhs);
     inplace.pow_(13);
     assertThat(inplace).isEqualTo(lhs.mul(12345).pow(rhs).pow(12).pow(rhs).pow(13));
@@ -1137,33 +1138,33 @@ public class ZTensorTest implements CommonAssertions {
     var lhs = ZTensor.newFromArray(new int[][] { { 2, 3 }, { 4, 20 } });
 
     // [2, 2], [2, 2]
-    assertThat(Ops.CellWise.log(empty, empty)).isEqualTo(empty.log(empty)).isEqualTo(empty);
+    assertThat(CellWise.log(empty, empty)).isEqualTo(empty.log(empty)).isEqualTo(empty);
 
     var rhs = ZTensor.newFromArray(new int[][] { { 3, 2 }, { 2, 2 } });
-    assertThat(Ops.CellWise.log(lhs, rhs))
+    assertThat(CellWise.log(lhs, rhs))
       .isEqualTo(lhs.log(rhs))
       .isEqualTo(ZTensor.newFromArray(new int[][] { { 0, 1 }, { 2, 4 } }));
 
-    assertThatThrownBy(() -> Ops.CellWise.log(lhs, empty))
+    assertThatThrownBy(() -> CellWise.log(lhs, empty))
       .isInstanceOf(IndexOutOfBoundsException.class)
       .hasMessageContaining("cannot broadcast shapes: [2, 2], [0, 0]");
 
     // [2, 2], <scalar>
-    assertThat(Ops.CellWise.log(empty, 12)).isEqualTo(empty.log(12)).isEqualTo(empty);
+    assertThat(CellWise.log(empty, 12)).isEqualTo(empty.log(12)).isEqualTo(empty);
 
-    assertThat(Ops.CellWise.log(lhs, 12))
+    assertThat(CellWise.log(lhs, 12))
       .isEqualTo(lhs.log(12))
       .isEqualTo(ZTensor.newFromArray(new int[][] { { 0, 0 }, { 0, 1 } }));
 
     // <scalar>, [2, 2]
-    assertThat(Ops.CellWise.log(12, empty)).isEqualTo(empty);
+    assertThat(CellWise.log(12, empty)).isEqualTo(empty);
 
-    assertThat(Ops.CellWise.log(12, lhs))
+    assertThat(CellWise.log(12, lhs))
       .isEqualTo(ZTensor.newFromArray(new int[][] { { 3, 2 }, { 1, 0 } }));
 
     var inplace = lhs.mul(12345);
-    Ops.CellWise.log_(inplace, rhs);
-    Ops.CellWise.log_(inplace, 12);
+    CellWise.log_(inplace, rhs);
+    CellWise.log_(inplace, 12);
     inplace.log_(rhs);
     inplace.log_(13);
     assertThat(inplace).isEqualTo(lhs.mul(12345).log(rhs).log(12).log(rhs).log(13));
@@ -1248,25 +1249,5 @@ public class ZTensorTest implements CommonAssertions {
     public int hashCode() {
       return Objects.hash(tensor);
     }
-  }
-
-  @Test
-  public void test_matmul() {
-    var lhs = ZTensor.newFromArray(new int[][] { { 1, 2, 3 }, { 4, 5, 6 } });
-    var rhs = ZTensor.newFromArray(new int[][] { { 10, 11 }, { 20, 21 }, { 30, 31 } });
-
-    assertThat(lhs.matmul(rhs))
-      .isEqualTo(ZTensor.newFromArray(new int[][] { { 140, 146 }, { 320, 335 } }));
-
-    assertThat(lhs.matmul(ZTensor.newVector(10, 20, 30)))
-      .isEqualTo(ZTensor.newFromArray(new int[] { 140, 320 }));
-
-    assertThatExceptionOfType(IllegalArgumentException.class)
-      .isThrownBy(() -> lhs.matmul(ZTensor.newVector(10, 20, 30, 40)))
-      .withMessageContaining("lhs shape [2, 3] not compatible with rhs shape [4]");
-
-    assertThatExceptionOfType(IllegalArgumentException.class)
-      .isThrownBy(() -> lhs.matmul(ZTensor.newZeros(3, 4, 5)))
-      .withMessageContaining("rhs must be a 1D or 2D tensor, got 3D: [3, 4, 5]");
   }
 }

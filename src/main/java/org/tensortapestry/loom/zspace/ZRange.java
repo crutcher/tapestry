@@ -12,6 +12,8 @@ import lombok.Builder;
 import lombok.Value;
 import org.tensortapestry.loom.zspace.indexing.BufferMode;
 import org.tensortapestry.loom.zspace.indexing.IterableCoordinates;
+import org.tensortapestry.loom.zspace.ops.CellWise;
+import org.tensortapestry.loom.zspace.ops.DominanceOrderingOps;
 import org.tensortapestry.loom.zspace.serialization.HasJsonOutput;
 import org.tensortapestry.loom.zspace.serialization.ParseUtil;
 import org.tensortapestry.loom.zspace.serialization.ZSpaceJsonUtil;
@@ -248,8 +250,8 @@ public class ZRange implements Cloneable, HasSize, HasPermute<ZRange>, HasJsonOu
       var r = it.next();
       HasDimension.assertSameNDim(first, r);
 
-      start = Ops.CellWise.minimum(start, r.start.tensor);
-      end = Ops.CellWise.maximum(end, r.end.tensor);
+      start = CellWise.minimum(start, r.start.tensor);
+      end = CellWise.maximum(end, r.end.tensor);
     }
 
     return new ZRange(start, end);
@@ -482,7 +484,7 @@ public class ZRange implements Cloneable, HasSize, HasPermute<ZRange>, HasJsonOu
    * @return true if this range contains the point.
    */
   public boolean contains(@Nonnull HasZTensor p) {
-    return (!isEmpty() && (getNDim() == 0 || (start.le(p) && Ops.DominanceOrdering.lt(p, end))));
+    return (!isEmpty() && (getNDim() == 0 || (start.le(p) && DominanceOrderingOps.lt(p, end))));
   }
 
   /**
@@ -508,8 +510,8 @@ public class ZRange implements Cloneable, HasSize, HasPermute<ZRange>, HasJsonOu
    * @return the intersection of this range with another, null if there is no intersection.
    */
   @Nullable public ZRange intersection(@Nonnull ZRange other) {
-    var iStart = Ops.CellWise.maximum(start, other.start).newZPoint();
-    var iEnd = Ops.CellWise.minimum(end, other.end).newZPoint();
+    var iStart = CellWise.maximum(start, other.start).newZPoint();
+    var iEnd = CellWise.minimum(end, other.end).newZPoint();
     if (iStart.le(iEnd)) {
       return new ZRange(iStart, iEnd);
     } else {

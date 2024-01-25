@@ -26,6 +26,8 @@ import org.tensortapestry.loom.zspace.exceptions.ZDimMissMatchError;
 import org.tensortapestry.loom.zspace.indexing.BufferMode;
 import org.tensortapestry.loom.zspace.indexing.IndexingFns;
 import org.tensortapestry.loom.zspace.indexing.IterableCoordinates;
+import org.tensortapestry.loom.zspace.ops.CellWise;
+import org.tensortapestry.loom.zspace.ops.ReduceOps;
 import org.tensortapestry.loom.zspace.serialization.HasJsonOutput;
 import org.tensortapestry.loom.zspace.serialization.ZSpaceJsonUtil;
 
@@ -1009,7 +1011,7 @@ public final class ZTensor
    */
   @Nonnull
   public ZTensor map(@Nonnull IntUnaryOperator op) {
-    return Ops.CellWise.map(op, this);
+    return CellWise.map(op, this);
   }
 
   /**
@@ -1047,7 +1049,7 @@ public final class ZTensor
    */
   @Nonnull
   public ZTensor zipWith(@Nonnull IntBinaryOperator op, @Nonnull HasZTensor rhs) {
-    return Ops.CellWise.zipWith(op, this, rhs);
+    return CellWise.zipWith(op, this, rhs);
   }
 
   /**
@@ -1101,7 +1103,7 @@ public final class ZTensor
    */
   @Nonnull
   public ZTensor reduceCells(@Nonnull IntBinaryOperator op, int initial) {
-    return Ops.Reduce.reduceCells(this, op, initial);
+    return ReduceOps.reduceCells(this, op, initial);
   }
 
   /**
@@ -1118,462 +1120,7 @@ public final class ZTensor
    */
   @Nonnull
   public ZTensor reduceCells(@Nonnull IntBinaryOperator op, int initial, @Nonnull int... dims) {
-    return Ops.Reduce.reduceCells(this, op, initial, dims);
-  }
-
-  /**
-   * Matrix multiplication with the given rhs tensor.
-   *
-   * @param rhs the right-hand side tensor.
-   * @return a new tensor.
-   */
-  @Nonnull
-  public ZTensor matmul(@Nonnull HasZTensor rhs) {
-    return Ops.Matrix.matmul(this, rhs);
-  }
-
-  /**
-   * Returns the sum of all elements in the tensor.
-   *
-   * @return the int sum of all elements in the tensor.
-   */
-  public int sumAsInt() {
-    return Ops.Reduce.sumAsInt(this);
-  }
-
-  /**
-   * Returns the sum of all elements in the tensor.
-   *
-   * @return the scalar ZTensor sum of all elements in the tensor.
-   */
-  @Nonnull
-  public ZTensor sum() {
-    return Ops.Reduce.sum(this);
-  }
-
-  /**
-   * Returns the sum of all elements in the tensor, grouped by the specified dimensions.
-   *
-   * <p>The shape of the returned tensor is the same as the shape of the input tensor, except that
-   * the specified dimensions are removed.
-   *
-   * @param dims the dimensions to group by.
-   * @return a new tensor.
-   */
-  @Nonnull
-  public ZTensor sum(@Nonnull int... dims) {
-    return Ops.Reduce.sum(this, dims);
-  }
-
-  /**
-   * Returns the product of all elements in the tensor.
-   *
-   * @return the int prod of all elements in the tensor.
-   */
-  public int prodAsInt() {
-    return Ops.Reduce.prodAsInt(this);
-  }
-
-  /**
-   * Returns the product of all elements in the tensor.
-   *
-   * @return the scalar ZTensor prod of all elements in the tensor.
-   */
-  @Nonnull
-  public ZTensor prod() {
-    return Ops.Reduce.prod(this);
-  }
-
-  /**
-   * Returns the product of all elements in the tensor, grouped by the specified dimensions.
-   *
-   * <p>The shape of the returned tensor is the same as the shape of the input tensor, except that
-   * the specified dimensions are removed.
-   *
-   * @param dims the dimensions to group by.
-   * @return a new tensor.
-   */
-  @Nonnull
-  public ZTensor prod(@Nonnull int... dims) {
-    return Ops.Reduce.prod(this, dims);
-  }
-
-  /**
-   * Returns the minimum of all elements in the tensor.
-   *
-   * @return the int minimum of all elements in the tensor.
-   */
-  public int minAsInt() {
-    return Ops.Reduce.minAsInt(this);
-  }
-
-  /**
-   * Returns a new scalar ZTensor that contains the minimum value in this ZTensor.
-   *
-   * @return a new ZTensor object containing the minimum value
-   */
-  @Nonnull
-  public ZTensor min() {
-    return Ops.Reduce.min(this);
-  }
-
-  /**
-   * Returns a new ZTensor that contains the minimum value in this ZTensor, grouped by the specified
-   * dimensions.
-   *
-   * <p>The shape of the returned tensor is the same as the shape of the input tensor, except that
-   * the specified dimensions are removed.
-   *
-   * @param dims the dimensions to group by.
-   * @return a new tensor.
-   */
-  @Nonnull
-  public ZTensor min(@Nonnull int... dims) {
-    return Ops.Reduce.min(this, dims);
-  }
-
-  /**
-   * Returns the maximum of all elements in the tensor.
-   *
-   * @return the int maximum of all elements in the tensor.
-   */
-  public int maxAsInt() {
-    return Ops.Reduce.maxAsInt(this);
-  }
-
-  /**
-   * Returns a new scalar ZTensor that contains the maximum value in this ZTensor.
-   *
-   * @return a new ZTensor object containing the maximum value
-   */
-  @Nonnull
-  public ZTensor max() {
-    return Ops.Reduce.max(this);
-  }
-
-  /**
-   * Returns a new ZTensor that contains the maximum value in this ZTensor, grouped by the specified
-   * dimensions.
-   *
-   * <p>The shape of the returned tensor is the same as the shape of the input tensor, except that
-   * the specified dimensions are removed.
-   *
-   * @param dims the dimensions to group by.
-   * @return a new tensor.
-   */
-  @Nonnull
-  public ZTensor max(@Nonnull int... dims) {
-    return Ops.Reduce.max(this, dims);
-  }
-
-  /** Returns a new elementwise negation of this tensor. */
-  @Nonnull
-  public ZTensor neg() {
-    return Ops.CellWise.neg(this);
-  }
-
-  /** Returns a new elementwise absolute value of this tensor. */
-  @Nonnull
-  public ZTensor abs() {
-    return Ops.CellWise.abs(this);
-  }
-
-  /** Returns an elementwise broadcast addition with this tensor. */
-  @Nonnull
-  public ZTensor add(@Nonnull HasZTensor rhs) {
-    return Ops.CellWise.add(this, rhs);
-  }
-
-  /** Returns an elementwise broadcast addition with this tensor. */
-  @Nonnull
-  public ZTensor add(int rhs) {
-    return Ops.CellWise.add(this, rhs);
-  }
-
-  /**
-   * Performs an in-place elementwise broadcast addition on this tensor.
-   *
-   * <p>This tensor must be mutable.
-   *
-   * @param rhs the right-hand side tensor.
-   */
-  public void add_(@Nonnull HasZTensor rhs) {
-    Ops.CellWise.add_(this, rhs);
-  }
-
-  /**
-   * Performs an in-place elementwise broadcast addition on this tensor.
-   *
-   * <p>This tensor must be mutable.
-   *
-   * @param rhs the right-hand side tensor.
-   */
-  public void add_(int rhs) {
-    Ops.CellWise.add_(this, rhs);
-  }
-
-  /**
-   * Returns an elementwise broadcast subtraction with this tensor.
-   *
-   * @param rhs the right-hand side tensor.
-   * @return a new tensor.
-   */
-  @Nonnull
-  public ZTensor sub(@Nonnull HasZTensor rhs) {
-    return Ops.CellWise.sub(this, rhs);
-  }
-
-  /**
-   * Returns an elementwise broadcast subtraction with this tensor.
-   *
-   * @param rhs the right-hand side tensor.
-   * @return a new tensor.
-   */
-  @Nonnull
-  public ZTensor sub(int rhs) {
-    return Ops.CellWise.sub(this, rhs);
-  }
-
-  /**
-   * Performs an in-place elementwise broadcast subtraction on this tensor.
-   *
-   * <p>This tensor must be mutable.
-   *
-   * @param rhs the right-hand side tensor.
-   */
-  public void sub_(@Nonnull HasZTensor rhs) {
-    Ops.CellWise.sub_(this, rhs);
-  }
-
-  /**
-   * Performs an in-place elementwise broadcast subtraction on this tensor.
-   *
-   * <p>This tensor must be mutable.
-   *
-   * @param rhs the right-hand side tensor.
-   */
-  public void sub_(int rhs) {
-    Ops.CellWise.sub_(this, rhs);
-  }
-
-  /**
-   * Returns an elementwise broadcast multiplication with this tensor.
-   *
-   * @param rhs the right-hand side tensor.
-   * @return a new tensor.
-   */
-  @Nonnull
-  public ZTensor mul(@Nonnull HasZTensor rhs) {
-    return Ops.CellWise.mul(this, rhs);
-  }
-
-  /**
-   * Returns an elementwise broadcast multiplication with this tensor.
-   *
-   * @param rhs the right-hand side tensor.
-   * @return a new tensor.
-   */
-  @Nonnull
-  public ZTensor mul(int rhs) {
-    return Ops.CellWise.mul(this, rhs);
-  }
-
-  /**
-   * Performs an in-place elementwise broadcast multiplication on this tensor.
-   *
-   * <p>This tensor must be mutable.
-   *
-   * @param rhs the right-hand side tensor.
-   */
-  public void mul_(@Nonnull HasZTensor rhs) {
-    Ops.CellWise.mul_(this, rhs);
-  }
-
-  /**
-   * Performs an in-place elementwise broadcast multiplication on this tensor.
-   *
-   * <p>This tensor must be mutable.
-   *
-   * @param rhs the right-hand side tensor.
-   */
-  public void mul_(int rhs) {
-    Ops.CellWise.mul_(this, rhs);
-  }
-
-  /**
-   * Returns an elementwise broadcast division with this tensor.
-   *
-   * @param rhs the right-hand side tensor.
-   * @return a new tensor.
-   */
-  @Nonnull
-  public ZTensor div(@Nonnull HasZTensor rhs) {
-    return Ops.CellWise.div(this, rhs);
-  }
-
-  /**
-   * Returns an elementwise broadcast division with this tensor.
-   *
-   * @param rhs the right-hand side tensor.
-   * @return a new tensor.
-   */
-  @Nonnull
-  public ZTensor div(int rhs) {
-    return Ops.CellWise.div(this, rhs);
-  }
-
-  /**
-   * Performs an in-place elementwise broadcast division on this tensor.
-   *
-   * <p>This tensor must be mutable.
-   *
-   * @param rhs the right-hand side tensor.
-   */
-  public void div_(@Nonnull HasZTensor rhs) {
-    Ops.CellWise.div_(this, rhs);
-  }
-
-  /**
-   * Performs an in-place elementwise broadcast division on this tensor.
-   *
-   * <p>This tensor must be mutable.
-   *
-   * @param rhs the right-hand side tensor.
-   */
-  public void div_(int rhs) {
-    Ops.CellWise.div_(this, rhs);
-  }
-
-  /**
-   * Returns an elementwise broadcast mod with this tensor.
-   *
-   * @param rhs the right-hand side tensor.
-   * @return a new tensor.
-   */
-  @Nonnull
-  public ZTensor mod(@Nonnull HasZTensor rhs) {
-    return Ops.CellWise.mod(this, rhs);
-  }
-
-  /**
-   * Returns an elementwise broadcast mod with this tensor.
-   *
-   * @param rhs the right-hand side tensor.
-   * @return a new tensor.
-   */
-  @Nonnull
-  public ZTensor mod(int rhs) {
-    return Ops.CellWise.mod(this, rhs);
-  }
-
-  /**
-   * Performs an in-place elementwise broadcast mod on this tensor.
-   *
-   * <p>This tensor must be mutable.
-   *
-   * @param rhs the right-hand side tensor.
-   */
-  public void mod_(@Nonnull HasZTensor rhs) {
-    Ops.CellWise.mod_(this, rhs);
-  }
-
-  /**
-   * Performs an in-place elementwise broadcast mod on this tensor.
-   *
-   * <p>This tensor must be mutable.
-   *
-   * @param rhs the right-hand side tensor.
-   */
-  public void mod_(int rhs) {
-    Ops.CellWise.mod_(this, rhs);
-  }
-
-  /**
-   * Returns an elementwise broadcast power with this tensor.
-   *
-   * @param rhs the right-hand side tensor.
-   * @return a new tensor.
-   */
-  @Nonnull
-  public ZTensor pow(@Nonnull HasZTensor rhs) {
-    return Ops.CellWise.pow(this, rhs);
-  }
-
-  /**
-   * Returns an elementwise broadcast power with this tensor.
-   *
-   * @param rhs the right-hand side scalar.
-   * @return a new tensor.
-   */
-  @Nonnull
-  public ZTensor pow(int rhs) {
-    return Ops.CellWise.pow(this, rhs);
-  }
-
-  /**
-   * Performs an in-place elementwise broadcast power on this tensor.
-   *
-   * <p>This tensor must be mutable.
-   *
-   * @param rhs the right-hand side tensor.
-   */
-  public void pow_(@Nonnull HasZTensor rhs) {
-    Ops.CellWise.pow_(this, rhs);
-  }
-
-  /**
-   * Performs an in-place elementwise broadcast power on this tensor.
-   *
-   * <p>This tensor must be mutable.
-   *
-   * @param rhs the right-hand side scalar.
-   */
-  public void pow_(int rhs) {
-    Ops.CellWise.pow_(this, rhs);
-  }
-
-  /**
-   * Returns an elementwise broadcast log with this tensor.
-   *
-   * @param rhs the right-hand side tensor.
-   * @return a new tensor.
-   */
-  @Nonnull
-  public ZTensor log(@Nonnull HasZTensor rhs) {
-    return Ops.CellWise.log(this, rhs);
-  }
-
-  /**
-   * Returns an elementwise broadcast log with this tensor.
-   *
-   * @param rhs the right-hand side scalar.
-   * @return a new tensor.
-   */
-  @Nonnull
-  public ZTensor log(int rhs) {
-    return Ops.CellWise.log(this, rhs);
-  }
-
-  /**
-   * Performs an in-place elementwise broadcast log on this tensor.
-   *
-   * <p>This tensor must be mutable.
-   *
-   * @param rhs the right-hand side tensor.
-   */
-  public void log_(@Nonnull HasZTensor rhs) {
-    Ops.CellWise.log_(this, rhs);
-  }
-
-  /**
-   * Performs an in-place elementwise broadcast log on this tensor.
-   *
-   * <p>This tensor must be mutable.
-   *
-   * @param rhs the right-hand side scalar.
-   */
-  public void log_(int rhs) {
-    Ops.CellWise.log_(this, rhs);
+    return ReduceOps.reduceCells(this, op, initial, dims);
   }
 
   /**
@@ -1584,7 +1131,7 @@ public final class ZTensor
    * @return the int result of the reduction.
    */
   public int reduceCellsAtomic(@Nonnull IntBinaryOperator op, int initial) {
-    return Ops.Reduce.reduceCellsAtomic(this, op, initial);
+    return ReduceOps.reduceCellsAtomic(this, op, initial);
   }
 
   /**
@@ -1973,5 +1520,449 @@ public final class ZTensor
         }
       );
     }
+  }
+
+  /**
+   * Returns the sum of all elements in the tensor.
+   *
+   * @return the int sum of all elements in the tensor.
+   */
+  public int sumAsInt() {
+    return ReduceOps.sumAsInt(this);
+  }
+
+  /**
+   * Returns the sum of all elements in the tensor.
+   *
+   * @return the scalar ZTensor sum of all elements in the tensor.
+   */
+  @Nonnull
+  public ZTensor sum() {
+    return ReduceOps.sum(this);
+  }
+
+  /**
+   * Returns the sum of all elements in the tensor, grouped by the specified dimensions.
+   *
+   * <p>The shape of the returned tensor is the same as the shape of the input tensor, except that
+   * the specified dimensions are removed.
+   *
+   * @param dims the dimensions to group by.
+   * @return a new tensor.
+   */
+  @Nonnull
+  public ZTensor sum(@Nonnull int... dims) {
+    return ReduceOps.sum(this, dims);
+  }
+
+  /**
+   * Returns the product of all elements in the tensor.
+   *
+   * @return the int prod of all elements in the tensor.
+   */
+  public int prodAsInt() {
+    return ReduceOps.prodAsInt(this);
+  }
+
+  /**
+   * Returns the product of all elements in the tensor.
+   *
+   * @return the scalar ZTensor prod of all elements in the tensor.
+   */
+  @Nonnull
+  public ZTensor prod() {
+    return ReduceOps.prod(this);
+  }
+
+  /**
+   * Returns the product of all elements in the tensor, grouped by the specified dimensions.
+   *
+   * <p>The shape of the returned tensor is the same as the shape of the input tensor, except that
+   * the specified dimensions are removed.
+   *
+   * @param dims the dimensions to group by.
+   * @return a new tensor.
+   */
+  @Nonnull
+  public ZTensor prod(@Nonnull int... dims) {
+    return ReduceOps.prod(this, dims);
+  }
+
+  /**
+   * Returns the minimum of all elements in the tensor.
+   *
+   * @return the int minimum of all elements in the tensor.
+   */
+  public int minAsInt() {
+    return ReduceOps.minAsInt(this);
+  }
+
+  /**
+   * Returns a new scalar ZTensor that contains the minimum value in this ZTensor.
+   *
+   * @return a new ZTensor object containing the minimum value
+   */
+  @Nonnull
+  public ZTensor min() {
+    return ReduceOps.min(this);
+  }
+
+  /**
+   * Returns a new ZTensor that contains the minimum value in this ZTensor, grouped by the specified
+   * dimensions.
+   *
+   * <p>The shape of the returned tensor is the same as the shape of the input tensor, except that
+   * the specified dimensions are removed.
+   *
+   * @param dims the dimensions to group by.
+   * @return a new tensor.
+   */
+  @Nonnull
+  public ZTensor min(@Nonnull int... dims) {
+    return ReduceOps.min(this, dims);
+  }
+
+  /**
+   * Returns the maximum of all elements in the tensor.
+   *
+   * @return the int maximum of all elements in the tensor.
+   */
+  public int maxAsInt() {
+    return ReduceOps.maxAsInt(this);
+  }
+
+  /**
+   * Returns a new scalar ZTensor that contains the maximum value in this ZTensor.
+   *
+   * @return a new ZTensor object containing the maximum value
+   */
+  @Nonnull
+  public ZTensor max() {
+    return ReduceOps.max(this);
+  }
+
+  /**
+   * Returns a new ZTensor that contains the maximum value in this ZTensor, grouped by the specified
+   * dimensions.
+   *
+   * <p>The shape of the returned tensor is the same as the shape of the input tensor, except that
+   * the specified dimensions are removed.
+   *
+   * @param dims the dimensions to group by.
+   * @return a new tensor.
+   */
+  @Nonnull
+  public ZTensor max(@Nonnull int... dims) {
+    return ReduceOps.max(this, dims);
+  }
+
+  /** Returns a new elementwise negation of this tensor. */
+  @Nonnull
+  public ZTensor neg() {
+    return CellWise.neg(this);
+  }
+
+  /** Returns a new elementwise absolute value of this tensor. */
+  @Nonnull
+  public ZTensor abs() {
+    return CellWise.abs(this);
+  }
+
+  /** Returns an elementwise broadcast addition with this tensor. */
+  @Nonnull
+  public ZTensor add(@Nonnull HasZTensor rhs) {
+    return CellWise.add(this, rhs);
+  }
+
+  /** Returns an elementwise broadcast addition with this tensor. */
+  @Nonnull
+  public ZTensor add(int rhs) {
+    return CellWise.add(this, rhs);
+  }
+
+  /**
+   * Performs an in-place elementwise broadcast addition on this tensor.
+   *
+   * <p>This tensor must be mutable.
+   *
+   * @param rhs the right-hand side tensor.
+   */
+  public void add_(@Nonnull HasZTensor rhs) {
+    CellWise.add_(this, rhs);
+  }
+
+  /**
+   * Performs an in-place elementwise broadcast addition on this tensor.
+   *
+   * <p>This tensor must be mutable.
+   *
+   * @param rhs the right-hand side tensor.
+   */
+  public void add_(int rhs) {
+    CellWise.add_(this, rhs);
+  }
+
+  /**
+   * Returns an elementwise broadcast subtraction with this tensor.
+   *
+   * @param rhs the right-hand side tensor.
+   * @return a new tensor.
+   */
+  @Nonnull
+  public ZTensor sub(@Nonnull HasZTensor rhs) {
+    return CellWise.sub(this, rhs);
+  }
+
+  /**
+   * Returns an elementwise broadcast subtraction with this tensor.
+   *
+   * @param rhs the right-hand side tensor.
+   * @return a new tensor.
+   */
+  @Nonnull
+  public ZTensor sub(int rhs) {
+    return CellWise.sub(this, rhs);
+  }
+
+  /**
+   * Performs an in-place elementwise broadcast subtraction on this tensor.
+   *
+   * <p>This tensor must be mutable.
+   *
+   * @param rhs the right-hand side tensor.
+   */
+  public void sub_(@Nonnull HasZTensor rhs) {
+    CellWise.sub_(this, rhs);
+  }
+
+  /**
+   * Performs an in-place elementwise broadcast subtraction on this tensor.
+   *
+   * <p>This tensor must be mutable.
+   *
+   * @param rhs the right-hand side tensor.
+   */
+  public void sub_(int rhs) {
+    CellWise.sub_(this, rhs);
+  }
+
+  /**
+   * Returns an elementwise broadcast multiplication with this tensor.
+   *
+   * @param rhs the right-hand side tensor.
+   * @return a new tensor.
+   */
+  @Nonnull
+  public ZTensor mul(@Nonnull HasZTensor rhs) {
+    return CellWise.mul(this, rhs);
+  }
+
+  /**
+   * Returns an elementwise broadcast multiplication with this tensor.
+   *
+   * @param rhs the right-hand side tensor.
+   * @return a new tensor.
+   */
+  @Nonnull
+  public ZTensor mul(int rhs) {
+    return CellWise.mul(this, rhs);
+  }
+
+  /**
+   * Performs an in-place elementwise broadcast multiplication on this tensor.
+   *
+   * <p>This tensor must be mutable.
+   *
+   * @param rhs the right-hand side tensor.
+   */
+  public void mul_(@Nonnull HasZTensor rhs) {
+    CellWise.mul_(this, rhs);
+  }
+
+  /**
+   * Performs an in-place elementwise broadcast multiplication on this tensor.
+   *
+   * <p>This tensor must be mutable.
+   *
+   * @param rhs the right-hand side tensor.
+   */
+  public void mul_(int rhs) {
+    CellWise.mul_(this, rhs);
+  }
+
+  /**
+   * Returns an elementwise broadcast division with this tensor.
+   *
+   * @param rhs the right-hand side tensor.
+   * @return a new tensor.
+   */
+  @Nonnull
+  public ZTensor div(@Nonnull HasZTensor rhs) {
+    return CellWise.div(this, rhs);
+  }
+
+  /**
+   * Returns an elementwise broadcast division with this tensor.
+   *
+   * @param rhs the right-hand side tensor.
+   * @return a new tensor.
+   */
+  @Nonnull
+  public ZTensor div(int rhs) {
+    return CellWise.div(this, rhs);
+  }
+
+  /**
+   * Performs an in-place elementwise broadcast division on this tensor.
+   *
+   * <p>This tensor must be mutable.
+   *
+   * @param rhs the right-hand side tensor.
+   */
+  public void div_(@Nonnull HasZTensor rhs) {
+    CellWise.div_(this, rhs);
+  }
+
+  /**
+   * Performs an in-place elementwise broadcast division on this tensor.
+   *
+   * <p>This tensor must be mutable.
+   *
+   * @param rhs the right-hand side tensor.
+   */
+  public void div_(int rhs) {
+    CellWise.div_(this, rhs);
+  }
+
+  /**
+   * Returns an elementwise broadcast mod with this tensor.
+   *
+   * @param rhs the right-hand side tensor.
+   * @return a new tensor.
+   */
+  @Nonnull
+  public ZTensor mod(@Nonnull HasZTensor rhs) {
+    return CellWise.mod(this, rhs);
+  }
+
+  /**
+   * Returns an elementwise broadcast mod with this tensor.
+   *
+   * @param rhs the right-hand side tensor.
+   * @return a new tensor.
+   */
+  @Nonnull
+  public ZTensor mod(int rhs) {
+    return CellWise.mod(this, rhs);
+  }
+
+  /**
+   * Performs an in-place elementwise broadcast mod on this tensor.
+   *
+   * <p>This tensor must be mutable.
+   *
+   * @param rhs the right-hand side tensor.
+   */
+  public void mod_(@Nonnull HasZTensor rhs) {
+    CellWise.mod_(this, rhs);
+  }
+
+  /**
+   * Performs an in-place elementwise broadcast mod on this tensor.
+   *
+   * <p>This tensor must be mutable.
+   *
+   * @param rhs the right-hand side tensor.
+   */
+  public void mod_(int rhs) {
+    CellWise.mod_(this, rhs);
+  }
+
+  /**
+   * Returns an elementwise broadcast power with this tensor.
+   *
+   * @param rhs the right-hand side tensor.
+   * @return a new tensor.
+   */
+  @Nonnull
+  public ZTensor pow(@Nonnull HasZTensor rhs) {
+    return CellWise.pow(this, rhs);
+  }
+
+  /**
+   * Returns an elementwise broadcast power with this tensor.
+   *
+   * @param rhs the right-hand side scalar.
+   * @return a new tensor.
+   */
+  @Nonnull
+  public ZTensor pow(int rhs) {
+    return CellWise.pow(this, rhs);
+  }
+
+  /**
+   * Performs an in-place elementwise broadcast power on this tensor.
+   *
+   * <p>This tensor must be mutable.
+   *
+   * @param rhs the right-hand side tensor.
+   */
+  public void pow_(@Nonnull HasZTensor rhs) {
+    CellWise.pow_(this, rhs);
+  }
+
+  /**
+   * Performs an in-place elementwise broadcast power on this tensor.
+   *
+   * <p>This tensor must be mutable.
+   *
+   * @param rhs the right-hand side scalar.
+   */
+  public void pow_(int rhs) {
+    CellWise.pow_(this, rhs);
+  }
+
+  /**
+   * Returns an elementwise broadcast log with this tensor.
+   *
+   * @param rhs the right-hand side tensor.
+   * @return a new tensor.
+   */
+  @Nonnull
+  public ZTensor log(@Nonnull HasZTensor rhs) {
+    return CellWise.log(this, rhs);
+  }
+
+  /**
+   * Returns an elementwise broadcast log with this tensor.
+   *
+   * @param rhs the right-hand side scalar.
+   * @return a new tensor.
+   */
+  @Nonnull
+  public ZTensor log(int rhs) {
+    return CellWise.log(this, rhs);
+  }
+
+  /**
+   * Performs an in-place elementwise broadcast log on this tensor.
+   *
+   * <p>This tensor must be mutable.
+   *
+   * @param rhs the right-hand side tensor.
+   */
+  public void log_(@Nonnull HasZTensor rhs) {
+    CellWise.log_(this, rhs);
+  }
+
+  /**
+   * Performs an in-place elementwise broadcast log on this tensor.
+   *
+   * <p>This tensor must be mutable.
+   *
+   * @param rhs the right-hand side scalar.
+   */
+  public void log_(int rhs) {
+    CellWise.log_(this, rhs);
   }
 }
