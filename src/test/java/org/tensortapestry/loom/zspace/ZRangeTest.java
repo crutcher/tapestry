@@ -3,6 +3,7 @@ package org.tensortapestry.loom.zspace;
 import java.util.List;
 import org.junit.Test;
 import org.tensortapestry.loom.testing.CommonAssertions;
+import org.tensortapestry.loom.zspace.indexing.BufferMode;
 
 public class ZRangeTest implements CommonAssertions {
 

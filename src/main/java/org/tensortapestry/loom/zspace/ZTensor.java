@@ -26,6 +26,9 @@ import lombok.experimental.UtilityClass;
 import org.tensortapestry.loom.common.collections.IteratorUtils;
 import org.tensortapestry.loom.common.json.HasToJsonString;
 import org.tensortapestry.loom.common.json.JsonUtil;
+import org.tensortapestry.loom.zspace.indexing.BufferMode;
+import org.tensortapestry.loom.zspace.indexing.IndexingFns;
+import org.tensortapestry.loom.zspace.indexing.IterableCoordinates;
 
 /**
  * A multidimensional int array used for numerical operations.
@@ -1005,7 +1008,7 @@ public final class ZTensor
    */
   @Nonnull
   public ZTensor map(@Nonnull IntUnaryOperator op) {
-    return ZTensorOperations.map(op, this);
+    return Ops.CellWise.map(op, this);
   }
 
   /**
@@ -1043,7 +1046,7 @@ public final class ZTensor
    */
   @Nonnull
   public ZTensor zipWith(@Nonnull IntBinaryOperator op, @Nonnull HasZTensor rhs) {
-    return ZTensorOperations.zipWith(op, this, rhs);
+    return Ops.CellWise.zipWith(op, this, rhs);
   }
 
   /**
@@ -1097,7 +1100,7 @@ public final class ZTensor
    */
   @Nonnull
   public ZTensor reduceCells(@Nonnull IntBinaryOperator op, int initial) {
-    return ZTensorOperations.reduceCells(this, op, initial);
+    return Ops.Reduce.reduceCells(this, op, initial);
   }
 
   /**
@@ -1114,7 +1117,7 @@ public final class ZTensor
    */
   @Nonnull
   public ZTensor reduceCells(@Nonnull IntBinaryOperator op, int initial, @Nonnull int... dims) {
-    return ZTensorOperations.reduceCells(this, op, initial, dims);
+    return Ops.Reduce.reduceCells(this, op, initial, dims);
   }
 
   /**
@@ -1124,7 +1127,7 @@ public final class ZTensor
    * @return a new tensor.
    */
   public ZTensor matmul(@Nonnull HasZTensor rhs) {
-    return ZTensorOperations.matmul(this, rhs);
+    return Ops.Reduce.matmul(this, rhs);
   }
 
   /**
@@ -1133,7 +1136,7 @@ public final class ZTensor
    * @return the int sum of all elements in the tensor.
    */
   public int sumAsInt() {
-    return ZTensorOperations.sumAsInt(this);
+    return Ops.Reduce.sumAsInt(this);
   }
 
   /**
@@ -1143,7 +1146,7 @@ public final class ZTensor
    */
   @Nonnull
   public ZTensor sum() {
-    return ZTensorOperations.sum(this);
+    return Ops.Reduce.sum(this);
   }
 
   /**
@@ -1157,7 +1160,7 @@ public final class ZTensor
    */
   @Nonnull
   public ZTensor sum(@Nonnull int... dims) {
-    return ZTensorOperations.sum(this, dims);
+    return Ops.Reduce.sum(this, dims);
   }
 
   /**
@@ -1166,7 +1169,7 @@ public final class ZTensor
    * @return the int prod of all elements in the tensor.
    */
   public int prodAsInt() {
-    return ZTensorOperations.prodAsInt(this);
+    return Ops.Reduce.prodAsInt(this);
   }
 
   /**
@@ -1176,7 +1179,7 @@ public final class ZTensor
    */
   @Nonnull
   public ZTensor prod() {
-    return ZTensorOperations.prod(this);
+    return Ops.Reduce.prod(this);
   }
 
   /**
@@ -1190,7 +1193,7 @@ public final class ZTensor
    */
   @Nonnull
   public ZTensor prod(@Nonnull int... dims) {
-    return ZTensorOperations.prod(this, dims);
+    return Ops.Reduce.prod(this, dims);
   }
 
   /**
@@ -1199,7 +1202,7 @@ public final class ZTensor
    * @return the int minimum of all elements in the tensor.
    */
   public int minAsInt() {
-    return ZTensorOperations.minAsInt(this);
+    return Ops.Reduce.minAsInt(this);
   }
 
   /**
@@ -1209,7 +1212,7 @@ public final class ZTensor
    */
   @Nonnull
   public ZTensor min() {
-    return ZTensorOperations.min(this);
+    return Ops.Reduce.min(this);
   }
 
   /**
@@ -1224,7 +1227,7 @@ public final class ZTensor
    */
   @Nonnull
   public ZTensor min(@Nonnull int... dims) {
-    return ZTensorOperations.min(this, dims);
+    return Ops.Reduce.min(this, dims);
   }
 
   /**
@@ -1233,7 +1236,7 @@ public final class ZTensor
    * @return the int maximum of all elements in the tensor.
    */
   public int maxAsInt() {
-    return ZTensorOperations.maxAsInt(this);
+    return Ops.Reduce.maxAsInt(this);
   }
 
   /**
@@ -1243,7 +1246,7 @@ public final class ZTensor
    */
   @Nonnull
   public ZTensor max() {
-    return ZTensorOperations.max(this);
+    return Ops.Reduce.max(this);
   }
 
   /**
@@ -1258,31 +1261,31 @@ public final class ZTensor
    */
   @Nonnull
   public ZTensor max(@Nonnull int... dims) {
-    return ZTensorOperations.max(this, dims);
+    return Ops.Reduce.max(this, dims);
   }
 
   /** Returns a new elementwise negation of this tensor. */
   @Nonnull
   public ZTensor neg() {
-    return ZTensorOperations.neg(this);
+    return Ops.CellWise.neg(this);
   }
 
   /** Returns a new elementwise absolute value of this tensor. */
   @Nonnull
   public ZTensor abs() {
-    return ZTensorOperations.abs(this);
+    return Ops.CellWise.abs(this);
   }
 
   /** Returns an elementwise broadcast addition with this tensor. */
   @Nonnull
   public ZTensor add(@Nonnull HasZTensor rhs) {
-    return ZTensorOperations.add(this, rhs);
+    return Ops.CellWise.add(this, rhs);
   }
 
   /** Returns an elementwise broadcast addition with this tensor. */
   @Nonnull
   public ZTensor add(int rhs) {
-    return ZTensorOperations.add(this, rhs);
+    return Ops.CellWise.add(this, rhs);
   }
 
   /**
@@ -1293,7 +1296,7 @@ public final class ZTensor
    * @param rhs the right-hand side tensor.
    */
   public void add_(@Nonnull HasZTensor rhs) {
-    ZTensorOperations.add_(this, rhs);
+    Ops.CellWise.add_(this, rhs);
   }
 
   /**
@@ -1304,7 +1307,7 @@ public final class ZTensor
    * @param rhs the right-hand side tensor.
    */
   public void add_(int rhs) {
-    ZTensorOperations.add_(this, rhs);
+    Ops.CellWise.add_(this, rhs);
   }
 
   /**
@@ -1315,7 +1318,7 @@ public final class ZTensor
    */
   @Nonnull
   public ZTensor sub(@Nonnull HasZTensor rhs) {
-    return ZTensorOperations.sub(this, rhs);
+    return Ops.CellWise.sub(this, rhs);
   }
 
   /**
@@ -1326,7 +1329,7 @@ public final class ZTensor
    */
   @Nonnull
   public ZTensor sub(int rhs) {
-    return ZTensorOperations.sub(this, rhs);
+    return Ops.CellWise.sub(this, rhs);
   }
 
   /**
@@ -1337,7 +1340,7 @@ public final class ZTensor
    * @param rhs the right-hand side tensor.
    */
   public void sub_(@Nonnull HasZTensor rhs) {
-    ZTensorOperations.sub_(this, rhs);
+    Ops.CellWise.sub_(this, rhs);
   }
 
   /**
@@ -1348,7 +1351,7 @@ public final class ZTensor
    * @param rhs the right-hand side tensor.
    */
   public void sub_(int rhs) {
-    ZTensorOperations.sub_(this, rhs);
+    Ops.CellWise.sub_(this, rhs);
   }
 
   /**
@@ -1359,7 +1362,7 @@ public final class ZTensor
    */
   @Nonnull
   public ZTensor mul(@Nonnull HasZTensor rhs) {
-    return ZTensorOperations.mul(this, rhs);
+    return Ops.CellWise.mul(this, rhs);
   }
 
   /**
@@ -1370,7 +1373,7 @@ public final class ZTensor
    */
   @Nonnull
   public ZTensor mul(int rhs) {
-    return ZTensorOperations.mul(this, rhs);
+    return Ops.CellWise.mul(this, rhs);
   }
 
   /**
@@ -1381,7 +1384,7 @@ public final class ZTensor
    * @param rhs the right-hand side tensor.
    */
   public void mul_(@Nonnull HasZTensor rhs) {
-    ZTensorOperations.mul_(this, rhs);
+    Ops.CellWise.mul_(this, rhs);
   }
 
   /**
@@ -1392,7 +1395,7 @@ public final class ZTensor
    * @param rhs the right-hand side tensor.
    */
   public void mul_(int rhs) {
-    ZTensorOperations.mul_(this, rhs);
+    Ops.CellWise.mul_(this, rhs);
   }
 
   /**
@@ -1403,7 +1406,7 @@ public final class ZTensor
    */
   @Nonnull
   public ZTensor div(@Nonnull HasZTensor rhs) {
-    return ZTensorOperations.div(this, rhs);
+    return Ops.CellWise.div(this, rhs);
   }
 
   /**
@@ -1414,7 +1417,7 @@ public final class ZTensor
    */
   @Nonnull
   public ZTensor div(int rhs) {
-    return ZTensorOperations.div(this, rhs);
+    return Ops.CellWise.div(this, rhs);
   }
 
   /**
@@ -1425,7 +1428,7 @@ public final class ZTensor
    * @param rhs the right-hand side tensor.
    */
   public void div_(@Nonnull HasZTensor rhs) {
-    ZTensorOperations.div_(this, rhs);
+    Ops.CellWise.div_(this, rhs);
   }
 
   /**
@@ -1436,7 +1439,7 @@ public final class ZTensor
    * @param rhs the right-hand side tensor.
    */
   public void div_(int rhs) {
-    ZTensorOperations.div_(this, rhs);
+    Ops.CellWise.div_(this, rhs);
   }
 
   /**
@@ -1447,7 +1450,7 @@ public final class ZTensor
    */
   @Nonnull
   public ZTensor mod(@Nonnull HasZTensor rhs) {
-    return ZTensorOperations.mod(this, rhs);
+    return Ops.CellWise.mod(this, rhs);
   }
 
   /**
@@ -1458,7 +1461,7 @@ public final class ZTensor
    */
   @Nonnull
   public ZTensor mod(int rhs) {
-    return ZTensorOperations.mod(this, rhs);
+    return Ops.CellWise.mod(this, rhs);
   }
 
   /**
@@ -1469,7 +1472,7 @@ public final class ZTensor
    * @param rhs the right-hand side tensor.
    */
   public void mod_(@Nonnull HasZTensor rhs) {
-    ZTensorOperations.mod_(this, rhs);
+    Ops.CellWise.mod_(this, rhs);
   }
 
   /**
@@ -1480,7 +1483,7 @@ public final class ZTensor
    * @param rhs the right-hand side tensor.
    */
   public void mod_(int rhs) {
-    ZTensorOperations.mod_(this, rhs);
+    Ops.CellWise.mod_(this, rhs);
   }
 
   /**
@@ -1491,7 +1494,7 @@ public final class ZTensor
    */
   @Nonnull
   public ZTensor pow(@Nonnull HasZTensor rhs) {
-    return ZTensorOperations.pow(this, rhs);
+    return Ops.CellWise.pow(this, rhs);
   }
 
   /**
@@ -1502,7 +1505,7 @@ public final class ZTensor
    */
   @Nonnull
   public ZTensor pow(int rhs) {
-    return ZTensorOperations.pow(this, rhs);
+    return Ops.CellWise.pow(this, rhs);
   }
 
   /**
@@ -1513,7 +1516,7 @@ public final class ZTensor
    * @param rhs the right-hand side tensor.
    */
   public void pow_(@Nonnull HasZTensor rhs) {
-    ZTensorOperations.pow_(this, rhs);
+    Ops.CellWise.pow_(this, rhs);
   }
 
   /**
@@ -1524,7 +1527,7 @@ public final class ZTensor
    * @param rhs the right-hand side scalar.
    */
   public void pow_(int rhs) {
-    ZTensorOperations.pow_(this, rhs);
+    Ops.CellWise.pow_(this, rhs);
   }
 
   /**
@@ -1535,7 +1538,7 @@ public final class ZTensor
    */
   @Nonnull
   public ZTensor log(@Nonnull HasZTensor rhs) {
-    return ZTensorOperations.log(this, rhs);
+    return Ops.CellWise.log(this, rhs);
   }
 
   /**
@@ -1546,7 +1549,7 @@ public final class ZTensor
    */
   @Nonnull
   public ZTensor log(int rhs) {
-    return ZTensorOperations.log(this, rhs);
+    return Ops.CellWise.log(this, rhs);
   }
 
   /**
@@ -1557,7 +1560,7 @@ public final class ZTensor
    * @param rhs the right-hand side tensor.
    */
   public void log_(@Nonnull HasZTensor rhs) {
-    ZTensorOperations.log_(this, rhs);
+    Ops.CellWise.log_(this, rhs);
   }
 
   /**
@@ -1568,7 +1571,7 @@ public final class ZTensor
    * @param rhs the right-hand side scalar.
    */
   public void log_(int rhs) {
-    ZTensorOperations.log_(this, rhs);
+    Ops.CellWise.log_(this, rhs);
   }
 
   /**
@@ -1579,7 +1582,7 @@ public final class ZTensor
    * @return the int result of the reduction.
    */
   public int reduceCellsAtomic(@Nonnull IntBinaryOperator op, int initial) {
-    return ZTensorOperations.reduceCellsAtomic(this, op, initial);
+    return Ops.Reduce.reduceCellsAtomic(this, op, initial);
   }
 
   /**

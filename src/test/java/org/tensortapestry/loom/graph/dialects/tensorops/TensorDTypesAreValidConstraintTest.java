@@ -5,6 +5,7 @@ import org.junit.Test;
 import org.tensortapestry.loom.graph.LoomConstants;
 import org.tensortapestry.loom.graph.LoomEnvironment;
 import org.tensortapestry.loom.graph.LoomGraph;
+import org.tensortapestry.loom.graph.dialects.common.CommonNodes;
 import org.tensortapestry.loom.graph.dialects.common.NoteNode;
 import org.tensortapestry.loom.testing.BaseTestClass;
 import org.tensortapestry.loom.validation.ListValidationIssueCollector;
@@ -17,7 +18,7 @@ public class TensorDTypesAreValidConstraintTest extends BaseTestClass {
     return LoomEnvironment
       .builder()
       .build()
-      .addNodeTypeClass(NoteNode.NOTE_NODE_TYPE, NoteNode.class)
+      .addNodeTypeClass(CommonNodes.NOTE_NODE_TYPE, NoteNode.class)
       .addNodeTypeClass(TensorOpNodes.TENSOR_NODE_TYPE, TensorNode.class)
       .addConstraint(new TensorDTypesAreValidConstraint(Set.of("int32", "float32")));
   }

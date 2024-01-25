@@ -1,4 +1,4 @@
-package org.tensortapestry.loom.zspace;
+package org.tensortapestry.loom.zspace.experimental;
 
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.util.regex.Pattern;

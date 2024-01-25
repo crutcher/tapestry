@@ -1,4 +1,4 @@
-package org.tensortapestry.loom.zspace;
+package org.tensortapestry.loom.zspace.experimental;
 
 import java.util.List;
 import javax.annotation.Nonnull;
@@ -6,6 +6,9 @@ import lombok.Builder;
 import lombok.Value;
 import org.junit.Test;
 import org.tensortapestry.loom.testing.BaseTestClass;
+import org.tensortapestry.loom.zspace.HasDimension;
+import org.tensortapestry.loom.zspace.ZDimMissMatchError;
+import org.tensortapestry.loom.zspace.indexing.IndexingFns;
 
 public class HasNamedPermuteTest extends BaseTestClass {
 

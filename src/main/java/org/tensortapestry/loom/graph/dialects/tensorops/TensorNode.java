@@ -10,6 +10,7 @@ import lombok.experimental.SuperBuilder;
 import lombok.extern.jackson.Jacksonized;
 import org.tensortapestry.loom.common.json.HasToJsonString;
 import org.tensortapestry.loom.graph.LoomNode;
+import org.tensortapestry.loom.graph.dialects.common.JsdType;
 import org.tensortapestry.loom.zspace.*;
 
 @Jacksonized
@@ -32,6 +33,7 @@ public final class TensorNode extends LoomNode<TensorNode, TensorNode.Body> {
   @Data
   @Jacksonized
   @Builder
+  @JsdType(TensorOpNodes.TENSOR_NODE_TYPE)
   public static final class Body implements HasDimension, HasToJsonString, HasSize {
 
     public static class BodyBuilder {

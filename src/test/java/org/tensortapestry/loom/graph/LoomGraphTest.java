@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.UUID;
 import org.junit.Test;
 import org.tensortapestry.loom.common.json.JsonUtil;
+import org.tensortapestry.loom.graph.dialects.common.CommonNodes;
 import org.tensortapestry.loom.graph.dialects.common.GenericNode;
 import org.tensortapestry.loom.graph.dialects.common.NoteNode;
 import org.tensortapestry.loom.graph.dialects.tensorops.TensorNode;
@@ -349,7 +350,7 @@ public class LoomGraphTest extends BaseTestClass {
     var env = LoomEnvironment
       .builder()
       .build()
-      .autowireNodeTypeClass(NoteNode.NOTE_NODE_TYPE, NoteNode.class)
+      .autowireNodeTypeClass(CommonNodes.NOTE_NODE_TYPE, NoteNode.class)
       .autowireNodeTypeClass(ExampleNode.TYPE, ExampleNode.class);
     var graph = env.newGraph();
 
@@ -392,8 +393,8 @@ public class LoomGraphTest extends BaseTestClass {
 
     var noteNode = NoteNode.withBody(b -> b.message("foo")).addTo(graph);
 
-    assertThat(graph.nodeScan().type(NoteNode.NOTE_NODE_TYPE).asList()).containsOnly(noteNode);
-    assertThat(graph.nodeScan().type(NoteNode.NOTE_NODE_TYPE).nodeClass(NoteNode.class).asList())
+    assertThat(graph.nodeScan().type(CommonNodes.NOTE_NODE_TYPE).asList()).containsOnly(noteNode);
+    assertThat(graph.nodeScan().type(CommonNodes.NOTE_NODE_TYPE).nodeClass(NoteNode.class).asList())
       .containsOnly(noteNode);
     assertThat(graph.nodeScan().nodeClass(NoteNode.class).asList()).containsOnly(noteNode);
 

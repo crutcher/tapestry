@@ -1,6 +1,7 @@
 package org.tensortapestry.loom.graph;
 
 import org.junit.Test;
+import org.tensortapestry.loom.graph.dialects.common.CommonNodes;
 import org.tensortapestry.loom.graph.dialects.common.NoteNode;
 import org.tensortapestry.loom.graph.dialects.tensorops.ApplicationNode;
 import org.tensortapestry.loom.graph.dialects.tensorops.OperationReferenceAgreementConstraint;
@@ -15,7 +16,7 @@ public class CommonEnvironmentsTest extends BaseTestClass {
   @Test
   public void test_expressionEnvironment() {
     var env = CommonEnvironments.expressionEnvironment();
-    env.assertClassForType(NoteNode.NOTE_NODE_TYPE, NoteNode.class);
+    env.assertClassForType(CommonNodes.NOTE_NODE_TYPE, NoteNode.class);
     env.assertClassForType(TensorOpNodes.TENSOR_NODE_TYPE, TensorNode.class);
     env.assertClassForType(
       TensorOpNodes.OPERATION_SIGNATURE_NODE_TYPE,

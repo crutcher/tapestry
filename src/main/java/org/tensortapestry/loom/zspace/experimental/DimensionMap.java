@@ -1,4 +1,4 @@
-package org.tensortapestry.loom.zspace;
+package org.tensortapestry.loom.zspace.experimental;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.core.JsonParser;
@@ -12,6 +12,9 @@ import javax.annotation.concurrent.Immutable;
 import javax.annotation.concurrent.ThreadSafe;
 import org.tensortapestry.loom.common.json.HasToJsonString;
 import org.tensortapestry.loom.common.json.JsonUtil;
+import org.tensortapestry.loom.zspace.HasDimension;
+import org.tensortapestry.loom.zspace.ZPoint;
+import org.tensortapestry.loom.zspace.indexing.IndexingFns;
 
 @Immutable
 @ThreadSafe

@@ -13,6 +13,7 @@ import lombok.experimental.SuperBuilder;
 import lombok.extern.jackson.Jacksonized;
 import org.tensortapestry.loom.common.json.HasToJsonString;
 import org.tensortapestry.loom.graph.LoomNode;
+import org.tensortapestry.loom.graph.dialects.common.JsdType;
 
 /**
  * A node representing an application of an operation signature to a set of tensors.
@@ -47,6 +48,7 @@ public final class ApplicationNode extends LoomNode<ApplicationNode, Application
   @Builder
   @JsonInclude(JsonInclude.Include.NON_EMPTY)
   @JsonPropertyOrder({ "operationId", "inputs", "outputs" })
+  @JsdType(TensorOpNodes.APPLICATION_NODE_TYPE)
   public static class Body implements HasToJsonString {
 
     @Nonnull

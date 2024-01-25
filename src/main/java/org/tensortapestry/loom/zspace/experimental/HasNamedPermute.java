@@ -1,7 +1,9 @@
-package org.tensortapestry.loom.zspace;
+package org.tensortapestry.loom.zspace.experimental;
 
 import java.util.Arrays;
 import javax.annotation.Nonnull;
+import org.tensortapestry.loom.zspace.HasPermute;
+import org.tensortapestry.loom.zspace.indexing.IndexingFns;
 
 /**
  * Interface for objects that can be permuted by dimension name.

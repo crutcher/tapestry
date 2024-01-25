@@ -16,6 +16,8 @@ import org.tensortapestry.loom.common.json.HasToJsonString;
 import org.tensortapestry.loom.common.json.JsonUtil;
 import org.tensortapestry.loom.common.runtime.CheckThat;
 import org.tensortapestry.loom.common.text.TextUtils;
+import org.tensortapestry.loom.zspace.indexing.BufferMode;
+import org.tensortapestry.loom.zspace.indexing.IterableCoordinates;
 
 /**
  * Represents a range of points in discrete space.
@@ -244,8 +246,8 @@ public class ZRange implements Cloneable, HasSize, HasPermute<ZRange>, HasToJson
       var r = it.next();
       HasDimension.assertSameNDim(first, r);
 
-      start = ZTensorOperations.minimum(start, r.start.tensor);
-      end = ZTensorOperations.maximum(end, r.end.tensor);
+      start = Ops.CellWise.minimum(start, r.start.tensor);
+      end = Ops.CellWise.maximum(end, r.end.tensor);
     }
 
     return new ZRange(start, end);
@@ -474,9 +476,7 @@ public class ZRange implements Cloneable, HasSize, HasPermute<ZRange>, HasToJson
    * @return true if this range contains the point.
    */
   public boolean contains(@Nonnull HasZTensor p) {
-    return (
-      !isEmpty() && (getNDim() == 0 || (start.le(p) && DominanceOrderingOperations.lt(p, end)))
-    );
+    return (!isEmpty() && (getNDim() == 0 || (start.le(p) && Ops.DominanceOrdering.lt(p, end))));
   }
 
   /**
@@ -502,8 +502,8 @@ public class ZRange implements Cloneable, HasSize, HasPermute<ZRange>, HasToJson
    * @return the intersection of this range with another, null if there is no intersection.
    */
   @Nullable public ZRange intersection(@Nonnull ZRange other) {
-    var iStart = ZTensorOperations.maximum(start, other.start).newZPoint();
-    var iEnd = ZTensorOperations.minimum(end, other.end).newZPoint();
+    var iStart = Ops.CellWise.maximum(start, other.start).newZPoint();
+    var iEnd = Ops.CellWise.minimum(end, other.end).newZPoint();
     if (iStart.le(iEnd)) {
       return new ZRange(iStart, iEnd);
     } else {

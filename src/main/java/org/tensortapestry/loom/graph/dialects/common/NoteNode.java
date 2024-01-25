@@ -1,7 +1,5 @@
 package org.tensortapestry.loom.graph.dialects.common;
 
-import static org.tensortapestry.loom.graph.LoomConstants.LOOM_CORE_NODE_TYPE;
-
 import java.util.function.Consumer;
 import javax.annotation.Nonnull;
 import lombok.Builder;
@@ -19,11 +17,10 @@ import org.tensortapestry.loom.graph.LoomNode;
 @Setter
 public final class NoteNode extends LoomNode<NoteNode, NoteNode.Body> {
 
-  public static final String NOTE_NODE_TYPE = LOOM_CORE_NODE_TYPE.apply("Note");
-
   @Data
   @Jacksonized
   @Builder
+  @JsdType(CommonNodes.NOTE_NODE_TYPE)
   public static final class Body {
 
     @Nonnull
@@ -34,7 +31,7 @@ public final class NoteNode extends LoomNode<NoteNode, NoteNode.Body> {
   public abstract static class NoteNodeBuilder<C extends NoteNode, B extends NoteNodeBuilder<C, B>>
     extends LoomNodeBuilder<NoteNode, Body, C, B> {
     {
-      type(NOTE_NODE_TYPE);
+      type(CommonNodes.NOTE_NODE_TYPE);
     }
   }
 

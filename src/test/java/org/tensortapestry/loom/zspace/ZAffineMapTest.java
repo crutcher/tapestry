@@ -35,7 +35,7 @@ public class ZAffineMapTest implements CommonAssertions {
           ZTensor.newVector(4, 5, 6)
         )
       )
-      .withMessageContaining("A.shape[1] != b.shape[0]: [2, 2] != [3]");
+      .withMessageContaining("projection.shape[1] != offset.shape[0]: [2, 2] != [3]");
   }
 
   @Test

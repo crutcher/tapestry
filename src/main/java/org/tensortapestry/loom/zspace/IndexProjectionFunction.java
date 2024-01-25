@@ -13,9 +13,9 @@ import lombok.Value;
 import org.tensortapestry.loom.common.json.HasToJsonString;
 
 /** A function which maps coordinates in a space to ranges in another space. */
-@ThreadSafe
-@Immutable
 @Value
+@Immutable
+@ThreadSafe
 public class IndexProjectionFunction implements HasToJsonString {
 
   @SuppressWarnings("unused")
@@ -47,15 +47,15 @@ public class IndexProjectionFunction implements HasToJsonString {
     }
 
     /**
-     * Build an ZAffineMap from a builder.
+     * Translate the ZAffineMap by the given offset.
      *
-     * @param builder the builder.
+     * @param offset the offset.
      * @return {@code this}
      */
     @Nonnull
     @JsonIgnore
-    public IndexProjectionFunctionBuilder affineMap(@Nonnull ZAffineMap.ZAffineMapBuilder builder) {
-      return affineMap(builder.build());
+    public IndexProjectionFunctionBuilder translate(int... offset) {
+      return affineMap(affineMap.translate(offset));
     }
 
     /**
@@ -71,15 +71,15 @@ public class IndexProjectionFunction implements HasToJsonString {
     }
 
     /**
-     * Translate the ZAffineMap by the given offset.
+     * Set the shape of the output.
      *
-     * @param offset the offset.
+     * @param shape the shape.
      * @return {@code this}
      */
     @Nonnull
     @JsonIgnore
-    public IndexProjectionFunctionBuilder translate(int... offset) {
-      return affineMap(affineMap.translate(offset));
+    public IndexProjectionFunctionBuilder shape(int... shape) {
+      return shape(ZPoint.of(shape));
     }
 
     /**
@@ -94,22 +94,21 @@ public class IndexProjectionFunction implements HasToJsonString {
       this.shape = shape.getTensor().newZPoint();
       return this;
     }
-
-    /**
-     * Set the shape of the output.
-     *
-     * @param shape the shape.
-     * @return {@code this}
-     */
-    @Nonnull
-    @JsonIgnore
-    public IndexProjectionFunctionBuilder shape(int... shape) {
-      return shape(ZPoint.of(shape));
-    }
   }
 
+  /**
+   * Create a new IndexProjectionFunction.
+   *
+   * <p>This is a private builder to force the type of the {@link #affineMap} and {@link #shape} used
+   * in the builder to be {@link ZAffineMap} and {@link ZPoint}, respectively; and to prevent
+   * collision with {@link HasZTensor}.
+   *
+   * @param affineMap the affine map.
+   * @param shape the shape.
+   * @return the new IndexProjectionFunction.
+   */
   @JsonCreator
-  @Builder
+  @Builder(toBuilder = true)
   static IndexProjectionFunction privateBuilder(
     @Nonnull @JsonProperty(value = "affineMap") ZAffineMap affineMap,
     @Nonnull @JsonProperty(value = "shape") ZPoint shape

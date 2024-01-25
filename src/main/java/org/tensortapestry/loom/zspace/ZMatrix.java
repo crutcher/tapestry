@@ -267,6 +267,6 @@ public final class ZMatrix
 
   @Nonnull
   public ZTensor matmul(@Nonnull HasZTensor x) {
-    return ZTensorOperations.matmul(this, x);
+    return Ops.Reduce.matmul(this, x);
   }
 }

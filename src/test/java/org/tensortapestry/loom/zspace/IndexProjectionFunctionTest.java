@@ -50,13 +50,6 @@ public class IndexProjectionFunctionTest extends BaseTestClass {
       .isEqualTo(
         IndexProjectionFunction
           .builder()
-          .affineMap(affineMap.toBuilder())
-          .shape(ZTensor.newVector(4, 4, 1))
-          .build()
-      )
-      .isEqualTo(
-        IndexProjectionFunction
-          .builder()
           .affineMap(affineMap)
           .shape(ZTensor.newVector(4, 4, 1))
           .build()

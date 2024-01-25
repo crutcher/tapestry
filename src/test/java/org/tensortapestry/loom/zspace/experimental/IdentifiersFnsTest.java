@@ -1,4 +1,4 @@
-package org.tensortapestry.loom.zspace;
+package org.tensortapestry.loom.zspace.experimental;
 
 import java.util.List;
 import org.junit.Test;

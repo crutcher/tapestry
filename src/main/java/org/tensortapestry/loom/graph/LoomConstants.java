@@ -1,6 +1,5 @@
 package org.tensortapestry.loom.graph;
 
-import java.util.function.Function;
 import lombok.experimental.UtilityClass;
 import org.tensortapestry.loom.common.runtime.ResourceHandle;
 
@@ -16,16 +15,6 @@ public class LoomConstants {
   public String LOOM_ANNOTATION_TYPES_SCHEMA = LOOM_SCHEMA_BASE_URL + "annotation_types.jsd";
 
   public ResourceHandle LOOM_SCHEMA_RESOURCES = new ResourceHandle("org/tensortapestry/schemas");
-
-  public String LOOM_CORE_SCHEMA = "https://tensortapestry.org/schemas/loom/core.0.0.1.jsd";
-
-  // TODO: Switch to lookup by anchor when this is fixed:
-  // See: https://github.com/networknt/json-schema-validator/pull/930
-  public Function<String, String> LOOM_CORE_NODE_TYPE = (String target) ->
-    LOOM_NODE_TYPES_SCHEMA + "#/$defs/%s".formatted(target);
-
-  public Function<String, String> LOOM_CORE_ANNOTATION_TYPE = (String target) ->
-    LOOM_ANNOTATION_TYPES_SCHEMA + "#/$defs/%s".formatted(target);
 
   @UtilityClass
   public static class Errors {

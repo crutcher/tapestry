@@ -1,6 +1,7 @@
 package org.tensortapestry.loom.graph;
 
 import org.junit.Test;
+import org.tensortapestry.loom.graph.dialects.common.CommonNodes;
 import org.tensortapestry.loom.graph.dialects.common.NoteNode;
 import org.tensortapestry.loom.graph.dialects.tensorops.ApplicationNode;
 import org.tensortapestry.loom.graph.dialects.tensorops.TensorNode;
@@ -16,13 +17,13 @@ public class LoomEnvironmentTest extends BaseTestClass {
       .builder()
       .build()
       .addNodeTypeClass(TensorOpNodes.TENSOR_NODE_TYPE, TensorNode.class)
-      .addNodeTypeClass(NoteNode.NOTE_NODE_TYPE, NoteNode.class);
+      .addNodeTypeClass(CommonNodes.NOTE_NODE_TYPE, NoteNode.class);
 
     assertThat(env.supportsNodeType(TensorOpNodes.TENSOR_NODE_TYPE)).isTrue();
-    assertThat(env.supportsNodeType(NoteNode.NOTE_NODE_TYPE)).isTrue();
+    assertThat(env.supportsNodeType(CommonNodes.NOTE_NODE_TYPE)).isTrue();
 
     assertThat(env.classForType(TensorOpNodes.TENSOR_NODE_TYPE)).isEqualTo(TensorNode.class);
-    assertThat(env.classForType(NoteNode.NOTE_NODE_TYPE)).isEqualTo(NoteNode.class);
+    assertThat(env.classForType(CommonNodes.NOTE_NODE_TYPE)).isEqualTo(NoteNode.class);
 
     assertThat(env.supportsNodeType(TensorOpNodes.APPLICATION_NODE_TYPE)).isFalse();
     assertThatExceptionOfType(IllegalStateException.class)

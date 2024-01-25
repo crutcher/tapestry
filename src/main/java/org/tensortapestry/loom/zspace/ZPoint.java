@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.google.errorprone.annotations.Immutable;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.ThreadSafe;
+import org.tensortapestry.loom.zspace.indexing.IndexingFns;
 
 /**
  * An immutable point in a ZSpace.

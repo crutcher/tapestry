@@ -1,4 +1,4 @@
-package org.tensortapestry.loom.zspace;
+package org.tensortapestry.loom.zspace.indexing;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import lombok.experimental.UtilityClass;
 import org.apache.commons.lang3.tuple.Pair;
+import org.tensortapestry.loom.zspace.HasDimension;
 
 /** Utility functions for computing tensor indices. */
 @UtilityClass

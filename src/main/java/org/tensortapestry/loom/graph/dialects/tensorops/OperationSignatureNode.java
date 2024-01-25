@@ -16,6 +16,7 @@ import lombok.extern.jackson.Jacksonized;
 import org.tensortapestry.loom.common.json.HasToJsonString;
 import org.tensortapestry.loom.graph.LoomEnvironment;
 import org.tensortapestry.loom.graph.LoomNode;
+import org.tensortapestry.loom.graph.dialects.common.JsdType;
 
 @Jacksonized
 @SuperBuilder
@@ -41,6 +42,7 @@ public final class OperationSignatureNode
   @Builder
   @JsonInclude(JsonInclude.Include.NON_EMPTY)
   @JsonPropertyOrder({ "kernel", "params", "inputs", "outputs" })
+  @JsdType(TensorOpNodes.OPERATION_SIGNATURE_NODE_TYPE)
   public static class Body implements HasToJsonString {
 
     @JsonProperty(required = true)

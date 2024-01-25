@@ -1,4 +1,4 @@
-package org.tensortapestry.loom.zspace;
+package org.tensortapestry.loom.zspace.indexing;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;

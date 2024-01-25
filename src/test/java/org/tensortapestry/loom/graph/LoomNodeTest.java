@@ -4,6 +4,7 @@ import java.util.Map;
 import java.util.UUID;
 import org.junit.Test;
 import org.tensortapestry.loom.common.json.JsonUtil;
+import org.tensortapestry.loom.graph.dialects.common.CommonNodes;
 import org.tensortapestry.loom.graph.dialects.common.NoteNode;
 import org.tensortapestry.loom.testing.BaseTestClass;
 import org.tensortapestry.loom.validation.ValidationIssue;
@@ -14,7 +15,7 @@ public class LoomNodeTest extends BaseTestClass {
     return LoomEnvironment
       .builder()
       .build()
-      .autowireNodeTypeClass(NoteNode.NOTE_NODE_TYPE, NoteNode.class)
+      .autowireNodeTypeClass(CommonNodes.NOTE_NODE_TYPE, NoteNode.class)
       .autowireNodeTypeClass(ExampleNode.TYPE, ExampleNode.class);
   }
 

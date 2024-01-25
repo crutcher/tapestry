@@ -15,8 +15,8 @@ import org.tensortapestry.loom.common.json.HasToJsonString;
 
 /** A linear map from {@code Z^inDim} to {@code Z^outDim}. */
 @Value
-@ThreadSafe
 @Immutable
+@ThreadSafe
 @Jacksonized
 @Builder(toBuilder = true)
 @JsonPropertyOrder({ "projection", "offset" })
@@ -59,7 +59,7 @@ public class ZAffineMap
    * Create a new ZAffineMap.
    *
    * @param projection the matrix.
-   * @param offset the bias; if null, will be a zero vector of size `A.shape[0]`.
+   * @param offset the bias; if null, will be a zero vector of size {@code projection.shape[0]}.
    */
   @JsonCreator
   public ZAffineMap(
@@ -77,7 +77,7 @@ public class ZAffineMap
     if (zoffset.shape(0) != outputNDim()) {
       throw new IllegalArgumentException(
         String.format(
-          "A.shape[1] != b.shape[0]: %s != %s",
+          "projection.shape[1] != offset.shape[0]: %s != %s",
           this.projection.shapeAsList(),
           zoffset.shapeAsList()
         )
@@ -156,22 +156,22 @@ public class ZAffineMap
   /**
    * Translate this affine map by the given vector.
    *
-   * @param x a 1-dim tensor of length `inDim`.
-   * @return a new affine map.
-   */
-  @Nonnull
-  public ZAffineMap translate(@Nonnull HasZTensor x) {
-    return new ZAffineMap(projection, offset.add(x));
-  }
-
-  /**
-   * Translate this affine map by the given vector.
-   *
    * @param x a 1-dim array of length `inDim`.
    * @return a new affine map.
    */
   @Nonnull
   public ZAffineMap translate(@Nonnull int... x) {
     return translate(ZTensor.newVector(x));
+  }
+
+  /**
+   * Translate this affine map by the given vector.
+   *
+   * @param x a 1-dim tensor of length `inDim`.
+   * @return a new affine map.
+   */
+  @Nonnull
+  public ZAffineMap translate(@Nonnull HasZTensor x) {
+    return new ZAffineMap(projection, offset.add(x));
   }
 }

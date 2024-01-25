@@ -1,4 +1,4 @@
-package org.tensortapestry.loom.zspace;
+package org.tensortapestry.loom.zspace.experimental;
 
 import org.junit.Test;
 import org.tensortapestry.loom.testing.CommonAssertions;

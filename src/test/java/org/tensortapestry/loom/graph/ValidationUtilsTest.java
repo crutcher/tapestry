@@ -3,6 +3,7 @@ package org.tensortapestry.loom.graph;
 import java.util.UUID;
 import org.junit.Test;
 import org.tensortapestry.loom.common.lazy.LazyString;
+import org.tensortapestry.loom.graph.dialects.common.CommonNodes;
 import org.tensortapestry.loom.graph.dialects.common.NoteNode;
 import org.tensortapestry.loom.graph.dialects.tensorops.TensorNode;
 import org.tensortapestry.loom.graph.dialects.tensorops.TensorOpNodes;
@@ -16,7 +17,7 @@ public class ValidationUtilsTest extends BaseTestClass {
     return LoomEnvironment
       .builder()
       .build()
-      .addNodeTypeClass(NoteNode.NOTE_NODE_TYPE, NoteNode.class)
+      .addNodeTypeClass(CommonNodes.NOTE_NODE_TYPE, NoteNode.class)
       .addNodeTypeClass(TensorOpNodes.TENSOR_NODE_TYPE, TensorNode.class);
   }
 
@@ -34,7 +35,7 @@ public class ValidationUtilsTest extends BaseTestClass {
     NoteNode result = ValidationUtils.validateNodeReference(
       graph,
       node.getId(),
-      NoteNode.NOTE_NODE_TYPE,
+      CommonNodes.NOTE_NODE_TYPE,
       NoteNode.class,
       LazyString.fixed("message"),
       collector,
@@ -56,7 +57,7 @@ public class ValidationUtilsTest extends BaseTestClass {
     NoteNode result = ValidationUtils.validateNodeReference(
       graph,
       id,
-      NoteNode.NOTE_NODE_TYPE,
+      CommonNodes.NOTE_NODE_TYPE,
       NoteNode.class,
       LazyString.fixed("message"),
       collector,
@@ -70,7 +71,7 @@ public class ValidationUtilsTest extends BaseTestClass {
           .builder()
           .type(LoomConstants.Errors.NODE_REFERENCE_ERROR)
           .param("nodeId", id)
-          .param("nodeType", NoteNode.NOTE_NODE_TYPE)
+          .param("nodeType", CommonNodes.NOTE_NODE_TYPE)
           .summary("Referenced node does not exist")
           .context(
             ValidationIssue.Context
@@ -109,7 +110,7 @@ public class ValidationUtilsTest extends BaseTestClass {
           .type(LoomConstants.Errors.NODE_REFERENCE_ERROR)
           .param("nodeId", node.getId())
           .param("expectedType", TensorOpNodes.TENSOR_NODE_TYPE)
-          .param("actualType", NoteNode.NOTE_NODE_TYPE)
+          .param("actualType", CommonNodes.NOTE_NODE_TYPE)
           .summary("Referenced node has the wrong type")
           .context(
             ValidationIssue.Context
@@ -133,7 +134,7 @@ public class ValidationUtilsTest extends BaseTestClass {
     TensorNode result = ValidationUtils.validateNodeReference(
       graph,
       node.getId(),
-      NoteNode.NOTE_NODE_TYPE,
+      CommonNodes.NOTE_NODE_TYPE,
       TensorNode.class,
       LazyString.fixed("message"),
       collector,

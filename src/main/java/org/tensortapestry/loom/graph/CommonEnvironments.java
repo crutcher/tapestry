@@ -3,6 +3,7 @@ package org.tensortapestry.loom.graph;
 import java.util.Set;
 import lombok.experimental.UtilityClass;
 import org.tensortapestry.loom.common.json.JsonSchemaFactoryManager;
+import org.tensortapestry.loom.graph.dialects.common.CommonNodes;
 import org.tensortapestry.loom.graph.dialects.common.GenericNode;
 import org.tensortapestry.loom.graph.dialects.common.NoteNode;
 import org.tensortapestry.loom.graph.dialects.common.SchemaTypeConstraint;
@@ -15,7 +16,10 @@ public final class CommonEnvironments {
 
   public static JsonSchemaFactoryManager buildJsonSchemaFactoryManager() {
     return new JsonSchemaFactoryManager()
-      .bindResourcePath("http://tensortapestry.org/schemas", "org/tensortapestry/schemas");
+      .bindResourcePath(
+        "http://tensortapestry.org/schemas",
+        LoomConstants.LOOM_SCHEMA_RESOURCES.getPath()
+      );
   }
 
   public static LoomEnvironment genericEnvironment() {
@@ -35,7 +39,7 @@ public final class CommonEnvironments {
       .addConstraint(new SchemaTypeConstraint())
       .addUrlAlias(LoomConstants.LOOM_NODE_TYPES_SCHEMA, "loom")
       .addUrlAlias(LoomConstants.LOOM_ANNOTATION_TYPES_SCHEMA, "loom")
-      .autowireNodeTypeClass(NoteNode.NOTE_NODE_TYPE, NoteNode.class)
+      .autowireNodeTypeClass(CommonNodes.NOTE_NODE_TYPE, NoteNode.class)
       .autowireNodeTypeClass(TensorOpNodes.TENSOR_NODE_TYPE, TensorNode.class)
       .addConstraint(
         TensorDTypesAreValidConstraint.builder().validDTypes(Set.of("int32", "float32")).build()
