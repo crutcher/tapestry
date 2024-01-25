@@ -62,7 +62,7 @@
     "ZRange" : {
       "$anchor" : "ZRange",
       "title" : "ZRange",
-      "description" : "A orthotope describing points in ZSpace, from an inclusive 'start' to an exclusive 'end'.",
+      "description" : "An orthotope describing points in ZSpace, from an inclusive 'start' to an exclusive 'end'.",
       "type" : "object",
       "properties" : {
         "start" : {
