@@ -7,10 +7,14 @@
   "$defs" : {
     "IPFSignature" : {
       "$anchor" : "IPFSignature",
+      "title" : "IPF Signature",
+      "description" : "Describes the IPF Signature of an OperationSignature node.",
       "$ref" : "data_types.jsd#/$defs/IPFSignature"
     },
     "IPFIndex" : {
       "$anchor" : "IPFIndex",
+      "title" : "IPF Index",
+      "description" : "Describes the IPF Index of OperationSignature and Application nodes.",
       "$ref" : "data_types.jsd#/$defs/ZRange"
     }
   }

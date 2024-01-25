@@ -6,6 +6,9 @@
   "description" : "The top-level schema is 'null' to prevent accidental use of the outer schema.",
   "$defs" : {
     "Note" : {
+      "$anchor" : "Note",
+      "title" : "Note",
+      "description" : "A note is a simple text message node.",
       "type" : "object",
       "properties" : {
         "message" : {
@@ -16,35 +19,50 @@
       "additionalProperties" : false
     },
     "Tensor" : {
+      "$anchor" : "Tensor",
+      "title" : "Tensor",
+      "description" : "A logical tensor value in the execution graph.",
       "type" : "object",
       "properties" : {
         "dtype" : {
-          "type" : "string"
+          "type" : "string",
+          "description" : "The data type of the tensor; defined by the environment."
         },
         "range" : {
-          "$ref" : "data_types.jsd#/$defs/ZRange"
+          "$ref" : "data_types.jsd#/$defs/ZRange",
+          "description" : "The logical range of the tensor."
         }
       },
       "required" : [ "dtype", "range" ],
       "additionalProperties" : false
     },
     "OperationSignature" : {
+      "$anchor" : "OperationSignature",
+      "title" : "Operation Signature",
       "type" : "object",
+      "description" : "The signature of an operation.",
       "properties" : {
         "kernel" : {
+          "description" : "The name of the kernel to use for this operation; defined by the environment.",
           "type" : "string"
         },
         "params" : {
+          "description" : "The parameters to the kernel; defined by the environment.",
           "type" : "object",
           "patternProperties" : {
-            "^[a-zA-Z_][a-zA-Z0-9_]*$" : { }
+            "^[a-zA-Z_][a-zA-Z0-9_]*$" : {
+              "description" : "The value of the parameter, defined by the environment.",
+              "type" : "any"
+            }
           },
           "additionalProperties" : false
         },
         "inputs" : {
+          "description" : "The input tensors to the operation; defined by the environment.",
           "$ref" : "data_types.jsd#/$defs/TensorSelectionMap"
         },
         "outputs" : {
+          "description" : "The output tensors to the operation; defined by the environment.",
           "$ref" : "data_types.jsd#/$defs/TensorSelectionMap"
         }
       },
@@ -52,15 +70,20 @@
       "additionalProperties" : false
     },
     "Application" : {
+      "$anchor" : "Application",
+      "title" : "Application",
       "type" : "object",
       "properties" : {
         "operationId" : {
+          "description" : "The ID of the operation to apply.",
           "$ref" : "data_types.jsd#/$defs/NodeReference"
         },
         "inputs" : {
+          "description" : "The input tensors to the application; defined by the environment.",
           "$ref" : "data_types.jsd#/$defs/TensorSelectionMap"
         },
         "outputs" : {
+          "description" : "The output tensors to the application; defined by the environment.",
           "$ref" : "data_types.jsd#/$defs/TensorSelectionMap"
         }
       },

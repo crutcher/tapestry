@@ -5,8 +5,18 @@
   "type" : "null",
   "description" : "The top-level schema is 'null' to prevent accidental use of the outer schema.",
   "$defs" : {
+    "NodeReference" : {
+      "$anchor" : "NodeReference",
+      "title" : "NodeReference",
+      "description" : "A reference to a node in the graph.",
+      "$comment" : "Add link-type-enforcement annotations.",
+      "type" : "string",
+      "format" : "uuid"
+    },
     "IPFSignature" : {
       "$anchor" : "IPFSignature",
+      "title" : "IPF Signature",
+      "description" : "The index projection signature of an operations, which describes mapping from index space to the inputs and outputs.",
       "type" : "object",
       "properties" : {
         "inputs" : {
@@ -21,6 +31,8 @@
     },
     "IPFMap" : {
       "$anchor" : "/$defs/IPFMap",
+      "title" : "IPF Map",
+      "description" : "A map from tensor IDs to a list of index projection functions.",
       "type" : "object",
       "patternProperties" : {
         "^[a-zA-Z_][a-zA-Z0-9_]*$" : {
@@ -33,6 +45,8 @@
     },
     "IndexProjectionFunction" : {
       "$anchor" : "IndexProjectionFunction",
+      "title" : "Index Projection Function",
+      "description" : "A function that maps from points in an index space to ranges in a target ZSpace space.",
       "type" : "object",
       "properties" : {
         "affineMap" : {
@@ -47,20 +61,35 @@
     },
     "ZRange" : {
       "$anchor" : "ZRange",
+      "title" : "ZRange",
+      "description" : "A orthotope describing points in ZSpace, from an inclusive 'start' to an exclusive 'end'.",
       "type" : "object",
       "properties" : {
         "start" : {
-          "$ref" : "#/$defs/ZPoint"
+          "$ref" : "#/$defs/ZPoint",
+          "description" : "The inclusive start point of the range."
         },
         "end" : {
-          "$ref" : "#/$defs/ZPoint"
+          "$ref" : "#/$defs/ZPoint",
+          "description" : "The exclusive end point of the range."
         }
       },
       "required" : [ "start", "end" ],
-      "additionalProperties" : false
+      "additionalProperties" : false,
+      "examples" : [ {
+        "$comment" : "A 1D range over [-1, 10)",
+        "start" : [ -1 ],
+        "end" : [ 10 ]
+      }, {
+        "$comment" : "A 2D range over [(0,0), (2,3)).",
+        "start" : [ 0, 0 ],
+        "end" : [ 2, 3 ]
+      } ]
     },
     "ZPoint" : {
       "$anchor" : "ZPoint",
+      "title" : "ZPoint",
+      "description" : "A point in ZSpace, represented as an array of integers.",
       "type" : "array",
       "items" : {
         "type" : "integer"
@@ -68,10 +97,14 @@
     },
     "ZVector" : {
       "$anchor" : "ZVector",
+      "title" : "ZVector",
+      "description" : "A vector in ZSpace, represented as an array of integers.",
       "$ref" : "#/$defs/ZPoint"
     },
     "ZAffineMap" : {
       "$anchor" : "ZAffineMap",
+      "title" : "ZAffineMap",
+      "description" : "An affine map from one ZSpace to another ZSpace, represented as a matrix and a vector.",
       "type" : "object",
       "properties" : {
         "projection" : {
@@ -86,7 +119,8 @@
     },
     "ZMatrix" : {
       "$anchor" : "ZMatrix",
-      "description" : "A matrix of integers; must be non-ragged",
+      "title" : "ZMatrix",
+      "description" : "A 2D square matrix of integers; must be non-ragged",
       "type" : "array",
       "items" : {
         "type" : "array",
@@ -97,9 +131,12 @@
     },
     "TensorSelectionMap" : {
       "$anchor" : "TensorSelectionMap",
+      "title" : "Tensor Selection Map",
+      "description" : "A map from tensor IDs to a list of TensorSelections.",
       "type" : "object",
       "patternProperties" : {
         "^[a-zA-Z_][a-zA-Z0-9_]*$" : {
+          "description" : "A named list of tensor selections.",
           "type" : "array",
           "items" : {
             "$ref" : "#/$defs/TensorSelection"
@@ -111,23 +148,21 @@
     },
     "TensorSelection" : {
       "$anchor" : "TensorSelection",
+      "title" : "Tensor Selection",
+      "description" : "A selection of a tensor, specified by its ID and a range.",
       "type" : "object",
       "properties" : {
         "tensorId" : {
-          "$ref" : "#/$defs/NodeReference",
-          "targetTypes" : [ "#Tensor" ]
+          "description" : "The ID of the tensor to select.",
+          "$ref" : "#/$defs/NodeReference"
         },
         "range" : {
+          "description" : "The range of the tensor to select, must be within the tensor's range.",
           "$ref" : "#/$defs/ZRange"
         }
       },
       "required" : [ "tensorId", "range" ],
       "additionalProperties" : false
-    },
-    "NodeReference" : {
-      "$anchor" : "NodeReference",
-      "type" : "string",
-      "format" : "uuid"
     }
   }
 }
