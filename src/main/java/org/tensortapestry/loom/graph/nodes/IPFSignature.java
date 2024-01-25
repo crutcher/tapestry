@@ -83,6 +83,9 @@ public class IPFSignature implements HasToJsonString {
   public static final String ANNOTATION_TYPE = LoomConstants.LOOM_CORE_ANNOTATION_TYPE.apply(
     "IPFSignature"
   );
+  public static final String IPF_INDEX_TYPE = LoomConstants.LOOM_CORE_ANNOTATION_TYPE.apply(
+    "IPFIndex"
+  );
 
   @SuppressWarnings("unused")
   public static class IPFSignatureBuilder {

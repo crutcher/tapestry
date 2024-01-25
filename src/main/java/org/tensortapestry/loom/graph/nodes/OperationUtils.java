@@ -77,8 +77,7 @@ public class OperationUtils {
      * Which is a larger change.
      */
 
-    var index = indexBuilder.apply(inputs);
-    var ipfIndex = IPFIndex.builder().range(index).build();
+    var ipfIndex = indexBuilder.apply(inputs);
 
     var opSigNode = OperationSignatureNode
       .withBody(b -> {
@@ -97,7 +96,7 @@ public class OperationUtils {
           for (int idx = 0; idx < selections.size(); ++idx) {
             var s = selections.get(idx);
             var p = projections.get(idx);
-            assert s.getRange().equals(p.apply(index));
+            assert s.getRange().equals(p.apply(ipfIndex));
           }
 
           b.input(name, selections);
@@ -115,7 +114,7 @@ public class OperationUtils {
             var t = types.get(idx);
 
             var tensor = TensorNode
-              .withBody(tb -> tb.dtype(t).range(p.apply(index)))
+              .withBody(tb -> tb.dtype(t).range(p.apply(ipfIndex)))
               .label("%s/%s[%d]".formatted(kernelName, name, idx))
               .addTo(graph);
 
@@ -125,10 +124,10 @@ public class OperationUtils {
         }
       })
       .annotation(IPFSignature.ANNOTATION_TYPE, ipfSignature)
-      .annotation(IPFIndex.ANNOTATION_TYPE, ipfIndex)
+      .annotation(IPFSignature.IPF_INDEX_TYPE, ipfIndex)
       .addTo(graph);
 
-    createIpfShards(opSigNode, shardBuilder.apply(index));
+    createIpfShards(opSigNode, shardBuilder.apply(ipfIndex));
 
     return opSigNode;
   }
@@ -146,9 +145,9 @@ public class OperationUtils {
     var graph = sig.assertGraph();
 
     var ipfSig = sig.assertAnnotation(IPFSignature.ANNOTATION_TYPE, IPFSignature.class);
-    var ipfIndex = sig.assertAnnotation(IPFIndex.ANNOTATION_TYPE, IPFIndex.class);
+    var ipfIndex = sig.assertAnnotation(IPFSignature.IPF_INDEX_TYPE, ZRange.class);
 
-    assert ipfIndex.getRange().contains(shardIndex);
+    assert ipfIndex.contains(shardIndex);
 
     return ApplicationNode
       .withBody(b -> {
@@ -184,7 +183,7 @@ public class OperationUtils {
           b.output(name, selections);
         }
       })
-      .annotation(IPFIndex.ANNOTATION_TYPE, IPFIndex.builder().range(shardIndex).build())
+      .annotation(IPFSignature.IPF_INDEX_TYPE, shardIndex)
       .addTo(graph);
   }
 }

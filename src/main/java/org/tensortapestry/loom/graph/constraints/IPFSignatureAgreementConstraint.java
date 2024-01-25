@@ -68,7 +68,7 @@ public class IPFSignatureAgreementConstraint implements LoomEnvironment.Constrai
       );
 
     {
-      var ipfIndex = opSig.getAnnotation(IPFIndex.ANNOTATION_TYPE, IPFIndex.class);
+      var ipfIndex = opSig.getAnnotation(IPFSignature.IPF_INDEX_TYPE, ZRange.class);
       if (ipfIndex == null) {
         issueCollector.addIssue(
           ValidationIssue
@@ -101,7 +101,7 @@ public class IPFSignatureAgreementConstraint implements LoomEnvironment.Constrai
     }
 
     for (var appNode : opSig.getApplicationNodes()) {
-      var ipfIndex = appNode.getAnnotation(IPFIndex.ANNOTATION_TYPE, IPFIndex.class);
+      var ipfIndex = appNode.getAnnotation(IPFSignature.IPF_INDEX_TYPE, ZRange.class);
       if (ipfIndex == null) {
         issueCollector.addIssue(
           ValidationIssue
@@ -137,7 +137,7 @@ public class IPFSignatureAgreementConstraint implements LoomEnvironment.Constrai
 
   @SuppressWarnings("unused")
   private void validateProjectionAgreement(
-    IPFIndex ipfIndex,
+    ZRange ipfIndex,
     String selectionMapName,
     Map<String, List<TensorSelection>> selectionMap,
     Map<String, List<IndexProjectionFunction>> projectionMap,
@@ -157,8 +157,6 @@ public class IPFSignatureAgreementConstraint implements LoomEnvironment.Constrai
       );
       return;
     }
-
-    var index = ipfIndex.getRange();
 
     for (var entry : selectionMap.entrySet()) {
       final var ioName = entry.getKey();
@@ -184,7 +182,7 @@ public class IPFSignatureAgreementConstraint implements LoomEnvironment.Constrai
         var selection = selections.get(idx);
         var projection = projections.get(idx);
 
-        var expected = projection.apply(index);
+        var expected = projection.apply(ipfIndex);
 
         ZRange projectedRange = selection.getRange();
         if (!projectedRange.equals(expected)) {

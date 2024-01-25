@@ -14,8 +14,9 @@ import java.util.function.Function;
 import org.tensortapestry.loom.common.json.JsonUtil;
 import org.tensortapestry.loom.graph.LoomNode;
 import org.tensortapestry.loom.graph.nodes.ApplicationNode;
-import org.tensortapestry.loom.graph.nodes.IPFIndex;
+import org.tensortapestry.loom.graph.nodes.IPFSignature;
 import org.tensortapestry.loom.graph.nodes.TensorSelection;
+import org.tensortapestry.loom.zspace.ZRange;
 
 public class ApplicationNodeExporter implements GraphVisualizer.NodeTypeExporter {
 
@@ -108,8 +109,8 @@ public class ApplicationNodeExporter implements GraphVisualizer.NodeTypeExporter
       // Annotations
       {
         var annotationMap = new HashMap<>(appNode.getAnnotations());
-        var index = (IPFIndex) annotationMap.remove(IPFIndex.ANNOTATION_TYPE);
-        if (index != null) {
+        var ipfIndex = (ZRange) annotationMap.remove(IPFSignature.IPF_INDEX_TYPE);
+        if (ipfIndex != null) {
           // If the index is present, render it in the node.
           GH
             .table()
@@ -119,7 +120,9 @@ public class ApplicationNodeExporter implements GraphVisualizer.NodeTypeExporter
             .cellspacing(0)
             .cellpadding(0)
             .bgcolor("white")
-            .add(context.jsonToDataKeyValueTRs((ObjectNode) JsonUtil.valueToJsonNodeTree(index)));
+            .add(
+              context.jsonToDataKeyValueTRs((ObjectNode) JsonUtil.valueToJsonNodeTree(ipfIndex))
+            );
         }
 
         context.maybeRenderAnnotations(loomNode.getId().toString(), annotationMap);

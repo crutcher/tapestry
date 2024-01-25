@@ -311,7 +311,7 @@ public class GraphVisualizer {
         .cellspacing(0)
         .cellpadding(0)
         .add(renderDataTypeTitle(title))
-        .addAll(jsonToDataKeyValueTRs(data));
+        .add(GH.td().colspan(2).add(jsonToElement(data)));
     }
 
     private Graphviz renderGraphviz() {

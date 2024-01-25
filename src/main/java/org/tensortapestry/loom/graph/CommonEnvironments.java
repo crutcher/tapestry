@@ -8,6 +8,7 @@ import org.tensortapestry.loom.graph.constraints.NodeBodySchemaConstraint;
 import org.tensortapestry.loom.graph.constraints.TensorDTypesAreValidConstraint;
 import org.tensortapestry.loom.graph.constraints.TypeSchemaConstraint;
 import org.tensortapestry.loom.graph.nodes.*;
+import org.tensortapestry.loom.zspace.ZRange;
 
 @UtilityClass
 public final class CommonEnvironments {
@@ -37,7 +38,8 @@ public final class CommonEnvironments {
       .builder()
       .jsonSchemaFactoryManager(buildJsonSchemaFactoryManager())
       .build()
-      .addUrlAlias(LoomConstants.LOOM_CORE_SCHEMA, "loom")
+      .addUrlAlias(LoomConstants.LOOM_NODE_TYPES_SCHEMA, "loom")
+      .addUrlAlias(LoomConstants.LOOM_ANNOTATION_TYPES_SCHEMA, "loom")
       .autowireNodeTypeClass(NoteNode.TYPE, NoteNode.class)
       .autowireNodeTypeClass(TensorNode.TYPE, TensorNode.class)
       .addConstraint(
@@ -58,6 +60,6 @@ public final class CommonEnvironments {
       .autowireNodeTypeClass(ApplicationNode.TYPE, ApplicationNode.class)
       .autowireNodeTypeClass(OperationSignatureNode.TYPE, OperationSignatureNode.class)
       .addAnnotationTypeClass(IPFSignature.ANNOTATION_TYPE, IPFSignature.class)
-      .addAnnotationTypeClass(IPFIndex.ANNOTATION_TYPE, IPFIndex.class);
+      .addAnnotationTypeClass(IPFSignature.IPF_INDEX_TYPE, ZRange.class);
   }
 }
