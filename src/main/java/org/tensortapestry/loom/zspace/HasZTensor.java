@@ -4,7 +4,14 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import javax.annotation.Nonnull;
 import org.tensortapestry.loom.zspace.indexing.IndexingFns;
 
+/**
+ * Objects which can be represented as a ZTensor.
+ */
 public interface HasZTensor {
+  /**
+   * Returns the ZTensor representation of this object.
+   * @return the ZTensor.
+   */
   @JsonIgnore
   ZTensor getTensor();
 
