@@ -26,8 +26,8 @@ import org.tensortapestry.loom.graph.LoomNode;
 import org.tensortapestry.loom.graph.TraversalUtils;
 import org.tensortapestry.loom.graph.dialects.tensorops.TensorOpNodes;
 import org.tensortapestry.loom.graph.dialects.tensorops.TensorSelection;
-import org.tensortapestry.loom.zspace.IndexProjectionFunction;
 import org.tensortapestry.loom.zspace.ZRange;
+import org.tensortapestry.loom.zspace.ZRangeProjectionMap;
 
 @Data
 @Builder
@@ -358,7 +358,7 @@ public class GraphVisualizer {
       if (node instanceof ObjectNode objectNode) {
         if (objectNode.has("affineMap")) {
           try {
-            var ipf = JsonUtil.convertValue(objectNode, IndexProjectionFunction.class);
+            var ipf = JsonUtil.convertValue(objectNode, ZRangeProjectionMap.class);
             return IPFFormatter.renderIPF(ipf);
           } catch (Exception ignored) {
             // ignore

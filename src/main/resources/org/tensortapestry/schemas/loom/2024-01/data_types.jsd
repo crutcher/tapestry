@@ -38,14 +38,14 @@
         "^[a-zA-Z_][a-zA-Z0-9_]*$" : {
           "type" : "array",
           "items" : {
-            "$ref" : "#/$defs/IndexProjectionFunction"
+            "$ref" : "#/$defs/ZRangeProjectionMap"
           }
         }
       }
     },
-    "IndexProjectionFunction" : {
-      "$anchor" : "IndexProjectionFunction",
-      "title" : "Index Projection Function",
+    "ZRangeProjectionMap" : {
+      "$anchor" : "ZRangeProjectionMap",
+      "title" : "ZRange Projection Map",
       "description" : "A function that maps from points in an index space to ranges in a target ZSpace space.",
       "type" : "object",
       "properties" : {

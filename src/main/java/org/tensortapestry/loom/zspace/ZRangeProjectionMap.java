@@ -18,10 +18,10 @@ import org.tensortapestry.loom.zspace.impl.HasJsonOutput;
 @Value
 @Immutable
 @ThreadSafe
-public class IndexProjectionFunction implements HasJsonOutput {
+public class ZRangeProjectionMap implements HasJsonOutput {
 
   @SuppressWarnings("unused")
-  public static class IndexProjectionFunctionBuilder {
+  public static class ZRangeProjectionMapBuilder {
 
     /**
      * Build an ZAffineMap from a matrix.
@@ -31,7 +31,7 @@ public class IndexProjectionFunction implements HasJsonOutput {
      */
     @Nonnull
     @JsonIgnore
-    public IndexProjectionFunctionBuilder affineMap(@Nonnull int[][] matrix) {
+    public ZRangeProjectionMapBuilder affineMap(@Nonnull int[][] matrix) {
       return affineMap(ZAffineMap.fromMatrix(matrix));
     }
 
@@ -43,7 +43,7 @@ public class IndexProjectionFunction implements HasJsonOutput {
      */
     @Nonnull
     @JsonSetter
-    public IndexProjectionFunctionBuilder affineMap(@Nonnull ZAffineMap affineMap) {
+    public ZRangeProjectionMapBuilder affineMap(@Nonnull ZAffineMap affineMap) {
       this.affineMap = affineMap;
       return this;
     }
@@ -56,7 +56,7 @@ public class IndexProjectionFunction implements HasJsonOutput {
      */
     @Nonnull
     @JsonIgnore
-    public IndexProjectionFunctionBuilder translate(@Nonnull int... offset) {
+    public ZRangeProjectionMapBuilder translate(@Nonnull int... offset) {
       return affineMap(affineMap.translate(offset));
     }
 
@@ -68,7 +68,7 @@ public class IndexProjectionFunction implements HasJsonOutput {
      */
     @Nonnull
     @JsonIgnore
-    public IndexProjectionFunctionBuilder translate(@Nonnull HasZTensor offset) {
+    public ZRangeProjectionMapBuilder translate(@Nonnull HasZTensor offset) {
       return affineMap(affineMap.translate(offset));
     }
 
@@ -80,7 +80,7 @@ public class IndexProjectionFunction implements HasJsonOutput {
      */
     @Nonnull
     @JsonIgnore
-    public IndexProjectionFunctionBuilder shape(@Nonnull int... shape) {
+    public ZRangeProjectionMapBuilder shape(@Nonnull int... shape) {
       return shape(ZPoint.of(shape));
     }
 
@@ -92,14 +92,14 @@ public class IndexProjectionFunction implements HasJsonOutput {
      */
     @Nonnull
     @JsonSetter
-    public IndexProjectionFunctionBuilder shape(@Nonnull HasZTensor shape) {
+    public ZRangeProjectionMapBuilder shape(@Nonnull HasZTensor shape) {
       this.shape = shape.getTensor().newZPoint();
       return this;
     }
   }
 
   /**
-   * Create a new IndexProjectionFunction.
+   * Create a new ZRangeProjectionMap.
    *
    * <p>This is a private builder to force the type of the {@link #affineMap} and {@link #shape}
    * used
@@ -108,15 +108,15 @@ public class IndexProjectionFunction implements HasJsonOutput {
    *
    * @param affineMap the affine map.
    * @param shape the shape.
-   * @return the new IndexProjectionFunction.
+   * @return the new ZRangeProjectionMap.
    */
   @JsonCreator
   @Builder(toBuilder = true)
-  static IndexProjectionFunction privateBuilder(
+  static ZRangeProjectionMap privateBuilder(
     @Nonnull @JsonProperty(value = "affineMap") ZAffineMap affineMap,
     @Nonnull @JsonProperty(value = "shape") ZPoint shape
   ) {
-    return new IndexProjectionFunction(affineMap, shape);
+    return new ZRangeProjectionMap(affineMap, shape);
   }
 
   @Nonnull
@@ -126,13 +126,13 @@ public class IndexProjectionFunction implements HasJsonOutput {
   ZPoint shape;
 
   /**
-   * Create a new IndexProjectionFunction.
+   * Create a new ZRangeProjectionMap.
    *
    * @param affineMap the affine map.
    * @param shape the shape, or {@code null} to use one's in the affine map's output
    *         dims.
    */
-  public IndexProjectionFunction(@Nonnull ZAffineMap affineMap, @Nullable HasZTensor shape) {
+  public ZRangeProjectionMap(@Nonnull ZAffineMap affineMap, @Nullable HasZTensor shape) {
     this.affineMap = affineMap;
     this.shape =
       shape == null ? ZPoint.newOnes(affineMap.getOutputNDim()) : shape.getTensor().newZPoint();
@@ -189,8 +189,8 @@ public class IndexProjectionFunction implements HasJsonOutput {
    * @return The translated projection function.
    */
   @Nonnull
-  public IndexProjectionFunction translate(@Nonnull HasZTensor offset) {
-    return IndexProjectionFunction
+  public ZRangeProjectionMap translate(@Nonnull HasZTensor offset) {
+    return ZRangeProjectionMap
       .builder()
       .affineMap(affineMap.translate(offset))
       .shape(shape)

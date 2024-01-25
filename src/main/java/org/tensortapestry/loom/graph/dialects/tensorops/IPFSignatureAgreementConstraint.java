@@ -9,8 +9,8 @@ import org.tensortapestry.loom.graph.LoomEnvironment;
 import org.tensortapestry.loom.graph.LoomGraph;
 import org.tensortapestry.loom.validation.ValidationIssue;
 import org.tensortapestry.loom.validation.ValidationIssueCollector;
-import org.tensortapestry.loom.zspace.IndexProjectionFunction;
 import org.tensortapestry.loom.zspace.ZRange;
+import org.tensortapestry.loom.zspace.ZRangeProjectionMap;
 
 public class IPFSignatureAgreementConstraint implements LoomEnvironment.Constraint {
 
@@ -139,7 +139,7 @@ public class IPFSignatureAgreementConstraint implements LoomEnvironment.Constrai
     ZRange ipfIndex,
     String selectionMapName,
     Map<String, List<TensorSelection>> selectionMap,
-    Map<String, List<IndexProjectionFunction>> projectionMap,
+    Map<String, List<ZRangeProjectionMap>> projectionMap,
     ValidationIssueCollector issueCollector,
     Supplier<List<ValidationIssue.Context>> lazyContexts
   ) {

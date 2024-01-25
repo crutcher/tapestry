@@ -7,9 +7,9 @@ import org.junit.Test;
 import org.tensortapestry.loom.graph.CommonEnvironments;
 import org.tensortapestry.loom.graph.export.graphviz.GraphVisualizer;
 import org.tensortapestry.loom.testing.BaseTestClass;
-import org.tensortapestry.loom.zspace.IndexProjectionFunction;
 import org.tensortapestry.loom.zspace.ZPoint;
 import org.tensortapestry.loom.zspace.ZRange;
+import org.tensortapestry.loom.zspace.ZRangeProjectionMap;
 
 @SuppressWarnings("unused")
 public class IPFSignatureAgreementConstraintTest extends BaseTestClass {
@@ -39,7 +39,7 @@ public class IPFSignatureAgreementConstraintTest extends BaseTestClass {
         .builder()
         .input(
           "x",
-          IndexProjectionFunction
+          ZRangeProjectionMap
             .builder()
             .affineMap(new int[][] { { 1, 0 }, { 0, 0 } })
             .shape(ZPoint.of(1, tensorA.getShape().get(1)))
@@ -47,7 +47,7 @@ public class IPFSignatureAgreementConstraintTest extends BaseTestClass {
         )
         .input(
           "y",
-          IndexProjectionFunction
+          ZRangeProjectionMap
             .builder()
             .affineMap(new int[][] { { 0, 0 }, { 0, 1 } })
             .shape(ZPoint.of(tensorB.getShape().get(0), 1))
@@ -55,7 +55,7 @@ public class IPFSignatureAgreementConstraintTest extends BaseTestClass {
         )
         .output(
           "z",
-          IndexProjectionFunction.builder().affineMap(new int[][] { { 1, 0 }, { 0, 1 } }).build()
+          ZRangeProjectionMap.builder().affineMap(new int[][] { { 1, 0 }, { 0, 1 } }).build()
         )
         .build(),
       inputs -> {
@@ -99,16 +99,13 @@ public class IPFSignatureAgreementConstraintTest extends BaseTestClass {
         .builder()
         .input(
           "tensor",
-          IndexProjectionFunction
+          ZRangeProjectionMap
             .builder()
             .affineMap(new int[][] { { 1 }, { 0 } })
             .shape(ZPoint.of(1, matmulResult.getShape().get(1)))
             .build()
         )
-        .output(
-          "result",
-          IndexProjectionFunction.builder().affineMap(new int[][] { { 1 } }).build()
-        )
+        .output("result", ZRangeProjectionMap.builder().affineMap(new int[][] { { 1 } }).build())
         .build(),
       inputs -> {
         var x = inputs.get("tensor").getFirst().getRange().getShape().get(0);

@@ -3,11 +3,11 @@ package org.tensortapestry.loom.zspace;
 import org.junit.Test;
 import org.tensortapestry.loom.zspace.experimental.ZSpaceTestAssertions;
 
-public class IndexProjectionFunctionTest implements ZSpaceTestAssertions {
+public class ZRangeProjectionMapTest implements ZSpaceTestAssertions {
 
   @Test
   public void test_json() {
-    var ipf = new IndexProjectionFunction(
+    var ipf = new ZRangeProjectionMap(
       new ZAffineMap(
         ZTensor.newMatrix(new int[][] { { 1, 0 }, { 0, 1 }, { 1, 1 } }),
         ZTensor.newVector(10, 20, 30)
@@ -37,9 +37,9 @@ public class IndexProjectionFunctionTest implements ZSpaceTestAssertions {
   public void test_builder() {
     ZAffineMap affineMap = ZAffineMap.fromMatrix(new int[][] { { 1, 0 }, { 0, 1 }, { 1, 1 } });
 
-    assertThat(new IndexProjectionFunction(affineMap, ZPoint.of(4, 4, 1)))
+    assertThat(new ZRangeProjectionMap(affineMap, ZPoint.of(4, 4, 1)))
       .isEqualTo(
-        IndexProjectionFunction
+        ZRangeProjectionMap
           .builder()
           .affineMap(affineMap)
           .shape(ZTensor.newVector(4, 4, 1))
@@ -48,21 +48,17 @@ public class IndexProjectionFunctionTest implements ZSpaceTestAssertions {
           .build()
       )
       .isEqualTo(
-        IndexProjectionFunction
-          .builder()
-          .affineMap(affineMap)
-          .shape(ZTensor.newVector(4, 4, 1))
-          .build()
+        ZRangeProjectionMap.builder().affineMap(affineMap).shape(ZTensor.newVector(4, 4, 1)).build()
       )
       .isEqualTo(
-        IndexProjectionFunction.builder().affineMap(affineMap).shape(ZPoint.of(4, 4, 1)).build()
+        ZRangeProjectionMap.builder().affineMap(affineMap).shape(ZPoint.of(4, 4, 1)).build()
       )
-      .isEqualTo(IndexProjectionFunction.builder().affineMap(affineMap).shape(4, 4, 1).build());
+      .isEqualTo(ZRangeProjectionMap.builder().affineMap(affineMap).shape(4, 4, 1).build());
   }
 
   @Test
   public void test_toString() {
-    var ipf = new IndexProjectionFunction(
+    var ipf = new ZRangeProjectionMap(
       new ZAffineMap(
         ZTensor.newMatrix(new int[][] { { 1, 0 }, { 0, 1 }, { 1, 1 } }),
         ZTensor.newVector(10, 20, 30)
@@ -78,7 +74,7 @@ public class IndexProjectionFunctionTest implements ZSpaceTestAssertions {
   public void test_mismatch() {
     assertThatExceptionOfType(IllegalArgumentException.class)
       .isThrownBy(() ->
-        new IndexProjectionFunction(
+        new ZRangeProjectionMap(
           new ZAffineMap(
             ZTensor.newMatrix(new int[][] { { 1, 0 }, { 0, 1 }, { 1, 1 } }),
             ZTensor.newVector(10, 20, 30)
@@ -91,7 +87,7 @@ public class IndexProjectionFunctionTest implements ZSpaceTestAssertions {
 
   @Test
   public void test_translate() {
-    var ipf = new IndexProjectionFunction(
+    var ipf = new ZRangeProjectionMap(
       new ZAffineMap(
         ZTensor.newMatrix(new int[][] { { 1, 0 }, { 0, 1 }, { 1, 1 } }),
         ZTensor.newVector(10, 20, 30)
@@ -101,7 +97,7 @@ public class IndexProjectionFunctionTest implements ZSpaceTestAssertions {
 
     assertThat(ipf.translate(ZPoint.of(1, 2, 3)))
       .isEqualTo(
-        new IndexProjectionFunction(
+        new ZRangeProjectionMap(
           new ZAffineMap(
             ZTensor.newMatrix(new int[][] { { 1, 0 }, { 0, 1 }, { 1, 1 } }),
             ZTensor.newVector(11, 22, 33)
@@ -113,7 +109,7 @@ public class IndexProjectionFunctionTest implements ZSpaceTestAssertions {
 
   @Test
   public void test() {
-    var ipf = new IndexProjectionFunction(
+    var ipf = new ZRangeProjectionMap(
       new ZAffineMap(
         ZTensor.newMatrix(new int[][] { { 1, 0 }, { 0, 1 }, { 1, 1 } }),
         ZTensor.newVector(10, 20, 30)

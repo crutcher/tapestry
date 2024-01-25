@@ -11,7 +11,7 @@ import lombok.Builder;
 import lombok.Value;
 import lombok.extern.jackson.Jacksonized;
 import org.tensortapestry.loom.common.json.HasToJsonString;
-import org.tensortapestry.loom.zspace.IndexProjectionFunction;
+import org.tensortapestry.loom.zspace.ZRangeProjectionMap;
 
 @Value
 @Jacksonized
@@ -27,7 +27,7 @@ public class IPFSignature implements HasToJsonString {
     }
 
     @CanIgnoreReturnValue
-    public IPFSignatureBuilder inputs(@Nonnull Map<String, List<IndexProjectionFunction>> ipfs) {
+    public IPFSignatureBuilder inputs(@Nonnull Map<String, List<ZRangeProjectionMap>> ipfs) {
       this.inputs = ipfs;
       return this;
     }
@@ -35,19 +35,19 @@ public class IPFSignature implements HasToJsonString {
     @CanIgnoreReturnValue
     public IPFSignatureBuilder input(
       @Nonnull String name,
-      @Nonnull List<IndexProjectionFunction> ipfs
+      @Nonnull List<ZRangeProjectionMap> ipfs
     ) {
       this.inputs.put(name, new ArrayList<>(ipfs));
       return this;
     }
 
-    public IPFSignatureBuilder input(@Nonnull String name, @Nonnull IndexProjectionFunction ipf) {
+    public IPFSignatureBuilder input(@Nonnull String name, @Nonnull ZRangeProjectionMap ipf) {
       this.inputs.computeIfAbsent(name, k -> new ArrayList<>()).add(ipf);
       return this;
     }
 
     @CanIgnoreReturnValue
-    public IPFSignatureBuilder outputs(@Nonnull Map<String, List<IndexProjectionFunction>> ipfs) {
+    public IPFSignatureBuilder outputs(@Nonnull Map<String, List<ZRangeProjectionMap>> ipfs) {
       this.outputs = ipfs;
       return this;
     }
@@ -55,21 +55,21 @@ public class IPFSignature implements HasToJsonString {
     @CanIgnoreReturnValue
     public IPFSignatureBuilder output(
       @Nonnull String name,
-      @Nonnull List<IndexProjectionFunction> ipfs
+      @Nonnull List<ZRangeProjectionMap> ipfs
     ) {
       this.outputs.put(name, new ArrayList<>(ipfs));
       return this;
     }
 
-    public IPFSignatureBuilder output(@Nonnull String name, @Nonnull IndexProjectionFunction ipf) {
+    public IPFSignatureBuilder output(@Nonnull String name, @Nonnull ZRangeProjectionMap ipf) {
       this.outputs.computeIfAbsent(name, k -> new ArrayList<>()).add(ipf);
       return this;
     }
   }
 
   @Nonnull
-  Map<String, List<IndexProjectionFunction>> inputs;
+  Map<String, List<ZRangeProjectionMap>> inputs;
 
   @Nonnull
-  Map<String, List<IndexProjectionFunction>> outputs;
+  Map<String, List<ZRangeProjectionMap>> outputs;
 }

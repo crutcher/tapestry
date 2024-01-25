@@ -3,15 +3,15 @@ package org.tensortapestry.loom.graph.export.graphviz;
 import org.junit.Test;
 import org.tensortapestry.loom.testing.BaseTestClass;
 import org.tensortapestry.loom.testing.XmlAssertions;
-import org.tensortapestry.loom.zspace.IndexProjectionFunction;
 import org.tensortapestry.loom.zspace.ZAffineMap;
+import org.tensortapestry.loom.zspace.ZRangeProjectionMap;
 import org.tensortapestry.loom.zspace.ZTensor;
 
 public class IPFFormatterTest extends BaseTestClass implements XmlAssertions {
 
   @Test
   public void test_3x2() {
-    var ipf = IndexProjectionFunction
+    var ipf = ZRangeProjectionMap
       .builder()
       .affineMap(new int[][] { { 1, 1, 0 }, { 0, 1, 1 } })
       .translate(2, 3)
@@ -48,7 +48,7 @@ public class IPFFormatterTest extends BaseTestClass implements XmlAssertions {
 
   @Test
   public void test_2x1() {
-    var ipf = IndexProjectionFunction
+    var ipf = ZRangeProjectionMap
       .builder()
       .affineMap(new int[][] { { 1 }, { 0 } })
       .translate(2, 3)
@@ -81,7 +81,7 @@ public class IPFFormatterTest extends BaseTestClass implements XmlAssertions {
 
   @Test
   public void test_scalar() {
-    var ipf = IndexProjectionFunction
+    var ipf = ZRangeProjectionMap
       .builder()
       .affineMap(ZAffineMap.fromMatrix(ZTensor.newZeros(0, 3)))
       .build();

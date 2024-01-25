@@ -9,8 +9,8 @@ import java.util.function.Function;
 import javax.annotation.Nullable;
 import lombok.experimental.UtilityClass;
 import org.tensortapestry.loom.graph.LoomGraph;
-import org.tensortapestry.loom.zspace.IndexProjectionFunction;
 import org.tensortapestry.loom.zspace.ZRange;
+import org.tensortapestry.loom.zspace.ZRangeProjectionMap;
 
 @UtilityClass
 public class OperationUtils {
@@ -32,7 +32,7 @@ public class OperationUtils {
       var selections = inputs.get(name);
       assert selections != null && projections.size() == selections.size();
 
-      List<IndexProjectionFunction> relativeProjections = new ArrayList<>();
+      List<ZRangeProjectionMap> relativeProjections = new ArrayList<>();
       for (int idx = 0; idx < selections.size(); ++idx) {
         var p = projections.get(idx);
         var s = selections.get(idx);

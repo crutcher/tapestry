@@ -1,18 +1,18 @@
 package org.tensortapestry.loom.graph.export.graphviz;
 
 import lombok.experimental.UtilityClass;
-import org.tensortapestry.loom.zspace.IndexProjectionFunction;
+import org.tensortapestry.loom.zspace.ZRangeProjectionMap;
 
 @UtilityClass
 public class IPFFormatter {
 
   /**
-   * Convert an IndexProjectionFunction to a Graphviz HTML Label element.
+   * Convert an ZRangeProjectionMap to a Graphviz HTML Label element.
    *
-   * @param ipf the IndexProjectionFunction.
+   * @param ipf the ZRangeProjectionMap.
    * @return the Graphviz HTML Label element.
    */
-  public GH.TableWrapper renderIPF(IndexProjectionFunction ipf) {
+  public GH.TableWrapper renderIPF(ZRangeProjectionMap ipf) {
     var affineMap = ipf.getAffineMap();
 
     var tableWrapper = GH.table().border(0).cellborder(0).cellspacing(0);
