@@ -157,25 +157,27 @@ public class LoomGraphTest extends BaseTestClass {
            "nodes": [
               {
                 "id": "00000000-0000-0000-0000-000000000001",
-                "type": "TensorNode",
+                "type": "%1$s",
                 "label": "foo",
                 "body": {
                   "dtype": "int32",
-                  "shape": [2, 3]
+                  "range": {"start": [0, 0], "end": [2, 3] }
                 }
               },
               {
                 "id": "00000000-0000-0000-0000-000000000002",
-                "type": "TensorNode",
+                "type": "%1$s",
                 "label": "bar",
                 "body": {
                   "dtype": "float32",
-                  "shape": [4, 5]
+                  "range": {"start": [0, 0], "end": [4, 5] }
                 }
               }
            ]
         }
-        """;
+        """.formatted(
+          TensorNode.TYPE
+        );
 
     var env = CommonEnvironments.genericEnvironment();
     var graph = env.graphFromJson(source);

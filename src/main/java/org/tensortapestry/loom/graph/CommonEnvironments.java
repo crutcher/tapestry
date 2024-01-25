@@ -5,7 +5,6 @@ import lombok.experimental.UtilityClass;
 import org.tensortapestry.loom.common.json.JsonSchemaFactoryManager;
 import org.tensortapestry.loom.graph.constraints.SchemaTypeConstraint;
 import org.tensortapestry.loom.graph.constraints.TensorDTypesAreValidConstraint;
-import org.tensortapestry.loom.graph.constraints.TypeSchemaConstraint;
 import org.tensortapestry.loom.graph.nodes.*;
 import org.tensortapestry.loom.zspace.ZRange;
 
@@ -22,7 +21,8 @@ public final class CommonEnvironments {
       .builder()
       .jsonSchemaFactoryManager(buildJsonSchemaFactoryManager())
       .defaultNodeTypeClass(GenericNode.class)
-      .build();
+      .build()
+      .addConstraint(new SchemaTypeConstraint());
   }
 
   public static LoomEnvironment expressionEnvironment() {
@@ -35,18 +35,6 @@ public final class CommonEnvironments {
       .addUrlAlias(LoomConstants.LOOM_ANNOTATION_TYPES_SCHEMA, "loom")
       .autowireNodeTypeClass(NoteNode.TYPE, NoteNode.class)
       .autowireNodeTypeClass(TensorNode.TYPE, TensorNode.class)
-      .addConstraint(
-        TypeSchemaConstraint
-          .builder()
-          .nodeTypeSchema(NoteNode.TYPE, CommonSchemas.NOTE_NODE_SCHEMA)
-          .nodeTypeSchema(TensorNode.TYPE, CommonSchemas.TENSOR_NODE_SCHEMA)
-          .nodeTypeSchema(ApplicationNode.TYPE, CommonSchemas.APPLICATION_NODE_SCHEMA)
-          .nodeTypeSchema(
-            OperationSignatureNode.TYPE,
-            CommonSchemas.OPERATION_SIGNATURE_NODE_SCHEMA
-          )
-          .build()
-      )
       .addConstraint(
         TensorDTypesAreValidConstraint.builder().validDTypes(Set.of("int32", "float32")).build()
       )
