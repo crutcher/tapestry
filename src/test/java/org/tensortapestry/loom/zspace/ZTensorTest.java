@@ -8,10 +8,10 @@ import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.function.IntBinaryOperator;
 import org.junit.Test;
-import org.tensortapestry.loom.common.json.JsonUtil;
 import org.tensortapestry.loom.testing.CommonAssertions;
 import org.tensortapestry.loom.zspace.indexing.BufferMode;
 import org.tensortapestry.loom.zspace.indexing.IterableCoordinates;
+import org.tensortapestry.loom.zspace.serialization.ZSpaceJsonUtil;
 
 public class ZTensorTest implements CommonAssertions {
 
@@ -296,7 +296,7 @@ public class ZTensorTest implements CommonAssertions {
 
     // Degenerate tensors map to emtpy tensors.
     ZTensor deg = ZTensor.newZeros(0, 5);
-    assertThat(JsonUtil.toJson(deg)).isEqualTo("[[]]");
+    assertThat(ZSpaceJsonUtil.toJson(deg)).isEqualTo("[[]]");
 
     ZTensor t = ZTensor.newFromArray(new int[][] { { 2, 3 }, { 4, 5 } });
     ZTensor s = ZTensor.newScalar(3);

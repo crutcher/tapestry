@@ -6,7 +6,7 @@ import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import javax.annotation.concurrent.ThreadSafe;
 import lombok.Data;
-import org.tensortapestry.loom.common.json.HasToJsonString;
+import org.tensortapestry.loom.zspace.serialization.HasJsonOutput;
 
 /**
  * Base class for immutable wrappers around ZTensors.
@@ -16,7 +16,7 @@ import org.tensortapestry.loom.common.json.HasToJsonString;
 @ThreadSafe
 @Immutable
 @Data
-public abstract class ImmutableZTensorWrapper<T> implements HasZTensor, Cloneable, HasToJsonString {
+public abstract class ImmutableZTensorWrapper<T> implements HasZTensor, Cloneable, HasJsonOutput {
 
   @JsonValue
   @Nonnull

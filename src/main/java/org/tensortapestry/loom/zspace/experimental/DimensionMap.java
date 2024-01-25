@@ -6,21 +6,22 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.google.common.collect.ImmutableList;
+import java.io.IOException;
 import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.Immutable;
 import javax.annotation.concurrent.ThreadSafe;
-import org.tensortapestry.loom.common.json.HasToJsonString;
 import org.tensortapestry.loom.common.json.JsonUtil;
 import org.tensortapestry.loom.zspace.HasDimension;
 import org.tensortapestry.loom.zspace.ZPoint;
 import org.tensortapestry.loom.zspace.indexing.IndexingFns;
+import org.tensortapestry.loom.zspace.serialization.HasJsonOutput;
 
 @Immutable
 @ThreadSafe
 @JsonDeserialize(using = DimensionMap.Deserializer.class)
 public final class DimensionMap
-  implements HasDimension, HasNamedPermute<DimensionMap>, HasToJsonString {
+  implements HasDimension, HasNamedPermute<DimensionMap>, HasJsonOutput {
 
   static final class Deserializer extends StdDeserializer<DimensionMap> {
 
@@ -29,8 +30,7 @@ public final class DimensionMap
     }
 
     @Override
-    public DimensionMap deserialize(JsonParser p, DeserializationContext ctxt)
-      throws java.io.IOException {
+    public DimensionMap deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
       return new DimensionMap(p.readValueAs(String[].class));
     }
   }

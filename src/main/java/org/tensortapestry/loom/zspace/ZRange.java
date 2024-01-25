@@ -12,12 +12,11 @@ import javax.annotation.concurrent.Immutable;
 import javax.annotation.concurrent.ThreadSafe;
 import lombok.Builder;
 import lombok.Value;
-import org.tensortapestry.loom.common.json.HasToJsonString;
-import org.tensortapestry.loom.common.json.JsonUtil;
-import org.tensortapestry.loom.common.runtime.CheckThat;
-import org.tensortapestry.loom.common.text.TextUtils;
 import org.tensortapestry.loom.zspace.indexing.BufferMode;
 import org.tensortapestry.loom.zspace.indexing.IterableCoordinates;
+import org.tensortapestry.loom.zspace.serialization.HasJsonOutput;
+import org.tensortapestry.loom.zspace.serialization.ParseUtil;
+import org.tensortapestry.loom.zspace.serialization.ZSpaceJsonUtil;
 
 /**
  * Represents a range of points in discrete space.
@@ -47,9 +46,11 @@ import org.tensortapestry.loom.zspace.indexing.IterableCoordinates;
 @ThreadSafe
 @Immutable
 @Value
-public class ZRange implements Cloneable, HasSize, HasPermute<ZRange>, HasToJsonString {
+public class ZRange implements Cloneable, HasSize, HasPermute<ZRange>, HasJsonOutput {
 
-  /** ZRange builder. */
+  /**
+   * ZRange builder.
+   */
   @SuppressWarnings("unused")
   public static final class ZRangeBuilder {
 
@@ -134,11 +135,7 @@ public class ZRange implements Cloneable, HasSize, HasPermute<ZRange>, HasToJson
      * @return the range.
      */
     public ZRange build() {
-      var start = CheckThat.valueIsNotNull(
-        this.start,
-        IllegalArgumentException.class,
-        "start is null"
-      );
+      Objects.requireNonNull(this.start, "start is null");
       var end = this.end;
       if (shape != null) {
         if (end != null) {
@@ -267,7 +264,7 @@ public class ZRange implements Cloneable, HasSize, HasPermute<ZRange>, HasToJson
     str = str.strip();
 
     if (str.startsWith("{")) {
-      return JsonUtil.fromJson(str, ZRange.class);
+      return ZSpaceJsonUtil.fromJson(str, ZRange.class);
     }
 
     if (str.startsWith("zr[") && str.endsWith("]")) {
@@ -276,12 +273,12 @@ public class ZRange implements Cloneable, HasSize, HasPermute<ZRange>, HasToJson
         return new ZRange(new ZPoint(), new ZPoint());
       }
 
-      var parts = TextUtils.COMMA_SPLITTER.splitToList(t);
+      var parts = ParseUtil.splitCommas(t);
       var start = new int[parts.size()];
       var end = new int[parts.size()];
 
       for (int i = 0; i < parts.size(); ++i) {
-        var rangeParts = TextUtils.COLON_SPLITTER.splitToList(parts.get(i));
+        var rangeParts = ParseUtil.splitColons(parts.get(i));
         if (rangeParts.size() != 2) {
           throw new IllegalArgumentException(String.format("Invalid ZRange: \"%s\"", str));
         }
@@ -410,13 +407,15 @@ public class ZRange implements Cloneable, HasSize, HasPermute<ZRange>, HasToJson
   /**
    * Returns an {@code Iterable<int[]>} over the coordinates of this ZRange.
    *
-   * <p>When the buffer mode is {@link BufferMode#REUSED}, the buffer is shared between subsequent
+   * <p>When the buffer mode is {@link BufferMode#REUSED}, the buffer is shared between
+   * subsequent
    * calls to {@link Iterator#next()}. When the buffer mode is {@link BufferMode#SAFE}, the buffer
    * is not shared between subsequent calls to {@link Iterator#next()}.
    *
    * <p>Empty ranges will return an empty iterable.
    *
-   * <p>Scalar ranges (ranges where the start and end are zero dimensional ZPoints) will return an
+   * <p>Scalar ranges (ranges where the start and end are zero dimensional ZPoints) will return
+   * an
    * iterable with a single empty coordinate array.
    *
    * @param bufferMode the buffer mode.

@@ -10,13 +10,15 @@ import javax.annotation.concurrent.Immutable;
 import javax.annotation.concurrent.ThreadSafe;
 import lombok.Builder;
 import lombok.Value;
-import org.tensortapestry.loom.common.json.HasToJsonString;
+import org.tensortapestry.loom.zspace.serialization.HasJsonOutput;
 
-/** A function which maps coordinates in a space to ranges in another space. */
+/**
+ * A function which maps coordinates in a space to ranges in another space.
+ */
 @Value
 @Immutable
 @ThreadSafe
-public class IndexProjectionFunction implements HasToJsonString {
+public class IndexProjectionFunction implements HasJsonOutput {
 
   @SuppressWarnings("unused")
   public static class IndexProjectionFunctionBuilder {
@@ -99,7 +101,8 @@ public class IndexProjectionFunction implements HasToJsonString {
   /**
    * Create a new IndexProjectionFunction.
    *
-   * <p>This is a private builder to force the type of the {@link #affineMap} and {@link #shape} used
+   * <p>This is a private builder to force the type of the {@link #affineMap} and {@link #shape}
+   * used
    * in the builder to be {@link ZAffineMap} and {@link ZPoint}, respectively; and to prevent
    * collision with {@link HasZTensor}.
    *
@@ -126,7 +129,8 @@ public class IndexProjectionFunction implements HasToJsonString {
    * Create a new IndexProjectionFunction.
    *
    * @param affineMap the affine map.
-   * @param shape the shape, or {@code null} to use one's in the affine map's output dims.
+   * @param shape the shape, or {@code null} to use one's in the affine map's output
+   *         dims.
    */
   public IndexProjectionFunction(@Nonnull ZAffineMap affineMap, @Nullable HasZTensor shape) {
     this.affineMap = affineMap;

@@ -11,9 +11,11 @@ import javax.annotation.concurrent.ThreadSafe;
 import lombok.Builder;
 import lombok.Value;
 import lombok.extern.jackson.Jacksonized;
-import org.tensortapestry.loom.common.json.HasToJsonString;
+import org.tensortapestry.loom.zspace.serialization.HasJsonOutput;
 
-/** A linear map from {@code Z^inDim} to {@code Z^outDim}. */
+/**
+ * A linear map from {@code Z^inDim} to {@code Z^outDim}.
+ */
 @Value
 @Immutable
 @ThreadSafe
@@ -21,7 +23,7 @@ import org.tensortapestry.loom.common.json.HasToJsonString;
 @Builder(toBuilder = true)
 @JsonPropertyOrder({ "projection", "offset" })
 public class ZAffineMap
-  implements HasPermuteInput<ZAffineMap>, HasPermuteOutput<ZAffineMap>, HasToJsonString {
+  implements HasPermuteInput<ZAffineMap>, HasPermuteOutput<ZAffineMap>, HasJsonOutput {
 
   /**
    * Create a ZAffineMap from a matrix.
@@ -59,7 +61,8 @@ public class ZAffineMap
    * Create a new ZAffineMap.
    *
    * @param projection the matrix.
-   * @param offset the bias; if null, will be a zero vector of size {@code projection.shape[0]}.
+   * @param offset the bias; if null, will be a zero vector of size
+   *         {@code projection.shape[0]}.
    */
   @JsonCreator
   public ZAffineMap(

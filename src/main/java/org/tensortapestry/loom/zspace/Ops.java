@@ -1,6 +1,5 @@
 package org.tensortapestry.loom.zspace;
 
-import com.google.errorprone.annotations.CheckReturnValue;
 import java.util.function.IntBinaryOperator;
 import java.util.function.IntConsumer;
 import java.util.function.IntUnaryOperator;
@@ -165,7 +164,6 @@ public class Ops {
      * @param tensor the input tensor.
      * @return a new tensor.
      */
-    @CheckReturnValue
     @Nonnull
     public static ZTensor map(@Nonnull IntUnaryOperator op, @Nonnull HasZTensor tensor) {
       var result = ZTensor.newZerosLike(tensor);

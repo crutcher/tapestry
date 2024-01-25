@@ -24,11 +24,11 @@ import lombok.Getter;
 import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
 import org.tensortapestry.loom.common.collections.IteratorUtils;
-import org.tensortapestry.loom.common.json.HasToJsonString;
-import org.tensortapestry.loom.common.json.JsonUtil;
 import org.tensortapestry.loom.zspace.indexing.BufferMode;
 import org.tensortapestry.loom.zspace.indexing.IndexingFns;
 import org.tensortapestry.loom.zspace.indexing.IterableCoordinates;
+import org.tensortapestry.loom.zspace.serialization.HasJsonOutput;
+import org.tensortapestry.loom.zspace.serialization.ZSpaceJsonUtil;
 
 /**
  * A multidimensional int array used for numerical operations.
@@ -89,7 +89,7 @@ import org.tensortapestry.loom.zspace.indexing.IterableCoordinates;
 @JsonSerialize(using = ZTensor.Serialization.Serializer.class)
 @JsonDeserialize(using = ZTensor.Serialization.Deserializer.class)
 public final class ZTensor
-  implements HasZTensor, HasToJsonString, Cloneable, HasDimension, HasSize, HasPermute<ZTensor> {
+  implements HasZTensor, HasJsonOutput, Cloneable, HasDimension, HasSize, HasPermute<ZTensor> {
 
   /**
    * Construct a new mutable scalar (0-dim) tensor.
@@ -321,7 +321,7 @@ public final class ZTensor
    */
   @Nonnull
   public static ZTensor parse(@Nonnull String str) {
-    return JsonUtil.fromJson(str, ZTensor.class);
+    return ZSpaceJsonUtil.fromJson(str, ZTensor.class);
   }
 
   /**
