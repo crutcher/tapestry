@@ -34,7 +34,7 @@ public class ZAffineMap
    * @return the ZAffineMap.
    */
   @Nonnull
-  public static ZAffineMap fromMatrix(int[]... rows) {
+  public static ZAffineMap fromMatrix(@Nonnull int[]... rows) {
     return fromMatrix(ZTensor.newMatrix(rows));
   }
 
@@ -133,11 +133,13 @@ public class ZAffineMap
   }
 
   @Override
+  @Nonnull
   public ZAffineMap permuteInput(@Nonnull int... permutation) {
     return new ZAffineMap(projection.permuteInput(permutation), offset);
   }
 
   @Override
+  @Nonnull
   public ZAffineMap permuteOutput(@Nonnull int... permutation) {
     return new ZAffineMap(
       projection.permuteOutput(permutation),

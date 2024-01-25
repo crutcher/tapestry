@@ -15,6 +15,7 @@ import javax.annotation.concurrent.ThreadSafe;
  */
 @ThreadSafe
 @Immutable
+@SuppressWarnings("Immutable")
 public final class ZMatrix
   extends ImmutableZTensorWrapper<ZMatrix>
   implements HasPermuteInput<ZMatrix>, HasPermuteOutput<ZMatrix> {
@@ -28,7 +29,7 @@ public final class ZMatrix
    * @return a new ZMatrix.
    */
   @JsonCreator
-  private static ZMatrix privateCreator(ZTensor tensor) {
+  private static ZMatrix privateCreator(@Nonnull ZTensor tensor) {
     return new ZMatrix(tensor);
   }
 
@@ -41,7 +42,7 @@ public final class ZMatrix
    * @return the ZMatrix.
    */
   @Nonnull
-  public static ZMatrix newMatrix(int[]... rows) {
+  public static ZMatrix newMatrix(@Nonnull int[]... rows) {
     return newMatrix(ZTensor.newMatrix(rows));
   }
 
@@ -147,7 +148,7 @@ public final class ZMatrix
    * @return a new ZTensor.
    */
   @Nonnull
-  public static ZMatrix newDiagonalMatrix(int... diag) {
+  public static ZMatrix newDiagonalMatrix(@Nonnull int... diag) {
     return new ZMatrix(ZTensor.newDiagonalMatrix(diag));
   }
 
@@ -158,7 +159,7 @@ public final class ZMatrix
    * @return a new ZTensor.
    */
   @Nonnull
-  public static ZMatrix newDiagonalMatrix(List<Integer> diag) {
+  public static ZMatrix newDiagonalMatrix(@Nonnull List<Integer> diag) {
     return new ZMatrix(ZTensor.newDiagonalMatrix(diag));
   }
 
@@ -256,17 +257,19 @@ public final class ZMatrix
   }
 
   @Override
+  @Nonnull
   public ZMatrix permuteInput(@Nonnull int... permutation) {
     return new ZMatrix(tensor.reorderedDimCopy(permutation, 1));
   }
 
   @Override
+  @Nonnull
   public ZMatrix permuteOutput(@Nonnull int... permutation) {
     return new ZMatrix(tensor.reorderedDimCopy(permutation, 0));
   }
 
   @Nonnull
   public ZTensor matmul(@Nonnull HasZTensor x) {
-    return Ops.Reduce.matmul(this, x);
+    return Ops.Matrix.matmul(this, x);
   }
 }

@@ -1,5 +1,7 @@
 package org.tensortapestry.loom.zspace;
 
+import javax.annotation.Nonnull;
+
 /**
  * Interface for objects that can be permuted by dimension index.
  *
@@ -15,5 +17,6 @@ public interface HasPermute<T extends HasPermute<T>> extends HasDimension {
    * @param permutation the permutation to apply.
    * @return the permuted object.
    */
-  T permute(int... permutation);
+  @Nonnull
+  T permute(@Nonnull int... permutation);
 }

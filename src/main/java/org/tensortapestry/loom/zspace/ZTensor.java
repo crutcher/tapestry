@@ -12,18 +12,17 @@ import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrappe
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.IntNode;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
-import com.google.common.primitives.Ints;
 import java.lang.reflect.Array;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.*;
 import javax.annotation.Nonnull;
 import lombok.Getter;
 import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
-import org.tensortapestry.loom.common.collections.IteratorUtils;
+import org.tensortapestry.loom.zspace.exceptions.ZDimMissMatchError;
 import org.tensortapestry.loom.zspace.indexing.BufferMode;
 import org.tensortapestry.loom.zspace.indexing.IndexingFns;
 import org.tensortapestry.loom.zspace.indexing.IterableCoordinates;
@@ -109,8 +108,8 @@ public final class ZTensor
    * @return the new tensor.
    */
   @Nonnull
-  public static ZTensor newVector(@Nonnull Iterable<Integer> values) {
-    return newVector(IteratorUtils.iterableToStream(values).mapToInt(Integer::intValue).toArray());
+  public static ZTensor newVector(@Nonnull List<Integer> values) {
+    return newVector(values.stream().mapToInt(Integer::intValue).toArray());
   }
 
   /**
@@ -245,7 +244,12 @@ public final class ZTensor
    * @return a new ZTensor.
    */
   public static ZTensor newDiagonalMatrix(@Nonnull int... diag) {
-    return newDiagonalMatrix(Ints.asList(diag));
+    int k = diag.length;
+    var tensor = newZeros(k, k);
+    for (int i = 0; i < k; ++i) {
+      tensor._unchecked_set(new int[] { i, i }, diag[i]);
+    }
+    return tensor;
   }
 
   /**
@@ -255,11 +259,7 @@ public final class ZTensor
    * @return a new ZTensor.
    */
   public static ZTensor newDiagonalMatrix(@Nonnull List<Integer> diag) {
-    var tensor = newZeros(diag.size(), diag.size());
-    for (int i = 0; i < diag.size(); ++i) {
-      tensor._unchecked_set(new int[] { i, i }, diag.get(i));
-    }
-    return tensor;
+    return newDiagonalMatrix(diag.stream().mapToInt(Integer::intValue).toArray());
   }
 
   /**
@@ -308,7 +308,7 @@ public final class ZTensor
       obj -> ((List<?>) obj).size(),
       (obj, i) -> ((List<?>) obj).get(i),
       obj -> (Integer) obj,
-      obj -> Ints.toArray((List<Integer>) obj)
+      obj -> ((List<Integer>) obj).stream().mapToInt(Integer::intValue).toArray()
     );
   }
 
@@ -321,7 +321,7 @@ public final class ZTensor
    */
   @Nonnull
   public static ZTensor parse(@Nonnull String str) {
-    return ZSpaceJsonUtil.fromJson(str, ZTensor.class);
+    return Objects.requireNonNull(ZSpaceJsonUtil.fromJson(str, ZTensor.class));
   }
 
   /**
@@ -346,7 +346,7 @@ public final class ZTensor
     @Nonnull ToIntFunction<T> nodeAsScalar,
     @Nonnull Function<T, int[]> nodeAsSimpleArray
   ) {
-    var pair = IndexingFns.arrayFromTree(
+    var arrayData = IndexingFns.arrayFromTree(
       root,
       isArray,
       getArrayLength,
@@ -354,8 +354,8 @@ public final class ZTensor
       nodeAsScalar,
       nodeAsSimpleArray
     );
-    var shape = pair.getLeft();
-    var data = pair.getRight();
+    var shape = arrayData.getShape();
+    var data = arrayData.getData();
     return new ZTensor(true, shape, IndexingFns.shapeToLSFStrides(shape), data, 0);
   }
 
@@ -1016,7 +1016,7 @@ public final class ZTensor
    *
    * @param op the operation.
    */
-  public void map_(IntUnaryOperator op) {
+  public void map_(@Nonnull IntUnaryOperator op) {
     assignFromMap_(op, this);
   }
 
@@ -1126,8 +1126,9 @@ public final class ZTensor
    * @param rhs the right-hand side tensor.
    * @return a new tensor.
    */
+  @Nonnull
   public ZTensor matmul(@Nonnull HasZTensor rhs) {
-    return Ops.Reduce.matmul(this, rhs);
+    return Ops.Matrix.matmul(this, rhs);
   }
 
   /**
@@ -1664,7 +1665,7 @@ public final class ZTensor
    */
   @Nonnull
   public List<Integer> shapeAsList() {
-    return Collections.unmodifiableList(Ints.asList(shape));
+    return Arrays.stream(shape).boxed().toList();
   }
 
   /**
@@ -1711,6 +1712,7 @@ public final class ZTensor
   }
 
   @Override
+  @Nonnull
   public ZTensor permute(@Nonnull int... permutation) {
     var perm = IndexingFns.resolvePermutation(permutation, getNDim());
 
@@ -1952,6 +1954,7 @@ public final class ZTensor
      * @param node the node.
      * @return the tensor.
      */
+    @Nonnull
     public ZTensor fromTreeNode(@Nonnull TreeNode node) {
       return newFromTree(
         node,

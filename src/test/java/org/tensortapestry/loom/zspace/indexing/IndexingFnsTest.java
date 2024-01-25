@@ -6,31 +6,6 @@ import org.tensortapestry.loom.testing.CommonAssertions;
 public class IndexingFnsTest implements CommonAssertions {
 
   @Test
-  @SuppressWarnings("unused")
-  public void test_intPow() {
-    assertThat(IndexingFns.intPow(2, 0)).isEqualTo(1);
-    assertThat(IndexingFns.intPow(2, 1)).isEqualTo(2);
-    assertThat(IndexingFns.intPow(2, 2)).isEqualTo(4);
-
-    assertThatExceptionOfType(IllegalArgumentException.class)
-      .isThrownBy(() -> {
-        var _ignored = IndexingFns.intPow(2, -1);
-      });
-  }
-
-  @Test
-  public void test_intLog() {
-    assertThat(IndexingFns.intLog(1, 2)).isEqualTo(0);
-    assertThat(IndexingFns.intLog(2, 2)).isEqualTo(1);
-    assertThat(IndexingFns.intLog(4, 2)).isEqualTo(2);
-
-    assertThatExceptionOfType(IllegalArgumentException.class)
-      .isThrownBy(() -> IndexingFns.intLog(0, 2));
-    assertThatExceptionOfType(IllegalArgumentException.class)
-      .isThrownBy(() -> IndexingFns.intLog(-1, 2));
-  }
-
-  @Test
   public void test_arrayContains() {
     assertThat(IndexingFns.arrayContains(new int[] {}, 0)).isFalse();
     assertThat(IndexingFns.arrayContains(new int[] { 0, 1, 2 }, 0)).isTrue();

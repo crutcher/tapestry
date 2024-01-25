@@ -64,6 +64,7 @@ public class ZRange implements Cloneable, HasSize, HasPermute<ZRange>, HasJsonOu
      * @param shape the shape.
      * @return {@code this}
      */
+    @Nonnull
     public ZRangeBuilder shape(@Nonnull HasZTensor shape) {
       this.shape = shape.getTensor();
       if (start == null) {
@@ -80,6 +81,7 @@ public class ZRange implements Cloneable, HasSize, HasPermute<ZRange>, HasJsonOu
      * @param shape the shape.
      * @return {@code this}
      */
+    @Nonnull
     public ZRangeBuilder shape(@Nonnull int... shape) {
       shape(new ZPoint(shape));
       return this;
@@ -91,6 +93,7 @@ public class ZRange implements Cloneable, HasSize, HasPermute<ZRange>, HasJsonOu
      * @param start the shape.
      * @return {@code this}
      */
+    @Nonnull
     public ZRangeBuilder start(@Nonnull HasZTensor start) {
       this.start = start.getTensor().newZPoint();
       return this;
@@ -102,6 +105,7 @@ public class ZRange implements Cloneable, HasSize, HasPermute<ZRange>, HasJsonOu
      * @param start the shape.
      * @return {@code this}
      */
+    @Nonnull
     public ZRangeBuilder start(@Nonnull int... start) {
       start(new ZPoint(start));
       return this;
@@ -113,6 +117,7 @@ public class ZRange implements Cloneable, HasSize, HasPermute<ZRange>, HasJsonOu
      * @param end the shape.
      * @return {@code this}
      */
+    @Nonnull
     public ZRangeBuilder end(@Nonnull HasZTensor end) {
       this.end = end.getTensor().newZPoint();
       return this;
@@ -124,6 +129,7 @@ public class ZRange implements Cloneable, HasSize, HasPermute<ZRange>, HasJsonOu
      * @param end the shape.
      * @return {@code this}
      */
+    @Nonnull
     public ZRangeBuilder end(@Nonnull int... end) {
       end(new ZPoint(end));
       return this;
@@ -134,6 +140,7 @@ public class ZRange implements Cloneable, HasSize, HasPermute<ZRange>, HasJsonOu
      *
      * @return the range.
      */
+    @Nonnull
     public ZRange build() {
       Objects.requireNonNull(this.start, "start is null");
       var end = this.end;
@@ -264,7 +271,7 @@ public class ZRange implements Cloneable, HasSize, HasPermute<ZRange>, HasJsonOu
     str = str.strip();
 
     if (str.startsWith("{")) {
-      return ZSpaceJsonUtil.fromJson(str, ZRange.class);
+      return Objects.requireNonNull(ZSpaceJsonUtil.fromJson(str, ZRange.class));
     }
 
     if (str.startsWith("zr[") && str.endsWith("]")) {
@@ -356,6 +363,7 @@ public class ZRange implements Cloneable, HasSize, HasPermute<ZRange>, HasJsonOu
    *
    * @return the range string.
    */
+  @Nonnull
   public String toRangeString() {
     var b = new StringBuilder();
     b.append("[");
@@ -376,6 +384,7 @@ public class ZRange implements Cloneable, HasSize, HasPermute<ZRange>, HasJsonOu
    *
    * @return the shape string.
    */
+  @Nonnull
   public String toShapeString() {
     var str = shape.toString();
     return "‖" + str.substring(1, str.length() - 1) + "‖";

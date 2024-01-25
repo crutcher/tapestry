@@ -7,7 +7,7 @@ import lombok.Value;
 import org.junit.Test;
 import org.tensortapestry.loom.testing.BaseTestClass;
 import org.tensortapestry.loom.zspace.HasDimension;
-import org.tensortapestry.loom.zspace.ZDimMissMatchError;
+import org.tensortapestry.loom.zspace.exceptions.ZDimMissMatchError;
 import org.tensortapestry.loom.zspace.indexing.IndexingFns;
 
 public class HasNamedPermuteTest extends BaseTestClass {
@@ -25,7 +25,7 @@ public class HasNamedPermuteTest extends BaseTestClass {
     }
 
     @Override
-    public int indexOf(String name) {
+    public int indexOf(@Nonnull String name) {
       for (int i = 0; i < names.length; i++) {
         if (names[i].equals(name)) {
           return i;
@@ -41,7 +41,8 @@ public class HasNamedPermuteTest extends BaseTestClass {
     }
 
     @Override
-    public Example permute(int... permutation) {
+    @Nonnull
+    public Example permute(@Nonnull int... permutation) {
       var perm = IndexingFns.resolvePermutation(permutation, getNDim());
       return Example
         .builder()

@@ -10,68 +10,13 @@ import java.util.function.Predicate;
 import java.util.function.ToIntFunction;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
+import lombok.Value;
 import lombok.experimental.UtilityClass;
-import org.apache.commons.lang3.tuple.Pair;
 import org.tensortapestry.loom.zspace.HasDimension;
 
 /** Utility functions for computing tensor indices. */
 @UtilityClass
 public final class IndexingFns {
-
-  /**
-   * Compute the integer power of a number.
-   *
-   * @param base the base.
-   * @param exp the exponent.
-   * @return the integer power.
-   */
-  public static int intPow(int base, int exp) {
-    if (exp < 0) {
-      throw new IllegalArgumentException("exponent must be non-negative");
-    }
-    int result = 1;
-    while (exp > 0) {
-      if (exp % 2 == 1) {
-        result *= base;
-      }
-      base *= base;
-      exp /= 2;
-    }
-    return result;
-  }
-
-  /**
-   * Compute the integer logarithm of a number.
-   *
-   * @param value the value.
-   * @param base the base.
-   * @return the integer logarithm.
-   */
-  public static int intLog(int value, int base) {
-    if (base <= 1) {
-      throw new IllegalArgumentException("Base must be greater than 1");
-    }
-    if (value <= 0) {
-      throw new IllegalArgumentException("Value must be positive");
-    }
-
-    int low = 0;
-    int high = value;
-    while (low < high) {
-      int mid = (low + high) / 2;
-      int pow = intPow(base, mid);
-
-      if (pow == value) {
-        return mid;
-      } else if (pow < value) {
-        low = mid + 1;
-      } else {
-        high = mid;
-      }
-    }
-
-    return low - 1;
-  }
 
   /**
    * Return an array of integers from 0 to n - 1.
@@ -80,7 +25,7 @@ public final class IndexingFns {
    * @return an array of integers from 0 to n - 1.
    */
   @Nonnull
-  public static int[] iota(int n) {
+  public int[] iota(int n) {
     int[] result = new int[n];
     for (int i = 0; i < n; ++i) {
       result[i] = i;
@@ -95,7 +40,7 @@ public final class IndexingFns {
    * @return an array of integers from n - 1 to 0.
    */
   @Nonnull
-  public static int[] aoti(int n) {
+  public int[] aoti(int n) {
     int[] result = new int[n];
     for (int i = 0; i < n; ++i) {
       result[i] = n - 1 - i;
@@ -112,7 +57,7 @@ public final class IndexingFns {
    * @return the resolved index.
    * @throws IndexOutOfBoundsException if the index is out of range.
    */
-  public static int resolveIndex(@Nonnull String msg, int idx, int size) {
+  public int resolveIndex(@Nonnull String msg, int idx, int size) {
     var res = idx;
     if (res < 0) {
       res += size;
@@ -135,7 +80,7 @@ public final class IndexingFns {
    * @return the resolved dimension index.
    * @throws IndexOutOfBoundsException if the index is out of range.
    */
-  public static int resolveDim(int dim, int ndim) {
+  public int resolveDim(int dim, int ndim) {
     return resolveIndex("invalid dimension", dim, ndim);
   }
 
@@ -149,7 +94,7 @@ public final class IndexingFns {
    * @return the resolved dimension index.
    * @throws IndexOutOfBoundsException if the index is out of range.
    */
-  public static int resolveDim(int dim, @Nonnull int[] shape) {
+  public int resolveDim(int dim, @Nonnull int[] shape) {
     return resolveDim(dim, shape.length);
   }
 
@@ -165,7 +110,7 @@ public final class IndexingFns {
    * @throws IllegalArgumentException if the indexes are duplicated.
    */
   @Nonnull
-  public static int[] resolveDims(@Nonnull int[] dims, @Nonnull int[] shape) {
+  public int[] resolveDims(@Nonnull int[] dims, @Nonnull int[] shape) {
     int[] res = new int[dims.length];
     for (int i = 0; i < dims.length; ++i) {
       var d = resolveDim(dims[i], shape);
@@ -199,7 +144,7 @@ public final class IndexingFns {
    * @throws IndexOutOfBoundsException if a dimension is out of range.
    */
   @Nonnull
-  public static int[] resolvePermutation(@Nonnull int[] permutation, int ndim) {
+  public int[] resolvePermutation(@Nonnull int[] permutation, int ndim) {
     HasDimension.assertNDim(permutation.length, ndim);
 
     int acc = 0;
@@ -223,7 +168,8 @@ public final class IndexingFns {
    * @param permutation the permutation.
    * @return a new array with the permutation applied.
    */
-  public static int[] permute(@Nonnull int[] arr, @Nonnull int[] permutation) {
+  @Nonnull
+  public int[] permute(@Nonnull int[] arr, @Nonnull int[] permutation) {
     var per = resolvePermutation(permutation, arr.length);
     return applyResolvedPermutation(arr, per);
   }
@@ -235,7 +181,7 @@ public final class IndexingFns {
    * @param permutation the permutation
    * @return the shared length
    */
-  private static int _checkResolvedPermutation(Object arr, int[] permutation) {
+  private int _checkResolvedPermutation(@Nonnull Object arr, @Nonnull int[] permutation) {
     var length = Array.getLength(arr);
 
     if (length != permutation.length) {
@@ -259,7 +205,7 @@ public final class IndexingFns {
    * @param <T> the type of the array.
    */
   @Nonnull
-  public static <T> T[] applyResolvedPermutation(@Nonnull T[] arr, @Nonnull int[] permutation) {
+  public <T> T[] applyResolvedPermutation(@Nonnull T[] arr, @Nonnull int[] permutation) {
     int length = _checkResolvedPermutation(arr, permutation);
     var res = arr.clone();
     for (int i = 0; i < length; ++i) {
@@ -276,7 +222,7 @@ public final class IndexingFns {
    * @return a new array with the permutation applied.
    */
   @Nonnull
-  public static int[] applyResolvedPermutation(@Nonnull int[] arr, @Nonnull int[] permutation) {
+  public int[] applyResolvedPermutation(@Nonnull int[] arr, @Nonnull int[] permutation) {
     int length = _checkResolvedPermutation(arr, permutation);
     var res = arr.clone();
     for (int i = 0; i < length; ++i) {
@@ -295,12 +241,7 @@ public final class IndexingFns {
    * @return the ravel index.
    * @throws IndexOutOfBoundsException if the coordinates are out of bounds.
    */
-  public static int ravel(
-    @Nonnull int[] shape,
-    @Nonnull int[] stride,
-    @Nonnull int[] coords,
-    int offset
-  ) {
+  public int ravel(@Nonnull int[] shape, @Nonnull int[] stride, @Nonnull int[] coords, int offset) {
     var ndim = shape.length;
     if (stride.length != ndim) {
       throw new IllegalArgumentException(
@@ -347,7 +288,7 @@ public final class IndexingFns {
    * @return a new array of strides.
    */
   @Nonnull
-  public static int[] shapeToLSFStrides(@Nonnull int[] shape) {
+  public int[] shapeToLSFStrides(@Nonnull int[] shape) {
     var stride = new int[shape.length];
     if (shape.length == 0) {
       return stride;
@@ -378,7 +319,7 @@ public final class IndexingFns {
    * @param shape the shape.
    * @return the product of the shape; which is 1 for a shape of `[]`.
    */
-  public static int shapeToSize(@Nonnull int[] shape) {
+  public int shapeToSize(@Nonnull int[] shape) {
     return Arrays.stream(shape).reduce(1, (a, b) -> a * b);
   }
 
@@ -390,7 +331,7 @@ public final class IndexingFns {
    * @throws IndexOutOfBoundsException if the shapes are not compatible.
    */
   @Nonnull
-  public static int[] commonBroadcastShape(@Nonnull int[]... shapes) {
+  public int[] commonBroadcastShape(@Nonnull int[]... shapes) {
     int ndim = 0;
     for (int[] ints : shapes) {
       ndim = Math.max(ndim, ints.length);
@@ -430,7 +371,7 @@ public final class IndexingFns {
    * @param value the value.
    * @return true if the array contains the value.
    */
-  public static boolean arrayContains(@Nonnull int[] array, int value) {
+  public boolean arrayContains(@Nonnull int[] array, int value) {
     for (int v : array) {
       if (v == value) {
         return true;
@@ -447,7 +388,7 @@ public final class IndexingFns {
    * @return a copy of the array with the given index removed.
    */
   @Nonnull
-  public static int[] removeIdx(@Nonnull int[] arr, int index) {
+  public int[] removeIdx(@Nonnull int[] arr, int index) {
     int[] res = new int[arr.length - 1];
     System.arraycopy(arr, 0, res, 0, index);
     System.arraycopy(arr, index + 1, res, index, arr.length - index - 1);
@@ -461,7 +402,7 @@ public final class IndexingFns {
    * @param expected the expected shape.
    * @throws IllegalStateException if the shapes do not match.
    */
-  public static void assertShape(@Nonnull int[] actual, @Nonnull int[] expected) {
+  public void assertShape(@Nonnull int[] actual, @Nonnull int[] expected) {
     if (!Arrays.equals(actual, expected)) {
       throw new IllegalArgumentException(
         "shape " + Arrays.toString(actual) + " != expected shape " + Arrays.toString(expected)
@@ -479,7 +420,7 @@ public final class IndexingFns {
    * @param getArrayElement get the ith element of this array.
    * @return the shape of the tree as seen from the spine.
    */
-  public static <T> List<Integer> treeSpineShape(
+  public <T> List<Integer> treeSpineShape(
     @Nonnull T root,
     @Nonnull Predicate<T> isArray,
     @Nonnull ToIntFunction<T> getArrayLength,
@@ -502,6 +443,16 @@ public final class IndexingFns {
   }
 
   /**
+   * Result of {@link #arrayFromTree}.
+   */
+  @Value
+  public static class ArrayData {
+
+    int[] shape;
+    int[] data;
+  }
+
+  /**
    * Decode a non-ragged recursive int array from a tree.
    *
    * @param <T> the type of the tree.
@@ -513,7 +464,7 @@ public final class IndexingFns {
    * @param nodeAsSimpleArray get a coherent chunk of data for a final layer array.
    * @return a {@code Pair<int[], int[]>} of (shape, data)
    */
-  public static <T> @Nonnull Pair<int[], int[]> arrayFromTree(
+  public <T> @Nonnull ArrayData arrayFromTree(
     @Nonnull T root,
     @Nonnull Predicate<T> isArray,
     @Nonnull ToIntFunction<T> getArrayLength,
@@ -523,7 +474,7 @@ public final class IndexingFns {
   ) {
     try {
       if (!isArray.test(root)) {
-        return Pair.of(new int[] {}, new int[] { nodeAsScalar.applyAsInt(root) });
+        return new ArrayData(new int[] {}, new int[] { nodeAsScalar.applyAsInt(root) });
       }
 
       var shapeList = treeSpineShape(root, isArray, getArrayLength, getArrayElement);
@@ -532,7 +483,7 @@ public final class IndexingFns {
 
       if (shapeList.contains(0)) {
         // Handle degenerate tensors.
-        return Pair.of(new int[ndim], new int[] {});
+        return new ArrayData(new int[ndim], new int[] {});
       }
 
       int[] shape = shapeList.stream().mapToInt(i -> i).toArray();
@@ -555,7 +506,7 @@ public final class IndexingFns {
         chunkCount++;
       }
 
-      return Pair.of(shape, data);
+      return new ArrayData(shape, data);
     } catch (Exception e) {
       throw new IllegalArgumentException("Could not parse array from tree", e);
     }
@@ -567,7 +518,7 @@ public final class IndexingFns {
    * @param source the object.
    * @return true if this object is a recursive int array.
    */
-  public static boolean isRecursiveIntArray(@Nonnull Object source) {
+  public boolean isRecursiveIntArray(@Nonnull Object source) {
     var clazz = source.getClass();
     while (true) {
       if (clazz.isArray()) {

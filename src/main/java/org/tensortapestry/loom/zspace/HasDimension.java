@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
+import org.tensortapestry.loom.zspace.exceptions.ZDimMissMatchError;
 
 /** Interface for objects that have a number of dimensions. */
 public interface HasDimension {

@@ -8,10 +8,18 @@ import lombok.experimental.UtilityClass;
 import org.tensortapestry.loom.zspace.indexing.BufferMode;
 import org.tensortapestry.loom.zspace.indexing.IndexingFns;
 
+/**
+ * Various operations on ZTensors.
+ */
 @UtilityClass
 public class Ops {
 
-  /** Namespace of ZPoint operations. */
+  /**
+   * Coordinate Dominance Ordering.
+   *
+   * <p>Two tensors are comparable if they have the same dimension;
+   * and all coordinates of the first are less than or equal to the second.
+   */
   @UtilityClass
   public static final class DominanceOrdering {
 
@@ -134,10 +142,25 @@ public class Ops {
       };
     }
 
+    /**
+     * Partial Ordering Typing.
+     */
     public enum PartialOrdering {
+      /**
+       * The left-hand side is less than the right-hand side.
+       */
       LESS_THAN,
+      /**
+       * The left-hand side is equal to the right-hand side.
+       */
       EQUAL,
+      /**
+       * The left-hand side is greater than the right-hand side.
+       */
       GREATER_THAN,
+      /**
+       * The left-hand side is incomparable to the right-hand side.
+       */
       INCOMPARABLE,
     }
   }
@@ -584,6 +607,28 @@ public class Ops {
     }
 
     /**
+     * Compute the integer power of a number.
+     *
+     * @param base the base.
+     * @param exp the exponent.
+     * @return the integer power.
+     */
+    public int intPow(int base, int exp) {
+      if (exp < 0) {
+        throw new IllegalArgumentException("exponent must be non-negative");
+      }
+      int result = 1;
+      while (exp > 0) {
+        if (exp % 2 == 1) {
+          result *= base;
+        }
+        base *= base;
+        exp /= 2;
+      }
+      return result;
+    }
+
+    /**
      * Element-wise broadcast power.
      *
      * @param lhs the left-hand side scalar.
@@ -591,7 +636,7 @@ public class Ops {
      * @return a new tensor.
      */
     public static ZTensor pow(@Nonnull HasZTensor lhs, @Nonnull HasZTensor exp) {
-      return zipWith(IndexingFns::intPow, lhs, exp);
+      return zipWith(CellWise::intPow, lhs, exp);
     }
 
     /**
@@ -602,7 +647,7 @@ public class Ops {
      * @return a new tensor.
      */
     public static ZTensor pow(int lhs, @Nonnull HasZTensor exp) {
-      return zipWith(IndexingFns::intPow, lhs, exp);
+      return zipWith(CellWise::intPow, lhs, exp);
     }
 
     /**
@@ -613,7 +658,7 @@ public class Ops {
      * @return a new tensor.
      */
     public static ZTensor pow(@Nonnull HasZTensor lhs, int exp) {
-      return zipWith(IndexingFns::intPow, lhs, exp);
+      return zipWith(CellWise::intPow, lhs, exp);
     }
 
     /**
@@ -623,7 +668,7 @@ public class Ops {
      * @param exp the right-hand side tensor.
      */
     public static void pow_(@Nonnull ZTensor lhs, @Nonnull HasZTensor exp) {
-      lhs.zipWith_(IndexingFns::intPow, exp);
+      lhs.zipWith_(CellWise::intPow, exp);
     }
 
     /**
@@ -633,7 +678,40 @@ public class Ops {
      * @param exp the right-hand side tensor.
      */
     public static void pow_(@Nonnull ZTensor lhs, int exp) {
-      lhs.zipWith_(IndexingFns::intPow, exp);
+      lhs.zipWith_(CellWise::intPow, exp);
+    }
+
+    /**
+     * Compute the integer logarithm of a number.
+     *
+     * @param value the value.
+     * @param base the base.
+     * @return the integer logarithm.
+     */
+    public int intLog(int value, int base) {
+      if (base <= 1) {
+        throw new IllegalArgumentException("Base must be greater than 1");
+      }
+      if (value <= 0) {
+        throw new IllegalArgumentException("Value must be positive");
+      }
+
+      int low = 0;
+      int high = value;
+      while (low < high) {
+        int mid = (low + high) / 2;
+        int pow = intPow(base, mid);
+
+        if (pow == value) {
+          return mid;
+        } else if (pow < value) {
+          low = mid + 1;
+        } else {
+          high = mid;
+        }
+      }
+
+      return low - 1;
     }
 
     /**
@@ -644,7 +722,7 @@ public class Ops {
      * @return a new tensor.
      */
     public static ZTensor log(@Nonnull HasZTensor lhs, @Nonnull HasZTensor base) {
-      return zipWith(IndexingFns::intLog, lhs, base);
+      return zipWith(CellWise::intLog, lhs, base);
     }
 
     /**
@@ -655,7 +733,7 @@ public class Ops {
      * @return a new tensor.
      */
     public static ZTensor log(int lhs, @Nonnull HasZTensor base) {
-      return zipWith(IndexingFns::intLog, lhs, base);
+      return zipWith(CellWise::intLog, lhs, base);
     }
 
     /**
@@ -666,7 +744,7 @@ public class Ops {
      * @return a new tensor.
      */
     public static ZTensor log(@Nonnull HasZTensor lhs, int base) {
-      return zipWith(IndexingFns::intLog, lhs, base);
+      return zipWith(CellWise::intLog, lhs, base);
     }
 
     /**
@@ -676,7 +754,7 @@ public class Ops {
      * @param base the right-hand side tensor.
      */
     public static void log_(@Nonnull ZTensor lhs, @Nonnull HasZTensor base) {
-      lhs.zipWith_(IndexingFns::intLog, base);
+      lhs.zipWith_(CellWise::intLog, base);
     }
 
     /**
@@ -686,7 +764,7 @@ public class Ops {
      * @param base the right-hand side tensor.
      */
     public static void log_(@Nonnull ZTensor lhs, int base) {
-      lhs.zipWith_(IndexingFns::intLog, base);
+      lhs.zipWith_(CellWise::intLog, base);
     }
   }
 
@@ -781,60 +859,6 @@ public class Ops {
         acc.set(ks, reduceCellsAtomic(slice, op, initial));
       }
       return acc;
-    }
-
-    /**
-     * Matrix multiplication of {@code lhs * rhs}.
-     *
-     * @param lhs the left-hand side tensor.
-     * @param rhs the right-hand side tensor.
-     * @return a new tensor.
-     */
-    @Nonnull
-    public static ZTensor matmul(@Nonnull HasZTensor lhs, @Nonnull HasZTensor rhs) {
-      var zlhs = lhs.getTensor();
-      var zrhs = rhs.getTensor();
-
-      zlhs.assertNDim(2);
-      if (zlhs.shape(1) != zrhs.shape(0)) {
-        throw new IllegalArgumentException(
-          "lhs shape %s not compatible with rhs shape %s".formatted(
-              zlhs.shapeAsList(),
-              zrhs.shapeAsList()
-            )
-        );
-      }
-
-      if (zrhs.getNDim() > 2 || zrhs.getNDim() == 0) {
-        throw new IllegalArgumentException(
-          "rhs must be a 1D or 2D tensor, got %dD: %s".formatted(zrhs.getNDim(), zrhs.shapeAsList())
-        );
-      }
-
-      boolean rhsIsVector = zrhs.getNDim() == 1;
-      if (rhsIsVector) {
-        zrhs = zrhs.unsqueeze(1);
-      }
-
-      var res = ZTensor.newZeros(zlhs.shape(0), zrhs.shape(1));
-      var coords = new int[2];
-      for (int i = 0; i < zlhs.shape(0); ++i) {
-        coords[0] = i;
-        for (int j = 0; j < zrhs.shape(1); ++j) {
-          coords[1] = j;
-          int sum = 0;
-          for (int k = 0; k < zlhs.shape(1); ++k) {
-            sum += zlhs.get(i, k) * zrhs.get(k, j);
-          }
-          res.set(coords, sum);
-        }
-      }
-
-      if (rhsIsVector) {
-        res = res.squeeze(1);
-      }
-
-      return res;
     }
 
     /**
@@ -979,6 +1003,67 @@ public class Ops {
     @Nonnull
     public static ZTensor max(@Nonnull HasZTensor tensor, @Nonnull int... dims) {
       return reduceCells(tensor, Math::max, Integer.MIN_VALUE, dims);
+    }
+  }
+
+  /**
+   * ZTensor matrix operations.
+   */
+  @UtilityClass
+  public final class Matrix {
+
+    /**
+     * Matrix multiplication of {@code lhs * rhs}.
+     *
+     * @param lhs the left-hand side tensor.
+     * @param rhs the right-hand side tensor.
+     * @return a new tensor.
+     */
+    @Nonnull
+    public static ZTensor matmul(@Nonnull HasZTensor lhs, @Nonnull HasZTensor rhs) {
+      var zlhs = lhs.getTensor();
+      var zrhs = rhs.getTensor();
+
+      zlhs.assertNDim(2);
+      if (zlhs.shape(1) != zrhs.shape(0)) {
+        throw new IllegalArgumentException(
+          "lhs shape %s not compatible with rhs shape %s".formatted(
+              zlhs.shapeAsList(),
+              zrhs.shapeAsList()
+            )
+        );
+      }
+
+      if (zrhs.getNDim() > 2 || zrhs.getNDim() == 0) {
+        throw new IllegalArgumentException(
+          "rhs must be a 1D or 2D tensor, got %dD: %s".formatted(zrhs.getNDim(), zrhs.shapeAsList())
+        );
+      }
+
+      boolean rhsIsVector = zrhs.getNDim() == 1;
+      if (rhsIsVector) {
+        zrhs = zrhs.unsqueeze(1);
+      }
+
+      var res = ZTensor.newZeros(zlhs.shape(0), zrhs.shape(1));
+      var coords = new int[2];
+      for (int i = 0; i < zlhs.shape(0); ++i) {
+        coords[0] = i;
+        for (int j = 0; j < zrhs.shape(1); ++j) {
+          coords[1] = j;
+          int sum = 0;
+          for (int k = 0; k < zlhs.shape(1); ++k) {
+            sum += zlhs.get(i, k) * zrhs.get(k, j);
+          }
+          res.set(coords, sum);
+        }
+      }
+
+      if (rhsIsVector) {
+        res = res.squeeze(1);
+      }
+
+      return res;
     }
   }
 }

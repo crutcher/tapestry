@@ -56,7 +56,7 @@ public class IndexProjectionFunction implements HasJsonOutput {
      */
     @Nonnull
     @JsonIgnore
-    public IndexProjectionFunctionBuilder translate(int... offset) {
+    public IndexProjectionFunctionBuilder translate(@Nonnull int... offset) {
       return affineMap(affineMap.translate(offset));
     }
 
@@ -80,7 +80,7 @@ public class IndexProjectionFunction implements HasJsonOutput {
      */
     @Nonnull
     @JsonIgnore
-    public IndexProjectionFunctionBuilder shape(int... shape) {
+    public IndexProjectionFunctionBuilder shape(@Nonnull int... shape) {
       return shape(ZPoint.of(shape));
     }
 

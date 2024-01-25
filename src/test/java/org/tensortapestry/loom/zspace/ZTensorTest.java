@@ -9,6 +9,7 @@ import java.util.Objects;
 import java.util.function.IntBinaryOperator;
 import org.junit.Test;
 import org.tensortapestry.loom.testing.CommonAssertions;
+import org.tensortapestry.loom.zspace.exceptions.ZDimMissMatchError;
 import org.tensortapestry.loom.zspace.indexing.BufferMode;
 import org.tensortapestry.loom.zspace.indexing.IterableCoordinates;
 import org.tensortapestry.loom.zspace.serialization.ZSpaceJsonUtil;

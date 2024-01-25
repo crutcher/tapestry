@@ -1,4 +1,4 @@
-package org.tensortapestry.loom.zspace;
+package org.tensortapestry.loom.zspace.exceptions;
 
 /**
  * Base class for ZSpace errors.
@@ -11,7 +11,7 @@ public class ZSpaceError extends RuntimeException {
   @java.io.Serial
   private static final long serialVersionUID = -8561235984801453952L;
 
-  ZSpaceError(String message) {
+  public ZSpaceError(String message) {
     super(message);
   }
 }

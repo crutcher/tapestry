@@ -2,6 +2,7 @@ package org.tensortapestry.loom.zspace.serialization;
 
 import java.util.ArrayList;
 import java.util.List;
+import javax.annotation.Nonnull;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass
@@ -12,7 +13,8 @@ public class ParseUtil {
    * @param s the string
    * @return the list of strings
    */
-  public List<String> splitCommas(String s) {
+  @Nonnull
+  public List<String> splitCommas(@Nonnull String s) {
     var res = new ArrayList<String>();
     for (var part : s.split(",", -1)) {
       res.add(part.trim());
@@ -25,7 +27,8 @@ public class ParseUtil {
    * @param s the string
    * @return the list of strings
    */
-  public List<String> splitColons(String s) {
+  @Nonnull
+  public List<String> splitColons(@Nonnull String s) {
     var res = new ArrayList<String>();
     for (var part : s.split(":", -1)) {
       res.add(part.trim());

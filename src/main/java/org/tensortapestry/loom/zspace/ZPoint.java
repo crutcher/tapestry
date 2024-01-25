@@ -2,6 +2,7 @@ package org.tensortapestry.loom.zspace;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.google.errorprone.annotations.Immutable;
+import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.ThreadSafe;
 import org.tensortapestry.loom.zspace.indexing.IndexingFns;
@@ -15,6 +16,7 @@ import org.tensortapestry.loom.zspace.indexing.IndexingFns;
  */
 @ThreadSafe
 @Immutable
+@SuppressWarnings("Immutable")
 public final class ZPoint extends ImmutableZTensorWrapper<ZPoint> implements HasPermute<ZPoint> {
 
   /**
@@ -128,7 +130,7 @@ public final class ZPoint extends ImmutableZTensorWrapper<ZPoint> implements Has
    *
    * @param coords the coordinates.
    */
-  public ZPoint(@Nonnull Iterable<Integer> coords) {
+  public ZPoint(@Nonnull List<Integer> coords) {
     this(ZTensor.newVector(coords));
   }
 
@@ -178,6 +180,7 @@ public final class ZPoint extends ImmutableZTensorWrapper<ZPoint> implements Has
    * @return a new ZPoint.
    */
   @Override
+  @Nonnull
   public ZPoint permute(@Nonnull int... permutation) {
     return new ZPoint(IndexingFns.permute(toArray(), permutation));
   }

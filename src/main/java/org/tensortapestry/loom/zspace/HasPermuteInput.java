@@ -1,5 +1,7 @@
 package org.tensortapestry.loom.zspace;
 
+import javax.annotation.Nonnull;
+
 public interface HasPermuteInput<T extends HasPermuteInput<T>> {
   /**
    * Permute the input dimensions of this object.
@@ -7,5 +9,6 @@ public interface HasPermuteInput<T extends HasPermuteInput<T>> {
    * @param permutation the permutation to apply.
    * @return a new permuted object.
    */
-  T permuteInput(int... permutation);
+  @Nonnull
+  T permuteInput(@Nonnull int... permutation);
 }

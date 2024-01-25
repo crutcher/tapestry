@@ -3,8 +3,8 @@ package org.tensortapestry.loom.graph.dialects.tensorops;
 import java.util.UUID;
 import org.junit.Test;
 import org.tensortapestry.loom.testing.BaseTestClass;
-import org.tensortapestry.loom.zspace.ZDimMissMatchError;
 import org.tensortapestry.loom.zspace.ZRange;
+import org.tensortapestry.loom.zspace.exceptions.ZDimMissMatchError;
 
 public class TensorSelectionTest extends BaseTestClass {
 

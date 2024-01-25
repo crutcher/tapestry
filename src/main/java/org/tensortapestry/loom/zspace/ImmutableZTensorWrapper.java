@@ -16,6 +16,7 @@ import org.tensortapestry.loom.zspace.serialization.HasJsonOutput;
 @ThreadSafe
 @Immutable
 @Data
+@SuppressWarnings("Immutable")
 public abstract class ImmutableZTensorWrapper<T> implements HasZTensor, Cloneable, HasJsonOutput {
 
   @JsonValue

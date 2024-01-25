@@ -24,6 +24,7 @@ public final class IterableCoordinates implements Iterable<int[]> {
 
     @Nullable private int[] current = null;
 
+    @Nonnull
     public BufferMode getBufferMode() {
       return bufferMode;
     }

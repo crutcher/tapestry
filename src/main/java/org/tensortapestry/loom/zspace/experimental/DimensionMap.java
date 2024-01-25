@@ -38,7 +38,7 @@ public final class DimensionMap
   @JsonValue
   public final ImmutableList<String> names;
 
-  public DimensionMap(String... names) {
+  public DimensionMap(@Nonnull String... names) {
     for (int i = 0; i < names.length; ++i) {
       var name = names[i];
       if (name == null) {
@@ -82,7 +82,7 @@ public final class DimensionMap
   }
 
   @Override
-  public int indexOf(String name) {
+  public int indexOf(@Nonnull String name) {
     var idx = names.indexOf(name);
     if (idx == -1) {
       throw new IndexOutOfBoundsException("no such dimension: " + name);
@@ -97,7 +97,8 @@ public final class DimensionMap
   }
 
   @Override
-  public DimensionMap permute(int... permutation) {
+  @Nonnull
+  public DimensionMap permute(@Nonnull int... permutation) {
     var perm = IndexingFns.resolvePermutation(permutation, getNDim());
 
     var names = new String[getNDim()];
