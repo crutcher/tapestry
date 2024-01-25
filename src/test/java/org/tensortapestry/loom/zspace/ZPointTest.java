@@ -2,11 +2,11 @@ package org.tensortapestry.loom.zspace;
 
 import java.util.List;
 import org.junit.Test;
-import org.tensortapestry.loom.testing.CommonAssertions;
 import org.tensortapestry.loom.zspace.exceptions.ZDimMissMatchError;
+import org.tensortapestry.loom.zspace.experimental.ZSpaceTestAssertions;
 import org.tensortapestry.loom.zspace.ops.DominanceOrderingOps;
 
-public class ZPointTest implements CommonAssertions {
+public class ZPointTest implements ZSpaceTestAssertions {
 
   @Test
   public void test_clone() {
@@ -115,7 +115,7 @@ public class ZPointTest implements CommonAssertions {
 
     assertThat(p).hasToString(str);
     assertThat(ZPoint.parse(str)).isEqualTo(p);
-    assertJsonEquals(p, str);
+    assertObjectJsonEquivalence(p, str);
 
     assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> ZPoint.parse("abc"));
   }

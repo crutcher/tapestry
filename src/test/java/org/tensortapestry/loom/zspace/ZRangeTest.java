@@ -2,10 +2,10 @@ package org.tensortapestry.loom.zspace;
 
 import java.util.List;
 import org.junit.Test;
-import org.tensortapestry.loom.testing.CommonAssertions;
+import org.tensortapestry.loom.zspace.experimental.ZSpaceTestAssertions;
 import org.tensortapestry.loom.zspace.indexing.BufferMode;
 
-public class ZRangeTest implements CommonAssertions {
+public class ZRangeTest implements ZSpaceTestAssertions {
 
   @Test
   public void test_clone() {
@@ -98,7 +98,7 @@ public class ZRangeTest implements CommonAssertions {
       String json = "{\"start\":[], \"end\":[]}";
 
       assertThat(range).hasToString(pretty);
-      assertJsonEquals(range, json);
+      assertObjectJsonEquivalence(range, json);
 
       assertThat(ZRange.parse(pretty)).isEqualTo(range);
       assertThat(ZRange.parse(json)).isEqualTo(range);
@@ -110,7 +110,7 @@ public class ZRangeTest implements CommonAssertions {
       String json = "{\"start\":[2, 3], \"end\":[4, 5]}";
 
       assertThat(range).hasToString(pretty);
-      assertJsonEquals(range, json);
+      assertObjectJsonEquivalence(range, json);
 
       assertThat(ZRange.parse(pretty)).isEqualTo(range);
       assertThat(ZRange.parse(json)).isEqualTo(range);

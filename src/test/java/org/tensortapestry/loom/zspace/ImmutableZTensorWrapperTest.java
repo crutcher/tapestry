@@ -2,10 +2,10 @@ package org.tensortapestry.loom.zspace;
 
 import javax.annotation.Nonnull;
 import org.junit.Test;
-import org.tensortapestry.loom.testing.BaseTestClass;
 import org.tensortapestry.loom.zspace.exceptions.ZDimMissMatchError;
+import org.tensortapestry.loom.zspace.experimental.ZSpaceTestAssertions;
 
-public class ImmutableZTensorWrapperTest extends BaseTestClass {
+public class ImmutableZTensorWrapperTest implements ZSpaceTestAssertions {
 
   public static class Wrapper extends ImmutableZTensorWrapper<Wrapper> {
 

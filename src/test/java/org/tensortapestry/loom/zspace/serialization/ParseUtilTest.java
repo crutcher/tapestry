@@ -1,9 +1,9 @@
 package org.tensortapestry.loom.zspace.serialization;
 
-import org.assertj.core.api.WithAssertions;
 import org.junit.Test;
+import org.tensortapestry.loom.zspace.experimental.ZSpaceTestAssertions;
 
-public class ParseUtilTest implements WithAssertions {
+public class ParseUtilTest implements ZSpaceTestAssertions {
 
   @Test
   public void test_splitCommas() {

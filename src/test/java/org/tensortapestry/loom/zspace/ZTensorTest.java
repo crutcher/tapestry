@@ -8,14 +8,14 @@ import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.function.IntBinaryOperator;
 import org.junit.Test;
-import org.tensortapestry.loom.testing.CommonAssertions;
 import org.tensortapestry.loom.zspace.exceptions.ZDimMissMatchError;
+import org.tensortapestry.loom.zspace.experimental.ZSpaceTestAssertions;
 import org.tensortapestry.loom.zspace.indexing.BufferMode;
 import org.tensortapestry.loom.zspace.indexing.IterableCoordinates;
 import org.tensortapestry.loom.zspace.ops.CellWise;
 import org.tensortapestry.loom.zspace.serialization.ZSpaceJsonUtil;
 
-public class ZTensorTest implements CommonAssertions {
+public class ZTensorTest implements ZSpaceTestAssertions {
 
   @Test
   public void test_allMatch_anyMatch() {
@@ -294,7 +294,7 @@ public class ZTensorTest implements CommonAssertions {
   @Test
   public void test_JSON() {
     ZTensor z3 = ZTensor.newZeros(0, 0, 0);
-    assertJsonEquals(z3, "[[[]]]");
+    assertObjectJsonEquivalence(z3, "[[[]]]");
 
     // Degenerate tensors map to emtpy tensors.
     ZTensor deg = ZTensor.newZeros(0, 5);
@@ -303,12 +303,12 @@ public class ZTensorTest implements CommonAssertions {
     ZTensor t = ZTensor.newFromArray(new int[][] { { 2, 3 }, { 4, 5 } });
     ZTensor s = ZTensor.newScalar(3);
 
-    assertJsonEquals(t, "[[2,3],[4,5]]");
-    assertJsonEquals(s, "3");
+    assertObjectJsonEquivalence(t, "[[2,3],[4,5]]");
+    assertObjectJsonEquivalence(s, "3");
 
     // As a field.
-    assertJsonEquals(new JsonExampleContainer(t), "{\"tensor\": [[2,3],[4,5]]}");
-    assertJsonEquals(new JsonExampleContainer(s), "{\"tensor\": 3}");
+    assertObjectJsonEquivalence(new JsonExampleContainer(t), "{\"tensor\": [[2,3],[4,5]]}");
+    assertObjectJsonEquivalence(new JsonExampleContainer(s), "{\"tensor\": 3}");
   }
 
   @Test

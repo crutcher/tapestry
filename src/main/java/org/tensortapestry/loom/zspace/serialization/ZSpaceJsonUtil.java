@@ -22,6 +22,21 @@ public class ZSpaceJsonUtil {
     }
   }
 
+  /**
+   * Serialize an object to pretty JSON via Jackson defaults.
+   *
+   * @param obj the object to serialize.
+   * @return the pretty JSON string.
+   * @throws IllegalArgumentException if the object cannot be serialized.
+   */
+  public String toPrettyJson(Object obj) {
+    try {
+      return COMMON_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(obj);
+    } catch (JsonProcessingException e) {
+      throw new IllegalArgumentException(e);
+    }
+  }
+
   @Nullable public <T> T fromJson(@Nonnull String json, @Nonnull Class<T> clazz) {
     try {
       return COMMON_MAPPER.readValue(json, clazz);

@@ -1,9 +1,8 @@
 package org.tensortapestry.loom.zspace.experimental;
 
 import org.junit.Test;
-import org.tensortapestry.loom.testing.CommonAssertions;
 
-public class DimensionMapTest implements CommonAssertions {
+public class DimensionMapTest implements ZSpaceTestAssertions {
 
   @Test
   public void test_equals_hash() {
@@ -22,7 +21,7 @@ public class DimensionMapTest implements CommonAssertions {
 
     String json = "[\"x\",\"y\",\"z\"]";
     assertThat(dm).hasToString(json);
-    assertJsonEquals(dm, json);
+    assertObjectJsonEquivalence(dm, json);
 
     assertThat(DimensionMap.parseDimensionMap(json)).isEqualTo(dm);
   }

@@ -1,9 +1,9 @@
 package org.tensortapestry.loom.zspace.indexing;
 
 import org.junit.Test;
-import org.tensortapestry.loom.testing.CommonAssertions;
+import org.tensortapestry.loom.zspace.experimental.ZSpaceTestAssertions;
 
-public class IndexingFnsTest implements CommonAssertions {
+public class IndexingFnsTest implements ZSpaceTestAssertions {
 
   @Test
   public void test_arrayContains() {

@@ -2,9 +2,8 @@ package org.tensortapestry.loom.zspace.experimental;
 
 import java.util.List;
 import org.junit.Test;
-import org.tensortapestry.loom.testing.BaseTestClass;
 
-public class IdentifiersFnsTest extends BaseTestClass {
+public class IdentifiersFnsTest implements ZSpaceTestAssertions {
 
   public static final List<String> BAD_DOTTED_NAMES = List.of(
     "",

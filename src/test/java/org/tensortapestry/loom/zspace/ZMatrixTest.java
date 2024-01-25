@@ -2,14 +2,14 @@ package org.tensortapestry.loom.zspace;
 
 import java.util.List;
 import org.junit.Test;
-import org.tensortapestry.loom.testing.BaseTestClass;
+import org.tensortapestry.loom.zspace.experimental.ZSpaceTestAssertions;
 
-public class ZMatrixTest extends BaseTestClass {
+public class ZMatrixTest implements ZSpaceTestAssertions {
 
   @Test
   public void test_json() {
     var matrix = ZMatrix.newMatrix(new int[][] { { 1, 2 }, { 3, 4 } });
-    assertJsonEquals(matrix, "[[1,2],[3,4]]");
+    assertObjectJsonEquivalence(matrix, "[[1,2],[3,4]]");
   }
 
   @Test

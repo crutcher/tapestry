@@ -1,10 +1,10 @@
 package org.tensortapestry.loom.zspace.ops;
 
 import org.junit.Test;
-import org.tensortapestry.loom.testing.CommonAssertions;
 import org.tensortapestry.loom.zspace.ZTensor;
+import org.tensortapestry.loom.zspace.experimental.ZSpaceTestAssertions;
 
-public class OpsTest implements CommonAssertions {
+public class OpsTest implements ZSpaceTestAssertions {
 
   @Test
   @SuppressWarnings("unused")

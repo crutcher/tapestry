@@ -1,9 +1,9 @@
 package org.tensortapestry.loom.zspace;
 
 import org.junit.Test;
-import org.tensortapestry.loom.testing.CommonAssertions;
+import org.tensortapestry.loom.zspace.experimental.ZSpaceTestAssertions;
 
-public class ZAffineMapTest implements CommonAssertions {
+public class ZAffineMapTest implements ZSpaceTestAssertions {
 
   @Test
   public void test_constructor() {

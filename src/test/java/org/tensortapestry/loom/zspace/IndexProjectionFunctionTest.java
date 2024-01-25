@@ -1,9 +1,9 @@
 package org.tensortapestry.loom.zspace;
 
 import org.junit.Test;
-import org.tensortapestry.loom.testing.BaseTestClass;
+import org.tensortapestry.loom.zspace.experimental.ZSpaceTestAssertions;
 
-public class IndexProjectionFunctionTest extends BaseTestClass {
+public class IndexProjectionFunctionTest implements ZSpaceTestAssertions {
 
   @Test
   public void test_json() {
@@ -15,7 +15,7 @@ public class IndexProjectionFunctionTest extends BaseTestClass {
       ZPoint.of(4, 4, 1)
     );
 
-    assertJsonEquals(
+    assertObjectJsonEquivalence(
       ipf,
       """
             {
