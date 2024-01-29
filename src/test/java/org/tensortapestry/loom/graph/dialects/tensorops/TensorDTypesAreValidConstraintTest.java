@@ -25,20 +25,18 @@ public class TensorDTypesAreValidConstraintTest extends BaseTestClass {
     var graph = createGraph();
 
     TensorNode
-      .builder()
-      .graph(graph)
+      .builder(graph)
       .label("Good")
-      .body(b -> {
+      .configure(b -> {
         b.dtype("int32");
         b.shape(new ZPoint(2, 3));
       })
       .build();
 
     var badTensor = TensorNode
-      .builder()
-      .graph(graph)
+      .builder(graph)
       .label("Bad")
-      .body(b -> {
+      .configure(b -> {
         b.dtype("nonesuch");
         b.shape(new ZPoint(2, 3));
       })

@@ -1,7 +1,6 @@
 package org.tensortapestry.loom.graph;
 
 import org.junit.Test;
-import org.tensortapestry.loom.graph.dialects.tensorops.TensorBody;
 import org.tensortapestry.loom.graph.dialects.tensorops.TensorNode;
 import org.tensortapestry.loom.testing.BaseTestClass;
 import org.tensortapestry.loom.validation.ValidationIssueCollector;
@@ -56,7 +55,7 @@ public class LoomEnvironmentTest extends BaseTestClass {
 
     {
       var tensor = graph.assertNode("00000000-0000-0000-0000-000000000000", TensorNode.TYPE);
-      assertThat(tensor.viewBodyAs(TensorBody.class).getDtype()).isEqualTo("int32");
+      assertThat(tensor.viewBodyAs(TensorNode.Body.class).getDtype()).isEqualTo("int32");
     }
 
     assertThatExceptionOfType(IllegalArgumentException.class)

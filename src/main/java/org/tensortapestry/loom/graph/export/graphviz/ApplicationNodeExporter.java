@@ -26,7 +26,7 @@ public class ApplicationNodeExporter implements GraphVisualizer.NodeTypeExporter
     var application = ApplicationNode.wrap(appNode);
 
     var gvNode = context.standardNodePrefix(appNode);
-    var appBody = appNode.viewBodyAs(ApplicationBody.class);
+    var appBody = appNode.viewBodyAs(ApplicationNode.Body.class);
 
     var operation = application.getOperationNode();
     var opId = operation.getId();

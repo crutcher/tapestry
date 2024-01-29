@@ -9,7 +9,6 @@ import lombok.extern.jackson.Jacksonized;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.Test;
 import org.tensortapestry.loom.common.json.JsonUtil;
-import org.tensortapestry.loom.graph.dialects.common.NoteBody;
 import org.tensortapestry.loom.graph.dialects.common.NoteNode;
 import org.tensortapestry.loom.graph.dialects.tensorops.TensorNode;
 import org.tensortapestry.loom.testing.BaseTestClass;
@@ -41,7 +40,7 @@ public class LoomTypeSchemaTest extends BaseTestClass {
 
     var note = graph
       .nodeBuilder(NoteNode.TYPE)
-      .body(NoteBody.builder().message("hello").build())
+      .body(NoteNode.Body.builder().message("hello").build())
       .build();
 
     var data = Example.builder().inputs(Map.of("b", List.of(note.getId().toString()))).build();
@@ -89,8 +88,8 @@ public class LoomTypeSchemaTest extends BaseTestClass {
 
     var env = CommonEnvironments.expressionEnvironment();
     var graph = env.newGraph();
-    var note = NoteNode.builder().graph(graph).body(b -> b.message("hello")).build();
-    var tensor = TensorNode.builder().graph(graph).body(b -> b.dtype("int32").shape(2)).build();
+    var note = NoteNode.builder(graph).configure(b -> b.message("hello")).build();
+    var tensor = TensorNode.builder(graph).configure(b -> b.dtype("int32").shape(2)).build();
 
     UUID missingId = UUID.randomUUID();
     String garbage = "garbage";

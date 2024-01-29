@@ -4,7 +4,6 @@ import java.util.UUID;
 import org.junit.Test;
 import org.tensortapestry.loom.common.json.JsonUtil;
 import org.tensortapestry.loom.graph.dialects.common.NoteNode;
-import org.tensortapestry.loom.graph.dialects.tensorops.TensorBody;
 import org.tensortapestry.loom.graph.dialects.tensorops.TensorNode;
 import org.tensortapestry.loom.testing.BaseTestClass;
 import org.tensortapestry.loom.zspace.ZRange;
@@ -17,7 +16,7 @@ public class LoomGraphTest extends BaseTestClass {
     var graph = env.newGraph();
 
     for (int i = 0; i < 10; i++) {
-      NoteNode.builder().graph(graph).body(b -> b.message("test")).build();
+      NoteNode.builder(graph).configure(b -> b.message("test")).build();
     }
 
     var nodeId = graph.genNodeId();
@@ -29,7 +28,7 @@ public class LoomGraphTest extends BaseTestClass {
     var env = CommonEnvironments.expressionEnvironment();
     var graph = env.newGraph();
 
-    var node1 = NoteNode.builder().graph(graph).body(b -> b.message("node 1")).label("foo").build();
+    var node1 = NoteNode.builder(graph).configure(b -> b.message("node 1")).label("foo").build();
 
     assertThat(graph.getNode(node1.getId())).isSameAs(node1.unwrap());
     assertThat(graph.getNode(node1.getId().toString())).isSameAs(node1.unwrap());
@@ -43,15 +42,15 @@ public class LoomGraphTest extends BaseTestClass {
 
     {
       var graph2 = env.newGraph();
-      var node2 = NoteNode.builder().graph(graph2).body(b -> b.message("node 1")).build();
+      var node2 = NoteNode.builder(graph2).configure(b -> b.message("node 1")).build();
 
       assertThatExceptionOfType(IllegalArgumentException.class)
         .isThrownBy(() -> graph.addNode(node2))
         .withMessage("Node already belongs to a graph: %s".formatted(graph2.getId()));
     }
 
-    var node2 = NoteNode.builder().graph(graph).body(b -> b.message("node 2")).label("bar").build();
-    var node3 = NoteNode.builder().graph(graph).body(b -> b.message("node 3")).label("qux").build();
+    var node2 = NoteNode.builder(graph).configure(b -> b.message("node 2")).label("bar").build();
+    var node3 = NoteNode.builder(graph).configure(b -> b.message("node 3")).label("qux").build();
 
     {
       // By Node
@@ -92,7 +91,7 @@ public class LoomGraphTest extends BaseTestClass {
     assertThatExceptionOfType(IllegalStateException.class)
       .isThrownBy(() -> graph.assertNode(nodeIdA.toString()));
 
-    var nodeA = NoteNode.builder().graph(graph).body(b -> b.message("test")).id(nodeIdA).build();
+    var nodeA = NoteNode.builder(graph).configure(b -> b.message("test")).id(nodeIdA).build();
 
     assertThat(nodeA)
       .hasFieldOrPropertyWithValue("id", nodeIdA)
@@ -190,13 +189,15 @@ public class LoomGraphTest extends BaseTestClass {
     graph.validate();
 
     assertThatJson(
-      graph.assertNode("00000000-0000-0000-0000-000000000001").viewBodyAs(TensorBody.class)
+      graph.assertNode("00000000-0000-0000-0000-000000000001").viewBodyAs(TensorNode.Body.class)
     )
-      .isEqualTo(TensorBody.builder().dtype("int32").range(ZRange.newFromShape(2, 3)).build());
+      .isEqualTo(TensorNode.Body.builder().dtype("int32").range(ZRange.newFromShape(2, 3)).build());
     assertThatJson(
-      graph.assertNode("00000000-0000-0000-0000-000000000002").viewBodyAs(TensorBody.class)
+      graph.assertNode("00000000-0000-0000-0000-000000000002").viewBodyAs(TensorNode.Body.class)
     )
-      .isEqualTo(TensorBody.builder().dtype("float32").range(ZRange.newFromShape(4, 5)).build());
+      .isEqualTo(
+        TensorNode.Body.builder().dtype("float32").range(ZRange.newFromShape(4, 5)).build()
+      );
 
     assertThatJson(graph.toJsonString()).isEqualTo(source);
   }

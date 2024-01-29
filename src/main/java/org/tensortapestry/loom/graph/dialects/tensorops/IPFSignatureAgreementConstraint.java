@@ -110,7 +110,7 @@ public class IPFSignatureAgreementConstraint implements LoomEnvironment.Constrai
         );
         continue;
       }
-      var appData = appNode.viewBodyAs(ApplicationBody.class);
+      var appData = appNode.viewBodyAs(ApplicationNode.Body.class);
       var ipfIndex = appNode.viewAnnotationAs(
         TensorOpNodes.IPF_INDEX_ANNOTATION_TYPE,
         ZRange.class

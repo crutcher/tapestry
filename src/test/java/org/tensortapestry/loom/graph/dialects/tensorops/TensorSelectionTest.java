@@ -13,7 +13,7 @@ public class TensorSelectionTest extends BaseTestClass {
     var tensorNode = TensorNode
       .builder()
       .id(UUID.randomUUID())
-      .body(TensorBody.builder().dtype("int32").shape(4, 5).build())
+      .body(TensorNode.Body.builder().dtype("int32").shape(4, 5).build())
       .build();
 
     {

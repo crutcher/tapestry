@@ -15,7 +15,7 @@ import lombok.Value;
 import lombok.extern.jackson.Jacksonized;
 import org.junit.Test;
 import org.tensortapestry.loom.graph.LoomConstants;
-import org.tensortapestry.loom.graph.dialects.tensorops.TensorBody;
+import org.tensortapestry.loom.graph.dialects.tensorops.TensorNode;
 import org.tensortapestry.loom.testing.BaseTestClass;
 import org.tensortapestry.loom.validation.ListValidationIssueCollector;
 import org.tensortapestry.loom.validation.ValidationIssue;
@@ -62,7 +62,7 @@ public class JsonSchemaFactoryManagerTest extends BaseTestClass {
 
     check.accept(
       "http://tensortapestry.org/schemas/loom/2024-01/node_types.jsd#/$defs/Tensor",
-      TensorBody
+      TensorNode.Body
         .builder()
         .dtype("float32")
         .range(ZRange.builder().start(0, 2).end(3, 4).build())

@@ -80,9 +80,8 @@ public class OperationUtils {
     var ipfIndex = indexBuilder.apply(inputs);
 
     var operation = OperationNode
-      .builder()
-      .graph(graph)
-      .body(b -> {
+      .builder(graph)
+      .configure(b -> {
         b.kernel(kernelName);
 
         if (params != null) {
@@ -119,7 +118,7 @@ public class OperationUtils {
               .builder()
               .label("%s/%s[%d]".formatted(kernelName, name, idx))
               .graph(graph)
-              .body(tb -> tb.dtype(t).range(p.apply(ipfIndex)))
+              .configure(tb -> tb.dtype(t).range(p.apply(ipfIndex)))
               .build();
 
             selections.add(TensorSelection.from(tensor));
@@ -158,9 +157,8 @@ public class OperationUtils {
     assert ipfIndex.contains(shardIndex);
 
     return ApplicationNode
-      .builder()
-      .graph(operation.assertGraph())
-      .body(b -> {
+      .builder(operation.assertGraph())
+      .configure(b -> {
         b.operationId(operation.getId());
 
         for (var entry : ipfSig.getInputs().entrySet()) {

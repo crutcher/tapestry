@@ -23,10 +23,9 @@ public class IPFSignatureAgreementConstraintTest extends BaseTestClass {
     var graph = env.newGraph();
 
     var tensorA = TensorNode
-      .builder()
-      .graph(graph)
+      .builder(graph)
       .label("A")
-      .body(b ->
+      .configure(b ->
         b
           .dtype("int32")
           .range(ZRange.builder().start(ZPoint.of(-10, 4)).shape(ZPoint.of(3, 4)).build())
@@ -34,10 +33,9 @@ public class IPFSignatureAgreementConstraintTest extends BaseTestClass {
       .build();
 
     var tensorB = TensorNode
-      .builder()
-      .graph(graph)
+      .builder(graph)
       .label("B")
-      .body(b -> b.dtype("int32").shape(4, 5))
+      .configure(b -> b.dtype("int32").shape(4, 5))
       .build();
 
     var op = OperationUtils.applyRelativeSignature(
@@ -86,7 +84,7 @@ public class IPFSignatureAgreementConstraintTest extends BaseTestClass {
 
     var tensorC = graph.assertNode(
       TensorNode::wrap,
-      op.viewBodyAs(OperationBody.class).getOutputs().get("z").getFirst().getTensorId()
+      op.viewBodyAs(OperationNode.Body.class).getOutputs().get("z").getFirst().getTensorId()
     );
 
     assertThat(tensorC.getDtype()).isEqualTo("int32");
@@ -95,7 +93,7 @@ public class IPFSignatureAgreementConstraintTest extends BaseTestClass {
 
     var matmulResult = TensorNode.wrap(
       graph.assertNode(
-        op.viewBodyAs(OperationBody.class).getOutputs().get("z").getFirst().getTensorId()
+        op.viewBodyAs(OperationNode.Body.class).getOutputs().get("z").getFirst().getTensorId()
       )
     );
 

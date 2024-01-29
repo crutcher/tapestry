@@ -32,7 +32,7 @@ public class TensorSelection {
     return TensorSelection
       .builder()
       .tensorId(tensorNode.getId())
-      .range(tensorNode.unwrap().viewBodyAs(TensorBody.class).getRange())
+      .range(tensorNode.unwrap().viewBodyAs(TensorNode.Body.class).getRange())
       .build();
   }
 
@@ -48,7 +48,7 @@ public class TensorSelection {
    */
   public static TensorSelection from(NodeWrapper tensorNode, ZRange range) {
     tensorNode.unwrap().assertType(TensorNode.TYPE);
-    var tensorRange = tensorNode.unwrap().viewBodyAs(TensorBody.class).getRange();
+    var tensorRange = tensorNode.unwrap().viewBodyAs(TensorNode.Body.class).getRange();
     if (!tensorRange.contains(range)) {
       throw new IllegalArgumentException(
         String.format("Tensor range %s does not contain selection range %s", tensorRange, range)

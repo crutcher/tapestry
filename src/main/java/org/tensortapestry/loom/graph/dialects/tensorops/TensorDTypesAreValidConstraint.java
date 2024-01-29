@@ -37,7 +37,7 @@ public class TensorDTypesAreValidConstraint implements LoomEnvironment.Constrain
   }
 
   public void checkTensor(LoomNode tensor, ValidationIssueCollector issueCollector) {
-    var tensorBody = tensor.viewBodyAs(TensorBody.class);
+    var tensorBody = tensor.viewBodyAs(TensorNode.Body.class);
     var dtype = tensorBody.getDtype();
     if (!validDTypes.contains(dtype)) {
       issueCollector.addIssue(

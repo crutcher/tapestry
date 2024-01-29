@@ -3,7 +3,6 @@ package org.tensortapestry.loom.graph;
 import java.util.UUID;
 import org.junit.Test;
 import org.tensortapestry.loom.common.lazy.LazyString;
-import org.tensortapestry.loom.graph.dialects.common.NoteBody;
 import org.tensortapestry.loom.graph.dialects.common.NoteNode;
 import org.tensortapestry.loom.graph.dialects.tensorops.TensorNode;
 import org.tensortapestry.loom.testing.BaseTestClass;
@@ -26,7 +25,7 @@ public class ValidationUtilsTest extends BaseTestClass {
 
     var node = graph
       .nodeBuilder(NoteNode.TYPE)
-      .body(NoteBody.builder().message("Hello").build())
+      .body(NoteNode.Body.builder().message("Hello").build())
       .build();
 
     var collector = new ListValidationIssueCollector();
@@ -85,7 +84,7 @@ public class ValidationUtilsTest extends BaseTestClass {
   public void test_validateNodeReference_wrongType() {
     var graph = createGraph();
 
-    var node = NoteNode.builder().graph(graph).body(b -> b.message("Hello")).build();
+    var node = NoteNode.builder(graph).configure(b -> b.message("Hello")).build();
 
     var collector = new ListValidationIssueCollector();
     LoomNode result = ValidationUtils.validateNodeReference(

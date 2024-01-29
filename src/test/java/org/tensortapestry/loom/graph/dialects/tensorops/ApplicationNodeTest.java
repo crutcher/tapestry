@@ -14,7 +14,7 @@ public class ApplicationNodeTest extends BaseTestClass {
     UUID operationId = UUID.randomUUID();
     UUID tensorIdA = UUID.randomUUID();
     UUID tensorIdB = UUID.randomUUID();
-    ApplicationBody body = ApplicationBody
+    ApplicationNode.Body body = ApplicationNode.Body
       .builder()
       .operationId(operationId)
       .input(
@@ -65,20 +65,14 @@ public class ApplicationNodeTest extends BaseTestClass {
     var graph = env.newGraph();
 
     var inputTensor = TensorNode
-      .builder()
-      .graph(graph)
-      .body(b -> b.shape(2, 3).dtype("float32"))
+      .builder(graph)
+      .configure(b -> b.shape(2, 3).dtype("float32"))
       .build();
-    var outputTensor = TensorNode
-      .builder()
-      .graph(graph)
-      .body(b -> b.shape(10).dtype("int32"))
-      .build();
+    var outputTensor = TensorNode.builder(graph).configure(b -> b.shape(10).dtype("int32")).build();
 
     var operation = OperationNode
-      .builder()
-      .graph(graph)
-      .body(b ->
+      .builder(graph)
+      .configure(b ->
         b
           .kernel("increment")
           .input(
@@ -86,7 +80,7 @@ public class ApplicationNodeTest extends BaseTestClass {
             List.of(
               new TensorSelection(
                 inputTensor.getId(),
-                inputTensor.viewBodyAs(TensorBody.class).getRange()
+                inputTensor.viewBodyAs(TensorNode.Body.class).getRange()
               )
             )
           )
@@ -95,7 +89,7 @@ public class ApplicationNodeTest extends BaseTestClass {
             List.of(
               new TensorSelection(
                 outputTensor.getId(),
-                outputTensor.viewBodyAs(TensorBody.class).getRange()
+                outputTensor.viewBodyAs(TensorNode.Body.class).getRange()
               )
             )
           )
@@ -103,9 +97,8 @@ public class ApplicationNodeTest extends BaseTestClass {
       .build();
 
     var application = ApplicationNode
-      .builder()
-      .graph(graph)
-      .body(b ->
+      .builder(graph)
+      .configure(b ->
         b
           .operationId(UUID.randomUUID())
           .operationId(operation.getId())

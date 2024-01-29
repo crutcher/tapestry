@@ -1,5 +1,6 @@
 package org.tensortapestry.loom.graph;
 
+import com.fasterxml.jackson.annotation.JsonValue;
 import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -12,7 +13,7 @@ import lombok.experimental.Delegate;
 @RequiredArgsConstructor
 public abstract class AbstractNodeWrapper<BodyT> implements NodeWrapper {
 
-  public abstract static class AbstractWrapperBuilder<WrapperT, BuilderT, BodyT, BodyBuilderT> {
+  public abstract static class AbstractNodeWrapperBuilder<WrapperT, BuilderT, BodyT, BodyBuilderT> {
 
     private final LoomNode.LoomNodeBuilder nodeBuilder;
 
@@ -20,7 +21,7 @@ public abstract class AbstractNodeWrapper<BodyT> implements NodeWrapper {
     private final Function<BodyBuilderT, BodyT> bodyBuilderBuild;
     private final Function<LoomNode, WrapperT> wrapper;
 
-    protected AbstractWrapperBuilder(
+    protected AbstractNodeWrapperBuilder(
       @Nonnull String type,
       @Nonnull Supplier<BodyBuilderT> createBodyBuilder,
       @Nonnull Function<BodyBuilderT, BodyT> bodyBuilderBuild,
@@ -63,7 +64,7 @@ public abstract class AbstractNodeWrapper<BodyT> implements NodeWrapper {
     }
 
     @Nonnull
-    public final BuilderT body(@Nonnull Consumer<BodyBuilderT> config) {
+    public final BuilderT configure(@Nonnull Consumer<BodyBuilderT> config) {
       var bodyBuilder = createBodyBuilder.get();
       config.accept(bodyBuilder);
       nodeBuilder.body(bodyBuilderBuild.apply(bodyBuilder));
@@ -84,6 +85,7 @@ public abstract class AbstractNodeWrapper<BodyT> implements NodeWrapper {
 
   @Nonnull
   @Delegate
+  @JsonValue
   protected final LoomNode node;
 
   @Nonnull

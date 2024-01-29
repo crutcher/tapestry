@@ -159,7 +159,7 @@ public class OperationReferenceAgreementConstraint implements LoomEnvironment.Co
 
       var shardSelections = shards
         .stream()
-        .map(s -> s.viewBodyAs(ApplicationBody.class).getOutputs().get(ioName))
+        .map(s -> s.viewBodyAs(ApplicationNode.Body.class).getOutputs().get(ioName))
         .toList();
 
       for (int idx = 0; idx < k; ++idx) {
