@@ -9,27 +9,27 @@ public class ImmutableZTensorWrapperTest implements ZSpaceTestAssertions {
 
   public static class Wrapper extends ImmutableZTensorWrapper<Wrapper> {
 
-    public Wrapper(HasZTensor tensor) {
+    public Wrapper(ZTensorWrapper tensor) {
       super(tensor);
     }
 
     @Override
-    protected @Nonnull Wrapper create(@Nonnull HasZTensor tensor) {
+    protected @Nonnull Wrapper create(@Nonnull ZTensorWrapper tensor) {
       return new Wrapper(tensor);
     }
   }
 
-  public Wrapper createWrapper(HasZTensor tensor) {
+  public Wrapper createWrapper(ZTensorWrapper tensor) {
     return new Wrapper(tensor);
   }
 
   @Test
   public void test_new() {
     ZTensor tensor = ZTensor.newVector(1, 2, 3);
-    assertThat(createWrapper(tensor).getTensor()).isEqualTo(tensor).isNotSameAs(tensor);
+    assertThat(createWrapper(tensor).unwrap()).isEqualTo(tensor).isNotSameAs(tensor);
 
     ZTensor immutable = tensor.asImmutable();
-    assertThat(createWrapper(immutable).getTensor()).isEqualTo(immutable).isSameAs(immutable);
+    assertThat(createWrapper(immutable).unwrap()).isEqualTo(immutable).isSameAs(immutable);
   }
 
   @Test

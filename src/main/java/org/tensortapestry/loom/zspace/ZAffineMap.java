@@ -45,7 +45,7 @@ public class ZAffineMap implements HasPermuteIO<ZAffineMap>, HasJsonOutput {
    * @return the ZAffineMap.
    */
   @Nonnull
-  public static ZAffineMap fromMatrix(@Nonnull HasZTensor matrix) {
+  public static ZAffineMap fromMatrix(@Nonnull ZTensorWrapper matrix) {
     return new ZAffineMap(matrix);
   }
 
@@ -63,12 +63,12 @@ public class ZAffineMap implements HasPermuteIO<ZAffineMap>, HasJsonOutput {
    *         {@code projection.shape[0]}.
    */
   @JsonCreator
-  public ZAffineMap(@Nonnull HasZTensor projection, @Nullable HasZTensor offset) {
+  public ZAffineMap(@Nonnull ZTensorWrapper projection, @Nullable ZTensorWrapper offset) {
     this.projection = new ZMatrix(projection);
     if (offset == null) {
       offset = ZTensor.newZeros(this.projection.getOutputNDim());
     }
-    var zoffset = offset.getTensor();
+    var zoffset = offset.unwrap();
     this.offset = zoffset.newZPoint();
 
     zoffset.assertNDim(1);
@@ -88,7 +88,7 @@ public class ZAffineMap implements HasPermuteIO<ZAffineMap>, HasJsonOutput {
    *
    * @param projection the matrix.
    */
-  public ZAffineMap(@Nonnull HasZTensor projection) {
+  public ZAffineMap(@Nonnull ZTensorWrapper projection) {
     this(projection, null);
   }
 
@@ -138,7 +138,7 @@ public class ZAffineMap implements HasPermuteIO<ZAffineMap>, HasJsonOutput {
    * @return a 1-dim tensor of length `outDim`.
    */
   @Nonnull
-  public ZTensor apply(@Nonnull HasZTensor x) {
+  public ZTensor apply(@Nonnull ZTensorWrapper x) {
     return projection.matmul(x).add(offset);
   }
 
@@ -160,7 +160,7 @@ public class ZAffineMap implements HasPermuteIO<ZAffineMap>, HasJsonOutput {
    * @return a new affine map.
    */
   @Nonnull
-  public ZAffineMap translate(@Nonnull HasZTensor x) {
+  public ZAffineMap translate(@Nonnull ZTensorWrapper x) {
     return new ZAffineMap(projection, offset.add(x));
   }
 }

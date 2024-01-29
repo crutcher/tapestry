@@ -49,18 +49,6 @@ public final class LoomNode implements NodeWrapper, HasToJsonString {
     }
 
     /**
-     * Set the ID of the node.
-     *
-     * @param value the ID.
-     * @return {@code this}
-     */
-    @Nonnull
-    public LoomNodeBuilder id(@Nonnull String value) {
-      this.id = UUID.fromString(value);
-      return this;
-    }
-
-    /**
      * Set the body of the node.
      *
      * @param value the body.
@@ -105,19 +93,6 @@ public final class LoomNode implements NodeWrapper, HasToJsonString {
     public LoomNodeBuilder withAnnotations(@Nonnull Map<String, Object> annotations) {
       annotations.forEach(this::annotation);
       return this;
-    }
-
-    /**
-     * Build the node on the given graph.
-     *
-     * <p>Assigns a random UUID to the node if the node does not have an ID.
-     *
-     * @param graph the node type.
-     * @return {@code this}
-     */
-    @Nonnull
-    public LoomNode build(@Nonnull LoomGraph graph) {
-      return graph.addNode(this);
     }
 
     /**
@@ -177,6 +152,30 @@ public final class LoomNode implements NodeWrapper, HasToJsonString {
   @Nonnull
   public LoomNode unwrap() {
     return this;
+  }
+
+  @Override
+  public boolean equals(Object other) {
+    if (other == this) return true;
+    if (other == null) return false;
+    if (other instanceof NodeWrapper wrapper) {
+      other = wrapper.unwrap();
+    }
+    if (other instanceof LoomNode node) {
+      return (
+        Objects.equals(node.id, id) &&
+        Objects.equals(node.type, type) &&
+        Objects.equals(node.label, label) &&
+        Objects.equals(node.body, body) &&
+        Objects.equals(node.annotations, annotations)
+      );
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(id, type, label, body, annotations);
   }
 
   /**

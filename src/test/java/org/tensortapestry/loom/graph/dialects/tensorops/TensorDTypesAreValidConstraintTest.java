@@ -24,26 +24,24 @@ public class TensorDTypesAreValidConstraintTest extends BaseTestClass {
   public void test() {
     var graph = createGraph();
 
-    TensorOpNodes
-      .tensorBuilder(
-        graph,
-        b -> {
-          b.dtype("int32");
-          b.shape(new ZPoint(2, 3));
-        }
-      )
+    TensorNode
+      .builder()
+      .graph(graph)
       .label("Good")
+      .body(b -> {
+        b.dtype("int32");
+        b.shape(new ZPoint(2, 3));
+      })
       .build();
 
-    var badTensor = TensorOpNodes
-      .tensorBuilder(
-        graph,
-        b -> {
-          b.dtype("nonesuch");
-          b.shape(new ZPoint(2, 3));
-        }
-      )
+    var badTensor = TensorNode
+      .builder()
+      .graph(graph)
       .label("Bad")
+      .body(b -> {
+        b.dtype("nonesuch");
+        b.shape(new ZPoint(2, 3));
+      })
       .build();
 
     var collector = new ListValidationIssueCollector();
@@ -54,7 +52,7 @@ public class TensorDTypesAreValidConstraintTest extends BaseTestClass {
       ValidationIssue
         .builder()
         .type(LoomConstants.Errors.NODE_VALIDATION_ERROR)
-        .param("nodeType", TensorOpNodes.TENSOR_NODE_TYPE)
+        .param("nodeType", TensorNode.TYPE)
         .summary("Tensor dtype (nonesuch) not a recognized type")
         .context(badTensor.asValidationContext("Tensor"))
         .build()

@@ -2,7 +2,7 @@ package org.tensortapestry.loom.zspace.ops;
 
 import javax.annotation.Nonnull;
 import lombok.experimental.UtilityClass;
-import org.tensortapestry.loom.zspace.HasZTensor;
+import org.tensortapestry.loom.zspace.ZTensorWrapper;
 import org.tensortapestry.loom.zspace.indexing.BufferMode;
 
 /**
@@ -37,11 +37,11 @@ public final class DominanceOrderingOps {
    * @return the partial ordering.
    */
   public static PartialOrdering partialOrderByGrid(
-    @Nonnull HasZTensor lhs,
-    @Nonnull HasZTensor rhs
+    @Nonnull ZTensorWrapper lhs,
+    @Nonnull ZTensorWrapper rhs
   ) {
-    var zlhs = lhs.getTensor();
-    var zrhs = rhs.getTensor();
+    var zlhs = lhs.unwrap();
+    var zrhs = rhs.unwrap();
 
     zlhs.assertSameShape(zrhs);
 
@@ -68,9 +68,9 @@ public final class DominanceOrderingOps {
    * @param rhs the right-hand side.
    * @return true if the points are equal.
    */
-  public static boolean eq(@Nonnull HasZTensor lhs, @Nonnull HasZTensor rhs) {
-    lhs.getTensor().assertSameShape(rhs);
-    return lhs.getTensor().equals(rhs);
+  public static boolean eq(@Nonnull ZTensorWrapper lhs, @Nonnull ZTensorWrapper rhs) {
+    lhs.unwrap().assertSameShape(rhs);
+    return lhs.unwrap().equals(rhs);
   }
 
   /**
@@ -80,7 +80,7 @@ public final class DominanceOrderingOps {
    * @param rhs the right-hand side.
    * @return true if the points are non-equal.
    */
-  public static boolean ne(@Nonnull HasZTensor lhs, @Nonnull HasZTensor rhs) {
+  public static boolean ne(@Nonnull ZTensorWrapper lhs, @Nonnull ZTensorWrapper rhs) {
     return !eq(lhs, rhs);
   }
 
@@ -91,7 +91,7 @@ public final class DominanceOrderingOps {
    * @param rhs the right-hand side.
    * @return true or false.
    */
-  public static boolean lt(@Nonnull HasZTensor lhs, @Nonnull HasZTensor rhs) {
+  public static boolean lt(@Nonnull ZTensorWrapper lhs, @Nonnull ZTensorWrapper rhs) {
     return partialOrderByGrid(lhs, rhs) == PartialOrdering.LESS_THAN;
   }
 
@@ -102,7 +102,7 @@ public final class DominanceOrderingOps {
    * @param rhs the right-hand side.
    * @return true or false.
    */
-  public static boolean le(@Nonnull HasZTensor lhs, @Nonnull HasZTensor rhs) {
+  public static boolean le(@Nonnull ZTensorWrapper lhs, @Nonnull ZTensorWrapper rhs) {
     return switch (partialOrderByGrid(lhs, rhs)) {
       case LESS_THAN, EQUAL -> true;
       default -> false;
@@ -116,7 +116,7 @@ public final class DominanceOrderingOps {
    * @param rhs the right-hand side.
    * @return true or false.
    */
-  public static boolean gt(@Nonnull HasZTensor lhs, @Nonnull HasZTensor rhs) {
+  public static boolean gt(@Nonnull ZTensorWrapper lhs, @Nonnull ZTensorWrapper rhs) {
     return partialOrderByGrid(lhs, rhs) == PartialOrdering.GREATER_THAN;
   }
 
@@ -127,7 +127,7 @@ public final class DominanceOrderingOps {
    * @param rhs the right-hand side.
    * @return true or false.
    */
-  public static boolean ge(@Nonnull HasZTensor lhs, @Nonnull HasZTensor rhs) {
+  public static boolean ge(@Nonnull ZTensorWrapper lhs, @Nonnull ZTensorWrapper rhs) {
     return switch (partialOrderByGrid(lhs, rhs)) {
       case GREATER_THAN, EQUAL -> true;
       default -> false;

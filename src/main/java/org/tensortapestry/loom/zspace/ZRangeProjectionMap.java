@@ -68,7 +68,7 @@ public class ZRangeProjectionMap implements HasJsonOutput {
      */
     @Nonnull
     @JsonIgnore
-    public ZRangeProjectionMapBuilder translate(@Nonnull HasZTensor offset) {
+    public ZRangeProjectionMapBuilder translate(@Nonnull ZTensorWrapper offset) {
       return affineMap(affineMap.translate(offset));
     }
 
@@ -92,8 +92,8 @@ public class ZRangeProjectionMap implements HasJsonOutput {
      */
     @Nonnull
     @JsonSetter
-    public ZRangeProjectionMapBuilder shape(@Nonnull HasZTensor shape) {
-      this.shape = shape.getTensor().newZPoint();
+    public ZRangeProjectionMapBuilder shape(@Nonnull ZTensorWrapper shape) {
+      this.shape = shape.unwrap().newZPoint();
       return this;
     }
   }
@@ -104,7 +104,7 @@ public class ZRangeProjectionMap implements HasJsonOutput {
    * <p>This is a private builder to force the type of the {@link #affineMap} and {@link #shape}
    * used
    * in the builder to be {@link ZAffineMap} and {@link ZPoint}, respectively; and to prevent
-   * collision with {@link HasZTensor}.
+   * collision with {@link ZTensorWrapper}.
    *
    * @param affineMap the affine map.
    * @param shape the shape.
@@ -132,10 +132,10 @@ public class ZRangeProjectionMap implements HasJsonOutput {
    * @param shape the shape, or {@code null} to use one's in the affine map's output
    *         dims.
    */
-  public ZRangeProjectionMap(@Nonnull ZAffineMap affineMap, @Nullable HasZTensor shape) {
+  public ZRangeProjectionMap(@Nonnull ZAffineMap affineMap, @Nullable ZTensorWrapper shape) {
     this.affineMap = affineMap;
     this.shape =
-      shape == null ? ZPoint.newOnes(affineMap.getOutputNDim()) : shape.getTensor().newZPoint();
+      shape == null ? ZPoint.newOnes(affineMap.getOutputNDim()) : shape.unwrap().newZPoint();
 
     if (this.affineMap.getOutputNDim() != this.shape.getNDim()) {
       throw new IllegalArgumentException(
@@ -160,8 +160,8 @@ public class ZRangeProjectionMap implements HasJsonOutput {
    * @return The projected range.
    */
   @Nonnull
-  public ZRange apply(@Nonnull HasZTensor source) {
-    HasZTensor start = affineMap.apply(source).newZPoint();
+  public ZRange apply(@Nonnull ZTensorWrapper source) {
+    ZTensorWrapper start = affineMap.apply(source).newZPoint();
     return ZRange.builder().start(start).shape(shape).build();
   }
 
@@ -176,7 +176,7 @@ public class ZRangeProjectionMap implements HasJsonOutput {
     // TODO: Does the linear nature of the affine map mean that this is sufficient?
     ZRange r1 = apply(source.getStart());
     if (source.isEmpty()) {
-      HasZTensor shape1 = ZPoint.newZeros(r1.getNDim());
+      ZTensorWrapper shape1 = ZPoint.newZeros(r1.getNDim());
       return ZRange.builder().start(r1.getStart()).shape(shape1).build();
     }
     return ZRange.boundingRange(r1, apply(source.getInclusiveEnd()));
@@ -189,7 +189,7 @@ public class ZRangeProjectionMap implements HasJsonOutput {
    * @return The translated projection function.
    */
   @Nonnull
-  public ZRangeProjectionMap translate(@Nonnull HasZTensor offset) {
+  public ZRangeProjectionMap translate(@Nonnull ZTensorWrapper offset) {
     return ZRangeProjectionMap
       .builder()
       .affineMap(affineMap.translate(offset))

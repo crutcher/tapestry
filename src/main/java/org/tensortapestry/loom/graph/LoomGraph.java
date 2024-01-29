@@ -8,7 +8,9 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Stream;
+import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
@@ -72,6 +74,15 @@ public final class LoomGraph implements HasToJsonString, IterableStreamable<Loom
   @Nonnull
   public IterableStreamable<LoomNode> byType(String type) {
     return () -> nodes.values().stream().filter(node -> node.getType().equals(type)).iterator();
+  }
+
+  @Nonnull
+  public <W extends NodeWrapper> IterableStreamable<W> byType(
+    String type,
+    Function<LoomNode, W> wrap
+  ) {
+    return () ->
+      nodes.values().stream().filter(node -> node.getType().equals(type)).map(wrap).iterator();
   }
 
   public LoomEnvironment assertEnv() {
@@ -151,6 +162,10 @@ public final class LoomGraph implements HasToJsonString, IterableStreamable<Loom
     return node;
   }
 
+  public <W extends NodeWrapper> W assertNode(Function<LoomNode, W> wrap, UUID id) {
+    return wrap.apply(assertNode(id));
+  }
+
   /**
    * Get the node with the given ID.
    *
@@ -180,6 +195,7 @@ public final class LoomGraph implements HasToJsonString, IterableStreamable<Loom
    * @return the builder.
    */
   @Nonnull
+  @CheckReturnValue
   public LoomNode.LoomNodeBuilder nodeBuilder() {
     return LoomNode.builder().graph(this);
   }
@@ -190,6 +206,7 @@ public final class LoomGraph implements HasToJsonString, IterableStreamable<Loom
    * @return the builder.
    */
   @Nonnull
+  @CheckReturnValue
   public LoomNode.LoomNodeBuilder nodeBuilder(String type) {
     return nodeBuilder().type(type);
   }
@@ -201,6 +218,7 @@ public final class LoomGraph implements HasToJsonString, IterableStreamable<Loom
    * @return the added Node.
    */
   @Nonnull
+  @CanIgnoreReturnValue
   public LoomNode addNode(@Nonnull NodeWrapper wrapper) {
     var node = wrapper.unwrap();
 
@@ -231,6 +249,7 @@ public final class LoomGraph implements HasToJsonString, IterableStreamable<Loom
    * @return the ID of the node.
    */
   @Nonnull
+  @CanIgnoreReturnValue
   public LoomNode addNode(@Nonnull LoomNode.LoomNodeBuilder builder) {
     return addNode(builder.build());
   }

@@ -90,7 +90,7 @@ import org.tensortapestry.loom.zspace.ops.ReduceOps;
 @JsonSerialize(using = ZTensor.Serialization.Serializer.class)
 @JsonDeserialize(using = ZTensor.Serialization.Deserializer.class)
 public final class ZTensor
-  implements HasZTensor, HasJsonOutput, Cloneable, HasDimension, HasSize, HasPermute<ZTensor> {
+  implements ZTensorWrapper, HasJsonOutput, Cloneable, HasDimension, HasSize, HasPermute<ZTensor> {
 
   /**
    * Construct a new mutable scalar (0-dim) tensor.
@@ -174,8 +174,8 @@ public final class ZTensor
    * @return a new mutable ZTensor.
    */
   @Nonnull
-  public static ZTensor newZerosLike(@Nonnull HasZTensor ref) {
-    return new ZTensor(ref.getTensor().shapeAsArray());
+  public static ZTensor newZerosLike(@Nonnull ZTensorWrapper ref) {
+    return new ZTensor(ref.unwrap().shapeAsArray());
   }
 
   /**
@@ -196,7 +196,7 @@ public final class ZTensor
    * @return a new mutable ZTensor.
    */
   @Nonnull
-  public static ZTensor newOnesLike(@Nonnull HasZTensor ref) {
+  public static ZTensor newOnesLike(@Nonnull ZTensorWrapper ref) {
     return newFilledLike(ref, 1);
   }
 
@@ -223,8 +223,8 @@ public final class ZTensor
    * @return a new mutable ZTensor.
    */
   @Nonnull
-  public static ZTensor newFilledLike(@Nonnull HasZTensor ref, int fill_value) {
-    return newFilled(ref.getTensor().shape, fill_value);
+  public static ZTensor newFilledLike(@Nonnull ZTensorWrapper ref, int fill_value) {
+    return newFilled(ref.unwrap().shape, fill_value);
   }
 
   /**
@@ -422,7 +422,7 @@ public final class ZTensor
   }
 
   @Override
-  public ZTensor getTensor() {
+  public ZTensor unwrap() {
     return this;
   }
 
@@ -475,8 +475,8 @@ public final class ZTensor
       return equalsTree(other);
     }
 
-    if (other instanceof HasZTensor that) {
-      return equalsZTensor(that.getTensor());
+    if (other instanceof ZTensorWrapper that) {
+      return equalsZTensor(that.unwrap());
     }
     return false;
   }
@@ -599,14 +599,10 @@ public final class ZTensor
    * @param other the other tensor.
    * @throws ZDimMissMatchError if the shapes do not match.
    */
-  public void assertSameShape(@Nonnull HasZTensor other) {
-    if (!Arrays.equals(shape, other.getTensor()._unsafeGetShape())) {
+  public void assertSameShape(@Nonnull ZTensorWrapper other) {
+    if (!Arrays.equals(shape, other.unwrap()._unsafeGetShape())) {
       throw new ZDimMissMatchError(
-        String.format(
-          "ZDim shape mismatch: %s != %s",
-          shapeAsList(),
-          other.getTensor().shapeAsList()
-        )
+        String.format("ZDim shape mismatch: %s != %s", shapeAsList(), other.unwrap().shapeAsList())
       );
     }
   }
@@ -681,9 +677,9 @@ public final class ZTensor
    *
    * @param tensor the input tensor.
    */
-  public void assign_(@Nonnull HasZTensor tensor) {
+  public void assign_(@Nonnull ZTensorWrapper tensor) {
     assertMutable();
-    tensor.getTensor().broadcastLike(this).forEachEntry(this::_unchecked_set, BufferMode.REUSED);
+    tensor.unwrap().broadcastLike(this).forEachEntry(this::_unchecked_set, BufferMode.REUSED);
   }
 
   /**
@@ -900,8 +896,8 @@ public final class ZTensor
    * @return a broadcasted view of this tensor.
    */
   @Nonnull
-  public ZTensor broadcastLike(@Nonnull HasZTensor ref) {
-    return broadcastTo(ref.getTensor().shape);
+  public ZTensor broadcastLike(@Nonnull ZTensorWrapper ref) {
+    return broadcastTo(ref.unwrap().shape);
   }
 
   /**
@@ -1061,10 +1057,10 @@ public final class ZTensor
    * @param op the operation.
    * @param tensor the input tensor.
    */
-  public void assignFromMap_(@Nonnull IntUnaryOperator op, @Nonnull HasZTensor tensor) {
+  public void assignFromMap_(@Nonnull IntUnaryOperator op, @Nonnull ZTensorWrapper tensor) {
     assertMutable();
     tensor
-      .getTensor()
+      .unwrap()
       .broadcastLike(this)
       .forEachEntry(
         (coords, value) -> _unchecked_set(coords, op.applyAsInt(value)),
@@ -1080,7 +1076,7 @@ public final class ZTensor
    * @return a new tensor.
    */
   @Nonnull
-  public ZTensor zipWith(@Nonnull IntBinaryOperator op, @Nonnull HasZTensor rhs) {
+  public ZTensor zipWith(@Nonnull IntBinaryOperator op, @Nonnull ZTensorWrapper rhs) {
     return CellWise.zipWith(op, this, rhs);
   }
 
@@ -1100,7 +1096,7 @@ public final class ZTensor
    * @param op the operation.
    * @param rhs the right-hand side tensor.
    */
-  public void zipWith_(@Nonnull IntBinaryOperator op, @Nonnull HasZTensor rhs) {
+  public void zipWith_(@Nonnull IntBinaryOperator op, @Nonnull ZTensorWrapper rhs) {
     assignFromZipWith_(op, this, rhs);
   }
 
@@ -1113,11 +1109,11 @@ public final class ZTensor
    */
   public void assignFromZipWith_(
     @Nonnull IntBinaryOperator op,
-    @Nonnull HasZTensor lhs,
-    @Nonnull HasZTensor rhs
+    @Nonnull ZTensorWrapper lhs,
+    @Nonnull ZTensorWrapper rhs
   ) {
-    var zlhs = lhs.getTensor();
-    var zrhs = rhs.getTensor();
+    var zlhs = lhs.unwrap();
+    var zrhs = rhs.unwrap();
     assertMutable();
     zlhs = zlhs.broadcastLike(this);
     zrhs = zrhs.broadcastLike(this);
@@ -1180,8 +1176,8 @@ public final class ZTensor
    *
    * @param other the other tensor.
    */
-  public void assertMatchingShape(@Nonnull HasZTensor other) {
-    IndexingFns.assertShape(shape, other.getTensor().shape);
+  public void assertMatchingShape(@Nonnull ZTensorWrapper other) {
+    IndexingFns.assertShape(shape, other.unwrap().shape);
   }
 
   /**
@@ -1696,7 +1692,7 @@ public final class ZTensor
 
   /** Returns an elementwise broadcast addition with this tensor. */
   @Nonnull
-  public ZTensor add(@Nonnull HasZTensor rhs) {
+  public ZTensor add(@Nonnull ZTensorWrapper rhs) {
     return CellWise.add(this, rhs);
   }
 
@@ -1713,7 +1709,7 @@ public final class ZTensor
    *
    * @param rhs the right-hand side tensor.
    */
-  public void add_(@Nonnull HasZTensor rhs) {
+  public void add_(@Nonnull ZTensorWrapper rhs) {
     CellWise.add_(this, rhs);
   }
 
@@ -1735,7 +1731,7 @@ public final class ZTensor
    * @return a new tensor.
    */
   @Nonnull
-  public ZTensor sub(@Nonnull HasZTensor rhs) {
+  public ZTensor sub(@Nonnull ZTensorWrapper rhs) {
     return CellWise.sub(this, rhs);
   }
 
@@ -1757,7 +1753,7 @@ public final class ZTensor
    *
    * @param rhs the right-hand side tensor.
    */
-  public void sub_(@Nonnull HasZTensor rhs) {
+  public void sub_(@Nonnull ZTensorWrapper rhs) {
     CellWise.sub_(this, rhs);
   }
 
@@ -1779,7 +1775,7 @@ public final class ZTensor
    * @return a new tensor.
    */
   @Nonnull
-  public ZTensor mul(@Nonnull HasZTensor rhs) {
+  public ZTensor mul(@Nonnull ZTensorWrapper rhs) {
     return CellWise.mul(this, rhs);
   }
 
@@ -1801,7 +1797,7 @@ public final class ZTensor
    *
    * @param rhs the right-hand side tensor.
    */
-  public void mul_(@Nonnull HasZTensor rhs) {
+  public void mul_(@Nonnull ZTensorWrapper rhs) {
     CellWise.mul_(this, rhs);
   }
 
@@ -1823,7 +1819,7 @@ public final class ZTensor
    * @return a new tensor.
    */
   @Nonnull
-  public ZTensor div(@Nonnull HasZTensor rhs) {
+  public ZTensor div(@Nonnull ZTensorWrapper rhs) {
     return CellWise.div(this, rhs);
   }
 
@@ -1845,7 +1841,7 @@ public final class ZTensor
    *
    * @param rhs the right-hand side tensor.
    */
-  public void div_(@Nonnull HasZTensor rhs) {
+  public void div_(@Nonnull ZTensorWrapper rhs) {
     CellWise.div_(this, rhs);
   }
 
@@ -1867,7 +1863,7 @@ public final class ZTensor
    * @return a new tensor.
    */
   @Nonnull
-  public ZTensor mod(@Nonnull HasZTensor rhs) {
+  public ZTensor mod(@Nonnull ZTensorWrapper rhs) {
     return CellWise.mod(this, rhs);
   }
 
@@ -1889,7 +1885,7 @@ public final class ZTensor
    *
    * @param rhs the right-hand side tensor.
    */
-  public void mod_(@Nonnull HasZTensor rhs) {
+  public void mod_(@Nonnull ZTensorWrapper rhs) {
     CellWise.mod_(this, rhs);
   }
 
@@ -1911,7 +1907,7 @@ public final class ZTensor
    * @return a new tensor.
    */
   @Nonnull
-  public ZTensor pow(@Nonnull HasZTensor rhs) {
+  public ZTensor pow(@Nonnull ZTensorWrapper rhs) {
     return CellWise.pow(this, rhs);
   }
 
@@ -1933,7 +1929,7 @@ public final class ZTensor
    *
    * @param rhs the right-hand side tensor.
    */
-  public void pow_(@Nonnull HasZTensor rhs) {
+  public void pow_(@Nonnull ZTensorWrapper rhs) {
     CellWise.pow_(this, rhs);
   }
 
@@ -1955,7 +1951,7 @@ public final class ZTensor
    * @return a new tensor.
    */
   @Nonnull
-  public ZTensor log(@Nonnull HasZTensor rhs) {
+  public ZTensor log(@Nonnull ZTensorWrapper rhs) {
     return CellWise.log(this, rhs);
   }
 
@@ -1977,7 +1973,7 @@ public final class ZTensor
    *
    * @param rhs the right-hand side tensor.
    */
-  public void log_(@Nonnull HasZTensor rhs) {
+  public void log_(@Nonnull ZTensorWrapper rhs) {
     CellWise.log_(this, rhs);
   }
 

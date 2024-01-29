@@ -9,14 +9,13 @@ import java.util.function.Function;
 import javax.annotation.Nullable;
 import lombok.experimental.UtilityClass;
 import org.tensortapestry.loom.graph.LoomGraph;
-import org.tensortapestry.loom.graph.LoomNode;
 import org.tensortapestry.loom.zspace.ZRange;
 import org.tensortapestry.loom.zspace.ZRangeProjectionMap;
 
 @UtilityClass
 public class OperationUtils {
 
-  public LoomNode applyRelativeSignature(
+  public OperationNode applyRelativeSignature(
     LoomGraph graph,
     String kernelName,
     IPFSignature ipfSignature,
@@ -56,7 +55,7 @@ public class OperationUtils {
     );
   }
 
-  public LoomNode applyFixedSignature(
+  public OperationNode applyFixedSignature(
     LoomGraph graph,
     String kernelName,
     IPFSignature ipfSignature,
@@ -80,53 +79,54 @@ public class OperationUtils {
 
     var ipfIndex = indexBuilder.apply(inputs);
 
-    var operation = TensorOpNodes
-      .operationBuilder(
-        graph,
-        b -> {
-          b.kernel(kernelName);
+    var operation = OperationNode
+      .builder()
+      .graph(graph)
+      .body(b -> {
+        b.kernel(kernelName);
 
-          if (params != null) {
-            b.params(params);
-          }
-
-          for (var entry : inputs.entrySet()) {
-            var name = entry.getKey();
-            var selections = entry.getValue();
-            var projections = ipfSignature.getInputs().get(name);
-            assert projections != null && projections.size() == selections.size();
-
-            for (int idx = 0; idx < selections.size(); ++idx) {
-              var s = selections.get(idx);
-              var p = projections.get(idx);
-              assert s.getRange().equals(p.apply(ipfIndex));
-            }
-
-            b.input(name, selections);
-          }
-
-          for (var entry : outputTypes.entrySet()) {
-            var name = entry.getKey();
-            var types = entry.getValue();
-            var projections = ipfSignature.getOutputs().get(name);
-            assert projections != null && projections.size() == types.size();
-
-            List<TensorSelection> selections = new ArrayList<>();
-            for (int idx = 0; idx < projections.size(); ++idx) {
-              var p = projections.get(idx);
-              var t = types.get(idx);
-
-              var tensor = TensorOpNodes
-                .tensorBuilder(graph, tb -> tb.dtype(t).range(p.apply(ipfIndex)))
-                .label("%s/%s[%d]".formatted(kernelName, name, idx))
-                .build();
-
-              selections.add(TensorSelection.from(tensor));
-            }
-            b.output(name, selections);
-          }
+        if (params != null) {
+          b.params(params);
         }
-      )
+
+        for (var entry : inputs.entrySet()) {
+          var name = entry.getKey();
+          var selections = entry.getValue();
+          var projections = ipfSignature.getInputs().get(name);
+          assert projections != null && projections.size() == selections.size();
+
+          for (int idx = 0; idx < selections.size(); ++idx) {
+            var s = selections.get(idx);
+            var p = projections.get(idx);
+            assert s.getRange().equals(p.apply(ipfIndex));
+          }
+
+          b.input(name, selections);
+        }
+
+        for (var entry : outputTypes.entrySet()) {
+          var name = entry.getKey();
+          var types = entry.getValue();
+          var projections = ipfSignature.getOutputs().get(name);
+          assert projections != null && projections.size() == types.size();
+
+          List<TensorSelection> selections = new ArrayList<>();
+          for (int idx = 0; idx < projections.size(); ++idx) {
+            var p = projections.get(idx);
+            var t = types.get(idx);
+
+            var tensor = TensorNode
+              .builder()
+              .label("%s/%s[%d]".formatted(kernelName, name, idx))
+              .graph(graph)
+              .body(tb -> tb.dtype(t).range(p.apply(ipfIndex)))
+              .build();
+
+            selections.add(TensorSelection.from(tensor));
+          }
+          b.output(name, selections);
+        }
+      })
       .annotation(TensorOpNodes.IPF_SIGNATURE_ANNOTATION_TYPE, ipfSignature)
       .annotation(TensorOpNodes.IPF_INDEX_ANNOTATION_TYPE, ipfIndex)
       .build();
@@ -137,15 +137,15 @@ public class OperationUtils {
   }
 
   @CanIgnoreReturnValue
-  public List<LoomNode> createIpfShards(LoomNode operation, Collection<ZRange> shardIndexes) {
+  public List<ApplicationNode> createIpfShards(
+    OperationNode operation,
+    Collection<ZRange> shardIndexes
+  ) {
     return shardIndexes.stream().map(shardIndex -> createIpfShard(operation, shardIndex)).toList();
   }
 
   @CanIgnoreReturnValue
-  public LoomNode createIpfShard(LoomNode operation, ZRange shardIndex) {
-    var graph = operation.assertGraph();
-    var opData = operation.viewBodyAs(OperationBody.class);
-
+  public ApplicationNode createIpfShard(OperationNode operation, ZRange shardIndex) {
     var ipfSig = operation.viewAnnotationAs(
       TensorOpNodes.IPF_SIGNATURE_ANNOTATION_TYPE,
       IPFSignature.class
@@ -157,43 +157,42 @@ public class OperationUtils {
 
     assert ipfIndex.contains(shardIndex);
 
-    return TensorOpNodes
-      .applicationBuilder(
-        graph,
-        b -> {
-          b.operationId(operation.getId());
+    return ApplicationNode
+      .builder()
+      .graph(operation.assertGraph())
+      .body(b -> {
+        b.operationId(operation.getId());
 
-          for (var entry : ipfSig.getInputs().entrySet()) {
-            var name = entry.getKey();
-            var projections = entry.getValue();
-            var baseSelections = opData.getInputs().get(name);
-            assert baseSelections != null && projections.size() == baseSelections.size();
+        for (var entry : ipfSig.getInputs().entrySet()) {
+          var name = entry.getKey();
+          var projections = entry.getValue();
+          var baseSelections = operation.getBody().getInputs().get(name);
+          assert baseSelections != null && projections.size() == baseSelections.size();
 
-            List<TensorSelection> selections = new ArrayList<>();
-            for (int idx = 0; idx < projections.size(); ++idx) {
-              var p = projections.get(idx);
-              var s = baseSelections.get(idx);
-              selections.add(new TensorSelection(s.getTensorId(), p.apply(shardIndex)));
-            }
-            b.input(name, selections);
+          List<TensorSelection> selections = new ArrayList<>();
+          for (int idx = 0; idx < projections.size(); ++idx) {
+            var p = projections.get(idx);
+            var s = baseSelections.get(idx);
+            selections.add(new TensorSelection(s.getTensorId(), p.apply(shardIndex)));
           }
-
-          for (var entry : ipfSig.getOutputs().entrySet()) {
-            var name = entry.getKey();
-            var projections = entry.getValue();
-            var baseSelections = opData.getOutputs().get(name);
-            assert baseSelections != null && projections.size() == baseSelections.size();
-
-            List<TensorSelection> selections = new ArrayList<>();
-            for (int idx = 0; idx < projections.size(); ++idx) {
-              var p = projections.get(idx);
-              var s = baseSelections.get(idx);
-              selections.add(new TensorSelection(s.getTensorId(), p.apply(shardIndex)));
-            }
-            b.output(name, selections);
-          }
+          b.input(name, selections);
         }
-      )
+
+        for (var entry : ipfSig.getOutputs().entrySet()) {
+          var name = entry.getKey();
+          var projections = entry.getValue();
+          var baseSelections = operation.getBody().getOutputs().get(name);
+          assert baseSelections != null && projections.size() == baseSelections.size();
+
+          List<TensorSelection> selections = new ArrayList<>();
+          for (int idx = 0; idx < projections.size(); ++idx) {
+            var p = projections.get(idx);
+            var s = baseSelections.get(idx);
+            selections.add(new TensorSelection(s.getTensorId(), p.apply(shardIndex)));
+          }
+          b.output(name, selections);
+        }
+      })
       .annotation(TensorOpNodes.IPF_INDEX_ANNOTATION_TYPE, shardIndex)
       .build();
   }

@@ -22,22 +22,23 @@ public class IPFSignatureAgreementConstraintTest extends BaseTestClass {
 
     var graph = env.newGraph();
 
-    var tensorA = TensorOpNodes.TensorWrapper.wrap(
-      TensorOpNodes
-        .tensorBuilder(
-          graph,
-          b ->
-            b
-              .dtype("int32")
-              .range(ZRange.builder().start(ZPoint.of(-10, 4)).shape(ZPoint.of(3, 4)).build())
-        )
-        .label("A")
-        .build()
-    );
+    var tensorA = TensorNode
+      .builder()
+      .graph(graph)
+      .label("A")
+      .body(b ->
+        b
+          .dtype("int32")
+          .range(ZRange.builder().start(ZPoint.of(-10, 4)).shape(ZPoint.of(3, 4)).build())
+      )
+      .build();
 
-    var tensorB = TensorOpNodes.TensorWrapper.wrap(
-      TensorOpNodes.tensorBuilder(graph, b -> b.dtype("int32").shape(4, 5)).label("B").build()
-    );
+    var tensorB = TensorNode
+      .builder()
+      .graph(graph)
+      .label("B")
+      .body(b -> b.dtype("int32").shape(4, 5))
+      .build();
 
     var op = OperationUtils.applyRelativeSignature(
       graph,
@@ -81,23 +82,20 @@ public class IPFSignatureAgreementConstraintTest extends BaseTestClass {
       null
     );
 
-    assertThat(graph.byType(TensorOpNodes.OPERATION_NODE_TYPE).stream().count()).isEqualTo(1);
+    assertThat(graph.byType(OperationNode.TYPE).stream().count()).isEqualTo(1);
 
-    var tensorC = TensorOpNodes.TensorWrapper.wrap(
-      graph.assertNode(
-        op.viewBodyAs(OperationBody.class).getOutputs().get("z").getFirst().getTensorId(),
-        TensorOpNodes.TENSOR_NODE_TYPE
-      )
+    var tensorC = graph.assertNode(
+      TensorNode::wrap,
+      op.viewBodyAs(OperationBody.class).getOutputs().get("z").getFirst().getTensorId()
     );
 
     assertThat(tensorC.getDtype()).isEqualTo("int32");
     assertThat(tensorC.getRange()).isEqualTo(ZRange.newFromShape(3, 5));
     assertThat(tensorC.getLabel()).isEqualTo("matmul/z[0]");
 
-    var matmulResult = TensorOpNodes.TensorWrapper.wrap(
+    var matmulResult = TensorNode.wrap(
       graph.assertNode(
-        op.viewBodyAs(OperationBody.class).getOutputs().get("z").getFirst().getTensorId(),
-        TensorOpNodes.TENSOR_NODE_TYPE
+        op.viewBodyAs(OperationBody.class).getOutputs().get("z").getFirst().getTensorId()
       )
     );
 

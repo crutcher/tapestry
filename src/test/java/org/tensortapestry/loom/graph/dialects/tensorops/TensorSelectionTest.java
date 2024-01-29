@@ -2,7 +2,6 @@ package org.tensortapestry.loom.graph.dialects.tensorops;
 
 import java.util.UUID;
 import org.junit.Test;
-import org.tensortapestry.loom.graph.LoomNode;
 import org.tensortapestry.loom.testing.BaseTestClass;
 import org.tensortapestry.loom.zspace.ZRange;
 import org.tensortapestry.loom.zspace.exceptions.ZDimMissMatchError;
@@ -11,14 +10,11 @@ public class TensorSelectionTest extends BaseTestClass {
 
   @Test
   public void test_from() {
-    var tensorNode = TensorOpNodes.TensorWrapper.wrap(
-      LoomNode
-        .builder()
-        .type(TensorOpNodes.TENSOR_NODE_TYPE)
-        .id(UUID.randomUUID())
-        .body(TensorBody.builder().dtype("int32").shape(4, 5).build())
-        .build()
-    );
+    var tensorNode = TensorNode
+      .builder()
+      .id(UUID.randomUUID())
+      .body(TensorBody.builder().dtype("int32").shape(4, 5).build())
+      .build();
 
     {
       var tensorSelection = TensorSelection.from(tensorNode);

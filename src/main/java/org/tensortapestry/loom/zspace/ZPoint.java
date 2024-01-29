@@ -22,7 +22,7 @@ public final class ZPoint extends ImmutableZTensorWrapper<ZPoint> implements Has
   /**
    * Private constructor for Jackson.
    *
-   * <p>This permits the public constructor to use {@link HasZTensor}.
+   * <p>This permits the public constructor to use {@link ZTensorWrapper}.
    *
    * @param tensor the tensor.
    * @return a new ZPoint.
@@ -39,7 +39,7 @@ public final class ZPoint extends ImmutableZTensorWrapper<ZPoint> implements Has
    * @return a new ZPoint.
    */
   @Nonnull
-  public static ZPoint newZerosLike(@Nonnull HasZTensor ref) {
+  public static ZPoint newZerosLike(@Nonnull ZTensorWrapper ref) {
     return new ZPoint(ZTensor.newZerosLike(ref));
   }
 
@@ -61,7 +61,7 @@ public final class ZPoint extends ImmutableZTensorWrapper<ZPoint> implements Has
    * @return a new ZPoint.
    */
   @Nonnull
-  public static ZPoint newOnesLike(@Nonnull HasZTensor ref) {
+  public static ZPoint newOnesLike(@Nonnull ZTensorWrapper ref) {
     return new ZPoint(ZTensor.newOnesLike(ref));
   }
 
@@ -120,7 +120,7 @@ public final class ZPoint extends ImmutableZTensorWrapper<ZPoint> implements Has
    *
    * @param coord the coordinates.
    */
-  public ZPoint(@Nonnull HasZTensor coord) {
+  public ZPoint(@Nonnull ZTensorWrapper coord) {
     super(coord);
     this.tensor.assertNDim(1);
   }
@@ -136,7 +136,7 @@ public final class ZPoint extends ImmutableZTensorWrapper<ZPoint> implements Has
 
   @Override
   @Nonnull
-  protected ZPoint create(@Nonnull HasZTensor tensor) {
+  protected ZPoint create(@Nonnull ZTensorWrapper tensor) {
     return new ZPoint(tensor);
   }
 

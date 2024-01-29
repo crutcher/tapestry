@@ -2,8 +2,8 @@ package org.tensortapestry.loom.zspace.ops;
 
 import javax.annotation.Nonnull;
 import lombok.experimental.UtilityClass;
-import org.tensortapestry.loom.zspace.HasZTensor;
 import org.tensortapestry.loom.zspace.ZTensor;
+import org.tensortapestry.loom.zspace.ZTensorWrapper;
 
 /**
  * ZTensor matrix operations.
@@ -19,9 +19,9 @@ public final class MatrixOps {
    * @return a new tensor.
    */
   @Nonnull
-  public static ZTensor matmul(@Nonnull HasZTensor lhs, @Nonnull HasZTensor rhs) {
-    var zlhs = lhs.getTensor();
-    var zrhs = rhs.getTensor();
+  public static ZTensor matmul(@Nonnull ZTensorWrapper lhs, @Nonnull ZTensorWrapper rhs) {
+    var zlhs = lhs.unwrap();
+    var zrhs = rhs.unwrap();
 
     zlhs.assertNDim(2);
     if (zlhs.shape(1) != zrhs.shape(0)) {

@@ -9,9 +9,9 @@ import lombok.extern.jackson.Jacksonized;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.Test;
 import org.tensortapestry.loom.common.json.JsonUtil;
-import org.tensortapestry.loom.graph.dialects.common.CommonNodes;
 import org.tensortapestry.loom.graph.dialects.common.NoteBody;
-import org.tensortapestry.loom.graph.dialects.tensorops.TensorOpNodes;
+import org.tensortapestry.loom.graph.dialects.common.NoteNode;
+import org.tensortapestry.loom.graph.dialects.tensorops.TensorNode;
 import org.tensortapestry.loom.testing.BaseTestClass;
 import org.tensortapestry.loom.validation.ListValidationIssueCollector;
 import org.tensortapestry.loom.validation.ValidationIssue;
@@ -32,11 +32,7 @@ public class LoomTypeSchemaTest extends BaseTestClass {
       .builder()
       .referenceSchema(
         "inputs",
-        LoomTypeSchema.ReferenceSchema
-          .builder()
-          .path("$.inputs.*[*]")
-          .type(CommonNodes.NOTE_NODE_TYPE)
-          .build()
+        LoomTypeSchema.ReferenceSchema.builder().path("$.inputs.*[*]").type(NoteNode.TYPE).build()
       )
       .build();
 
@@ -44,7 +40,7 @@ public class LoomTypeSchemaTest extends BaseTestClass {
     var graph = env.newGraph();
 
     var note = graph
-      .nodeBuilder(CommonNodes.NOTE_NODE_TYPE)
+      .nodeBuilder(NoteNode.TYPE)
       .body(NoteBody.builder().message("hello").build())
       .build();
 
@@ -63,11 +59,7 @@ public class LoomTypeSchemaTest extends BaseTestClass {
       .builder()
       .referenceSchema(
         "inputs",
-        LoomTypeSchema.ReferenceSchema
-          .builder()
-          .path("$.inputs.*[*]")
-          .type(CommonNodes.NOTE_NODE_TYPE)
-          .build()
+        LoomTypeSchema.ReferenceSchema.builder().path("$.inputs.*[*]").type(NoteNode.TYPE).build()
       )
       .jsonSchema(
         """
@@ -97,8 +89,8 @@ public class LoomTypeSchemaTest extends BaseTestClass {
 
     var env = CommonEnvironments.expressionEnvironment();
     var graph = env.newGraph();
-    var note = CommonNodes.noteBuilder(graph, b -> b.message("hello")).build();
-    var tensor = TensorOpNodes.tensorBuilder(graph, b -> b.dtype("int32").shape(2)).build();
+    var note = NoteNode.builder().graph(graph).body(b -> b.message("hello")).build();
+    var tensor = TensorNode.builder().graph(graph).body(b -> b.dtype("int32").shape(2)).build();
 
     UUID missingId = UUID.randomUUID();
     String garbage = "garbage";
@@ -164,8 +156,8 @@ public class LoomTypeSchemaTest extends BaseTestClass {
         .builder()
         .type(LoomConstants.Errors.NODE_REFERENCE_ERROR)
         .param("nodeId", tensor.getId())
-        .param("expectedType", List.of(CommonNodes.NOTE_NODE_TYPE))
-        .param("actualType", TensorOpNodes.TENSOR_NODE_TYPE)
+        .param("expectedType", List.of(NoteNode.TYPE))
+        .param("actualType", TensorNode.TYPE)
         .summary("Referenced node has the wrong type")
         .context(
           ValidationIssue.Context
@@ -188,7 +180,7 @@ public class LoomTypeSchemaTest extends BaseTestClass {
         .builder()
         .type(LoomConstants.Errors.NODE_REFERENCE_ERROR)
         .param("nodeId", missingId)
-        .param("nodeType", List.of(CommonNodes.NOTE_NODE_TYPE))
+        .param("nodeType", List.of(NoteNode.TYPE))
         .summary("Referenced node does not exist")
         .context(
           ValidationIssue.Context

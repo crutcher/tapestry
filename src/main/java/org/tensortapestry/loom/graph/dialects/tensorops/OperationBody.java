@@ -10,7 +10,6 @@ import lombok.Singular;
 import lombok.Value;
 import lombok.extern.jackson.Jacksonized;
 import org.tensortapestry.loom.common.json.HasToJsonString;
-import org.tensortapestry.loom.graph.LoomNode;
 import org.tensortapestry.loom.graph.dialects.common.JsdType;
 
 @Value
@@ -18,7 +17,7 @@ import org.tensortapestry.loom.graph.dialects.common.JsdType;
 @Builder
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @JsonPropertyOrder({ "kernel", "params", "inputs", "outputs" })
-@JsdType(TensorOpNodes.OPERATION_NODE_TYPE)
+@JsdType(OperationNode.TYPE)
 public class OperationBody implements HasToJsonString {
 
   @Nonnull
@@ -34,14 +33,4 @@ public class OperationBody implements HasToJsonString {
   @Singular
   @Nonnull
   Map<String, List<TensorSelection>> outputs;
-
-  public static List<LoomNode> getShards(LoomNode opNode) {
-    var id = opNode.getId();
-    return opNode
-      .assertGraph()
-      .byType(TensorOpNodes.APPLICATION_NODE_TYPE)
-      .stream()
-      .filter(n -> n.viewBodyAs(ApplicationBody.class).getOperationId().equals(id))
-      .toList();
-  }
 }

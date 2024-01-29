@@ -28,7 +28,7 @@ public class TensorSelection {
    * @return the TensorSelection
    */
   public static TensorSelection from(NodeWrapper tensorNode) {
-    tensorNode.unwrap().assertType(TensorOpNodes.TENSOR_NODE_TYPE);
+    tensorNode.unwrap().assertType(TensorNode.TYPE);
     return TensorSelection
       .builder()
       .tensorId(tensorNode.getId())
@@ -47,7 +47,7 @@ public class TensorSelection {
    * @return the TensorSelection
    */
   public static TensorSelection from(NodeWrapper tensorNode, ZRange range) {
-    tensorNode.unwrap().assertType(TensorOpNodes.TENSOR_NODE_TYPE);
+    tensorNode.unwrap().assertType(TensorNode.TYPE);
     var tensorRange = tensorNode.unwrap().viewBodyAs(TensorBody.class).getRange();
     if (!tensorRange.contains(range)) {
       throw new IllegalArgumentException(

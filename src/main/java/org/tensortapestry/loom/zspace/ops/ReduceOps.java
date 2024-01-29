@@ -4,8 +4,8 @@ import java.util.function.IntBinaryOperator;
 import java.util.function.IntConsumer;
 import javax.annotation.Nonnull;
 import lombok.experimental.UtilityClass;
-import org.tensortapestry.loom.zspace.HasZTensor;
 import org.tensortapestry.loom.zspace.ZTensor;
+import org.tensortapestry.loom.zspace.ZTensorWrapper;
 import org.tensortapestry.loom.zspace.indexing.BufferMode;
 import org.tensortapestry.loom.zspace.indexing.IndexingFns;
 
@@ -24,7 +24,7 @@ public class ReduceOps {
    * @return the int result of the reduction.
    */
   public static int reduceCellsAtomic(
-    @Nonnull HasZTensor tensor,
+    @Nonnull ZTensorWrapper tensor,
     @Nonnull IntBinaryOperator op,
     int initial
   ) {
@@ -37,7 +37,7 @@ public class ReduceOps {
       }
     };
 
-    tensor.getTensor().forEachValue(acc);
+    tensor.unwrap().forEachValue(acc);
     return acc.value;
   }
 
@@ -51,7 +51,7 @@ public class ReduceOps {
    */
   @Nonnull
   public static ZTensor reduceCells(
-    @Nonnull HasZTensor tensor,
+    @Nonnull ZTensorWrapper tensor,
     @Nonnull IntBinaryOperator op,
     int initial
   ) {
@@ -74,12 +74,12 @@ public class ReduceOps {
    */
   @Nonnull
   public static ZTensor reduceCells(
-    @Nonnull HasZTensor tensor,
+    @Nonnull ZTensorWrapper tensor,
     @Nonnull IntBinaryOperator op,
     int initial,
     @Nonnull int... dims
   ) {
-    var ztensor = tensor.getTensor();
+    var ztensor = tensor.unwrap();
     int nDim = ztensor.getNDim();
     int[] shape = ztensor.shapeAsArray();
     var sumDims = ztensor.resolveDims(dims);
@@ -111,7 +111,7 @@ public class ReduceOps {
    * @param tensor the tensor.
    * @return the int sum of all elements in the tensor.
    */
-  public static int sumAsInt(@Nonnull HasZTensor tensor) {
+  public static int sumAsInt(@Nonnull ZTensorWrapper tensor) {
     return reduceCellsAtomic(tensor, Integer::sum, 0);
   }
 
@@ -122,7 +122,7 @@ public class ReduceOps {
    * @return the scalar ZTensor sum of all elements in the tensor.
    */
   @Nonnull
-  public static ZTensor sum(@Nonnull HasZTensor tensor) {
+  public static ZTensor sum(@Nonnull ZTensorWrapper tensor) {
     return reduceCells(tensor, Integer::sum, 0);
   }
 
@@ -138,7 +138,7 @@ public class ReduceOps {
    * @return a new tensor.
    */
   @Nonnull
-  public static ZTensor sum(@Nonnull HasZTensor tensor, @Nonnull int... dims) {
+  public static ZTensor sum(@Nonnull ZTensorWrapper tensor, @Nonnull int... dims) {
     return reduceCells(tensor, Integer::sum, 0, dims);
   }
 
@@ -148,7 +148,7 @@ public class ReduceOps {
    * @param tensor the tensor.
    * @return the int product of all elements in the tensor.
    */
-  public static int prodAsInt(@Nonnull HasZTensor tensor) {
+  public static int prodAsInt(@Nonnull ZTensorWrapper tensor) {
     return reduceCellsAtomic(tensor, (a, b) -> a * b, 1);
   }
 
@@ -159,7 +159,7 @@ public class ReduceOps {
    * @return the scalar ZTensor product of all elements in the tensor.
    */
   @Nonnull
-  public static ZTensor prod(@Nonnull HasZTensor tensor) {
+  public static ZTensor prod(@Nonnull ZTensorWrapper tensor) {
     return reduceCells(tensor, (a, b) -> a * b, 1);
   }
 
@@ -175,7 +175,7 @@ public class ReduceOps {
    * @return a new tensor.
    */
   @Nonnull
-  public static ZTensor prod(@Nonnull HasZTensor tensor, @Nonnull int... dims) {
+  public static ZTensor prod(@Nonnull ZTensorWrapper tensor, @Nonnull int... dims) {
     return reduceCells(tensor, (a, b) -> a * b, 1, dims);
   }
 
@@ -185,7 +185,7 @@ public class ReduceOps {
    * @param tensor the tensor.
    * @return the int min of all elements in the tensor.
    */
-  public static int minAsInt(@Nonnull HasZTensor tensor) {
+  public static int minAsInt(@Nonnull ZTensorWrapper tensor) {
     return reduceCellsAtomic(tensor, Math::min, Integer.MAX_VALUE);
   }
 
@@ -196,7 +196,7 @@ public class ReduceOps {
    * @return the scalar ZTensor min of all elements in the tensor.
    */
   @Nonnull
-  public static ZTensor min(@Nonnull HasZTensor tensor) {
+  public static ZTensor min(@Nonnull ZTensorWrapper tensor) {
     return reduceCells(tensor, Math::min, Integer.MAX_VALUE);
   }
 
@@ -212,7 +212,7 @@ public class ReduceOps {
    * @return a new tensor.
    */
   @Nonnull
-  public static ZTensor min(@Nonnull HasZTensor tensor, @Nonnull int... dims) {
+  public static ZTensor min(@Nonnull ZTensorWrapper tensor, @Nonnull int... dims) {
     return reduceCells(tensor, Math::min, Integer.MAX_VALUE, dims);
   }
 
@@ -222,7 +222,7 @@ public class ReduceOps {
    * @param tensor the tensor.
    * @return the int min of all elements in the tensor.
    */
-  public static int maxAsInt(@Nonnull HasZTensor tensor) {
+  public static int maxAsInt(@Nonnull ZTensorWrapper tensor) {
     return reduceCellsAtomic(tensor, Math::max, Integer.MIN_VALUE);
   }
 
@@ -233,7 +233,7 @@ public class ReduceOps {
    * @return the scalar ZTensor max of all elements in the tensor.
    */
   @Nonnull
-  public static ZTensor max(@Nonnull HasZTensor tensor) {
+  public static ZTensor max(@Nonnull ZTensorWrapper tensor) {
     return reduceCells(tensor, Math::max, Integer.MIN_VALUE);
   }
 
@@ -249,7 +249,7 @@ public class ReduceOps {
    * @return a new tensor.
    */
   @Nonnull
-  public static ZTensor max(@Nonnull HasZTensor tensor, @Nonnull int... dims) {
+  public static ZTensor max(@Nonnull ZTensorWrapper tensor, @Nonnull int... dims) {
     return reduceCells(tensor, Math::max, Integer.MIN_VALUE, dims);
   }
 }

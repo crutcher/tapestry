@@ -7,13 +7,13 @@ import org.tensortapestry.loom.zspace.indexing.IndexingFns;
 /**
  * Objects which can be represented as a ZTensor.
  */
-public interface HasZTensor {
+public interface ZTensorWrapper {
   /**
    * Returns the ZTensor representation of this object.
    * @return the ZTensor.
    */
   @JsonIgnore
-  ZTensor getTensor();
+  ZTensor unwrap();
 
   /**
    * Returns the common broadcast shape of this tensor and the given shape.
@@ -22,7 +22,7 @@ public interface HasZTensor {
    */
   @Nonnull
   default int[] commonBroadcastShape(@Nonnull int[] shape) {
-    return IndexingFns.commonBroadcastShape(getTensor()._unsafeGetShape(), shape);
+    return IndexingFns.commonBroadcastShape(unwrap()._unsafeGetShape(), shape);
   }
 
   /**
@@ -31,7 +31,7 @@ public interface HasZTensor {
    * @return the common broadcast shape.
    */
   @Nonnull
-  default int[] commonBroadcastShape(@Nonnull HasZTensor other) {
-    return commonBroadcastShape(other.getTensor()._unsafeGetShape());
+  default int[] commonBroadcastShape(@Nonnull ZTensorWrapper other) {
+    return commonBroadcastShape(other.unwrap()._unsafeGetShape());
   }
 }

@@ -2,7 +2,7 @@ package org.tensortapestry.loom.graph;
 
 import org.junit.Test;
 import org.tensortapestry.loom.graph.dialects.tensorops.TensorBody;
-import org.tensortapestry.loom.graph.dialects.tensorops.TensorOpNodes;
+import org.tensortapestry.loom.graph.dialects.tensorops.TensorNode;
 import org.tensortapestry.loom.testing.BaseTestClass;
 import org.tensortapestry.loom.validation.ValidationIssueCollector;
 
@@ -44,7 +44,7 @@ public class LoomEnvironmentTest extends BaseTestClass {
         ]
        }
       """.formatted(
-          TensorOpNodes.TENSOR_NODE_TYPE
+          TensorNode.TYPE
         );
 
     var env = CommonEnvironments.expressionEnvironment();
@@ -55,10 +55,7 @@ public class LoomEnvironmentTest extends BaseTestClass {
     graph.validate();
 
     {
-      var tensor = graph.assertNode(
-        "00000000-0000-0000-0000-000000000000",
-        TensorOpNodes.TENSOR_NODE_TYPE
-      );
+      var tensor = graph.assertNode("00000000-0000-0000-0000-000000000000", TensorNode.TYPE);
       assertThat(tensor.viewBodyAs(TensorBody.class).getDtype()).isEqualTo("int32");
     }
 
@@ -71,7 +68,7 @@ public class LoomEnvironmentTest extends BaseTestClass {
     var constraint = new LoomEnvironment.Constraint() {
       @Override
       public void checkRequirements(LoomEnvironment env) {
-        env.assertSupportsNodeType(TensorOpNodes.TENSOR_NODE_TYPE);
+        env.assertSupportsNodeType(TensorNode.TYPE);
       }
 
       @Override

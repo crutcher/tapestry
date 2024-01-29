@@ -25,8 +25,7 @@ import org.tensortapestry.loom.graph.ExportUtils;
 import org.tensortapestry.loom.graph.LoomGraph;
 import org.tensortapestry.loom.graph.LoomNode;
 import org.tensortapestry.loom.graph.TraversalUtils;
-import org.tensortapestry.loom.graph.dialects.tensorops.TensorOpNodes;
-import org.tensortapestry.loom.graph.dialects.tensorops.TensorSelection;
+import org.tensortapestry.loom.graph.dialects.tensorops.*;
 import org.tensortapestry.loom.zspace.ZRange;
 import org.tensortapestry.loom.zspace.ZRangeProjectionMap;
 
@@ -76,13 +75,9 @@ public class GraphVisualizer {
 
   public static GraphVisualizer buildDefault() {
     var exporter = builder().build();
-    exporter.getNodeTypeExporters().put(TensorOpNodes.TENSOR_NODE_TYPE, new TensorNodeExporter());
-    exporter
-      .getNodeTypeExporters()
-      .put(TensorOpNodes.APPLICATION_NODE_TYPE, new ApplicationNodeExporter());
-    exporter
-      .getNodeTypeExporters()
-      .put(TensorOpNodes.OPERATION_NODE_TYPE, new OperationNodeExporter());
+    exporter.getNodeTypeExporters().put(TensorNode.TYPE, new TensorNodeExporter());
+    exporter.getNodeTypeExporters().put(ApplicationNode.TYPE, new ApplicationNodeExporter());
+    exporter.getNodeTypeExporters().put(OperationNode.TYPE, new OperationNodeExporter());
     return exporter;
   }
 

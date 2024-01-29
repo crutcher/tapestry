@@ -3,7 +3,7 @@
     <module name="library" />
     <extension name="coverage">
       <pattern>
-        <option name="PATTERN" value="org.tensortapestry.loom.graph.*" />
+        <option name="PATTERN" value="org.tensortapestry.loom.common.collections.*" />
         <option name="ENABLED" value="true" />
       </pattern>
     </extension>

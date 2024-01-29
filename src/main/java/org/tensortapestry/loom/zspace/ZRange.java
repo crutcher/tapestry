@@ -65,8 +65,8 @@ public class ZRange implements Cloneable, HasSize, HasPermute<ZRange>, HasJsonOu
      * @return {@code this}
      */
     @Nonnull
-    public ZRangeBuilder shape(@Nonnull HasZTensor shape) {
-      this.shape = shape.getTensor();
+    public ZRangeBuilder shape(@Nonnull ZTensorWrapper shape) {
+      this.shape = shape.unwrap();
       if (start == null) {
         start = ZPoint.newZerosLike(shape);
       }
@@ -94,8 +94,8 @@ public class ZRange implements Cloneable, HasSize, HasPermute<ZRange>, HasJsonOu
      * @return {@code this}
      */
     @Nonnull
-    public ZRangeBuilder start(@Nonnull HasZTensor start) {
-      this.start = start.getTensor().newZPoint();
+    public ZRangeBuilder start(@Nonnull ZTensorWrapper start) {
+      this.start = start.unwrap().newZPoint();
       return this;
     }
 
@@ -118,8 +118,8 @@ public class ZRange implements Cloneable, HasSize, HasPermute<ZRange>, HasJsonOu
      * @return {@code this}
      */
     @Nonnull
-    public ZRangeBuilder end(@Nonnull HasZTensor end) {
-      this.end = end.getTensor().newZPoint();
+    public ZRangeBuilder end(@Nonnull ZTensorWrapper end) {
+      this.end = end.unwrap().newZPoint();
       return this;
     }
 
@@ -191,7 +191,7 @@ public class ZRange implements Cloneable, HasSize, HasPermute<ZRange>, HasJsonOu
    * @return a new range.
    */
   @Nonnull
-  public static ZRange newFromShape(@Nonnull HasZTensor shape) {
+  public static ZRange newFromShape(@Nonnull ZTensorWrapper shape) {
     return new ZRange(ZPoint.newZerosLike(shape), shape);
   }
 
@@ -202,7 +202,7 @@ public class ZRange implements Cloneable, HasSize, HasPermute<ZRange>, HasJsonOu
    * @return the shifted range.
    */
   @Nonnull
-  public ZRange translate(@Nonnull HasZTensor delta) {
+  public ZRange translate(@Nonnull ZTensorWrapper delta) {
     return ZRange.of(start.tensor.add(delta), end.tensor.add(delta));
   }
 
@@ -214,7 +214,7 @@ public class ZRange implements Cloneable, HasSize, HasPermute<ZRange>, HasJsonOu
    * @return a new range.
    */
   @Nonnull
-  public static ZRange of(@Nonnull HasZTensor start, @Nonnull HasZTensor end) {
+  public static ZRange of(@Nonnull ZTensorWrapper start, @Nonnull ZTensorWrapper end) {
     return new ZRange(start, end);
   }
 
@@ -319,9 +319,9 @@ public class ZRange implements Cloneable, HasSize, HasPermute<ZRange>, HasJsonOu
    * @param start the start point.
    * @param end the exclusive end point.
    */
-  public ZRange(@Nonnull HasZTensor start, @Nonnull HasZTensor end) {
-    var zstart = start.getTensor().newZPoint();
-    var zend = end.getTensor().newZPoint();
+  public ZRange(@Nonnull ZTensorWrapper start, @Nonnull ZTensorWrapper end) {
+    var zstart = start.unwrap().newZPoint();
+    var zend = end.unwrap().newZPoint();
 
     zstart.tensor.assertMatchingShape(zend);
     if (zstart.gt(end)) {
@@ -483,7 +483,7 @@ public class ZRange implements Cloneable, HasSize, HasPermute<ZRange>, HasJsonOu
    * @param p the point.
    * @return true if this range contains the point.
    */
-  public boolean contains(@Nonnull HasZTensor p) {
+  public boolean contains(@Nonnull ZTensorWrapper p) {
     return (!isEmpty() && (getNDim() == 0 || (start.le(p) && DominanceOrderingOps.lt(p, end))));
   }
 

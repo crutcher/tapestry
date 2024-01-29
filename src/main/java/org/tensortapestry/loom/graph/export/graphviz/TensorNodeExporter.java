@@ -4,7 +4,7 @@ import guru.nidi.graphviz.attribute.Shape;
 import guru.nidi.graphviz.attribute.Style;
 import org.tensortapestry.loom.graph.LoomNode;
 import org.tensortapestry.loom.graph.dialects.tensorops.TensorBody;
-import org.tensortapestry.loom.graph.dialects.tensorops.TensorOpNodes;
+import org.tensortapestry.loom.graph.dialects.tensorops.TensorNode;
 
 public class TensorNodeExporter implements GraphVisualizer.NodeTypeExporter {
 
@@ -14,7 +14,7 @@ public class TensorNodeExporter implements GraphVisualizer.NodeTypeExporter {
     GraphVisualizer.ExportContext context,
     LoomNode loomNode
   ) {
-    loomNode.assertType(TensorOpNodes.TENSOR_NODE_TYPE);
+    loomNode.assertType(TensorNode.TYPE);
     var tensorData = loomNode.viewBodyAs(TensorBody.class);
     var gvNode = context.standardNodePrefix(loomNode);
     context.maybeRenderAnnotations(loomNode);

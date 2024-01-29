@@ -11,7 +11,6 @@ import lombok.Singular;
 import lombok.Value;
 import lombok.extern.jackson.Jacksonized;
 import org.tensortapestry.loom.common.json.HasToJsonString;
-import org.tensortapestry.loom.graph.LoomNode;
 import org.tensortapestry.loom.graph.dialects.common.JsdType;
 
 /**
@@ -22,7 +21,7 @@ import org.tensortapestry.loom.graph.dialects.common.JsdType;
 @Builder
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @JsonPropertyOrder({ "operationId", "inputs", "outputs" })
-@JsdType(TensorOpNodes.APPLICATION_NODE_TYPE)
+@JsdType(ApplicationNode.TYPE)
 public class ApplicationBody implements HasToJsonString {
 
   @Nonnull
@@ -35,11 +34,4 @@ public class ApplicationBody implements HasToJsonString {
   @Singular
   @Nonnull
   Map<String, List<TensorSelection>> outputs;
-
-  public static LoomNode getOperation(LoomNode application) {
-    application.assertType(TensorOpNodes.APPLICATION_NODE_TYPE);
-    var body = application.viewBodyAs(ApplicationBody.class);
-    var operationId = body.getOperationId();
-    return application.assertGraph().assertNode(operationId, TensorOpNodes.OPERATION_NODE_TYPE);
-  }
 }

@@ -3,9 +3,9 @@ package org.tensortapestry.loom.graph;
 import java.util.UUID;
 import org.junit.Test;
 import org.tensortapestry.loom.common.json.JsonUtil;
-import org.tensortapestry.loom.graph.dialects.common.CommonNodes;
+import org.tensortapestry.loom.graph.dialects.common.NoteNode;
 import org.tensortapestry.loom.graph.dialects.tensorops.TensorBody;
-import org.tensortapestry.loom.graph.dialects.tensorops.TensorOpNodes;
+import org.tensortapestry.loom.graph.dialects.tensorops.TensorNode;
 import org.tensortapestry.loom.testing.BaseTestClass;
 import org.tensortapestry.loom.zspace.ZRange;
 
@@ -17,7 +17,7 @@ public class LoomGraphTest extends BaseTestClass {
     var graph = env.newGraph();
 
     for (int i = 0; i < 10; i++) {
-      CommonNodes.noteBuilder(graph, b -> b.message("test")).build();
+      NoteNode.builder().graph(graph).body(b -> b.message("test")).build();
     }
 
     var nodeId = graph.genNodeId();
@@ -29,10 +29,10 @@ public class LoomGraphTest extends BaseTestClass {
     var env = CommonEnvironments.expressionEnvironment();
     var graph = env.newGraph();
 
-    var node1 = CommonNodes.noteBuilder(graph, b -> b.message("node 1")).label("foo").build();
+    var node1 = NoteNode.builder().graph(graph).body(b -> b.message("node 1")).label("foo").build();
 
-    assertThat(graph.getNode(node1.getId())).isSameAs(node1);
-    assertThat(graph.getNode(node1.getId().toString())).isSameAs(node1);
+    assertThat(graph.getNode(node1.getId())).isSameAs(node1.unwrap());
+    assertThat(graph.getNode(node1.getId().toString())).isSameAs(node1.unwrap());
 
     // Idempotent
     graph.addNode(node1);
@@ -43,15 +43,15 @@ public class LoomGraphTest extends BaseTestClass {
 
     {
       var graph2 = env.newGraph();
-      var node2 = CommonNodes.noteBuilder(graph2, b -> b.message("node 1")).build();
+      var node2 = NoteNode.builder().graph(graph2).body(b -> b.message("node 1")).build();
 
       assertThatExceptionOfType(IllegalArgumentException.class)
         .isThrownBy(() -> graph.addNode(node2))
         .withMessage("Node already belongs to a graph: %s".formatted(graph2.getId()));
     }
 
-    var node2 = CommonNodes.noteBuilder(graph, b -> b.message("node 2")).label("bar").build();
-    var node3 = CommonNodes.noteBuilder(graph, b -> b.message("node 3")).label("qux").build();
+    var node2 = NoteNode.builder().graph(graph).body(b -> b.message("node 2")).label("bar").build();
+    var node3 = NoteNode.builder().graph(graph).body(b -> b.message("node 3")).label("qux").build();
 
     {
       // By Node
@@ -92,19 +92,19 @@ public class LoomGraphTest extends BaseTestClass {
     assertThatExceptionOfType(IllegalStateException.class)
       .isThrownBy(() -> graph.assertNode(nodeIdA.toString()));
 
-    var nodeA = CommonNodes.noteBuilder(graph, b -> b.message("test")).id(nodeIdA).build();
+    var nodeA = NoteNode.builder().graph(graph).body(b -> b.message("test")).id(nodeIdA).build();
 
     assertThat(nodeA)
       .hasFieldOrPropertyWithValue("id", nodeIdA)
-      .hasFieldOrPropertyWithValue("type", CommonNodes.NOTE_NODE_TYPE);
+      .hasFieldOrPropertyWithValue("type", NoteNode.TYPE);
 
     assertThat(graph.hasNode(nodeIdA)).isTrue();
     assertThat(graph.hasNode(nodeIdA.toString())).isTrue();
-    assertThat(graph.assertNode(nodeIdA)).isSameAs(nodeA);
-    assertThat(graph.assertNode(nodeIdA.toString())).isSameAs(nodeA);
+    assertThat(graph.assertNode(nodeIdA)).isSameAs(nodeA.unwrap());
+    assertThat(graph.assertNode(nodeIdA.toString())).isSameAs(nodeA.unwrap());
 
     // Casting assertions.
-    assertThat(graph.assertNode(nodeIdA, CommonNodes.NOTE_NODE_TYPE)).isSameAs(nodeA);
+    assertThat(graph.assertNode(nodeIdA, NoteNode.TYPE)).isSameAs(nodeA.unwrap());
     assertThatExceptionOfType(IllegalStateException.class)
       .isThrownBy(() -> graph.assertNode(nodeIdA, "foo"));
   }
@@ -137,7 +137,7 @@ public class LoomGraphTest extends BaseTestClass {
            ]
         }
         """.formatted(
-          TensorOpNodes.TENSOR_NODE_TYPE
+          TensorNode.TYPE
         );
 
     var graph = JsonUtil.fromJson(source, LoomGraph.class);
@@ -145,9 +145,7 @@ public class LoomGraphTest extends BaseTestClass {
 
     assertThat(graph.getId()).isEqualTo(UUID.fromString("00000000-0000-0000-0000-000000000000"));
 
-    assertThat(
-      graph.assertNode("00000000-0000-0000-0000-000000000001", TensorOpNodes.TENSOR_NODE_TYPE)
-    )
+    assertThat(graph.assertNode("00000000-0000-0000-0000-000000000001", TensorNode.TYPE))
       .hasFieldOrPropertyWithValue("label", "foo");
     assertThat(graph.assertNode("00000000-0000-0000-0000-000000000002"))
       .hasFieldOrPropertyWithValue("label", "bar");
@@ -183,7 +181,7 @@ public class LoomGraphTest extends BaseTestClass {
                ]
             }
             """.formatted(
-          TensorOpNodes.TENSOR_NODE_TYPE
+          TensorNode.TYPE
         );
 
     var env = CommonEnvironments.expressionEnvironment();

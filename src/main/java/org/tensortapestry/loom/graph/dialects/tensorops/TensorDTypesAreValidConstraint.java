@@ -20,7 +20,7 @@ public class TensorDTypesAreValidConstraint implements LoomEnvironment.Constrain
 
   @Override
   public void checkRequirements(LoomEnvironment env) {
-    env.supportsNodeType(TensorOpNodes.TENSOR_NODE_TYPE);
+    env.supportsNodeType(TensorNode.TYPE);
   }
 
   @Override
@@ -30,7 +30,7 @@ public class TensorDTypesAreValidConstraint implements LoomEnvironment.Constrain
     ValidationIssueCollector issueCollector
   ) {
     for (var node : graph) {
-      if (node.getType().equals(TensorOpNodes.TENSOR_NODE_TYPE)) {
+      if (node.getType().equals(TensorNode.TYPE)) {
         checkTensor(node, issueCollector);
       }
     }
@@ -44,7 +44,7 @@ public class TensorDTypesAreValidConstraint implements LoomEnvironment.Constrain
         ValidationIssue
           .builder()
           .type(LoomConstants.Errors.NODE_VALIDATION_ERROR)
-          .param("nodeType", TensorOpNodes.TENSOR_NODE_TYPE)
+          .param("nodeType", TensorNode.TYPE)
           .context(
             ValidationIssue.Context
               .builder()

@@ -24,7 +24,7 @@ public final class ZMatrix
   /**
    * Private constructor for Jackson.
    *
-   * <p>This permits the public constructor to use {@link HasZTensor}.
+   * <p>This permits the public constructor to use {@link ZTensorWrapper}.
    *
    * @param tensor the tensor.
    * @return a new ZMatrix.
@@ -56,7 +56,7 @@ public final class ZMatrix
    * @return the ZMatrix.
    */
   @Nonnull
-  public static ZMatrix newMatrix(@Nonnull HasZTensor matrix) {
+  public static ZMatrix newMatrix(@Nonnull ZTensorWrapper matrix) {
     return new ZMatrix(matrix);
   }
 
@@ -79,7 +79,7 @@ public final class ZMatrix
    * @return a new ZMatrix.
    */
   @Nonnull
-  public static ZMatrix newZerosLike(@Nonnull HasZTensor ref) {
+  public static ZMatrix newZerosLike(@Nonnull ZTensorWrapper ref) {
     return new ZMatrix(ZTensor.newZerosLike(ref));
   }
 
@@ -102,7 +102,7 @@ public final class ZMatrix
    * @return a new ZMatrix.
    */
   @Nonnull
-  public static ZMatrix newOnesLike(@Nonnull HasZTensor ref) {
+  public static ZMatrix newOnesLike(@Nonnull ZTensorWrapper ref) {
     return new ZMatrix(ZTensor.newOnesLike(ref));
   }
 
@@ -127,7 +127,7 @@ public final class ZMatrix
    * @return a new ZMatrix.
    */
   @Nonnull
-  public static ZMatrix newFilledLike(@Nonnull HasZTensor ref, int value) {
+  public static ZMatrix newFilledLike(@Nonnull ZTensorWrapper ref, int value) {
     return new ZMatrix(ZTensor.newFilledLike(ref, value));
   }
 
@@ -181,14 +181,14 @@ public final class ZMatrix
    *
    * @param tensor the tensor.
    */
-  public ZMatrix(@Nonnull HasZTensor tensor) {
+  public ZMatrix(@Nonnull ZTensorWrapper tensor) {
     super(tensor);
     this.tensor.assertNDim(2);
   }
 
   @Override
   @Nonnull
-  protected ZMatrix create(@Nonnull HasZTensor tensor) {
+  protected ZMatrix create(@Nonnull ZTensorWrapper tensor) {
     return new ZMatrix(tensor);
   }
 
@@ -262,7 +262,7 @@ public final class ZMatrix
   }
 
   @Nonnull
-  public ZTensor matmul(@Nonnull HasZTensor x) {
+  public ZTensor matmul(@Nonnull ZTensorWrapper x) {
     return MatrixOps.matmul(this, x);
   }
 }

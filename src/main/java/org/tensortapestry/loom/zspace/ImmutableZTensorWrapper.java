@@ -5,7 +5,6 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import javax.annotation.concurrent.ThreadSafe;
-import lombok.Data;
 import org.tensortapestry.loom.zspace.impl.HasJsonOutput;
 import org.tensortapestry.loom.zspace.ops.CellWise;
 import org.tensortapestry.loom.zspace.ops.DominanceOrderingOps;
@@ -17,22 +16,27 @@ import org.tensortapestry.loom.zspace.ops.DominanceOrderingOps;
  */
 @ThreadSafe
 @Immutable
-@Data
 @SuppressWarnings("Immutable")
-public abstract class ImmutableZTensorWrapper<T> implements HasZTensor, Cloneable, HasJsonOutput {
+public abstract class ImmutableZTensorWrapper<T>
+  implements ZTensorWrapper, Cloneable, HasJsonOutput {
 
   @JsonValue
   @Nonnull
   @SuppressWarnings("Immutable")
   protected final ZTensor tensor;
 
+  @Override
+  public ZTensor unwrap() {
+    return tensor;
+  }
+
   /**
    * Create a new instance of {@code T} from a {@link ZTensor}.
    *
    * @param tensor the tensor.
    */
-  public ImmutableZTensorWrapper(@Nonnull HasZTensor tensor) {
-    this.tensor = tensor.getTensor().asImmutable();
+  public ImmutableZTensorWrapper(@Nonnull ZTensorWrapper tensor) {
+    this.tensor = tensor.unwrap().asImmutable();
   }
 
   /**
@@ -42,7 +46,7 @@ public abstract class ImmutableZTensorWrapper<T> implements HasZTensor, Cloneabl
    * @return the new instance.
    */
   @Nonnull
-  protected abstract T create(@Nonnull HasZTensor tensor);
+  protected abstract T create(@Nonnull ZTensorWrapper tensor);
 
   /**
    * Returns {@code this} as {@code T}.
@@ -107,7 +111,7 @@ public abstract class ImmutableZTensorWrapper<T> implements HasZTensor, Cloneabl
    * @param rhs the right-hand side.
    * @return true or false.
    */
-  public final boolean eq(@Nonnull HasZTensor rhs) {
+  public final boolean eq(@Nonnull ZTensorWrapper rhs) {
     return DominanceOrderingOps.eq(this, rhs);
   }
 
@@ -117,7 +121,7 @@ public abstract class ImmutableZTensorWrapper<T> implements HasZTensor, Cloneabl
    * @param rhs the right-hand side.
    * @return true or false.
    */
-  public final boolean ne(@Nonnull HasZTensor rhs) {
+  public final boolean ne(@Nonnull ZTensorWrapper rhs) {
     return DominanceOrderingOps.ne(this, rhs);
   }
 
@@ -127,7 +131,7 @@ public abstract class ImmutableZTensorWrapper<T> implements HasZTensor, Cloneabl
    * @param rhs the right-hand side.
    * @return true or false.
    */
-  public final boolean lt(@Nonnull HasZTensor rhs) {
+  public final boolean lt(@Nonnull ZTensorWrapper rhs) {
     return DominanceOrderingOps.lt(this, rhs);
   }
 
@@ -137,7 +141,7 @@ public abstract class ImmutableZTensorWrapper<T> implements HasZTensor, Cloneabl
    * @param rhs the right-hand side.
    * @return true or false.
    */
-  public final boolean le(@Nonnull HasZTensor rhs) {
+  public final boolean le(@Nonnull ZTensorWrapper rhs) {
     return DominanceOrderingOps.le(this, rhs);
   }
 
@@ -147,7 +151,7 @@ public abstract class ImmutableZTensorWrapper<T> implements HasZTensor, Cloneabl
    * @param rhs the right-hand side.
    * @return true or false.
    */
-  public final boolean gt(@Nonnull HasZTensor rhs) {
+  public final boolean gt(@Nonnull ZTensorWrapper rhs) {
     return DominanceOrderingOps.gt(this, rhs);
   }
 
@@ -157,7 +161,7 @@ public abstract class ImmutableZTensorWrapper<T> implements HasZTensor, Cloneabl
    * @param rhs the right-hand side.
    * @return true or false.
    */
-  public final boolean ge(@Nonnull HasZTensor rhs) {
+  public final boolean ge(@Nonnull ZTensorWrapper rhs) {
     return DominanceOrderingOps.ge(this, rhs);
   }
 
@@ -221,7 +225,7 @@ public abstract class ImmutableZTensorWrapper<T> implements HasZTensor, Cloneabl
    * @param rhs the right-hand side.
    * @return the broadcast addition with {@code rhs} as a new {@code T}.
    */
-  public final T add(@Nonnull HasZTensor rhs) {
+  public final T add(@Nonnull ZTensorWrapper rhs) {
     return create(CellWise.add(this, rhs));
   }
 
@@ -241,7 +245,7 @@ public abstract class ImmutableZTensorWrapper<T> implements HasZTensor, Cloneabl
    * @param rhs the right-hand side.
    * @return the broadcast subtraction with {@code rhs} as a new {@code T}.
    */
-  public final T sub(@Nonnull HasZTensor rhs) {
+  public final T sub(@Nonnull ZTensorWrapper rhs) {
     return create(CellWise.sub(this, rhs));
   }
 
@@ -261,7 +265,7 @@ public abstract class ImmutableZTensorWrapper<T> implements HasZTensor, Cloneabl
    * @param rhs the right-hand side.
    * @return the broadcast multiplication with {@code rhs} as a new {@code T}.
    */
-  public final T mul(@Nonnull HasZTensor rhs) {
+  public final T mul(@Nonnull ZTensorWrapper rhs) {
     return create(CellWise.mul(this, rhs));
   }
 
@@ -281,7 +285,7 @@ public abstract class ImmutableZTensorWrapper<T> implements HasZTensor, Cloneabl
    * @param rhs the right-hand side.
    * @return the broadcast division with {@code rhs} as a new {@code T}.
    */
-  public final T div(@Nonnull HasZTensor rhs) {
+  public final T div(@Nonnull ZTensorWrapper rhs) {
     return create(CellWise.div(this, rhs));
   }
 
@@ -301,7 +305,7 @@ public abstract class ImmutableZTensorWrapper<T> implements HasZTensor, Cloneabl
    * @param base the right-hand side.
    * @return the broadcast modulo with {@code rhs} as a new {@code T}.
    */
-  public final T mod(@Nonnull HasZTensor base) {
+  public final T mod(@Nonnull ZTensorWrapper base) {
     return create(CellWise.mod(this, base));
   }
 
@@ -321,7 +325,7 @@ public abstract class ImmutableZTensorWrapper<T> implements HasZTensor, Cloneabl
    * @param exp the right-hand side.
    * @return the broadcast power with {@code rhs} as a new {@code T}.
    */
-  public final T pow(@Nonnull HasZTensor exp) {
+  public final T pow(@Nonnull ZTensorWrapper exp) {
     return create(CellWise.pow(this, exp));
   }
 
@@ -341,7 +345,7 @@ public abstract class ImmutableZTensorWrapper<T> implements HasZTensor, Cloneabl
    * @param base the right-hand side.
    * @return the broadcast log with {@code rhs} as a new {@code T}.
    */
-  public final T log(@Nonnull HasZTensor base) {
+  public final T log(@Nonnull ZTensorWrapper base) {
     return create(CellWise.log(this, base));
   }
 

@@ -7,7 +7,6 @@ import org.tensortapestry.loom.common.json.JsonPathUtils;
 import org.tensortapestry.loom.graph.LoomConstants;
 import org.tensortapestry.loom.graph.LoomEnvironment;
 import org.tensortapestry.loom.graph.LoomGraph;
-import org.tensortapestry.loom.graph.LoomNode;
 import org.tensortapestry.loom.validation.ValidationIssue;
 import org.tensortapestry.loom.validation.ValidationIssueCollector;
 import org.tensortapestry.loom.zspace.ZRange;
@@ -17,9 +16,9 @@ public class IPFSignatureAgreementConstraint implements LoomEnvironment.Constrai
 
   @Override
   public void checkRequirements(LoomEnvironment env) {
-    env.assertSupportsNodeType(TensorOpNodes.TENSOR_NODE_TYPE);
-    env.assertSupportsNodeType(TensorOpNodes.OPERATION_NODE_TYPE);
-    env.assertSupportsNodeType(TensorOpNodes.APPLICATION_NODE_TYPE);
+    env.assertSupportsNodeType(TensorNode.TYPE);
+    env.assertSupportsNodeType(OperationNode.TYPE);
+    env.assertSupportsNodeType(ApplicationNode.TYPE);
     env.assertConstraint(OperationReferenceAgreementConstraint.class);
   }
 
@@ -29,16 +28,15 @@ public class IPFSignatureAgreementConstraint implements LoomEnvironment.Constrai
     LoomGraph graph,
     ValidationIssueCollector issueCollector
   ) {
-    for (var operation : graph.byType(TensorOpNodes.OPERATION_NODE_TYPE)) {
+    for (var operation : graph.byType(OperationNode.TYPE, OperationNode::wrap)) {
       if (operation.hasAnnotation(TensorOpNodes.IPF_SIGNATURE_ANNOTATION_TYPE)) {
         checkOperation(operation, issueCollector);
       }
     }
   }
 
-  private void checkOperation(LoomNode operation, ValidationIssueCollector issueCollector) {
-    operation.assertType(TensorOpNodes.OPERATION_NODE_TYPE);
-    var opData = operation.viewBodyAs(OperationBody.class);
+  private void checkOperation(OperationNode operation, ValidationIssueCollector issueCollector) {
+    operation.assertType(OperationNode.TYPE);
 
     var ipfSignature = operation.viewAnnotationAs(
       TensorOpNodes.IPF_SIGNATURE_ANNOTATION_TYPE,
@@ -83,7 +81,7 @@ public class IPFSignatureAgreementConstraint implements LoomEnvironment.Constrai
       validateProjectionAgreement(
         ipfIndex,
         "inputs",
-        opData.getInputs(),
+        operation.getBody().getInputs(),
         ipfSignature.getInputs(),
         issueCollector,
         lazyContexts
@@ -91,14 +89,14 @@ public class IPFSignatureAgreementConstraint implements LoomEnvironment.Constrai
       validateProjectionAgreement(
         ipfIndex,
         "outputs",
-        opData.getOutputs(),
+        operation.getBody().getOutputs(),
         ipfSignature.getOutputs(),
         issueCollector,
         lazyContexts
       );
     }
 
-    for (var appNode : OperationBody.getShards(operation)) {
+    for (var appNode : operation.getApplicationNodes()) {
       if (!appNode.hasAnnotation(TensorOpNodes.IPF_INDEX_ANNOTATION_TYPE)) {
         issueCollector.addIssue(
           ValidationIssue

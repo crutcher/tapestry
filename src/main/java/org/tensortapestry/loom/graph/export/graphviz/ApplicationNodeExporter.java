@@ -13,10 +13,7 @@ import java.util.*;
 import java.util.function.Function;
 import org.tensortapestry.loom.common.json.JsonUtil;
 import org.tensortapestry.loom.graph.LoomNode;
-import org.tensortapestry.loom.graph.dialects.tensorops.ApplicationBody;
-import org.tensortapestry.loom.graph.dialects.tensorops.OperationBody;
-import org.tensortapestry.loom.graph.dialects.tensorops.TensorOpNodes;
-import org.tensortapestry.loom.graph.dialects.tensorops.TensorSelection;
+import org.tensortapestry.loom.graph.dialects.tensorops.*;
 
 public class ApplicationNodeExporter implements GraphVisualizer.NodeTypeExporter {
 
@@ -26,20 +23,19 @@ public class ApplicationNodeExporter implements GraphVisualizer.NodeTypeExporter
     GraphVisualizer.ExportContext context,
     LoomNode appNode
   ) {
-    assert appNode.getType().equals(TensorOpNodes.APPLICATION_NODE_TYPE) : appNode.getType();
+    var application = ApplicationNode.wrap(appNode);
 
     var gvNode = context.standardNodePrefix(appNode);
     var appBody = appNode.viewBodyAs(ApplicationBody.class);
 
-    var opNode = ApplicationBody.getOperation(appNode);
-    var opId = opNode.getId();
-    var opBody = opNode.viewBodyAs(OperationBody.class);
+    var operation = application.getOperationNode();
+    var opId = operation.getId();
 
     {
       MutableNode nodeProxy = Factory.mutNode(gvNode.name());
 
-      var appShards = OperationBody.getShards(opNode);
-      var currentIdx = appShards.indexOf(appNode);
+      var appShards = operation.getApplicationNodes().toList();
+      var currentIdx = appShards.indexOf(application);
 
       if (currentIdx == appShards.size() - 1) {
         MutableNode opProxy = Factory.mutNode(opId.toString());
@@ -56,7 +52,7 @@ public class ApplicationNodeExporter implements GraphVisualizer.NodeTypeExporter
             )
           );
 
-        context.sameRank(appNode.getId(), opNode.getId());
+        context.sameRank(appNode.getId(), operation.getId());
       } else {
         MutableNode nextProxy = Factory.mutNode(appShards.get(currentIdx + 1).getId().toString());
 
@@ -82,7 +78,7 @@ public class ApplicationNodeExporter implements GraphVisualizer.NodeTypeExporter
       .add("penwidth", 2)
       .add("gradientangle", 315)
       .add("margin", "0.08,-0.1")
-      .add(context.colorSchemeForNode(opNode.getId()).fill());
+      .add(context.colorSchemeForNode(operation.getId()).fill());
 
     var table = GH
       .table()
@@ -100,12 +96,12 @@ public class ApplicationNodeExporter implements GraphVisualizer.NodeTypeExporter
         .cellspacing(0)
         .cellpadding(0)
         .bgcolor("white")
-        .add(GH.td().colspan(2).add(GH.bold("\"%s\"".formatted(opBody.getKernel()))));
+        .add(GH.td().colspan(2).add(GH.bold("\"%s\"".formatted(operation.getBody().getKernel()))));
 
-      if (!opBody.getParams().isEmpty()) {
+      if (!operation.getBody().getParams().isEmpty()) {
         descTable.add(
           context.jsonToDataKeyValueTRs(
-            (ObjectNode) JsonUtil.valueToJsonNodeTree(opBody.getParams())
+            (ObjectNode) JsonUtil.valueToJsonNodeTree(operation.getBody().getParams())
           )
         );
       }
@@ -141,13 +137,13 @@ public class ApplicationNodeExporter implements GraphVisualizer.NodeTypeExporter
         .cellpadding(0)
         .bgcolor("white")
         .add(context.renderDataTypeTitle(appNode.getTypeAlias()))
-        .add(context.asDataKeyValueTR("kernel", opBody.getKernel()));
+        .add(context.asDataKeyValueTR("kernel", operation.getBody().getKernel()));
 
-      if (!opBody.getParams().isEmpty()) {
+      if (!operation.getBody().getParams().isEmpty()) {
         descTable.add(
           context.renderDataTypeTitle("params"),
           context.jsonToDataKeyValueTRs(
-            (ObjectNode) JsonUtil.convertValue(opBody.getParams(), JsonNode.class)
+            (ObjectNode) JsonUtil.convertValue(operation.getBody().getParams(), JsonNode.class)
           )
         );
       }

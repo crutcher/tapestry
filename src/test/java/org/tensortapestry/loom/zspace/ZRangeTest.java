@@ -166,8 +166,8 @@ public class ZRangeTest implements ZSpaceTestAssertions {
     }
 
     {
-      HasZTensor start = new ZPoint(4, 5);
-      HasZTensor shape = new ZPoint(2, 3);
+      ZTensorWrapper start = new ZPoint(4, 5);
+      ZTensorWrapper shape = new ZPoint(2, 3);
       var range = ZRange.builder().start(start).shape(shape).build();
       assertThat(range.getNDim()).isEqualTo(2);
       assertThat(range.getSize()).isEqualTo(6);

@@ -13,7 +13,7 @@ import org.tensortapestry.loom.zspace.*;
 @Value
 @Jacksonized
 @Builder
-@JsdType(TensorOpNodes.TENSOR_NODE_TYPE)
+@JsdType(TensorNode.TYPE)
 @ToString(onlyExplicitlyIncluded = true)
 public class TensorBody implements HasDimension, HasToJsonString, HasSize {
 
@@ -37,7 +37,7 @@ public class TensorBody implements HasDimension, HasToJsonString, HasSize {
      * @return this builder.
      */
     @JsonIgnore
-    public TensorBodyBuilder shape(@Nonnull HasZTensor shape) {
+    public TensorBodyBuilder shape(@Nonnull ZTensorWrapper shape) {
       return range(ZRange.newFromShape(shape));
     }
   }

@@ -8,7 +8,7 @@ import lombok.extern.jackson.Jacksonized;
 @Data
 @Jacksonized
 @Builder
-@JsdType(CommonNodes.NOTE_NODE_TYPE)
+@JsdType(NoteNode.TYPE)
 public final class NoteBody {
 
   @Nonnull

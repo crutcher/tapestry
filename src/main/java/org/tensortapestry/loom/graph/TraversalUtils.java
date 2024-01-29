@@ -12,8 +12,7 @@ import org.jgrapht.alg.interfaces.VertexColoringAlgorithm;
 import org.jgrapht.graph.DefaultDirectedGraph;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.DefaultUndirectedGraph;
-import org.tensortapestry.loom.graph.dialects.tensorops.OperationBody;
-import org.tensortapestry.loom.graph.dialects.tensorops.TensorOpNodes;
+import org.tensortapestry.loom.graph.dialects.tensorops.OperationNode;
 
 @UtilityClass
 public class TraversalUtils {
@@ -47,22 +46,21 @@ public class TraversalUtils {
   public Graph<LoomNode, DefaultEdge> buildOpeartionLinkGraph(LoomGraph graph) {
     Graph<LoomNode, DefaultEdge> linkGraph = new DefaultDirectedGraph<>(DefaultEdge.class);
 
-    for (var node : graph.byType(TensorOpNodes.OPERATION_NODE_TYPE)) {
-      linkGraph.addVertex(node);
-      var opData = node.viewBodyAs(OperationBody.class);
+    for (var operation : graph.byType(OperationNode.TYPE, OperationNode::wrap)) {
+      linkGraph.addVertex(operation.unwrap());
 
-      for (var entry : opData.getInputs().entrySet()) {
+      for (var entry : operation.getInputs().entrySet()) {
         for (var tensorSelection : entry.getValue()) {
           var refNode = graph.assertNode(tensorSelection.getTensorId());
           linkGraph.addVertex(refNode);
-          linkGraph.addEdge(refNode, node);
+          linkGraph.addEdge(refNode, operation.unwrap());
         }
       }
-      for (var entry : opData.getOutputs().entrySet()) {
+      for (var entry : operation.getOutputs().entrySet()) {
         for (var tensorSelection : entry.getValue()) {
           var refNode = graph.assertNode(tensorSelection.getTensorId());
           linkGraph.addVertex(refNode);
-          linkGraph.addEdge(node, refNode);
+          linkGraph.addEdge(operation.unwrap(), refNode);
         }
       }
     }
@@ -79,13 +77,12 @@ public class TraversalUtils {
     DefaultUndirectedGraph<UUID, DefaultEdge> coloringGraph = new DefaultUndirectedGraph<>(
       DefaultEdge.class
     );
-    for (var opNode : graph.byType(TensorOpNodes.OPERATION_NODE_TYPE)) {
-      var opId = opNode.getId();
-      var opData = opNode.viewBodyAs(OperationBody.class);
+    for (var operation : graph.byType(OperationNode.TYPE, OperationNode::wrap)) {
+      var opId = operation.getId();
       coloringGraph.addVertex(opId);
 
       List<UUID> tensorIds = new ArrayList<>();
-      for (var entry : opData.getInputs().entrySet()) {
+      for (var entry : operation.getInputs().entrySet()) {
         for (var tensorSelection : entry.getValue()) {
           var tensorId = tensorSelection.getTensorId();
           tensorIds.add(tensorId);
@@ -93,7 +90,7 @@ public class TraversalUtils {
           coloringGraph.addEdge(opId, tensorId);
         }
       }
-      for (var entry : opData.getOutputs().entrySet()) {
+      for (var entry : operation.getOutputs().entrySet()) {
         for (var tensorSelection : entry.getValue()) {
           var tensorId = tensorSelection.getTensorId();
           tensorIds.add(tensorId);
