@@ -13,6 +13,7 @@ import org.tensortapestry.loom.graph.LoomNode;
 import org.tensortapestry.loom.graph.dialects.common.JsdType;
 import org.tensortapestry.loom.zspace.*;
 
+@JsdType(TensorNode.TYPE)
 public final class TensorNode extends AbstractNodeWrapper<TensorNode.Body> {
 
   public static final String TYPE =

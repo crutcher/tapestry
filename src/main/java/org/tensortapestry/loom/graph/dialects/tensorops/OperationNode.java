@@ -16,6 +16,7 @@ import org.tensortapestry.loom.graph.LoomGraph;
 import org.tensortapestry.loom.graph.LoomNode;
 import org.tensortapestry.loom.graph.dialects.common.JsdType;
 
+@JsdType(OperationNode.TYPE)
 public final class OperationNode extends AbstractNodeWrapper<OperationNode.Body> {
 
   public static final String TYPE =
@@ -81,7 +82,7 @@ public final class OperationNode extends AbstractNodeWrapper<OperationNode.Body>
     var id = getId();
     return () ->
       assertGraph()
-        .byType(ApplicationNode.TYPE, ApplicationNode::wrap)
+        .byType(ApplicationNode.class)
         .stream()
         .filter(n -> n.getOperationId().equals(id))
         .iterator();

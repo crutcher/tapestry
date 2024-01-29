@@ -32,7 +32,7 @@ public class OperationReferenceAgreementConstraint implements LoomEnvironment.Co
     ValidationIssueCollector issueCollector
   ) {
     boolean valid = true;
-    for (var application : graph.byType(ApplicationNode.TYPE, ApplicationNode::wrap)) {
+    for (var application : graph.byType(ApplicationNode.class)) {
       var opNode = ValidationUtils.validateNodeReference(
         graph,
         application.getOperationId(),
@@ -49,7 +49,7 @@ public class OperationReferenceAgreementConstraint implements LoomEnvironment.Co
       }
     }
 
-    for (var operation : graph.byType(OperationNode.TYPE, OperationNode::wrap)) {
+    for (var operation : graph.byType(OperationNode.class)) {
       valid &= validateOperationSignatureNode(graph, operation, issueCollector);
     }
 

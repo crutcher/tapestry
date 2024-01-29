@@ -16,6 +16,7 @@ import org.tensortapestry.loom.graph.LoomGraph;
 import org.tensortapestry.loom.graph.LoomNode;
 import org.tensortapestry.loom.graph.dialects.common.JsdType;
 
+@JsdType(ApplicationNode.TYPE)
 public class ApplicationNode extends AbstractNodeWrapper<ApplicationNode.Body> {
 
   public static final String TYPE =

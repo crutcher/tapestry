@@ -46,7 +46,7 @@ public class TraversalUtils {
   public Graph<LoomNode, DefaultEdge> buildOpeartionLinkGraph(LoomGraph graph) {
     Graph<LoomNode, DefaultEdge> linkGraph = new DefaultDirectedGraph<>(DefaultEdge.class);
 
-    for (var operation : graph.byType(OperationNode.TYPE, OperationNode::wrap)) {
+    for (var operation : graph.byType(OperationNode.class)) {
       linkGraph.addVertex(operation.unwrap());
 
       for (var entry : operation.getInputs().entrySet()) {
@@ -77,7 +77,7 @@ public class TraversalUtils {
     DefaultUndirectedGraph<UUID, DefaultEdge> coloringGraph = new DefaultUndirectedGraph<>(
       DefaultEdge.class
     );
-    for (var operation : graph.byType(OperationNode.TYPE, OperationNode::wrap)) {
+    for (var operation : graph.byType(OperationNode.class)) {
       var opId = operation.getId();
       coloringGraph.addVertex(opId);
 

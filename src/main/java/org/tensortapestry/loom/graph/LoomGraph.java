@@ -17,6 +17,8 @@ import javax.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.UtilityClass;
 import org.tensortapestry.loom.common.json.*;
+import org.tensortapestry.loom.common.runtime.ReflectionUtils;
+import org.tensortapestry.loom.graph.dialects.common.JsdType;
 import org.tensortapestry.loom.validation.ValidationIssueCollector;
 
 /** A Loom Graph document. */
@@ -51,6 +53,13 @@ public final class LoomGraph implements HasToJsonString, IterableStreamable<Loom
     }
   }
 
+  public LoomEnvironment assertEnv() {
+    if (env == null) {
+      throw new IllegalStateException("Environment not set");
+    }
+    return env;
+  }
+
   public void validate() {
     assertEnv().validateGraph(this);
   }
@@ -59,23 +68,57 @@ public final class LoomGraph implements HasToJsonString, IterableStreamable<Loom
     assertEnv().validateGraph(this, issueCollector);
   }
 
+  /**
+   * Get an iterator over all nodes in the graph.
+   * @return the iterator.
+   */
   @Override
   @NotNull @Nonnull
   public Iterator<LoomNode> iterator() {
     return nodes.values().iterator();
   }
 
+  /**
+   * Get a stream of all nodes in the graph.
+   * @return the stream.
+   */
   @Override
   @Nonnull
   public Stream<LoomNode> stream() {
     return nodes.values().stream();
   }
 
+  /**
+   * Get all nodes of the given type.
+   * @param type the node type.
+   * @return the nodes.
+   */
   @Nonnull
   public IterableStreamable<LoomNode> byType(String type) {
     return () -> nodes.values().stream().filter(node -> node.getType().equals(type)).iterator();
   }
 
+  /**
+   * Get all nodes of the given type, wrapped in the given wrapper class.
+   * @param wrapperClass the wrapper class; must have a constructor taking a {@link LoomNode} and a {@code @JsdType} annotation.
+   * @return the nodes.
+   * @param <W> the wrapper type.
+   */
+  @Nonnull
+  public <W extends NodeWrapper> IterableStreamable<W> byType(Class<W> wrapperClass) {
+    return byType(
+      JsdType.Util.assertType(wrapperClass),
+      n -> ReflectionUtils.newInstance(wrapperClass, n)
+    );
+  }
+
+  /**
+   * Get all nodes of the given type, wrapped in the given wrapper class.
+   * @param type the node type.
+   * @param wrap a function to wrap the nodes.
+   * @return the nodes.
+   * @param <W> the wrapper type.
+   */
   @Nonnull
   public <W extends NodeWrapper> IterableStreamable<W> byType(
     String type,
@@ -83,13 +126,6 @@ public final class LoomGraph implements HasToJsonString, IterableStreamable<Loom
   ) {
     return () ->
       nodes.values().stream().filter(node -> node.getType().equals(type)).map(wrap).iterator();
-  }
-
-  public LoomEnvironment assertEnv() {
-    if (env == null) {
-      throw new IllegalStateException("Environment not set");
-    }
-    return env;
   }
 
   /**

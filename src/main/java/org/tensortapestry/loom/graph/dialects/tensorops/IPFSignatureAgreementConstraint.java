@@ -28,7 +28,7 @@ public class IPFSignatureAgreementConstraint implements LoomEnvironment.Constrai
     LoomGraph graph,
     ValidationIssueCollector issueCollector
   ) {
-    for (var operation : graph.byType(OperationNode.TYPE, OperationNode::wrap)) {
+    for (var operation : graph.byType(OperationNode.class)) {
       if (operation.hasAnnotation(TensorOpNodes.IPF_SIGNATURE_ANNOTATION_TYPE)) {
         checkOperation(operation, issueCollector);
       }
