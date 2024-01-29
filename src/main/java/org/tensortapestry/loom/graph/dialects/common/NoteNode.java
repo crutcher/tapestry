@@ -12,7 +12,7 @@ import org.tensortapestry.loom.graph.LoomNode;
 public final class NoteNode extends AbstractNodeWrapper<NoteNode.Body> {
 
   public static final String TYPE =
-    "http://tensortapestry.org/schemas/loom/2024-01/node_types.jsd#/$defs/Note";
+    "http://tensortapestry.org/schemas/loom/2024-01/node_types.jsd#/nodes/Note";
 
   public static final class Builder
     extends AbstractNodeWrapperBuilder<NoteNode, Builder, Body, Body.BodyBuilder> {

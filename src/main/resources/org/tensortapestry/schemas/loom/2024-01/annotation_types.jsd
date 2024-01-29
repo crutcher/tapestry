@@ -4,18 +4,18 @@
   "title" : "Loom Core Annotation Type Definitions",
   "type" : "null",
   "description" : "The top-level schema is 'null' to prevent accidental use of the outer schema.",
-  "$defs" : {
+  "annotations" : {
     "IPFSignature" : {
       "$anchor" : "IPFSignature",
       "title" : "IPF Signature",
       "description" : "Describes the IPF Signature of an OperationSignature node.",
-      "$ref" : "data_types.jsd#/$defs/IPFSignature"
+      "$ref" : "data_types.jsd#/data_types/IPFSignature"
     },
     "IPFIndex" : {
       "$anchor" : "IPFIndex",
       "title" : "IPF Index",
       "description" : "Describes the IPF Index of OperationSignature and Application nodes.",
-      "$ref" : "data_types.jsd#/$defs/ZRange"
+      "$ref" : "data_types.jsd#/data_types/ZRange"
     }
   }
 }

@@ -61,7 +61,7 @@ public class JsonSchemaFactoryManagerTest extends BaseTestClass {
     };
 
     check.accept(
-      "http://tensortapestry.org/schemas/loom/2024-01/node_types.jsd#/$defs/Tensor",
+      "http://tensortapestry.org/schemas/loom/2024-01/node_types.jsd#/nodes/Tensor",
       TensorNode.Body
         .builder()
         .dtype("float32")
@@ -70,21 +70,21 @@ public class JsonSchemaFactoryManagerTest extends BaseTestClass {
     );
 
     check.accept(
-      "http://tensortapestry.org/schemas/loom/2024-01/data_types.jsd#/$defs/ZRange",
+      "http://tensortapestry.org/schemas/loom/2024-01/data_types.jsd#/data_types/ZRange",
       ZRange.newFromShape(1, 2, 3)
     );
 
     check.accept(
-      "http://tensortapestry.org/schemas/loom/2024-01/annotation_types.jsd#/$defs/IPFIndex",
+      "http://tensortapestry.org/schemas/loom/2024-01/annotation_types.jsd#/annotations/IPFIndex",
       ZRange.newFromShape(1, 2, 3)
     );
 
     check.accept(
-      "http://tensortapestry.org/schemas/loom/2024-01/data_types.jsd#/$defs/ZTensor",
+      "http://tensortapestry.org/schemas/loom/2024-01/data_types.jsd#/data_types/ZTensor",
       ZTensor.newScalar(9)
     );
     check.accept(
-      "http://tensortapestry.org/schemas/loom/2024-01/data_types.jsd#/$defs/ZTensor",
+      "http://tensortapestry.org/schemas/loom/2024-01/data_types.jsd#/data_types/ZTensor",
       ZTensor.newZeros(2, 3, 4)
     );
   }

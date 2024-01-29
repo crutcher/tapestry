@@ -9,7 +9,7 @@ public class TensorOpNodes {
   // See: https://github.com/networknt/json-schema-validator/pull/930
 
   public final String IPF_SIGNATURE_ANNOTATION_TYPE =
-    "http://tensortapestry.org/schemas/loom/2024-01/annotation_types.jsd#/$defs/IPFSignature";
+    "http://tensortapestry.org/schemas/loom/2024-01/annotation_types.jsd#/annotations/IPFSignature";
   public final String IPF_INDEX_ANNOTATION_TYPE =
-    "http://tensortapestry.org/schemas/loom/2024-01/annotation_types.jsd#/$defs/IPFIndex";
+    "http://tensortapestry.org/schemas/loom/2024-01/annotation_types.jsd#/annotations/IPFIndex";
 }

@@ -4,7 +4,7 @@
   "title" : "Loom Core Data Types Definitions",
   "type" : "null",
   "description" : "The top-level schema is 'null' to prevent accidental use of the outer schema.",
-  "$defs" : {
+  "data_types" : {
     "NodeReference" : {
       "$anchor" : "NodeReference",
       "title" : "NodeReference",
@@ -20,17 +20,17 @@
       "type" : "object",
       "properties" : {
         "inputs" : {
-          "$ref" : "#/$defs/IPFMap"
+          "$ref" : "#/data_types/IPFMap"
         },
         "outputs" : {
-          "$ref" : "#/$defs/IPFMap"
+          "$ref" : "#/data_types/IPFMap"
         }
       },
       "required" : [ "inputs", "outputs" ],
       "additionalProperties" : false
     },
     "IPFMap" : {
-      "$anchor" : "/$defs/IPFMap",
+      "$anchor" : "/data_types/IPFMap",
       "title" : "IPF Map",
       "description" : "A map from tensor IDs to a list of index projection functions.",
       "type" : "object",
@@ -38,7 +38,7 @@
         "^[a-zA-Z_][a-zA-Z0-9_]*$" : {
           "type" : "array",
           "items" : {
-            "$ref" : "#/$defs/ZRangeProjectionMap"
+            "$ref" : "#/data_types/ZRangeProjectionMap"
           }
         }
       }
@@ -50,10 +50,10 @@
       "type" : "object",
       "properties" : {
         "affineMap" : {
-          "$ref" : "#/$defs/ZAffineMap"
+          "$ref" : "#/data_types/ZAffineMap"
         },
         "shape" : {
-          "$ref" : "#/$defs/ZVector"
+          "$ref" : "#/data_types/ZVector"
         }
       },
       "required" : [ "affineMap", "shape" ],
@@ -66,11 +66,11 @@
       "type" : "object",
       "properties" : {
         "start" : {
-          "$ref" : "#/$defs/ZPoint",
+          "$ref" : "#/data_types/ZPoint",
           "description" : "The inclusive start point of the range."
         },
         "end" : {
-          "$ref" : "#/$defs/ZPoint",
+          "$ref" : "#/data_types/ZPoint",
           "description" : "The exclusive end point of the range."
         }
       },
@@ -99,7 +99,7 @@
       "$anchor" : "ZVector",
       "title" : "ZVector",
       "description" : "A vector in ZSpace, represented as an array of integers.",
-      "$ref" : "#/$defs/ZPoint"
+      "$ref" : "#/data_types/ZPoint"
     },
     "ZAffineMap" : {
       "$anchor" : "ZAffineMap",
@@ -108,10 +108,10 @@
       "type" : "object",
       "properties" : {
         "projection" : {
-          "$ref" : "#/$defs/ZMatrix"
+          "$ref" : "#/data_types/ZMatrix"
         },
         "offset" : {
-          "$ref" : "#/$defs/ZVector"
+          "$ref" : "#/data_types/ZVector"
         }
       },
       "required" : [ "projection", "offset" ],
@@ -139,7 +139,7 @@
       }, {
         "type" : "array",
         "items" : {
-          "$ref" : "#/$defs/ZTensor"
+          "$ref" : "#/data_types/ZTensor"
         }
       } ]
     },
@@ -153,7 +153,7 @@
           "description" : "A named list of tensor selections.",
           "type" : "array",
           "items" : {
-            "$ref" : "#/$defs/TensorSelection"
+            "$ref" : "#/data_types/TensorSelection"
           },
           "minItems" : 1
         }
@@ -168,11 +168,11 @@
       "properties" : {
         "tensorId" : {
           "description" : "The ID of the tensor to select.",
-          "$ref" : "#/$defs/NodeReference"
+          "$ref" : "#/data_types/NodeReference"
         },
         "range" : {
           "description" : "The range of the tensor to select, must be within the tensor's range.",
-          "$ref" : "#/$defs/ZRange"
+          "$ref" : "#/data_types/ZRange"
         }
       },
       "required" : [ "tensorId", "range" ],

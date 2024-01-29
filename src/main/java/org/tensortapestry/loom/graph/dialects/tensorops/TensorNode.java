@@ -17,7 +17,7 @@ import org.tensortapestry.loom.zspace.*;
 public final class TensorNode extends AbstractNodeWrapper<TensorNode.Body> {
 
   public static final String TYPE =
-    "http://tensortapestry.org/schemas/loom/2024-01/node_types.jsd#/$defs/Tensor";
+    "http://tensortapestry.org/schemas/loom/2024-01/node_types.jsd#/nodes/Tensor";
 
   public static final class Builder
     extends AbstractNodeWrapperBuilder<TensorNode, Builder, Body, Body.BodyBuilder> {

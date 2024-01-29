@@ -4,7 +4,7 @@
   "title" : "Loom Core Node Type Definitions",
   "type" : "null",
   "description" : "The top-level schema is 'null' to prevent accidental use of the outer schema.",
-  "$defs" : {
+  "nodes" : {
     "Note" : {
       "$anchor" : "Note",
       "title" : "Note",
@@ -29,7 +29,7 @@
           "description" : "The data type of the tensor; defined by the environment."
         },
         "range" : {
-          "$ref" : "data_types.jsd#/$defs/ZRange",
+          "$ref" : "data_types.jsd#/data_types/ZRange",
           "description" : "The logical range of the tensor."
         }
       },
@@ -59,11 +59,11 @@
         },
         "inputs" : {
           "description" : "The input tensors to the operation; defined by the environment.",
-          "$ref" : "data_types.jsd#/$defs/TensorSelectionMap"
+          "$ref" : "data_types.jsd#/data_types/TensorSelectionMap"
         },
         "outputs" : {
           "description" : "The output tensors to the operation; defined by the environment.",
-          "$ref" : "data_types.jsd#/$defs/TensorSelectionMap"
+          "$ref" : "data_types.jsd#/data_types/TensorSelectionMap"
         }
       },
       "required" : [ "kernel" ],
@@ -76,15 +76,15 @@
       "properties" : {
         "operationId" : {
           "description" : "The ID of the operation to apply.",
-          "$ref" : "data_types.jsd#/$defs/NodeReference"
+          "$ref" : "data_types.jsd#/data_types/NodeReference"
         },
         "inputs" : {
           "description" : "The input tensors to the application; defined by the environment.",
-          "$ref" : "data_types.jsd#/$defs/TensorSelectionMap"
+          "$ref" : "data_types.jsd#/data_types/TensorSelectionMap"
         },
         "outputs" : {
           "description" : "The output tensors to the application; defined by the environment.",
-          "$ref" : "data_types.jsd#/$defs/TensorSelectionMap"
+          "$ref" : "data_types.jsd#/data_types/TensorSelectionMap"
         }
       },
       "required" : [ "operationId" ],

@@ -20,7 +20,7 @@ import org.tensortapestry.loom.graph.dialects.common.JsdType;
 public final class OperationNode extends AbstractNodeWrapper<OperationNode.Body> {
 
   public static final String TYPE =
-    "http://tensortapestry.org/schemas/loom/2024-01/node_types.jsd#/$defs/Operation";
+    "http://tensortapestry.org/schemas/loom/2024-01/node_types.jsd#/nodes/Operation";
 
   public static final class Builder
     extends AbstractNodeWrapperBuilder<OperationNode, Builder, Body, Body.BodyBuilder> {
