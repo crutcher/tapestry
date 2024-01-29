@@ -10,7 +10,7 @@ public class OperationNodeExporter implements GraphVisualizer.NodeTypeExporter {
   public void exportNode(
     GraphVisualizer visualizer,
     GraphVisualizer.ExportContext context,
-    LoomNode<?, ?> loomNode
+    LoomNode loomNode
   ) {
     var gvNode = context.standardNodePrefix(loomNode);
     context.maybeRenderAnnotations(loomNode);
@@ -30,7 +30,7 @@ public class OperationNodeExporter implements GraphVisualizer.NodeTypeExporter {
           .border(0)
           .cellborder(0)
           .cellspacing(0)
-          .add(context.renderDataTable(loomNode.getTypeAlias(), loomNode.getBodyAsJsonNode()))
+          .add(context.renderDataTable(loomNode.getTypeAlias(), loomNode.viewBodyAsJsonNode()))
       )
     );
   }

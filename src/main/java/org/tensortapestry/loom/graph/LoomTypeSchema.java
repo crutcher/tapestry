@@ -74,7 +74,7 @@ public class LoomTypeSchema {
     }
 
     @Nonnull
-    public List<LoomNode<?, ?>> collectFromGraph(@Nonnull LoomGraph graph, @Nonnull Object data) {
+    public List<LoomNode> collectFromGraph(@Nonnull LoomGraph graph, @Nonnull Object data) {
       String source;
       if (data instanceof String json) {
         source = json;
@@ -82,7 +82,7 @@ public class LoomTypeSchema {
         source = JsonUtil.toJson(data);
       }
 
-      List<LoomNode<?, ?>> nodes = new ArrayList<>();
+      List<LoomNode> nodes = new ArrayList<>();
       for (var pair : collectFromJson(source)) {
         nodes.add(graph.getNode(pair.getRight()));
       }
@@ -96,7 +96,7 @@ public class LoomTypeSchema {
   @Nullable String jsonSchema;
 
   @Nonnull
-  public List<LoomNode<?, ?>> collectFromGraph(
+  public List<LoomNode> collectFromGraph(
     @Nonnull LoomGraph graph,
     @Nonnull String reference,
     @Nonnull Object data
@@ -125,7 +125,12 @@ public class LoomTypeSchema {
 
     Supplier<List<ValidationIssue.Context>> dataContexts = () ->
       List.of(
-        ValidationIssue.Context.builder().name("Body").jsonpath(prefix).dataFromJson(json).build()
+        ValidationIssue.Context
+          .builder()
+          .name("NoteBody")
+          .jsonpath(prefix)
+          .dataFromJson(json)
+          .build()
       );
 
     if (jsonSchema != null) {
@@ -135,7 +140,7 @@ public class LoomTypeSchema {
         .issueScan()
         .issueCollector(collector)
         .type(LoomConstants.Errors.NODE_SCHEMA_ERROR)
-        .summaryPrefix("Body ")
+        .summaryPrefix("NoteBody ")
         .jsonPathPrefix(prefix)
         .schema(schema)
         .data(JsonUtil.parseToJsonNodeTree(json))
@@ -143,7 +148,7 @@ public class LoomTypeSchema {
           List.of(
             ValidationIssue.Context
               .builder()
-              .name("Body")
+              .name("NoteBody")
               .jsonpath(prefix)
               .dataFromJson(json)
               .build()

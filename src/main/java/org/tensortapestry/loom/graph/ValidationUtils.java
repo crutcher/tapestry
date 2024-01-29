@@ -3,18 +3,19 @@ package org.tensortapestry.loom.graph;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Supplier;
+import lombok.experimental.UtilityClass;
 import org.tensortapestry.loom.common.lazy.LazyString;
 import org.tensortapestry.loom.common.lazy.Thunk;
 import org.tensortapestry.loom.validation.ValidationIssue;
 import org.tensortapestry.loom.validation.ValidationIssueCollector;
 
+@UtilityClass
 public class ValidationUtils {
 
-  public static <T> T validateNodeReference(
+  public static LoomNode validateNodeReference(
     LoomGraph graph,
     UUID nodeId,
     String nodeType,
-    Class<T> nodeClass,
     LazyString relativeFieldPath,
     ValidationIssueCollector issueCollector,
     Supplier<List<ValidationIssue.Context>> contextsSupplier
@@ -58,20 +59,6 @@ public class ValidationUtils {
       );
       return null;
     }
-    if (!nodeClass.isInstance(node)) {
-      issueCollector.addIssue(
-        ValidationIssue
-          .builder()
-          .type(LoomConstants.Errors.NODE_REFERENCE_ERROR)
-          .param("expectedClass", nodeClass.getSimpleName())
-          .param("actualClass", node.getClass().getSimpleName())
-          .summary("Referenced node has the wrong class")
-          .context(context)
-          .withContexts(contextsSupplier)
-          .build()
-      );
-      return null;
-    }
-    return nodeClass.cast(node);
+    return node;
   }
 }

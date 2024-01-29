@@ -15,22 +15,29 @@ import org.tensortapestry.loom.zspace.ZRangeProjectionMap;
 public class IPFSignatureAgreementConstraintTest extends BaseTestClass {
 
   @Test
+  @SuppressWarnings("ConstantConditions")
   public void test_valid_short() {
     var env = CommonEnvironments.expressionEnvironment();
     env.addConstraint(new IPFSignatureAgreementConstraint());
 
     var graph = env.newGraph();
 
-    var tensorA = TensorNode
-      .withBody(b ->
-        b
-          .dtype("int32")
-          .range(ZRange.builder().start(ZPoint.of(-10, 4)).shape(ZPoint.of(3, 4)).build())
-      )
-      .label("A")
-      .addTo(graph);
+    var tensorA = TensorOpNodes.TensorWrapper.wrap(
+      TensorOpNodes
+        .tensorBuilder(
+          graph,
+          b ->
+            b
+              .dtype("int32")
+              .range(ZRange.builder().start(ZPoint.of(-10, 4)).shape(ZPoint.of(3, 4)).build())
+        )
+        .label("A")
+        .build()
+    );
 
-    var tensorB = TensorNode.withBody(b -> b.dtype("int32").shape(4, 5)).label("B").addTo(graph);
+    var tensorB = TensorOpNodes.TensorWrapper.wrap(
+      TensorOpNodes.tensorBuilder(graph, b -> b.dtype("int32").shape(4, 5)).label("B").build()
+    );
 
     var op = OperationUtils.applyRelativeSignature(
       graph,
@@ -74,22 +81,24 @@ public class IPFSignatureAgreementConstraintTest extends BaseTestClass {
       null
     );
 
-    assertThat(graph.nodeScan().nodeClass(OperationNode.class).asStream().count()).isEqualTo(1);
+    assertThat(graph.byType(TensorOpNodes.OPERATION_NODE_TYPE).stream().count()).isEqualTo(1);
 
-    TensorNode tensorC = graph.assertNode(
-      op.getOutputs().get("z").getFirst().getTensorId(),
-      TensorOpNodes.TENSOR_NODE_TYPE,
-      TensorNode.class
+    var tensorC = TensorOpNodes.TensorWrapper.wrap(
+      graph.assertNode(
+        op.viewBodyAs(OperationBody.class).getOutputs().get("z").getFirst().getTensorId(),
+        TensorOpNodes.TENSOR_NODE_TYPE
+      )
     );
 
     assertThat(tensorC.getDtype()).isEqualTo("int32");
     assertThat(tensorC.getRange()).isEqualTo(ZRange.newFromShape(3, 5));
     assertThat(tensorC.getLabel()).isEqualTo("matmul/z[0]");
 
-    var matmulResult = graph.assertNode(
-      op.getOutputs().get("z").getFirst().getTensorId(),
-      TensorOpNodes.TENSOR_NODE_TYPE,
-      TensorNode.class
+    var matmulResult = TensorOpNodes.TensorWrapper.wrap(
+      graph.assertNode(
+        op.viewBodyAs(OperationBody.class).getOutputs().get("z").getFirst().getTensorId(),
+        TensorOpNodes.TENSOR_NODE_TYPE
+      )
     );
 
     OperationUtils.applyRelativeSignature(

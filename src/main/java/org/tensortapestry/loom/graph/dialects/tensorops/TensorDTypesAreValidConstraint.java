@@ -7,6 +7,7 @@ import lombok.Singular;
 import org.tensortapestry.loom.graph.LoomConstants;
 import org.tensortapestry.loom.graph.LoomEnvironment;
 import org.tensortapestry.loom.graph.LoomGraph;
+import org.tensortapestry.loom.graph.LoomNode;
 import org.tensortapestry.loom.validation.ValidationIssue;
 import org.tensortapestry.loom.validation.ValidationIssueCollector;
 
@@ -19,7 +20,7 @@ public class TensorDTypesAreValidConstraint implements LoomEnvironment.Constrain
 
   @Override
   public void checkRequirements(LoomEnvironment env) {
-    env.assertClassForType(TensorOpNodes.TENSOR_NODE_TYPE, TensorNode.class);
+    env.supportsNodeType(TensorOpNodes.TENSOR_NODE_TYPE);
   }
 
   @Override
@@ -28,17 +29,16 @@ public class TensorDTypesAreValidConstraint implements LoomEnvironment.Constrain
     LoomGraph graph,
     ValidationIssueCollector issueCollector
   ) {
-    for (var tensorNode : graph
-      .nodeScan()
-      .type(TensorOpNodes.TENSOR_NODE_TYPE)
-      .nodeClass(TensorNode.class)
-      .asList()) {
-      checkTensor(tensorNode, issueCollector);
+    for (var node : graph) {
+      if (node.getType().equals(TensorOpNodes.TENSOR_NODE_TYPE)) {
+        checkTensor(node, issueCollector);
+      }
     }
   }
 
-  public void checkTensor(TensorNode tensorNode, ValidationIssueCollector issueCollector) {
-    var dtype = tensorNode.getDtype();
+  public void checkTensor(LoomNode tensor, ValidationIssueCollector issueCollector) {
+    var tensorBody = tensor.viewBodyAs(TensorBody.class);
+    var dtype = tensorBody.getDtype();
     if (!validDTypes.contains(dtype)) {
       issueCollector.addIssue(
         ValidationIssue
@@ -49,8 +49,8 @@ public class TensorDTypesAreValidConstraint implements LoomEnvironment.Constrain
             ValidationIssue.Context
               .builder()
               .name("Tensor")
-              .jsonpath(tensorNode.getJsonPath())
-              .dataFromJson(tensorNode.toJsonString())
+              .jsonpath(tensor.getJsonPath())
+              .dataFromJson(tensor.toJsonString())
           )
           .summary("Tensor dtype (%s) not a recognized type", dtype)
           .build()

@@ -7,6 +7,7 @@ import org.tensortapestry.loom.common.json.JsonPathUtils;
 import org.tensortapestry.loom.graph.LoomConstants;
 import org.tensortapestry.loom.graph.LoomEnvironment;
 import org.tensortapestry.loom.graph.LoomGraph;
+import org.tensortapestry.loom.graph.LoomNode;
 import org.tensortapestry.loom.validation.ValidationIssue;
 import org.tensortapestry.loom.validation.ValidationIssueCollector;
 import org.tensortapestry.loom.zspace.ZRange;
@@ -16,9 +17,9 @@ public class IPFSignatureAgreementConstraint implements LoomEnvironment.Constrai
 
   @Override
   public void checkRequirements(LoomEnvironment env) {
-    env.assertClassForType(TensorOpNodes.TENSOR_NODE_TYPE, TensorNode.class);
-    env.assertClassForType(TensorOpNodes.OPERATION_NODE_TYPE, OperationNode.class);
-    env.assertClassForType(TensorOpNodes.APPLICATION_NODE_TYPE, ApplicationNode.class);
+    env.assertSupportsNodeType(TensorOpNodes.TENSOR_NODE_TYPE);
+    env.assertSupportsNodeType(TensorOpNodes.OPERATION_NODE_TYPE);
+    env.assertSupportsNodeType(TensorOpNodes.APPLICATION_NODE_TYPE);
     env.assertConstraint(OperationReferenceAgreementConstraint.class);
   }
 
@@ -28,24 +29,18 @@ public class IPFSignatureAgreementConstraint implements LoomEnvironment.Constrai
     LoomGraph graph,
     ValidationIssueCollector issueCollector
   ) {
-    for (
-      var it = graph
-        .nodeScan()
-        .type(TensorOpNodes.OPERATION_NODE_TYPE)
-        .nodeClass(OperationNode.class)
-        .asStream()
-        .iterator();
-      it.hasNext();
-    ) {
-      var opSig = it.next();
-      if (opSig.hasAnnotation(TensorOpNodes.IPF_SIGNATURE_ANNOTATION_TYPE)) {
-        checkOperation(opSig, issueCollector);
+    for (var operation : graph.byType(TensorOpNodes.OPERATION_NODE_TYPE)) {
+      if (operation.hasAnnotation(TensorOpNodes.IPF_SIGNATURE_ANNOTATION_TYPE)) {
+        checkOperation(operation, issueCollector);
       }
     }
   }
 
-  private void checkOperation(OperationNode opSig, ValidationIssueCollector issueCollector) {
-    var ipfSignature = opSig.assertAnnotation(
+  private void checkOperation(LoomNode operation, ValidationIssueCollector issueCollector) {
+    operation.assertType(TensorOpNodes.OPERATION_NODE_TYPE);
+    var opData = operation.viewBodyAs(OperationBody.class);
+
+    var ipfSignature = operation.viewAnnotationAs(
       TensorOpNodes.IPF_SIGNATURE_ANNOTATION_TYPE,
       IPFSignature.class
     );
@@ -55,36 +50,40 @@ public class IPFSignatureAgreementConstraint implements LoomEnvironment.Constrai
         ValidationIssue.Context
           .builder()
           .name("Operation Node")
-          .jsonpath(JsonPathUtils.concatJsonPath(opSig.getJsonPath(), "body"))
-          .data(opSig.getId())
+          .jsonpath(JsonPathUtils.concatJsonPath(operation.getJsonPath(), "body"))
+          .data(operation.getId())
           .build(),
         ValidationIssue.Context
           .builder()
           .name("Operation Signature")
-          .jsonpath(opSig.getJsonPath())
-          .data(opSig.getId())
+          .jsonpath(operation.getJsonPath())
+          .data(operation.getId())
           .build()
       );
 
     {
-      var ipfIndex = opSig.getAnnotation(TensorOpNodes.IPF_INDEX_ANNOTATION_TYPE, ZRange.class);
-      if (ipfIndex == null) {
+      if (!operation.hasAnnotation(TensorOpNodes.IPF_INDEX_ANNOTATION_TYPE)) {
         issueCollector.addIssue(
           ValidationIssue
             .builder()
             .type(LoomConstants.Errors.NODE_VALIDATION_ERROR)
-            .param("opSigId", opSig.getId())
+            .param("opSigId", operation.getId())
             .summary("Operation signature does not have an IPF index")
-            .context(opSig.asValidationContext("Operation Signature"))
+            .context(operation.asValidationContext("Operation Signature"))
             .withContexts(lazyContexts)
         );
         return;
       }
 
+      var ipfIndex = operation.viewAnnotationAs(
+        TensorOpNodes.IPF_INDEX_ANNOTATION_TYPE,
+        ZRange.class
+      );
+
       validateProjectionAgreement(
         ipfIndex,
         "inputs",
-        opSig.getInputs(),
+        opData.getInputs(),
         ipfSignature.getInputs(),
         issueCollector,
         lazyContexts
@@ -92,33 +91,37 @@ public class IPFSignatureAgreementConstraint implements LoomEnvironment.Constrai
       validateProjectionAgreement(
         ipfIndex,
         "outputs",
-        opSig.getOutputs(),
+        opData.getOutputs(),
         ipfSignature.getOutputs(),
         issueCollector,
         lazyContexts
       );
     }
 
-    for (var appNode : opSig.getApplicationNodes()) {
-      var ipfIndex = appNode.getAnnotation(TensorOpNodes.IPF_INDEX_ANNOTATION_TYPE, ZRange.class);
-      if (ipfIndex == null) {
+    for (var appNode : OperationBody.getShards(operation)) {
+      if (!appNode.hasAnnotation(TensorOpNodes.IPF_INDEX_ANNOTATION_TYPE)) {
         issueCollector.addIssue(
           ValidationIssue
             .builder()
             .type(LoomConstants.Errors.NODE_VALIDATION_ERROR)
             .param("appNodeId", appNode.getId())
-            .param("opSigId", opSig.getId())
+            .param("opSigId", operation.getId())
             .summary("Application node does not have an IPF index")
             .context(appNode.asValidationContext("Application Node"))
             .withContexts(lazyContexts)
         );
         continue;
       }
+      var appData = appNode.viewBodyAs(ApplicationBody.class);
+      var ipfIndex = appNode.viewAnnotationAs(
+        TensorOpNodes.IPF_INDEX_ANNOTATION_TYPE,
+        ZRange.class
+      );
 
       validateProjectionAgreement(
         ipfIndex,
         "inputs",
-        appNode.getInputs(),
+        appData.getInputs(),
         ipfSignature.getInputs(),
         issueCollector,
         lazyContexts
@@ -126,7 +129,7 @@ public class IPFSignatureAgreementConstraint implements LoomEnvironment.Constrai
       validateProjectionAgreement(
         ipfIndex,
         "outputs",
-        appNode.getOutputs(),
+        appData.getOutputs(),
         ipfSignature.getOutputs(),
         issueCollector,
         lazyContexts

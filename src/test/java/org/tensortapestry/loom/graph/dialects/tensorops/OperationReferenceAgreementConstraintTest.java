@@ -10,7 +10,7 @@ import org.junit.Test;
 import org.tensortapestry.loom.graph.CommonEnvironments;
 import org.tensortapestry.loom.graph.LoomConstants;
 import org.tensortapestry.loom.graph.LoomGraph;
-import org.tensortapestry.loom.graph.dialects.common.NoteNode;
+import org.tensortapestry.loom.graph.dialects.common.CommonNodes;
 import org.tensortapestry.loom.testing.BaseTestClass;
 import org.tensortapestry.loom.validation.ListValidationIssueCollector;
 import org.tensortapestry.loom.validation.ValidationIssue;
@@ -35,89 +35,116 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
   public void test_valid() {
     var graph = createGraph();
 
-    var tensorA = TensorNode
-      .withBody(b -> {
-        b.dtype("int32");
-        b.shape(new ZPoint(2, 3));
-      })
+    var tensorA = TensorOpNodes
+      .tensorBuilder(graph, b -> b.dtype("int32").shape(new ZPoint(2, 3)))
       .label("A")
-      .addTo(graph);
+      .build();
 
-    var sourceOp = OperationNode
-      .withBody(b -> {
-        b.kernel("source");
-        b.output("output", List.of(new TensorSelection(tensorA.getId(), tensorA.getRange())));
-      })
-      .addTo(graph);
+    var sourceOp = TensorOpNodes
+      .operationBuilder(
+        graph,
+        b -> {
+          b.kernel("source");
+          b.output(
+            "output",
+            List.of(
+              new TensorSelection(tensorA.getId(), tensorA.viewBodyAs(TensorBody.class).getRange())
+            )
+          );
+        }
+      )
+      .build();
 
-    ApplicationNode
-      .withBody(b -> {
-        b.operationId(sourceOp.getId());
-        b.output(
-          "output",
-          List.of(
-            TensorSelection
-              .builder()
-              .tensorId(tensorA.getId())
-              .range(new ZRange(ZPoint.of(0, 0), ZPoint.of(1, 3)))
-              .build()
-          )
-        );
-      })
-      .addTo(graph);
-    ApplicationNode
-      .withBody(b -> {
-        b.operationId(sourceOp.getId());
-        b.output(
-          "output",
-          List.of(
-            TensorSelection
-              .builder()
-              .tensorId(tensorA.getId())
-              .range(new ZRange(ZPoint.of(1, 0), ZPoint.of(2, 3)))
-              .build()
-          )
-        );
-      })
-      .addTo(graph);
+    TensorOpNodes
+      .applicationBuilder(
+        graph,
+        b -> {
+          b.operationId(sourceOp.getId());
+          b.output(
+            "output",
+            List.of(
+              TensorSelection
+                .builder()
+                .tensorId(tensorA.getId())
+                .range(new ZRange(ZPoint.of(0, 0), ZPoint.of(1, 3)))
+                .build()
+            )
+          );
+        }
+      )
+      .build();
 
-    var sinkOp = OperationNode
-      .withBody(b -> {
-        b.kernel("sink");
-        b.input("input", List.of(new TensorSelection(tensorA.getId(), tensorA.getRange())));
-      })
-      .addTo(graph);
+    TensorOpNodes
+      .applicationBuilder(
+        graph,
+        b -> {
+          b.operationId(sourceOp.getId());
+          b.output(
+            "output",
+            List.of(
+              TensorSelection
+                .builder()
+                .tensorId(tensorA.getId())
+                .range(new ZRange(ZPoint.of(1, 0), ZPoint.of(2, 3)))
+                .build()
+            )
+          );
+        }
+      )
+      .build();
 
-    ApplicationNode
-      .withBody(b -> {
-        b.operationId(sinkOp.getId());
-        b.input(
-          "input",
-          List.of(
-            TensorSelection
-              .builder()
-              .tensorId(tensorA.getId())
-              .range(new ZRange(ZPoint.of(0, 0), ZPoint.of(2, 1)))
-              .build()
-          )
-        );
-      })
-      .addTo(graph);
-    ApplicationNode
-      .withBody(b -> {
-        b.operationId(sinkOp.getId());
-        b.input(
-          "input",
-          List.of(
-            TensorSelection
-              .builder()
-              .tensorId(tensorA.getId())
-              .range(new ZRange(ZPoint.of(0, 1), ZPoint.of(2, 3)))
-              .build()
-          )
-        );
-      })
-      .addTo(graph);
+    var sinkOp = TensorOpNodes
+      .operationBuilder(
+        graph,
+        b -> {
+          b.kernel("sink");
+          b.input(
+            "input",
+            List.of(
+              new TensorSelection(tensorA.getId(), tensorA.viewBodyAs(TensorBody.class).getRange())
+            )
+          );
+        }
+      )
+      .build();
+
+    TensorOpNodes
+      .applicationBuilder(
+        graph,
+        b -> {
+          b.operationId(sinkOp.getId());
+          b.input(
+            "input",
+            List.of(
+              TensorSelection
+                .builder()
+                .tensorId(tensorA.getId())
+                .range(new ZRange(ZPoint.of(0, 0), ZPoint.of(2, 1)))
+                .build()
+            )
+          );
+        }
+      )
+      .build();
+
+    TensorOpNodes
+      .applicationBuilder(
+        graph,
+        b -> {
+          b.operationId(sinkOp.getId());
+          b.input(
+            "input",
+            List.of(
+              TensorSelection
+                .builder()
+                .tensorId(tensorA.getId())
+                .range(new ZRange(ZPoint.of(0, 1), ZPoint.of(2, 3)))
+                .build()
+            )
+          );
+        }
+      )
+      .build();
 
     graph.validate();
   }
@@ -126,24 +153,37 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
   public void test_no_shards() {
     var graph = createGraph();
 
-    var tensorA = TensorNode
-      .withBody(b -> {
-        b.dtype("int32");
-        b.shape(new ZPoint(2, 3));
-      })
+    var tensorA = TensorOpNodes
+      .tensorBuilder(
+        graph,
+        b -> {
+          b.dtype("int32");
+          b.shape(new ZPoint(2, 3));
+        }
+      )
       .label("A")
-      .addTo(graph);
+      .build();
 
-    var op = OperationNode
-      .withBody(b -> {
-        b.kernel("source");
-        b.output("output", List.of(new TensorSelection(tensorA.getId(), tensorA.getRange())));
-      })
-      .addTo(graph);
+    var op = TensorOpNodes
+      .operationBuilder(
+        graph,
+        b -> {
+          b.kernel("source");
+          b.output(
+            "output",
+            List.of(
+              new TensorSelection(tensorA.getId(), tensorA.viewBodyAs(TensorBody.class).getRange())
+            )
+          );
+        }
+      )
+      .build();
 
-    var constraint = graph.getEnv().assertConstraint(OperationReferenceAgreementConstraint.class);
+    var constraint = graph
+      .assertEnv()
+      .assertConstraint(OperationReferenceAgreementConstraint.class);
     var issueCollector = new ListValidationIssueCollector();
-    constraint.validateConstraint(graph.getEnv(), graph, issueCollector);
+    constraint.validateConstraint(graph.assertEnv(), graph, issueCollector);
     assertValidationIssues(
       issueCollector.getIssues(),
       ValidationIssue
@@ -158,55 +198,79 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
   @Test
   public void test_application_operation_disagreement() {
     var graph = createGraph();
-    var tensorA = TensorNode
-      .withBody(b -> {
-        b.dtype("int32");
-        b.shape(new ZPoint(100));
-      })
+    var tensorA = TensorOpNodes
+      .tensorBuilder(
+        graph,
+        b -> {
+          b.dtype("int32");
+          b.shape(new ZPoint(100));
+        }
+      )
       .label("A")
-      .addTo(graph);
+      .build();
 
-    var sourceOp = OperationNode
-      .withBody(b -> {
-        b.kernel("source");
-        b.input("foo", List.of(new TensorSelection(tensorA.getId(), tensorA.getRange())));
-      })
-      .addTo(graph);
-    var app1 = ApplicationNode
-      .withBody(b -> {
-        b.operationId(sourceOp.getId());
-        b.input("foo", List.of());
-      })
+    var sourceOp = TensorOpNodes
+      .operationBuilder(
+        graph,
+        b -> {
+          b.kernel("source");
+          b.input(
+            "foo",
+            List.of(
+              new TensorSelection(tensorA.getId(), tensorA.viewBodyAs(TensorBody.class).getRange())
+            )
+          );
+        }
+      )
+      .build();
+
+    var app1 = TensorOpNodes
+      .applicationBuilder(
+        graph,
+        b -> {
+          b.operationId(sourceOp.getId());
+          b.input("foo", List.of());
+        }
+      )
       .label("Wrong List Size")
-      .addTo(graph);
-    var app2 = ApplicationNode
-      .withBody(b -> {
-        b.operationId(sourceOp.getId());
-        b.input("bar", List.of());
-      })
-      .label("Misaligned Input Keys")
-      .addTo(graph);
-    var app3 = ApplicationNode
-      .withBody(b -> {
-        b.operationId(sourceOp.getId());
-        b.input(
-          "foo",
-          List.of(
-            TensorSelection
-              .builder()
-              .tensorId(tensorA.getId())
-              .range(new ZRange(ZPoint.of(0), ZPoint.of(100)))
-              .build()
-          )
-        );
-        b.output("bar", List.of());
-      })
-      .label("Misaligned Output Keys")
-      .addTo(graph);
+      .build();
 
-    var constraint = graph.getEnv().assertConstraint(OperationReferenceAgreementConstraint.class);
+    var app2 = TensorOpNodes
+      .applicationBuilder(
+        graph,
+        b -> {
+          b.operationId(sourceOp.getId());
+          b.input("bar", List.of());
+        }
+      )
+      .label("Misaligned Input Keys")
+      .build();
+    var app3 = TensorOpNodes
+      .applicationBuilder(
+        graph,
+        b -> {
+          b.operationId(sourceOp.getId());
+          b.input(
+            "foo",
+            List.of(
+              TensorSelection
+                .builder()
+                .tensorId(tensorA.getId())
+                .range(new ZRange(ZPoint.of(0), ZPoint.of(100)))
+                .build()
+            )
+          );
+          b.output("bar", List.of());
+        }
+      )
+      .label("Misaligned Output Keys")
+      .build();
+
+    var constraint = graph
+      .assertEnv()
+      .assertConstraint(OperationReferenceAgreementConstraint.class);
     var issueCollector = new ListValidationIssueCollector();
-    constraint.validateConstraint(graph.getEnv(), graph, issueCollector);
+    constraint.validateConstraint(graph.assertEnv(), graph, issueCollector);
     assertValidationIssues(
       issueCollector.getIssues(),
       ValidationIssue
@@ -240,93 +304,128 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
   public void test_application_shard_range_disagreement() {
     var graph = createGraph();
 
-    var tensorA = TensorNode
-      .withBody(b -> {
-        b.dtype("int32");
-        b.shape(new ZPoint(2, 3));
-      })
+    var tensorA = TensorOpNodes
+      .tensorBuilder(
+        graph,
+        b -> {
+          b.dtype("int32");
+          b.shape(new ZPoint(2, 3));
+        }
+      )
       .label("A")
-      .addTo(graph);
+      .build();
 
-    var sourceOp = OperationNode
-      .withBody(b -> {
-        b.kernel("source");
-        b.output("output", List.of(new TensorSelection(tensorA.getId(), tensorA.getRange())));
-      })
-      .addTo(graph);
+    var sourceOp = TensorOpNodes
+      .operationBuilder(
+        graph,
+        b -> {
+          b.kernel("source");
+          b.output(
+            "output",
+            List.of(
+              new TensorSelection(tensorA.getId(), tensorA.viewBodyAs(TensorBody.class).getRange())
+            )
+          );
+        }
+      )
+      .build();
 
-    var app1 = ApplicationNode
-      .withBody(b -> {
-        b.operationId(sourceOp.getId());
-        b.output(
-          "output",
-          List.of(
-            TensorSelection
-              .builder()
-              .tensorId(tensorA.getId())
-              .range(new ZRange(ZPoint.of(0, 0), ZPoint.of(1, 2)))
-              .build()
-          )
-        );
-      })
-      .addTo(graph);
-    var app2 = ApplicationNode
-      .withBody(b -> {
-        b.operationId(sourceOp.getId());
-        b.output(
-          "output",
-          List.of(
-            TensorSelection
-              .builder()
-              .tensorId(tensorA.getId())
-              .range(new ZRange(ZPoint.of(1, 0), ZPoint.of(2, 2)))
-              .build()
-          )
-        );
-      })
-      .addTo(graph);
+    var app1 = TensorOpNodes
+      .applicationBuilder(
+        graph,
+        b -> {
+          b.operationId(sourceOp.getId());
+          b.output(
+            "output",
+            List.of(
+              TensorSelection
+                .builder()
+                .tensorId(tensorA.getId())
+                .range(new ZRange(ZPoint.of(0, 0), ZPoint.of(1, 2)))
+                .build()
+            )
+          );
+        }
+      )
+      .build();
 
-    var sinkOp = OperationNode
-      .withBody(b -> {
-        b.kernel("sink");
-        b.input("input", List.of(new TensorSelection(tensorA.getId(), tensorA.getRange())));
-      })
-      .addTo(graph);
+    var app2 = TensorOpNodes
+      .applicationBuilder(
+        graph,
+        b -> {
+          b.operationId(sourceOp.getId());
+          b.output(
+            "output",
+            List.of(
+              TensorSelection
+                .builder()
+                .tensorId(tensorA.getId())
+                .range(new ZRange(ZPoint.of(1, 0), ZPoint.of(2, 2)))
+                .build()
+            )
+          );
+        }
+      )
+      .build();
 
-    var app3 = ApplicationNode
-      .withBody(b -> {
-        b.operationId(sinkOp.getId());
-        b.input(
-          "input",
-          List.of(
-            TensorSelection
-              .builder()
-              .tensorId(tensorA.getId())
-              .range(new ZRange(ZPoint.of(0, 0), ZPoint.of(2, 1)))
-              .build()
-          )
-        );
-      })
-      .addTo(graph);
-    var app4 = ApplicationNode
-      .withBody(b -> {
-        b.operationId(sinkOp.getId());
-        b.input(
-          "input",
-          List.of(
-            TensorSelection
-              .builder()
-              .tensorId(tensorA.getId())
-              .range(new ZRange(ZPoint.of(0, 1), ZPoint.of(2, 2)))
-              .build()
-          )
-        );
-      })
-      .addTo(graph);
+    var sinkOp = TensorOpNodes
+      .operationBuilder(
+        graph,
+        b -> {
+          b.kernel("sink");
+          b.input(
+            "input",
+            List.of(
+              new TensorSelection(tensorA.getId(), tensorA.viewBodyAs(TensorBody.class).getRange())
+            )
+          );
+        }
+      )
+      .build();
 
-    var constraint = graph.getEnv().assertConstraint(OperationReferenceAgreementConstraint.class);
+    var app3 = TensorOpNodes
+      .applicationBuilder(
+        graph,
+        b -> {
+          b.operationId(sinkOp.getId());
+          b.input(
+            "input",
+            List.of(
+              TensorSelection
+                .builder()
+                .tensorId(tensorA.getId())
+                .range(new ZRange(ZPoint.of(0, 0), ZPoint.of(2, 1)))
+                .build()
+            )
+          );
+        }
+      )
+      .build();
+
+    var app4 = TensorOpNodes
+      .applicationBuilder(
+        graph,
+        b -> {
+          b.operationId(sinkOp.getId());
+          b.input(
+            "input",
+            List.of(
+              TensorSelection
+                .builder()
+                .tensorId(tensorA.getId())
+                .range(new ZRange(ZPoint.of(0, 1), ZPoint.of(2, 2)))
+                .build()
+            )
+          );
+        }
+      )
+      .build();
+
+    var constraint = graph
+      .assertEnv()
+      .assertConstraint(OperationReferenceAgreementConstraint.class);
     var issueCollector = new ListValidationIssueCollector();
-    constraint.validateConstraint(graph.getEnv(), graph, issueCollector);
+    constraint.validateConstraint(graph.assertEnv(), graph, issueCollector);
     assertValidationIssues(
       issueCollector.getIssues(),
       ValidationIssue
@@ -395,58 +494,84 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
   public void test_application_broken_reference() {
     var graph = createGraph();
 
-    var tensorA = TensorNode
-      .withBody(b -> {
-        b.dtype("int32");
-        b.shape(new ZPoint(2, 3));
-      })
+    var tensorA = TensorOpNodes
+      .tensorBuilder(
+        graph,
+        b -> {
+          b.dtype("int32");
+          b.shape(new ZPoint(2, 3));
+        }
+      )
       .label("A")
-      .addTo(graph);
-    var tensorB = TensorNode
-      .withBody(b -> {
-        b.dtype("int32");
-        b.shape(new ZPoint(2, 3));
-      })
+      .build();
+    var tensorB = TensorOpNodes
+      .tensorBuilder(
+        graph,
+        b -> {
+          b.dtype("int32");
+          b.shape(new ZPoint(2, 3));
+        }
+      )
       .label("A")
-      .addTo(graph);
+      .build();
 
-    var opSig = OperationNode
-      .withBody(b -> {
-        b.kernel("source");
-        b.output("output", List.of(new TensorSelection(tensorA.getId(), tensorA.getRange())));
-      })
-      .addTo(graph);
+    var opSig = TensorOpNodes
+      .operationBuilder(
+        graph,
+        b -> {
+          b.kernel("source");
+          b.output(
+            "output",
+            List.of(
+              new TensorSelection(tensorA.getId(), tensorA.viewBodyAs(TensorBody.class).getRange())
+            )
+          );
+        }
+      )
+      .build();
 
-    var app1 = ApplicationNode
-      .withBody(b -> {
-        b.operationId(opSig.getId());
-        b.output(
-          "output",
-          List.of(
-            TensorSelection.builder().tensorId(tensorB.getId()).range(tensorB.getRange()).build()
-          )
-        );
-      })
-      .addTo(graph);
-    var app2 = ApplicationNode
-      .withBody(b -> {
-        b.operationId(opSig.getId());
-        b.output(
-          "output",
-          List.of(
-            TensorSelection
-              .builder()
-              .tensorId(tensorA.getId())
-              .range(new ZRange(ZPoint.of(0, -3), ZPoint.of(1, 2)))
-              .build()
-          )
-        );
-      })
-      .addTo(graph);
+    var app1 = TensorOpNodes
+      .applicationBuilder(
+        graph,
+        b -> {
+          b.operationId(opSig.getId());
+          b.output(
+            "output",
+            List.of(
+              TensorSelection
+                .builder()
+                .tensorId(tensorB.getId())
+                .range(tensorB.viewBodyAs(TensorBody.class).getRange())
+                .build()
+            )
+          );
+        }
+      )
+      .build();
+    var app2 = TensorOpNodes
+      .applicationBuilder(
+        graph,
+        b -> {
+          b.operationId(opSig.getId());
+          b.output(
+            "output",
+            List.of(
+              TensorSelection
+                .builder()
+                .tensorId(tensorA.getId())
+                .range(new ZRange(ZPoint.of(0, -3), ZPoint.of(1, 2)))
+                .build()
+            )
+          );
+        }
+      )
+      .build();
 
-    var constraint = graph.getEnv().assertConstraint(OperationReferenceAgreementConstraint.class);
+    var constraint = graph
+      .assertEnv()
+      .assertConstraint(OperationReferenceAgreementConstraint.class);
     var issueCollector = new ListValidationIssueCollector();
-    constraint.validateConstraint(graph.getEnv(), graph, issueCollector);
+    constraint.validateConstraint(graph.assertEnv(), graph, issueCollector);
     assertValidationIssues(
       issueCollector.getIssues(),
       ValidationIssue
@@ -457,13 +582,13 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
           context
             .name("Application Tensor Selection")
             .jsonpath(app1.getJsonPath(), "body.outputs.output[0]")
-            .data(app1.getOutputs().get("output").get(0))
+            .data(app1.viewBodyAs(ApplicationBody.class).getOutputs().get("output").get(0))
         )
         .context(context ->
           context
             .name("Operation Tensor Selection")
             .jsonpath(opSig.getJsonPath(), "body.outputs.output[0]")
-            .data(opSig.getOutputs().get("output").get(0))
+            .data(opSig.viewBodyAs(OperationBody.class).getOutputs().get("output").get(0))
         )
         .context(app1.asValidationContext("Application Node"))
         .context(opSig.asValidationContext("Operation Node"))
@@ -473,20 +598,20 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
         .type(NODE_VALIDATION_ERROR)
         .summary(
           "Application Tensor Selection range %s is outside signature range %s",
-          app2.getOutputs().get("output").get(0).getRange(),
-          opSig.getOutputs().get("output").get(0).getRange()
+          app2.viewBodyAs(ApplicationBody.class).getOutputs().get("output").get(0).getRange(),
+          opSig.viewBodyAs(OperationBody.class).getOutputs().get("output").get(0).getRange()
         )
         .context(context ->
           context
             .name("Application Tensor Selection")
             .jsonpath(app2.getJsonPath(), "body.outputs.output[0]")
-            .data(app2.getOutputs().get("output").get(0))
+            .data(app2.viewBodyAs(ApplicationBody.class).getOutputs().get("output").get(0))
         )
         .context(context ->
           context
             .name("Operation Tensor Selection")
             .jsonpath(opSig.getJsonPath(), "body.outputs.output[0]")
-            .data(opSig.getOutputs().get("output").get(0))
+            .data(opSig.viewBodyAs(OperationBody.class).getOutputs().get("output").get(0))
         )
         .context(app2.asValidationContext("Application Node"))
         .context(opSig.asValidationContext("Operation Node"))
@@ -499,11 +624,15 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
     var graph = createGraph();
     var missingOperationId = UUID.randomUUID();
 
-    var app = ApplicationNode.withBody(b -> b.operationId(missingOperationId)).addTo(graph);
+    var app = TensorOpNodes
+      .applicationBuilder(graph, b -> b.operationId(missingOperationId))
+      .build();
 
-    var constraint = graph.getEnv().assertConstraint(OperationReferenceAgreementConstraint.class);
+    var constraint = graph
+      .assertEnv()
+      .assertConstraint(OperationReferenceAgreementConstraint.class);
     var issueCollector = new ListValidationIssueCollector();
-    constraint.validateConstraint(graph.getEnv(), graph, issueCollector);
+    constraint.validateConstraint(graph.assertEnv(), graph, issueCollector);
     assertValidationIssues(
       issueCollector.getIssues(),
       ValidationIssue
@@ -531,43 +660,57 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
     var missingOutputId = UUID.randomUUID();
 
     @SuppressWarnings("unused")
-    var op = OperationNode
-      .withBody(b -> {
-        b.kernel("source");
-        b.input("source", List.of(new TensorSelection(missingInputId, ZRange.newFromShape(1, 2))));
-        b.output("result", List.of(new TensorSelection(missingOutputId, ZRange.newFromShape(10))));
-      })
-      .addTo(graph);
-    ApplicationNode
-      .withBody(b -> {
-        b.operationId(op.getId());
-        b.input(
-          "source",
-          List.of(
-            TensorSelection
-              .builder()
-              .tensorId(missingInputId)
-              .range(ZRange.newFromShape(1, 2))
-              .build()
-          )
-        );
-        b.output(
-          "result",
-          List.of(
-            TensorSelection
-              .builder()
-              .tensorId(missingOutputId)
-              .range(ZRange.newFromShape(10))
-              .build()
-          )
-        );
-      })
-      .addTo(graph);
+    var op = TensorOpNodes
+      .operationBuilder(
+        graph,
+        b -> {
+          b.kernel("source");
+          b.input(
+            "source",
+            List.of(new TensorSelection(missingInputId, ZRange.newFromShape(1, 2)))
+          );
+          b.output(
+            "result",
+            List.of(new TensorSelection(missingOutputId, ZRange.newFromShape(10)))
+          );
+        }
+      )
+      .build();
+    TensorOpNodes
+      .applicationBuilder(
+        graph,
+        b -> {
+          b.operationId(op.getId());
+          b.input(
+            "source",
+            List.of(
+              TensorSelection
+                .builder()
+                .tensorId(missingInputId)
+                .range(ZRange.newFromShape(1, 2))
+                .build()
+            )
+          );
+          b.output(
+            "result",
+            List.of(
+              TensorSelection
+                .builder()
+                .tensorId(missingOutputId)
+                .range(ZRange.newFromShape(10))
+                .build()
+            )
+          );
+        }
+      )
+      .build();
 
-    var constraint = graph.getEnv().assertConstraint(OperationReferenceAgreementConstraint.class);
+    var constraint = graph
+      .assertEnv()
+      .assertConstraint(OperationReferenceAgreementConstraint.class);
 
     var issueCollector = new ListValidationIssueCollector();
-    constraint.validateConstraint(graph.getEnv(), graph, issueCollector);
+    constraint.validateConstraint(graph.assertEnv(), graph, issueCollector);
     assertValidationIssues(
       issueCollector.getIssues(),
       ValidationIssue
@@ -605,49 +748,60 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
   public void test_wrong_reference_type() {
     var graph = createGraph();
 
-    var noteNode = NoteNode.withBody(b -> b.message("hello")).addTo(graph);
+    var noteNode = CommonNodes.noteBuilder(graph, b -> b.message("hello")).build();
 
     @SuppressWarnings("unused")
-    var op = OperationNode
-      .withBody(b -> {
-        b.kernel("source");
-        b.input(
-          "source",
-          List.of(new TensorSelection(noteNode.getId(), ZRange.newFromShape(1, 2)))
-        );
-        b.output("result", List.of(new TensorSelection(noteNode.getId(), ZRange.newFromShape(10))));
-      })
-      .addTo(graph);
-    ApplicationNode
-      .withBody(b -> {
-        b.operationId(op.getId());
-        b.input(
-          "source",
-          List.of(
-            TensorSelection
-              .builder()
-              .tensorId(noteNode.getId())
-              .range(ZRange.newFromShape(1, 2))
-              .build()
-          )
-        );
-        b.output(
-          "result",
-          List.of(
-            TensorSelection
-              .builder()
-              .tensorId(noteNode.getId())
-              .range(ZRange.newFromShape(10))
-              .build()
-          )
-        );
-      })
-      .addTo(graph);
+    var op = TensorOpNodes
+      .operationBuilder(
+        graph,
+        b -> {
+          b.kernel("source");
+          b.input(
+            "source",
+            List.of(new TensorSelection(noteNode.getId(), ZRange.newFromShape(1, 2)))
+          );
+          b.output(
+            "result",
+            List.of(new TensorSelection(noteNode.getId(), ZRange.newFromShape(10)))
+          );
+        }
+      )
+      .build();
+    TensorOpNodes
+      .applicationBuilder(
+        graph,
+        b -> {
+          b.operationId(op.getId());
+          b.input(
+            "source",
+            List.of(
+              TensorSelection
+                .builder()
+                .tensorId(noteNode.getId())
+                .range(ZRange.newFromShape(1, 2))
+                .build()
+            )
+          );
+          b.output(
+            "result",
+            List.of(
+              TensorSelection
+                .builder()
+                .tensorId(noteNode.getId())
+                .range(ZRange.newFromShape(10))
+                .build()
+            )
+          );
+        }
+      )
+      .build();
 
-    var constraint = graph.getEnv().assertConstraint(OperationReferenceAgreementConstraint.class);
+    var constraint = graph
+      .assertEnv()
+      .assertConstraint(OperationReferenceAgreementConstraint.class);
 
     var issueCollector = new ListValidationIssueCollector();
-    constraint.validateConstraint(graph.getEnv(), graph, issueCollector);
+    constraint.validateConstraint(graph.assertEnv(), graph, issueCollector);
 
     assertValidationIssues(
       issueCollector.getIssues(),
@@ -688,46 +842,69 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
   public void test_referenced_tensor_has_wrong_shape() {
     var graph = createGraph();
 
-    var tensorA = TensorNode
-      .withBody(b -> {
-        b.dtype("int32");
-        b.shape(new ZPoint(2, 3));
-      })
+    var tensorA = TensorOpNodes
+      .tensorBuilder(
+        graph,
+        b -> {
+          b.dtype("int32");
+          b.shape(new ZPoint(2, 3));
+        }
+      )
       .label("A")
-      .addTo(graph);
+      .build();
 
-    var sourceOp = OperationNode
-      .withBody(b -> {
-        b.kernel("source");
-        b.output("output", List.of(new TensorSelection(tensorA.getId(), ZRange.newFromShape(200))));
-      })
-      .addTo(graph);
+    var sourceOp = TensorOpNodes
+      .operationBuilder(
+        graph,
+        b -> {
+          b.kernel("source");
+          b.output(
+            "output",
+            List.of(new TensorSelection(tensorA.getId(), ZRange.newFromShape(200)))
+          );
+        }
+      )
+      .build();
 
-    ApplicationNode
-      .withBody(b -> {
-        b.operationId(sourceOp.getId());
-        b.output("output", List.of(new TensorSelection(tensorA.getId(), ZRange.newFromShape(200))));
-      })
-      .addTo(graph);
+    TensorOpNodes
+      .applicationBuilder(
+        graph,
+        b -> {
+          b.operationId(sourceOp.getId());
+          b.output(
+            "output",
+            List.of(new TensorSelection(tensorA.getId(), ZRange.newFromShape(200)))
+          );
+        }
+      )
+      .build();
 
-    var sinkOp = OperationNode
-      .withBody(b -> {
-        b.kernel("sink");
-        b.input("input", List.of(new TensorSelection(tensorA.getId(), ZRange.newFromShape(200))));
-      })
-      .addTo(graph);
+    var sinkOp = TensorOpNodes
+      .operationBuilder(
+        graph,
+        b -> {
+          b.kernel("sink");
+          b.input("input", List.of(new TensorSelection(tensorA.getId(), ZRange.newFromShape(200))));
+        }
+      )
+      .build();
 
-    ApplicationNode
-      .withBody(b -> {
-        b.operationId(sinkOp.getId());
-        b.input("input", List.of(new TensorSelection(tensorA.getId(), ZRange.newFromShape(200))));
-      })
-      .addTo(graph);
+    TensorOpNodes
+      .applicationBuilder(
+        graph,
+        b -> {
+          b.operationId(sinkOp.getId());
+          b.input("input", List.of(new TensorSelection(tensorA.getId(), ZRange.newFromShape(200))));
+        }
+      )
+      .build();
 
-    var constraint = graph.getEnv().assertConstraint(OperationReferenceAgreementConstraint.class);
+    var constraint = graph
+      .assertEnv()
+      .assertConstraint(OperationReferenceAgreementConstraint.class);
 
     var issueCollector = new ListValidationIssueCollector();
-    constraint.validateConstraint(graph.getEnv(), graph, issueCollector);
+    constraint.validateConstraint(graph.assertEnv(), graph, issueCollector);
     assertValidationIssues(
       issueCollector.getIssues(),
       ValidationIssue
@@ -769,51 +946,74 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
   public void test_tensor_selection_is_outside_range() {
     var graph = createGraph();
 
-    var tensorA = TensorNode
-      .withBody(b -> {
-        b.dtype("int32");
-        b.shape(new ZPoint(2, 3));
-      })
+    var tensorA = TensorOpNodes
+      .tensorBuilder(
+        graph,
+        b -> {
+          b.dtype("int32");
+          b.shape(new ZPoint(2, 3));
+        }
+      )
       .label("A")
-      .addTo(graph);
+      .build();
 
-    var sourceOp = OperationNode
-      .withBody(b -> {
-        b.kernel("source");
-        b.output(
-          "output",
-          List.of(new TensorSelection(tensorA.getId(), ZRange.newFromShape(5, 10)))
-        );
-      })
-      .addTo(graph);
+    var sourceOp = TensorOpNodes
+      .operationBuilder(
+        graph,
+        b -> {
+          b.kernel("source");
+          b.output(
+            "output",
+            List.of(new TensorSelection(tensorA.getId(), ZRange.newFromShape(5, 10)))
+          );
+        }
+      )
+      .build();
 
-    ApplicationNode
-      .withBody(b -> {
-        b.operationId(sourceOp.getId());
-        b.output(
-          "output",
-          List.of(new TensorSelection(tensorA.getId(), ZRange.newFromShape(5, 10)))
-        );
-      })
-      .addTo(graph);
+    TensorOpNodes
+      .applicationBuilder(
+        graph,
+        b -> {
+          b.operationId(sourceOp.getId());
+          b.output(
+            "output",
+            List.of(new TensorSelection(tensorA.getId(), ZRange.newFromShape(5, 10)))
+          );
+        }
+      )
+      .build();
 
-    var sinkOp = OperationNode
-      .withBody(b -> {
-        b.kernel("sink");
-        b.input("input", List.of(new TensorSelection(tensorA.getId(), ZRange.newFromShape(2, 8))));
-      })
-      .addTo(graph);
+    var sinkOp = TensorOpNodes
+      .operationBuilder(
+        graph,
+        b -> {
+          b.kernel("sink");
+          b.input(
+            "input",
+            List.of(new TensorSelection(tensorA.getId(), ZRange.newFromShape(2, 8)))
+          );
+        }
+      )
+      .build();
 
-    ApplicationNode
-      .withBody(b -> {
-        b.operationId(sinkOp.getId());
-        b.input("input", List.of(new TensorSelection(tensorA.getId(), ZRange.newFromShape(2, 8))));
-      })
-      .addTo(graph);
+    TensorOpNodes
+      .applicationBuilder(
+        graph,
+        b -> {
+          b.operationId(sinkOp.getId());
+          b.input(
+            "input",
+            List.of(new TensorSelection(tensorA.getId(), ZRange.newFromShape(2, 8)))
+          );
+        }
+      )
+      .build();
 
-    var constraint = graph.getEnv().assertConstraint(OperationReferenceAgreementConstraint.class);
+    var constraint = graph
+      .assertEnv()
+      .assertConstraint(OperationReferenceAgreementConstraint.class);
     var issueCollector = new ListValidationIssueCollector();
-    constraint.validateConstraint(graph.getEnv(), graph, issueCollector);
+    constraint.validateConstraint(graph.assertEnv(), graph, issueCollector);
     assertValidationIssues(
       issueCollector.getIssues(),
       ValidationIssue
@@ -851,75 +1051,131 @@ public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
   public void test_Cycles() {
     var graph = createGraph();
 
-    var tensorA = TensorNode
-      .withBody(b -> {
-        b.dtype("int32");
-        b.shape(new ZPoint(2, 3));
-      })
-      .label("A")
-      .addTo(graph);
+    var tensorA = TensorOpNodes.TensorWrapper.wrap(
+      TensorOpNodes
+        .tensorBuilder(
+          graph,
+          b -> {
+            b.dtype("int32");
+            b.shape(new ZPoint(2, 3));
+          }
+        )
+        .label("A")
+        .build()
+    );
 
-    var tensorB = TensorNode
-      .withBody(b -> {
-        b.dtype("int32");
-        b.shape(new ZPoint(4, 5));
-      })
-      .label("B")
-      .addTo(graph);
+    var tensorB = TensorOpNodes.TensorWrapper.wrap(
+      TensorOpNodes
+        .tensorBuilder(
+          graph,
+          b -> {
+            b.dtype("int32");
+            b.shape(new ZPoint(4, 5));
+          }
+        )
+        .label("B")
+        .build()
+    );
 
-    var tensorC = TensorNode
-      .withBody(b -> {
-        b.dtype("int32");
-        b.shape(new ZPoint(6, 7));
-      })
-      .label("C")
-      .addTo(graph);
+    var tensorC = TensorOpNodes.TensorWrapper.wrap(
+      TensorOpNodes
+        .tensorBuilder(
+          graph,
+          b -> {
+            b.dtype("int32");
+            b.shape(new ZPoint(6, 7));
+          }
+        )
+        .label("C")
+        .build()
+    );
 
-    var opNode = OperationNode
-      .withBody(b -> {
-        b.kernel("increment");
-        b.input(
-          "x",
-          List.of(
-            TensorSelection.builder().tensorId(tensorA.getId()).range(tensorA.getRange()).build(),
-            TensorSelection.builder().tensorId(tensorB.getId()).range(tensorB.getRange()).build()
-          )
-        );
-        b.output(
-          "y",
-          List.of(
-            TensorSelection.builder().tensorId(tensorC.getId()).range(tensorC.getRange()).build(),
-            TensorSelection.builder().tensorId(tensorA.getId()).range(tensorA.getRange()).build()
-          )
-        );
-      })
-      .label("Add")
-      .addTo(graph);
+    var opNode = TensorOpNodes.OperationWrapper.wrap(
+      TensorOpNodes
+        .operationBuilder(
+          graph,
+          b -> {
+            b.kernel("increment");
+            b.input(
+              "x",
+              List.of(
+                TensorSelection
+                  .builder()
+                  .tensorId(tensorA.getId())
+                  .range(tensorA.getRange())
+                  .build(),
+                TensorSelection
+                  .builder()
+                  .tensorId(tensorB.getId())
+                  .range(tensorB.getRange())
+                  .build()
+              )
+            );
+            b.output(
+              "y",
+              List.of(
+                TensorSelection
+                  .builder()
+                  .tensorId(tensorC.getId())
+                  .range(tensorC.getRange())
+                  .build(),
+                TensorSelection
+                  .builder()
+                  .tensorId(tensorA.getId())
+                  .range(tensorA.getRange())
+                  .build()
+              )
+            );
+          }
+        )
+        .label("Add")
+        .build()
+    );
 
-    ApplicationNode
-      .withBody(b ->
-        b
-          .operationId(opNode.getId())
-          .input(
-            "x",
-            List.of(
-              TensorSelection.builder().tensorId(tensorA.getId()).range(tensorA.getRange()).build(),
-              TensorSelection.builder().tensorId(tensorB.getId()).range(tensorB.getRange()).build()
+    TensorOpNodes
+      .applicationBuilder(
+        graph,
+        b ->
+          b
+            .operationId(opNode.getId())
+            .input(
+              "x",
+              List.of(
+                TensorSelection
+                  .builder()
+                  .tensorId(tensorA.getId())
+                  .range(tensorA.getRange())
+                  .build(),
+                TensorSelection
+                  .builder()
+                  .tensorId(tensorB.getId())
+                  .range(tensorB.getRange())
+                  .build()
+              )
             )
-          )
-          .output(
-            "y",
-            List.of(
-              TensorSelection.builder().tensorId(tensorC.getId()).range(tensorC.getRange()).build(),
-              TensorSelection.builder().tensorId(tensorA.getId()).range(tensorA.getRange()).build()
+            .output(
+              "y",
+              List.of(
+                TensorSelection
+                  .builder()
+                  .tensorId(tensorC.getId())
+                  .range(tensorC.getRange())
+                  .build(),
+                TensorSelection
+                  .builder()
+                  .tensorId(tensorA.getId())
+                  .range(tensorA.getRange())
+                  .build()
+              )
             )
-          )
       )
-      .addTo(graph);
+      .build();
 
-    var constraint = graph.getEnv().assertConstraint(OperationReferenceAgreementConstraint.class);
+    var constraint = graph
+      .assertEnv()
+      .assertConstraint(OperationReferenceAgreementConstraint.class);
     var issueCollector = new ListValidationIssueCollector();
-    constraint.validateConstraint(graph.getEnv(), graph, issueCollector);
+    constraint.validateConstraint(graph.assertEnv(), graph, issueCollector);
     assertValidationIssues(
       issueCollector.getIssues(),
       ValidationIssue

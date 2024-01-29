@@ -8,6 +8,7 @@ import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import lombok.Value;
 import lombok.extern.jackson.Jacksonized;
+import org.tensortapestry.loom.graph.NodeWrapper;
 import org.tensortapestry.loom.zspace.ZRange;
 
 /** Describes the sub-range of a tensor that is selected by an application node. */
@@ -26,11 +27,12 @@ public class TensorSelection {
    * @param tensorNode the TensorNode
    * @return the TensorSelection
    */
-  public static TensorSelection from(TensorNode tensorNode) {
+  public static TensorSelection from(NodeWrapper tensorNode) {
+    tensorNode.unwrap().assertType(TensorOpNodes.TENSOR_NODE_TYPE);
     return TensorSelection
       .builder()
       .tensorId(tensorNode.getId())
-      .range(tensorNode.getRange())
+      .range(tensorNode.unwrap().viewBodyAs(TensorBody.class).getRange())
       .build();
   }
 
@@ -44,10 +46,12 @@ public class TensorSelection {
    * @param range the range
    * @return the TensorSelection
    */
-  public static TensorSelection from(TensorNode tensorNode, ZRange range) {
-    if (!tensorNode.getRange().contains(range)) {
+  public static TensorSelection from(NodeWrapper tensorNode, ZRange range) {
+    tensorNode.unwrap().assertType(TensorOpNodes.TENSOR_NODE_TYPE);
+    var tensorRange = tensorNode.unwrap().viewBodyAs(TensorBody.class).getRange();
+    if (!tensorRange.contains(range)) {
       throw new IllegalArgumentException(
-        String.format("TensorNode %s does not contain range %s", tensorNode.getRange(), range)
+        String.format("Tensor range %s does not contain selection range %s", tensorRange, range)
       );
     }
     return TensorSelection.builder().tensorId(tensorNode.getId()).range(range).build();

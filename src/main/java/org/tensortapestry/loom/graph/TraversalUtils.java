@@ -12,7 +12,7 @@ import org.jgrapht.alg.interfaces.VertexColoringAlgorithm;
 import org.jgrapht.graph.DefaultDirectedGraph;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.DefaultUndirectedGraph;
-import org.tensortapestry.loom.graph.dialects.tensorops.OperationNode;
+import org.tensortapestry.loom.graph.dialects.tensorops.OperationBody;
 import org.tensortapestry.loom.graph.dialects.tensorops.TensorOpNodes;
 
 @UtilityClass
@@ -24,10 +24,10 @@ public class TraversalUtils {
    * @param graph the graph to search
    * @return a list of cycles, where each cycle is a list of nodes in the cycle.
    */
-  public List<List<LoomNode<?, ?>>> findOperationSimpleCycles(LoomGraph graph) {
-    Graph<LoomNode<?, ?>, DefaultEdge> linkGraph = buildOpeartionLinkGraph(graph);
+  public List<List<LoomNode>> findOperationSimpleCycles(LoomGraph graph) {
+    Graph<LoomNode, DefaultEdge> linkGraph = buildOpeartionLinkGraph(graph);
 
-    List<List<LoomNode<?, ?>>> simpleCycles = new ArrayList<>();
+    List<List<LoomNode>> simpleCycles = new ArrayList<>();
     new TarjanSimpleCycles<>(linkGraph).findSimpleCycles(simpleCycles::add);
     // Tarjan will place all non-cycle nodes in their own cycles, so filter those out.
     return simpleCycles.stream().filter(cycle -> cycle.size() > 1).toList();
@@ -44,24 +44,21 @@ public class TraversalUtils {
    * @return a JGraphT graph of the data flow.
    */
   @Nonnull
-  public Graph<LoomNode<?, ?>, DefaultEdge> buildOpeartionLinkGraph(LoomGraph graph) {
-    Graph<LoomNode<?, ?>, DefaultEdge> linkGraph = new DefaultDirectedGraph<>(DefaultEdge.class);
+  public Graph<LoomNode, DefaultEdge> buildOpeartionLinkGraph(LoomGraph graph) {
+    Graph<LoomNode, DefaultEdge> linkGraph = new DefaultDirectedGraph<>(DefaultEdge.class);
 
-    for (var node : graph
-      .nodeScan()
-      .type(TensorOpNodes.OPERATION_NODE_TYPE)
-      .nodeClass(OperationNode.class)
-      .asList()) {
+    for (var node : graph.byType(TensorOpNodes.OPERATION_NODE_TYPE)) {
       linkGraph.addVertex(node);
+      var opData = node.viewBodyAs(OperationBody.class);
 
-      for (var entry : node.getInputs().entrySet()) {
+      for (var entry : opData.getInputs().entrySet()) {
         for (var tensorSelection : entry.getValue()) {
           var refNode = graph.assertNode(tensorSelection.getTensorId());
           linkGraph.addVertex(refNode);
           linkGraph.addEdge(refNode, node);
         }
       }
-      for (var entry : node.getOutputs().entrySet()) {
+      for (var entry : opData.getOutputs().entrySet()) {
         for (var tensorSelection : entry.getValue()) {
           var refNode = graph.assertNode(tensorSelection.getTensorId());
           linkGraph.addVertex(refNode);
@@ -82,16 +79,13 @@ public class TraversalUtils {
     DefaultUndirectedGraph<UUID, DefaultEdge> coloringGraph = new DefaultUndirectedGraph<>(
       DefaultEdge.class
     );
-    for (var opNode : graph
-      .nodeScan()
-      .type(TensorOpNodes.OPERATION_NODE_TYPE)
-      .nodeClass(OperationNode.class)
-      .asList()) {
+    for (var opNode : graph.byType(TensorOpNodes.OPERATION_NODE_TYPE)) {
       var opId = opNode.getId();
+      var opData = opNode.viewBodyAs(OperationBody.class);
       coloringGraph.addVertex(opId);
 
       List<UUID> tensorIds = new ArrayList<>();
-      for (var entry : opNode.getInputs().entrySet()) {
+      for (var entry : opData.getInputs().entrySet()) {
         for (var tensorSelection : entry.getValue()) {
           var tensorId = tensorSelection.getTensorId();
           tensorIds.add(tensorId);
@@ -99,7 +93,7 @@ public class TraversalUtils {
           coloringGraph.addEdge(opId, tensorId);
         }
       }
-      for (var entry : opNode.getOutputs().entrySet()) {
+      for (var entry : opData.getOutputs().entrySet()) {
         for (var tensorSelection : entry.getValue()) {
           var tensorId = tensorSelection.getTensorId();
           tensorIds.add(tensorId);

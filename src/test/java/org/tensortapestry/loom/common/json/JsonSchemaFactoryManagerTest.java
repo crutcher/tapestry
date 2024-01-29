@@ -15,7 +15,7 @@ import lombok.Value;
 import lombok.extern.jackson.Jacksonized;
 import org.junit.Test;
 import org.tensortapestry.loom.graph.LoomConstants;
-import org.tensortapestry.loom.graph.dialects.tensorops.TensorNode;
+import org.tensortapestry.loom.graph.dialects.tensorops.TensorBody;
 import org.tensortapestry.loom.testing.BaseTestClass;
 import org.tensortapestry.loom.validation.ListValidationIssueCollector;
 import org.tensortapestry.loom.validation.ValidationIssue;
@@ -62,7 +62,7 @@ public class JsonSchemaFactoryManagerTest extends BaseTestClass {
 
     check.accept(
       "http://tensortapestry.org/schemas/loom/2024-01/node_types.jsd#/$defs/Tensor",
-      TensorNode.TensorBody
+      TensorBody
         .builder()
         .dtype("float32")
         .range(ZRange.builder().start(0, 2).end(3, 4).build())
@@ -400,7 +400,7 @@ public class JsonSchemaFactoryManagerTest extends BaseTestClass {
       .issueScan()
       .issueCollector(collector)
       .type(JSD_ERROR)
-      .summaryPrefix("Body ")
+      .summaryPrefix("NoteBody ")
       .jsonPathPrefix(path)
       .schema(schema)
       .data(data)
@@ -417,7 +417,7 @@ public class JsonSchemaFactoryManagerTest extends BaseTestClass {
         .param("keywordArgs", List.of(1))
         .param("path", "$.nodes[@.id = 'foo'].shape[3]")
         .param("schemaPath", "http://loom.example/data#/definitions/Shape/items/minimum")
-        .summary("Body [minimum] :: $.shape[3]: -1")
+        .summary("NoteBody [minimum] :: $.shape[3]: -1")
         .message("$.shape[3]: must have a minimum value of 1")
         .context(
           ValidationIssue.Context

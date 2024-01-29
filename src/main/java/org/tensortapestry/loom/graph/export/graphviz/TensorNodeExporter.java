@@ -3,7 +3,8 @@ package org.tensortapestry.loom.graph.export.graphviz;
 import guru.nidi.graphviz.attribute.Shape;
 import guru.nidi.graphviz.attribute.Style;
 import org.tensortapestry.loom.graph.LoomNode;
-import org.tensortapestry.loom.graph.dialects.tensorops.TensorNode;
+import org.tensortapestry.loom.graph.dialects.tensorops.TensorBody;
+import org.tensortapestry.loom.graph.dialects.tensorops.TensorOpNodes;
 
 public class TensorNodeExporter implements GraphVisualizer.NodeTypeExporter {
 
@@ -11,9 +12,10 @@ public class TensorNodeExporter implements GraphVisualizer.NodeTypeExporter {
   public void exportNode(
     GraphVisualizer visualizer,
     GraphVisualizer.ExportContext context,
-    LoomNode<?, ?> loomNode
+    LoomNode loomNode
   ) {
-    var tensorNode = (TensorNode) loomNode;
+    loomNode.assertType(TensorOpNodes.TENSOR_NODE_TYPE);
+    var tensorData = loomNode.viewBodyAs(TensorBody.class);
     var gvNode = context.standardNodePrefix(loomNode);
     context.maybeRenderAnnotations(loomNode);
 
@@ -39,9 +41,9 @@ public class TensorNodeExporter implements GraphVisualizer.NodeTypeExporter {
               .colspan(2)
               .align(GH.TableDataAlign.LEFT)
               .add(GH.font().add(GH.bold(" %s ".formatted(loomNode.getTypeAlias())))),
-            context.asDataKeyValueTR("dtype", tensorNode.getDtype()),
-            context.asDataKeyValueTR("range", tensorNode.getRange().toRangeString()),
-            context.asDataKeyValueTR("shape", tensorNode.getRange().toShapeString())
+            context.asDataKeyValueTR("dtype", tensorData.getDtype()),
+            context.asDataKeyValueTR("range", tensorData.getRange().toRangeString()),
+            context.asDataKeyValueTR("shape", tensorData.getRange().toShapeString())
           )
       )
     );

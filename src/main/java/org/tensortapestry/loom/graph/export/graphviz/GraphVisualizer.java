@@ -20,6 +20,7 @@ import lombok.Getter;
 import org.apache.commons.lang3.tuple.Pair;
 import org.tensortapestry.loom.common.collections.IteratorUtils;
 import org.tensortapestry.loom.common.json.JsonUtil;
+import org.tensortapestry.loom.common.json.JsonViewWrapper;
 import org.tensortapestry.loom.graph.ExportUtils;
 import org.tensortapestry.loom.graph.LoomGraph;
 import org.tensortapestry.loom.graph.LoomNode;
@@ -86,17 +87,13 @@ public class GraphVisualizer {
   }
 
   public interface NodeTypeExporter {
-    void exportNode(GraphVisualizer visualizer, ExportContext context, LoomNode<?, ?> loomNode);
+    void exportNode(GraphVisualizer visualizer, ExportContext context, LoomNode loomNode);
   }
 
   public static class DefaultNodeExporter implements NodeTypeExporter {
 
     @Override
-    public void exportNode(
-      GraphVisualizer visualizer,
-      ExportContext context,
-      LoomNode<?, ?> loomNode
-    ) {
+    public void exportNode(GraphVisualizer visualizer, ExportContext context, LoomNode loomNode) {
       var gvNode = context.standardNodePrefix(loomNode);
       context.maybeRenderAnnotations(loomNode);
 
@@ -113,12 +110,12 @@ public class GraphVisualizer {
             .cellspacing(2)
             .cellpadding(2)
             .bgcolor("white")
-            .add(context.renderDataTable(loomNode.getTypeAlias(), loomNode.getBodyAsJsonNode()))
+            .add(context.renderDataTable(loomNode.getTypeAlias(), loomNode.viewBodyAsJsonNode()))
         )
       );
 
       ExportUtils.findLinks(
-        loomNode.getBodyAsJsonNode(),
+        loomNode.viewBodyAsJsonNode(),
         context.getGraph()::hasNode,
         (path, targetId) -> {
           // Remove "$." prefix.
@@ -155,16 +152,16 @@ public class GraphVisualizer {
 
     private Map<UUID, String> renderNodeHexAliasMap() {
       return AliasUtils.uuidAliasMap(
-        getGraph().nodeScan().asStream().map(LoomNode::getId).toList(),
+        getGraph().stream().map(LoomNode::getId).toList(),
         minLabelLen
       );
     }
 
-    @Nullable private LoomNode<?, ?> maybeNode(UUID id) {
+    @Nullable private LoomNode maybeNode(UUID id) {
       return graph.getNode(id);
     }
 
-    @Nullable private LoomNode<?, ?> maybeNode(String idString) {
+    @Nullable private LoomNode maybeNode(String idString) {
       try {
         var id = UUID.fromString(idString);
         return maybeNode(id);
@@ -231,13 +228,12 @@ public class GraphVisualizer {
         exportGraph.add(Factory.mutNode("colors").add(Shape.NONE).add(asHtmlLabel(table)));
       }
 
-      for (var nodeIt = graph.nodeScan().asStream().iterator(); nodeIt.hasNext();) {
-        var loomNode = nodeIt.next();
-        exporterForNodeType(loomNode.getType()).exportNode(GraphVisualizer.this, this, loomNode);
+      for (var node : graph) {
+        exporterForNodeType(node.getType()).exportNode(GraphVisualizer.this, this, node);
       }
     }
 
-    public MutableNode standardNodePrefix(LoomNode<?, ?> node) {
+    public MutableNode standardNodePrefix(LoomNode node) {
       var gvnode = Factory.mutNode(node.getId().toString());
 
       var table = GH
@@ -257,15 +253,15 @@ public class GraphVisualizer {
       return gvnode;
     }
 
-    public void maybeRenderAnnotations(LoomNode<?, ?> node) {
+    public void maybeRenderAnnotations(LoomNode node) {
       maybeRenderAnnotations(node.getId().toString(), node.getAnnotations());
     }
 
-    public void maybeRenderAnnotations(String nodeId, Map<String, Object> annotations) {
+    public void maybeRenderAnnotations(String nodeId, Map<String, JsonViewWrapper> annotations) {
       if (annotations.isEmpty()) {
         return;
       }
-      var env = graph.getEnv();
+      var env = graph.assertEnv();
 
       String gvAnnotationNodeId = nodeId + "#annotations";
       var aNode = Factory.mutNode(gvAnnotationNodeId);
@@ -281,8 +277,8 @@ public class GraphVisualizer {
         .sorted(Map.Entry.comparingByKey())
         .toList()) {
         renderDataTable(
-          env.getAnnotationTypeAlias(entry.getKey()),
-          (ObjectNode) JsonUtil.valueToJsonNodeTree(entry.getValue())
+          env.getTypeAlias(entry.getKey()),
+          JsonUtil.valueToJsonNodeTree(entry.getValue())
         )
           .bgcolor("white")
           .withParent(wrapperTable);
@@ -309,7 +305,7 @@ public class GraphVisualizer {
         .add(GH.font().color("teal").add(GH.bold(" %s ".formatted(title))));
     }
 
-    public GH.TableWrapper renderDataTable(String title, ObjectNode data) {
+    public GH.TableWrapper renderDataTable(String title, JsonNode data) {
       return GH
         .table()
         .border(0)

@@ -14,7 +14,7 @@ public class ApplicationNodeTest extends BaseTestClass {
     UUID operationId = UUID.randomUUID();
     UUID tensorIdA = UUID.randomUUID();
     UUID tensorIdB = UUID.randomUUID();
-    ApplicationNode.ApplicationBody body = ApplicationNode.ApplicationBody
+    ApplicationBody body = ApplicationBody
       .builder()
       .operationId(operationId)
       .input(
@@ -64,30 +64,53 @@ public class ApplicationNodeTest extends BaseTestClass {
     var env = CommonEnvironments.expressionEnvironment();
     var graph = env.newGraph();
 
-    var inputTensor = TensorNode.withBody(b -> b.shape(2, 3).dtype("float32")).addTo(graph);
-    var outputTensor = TensorNode.withBody(b -> b.shape(10).dtype("int32")).addTo(graph);
+    var inputTensor = TensorOpNodes
+      .tensorBuilder(graph, b -> b.shape(2, 3).dtype("float32"))
+      .build();
+    var outputTensor = TensorOpNodes.tensorBuilder(graph, b -> b.shape(10).dtype("int32")).build();
 
-    var opSig = OperationNode
-      .withBody(b ->
-        b
-          .kernel("increment")
-          .input("x", List.of(new TensorSelection(inputTensor.getId(), inputTensor.getRange())))
-          .output("y", List.of(new TensorSelection(outputTensor.getId(), outputTensor.getRange())))
+    var operation = TensorOpNodes
+      .operationBuilder(
+        graph,
+        b ->
+          b
+            .kernel("increment")
+            .input(
+              "x",
+              List.of(
+                new TensorSelection(
+                  inputTensor.getId(),
+                  inputTensor.viewBodyAs(TensorBody.class).getRange()
+                )
+              )
+            )
+            .output(
+              "y",
+              List.of(
+                new TensorSelection(
+                  outputTensor.getId(),
+                  outputTensor.viewBodyAs(TensorBody.class).getRange()
+                )
+              )
+            )
       )
-      .addTo(graph);
+      .build();
+    OperationBody opBody = operation.viewBodyAs(OperationBody.class);
 
-    var app = ApplicationNode
-      .withBody(b ->
-        b
-          .operationId(UUID.randomUUID())
-          .operationId(opSig.getId())
-          .inputs(opSig.getInputs())
-          .outputs(opSig.getOutputs())
+    var application = TensorOpNodes
+      .applicationBuilder(
+        graph,
+        b ->
+          b
+            .operationId(UUID.randomUUID())
+            .operationId(operation.getId())
+            .inputs(opBody.getInputs())
+            .outputs(opBody.getOutputs())
       )
-      .addTo(graph);
+      .build();
 
-    assertThat(app.getOperationSignatureNode()).isSameAs(opSig);
-    assertThat(opSig.getApplicationNodes()).containsOnly(app);
+    assertThat(ApplicationBody.getOperation(application)).isSameAs(operation);
+    assertThat(OperationBody.getShards(operation)).containsOnly(application);
 
     graph.validate();
   }

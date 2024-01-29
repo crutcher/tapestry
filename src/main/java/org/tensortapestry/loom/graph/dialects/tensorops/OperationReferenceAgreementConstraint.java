@@ -20,9 +20,9 @@ public class OperationReferenceAgreementConstraint implements LoomEnvironment.Co
 
   @Override
   public void checkRequirements(LoomEnvironment env) {
-    env.assertClassForType(TensorOpNodes.TENSOR_NODE_TYPE, TensorNode.class);
-    env.assertClassForType(TensorOpNodes.OPERATION_NODE_TYPE, OperationNode.class);
-    env.assertClassForType(TensorOpNodes.APPLICATION_NODE_TYPE, ApplicationNode.class);
+    env.assertSupportsNodeType(TensorOpNodes.TENSOR_NODE_TYPE);
+    env.assertSupportsNodeType(TensorOpNodes.OPERATION_NODE_TYPE);
+    env.assertSupportsNodeType(TensorOpNodes.APPLICATION_NODE_TYPE);
   }
 
   @Override
@@ -32,16 +32,13 @@ public class OperationReferenceAgreementConstraint implements LoomEnvironment.Co
     ValidationIssueCollector issueCollector
   ) {
     boolean valid = true;
-    for (var node : graph
-      .nodeScan()
-      .type(TensorOpNodes.APPLICATION_NODE_TYPE)
-      .nodeClass(ApplicationNode.class)
-      .asList()) {
+    for (var node : graph.byType(TensorOpNodes.APPLICATION_NODE_TYPE)) {
+      var appData = node.viewBodyAs(ApplicationBody.class);
+
       var opNode = ValidationUtils.validateNodeReference(
         graph,
-        node.getOperationId(),
+        appData.getOperationId(),
         TensorOpNodes.OPERATION_NODE_TYPE,
-        OperationNode.class,
         new LazyString(() -> JsonPathUtils.concatJsonPath(node.getJsonPath(), "body", "operationId")
         ),
         issueCollector,
@@ -53,11 +50,7 @@ public class OperationReferenceAgreementConstraint implements LoomEnvironment.Co
       }
     }
 
-    for (var node : graph
-      .nodeScan()
-      .type(TensorOpNodes.OPERATION_NODE_TYPE)
-      .nodeClass(OperationNode.class)
-      .asList()) {
+    for (var node : graph.byType(TensorOpNodes.OPERATION_NODE_TYPE)) {
       valid &= validateOperationSignatureNode(graph, node, issueCollector);
     }
 
@@ -89,33 +82,35 @@ public class OperationReferenceAgreementConstraint implements LoomEnvironment.Co
 
   private static boolean validateOperationSignatureNode(
     LoomGraph graph,
-    OperationNode opSignatureNode,
+    LoomNode operation,
     ValidationIssueCollector issueCollector
   ) {
+    operation.assertType(TensorOpNodes.OPERATION_NODE_TYPE);
+    var opData = operation.viewBodyAs(OperationBody.class);
+
     boolean valid = true;
-    var lazyContexts = Thunk.of(() -> List.of(opSignatureNode.asValidationContext("Operation Node"))
-    );
+    var lazyContexts = Thunk.of(() -> List.of(operation.asValidationContext("Operation Node")));
 
     valid &=
       validateTensorSliceMap(
         graph,
-        opSignatureNode,
+        operation,
         "inputs",
-        opSignatureNode.getInputs(),
+        opData.getInputs(),
         lazyContexts,
         issueCollector
       );
     valid &=
       validateTensorSliceMap(
         graph,
-        opSignatureNode,
+        operation,
         "outputs",
-        opSignatureNode.getOutputs(),
+        opData.getOutputs(),
         lazyContexts,
         issueCollector
       );
 
-    var shards = opSignatureNode.getApplicationNodes();
+    var shards = OperationBody.getShards(operation);
     var shardIds = shards.stream().map(LoomNode::getId).toList();
 
     if (shards.isEmpty()) {
@@ -130,7 +125,7 @@ public class OperationReferenceAgreementConstraint implements LoomEnvironment.Co
       return false;
     }
     for (var appNode : shards) {
-      valid &= validateApplicationNode(opSignatureNode, appNode, issueCollector);
+      valid &= validateApplicationNode(operation, appNode, issueCollector);
     }
 
     if (!valid) {
@@ -142,8 +137,8 @@ public class OperationReferenceAgreementConstraint implements LoomEnvironment.Co
         shardIds,
         shards,
         "inputs",
-        opSignatureNode.getInputs(),
-        ApplicationNode::getInputs,
+        opData.getInputs(),
+        s -> s.viewBodyAs(ApplicationBody.class).getInputs(),
         lazyContexts,
         issueCollector
       );
@@ -152,21 +147,24 @@ public class OperationReferenceAgreementConstraint implements LoomEnvironment.Co
         shardIds,
         shards,
         "outputs",
-        opSignatureNode.getOutputs(),
-        ApplicationNode::getOutputs,
+        opData.getOutputs(),
+        s -> s.viewBodyAs(ApplicationBody.class).getOutputs(),
         lazyContexts,
         issueCollector
       );
 
     // check the output range coverage:
     // 3. The sum of the shard range sizes is equal to the output range size.
-    for (var entry : opSignatureNode.getOutputs().entrySet()) {
+    for (var entry : opData.getOutputs().entrySet()) {
       final var ioName = entry.getKey();
       final var selections = entry.getValue();
 
       final var k = selections.size();
 
-      var shardSelections = shards.stream().map(shard -> shard.getOutputs().get(ioName)).toList();
+      var shardSelections = shards
+        .stream()
+        .map(s -> s.viewBodyAs(ApplicationBody.class).getOutputs().get(ioName))
+        .toList();
 
       for (int idx = 0; idx < k; ++idx) {
         var sigRange = selections.get(idx).getRange();
@@ -200,10 +198,10 @@ public class OperationReferenceAgreementConstraint implements LoomEnvironment.Co
 
   private static boolean validateShardAgreement(
     List<UUID> shardIds,
-    List<ApplicationNode> shards,
+    List<LoomNode> shards,
     String sliceMapName,
     Map<String, List<TensorSelection>> selectionMap,
-    Function<ApplicationNode, Map<String, List<TensorSelection>>> shardSelectionMapFn,
+    Function<LoomNode, Map<String, List<TensorSelection>>> shardSelectionMapFn,
     Supplier<List<ValidationIssue.Context>> contextsSupplier,
     ValidationIssueCollector issueCollector
   ) {
@@ -264,35 +262,35 @@ public class OperationReferenceAgreementConstraint implements LoomEnvironment.Co
   }
 
   private static boolean validateApplicationNode(
-    OperationNode operationSignatureNode,
-    ApplicationNode applicationNode,
+    LoomNode operation,
+    LoomNode application,
     ValidationIssueCollector issueCollector
   ) {
     var lazyContexts = Thunk.of(() ->
       List.of(
-        applicationNode.asValidationContext("Application Node"),
-        operationSignatureNode.asValidationContext("Operation Node")
+        application.asValidationContext("Application Node"),
+        operation.asValidationContext("Operation Node")
       )
     );
 
     boolean valid = true;
     valid &=
       validateApplicationSignatureAgreement(
-        applicationNode,
-        operationSignatureNode,
+        application,
+        operation,
         "inputs",
-        applicationNode.getInputs(),
-        operationSignatureNode.getInputs(),
+        application.viewBodyAs(ApplicationBody.class).getInputs(),
+        operation.viewBodyAs(OperationBody.class).getInputs(),
         lazyContexts,
         issueCollector
       );
     valid &=
       validateApplicationSignatureAgreement(
-        applicationNode,
-        operationSignatureNode,
+        application,
+        operation,
         "outputs",
-        applicationNode.getOutputs(),
-        operationSignatureNode.getOutputs(),
+        application.viewBodyAs(ApplicationBody.class).getOutputs(),
+        operation.viewBodyAs(OperationBody.class).getOutputs(),
         lazyContexts,
         issueCollector
       );
@@ -301,8 +299,8 @@ public class OperationReferenceAgreementConstraint implements LoomEnvironment.Co
   }
 
   public static boolean validateApplicationSignatureAgreement(
-    ApplicationNode appNode,
-    OperationNode opSig,
+    LoomNode application,
+    LoomNode operation,
     String sliceMapName,
     Map<String, List<TensorSelection>> appSelectionMap,
     Map<String, List<TensorSelection>> sigSelectionMap,
@@ -362,7 +360,7 @@ public class OperationReferenceAgreementConstraint implements LoomEnvironment.Co
                   .name("Application Tensor Selection")
                   .jsonpath(
                     JsonPathUtils.concatJsonPath(
-                      appNode.getJsonPath(),
+                      application.getJsonPath(),
                       "body",
                       sliceMapName,
                       ioName,
@@ -376,7 +374,7 @@ public class OperationReferenceAgreementConstraint implements LoomEnvironment.Co
                   .name("Operation Tensor Selection")
                   .jsonpath(
                     JsonPathUtils.concatJsonPath(
-                      opSig.getJsonPath(),
+                      operation.getJsonPath(),
                       "body",
                       sliceMapName,
                       ioName,
@@ -423,7 +421,7 @@ public class OperationReferenceAgreementConstraint implements LoomEnvironment.Co
 
   private static boolean validateTensorSliceMap(
     LoomGraph graph,
-    LoomNode<?, ?> node,
+    LoomNode node,
     String sliceMapName,
     Map<String, List<TensorSelection>> selectionMap,
     Supplier<List<ValidationIssue.Context>> contextsSupplier,
@@ -443,21 +441,20 @@ public class OperationReferenceAgreementConstraint implements LoomEnvironment.Co
 
         var itemPath = LazyString.format("%s[%d]", fieldPath, idx);
 
-        TensorNode tensorNode = ValidationUtils.validateNodeReference(
+        LoomNode tensorNode = ValidationUtils.validateNodeReference(
           graph,
           tensorSelection.getTensorId(),
           TensorOpNodes.TENSOR_NODE_TYPE,
-          TensorNode.class,
           itemPath,
           issueCollector,
           contextsSupplier
         );
-
         if (tensorNode == null) {
           valid = false;
           continue;
         }
-        var tensorRange = tensorNode.getRange();
+        var tensorData = tensorNode.viewBodyAs(TensorBody.class);
+        var tensorRange = tensorData.getRange();
 
         var selectionRange = tensorSelection.getRange();
         var lazySelectionRangeContext = Thunk.of(() ->

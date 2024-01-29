@@ -2,86 +2,30 @@ package org.tensortapestry.loom.graph;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import java.io.IOException;
+import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.databind.JsonNode;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
+import java.util.function.Supplier;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.experimental.SuperBuilder;
-import lombok.experimental.UtilityClass;
+import lombok.Data;
+import lombok.extern.jackson.Jacksonized;
 import org.tensortapestry.loom.common.json.HasToJsonString;
-import org.tensortapestry.loom.common.json.JsonUtil;
-import org.tensortapestry.loom.common.runtime.ReflectionUtils;
+import org.tensortapestry.loom.common.json.JsonViewWrapper;
+import org.tensortapestry.loom.common.json.ViewConversionError;
 import org.tensortapestry.loom.validation.ValidationIssue;
 
-/**
- * Base class for a node in the graph.
- *
- * @param <NodeType> the node subclass.
- * @param <BodyType> the node body class.
- */
-@Getter
-@Setter
-@SuperBuilder
-@JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonSerialize(using = LoomNode.Serialization.NodeSerializer.class)
-@SuppressWarnings("unused") // NodeType
-public abstract class LoomNode<NodeType extends LoomNode<NodeType, BodyType>, BodyType>
-  implements HasToJsonString {
+@Jacksonized
+@Builder
+@Data
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
+public final class LoomNode implements NodeWrapper, HasToJsonString {
 
-  /**
-   * Extensions to the auto-generated {@code @Builder} annotation for LoomNode.
-   *
-   * @param <NodeType> the node subclass.
-   * @param <BodyType> the node body class.
-   * @param <C> a generic extension of the node subclass.
-   * @param <B> the builder subclass.
-   */
-  @SuppressWarnings("unused")
-  public abstract static class LoomNodeBuilder<
-    NodeType extends LoomNode<NodeType, BodyType>,
-    BodyType,
-    C extends LoomNode<NodeType, BodyType>,
-    B extends LoomNodeBuilder<NodeType, BodyType, C, B>
-  > {
-
-    /**
-     * Set an annotation on the node.
-     *
-     * @param key the annotation key.
-     * @param value the annotation value.
-     * @return {@code this}
-     */
-    public B annotation(String key, Object value) {
-      if (annotations$value == null) {
-        annotations(new HashMap<>());
-      }
-      annotations$value.put(key, value);
-      return self();
-    }
-
-    /**
-     * Complete the build of the node on the graph.
-     *
-     * <p>Equivalent to {@code buildOn(graph)}.
-     *
-     * <p>Assigns a random UUID to the node if the node does not have an ID.
-     *
-     * @param graph the node type.
-     * @return {@code this}
-     */
-    public NodeType addTo(LoomGraph graph) {
-      return graph.addNode(this);
-    }
+  public static class LoomNodeBuilder {
 
     /**
      * Does the builder have an ID?
@@ -90,6 +34,124 @@ public abstract class LoomNode<NodeType extends LoomNode<NodeType, BodyType>, Bo
      */
     public final boolean hasId() {
       return id != null;
+    }
+
+    /**
+     * Set the ID of the node.
+     *
+     * @param value the ID.
+     * @return {@code this}
+     */
+    @Nonnull
+    public LoomNodeBuilder id(@Nonnull UUID value) {
+      this.id = value;
+      return this;
+    }
+
+    /**
+     * Set the ID of the node.
+     *
+     * @param value the ID.
+     * @return {@code this}
+     */
+    @Nonnull
+    public LoomNodeBuilder id(@Nonnull String value) {
+      this.id = UUID.fromString(value);
+      return this;
+    }
+
+    /**
+     * Set the body of the node.
+     *
+     * @param value the body.
+     * @return {@code this}
+     */
+    @Nonnull
+    @JsonSetter
+    public LoomNodeBuilder body(@Nonnull Object value) {
+      this.body = JsonViewWrapper.of(value);
+      return this;
+    }
+
+    @Nonnull
+    public LoomNodeBuilder body(@Nonnull Supplier<Object> value) {
+      this.body = JsonViewWrapper.of(value);
+      return this;
+    }
+
+    /**
+     * Add an annotation to the node.
+     *
+     * @param type the type of the annotation.
+     * @param value the value of the annotation.
+     * @return {@code this}
+     */
+    @Nonnull
+    public LoomNodeBuilder annotation(@Nonnull String type, @Nonnull Object value) {
+      if (annotations$value == null) {
+        annotations(new HashMap<>());
+      }
+      annotations$value.put(type, JsonViewWrapper.of(value));
+      return this;
+    }
+
+    /**
+     * Add all the given annotations to the node.
+     *
+     * @param annotations the annotations to add.
+     * @return {@code this}
+     */
+    @Nonnull
+    public LoomNodeBuilder withAnnotations(@Nonnull Map<String, Object> annotations) {
+      annotations.forEach(this::annotation);
+      return this;
+    }
+
+    /**
+     * Build the node on the given graph.
+     *
+     * <p>Assigns a random UUID to the node if the node does not have an ID.
+     *
+     * @param graph the node type.
+     * @return {@code this}
+     */
+    @Nonnull
+    public LoomNode build(@Nonnull LoomGraph graph) {
+      return graph.addNode(this);
+    }
+
+    /**
+     * Build the node.
+     *
+     * <p>If the builder has an attached graph, the node will be added to the graph.
+     *
+     * <p>if the builder has an attached graph, and no id is set,
+     * a random UUID will be assigned to the node from the graph.
+     *
+     * @return the built node.
+     */
+    @Nonnull
+    public LoomNode build() {
+      Map<String, JsonViewWrapper> annotations$value = this.annotations$value;
+      if (!this.annotations$set) {
+        annotations$value = new HashMap<>();
+      }
+      if (this.id == null && this.graph != null) {
+        this.id = this.graph.genNodeId();
+      }
+
+      var node = new LoomNode(
+        this.graph,
+        Objects.requireNonNull(this.id, "id"),
+        this.type,
+        this.label,
+        this.body,
+        annotations$value
+      );
+      if (this.graph != null) {
+        this.graph.addNode(node);
+      }
+      return node;
     }
   }
 
@@ -100,137 +162,21 @@ public abstract class LoomNode<NodeType extends LoomNode<NodeType, BodyType>, Bo
   private final UUID id;
 
   @Nonnull
-  private final String type;
+  public final String type;
 
   @Nullable private String label;
 
+  @Nonnull
+  private final JsonViewWrapper body;
+
   @Builder.Default
   @Nonnull
-  private final Map<String, Object> annotations = new HashMap<>();
+  private final Map<String, JsonViewWrapper> annotations = new HashMap<>();
 
-  /**
-   * Get the environment configured type alias for the node type.
-   *
-   * @return the type alias.
-   */
-  public String getTypeAlias() {
-    return assertGraph().getEnv().getTypeAlias(getType());
-  }
-
-  /**
-   * Does the node have an annotation with the given key?
-   *
-   * @param key the annotation key.
-   * @return true if the node has the annotation.
-   */
-  public final boolean hasAnnotation(String key) {
-    return annotations.containsKey(key);
-  }
-
-  /**
-   * Does the node have an annotation with the given key and class?
-   *
-   * @param key the annotation key.
-   * @param cls the annotation class.
-   * @return true if the node has the annotation with the given key and class.
-   */
-  public final boolean hasAnnotation(String key, Class<?> cls) {
-    return (annotations.containsKey(key) && cls.isInstance(annotations.get(key)));
-  }
-
-  /**
-   * Get an annotation from the node.
-   *
-   * @param key the annotation key.
-   * @return the annotation value.
-   */
-  @Nullable public final Object getAnnotation(String key) {
-    return annotations.get(key);
-  }
-
-  /**
-   * Get an annotation from the node.
-   *
-   * @param key the annotation key.
-   * @param cls the annotation class.
-   * @return the annotation value.
-   * @param <T> the annotation type.
-   */
-  @Nullable public final <T> T getAnnotation(@Nonnull String key, @Nonnull Class<? extends T> cls) {
-    return cls.cast(annotations.get(key));
-  }
-
-  /**
-   * Get an annotation from the node.
-   *
-   * @param key the annotation key.
-   * @param cls the annotation class.
-   * @return the annotation value.
-   * @param <T> the annotation type.
-   */
+  @Override
   @Nonnull
-  public final <T> T assertAnnotation(@Nonnull String key, @Nonnull Class<? extends T> cls) {
-    var value = getAnnotation(key, cls);
-    if (value == null) {
-      throw new IllegalStateException("Annotation not found: " + key);
-    }
-    return value;
-  }
-
-  /**
-   * Remove an annotation from the node.
-   *
-   * @param key the annotation key.
-   */
-  public final void removeAnnotation(@Nonnull String key) {
-    annotations.remove(key);
-  }
-
-  /**
-   * Set an annotation on the node.
-   *
-   * @param key the annotation key.
-   * @param value the annotation value.
-   * @throws IllegalStateException if the annotation value is not assignable to the annotation.
-   */
-  public final void setAnnotation(@Nonnull String key, @Nonnull Object value) {
-    annotations.put(key, value);
-  }
-
-  /**
-   * Set an annotation on the node from a JSON string.
-   *
-   * <p>The annotation will be converted to the environment's type class for the annotation.
-   *
-   * @param key the annotation key.
-   * @param json the JSON string.
-   */
-  public final void setAnnotationFromJson(@Nonnull String key, @Nonnull String json) {
-    setAnnotation(key, JsonUtil.fromJson(json, assertGraph().getEnv().assertAnnotationClass(key)));
-  }
-
-  /**
-   * Set an annotation on the node from an Object tree.
-   *
-   * <p>The annotation will be converted to the environment's type class for the annotation.
-   *
-   * @param key the annotation key.
-   * @param value the Object tree.
-   */
-  public final void setAnnotationFromValue(@Nonnull String key, @Nonnull Object value) {
-    setAnnotation(
-      key,
-      JsonUtil.convertValue(value, assertGraph().getEnv().assertAnnotationClass(key))
-    );
-  }
-
-  /**
-   * Does the node belong to a graph?
-   *
-   * @return true if the node belongs to a graph.
-   */
-  public final boolean hasGraph() {
-    return graph != null;
+  public LoomNode unwrap() {
+    return this;
   }
 
   /**
@@ -239,11 +185,44 @@ public abstract class LoomNode<NodeType extends LoomNode<NodeType, BodyType>, Bo
    * @return the graph.
    * @throws IllegalStateException if the node does not belong to a graph.
    */
-  public final LoomGraph assertGraph() {
+  @Nonnull
+  public LoomGraph assertGraph() {
     if (graph == null) {
       throw new IllegalStateException("Node does not belong to a graph: " + id);
     }
     return graph;
+  }
+
+  public LoomEnvironment assertEnvironment() {
+    return assertGraph().getEnv();
+  }
+
+  /**
+   * Assert that the node has the given type.
+   *
+   * @param type the type to check.
+   * @return {@code this}
+   * @throws IllegalStateException if the node does not have the given type.
+   */
+  public LoomNode assertType(String type) {
+    if (!this.type.equals(type)) {
+      throw new IllegalStateException("Node type does not match: " + id);
+    }
+    return this;
+  }
+
+  @JsonIgnore
+  public String getTypeAlias() {
+    return assertEnvironment().getTypeAlias(type);
+  }
+
+  /**
+   * Get the json path of the node.
+   * @return the json path.
+   */
+  @JsonIgnore
+  public String getJsonPath() {
+    return "$.nodes['" + id + "']";
   }
 
   /**
@@ -273,129 +252,82 @@ public abstract class LoomNode<NodeType extends LoomNode<NodeType, BodyType>, Bo
     return builder.build();
   }
 
-  @JsonIgnore
-  public final String getJsonPath() {
-    return "$.nodes[@.id=='%s']".formatted(getId());
-  }
-
-  @Override
-  public final String toString() {
-    return "%s%s".formatted(getClass().getSimpleName(), toJsonString());
-  }
-
   /**
-   * Get the class type of the node body.
+   * View the body of the node as the given type.
+   * <p>Equivalent to {@code this.getBody().viewAs(clazz)}</p>
    *
-   * @return the body class.
+   * @param clazz the type to view the body as.
+   * @param <T> the type to view the body as.
+   * @return the body.
+   * @throws ViewConversionError if the body cannot be converted to the given type.
    */
-  @JsonIgnore
-  public final Class<BodyType> getBodyClass() {
-    @SuppressWarnings("unchecked")
-    var cls = (Class<BodyType>) getBodyClass((Class<? extends LoomNode<?, ?>>) getClass());
-    return cls;
+  public <T> T viewBodyAs(@Nonnull Class<T> clazz) {
+    return body.viewAs(clazz);
   }
 
   /**
-   * Get the class type of the node body.
+   * View the body of the node as a JsonNode.
+   * <p>Equivalent to {@code this.getBody().viewAsJsonNode()}</p>
    *
-   * <p>Introspects the node type class parameters to get the body type class.
-   *
-   * @param nodeTypeClass the node type class.
-   * @return the body class.
-   */
-  public static Class<?> getBodyClass(Class<? extends LoomNode<?, ?>> nodeTypeClass) {
-    return (Class<?>) ReflectionUtils.getTypeArgumentsForGenericSuperclass(
-      nodeTypeClass,
-      LoomNode.class
-    )[1];
-  }
-
-  /**
-   * Get the node body.
-   *
-   * @return the node body.
+   * @return the body.
    */
   @Nonnull
-  public abstract BodyType getBody();
-
-  /**
-   * Get the node body as a JSON string.
-   *
-   * @return the JSON string.
-   */
-  public final String getBodyAsJson() {
-    return JsonUtil.toPrettyJson(getBody());
+  public JsonNode viewBodyAsJsonNode() {
+    return body.viewAsJsonNode();
   }
 
   /**
-   * Get the node body as a JSON tree.
+   * Does this node have an annotation with the given type?
    *
-   * @return the JSON tree.
+   * @param type the type to check.
+   * @return true if the node has an annotation with the given type.
    */
-  public final ObjectNode getBodyAsJsonNode() {
-    return (ObjectNode) JsonUtil.valueToJsonNodeTree(getBody());
+  public boolean hasAnnotation(@Nonnull String type) {
+    return annotations.containsKey(type);
   }
 
   /**
-   * Set the node body.
+   * View the annotation with the given type as the given type.
+   * <p>Equivalent to {@code this.getAnnotation(type).viewAs(clazz)}</p>
    *
-   * @param body the node body.
+   * @param type the type of the annotation.
+   * @param clazz the type to view the annotation as.
+   * @param <T> the type to view the annotation as.
+   * @return the annotation.
+   * @throws ViewConversionError if the annotation cannot be converted to the given type.
    */
-  public abstract void setBody(@Nonnull BodyType body);
-
-  /**
-   * Set the node body from a JSON string.
-   *
-   * @param json the JSON string.
-   */
-  public final void setBodyFromJson(String json) {
-    setBody(JsonUtil.fromJson(json, getBodyClass()));
+  public <T> T viewAnnotationAs(@Nonnull String type, @Nonnull Class<T> clazz) {
+    return annotations.get(type).viewAs(clazz);
   }
 
   /**
-   * Set the node body from a JSON tree.
+   * View the annotation with the given type as a JsonNode.
+   * <p>Equivalent to {@code this.getAnnotation(type).viewAsJsonNode()}</p>
    *
-   * @param tree the JSON tree; either a {@code JsonNode} or a {@code Map<String, Object>}.
+   * @param type the type of the annotation.
+   * @return the annotation.
    */
-  public final void setBodyFromValue(Object tree) {
-    setBody(JsonUtil.convertValue(tree, getBodyClass()));
+  @Nonnull
+  public JsonNode viewAnnotationAsJsonNode(String type) {
+    return annotations.get(type).viewAsJsonNode();
   }
 
-  @UtilityClass
-  public static final class Serialization {
+  /**
+   * Add an annotation to the node.
+   *
+   * @param type the type of the annotation.
+   * @param value the value of the annotation.
+   */
+  public void addAnnotation(@Nonnull String type, @Nonnull Object value) {
+    annotations.put(type, JsonViewWrapper.of(value));
+  }
 
-    /**
-     * A Jackson serializer for Node. We use a custom serializer because {@code @Delegate} applied
-     * to a method in subclasses to delegate the type methods of {@code body} does not honor
-     * {@code @JsonIgnore}, and we otherwise generate data fields for every getter in the body.
-     *
-     * @param <N> the node type.
-     * @param <B> the type of the node body.
-     */
-    public static final class NodeSerializer<N extends LoomNode<N, B>, B>
-      extends JsonSerializer<LoomNode<N, B>> {
-
-      @Override
-      public void serialize(
-        LoomNode<N, B> value,
-        JsonGenerator gen,
-        SerializerProvider serializers
-      ) throws IOException {
-        gen.writeStartObject();
-        gen.writeStringField("id", value.getId().toString());
-        gen.writeStringField("type", value.getType());
-
-        var label = value.getLabel();
-        if (label != null) {
-          gen.writeStringField("label", label);
-        }
-        if (!value.getAnnotations().isEmpty()) {
-          gen.writeObjectField("annotations", value.getAnnotations());
-        }
-
-        gen.writeObjectField("body", value.getBody());
-        gen.writeEndObject();
-      }
-    }
+  /**
+   * Remove an annotation from the node.
+   *
+   * @param type the type of the annotation.
+   */
+  public void removeAnnotation(@Nonnull String type) {
+    annotations.remove(type);
   }
 }

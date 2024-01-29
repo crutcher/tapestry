@@ -10,8 +10,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.junit.Test;
 import org.tensortapestry.loom.common.json.JsonUtil;
 import org.tensortapestry.loom.graph.dialects.common.CommonNodes;
-import org.tensortapestry.loom.graph.dialects.common.NoteNode;
-import org.tensortapestry.loom.graph.dialects.tensorops.TensorNode;
+import org.tensortapestry.loom.graph.dialects.common.NoteBody;
 import org.tensortapestry.loom.graph.dialects.tensorops.TensorOpNodes;
 import org.tensortapestry.loom.testing.BaseTestClass;
 import org.tensortapestry.loom.validation.ListValidationIssueCollector;
@@ -43,7 +42,11 @@ public class LoomTypeSchemaTest extends BaseTestClass {
 
     var env = CommonEnvironments.expressionEnvironment();
     var graph = env.newGraph();
-    var note = NoteNode.withBody(b -> b.message("hello")).addTo(graph);
+
+    var note = graph
+      .nodeBuilder(CommonNodes.NOTE_NODE_TYPE)
+      .body(NoteBody.builder().message("hello").build())
+      .build();
 
     var data = Example.builder().inputs(Map.of("b", List.of(note.getId().toString()))).build();
 
@@ -94,8 +97,8 @@ public class LoomTypeSchemaTest extends BaseTestClass {
 
     var env = CommonEnvironments.expressionEnvironment();
     var graph = env.newGraph();
-    var note = NoteNode.withBody(b -> b.message("hello")).addTo(graph);
-    var tensor = TensorNode.withBody(b -> b.dtype("int32").shape(2)).addTo(graph);
+    var note = CommonNodes.noteBuilder(graph, b -> b.message("hello")).build();
+    var tensor = TensorOpNodes.tensorBuilder(graph, b -> b.dtype("int32").shape(2)).build();
 
     UUID missingId = UUID.randomUUID();
     String garbage = "garbage";
@@ -123,7 +126,7 @@ public class LoomTypeSchemaTest extends BaseTestClass {
         .param("keyword", "additionalProperties")
         .param("keywordArgs", List.of("9"))
         .param("schemaPath", "#/properties/inputs/additionalProperties")
-        .summary("Body [additionalProperties] :: $.inputs.9: []")
+        .summary("NoteBody [additionalProperties] :: $.inputs.9: []")
         .message(
           "$.inputs.9: is not defined in the schema and the schema does not allow additional properties"
         )
@@ -134,7 +137,7 @@ public class LoomTypeSchemaTest extends BaseTestClass {
             .data(data.getInputs().get("9"))
             .jsonpath(prefix, "inputs.9")
         )
-        .context(ValidationIssue.Context.builder().name("Body").jsonpath(prefix).data(data))
+        .context(ValidationIssue.Context.builder().name("NoteBody").jsonpath(prefix).data(data))
         .build(),
       ValidationIssue
         .builder()
@@ -146,7 +149,7 @@ public class LoomTypeSchemaTest extends BaseTestClass {
           "schemaPath",
           "#/properties/inputs/patternProperties/^[a-zA-Z_][a-zA-Z0-9_]*$/items/format"
         )
-        .summary("Body [format] :: $.inputs.b[3]: \"garbage\"")
+        .summary("NoteBody [format] :: $.inputs.b[3]: \"garbage\"")
         .message("$.inputs.b[3]: does not match the uuid pattern must be a valid RFC 4122 UUID")
         .context(
           ValidationIssue.Context
@@ -155,7 +158,7 @@ public class LoomTypeSchemaTest extends BaseTestClass {
             .data("garbage")
             .jsonpath(prefix, "inputs.b[3]")
         )
-        .context(ValidationIssue.Context.builder().name("Body").jsonpath(prefix).data(data))
+        .context(ValidationIssue.Context.builder().name("NoteBody").jsonpath(prefix).data(data))
         .build(),
       ValidationIssue
         .builder()
@@ -179,7 +182,7 @@ public class LoomTypeSchemaTest extends BaseTestClass {
             .message("inputs")
             .data(schema.getReferenceSchemas().get("inputs"))
         )
-        .context(ValidationIssue.Context.builder().name("Body").jsonpath(prefix).data(data))
+        .context(ValidationIssue.Context.builder().name("NoteBody").jsonpath(prefix).data(data))
         .build(),
       ValidationIssue
         .builder()
@@ -201,7 +204,7 @@ public class LoomTypeSchemaTest extends BaseTestClass {
             .message("inputs")
             .data(schema.getReferenceSchemas().get("inputs"))
         )
-        .context(ValidationIssue.Context.builder().name("Body").jsonpath(prefix).data(data))
+        .context(ValidationIssue.Context.builder().name("NoteBody").jsonpath(prefix).data(data))
         .build(),
       ValidationIssue
         .builder()
@@ -221,7 +224,7 @@ public class LoomTypeSchemaTest extends BaseTestClass {
             .message("inputs")
             .data(schema.getReferenceSchemas().get("inputs"))
         )
-        .context(ValidationIssue.Context.builder().name("Body").jsonpath(prefix).data(data))
+        .context(ValidationIssue.Context.builder().name("NoteBody").jsonpath(prefix).data(data))
         .build()
     );
   }

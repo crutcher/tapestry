@@ -4,8 +4,7 @@ import java.util.UUID;
 import org.junit.Test;
 import org.tensortapestry.loom.common.lazy.LazyString;
 import org.tensortapestry.loom.graph.dialects.common.CommonNodes;
-import org.tensortapestry.loom.graph.dialects.common.NoteNode;
-import org.tensortapestry.loom.graph.dialects.tensorops.TensorNode;
+import org.tensortapestry.loom.graph.dialects.common.NoteBody;
 import org.tensortapestry.loom.graph.dialects.tensorops.TensorOpNodes;
 import org.tensortapestry.loom.testing.BaseTestClass;
 import org.tensortapestry.loom.validation.ListValidationIssueCollector;
@@ -14,11 +13,7 @@ import org.tensortapestry.loom.validation.ValidationIssue;
 public class ValidationUtilsTest extends BaseTestClass {
 
   public LoomEnvironment createEnv() {
-    return LoomEnvironment
-      .builder()
-      .build()
-      .addNodeTypeClass(CommonNodes.NOTE_NODE_TYPE, NoteNode.class)
-      .addNodeTypeClass(TensorOpNodes.TENSOR_NODE_TYPE, TensorNode.class);
+    return CommonEnvironments.expressionEnvironment();
   }
 
   public LoomGraph createGraph() {
@@ -29,20 +24,22 @@ public class ValidationUtilsTest extends BaseTestClass {
   public void test_validateNodeReference_valid() {
     var graph = createGraph();
 
-    var node = NoteNode.withBody(b -> b.message("Hello")).addTo(graph);
+    var node = graph
+      .nodeBuilder(CommonNodes.NOTE_NODE_TYPE)
+      .body(NoteBody.builder().message("Hello").build())
+      .build();
 
     var collector = new ListValidationIssueCollector();
-    NoteNode result = ValidationUtils.validateNodeReference(
+    LoomNode result = ValidationUtils.validateNodeReference(
       graph,
       node.getId(),
       CommonNodes.NOTE_NODE_TYPE,
-      NoteNode.class,
       LazyString.fixed("message"),
       collector,
       () -> null
     );
 
-    assertThat(result).isInstanceOf(NoteNode.class).isSameAs(node);
+    assertThat(result).isSameAs(node);
 
     collector.check();
   }
@@ -54,11 +51,10 @@ public class ValidationUtilsTest extends BaseTestClass {
     var id = UUID.randomUUID();
 
     var collector = new ListValidationIssueCollector();
-    NoteNode result = ValidationUtils.validateNodeReference(
+    LoomNode result = ValidationUtils.validateNodeReference(
       graph,
       id,
       CommonNodes.NOTE_NODE_TYPE,
-      NoteNode.class,
       LazyString.fixed("message"),
       collector,
       () -> null
@@ -89,14 +85,13 @@ public class ValidationUtilsTest extends BaseTestClass {
   public void test_validateNodeReference_wrongType() {
     var graph = createGraph();
 
-    var node = NoteNode.withBody(b -> b.message("Hello")).addTo(graph);
+    var node = CommonNodes.noteBuilder(graph, b -> b.message("Hello")).build();
 
     var collector = new ListValidationIssueCollector();
-    NoteNode result = ValidationUtils.validateNodeReference(
+    LoomNode result = ValidationUtils.validateNodeReference(
       graph,
       node.getId(),
       TensorOpNodes.TENSOR_NODE_TYPE,
-      NoteNode.class,
       LazyString.fixed("message"),
       collector,
       () -> null
@@ -112,44 +107,6 @@ public class ValidationUtilsTest extends BaseTestClass {
           .param("expectedType", TensorOpNodes.TENSOR_NODE_TYPE)
           .param("actualType", CommonNodes.NOTE_NODE_TYPE)
           .summary("Referenced node has the wrong type")
-          .context(
-            ValidationIssue.Context
-              .builder()
-              .name("Reference")
-              .jsonpath(LazyString.fixed("message"))
-              .data(node.getId())
-              .build()
-          )
-          .build()
-      );
-  }
-
-  @Test
-  public void test_validateNodeReference_wrongClass() {
-    var graph = createGraph();
-
-    var node = NoteNode.withBody(b -> b.message("Hello")).addTo(graph);
-
-    var collector = new ListValidationIssueCollector();
-    TensorNode result = ValidationUtils.validateNodeReference(
-      graph,
-      node.getId(),
-      CommonNodes.NOTE_NODE_TYPE,
-      TensorNode.class,
-      LazyString.fixed("message"),
-      collector,
-      () -> null
-    );
-
-    assertThat(result).isNull();
-    assertThat(collector.getIssues())
-      .containsExactly(
-        ValidationIssue
-          .builder()
-          .type(LoomConstants.Errors.NODE_REFERENCE_ERROR)
-          .param("expectedClass", TensorNode.class.getSimpleName())
-          .param("actualClass", NoteNode.class.getSimpleName())
-          .summary("Referenced node has the wrong class")
           .context(
             ValidationIssue.Context
               .builder()

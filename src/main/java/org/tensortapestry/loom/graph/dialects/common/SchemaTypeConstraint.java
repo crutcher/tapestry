@@ -20,12 +20,12 @@ public class SchemaTypeConstraint implements LoomEnvironment.Constraint {
     ValidationIssueCollector issueCollector
   ) {
     var manager = env.getJsonSchemaFactoryManager();
-    graph.nodeScan().asStream().forEach(node -> checkNode(manager, node, issueCollector));
+    graph.getNodes().values().forEach(node -> checkNode(manager, node, issueCollector));
   }
 
   private void checkNode(
     JsonSchemaFactoryManager manager,
-    LoomNode<?, ?> node,
+    LoomNode node,
     ValidationIssueCollector issueCollector
   ) {
     var nodeType = node.getType();
@@ -35,15 +35,15 @@ public class SchemaTypeConstraint implements LoomEnvironment.Constraint {
       .schema(nodeSchema)
       .issueCollector(issueCollector)
       .param("nodeType", nodeType)
-      .summaryPrefix("Body ")
+      .summaryPrefix("NoteBody ")
       .jsonPathPrefix(JsonPathUtils.concatJsonPath(node.getJsonPath() + ".body"))
-      .data(node.getBodyAsJsonNode())
+      .data(node.viewBodyAsJsonNode())
       .contexts(() ->
         List.of(
           node.asValidationContext("Node"),
           ValidationIssue.Context
             .builder()
-            .name("Body Schema")
+            .name("NoteBody Schema")
             .data(nodeSchema.getSchemaNode())
             .build()
         )

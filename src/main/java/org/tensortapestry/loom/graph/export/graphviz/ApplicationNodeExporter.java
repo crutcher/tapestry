@@ -13,10 +13,10 @@ import java.util.*;
 import java.util.function.Function;
 import org.tensortapestry.loom.common.json.JsonUtil;
 import org.tensortapestry.loom.graph.LoomNode;
-import org.tensortapestry.loom.graph.dialects.tensorops.ApplicationNode;
+import org.tensortapestry.loom.graph.dialects.tensorops.ApplicationBody;
+import org.tensortapestry.loom.graph.dialects.tensorops.OperationBody;
 import org.tensortapestry.loom.graph.dialects.tensorops.TensorOpNodes;
 import org.tensortapestry.loom.graph.dialects.tensorops.TensorSelection;
-import org.tensortapestry.loom.zspace.ZRange;
 
 public class ApplicationNodeExporter implements GraphVisualizer.NodeTypeExporter {
 
@@ -24,21 +24,25 @@ public class ApplicationNodeExporter implements GraphVisualizer.NodeTypeExporter
   public void exportNode(
     GraphVisualizer visualizer,
     GraphVisualizer.ExportContext context,
-    LoomNode<?, ?> loomNode
+    LoomNode appNode
   ) {
-    var gvNode = context.standardNodePrefix(loomNode);
+    assert appNode.getType().equals(TensorOpNodes.APPLICATION_NODE_TYPE) : appNode.getType();
 
-    var appNode = (ApplicationNode) loomNode;
-    var opNode = appNode.getOperationSignatureNode();
+    var gvNode = context.standardNodePrefix(appNode);
+    var appBody = appNode.viewBodyAs(ApplicationBody.class);
+
+    var opNode = ApplicationBody.getOperation(appNode);
+    var opId = opNode.getId();
+    var opBody = opNode.viewBodyAs(OperationBody.class);
 
     {
       MutableNode nodeProxy = Factory.mutNode(gvNode.name());
 
-      var appShards = opNode.getApplicationNodes();
+      var appShards = OperationBody.getShards(opNode);
       var currentIdx = appShards.indexOf(appNode);
 
       if (currentIdx == appShards.size() - 1) {
-        MutableNode opProxy = Factory.mutNode(opNode.getId().toString());
+        MutableNode opProxy = Factory.mutNode(opId.toString());
 
         context
           .getExportGraph()
@@ -52,7 +56,7 @@ public class ApplicationNodeExporter implements GraphVisualizer.NodeTypeExporter
             )
           );
 
-        context.sameRank(loomNode.getId(), opNode.getId());
+        context.sameRank(appNode.getId(), opNode.getId());
       } else {
         MutableNode nextProxy = Factory.mutNode(appShards.get(currentIdx + 1).getId().toString());
 
@@ -68,7 +72,7 @@ public class ApplicationNodeExporter implements GraphVisualizer.NodeTypeExporter
             )
           );
 
-        context.sameRank(nextProxy.name(), loomNode.getId().toString());
+        context.sameRank(nextProxy.name(), appNode.getId().toString());
       }
     }
 
@@ -85,7 +89,7 @@ public class ApplicationNodeExporter implements GraphVisualizer.NodeTypeExporter
       .border(0)
       .cellspacing(0)
       .cellpadding(2)
-      .add(GH.tr(GH.td().add(selectionMapToIOConnectorsTable(context, appNode.getInputs(), true))));
+      .add(GH.tr(GH.td().add(selectionMapToIOConnectorsTable(context, appBody.getInputs(), true))));
 
     if (visualizer.isFoldApplicationNodes()) {
       var descTable = GH
@@ -96,12 +100,12 @@ public class ApplicationNodeExporter implements GraphVisualizer.NodeTypeExporter
         .cellspacing(0)
         .cellpadding(0)
         .bgcolor("white")
-        .add(GH.td().colspan(2).add(GH.bold("\"%s\"".formatted(opNode.getKernel()))));
+        .add(GH.td().colspan(2).add(GH.bold("\"%s\"".formatted(opBody.getKernel()))));
 
-      if (!opNode.getParams().isEmpty()) {
+      if (!opBody.getParams().isEmpty()) {
         descTable.add(
           context.jsonToDataKeyValueTRs(
-            (ObjectNode) JsonUtil.valueToJsonNodeTree(opNode.getParams())
+            (ObjectNode) JsonUtil.valueToJsonNodeTree(opBody.getParams())
           )
         );
       }
@@ -109,7 +113,7 @@ public class ApplicationNodeExporter implements GraphVisualizer.NodeTypeExporter
       // Annotations
       {
         var annotationMap = new HashMap<>(appNode.getAnnotations());
-        var ipfIndex = (ZRange) annotationMap.remove(TensorOpNodes.IPF_INDEX_ANNOTATION_TYPE);
+        var ipfIndex = annotationMap.remove(TensorOpNodes.IPF_INDEX_ANNOTATION_TYPE);
         if (ipfIndex != null) {
           // If the index is present, render it in the node.
           GH
@@ -125,7 +129,7 @@ public class ApplicationNodeExporter implements GraphVisualizer.NodeTypeExporter
             );
         }
 
-        context.maybeRenderAnnotations(loomNode.getId().toString(), annotationMap);
+        context.maybeRenderAnnotations(appNode.getId().toString(), annotationMap);
       }
     } else {
       var descTable = GH
@@ -136,37 +140,37 @@ public class ApplicationNodeExporter implements GraphVisualizer.NodeTypeExporter
         .cellspacing(0)
         .cellpadding(0)
         .bgcolor("white")
-        .add(context.renderDataTypeTitle(loomNode.getTypeAlias()))
-        .add(context.asDataKeyValueTR("kernel", opNode.getKernel()));
+        .add(context.renderDataTypeTitle(appNode.getTypeAlias()))
+        .add(context.asDataKeyValueTR("kernel", opBody.getKernel()));
 
-      if (!opNode.getParams().isEmpty()) {
+      if (!opBody.getParams().isEmpty()) {
         descTable.add(
           context.renderDataTypeTitle("params"),
           context.jsonToDataKeyValueTRs(
-            (ObjectNode) JsonUtil.convertValue(opNode.getParams(), JsonNode.class)
+            (ObjectNode) JsonUtil.convertValue(opBody.getParams(), JsonNode.class)
           )
         );
       }
 
       descTable.add(
-        selectionMapToDataRows(context, "inputs", appNode.getInputs()),
-        selectionMapToDataRows(context, "outputs", appNode.getOutputs())
+        selectionMapToDataRows(context, "inputs", appBody.getInputs()),
+        selectionMapToDataRows(context, "outputs", appBody.getOutputs())
       );
 
-      context.maybeRenderAnnotations(loomNode);
+      context.maybeRenderAnnotations(appNode);
     }
 
-    selectionMapToIOConnectorsTable(context, appNode.getOutputs(), false).withParent(table);
+    selectionMapToIOConnectorsTable(context, appBody.getOutputs(), false).withParent(table);
 
     gvNode.add(GraphVisualizer.asHtmlLabel(table));
 
-    tensorSelectionMapEdges(context, appNode, appNode.getInputs(), true);
-    tensorSelectionMapEdges(context, appNode, appNode.getOutputs(), false);
+    tensorSelectionMapEdges(context, appNode, appBody.getInputs(), true);
+    tensorSelectionMapEdges(context, appNode, appBody.getOutputs(), false);
   }
 
   protected static void tensorSelectionMapEdges(
     GraphVisualizer.ExportContext context,
-    LoomNode<?, ?> node,
+    LoomNode node,
     Map<String, List<TensorSelection>> inputs,
     boolean isInput
   ) {
