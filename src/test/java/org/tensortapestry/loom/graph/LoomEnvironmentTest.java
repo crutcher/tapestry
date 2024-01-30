@@ -1,9 +1,9 @@
 package org.tensortapestry.loom.graph;
 
 import org.junit.Test;
+import org.tensortapestry.common.validation.ValidationIssueCollector;
 import org.tensortapestry.loom.graph.dialects.tensorops.TensorNode;
 import org.tensortapestry.loom.testing.BaseTestClass;
-import org.tensortapestry.loom.validation.ValidationIssueCollector;
 
 public class LoomEnvironmentTest extends BaseTestClass {
 

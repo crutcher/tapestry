@@ -4,10 +4,10 @@ import java.util.List;
 import java.util.UUID;
 import java.util.function.Supplier;
 import lombok.experimental.UtilityClass;
-import org.tensortapestry.loom.common.lazy.LazyString;
-import org.tensortapestry.loom.common.lazy.Thunk;
-import org.tensortapestry.loom.validation.ValidationIssue;
-import org.tensortapestry.loom.validation.ValidationIssueCollector;
+import org.tensortapestry.common.lazy.LazyString;
+import org.tensortapestry.common.lazy.Thunk;
+import org.tensortapestry.common.validation.ValidationIssue;
+import org.tensortapestry.common.validation.ValidationIssueCollector;
 
 @UtilityClass
 public class ValidationUtils {

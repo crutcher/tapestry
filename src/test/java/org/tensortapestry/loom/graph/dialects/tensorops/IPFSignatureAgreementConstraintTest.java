@@ -7,9 +7,9 @@ import org.junit.Test;
 import org.tensortapestry.loom.graph.CommonEnvironments;
 import org.tensortapestry.loom.graph.export.graphviz.GraphVisualizer;
 import org.tensortapestry.loom.testing.BaseTestClass;
-import org.tensortapestry.loom.zspace.ZPoint;
-import org.tensortapestry.loom.zspace.ZRange;
-import org.tensortapestry.loom.zspace.ZRangeProjectionMap;
+import org.tensortapestry.zspace.ZPoint;
+import org.tensortapestry.zspace.ZRange;
+import org.tensortapestry.zspace.ZRangeProjectionMap;
 
 @SuppressWarnings("unused")
 public class IPFSignatureAgreementConstraintTest extends BaseTestClass {

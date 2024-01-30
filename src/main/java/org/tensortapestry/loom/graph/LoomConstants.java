@@ -1,7 +1,7 @@
 package org.tensortapestry.loom.graph;
 
 import lombok.experimental.UtilityClass;
-import org.tensortapestry.loom.common.runtime.ResourceHandle;
+import org.tensortapestry.common.runtime.ResourceHandle;
 
 @SuppressWarnings("unused")
 @UtilityClass

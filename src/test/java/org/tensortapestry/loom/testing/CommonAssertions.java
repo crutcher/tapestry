@@ -4,11 +4,11 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
-import org.tensortapestry.loom.common.json.JsonUtil;
-import org.tensortapestry.loom.common.text.PrettyDiffUtils;
-import org.tensortapestry.loom.validation.ListValidationIssueCollector;
-import org.tensortapestry.loom.validation.ValidationIssue;
-import org.tensortapestry.loom.zspace.experimental.ZSpaceTestAssertions;
+import org.tensortapestry.common.json.JsonUtil;
+import org.tensortapestry.common.text.PrettyDiffUtils;
+import org.tensortapestry.common.validation.ListValidationIssueCollector;
+import org.tensortapestry.common.validation.ValidationIssue;
+import org.tensortapestry.zspace.experimental.ZSpaceTestAssertions;
 
 public interface CommonAssertions extends ZSpaceTestAssertions {
   default void assertValidationIssues(

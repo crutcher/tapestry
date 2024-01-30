@@ -16,11 +16,13 @@ import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.UtilityClass;
-import org.tensortapestry.loom.common.collections.IterableStreamable;
-import org.tensortapestry.loom.common.json.*;
-import org.tensortapestry.loom.common.runtime.ReflectionUtils;
+import org.tensortapestry.common.collections.IterableStreamable;
+import org.tensortapestry.common.json.HasToJsonString;
+import org.tensortapestry.common.json.MapValueListUtil;
+import org.tensortapestry.common.runtime.ReflectionUtils;
+import org.tensortapestry.common.validation.LoomValidationError;
+import org.tensortapestry.common.validation.ValidationIssueCollector;
 import org.tensortapestry.loom.graph.dialects.common.JsdType;
-import org.tensortapestry.loom.validation.ValidationIssueCollector;
 
 /** A Loom Graph document. */
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
@@ -69,7 +71,7 @@ public final class LoomGraph implements HasToJsonString, IterableStreamable<Loom
 
   /**
    * Validate the graph.
-   * @throws org.tensortapestry.loom.validation.LoomValidationError if the graph is invalid.
+   * @throws LoomValidationError if the graph is invalid.
    */
   public void validate() {
     assertEnv().validateGraph(this);

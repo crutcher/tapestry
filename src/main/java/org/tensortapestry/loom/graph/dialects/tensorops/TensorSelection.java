@@ -9,7 +9,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.Value;
 import lombok.extern.jackson.Jacksonized;
 import org.tensortapestry.loom.graph.LoomNodeWrapper;
-import org.tensortapestry.loom.zspace.ZRange;
+import org.tensortapestry.zspace.ZRange;
 
 /** Describes the sub-range of a tensor that is selected by an application node. */
 @Value

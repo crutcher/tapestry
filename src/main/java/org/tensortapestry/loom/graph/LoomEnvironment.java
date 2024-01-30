@@ -10,12 +10,12 @@ import java.util.*;
 import javax.annotation.Nonnull;
 import lombok.Builder;
 import lombok.Data;
-import org.tensortapestry.loom.common.json.JsonSchemaFactoryManager;
-import org.tensortapestry.loom.common.json.JsonUtil;
-import org.tensortapestry.loom.common.runtime.ExcludeFromJacocoGeneratedReport;
-import org.tensortapestry.loom.validation.ListValidationIssueCollector;
-import org.tensortapestry.loom.validation.LoomValidationError;
-import org.tensortapestry.loom.validation.ValidationIssueCollector;
+import org.tensortapestry.common.json.JsonSchemaFactoryManager;
+import org.tensortapestry.common.json.JsonUtil;
+import org.tensortapestry.common.runtime.ExcludeFromJacocoGeneratedReport;
+import org.tensortapestry.common.validation.ListValidationIssueCollector;
+import org.tensortapestry.common.validation.LoomValidationError;
+import org.tensortapestry.common.validation.ValidationIssueCollector;
 
 /**
  * Loom Graph Environment.

@@ -16,11 +16,11 @@ import lombok.Singular;
 import lombok.Value;
 import lombok.extern.jackson.Jacksonized;
 import org.apache.commons.lang3.tuple.Pair;
-import org.tensortapestry.loom.common.json.JsonPathUtils;
-import org.tensortapestry.loom.common.json.JsonSchemaFactoryManager;
-import org.tensortapestry.loom.common.json.JsonUtil;
-import org.tensortapestry.loom.validation.ValidationIssue;
-import org.tensortapestry.loom.validation.ValidationIssueCollector;
+import org.tensortapestry.common.json.JsonPathUtils;
+import org.tensortapestry.common.json.JsonSchemaFactoryManager;
+import org.tensortapestry.common.json.JsonUtil;
+import org.tensortapestry.common.validation.ValidationIssue;
+import org.tensortapestry.common.validation.ValidationIssueCollector;
 
 /** A schema for validating the graph structure of a type in a LoomGraph. */
 @Value

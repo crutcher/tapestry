@@ -11,7 +11,7 @@ import guru.nidi.graphviz.model.Link;
 import guru.nidi.graphviz.model.MutableNode;
 import java.util.*;
 import java.util.function.Function;
-import org.tensortapestry.loom.common.json.JsonUtil;
+import org.tensortapestry.common.json.JsonUtil;
 import org.tensortapestry.loom.graph.LoomNode;
 import org.tensortapestry.loom.graph.dialects.tensorops.*;
 

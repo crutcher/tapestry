@@ -2,14 +2,14 @@ package org.tensortapestry.loom.graph.dialects.common;
 
 import java.net.URI;
 import java.util.List;
-import org.tensortapestry.loom.common.json.JsonPathUtils;
-import org.tensortapestry.loom.common.json.JsonSchemaFactoryManager;
-import org.tensortapestry.loom.common.json.JsonUtil;
+import org.tensortapestry.common.json.JsonPathUtils;
+import org.tensortapestry.common.json.JsonSchemaFactoryManager;
+import org.tensortapestry.common.json.JsonUtil;
+import org.tensortapestry.common.validation.ValidationIssue;
+import org.tensortapestry.common.validation.ValidationIssueCollector;
 import org.tensortapestry.loom.graph.LoomEnvironment;
 import org.tensortapestry.loom.graph.LoomGraph;
 import org.tensortapestry.loom.graph.LoomNode;
-import org.tensortapestry.loom.validation.ValidationIssue;
-import org.tensortapestry.loom.validation.ValidationIssueCollector;
 
 public class SchemaTypeConstraint implements LoomEnvironment.Constraint {
 

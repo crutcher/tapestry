@@ -9,8 +9,8 @@ import java.util.function.Function;
 import javax.annotation.Nullable;
 import lombok.experimental.UtilityClass;
 import org.tensortapestry.loom.graph.LoomGraph;
-import org.tensortapestry.loom.zspace.ZRange;
-import org.tensortapestry.loom.zspace.ZRangeProjectionMap;
+import org.tensortapestry.zspace.ZRange;
+import org.tensortapestry.zspace.ZRangeProjectionMap;
 
 @UtilityClass
 public class OperationUtils {

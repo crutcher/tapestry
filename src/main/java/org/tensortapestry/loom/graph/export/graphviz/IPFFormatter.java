@@ -1,7 +1,7 @@
 package org.tensortapestry.loom.graph.export.graphviz;
 
 import lombok.experimental.UtilityClass;
-import org.tensortapestry.loom.zspace.ZRangeProjectionMap;
+import org.tensortapestry.zspace.ZRangeProjectionMap;
 
 @UtilityClass
 public class IPFFormatter {

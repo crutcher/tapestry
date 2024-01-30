@@ -4,12 +4,12 @@ import java.util.Set;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Singular;
+import org.tensortapestry.common.validation.ValidationIssue;
+import org.tensortapestry.common.validation.ValidationIssueCollector;
 import org.tensortapestry.loom.graph.LoomConstants;
 import org.tensortapestry.loom.graph.LoomEnvironment;
 import org.tensortapestry.loom.graph.LoomGraph;
 import org.tensortapestry.loom.graph.LoomNode;
-import org.tensortapestry.loom.validation.ValidationIssue;
-import org.tensortapestry.loom.validation.ValidationIssueCollector;
 
 @Getter
 @Builder

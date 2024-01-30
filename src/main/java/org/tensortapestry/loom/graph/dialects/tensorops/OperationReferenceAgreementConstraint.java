@@ -8,13 +8,13 @@ import java.util.UUID;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
-import org.tensortapestry.loom.common.json.JsonPathUtils;
-import org.tensortapestry.loom.common.lazy.LazyString;
-import org.tensortapestry.loom.common.lazy.Thunk;
+import org.tensortapestry.common.json.JsonPathUtils;
+import org.tensortapestry.common.lazy.LazyString;
+import org.tensortapestry.common.lazy.Thunk;
+import org.tensortapestry.common.validation.ValidationIssue;
+import org.tensortapestry.common.validation.ValidationIssueCollector;
 import org.tensortapestry.loom.graph.*;
-import org.tensortapestry.loom.validation.ValidationIssue;
-import org.tensortapestry.loom.validation.ValidationIssueCollector;
-import org.tensortapestry.loom.zspace.ZRange;
+import org.tensortapestry.zspace.ZRange;
 
 public class OperationReferenceAgreementConstraint implements LoomEnvironment.Constraint {
 

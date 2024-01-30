@@ -10,9 +10,8 @@ import javax.annotation.Nonnull;
 import lombok.Builder;
 import lombok.Value;
 import lombok.extern.jackson.Jacksonized;
-import org.tensortapestry.loom.common.json.HasToJsonString;
-import org.tensortapestry.loom.graph.dialects.common.JsdType;
-import org.tensortapestry.loom.zspace.ZRangeProjectionMap;
+import org.tensortapestry.common.json.HasToJsonString;
+import org.tensortapestry.zspace.ZRangeProjectionMap;
 
 @Value
 @Jacksonized

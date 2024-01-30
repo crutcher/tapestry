@@ -9,7 +9,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import lombok.Value;
 import lombok.experimental.UtilityClass;
-import org.tensortapestry.loom.common.json.JsonPathUtils;
+import org.tensortapestry.common.json.JsonPathUtils;
 
 @UtilityClass
 public class ExportUtils {

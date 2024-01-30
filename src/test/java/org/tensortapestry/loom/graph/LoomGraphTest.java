@@ -2,11 +2,11 @@ package org.tensortapestry.loom.graph;
 
 import java.util.UUID;
 import org.junit.Test;
-import org.tensortapestry.loom.common.json.JsonUtil;
+import org.tensortapestry.common.json.JsonUtil;
 import org.tensortapestry.loom.graph.dialects.common.NoteNode;
 import org.tensortapestry.loom.graph.dialects.tensorops.TensorNode;
 import org.tensortapestry.loom.testing.BaseTestClass;
-import org.tensortapestry.loom.zspace.ZRange;
+import org.tensortapestry.zspace.ZRange;
 
 public class LoomGraphTest extends BaseTestClass {
 

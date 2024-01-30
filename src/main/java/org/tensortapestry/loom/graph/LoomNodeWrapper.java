@@ -2,7 +2,7 @@ package org.tensortapestry.loom.graph;
 
 import java.util.UUID;
 import javax.annotation.Nonnull;
-import org.tensortapestry.loom.common.collections.Wrapper;
+import org.tensortapestry.common.collections.Wrapper;
 
 /**
  * Wrapper for a LoomNode.

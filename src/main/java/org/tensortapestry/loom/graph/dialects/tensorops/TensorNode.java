@@ -6,16 +6,16 @@ import lombok.ToString;
 import lombok.Value;
 import lombok.experimental.Delegate;
 import lombok.extern.jackson.Jacksonized;
-import org.tensortapestry.loom.common.json.HasToJsonString;
+import org.tensortapestry.common.json.HasToJsonString;
 import org.tensortapestry.loom.graph.AbstractNodeWrapper;
 import org.tensortapestry.loom.graph.LoomGraph;
 import org.tensortapestry.loom.graph.LoomNode;
 import org.tensortapestry.loom.graph.dialects.common.JsdType;
-import org.tensortapestry.loom.zspace.HasDimension;
-import org.tensortapestry.loom.zspace.HasSize;
-import org.tensortapestry.loom.zspace.ZPoint;
-import org.tensortapestry.loom.zspace.ZRange;
-import org.tensortapestry.loom.zspace.ZTensorWrapper;
+import org.tensortapestry.zspace.HasDimension;
+import org.tensortapestry.zspace.HasSize;
+import org.tensortapestry.zspace.ZPoint;
+import org.tensortapestry.zspace.ZRange;
+import org.tensortapestry.zspace.ZTensorWrapper;
 
 @JsdType(TensorNode.TYPE)
 public final class TensorNode extends AbstractNodeWrapper<TensorNode.Body> {

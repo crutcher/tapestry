@@ -10,7 +10,7 @@ import lombok.Singular;
 import lombok.Value;
 import lombok.experimental.Delegate;
 import lombok.extern.jackson.Jacksonized;
-import org.tensortapestry.loom.common.json.HasToJsonString;
+import org.tensortapestry.common.json.HasToJsonString;
 import org.tensortapestry.loom.graph.AbstractNodeWrapper;
 import org.tensortapestry.loom.graph.LoomGraph;
 import org.tensortapestry.loom.graph.LoomNode;

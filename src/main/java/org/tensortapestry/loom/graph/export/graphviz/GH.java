@@ -15,7 +15,7 @@ import lombok.experimental.UtilityClass;
 import org.dom4j.*;
 import org.dom4j.io.OutputFormat;
 import org.dom4j.io.XMLWriter;
-import org.tensortapestry.loom.common.runtime.ExcludeFromJacocoGeneratedReport;
+import org.tensortapestry.common.runtime.ExcludeFromJacocoGeneratedReport;
 
 /**
  * A fluent api for creating GraphViz HTML-Like labels.

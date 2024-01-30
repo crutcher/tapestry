@@ -3,8 +3,8 @@ package org.tensortapestry.loom.graph.export.graphviz;
 import com.google.common.collect.Streams;
 import java.util.*;
 import lombok.experimental.UtilityClass;
-import org.tensortapestry.loom.common.DigestUtils;
-import org.tensortapestry.loom.common.text.TextUtils;
+import org.tensortapestry.common.DigestUtils;
+import org.tensortapestry.common.text.TextUtils;
 
 /**
  * Utilities for generating short aliases for UUIDs.

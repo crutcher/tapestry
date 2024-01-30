@@ -14,10 +14,10 @@ import javax.annotation.Nullable;
 import lombok.Builder;
 import lombok.Data;
 import lombok.extern.jackson.Jacksonized;
-import org.tensortapestry.loom.common.json.HasToJsonString;
-import org.tensortapestry.loom.common.json.JsonViewWrapper;
-import org.tensortapestry.loom.common.json.ViewConversionError;
-import org.tensortapestry.loom.validation.ValidationIssue;
+import org.tensortapestry.common.json.HasToJsonString;
+import org.tensortapestry.common.json.JsonViewWrapper;
+import org.tensortapestry.common.json.ViewConversionError;
+import org.tensortapestry.common.validation.ValidationIssue;
 
 /**
  * A node in a Loom Graph.
@@ -118,7 +118,7 @@ public final class LoomNode implements LoomNodeWrapper, HasToJsonString {
 
       var node = new LoomNode(
         this.graph,
-        this.id,
+        Objects.requireNonNull(this.id, "id"),
         this.type,
         this.label,
         this.body,

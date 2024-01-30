@@ -18,16 +18,16 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.Getter;
 import org.apache.commons.lang3.tuple.Pair;
-import org.tensortapestry.loom.common.collections.IteratorUtils;
-import org.tensortapestry.loom.common.json.JsonUtil;
-import org.tensortapestry.loom.common.json.JsonViewWrapper;
+import org.tensortapestry.common.collections.IteratorUtils;
+import org.tensortapestry.common.json.JsonUtil;
+import org.tensortapestry.common.json.JsonViewWrapper;
 import org.tensortapestry.loom.graph.LoomGraph;
 import org.tensortapestry.loom.graph.LoomNode;
 import org.tensortapestry.loom.graph.TraversalUtils;
 import org.tensortapestry.loom.graph.dialects.tensorops.*;
 import org.tensortapestry.loom.graph.export.ExportUtils;
-import org.tensortapestry.loom.zspace.ZRange;
-import org.tensortapestry.loom.zspace.ZRangeProjectionMap;
+import org.tensortapestry.zspace.ZRange;
+import org.tensortapestry.zspace.ZRangeProjectionMap;
 
 @Data
 @Builder

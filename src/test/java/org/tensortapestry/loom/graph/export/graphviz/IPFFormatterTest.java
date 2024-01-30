@@ -3,9 +3,9 @@ package org.tensortapestry.loom.graph.export.graphviz;
 import org.junit.Test;
 import org.tensortapestry.loom.testing.BaseTestClass;
 import org.tensortapestry.loom.testing.XmlAssertions;
-import org.tensortapestry.loom.zspace.ZAffineMap;
-import org.tensortapestry.loom.zspace.ZRangeProjectionMap;
-import org.tensortapestry.loom.zspace.ZTensor;
+import org.tensortapestry.zspace.ZAffineMap;
+import org.tensortapestry.zspace.ZRangeProjectionMap;
+import org.tensortapestry.zspace.ZTensor;
 
 public class IPFFormatterTest extends BaseTestClass implements XmlAssertions {
 
