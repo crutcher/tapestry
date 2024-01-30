@@ -4,7 +4,7 @@ import java.util.UUID;
 import javax.annotation.Nonnull;
 import org.tensortapestry.loom.common.collections.Wrapper;
 
-public interface NodeWrapper extends Wrapper<LoomNode> {
+public interface LoomNodeWrapper extends Wrapper<LoomNode> {
   @Nonnull
   default UUID getId() {
     return unwrap().getId();

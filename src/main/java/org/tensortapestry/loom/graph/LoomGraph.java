@@ -106,7 +106,7 @@ public final class LoomGraph implements HasToJsonString, IterableStreamable<Loom
    * @param <W> the wrapper type.
    */
   @Nonnull
-  public <W extends NodeWrapper> IterableStreamable<W> byType(Class<W> wrapperClass) {
+  public <W extends LoomNodeWrapper> IterableStreamable<W> byType(Class<W> wrapperClass) {
     return byType(
       JsdType.Util.assertType(wrapperClass),
       n -> ReflectionUtils.newInstance(wrapperClass, n)
@@ -121,7 +121,7 @@ public final class LoomGraph implements HasToJsonString, IterableStreamable<Loom
    * @param <W> the wrapper type.
    */
   @Nonnull
-  public <W extends NodeWrapper> IterableStreamable<W> byType(
+  public <W extends LoomNodeWrapper> IterableStreamable<W> byType(
     String type,
     Function<LoomNode, W> wrap
   ) {
@@ -199,7 +199,7 @@ public final class LoomGraph implements HasToJsonString, IterableStreamable<Loom
     return node;
   }
 
-  public <W extends NodeWrapper> W assertNode(Function<LoomNode, W> wrap, UUID id) {
+  public <W extends LoomNodeWrapper> W assertNode(Function<LoomNode, W> wrap, UUID id) {
     return wrap.apply(assertNode(id));
   }
 
@@ -256,7 +256,7 @@ public final class LoomGraph implements HasToJsonString, IterableStreamable<Loom
    */
   @Nonnull
   @CanIgnoreReturnValue
-  public LoomNode addNode(@Nonnull NodeWrapper wrapper) {
+  public LoomNode addNode(@Nonnull LoomNodeWrapper wrapper) {
     var node = wrapper.unwrap();
 
     {
@@ -330,7 +330,7 @@ public final class LoomGraph implements HasToJsonString, IterableStreamable<Loom
    */
   @Nonnull
   @CanIgnoreReturnValue
-  public LoomNode removeNode(@Nonnull NodeWrapper node) {
+  public LoomNode removeNode(@Nonnull LoomNodeWrapper node) {
     return removeNode(node.unwrap().getId());
   }
 

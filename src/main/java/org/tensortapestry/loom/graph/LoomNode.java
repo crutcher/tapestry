@@ -23,7 +23,7 @@ import org.tensortapestry.loom.validation.ValidationIssue;
 @Builder
 @Data
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
-public final class LoomNode implements NodeWrapper, HasToJsonString {
+public final class LoomNode implements LoomNodeWrapper, HasToJsonString {
 
   public static class LoomNodeBuilder {
 
@@ -158,7 +158,7 @@ public final class LoomNode implements NodeWrapper, HasToJsonString {
   public boolean equals(Object other) {
     if (other == this) return true;
     if (other == null) return false;
-    if (other instanceof NodeWrapper wrapper) {
+    if (other instanceof LoomNodeWrapper wrapper) {
       other = wrapper.unwrap();
     }
     if (other instanceof LoomNode node) {

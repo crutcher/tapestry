@@ -11,7 +11,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.Delegate;
 
 @RequiredArgsConstructor
-public abstract class AbstractNodeWrapper<BodyT> implements NodeWrapper {
+public abstract class AbstractNodeWrapper<BodyT> implements LoomNodeWrapper {
 
   public abstract static class AbstractNodeWrapperBuilder<WrapperT, BuilderT, BodyT, BodyBuilderT> {
 

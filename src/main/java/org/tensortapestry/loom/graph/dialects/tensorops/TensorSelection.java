@@ -8,7 +8,7 @@ import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import lombok.Value;
 import lombok.extern.jackson.Jacksonized;
-import org.tensortapestry.loom.graph.NodeWrapper;
+import org.tensortapestry.loom.graph.LoomNodeWrapper;
 import org.tensortapestry.loom.zspace.ZRange;
 
 /** Describes the sub-range of a tensor that is selected by an application node. */
@@ -27,7 +27,7 @@ public class TensorSelection {
    * @param tensorNode the TensorNode
    * @return the TensorSelection
    */
-  public static TensorSelection from(NodeWrapper tensorNode) {
+  public static TensorSelection from(LoomNodeWrapper tensorNode) {
     tensorNode.unwrap().assertType(TensorNode.TYPE);
     return TensorSelection
       .builder()
@@ -46,7 +46,7 @@ public class TensorSelection {
    * @param range the range
    * @return the TensorSelection
    */
-  public static TensorSelection from(NodeWrapper tensorNode, ZRange range) {
+  public static TensorSelection from(LoomNodeWrapper tensorNode, ZRange range) {
     tensorNode.unwrap().assertType(TensorNode.TYPE);
     var tensorRange = tensorNode.unwrap().viewBodyAs(TensorNode.Body.class).getRange();
     if (!tensorRange.contains(range)) {
