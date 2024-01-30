@@ -81,6 +81,8 @@ public class OperationUtils {
 
     var operation = OperationNode
       .builder(graph)
+      .annotation(TensorOpNodes.IPF_SIGNATURE_ANNOTATION_TYPE, ipfSignature)
+      .annotation(TensorOpNodes.IPF_INDEX_ANNOTATION_TYPE, ipfIndex)
       .configure(b -> {
         b.kernel(kernelName);
 
@@ -126,8 +128,6 @@ public class OperationUtils {
           b.output(name, selections);
         }
       })
-      .annotation(TensorOpNodes.IPF_SIGNATURE_ANNOTATION_TYPE, ipfSignature)
-      .annotation(TensorOpNodes.IPF_INDEX_ANNOTATION_TYPE, ipfIndex)
       .build();
 
     createIpfShards(operation, shardBuilder.apply(ipfIndex));
@@ -158,6 +158,7 @@ public class OperationUtils {
 
     return ApplicationNode
       .builder(operation.assertGraph())
+      .annotation(TensorOpNodes.IPF_INDEX_ANNOTATION_TYPE, shardIndex)
       .configure(b -> {
         b.operationId(operation.getId());
 
@@ -191,7 +192,6 @@ public class OperationUtils {
           b.output(name, selections);
         }
       })
-      .annotation(TensorOpNodes.IPF_INDEX_ANNOTATION_TYPE, shardIndex)
       .build();
   }
 }

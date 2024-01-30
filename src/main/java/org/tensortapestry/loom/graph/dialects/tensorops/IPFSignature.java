@@ -11,6 +11,7 @@ import lombok.Builder;
 import lombok.Value;
 import lombok.extern.jackson.Jacksonized;
 import org.tensortapestry.loom.common.json.HasToJsonString;
+import org.tensortapestry.loom.graph.dialects.common.JsdType;
 import org.tensortapestry.loom.zspace.ZRangeProjectionMap;
 
 @Value
@@ -46,6 +47,14 @@ public class IPFSignature implements HasToJsonString {
       return this;
     }
 
+    public IPFSignatureBuilder input(
+      @Nonnull String name,
+      @Nonnull ZRangeProjectionMap.ZRangeProjectionMapBuilder builder
+    ) {
+      this.inputs.computeIfAbsent(name, k -> new ArrayList<>()).add(builder.build());
+      return this;
+    }
+
     @CanIgnoreReturnValue
     public IPFSignatureBuilder outputs(@Nonnull Map<String, List<ZRangeProjectionMap>> ipfs) {
       this.outputs = ipfs;
@@ -63,6 +72,14 @@ public class IPFSignature implements HasToJsonString {
 
     public IPFSignatureBuilder output(@Nonnull String name, @Nonnull ZRangeProjectionMap ipf) {
       this.outputs.computeIfAbsent(name, k -> new ArrayList<>()).add(ipf);
+      return this;
+    }
+
+    public IPFSignatureBuilder output(
+      @Nonnull String name,
+      @Nonnull ZRangeProjectionMap.ZRangeProjectionMapBuilder builder
+    ) {
+      this.outputs.computeIfAbsent(name, k -> new ArrayList<>()).add(builder.build());
       return this;
     }
   }

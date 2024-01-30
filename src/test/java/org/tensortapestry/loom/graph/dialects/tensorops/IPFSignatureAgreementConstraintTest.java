@@ -25,11 +25,7 @@ public class IPFSignatureAgreementConstraintTest extends BaseTestClass {
     var tensorA = TensorNode
       .builder(graph)
       .label("A")
-      .configure(b ->
-        b
-          .dtype("int32")
-          .range(ZRange.builder().start(ZPoint.of(-10, 4)).shape(ZPoint.of(3, 4)).build())
-      )
+      .configure(b -> b.dtype("int32").range(ZRange.builder().start(-10, 4).shape(3, 4).build()))
       .build();
 
     var tensorB = TensorNode
@@ -49,7 +45,6 @@ public class IPFSignatureAgreementConstraintTest extends BaseTestClass {
             .builder()
             .affineMap(new int[][] { { 1, 0 }, { 0, 0 } })
             .shape(ZPoint.of(1, tensorA.getShape().get(1)))
-            .build()
         )
         .input(
           "y",
@@ -57,12 +52,8 @@ public class IPFSignatureAgreementConstraintTest extends BaseTestClass {
             .builder()
             .affineMap(new int[][] { { 0, 0 }, { 0, 1 } })
             .shape(ZPoint.of(tensorB.getShape().get(0), 1))
-            .build()
         )
-        .output(
-          "z",
-          ZRangeProjectionMap.builder().affineMap(new int[][] { { 1, 0 }, { 0, 1 } }).build()
-        )
+        .output("z", ZRangeProjectionMap.builder().affineMap(new int[][] { { 1, 0 }, { 0, 1 } }))
         .build(),
       inputs -> {
         var x = inputs.get("x").getFirst().getRange().getShape().get(0);

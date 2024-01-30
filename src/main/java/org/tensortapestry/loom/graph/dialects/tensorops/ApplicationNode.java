@@ -78,24 +78,24 @@ public class ApplicationNode extends AbstractNodeWrapper<ApplicationNode.Body> {
     return new Builder();
   }
 
-    /**
-     * Builder for a ApplicationNode.
-     *
-     * @param graph the graph to build the node for.
-     * @return a new Builder.
-     */
+  /**
+   * Builder for an ApplicationNode.
+   *
+   * @param graph the graph to build the node for.
+   * @return a new Builder.
+   */
   @Nonnull
   public static Builder builder(LoomGraph graph) {
     return new Builder().graph(graph);
   }
 
-    /**
-     * Wrap a LoomNode as a ApplicationNode.
-     *
-     * @param node the node to wrap.
-     * @return the wrapped node.
-     * @throws IllegalStateException if the node is not a ApplicationNode.
-     */
+  /**
+   * Wrap a LoomNode as an ApplicationNode.
+   *
+   * @param node the node to wrap.
+   * @return the wrapped node.
+   * @throws IllegalStateException if the node is not a ApplicationNode.
+   */
   @Nonnull
   public static ApplicationNode wrap(@Nonnull LoomNode node) {
     return new ApplicationNode(node);
