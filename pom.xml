@@ -463,4 +463,17 @@
         </plugins>
     </build>
 
+    <reporting>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>${javadoc.plugin.version}</version>
+                <configuration>
+                    <sourcepath>${project.build.directory}/generated-sources/delombok</sourcepath>
+                </configuration>
+            </plugin>
+        </plugins>
+    </reporting>
+
 </project>

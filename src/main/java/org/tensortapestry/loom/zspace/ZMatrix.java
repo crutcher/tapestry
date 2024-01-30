@@ -8,7 +8,7 @@ import javax.annotation.concurrent.ThreadSafe;
 import org.tensortapestry.loom.zspace.ops.MatrixOps;
 
 /**
- * An immutable (2x2) matrix.
+ * An immutable 2D matrix.
  *
  * <p>Internally, represented by an immutable ZTensor.
  *

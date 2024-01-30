@@ -517,6 +517,10 @@ public final class ZTensor
     return true;
   }
 
+  /**
+   * Return a formatted string of this tensor.
+   * @return the string.
+   */
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
@@ -769,8 +773,8 @@ public final class ZTensor
    *
    * <p>This is common code used by the Jackson serializer and the {@link #toArray} method.
    *
-   * @param startArray start an array.
-   * @param endArray end an array.
+   * @param startArray start an array, called once per nested array.
+   * @param endArray end an array, called once per nested array.
    * @param elemSep write an element separator.
    * @param writeNumber write a number.
    */
