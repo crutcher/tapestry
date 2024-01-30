@@ -34,15 +34,6 @@ public final class LoomNode implements LoomNodeWrapper, HasToJsonString {
   public static class Builder {
 
     /**
-     * Does the builder have an ID?
-     *
-     * @return true if the builder has an ID.
-     */
-    public final boolean hasId() {
-      return id != null;
-    }
-
-    /**
      * Set the ID of the node.
      *
      * @param value the ID.
