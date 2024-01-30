@@ -16,6 +16,7 @@ import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.UtilityClass;
+import org.tensortapestry.loom.common.collections.IterableStreamable;
 import org.tensortapestry.loom.common.json.*;
 import org.tensortapestry.loom.common.runtime.ReflectionUtils;
 import org.tensortapestry.loom.graph.dialects.common.JsdType;

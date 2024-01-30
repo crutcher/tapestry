@@ -1,4 +1,4 @@
-package org.tensortapestry.loom.graph;
+package org.tensortapestry.loom.graph.export;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;

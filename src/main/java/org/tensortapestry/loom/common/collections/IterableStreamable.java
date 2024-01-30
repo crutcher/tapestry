@@ -1,4 +1,4 @@
-package org.tensortapestry.loom.graph;
+package org.tensortapestry.loom.common.collections;
 
 import java.util.List;
 import java.util.function.Consumer;
