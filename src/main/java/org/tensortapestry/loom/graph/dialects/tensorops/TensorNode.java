@@ -59,10 +59,16 @@ public final class TensorNode extends AbstractNodeWrapper<TensorNode.Body> {
       }
     }
 
+    /**
+     * The data type of the tensor.
+     */
     @ToString.Include
     @Nonnull
     String dtype;
 
+    /**
+     * The coordinate range the tensor is defined over.
+     */
     @ToString.Include
     @Nonnull
     ZRange range;
