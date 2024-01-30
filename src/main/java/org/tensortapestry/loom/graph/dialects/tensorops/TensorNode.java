@@ -11,7 +11,11 @@ import org.tensortapestry.loom.graph.AbstractNodeWrapper;
 import org.tensortapestry.loom.graph.LoomGraph;
 import org.tensortapestry.loom.graph.LoomNode;
 import org.tensortapestry.loom.graph.dialects.common.JsdType;
-import org.tensortapestry.loom.zspace.*;
+import org.tensortapestry.loom.zspace.HasDimension;
+import org.tensortapestry.loom.zspace.HasSize;
+import org.tensortapestry.loom.zspace.ZPoint;
+import org.tensortapestry.loom.zspace.ZRange;
+import org.tensortapestry.loom.zspace.ZTensorWrapper;
 
 @JsdType(TensorNode.TYPE)
 public final class TensorNode extends AbstractNodeWrapper<TensorNode.Body> {
@@ -32,7 +36,7 @@ public final class TensorNode extends AbstractNodeWrapper<TensorNode.Body> {
   @lombok.Builder
   @JsdType(TYPE)
   @ToString(onlyExplicitlyIncluded = true)
-  public static class Body implements HasDimension, HasToJsonString, HasSize {
+  public static class Body implements HasDimension, HasSize, HasToJsonString {
 
     public static class BodyBuilder {
 

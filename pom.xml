@@ -383,6 +383,9 @@
                         </jackson>
                     </json>
                     <java>
+                        <removeUnusedImports/>
+                        <importOrder/>
+
                         <prettier>
                             <devDependencies>
                                 <prettier>${spotless.prettier.version}</prettier>
@@ -396,8 +399,6 @@
                             </config>
                         </prettier>
 
-                        <importOrder/>
-                        <removeUnusedImports/>
                         <formatAnnotations/>
                         <trimTrailingWhitespace/>
                         <indent>
