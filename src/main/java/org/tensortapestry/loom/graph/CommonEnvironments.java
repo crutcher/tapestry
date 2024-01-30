@@ -24,6 +24,8 @@ public final class CommonEnvironments {
       .jsonSchemaFactoryManager(buildJsonSchemaFactoryManager())
       .build()
       .addConstraint(new SchemaTypeConstraint())
+      .addUrlAlias("http://tensortapestry.org/schemas/loom/2024-01/node_types.jsd", "loom")
+      .addUrlAlias("http://tensortapestry.org/schemas/loom/2024-01/annotation_types.jsd", "loom")
       .addConstraint(
         TensorDTypesAreValidConstraint.builder().validDTypes(Set.of("int32", "float32")).build()
       )
