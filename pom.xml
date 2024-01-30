@@ -14,12 +14,14 @@
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
         <lombok.version>1.18.30</lombok.version>
+        <lombok.plugin.version>1.18.20.0</lombok.plugin.version>
         <errorprone.version>2.24.1</errorprone.version>
         <spotless.plugin.version>2.42.0</spotless.plugin.version>
         <spotless.prettier.version>2.8.8</spotless.prettier.version>
         <spotless.prettier.plugin.version>2.2.0</spotless.prettier.plugin.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <jackson.version>2.16.1</jackson.version>
+        <javadoc.plugin.version>3.6.3</javadoc.plugin.version>
     </properties>
 
     <repositories>
@@ -423,6 +425,39 @@
                     </reportSet>
                 </reportSets>
                 -->
+            </plugin>
+            <plugin>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok-maven-plugin</artifactId>
+                <version>${lombok.plugin.version}</version>
+                <executions>
+                    <execution>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>delombok</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <addOutputDirectory>false</addOutputDirectory>
+                    <sourceDirectory>src/main/java</sourceDirectory>
+                </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.projectlombok</groupId>
+                        <artifactId>lombok</artifactId>
+                        <version>${lombok.version}</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>${javadoc.plugin.version}</version>
+                <configuration>
+                    <sourcepath>${project.build.directory}/generated-sources/delombok</sourcepath>
+                </configuration>
             </plugin>
         </plugins>
     </build>
