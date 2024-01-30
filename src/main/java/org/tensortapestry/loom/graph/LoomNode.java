@@ -19,13 +19,19 @@ import org.tensortapestry.loom.common.json.JsonViewWrapper;
 import org.tensortapestry.loom.common.json.ViewConversionError;
 import org.tensortapestry.loom.validation.ValidationIssue;
 
-@Jacksonized
-@Builder
+/**
+ * A node in a Loom Graph.
+ */
 @Data
+@Jacksonized
+@Builder(builderClassName = "Builder")
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public final class LoomNode implements LoomNodeWrapper, HasToJsonString {
 
-  public static class LoomNodeBuilder {
+  /**
+   * Builder for a LoomNode.
+   */
+  public static class Builder {
 
     /**
      * Does the builder have an ID?
@@ -43,7 +49,7 @@ public final class LoomNode implements LoomNodeWrapper, HasToJsonString {
      * @return {@code this}
      */
     @Nonnull
-    public LoomNodeBuilder id(@Nonnull UUID value) {
+    public Builder id(@Nonnull UUID value) {
       this.id = value;
       return this;
     }
@@ -56,14 +62,19 @@ public final class LoomNode implements LoomNodeWrapper, HasToJsonString {
      */
     @Nonnull
     @JsonSetter
-    public LoomNodeBuilder body(@Nonnull Object value) {
+    public Builder body(@Nonnull Object value) {
       this.body = JsonViewWrapper.of(value);
       return this;
     }
 
+    /**
+     * Set the body of the node.
+     * @param supplier supplier for the body.
+     * @return {@code this}
+     */
     @Nonnull
-    public LoomNodeBuilder body(@Nonnull Supplier<Object> value) {
-      this.body = JsonViewWrapper.of(value);
+    public Builder body(@Nonnull Supplier<Object> supplier) {
+      this.body = JsonViewWrapper.of(supplier);
       return this;
     }
 
@@ -75,11 +86,11 @@ public final class LoomNode implements LoomNodeWrapper, HasToJsonString {
      * @return {@code this}
      */
     @Nonnull
-    public LoomNodeBuilder annotation(@Nonnull String type, @Nonnull Object value) {
-      if (annotations$value == null) {
+    public Builder annotation(@Nonnull String type, @Nonnull Object value) {
+      if (this.annotations == null) {
         annotations(new HashMap<>());
       }
-      annotations$value.put(type, JsonViewWrapper.of(value));
+      this.annotations.put(type, JsonViewWrapper.of(value));
       return this;
     }
 
@@ -90,7 +101,7 @@ public final class LoomNode implements LoomNodeWrapper, HasToJsonString {
      * @return {@code this}
      */
     @Nonnull
-    public LoomNodeBuilder withAnnotations(@Nonnull Map<String, Object> annotations) {
+    public Builder withAnnotations(@Nonnull Map<String, Object> annotations) {
       annotations.forEach(this::annotation);
       return this;
     }
@@ -107,9 +118,8 @@ public final class LoomNode implements LoomNodeWrapper, HasToJsonString {
      */
     @Nonnull
     public LoomNode build() {
-      Map<String, JsonViewWrapper> annotations$value = this.annotations$value;
-      if (!this.annotations$set) {
-        annotations$value = new HashMap<>();
+      if (this.annotations == null) {
+        this.annotations = new HashMap<>();
       }
       if (this.id == null && this.graph != null) {
         this.id = this.graph.genNodeId();
@@ -117,11 +127,11 @@ public final class LoomNode implements LoomNodeWrapper, HasToJsonString {
 
       var node = new LoomNode(
         this.graph,
-        Objects.requireNonNull(this.id, "id"),
+        this.id,
         this.type,
         this.label,
         this.body,
-        annotations$value
+        this.annotations
       );
       if (this.graph != null) {
         this.graph.addNode(node);
@@ -130,23 +140,40 @@ public final class LoomNode implements LoomNodeWrapper, HasToJsonString {
     }
   }
 
+  /**
+   * The graph that this node belongs to.
+   */
   @JsonIgnore
   @Nullable private LoomGraph graph;
 
+  /**
+   * The ID of the node.
+   */
   @Nonnull
   private final UUID id;
 
+  /**
+   * The type of the node.
+   */
   @Nonnull
   public final String type;
 
+  /**
+   * The label of the node.
+   */
   @Nullable private String label;
 
+  /**
+   * The body of the node.
+   */
   @Nonnull
   private final JsonViewWrapper body;
 
-  @Builder.Default
+  /**
+   * The annotations of the node.
+   */
   @Nonnull
-  private final Map<String, JsonViewWrapper> annotations = new HashMap<>();
+  private final Map<String, JsonViewWrapper> annotations;
 
   @Override
   @Nonnull
@@ -192,8 +219,13 @@ public final class LoomNode implements LoomNodeWrapper, HasToJsonString {
     return graph;
   }
 
+  /**
+   * Get the environment that this node belongs to.
+   * @return the environment.
+   * @throws IllegalStateException if the node does not belong to an environment.
+   */
   public LoomEnvironment assertEnvironment() {
-    return assertGraph().getEnv();
+    return assertGraph().assertEnv();
   }
 
   /**
@@ -210,6 +242,11 @@ public final class LoomNode implements LoomNodeWrapper, HasToJsonString {
     return this;
   }
 
+  /**
+   * Get the type alias of the node.
+   * @return the type alias.
+   * @throws IllegalStateException if the node does not belong to an environment.
+   */
   @JsonIgnore
   public String getTypeAlias() {
     return assertEnvironment().getTypeAlias(type);

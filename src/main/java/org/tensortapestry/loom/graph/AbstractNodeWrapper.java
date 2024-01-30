@@ -15,7 +15,7 @@ public abstract class AbstractNodeWrapper<BodyT> implements LoomNodeWrapper {
 
   public abstract static class AbstractNodeWrapperBuilder<WrapperT, BuilderT, BodyT, BodyBuilderT> {
 
-    private final LoomNode.LoomNodeBuilder nodeBuilder;
+    private final LoomNode.Builder nodeBuilder;
 
     private final Supplier<BodyBuilderT> createBodyBuilder;
     private final Function<BodyBuilderT, BodyT> bodyBuilderBuild;

@@ -54,6 +54,12 @@ public final class LoomGraph implements HasToJsonString, IterableStreamable<Loom
     }
   }
 
+  /**
+   * Get the environment this graph belongs to.
+   * @return the environment.
+   * @throws IllegalStateException if the environment is not set.
+   */
+  @Nonnull
   public LoomEnvironment assertEnv() {
     if (env == null) {
       throw new IllegalStateException("Environment not set");
@@ -61,10 +67,18 @@ public final class LoomGraph implements HasToJsonString, IterableStreamable<Loom
     return env;
   }
 
+  /**
+   * Validate the graph.
+   * @throws org.tensortapestry.loom.validation.LoomValidationError if the graph is invalid.
+   */
   public void validate() {
     assertEnv().validateGraph(this);
   }
 
+  /**
+   * Validate the graph.
+   * @param issueCollector the issue collector to use.
+   */
   public void validate(ValidationIssueCollector issueCollector) {
     assertEnv().validateGraph(this, issueCollector);
   }
@@ -233,7 +247,7 @@ public final class LoomGraph implements HasToJsonString, IterableStreamable<Loom
    */
   @Nonnull
   @CheckReturnValue
-  public LoomNode.LoomNodeBuilder nodeBuilder() {
+  public LoomNode.Builder nodeBuilder() {
     return LoomNode.builder().graph(this);
   }
 
@@ -244,7 +258,7 @@ public final class LoomGraph implements HasToJsonString, IterableStreamable<Loom
    */
   @Nonnull
   @CheckReturnValue
-  public LoomNode.LoomNodeBuilder nodeBuilder(String type) {
+  public LoomNode.Builder nodeBuilder(String type) {
     return nodeBuilder().type(type);
   }
 
@@ -259,17 +273,14 @@ public final class LoomGraph implements HasToJsonString, IterableStreamable<Loom
   public LoomNode addNode(@Nonnull LoomNodeWrapper wrapper) {
     var node = wrapper.unwrap();
 
-    {
-      var nodeGraph = node.getGraph();
-      if (nodeGraph != null && nodeGraph != this) {
-        throw new IllegalArgumentException("Node already belongs to a graph: " + nodeGraph.getId());
-      }
+    var nodeGraph = node.getGraph();
+    if (nodeGraph != null && nodeGraph != this) {
+      throw new IllegalArgumentException("Node already belongs to a graph: " + nodeGraph.getId());
     }
-    {
-      var existingNode = getNode(node.getId());
-      if (existingNode != null && existingNode != node) {
-        throw new IllegalArgumentException("Graph already has node with id: " + node.getId());
-      }
+
+    var existingNode = getNode(node.getId());
+    if (existingNode != null && existingNode != node) {
+      throw new IllegalArgumentException("Graph already has node with id: " + node.getId());
     }
 
     node.setGraph(this);
@@ -287,7 +298,7 @@ public final class LoomGraph implements HasToJsonString, IterableStreamable<Loom
    */
   @Nonnull
   @CanIgnoreReturnValue
-  public LoomNode addNode(@Nonnull LoomNode.LoomNodeBuilder builder) {
+  public LoomNode addNode(@Nonnull LoomNode.Builder builder) {
     return addNode(builder.build());
   }
 
