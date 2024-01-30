@@ -1,4 +1,4 @@
-package org.tensortapestry.loom.experiment;
+package org.tensortapestry.loom.common.json;
 
 import java.util.HashMap;
 import java.util.List;
