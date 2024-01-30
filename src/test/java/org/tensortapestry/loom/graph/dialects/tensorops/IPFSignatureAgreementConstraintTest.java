@@ -123,7 +123,7 @@ public class IPFSignatureAgreementConstraintTest extends BaseTestClass {
     );
     graph.validate();
 
-    if (true) {
+    if (false) {
       // This is for dev on the graphviz stuff; it should be moved.
       var exporter = GraphVisualizer.buildDefault();
       var export = exporter.export(graph);
