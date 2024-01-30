@@ -217,6 +217,10 @@ public final class LoomGraph implements HasToJsonString, IterableStreamable<Loom
     return wrap.apply(assertNode(id));
   }
 
+  public <W extends LoomNodeWrapper> W assertNode(Class<W> wrapper, UUID id) {
+    return ReflectionUtils.newInstance(wrapper, assertNode(id));
+  }
+
   /**
    * Get the node with the given ID.
    *
