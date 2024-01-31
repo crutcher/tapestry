@@ -7,13 +7,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import org.junit.Test;
+import org.tensortapestry.common.testing.BaseTestClass;
 import org.tensortapestry.common.validation.ListValidationIssueCollector;
 import org.tensortapestry.common.validation.ValidationIssue;
 import org.tensortapestry.loom.graph.CommonEnvironments;
 import org.tensortapestry.loom.graph.LoomConstants;
 import org.tensortapestry.loom.graph.LoomGraph;
 import org.tensortapestry.loom.graph.dialects.common.NoteNode;
-import org.tensortapestry.loom.testing.BaseTestClass;
 import org.tensortapestry.zspace.ZPoint;
 import org.tensortapestry.zspace.ZRange;
 

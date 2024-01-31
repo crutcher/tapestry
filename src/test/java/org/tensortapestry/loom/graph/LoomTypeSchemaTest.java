@@ -9,11 +9,11 @@ import lombok.extern.jackson.Jacksonized;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.Test;
 import org.tensortapestry.common.json.JsonUtil;
+import org.tensortapestry.common.testing.BaseTestClass;
 import org.tensortapestry.common.validation.ListValidationIssueCollector;
 import org.tensortapestry.common.validation.ValidationIssue;
 import org.tensortapestry.loom.graph.dialects.common.NoteNode;
 import org.tensortapestry.loom.graph.dialects.tensorops.TensorNode;
-import org.tensortapestry.loom.testing.BaseTestClass;
 
 public class LoomTypeSchemaTest extends BaseTestClass {
 

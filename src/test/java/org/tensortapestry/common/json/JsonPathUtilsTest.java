@@ -3,7 +3,7 @@ package org.tensortapestry.common.json;
 import java.util.List;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.Test;
-import org.tensortapestry.loom.testing.BaseTestClass;
+import org.tensortapestry.common.testing.BaseTestClass;
 
 public class JsonPathUtilsTest extends BaseTestClass {
 

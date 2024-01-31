@@ -1,3 +1,3 @@
-package org.tensortapestry.loom.testing;
+package org.tensortapestry.common.testing;
 
 public class BaseTestClass implements CommonAssertions {}

@@ -1,8 +1,8 @@
 package org.tensortapestry.loom.graph.export.graphviz;
 
 import org.junit.Test;
-import org.tensortapestry.loom.testing.BaseTestClass;
-import org.tensortapestry.loom.testing.XmlAssertions;
+import org.tensortapestry.common.testing.BaseTestClass;
+import org.tensortapestry.common.testing.XmlAssertions;
 import org.tensortapestry.zspace.ZAffineMap;
 import org.tensortapestry.zspace.ZRangeProjectionMap;
 import org.tensortapestry.zspace.ZTensor;

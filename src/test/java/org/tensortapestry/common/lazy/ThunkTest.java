@@ -1,7 +1,7 @@
 package org.tensortapestry.common.lazy;
 
 import org.junit.Test;
-import org.tensortapestry.loom.testing.BaseTestClass;
+import org.tensortapestry.common.testing.BaseTestClass;
 
 public class ThunkTest extends BaseTestClass {
 

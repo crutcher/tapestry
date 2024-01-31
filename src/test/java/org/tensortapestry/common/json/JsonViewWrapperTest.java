@@ -7,7 +7,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.extern.jackson.Jacksonized;
 import org.junit.Test;
-import org.tensortapestry.loom.testing.CommonAssertions;
+import org.tensortapestry.common.testing.CommonAssertions;
 import org.tensortapestry.zspace.ZTensor;
 
 public class JsonViewWrapperTest implements CommonAssertions, JsonUtil.WithNodeBuilders {

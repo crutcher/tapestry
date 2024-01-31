@@ -1,7 +1,7 @@
 package org.tensortapestry.common.runtime;
 
 import org.junit.Test;
-import org.tensortapestry.loom.testing.BaseTestClass;
+import org.tensortapestry.common.testing.BaseTestClass;
 
 @SuppressWarnings("ConstantConditions")
 public class CheckThatTest extends BaseTestClass {

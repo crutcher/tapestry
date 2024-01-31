@@ -1,4 +1,4 @@
-package org.tensortapestry.loom.testing;
+package org.tensortapestry.common.testing;
 
 import java.util.Comparator;
 import java.util.List;

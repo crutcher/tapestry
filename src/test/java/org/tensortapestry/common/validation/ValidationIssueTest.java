@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 import org.junit.Test;
-import org.tensortapestry.loom.testing.BaseTestClass;
+import org.tensortapestry.common.testing.BaseTestClass;
 
 public class ValidationIssueTest extends BaseTestClass {
 

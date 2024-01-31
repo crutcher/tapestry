@@ -1,4 +1,4 @@
-package org.tensortapestry.loom.testing;
+package org.tensortapestry.common.testing;
 
 import org.xmlunit.assertj3.XmlAssert;
 

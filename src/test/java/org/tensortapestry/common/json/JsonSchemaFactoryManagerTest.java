@@ -14,11 +14,11 @@ import lombok.Data;
 import lombok.Value;
 import lombok.extern.jackson.Jacksonized;
 import org.junit.Test;
+import org.tensortapestry.common.testing.BaseTestClass;
 import org.tensortapestry.common.validation.ListValidationIssueCollector;
 import org.tensortapestry.common.validation.ValidationIssue;
 import org.tensortapestry.loom.graph.LoomConstants;
 import org.tensortapestry.loom.graph.dialects.tensorops.TensorNode;
-import org.tensortapestry.loom.testing.BaseTestClass;
 import org.tensortapestry.zspace.ZRange;
 import org.tensortapestry.zspace.ZTensor;
 

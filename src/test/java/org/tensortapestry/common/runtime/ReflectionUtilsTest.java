@@ -5,7 +5,7 @@ import lombok.Getter;
 import lombok.Value;
 import lombok.experimental.SuperBuilder;
 import org.junit.Test;
-import org.tensortapestry.loom.testing.CommonAssertions;
+import org.tensortapestry.common.testing.CommonAssertions;
 
 public class ReflectionUtilsTest implements CommonAssertions {
 

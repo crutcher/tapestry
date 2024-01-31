@@ -22,6 +22,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <jackson.version>2.16.1</jackson.version>
         <javadoc.plugin.version>3.6.3</javadoc.plugin.version>
+        <antlr.version>4.7.1</antlr.version>
     </properties>
 
     <repositories>
@@ -258,6 +259,11 @@
             <groupId>guru.nidi</groupId>
             <artifactId>graphviz-java</artifactId>
         </dependency>
+        <dependency>
+            <groupId>net.objecthunter</groupId>
+            <artifactId>exp4j</artifactId>
+            <version>0.4.8</version>
+        </dependency>
         <!--
         <dependency>
             <groupId>org.graalvm.js</groupId>
@@ -300,6 +306,12 @@
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
             <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.antlr</groupId>
+            <artifactId>antlr4-runtime</artifactId>
+            <version>${antlr.version}</version>
         </dependency>
     </dependencies>
 
@@ -364,7 +376,6 @@
                 <artifactId>spotless-maven-plugin</artifactId>
                 <version>${spotless.plugin.version}</version>
                 <configuration>
-                    <ratchetFrom>origin/main</ratchetFrom>
                     <json>
                         <includes>
                             <include>src/**/*.json</include>
@@ -383,9 +394,6 @@
                         </jackson>
                     </json>
                     <java>
-                        <removeUnusedImports/>
-                        <importOrder/>
-
                         <prettier>
                             <devDependencies>
                                 <prettier>${spotless.prettier.version}</prettier>
@@ -398,6 +406,9 @@
                                 <bracketSameLine>true</bracketSameLine>
                             </config>
                         </prettier>
+
+                        <removeUnusedImports/>
+                        <importOrder/>
 
                         <formatAnnotations/>
                         <trimTrailingWhitespace/>
@@ -441,6 +452,7 @@
                 </executions>
                 <configuration>
                     <addOutputDirectory>false</addOutputDirectory>
+                    <outputDirectory>${project.build.directory}/delombok</outputDirectory>
                     <sourceDirectory>src/main/java</sourceDirectory>
                 </configuration>
                 <dependencies>
@@ -457,9 +469,28 @@
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <version>${javadoc.plugin.version}</version>
                 <configuration>
-                    <sourcepath>${project.build.directory}/generated-sources/delombok</sourcepath>
+                    <sourcepath>${project.build.directory}/delombok</sourcepath>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.antlr</groupId>
+                <artifactId>antlr4-maven-plugin</artifactId>
+                <version>${antlr.version}</version>
+                <executions>
+                    <execution>
+                        <id>antlr</id>
+                        <goals>
+                            <goal>antlr4</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <arguments>
+                        <argument>-visitor</argument>
+                    </arguments>
+                </configuration>
+            </plugin>
+
         </plugins>
     </build>
 

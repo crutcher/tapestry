@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import org.junit.Test;
-import org.tensortapestry.loom.testing.CommonAssertions;
+import org.tensortapestry.common.testing.CommonAssertions;
 
 public class JsonUtilTest implements CommonAssertions, JsonUtil.WithNodeBuilders {
 
