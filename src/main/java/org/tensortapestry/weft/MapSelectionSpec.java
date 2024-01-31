@@ -1,4 +1,4 @@
-package org.tensortapestry.jacquard;
+package org.tensortapestry.weft;
 
 import java.util.ArrayList;
 import java.util.HashMap;

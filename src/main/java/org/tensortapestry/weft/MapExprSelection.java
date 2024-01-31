@@ -1,4 +1,4 @@
-package org.tensortapestry.jacquard;
+package org.tensortapestry.weft;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.*;
