@@ -3,7 +3,7 @@ package org.tensortapestry.common.validation;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.tensortapestry.common.testing.BaseTestClass;
 
 public class ValidationIssueTest extends BaseTestClass {

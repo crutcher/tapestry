@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Map;
 import net.objecthunter.exp4j.Expression;
 import net.objecthunter.exp4j.ExpressionBuilder;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.tensortapestry.common.testing.CommonAssertions;
 
 public class MapExprSelectionTest implements CommonAssertions {

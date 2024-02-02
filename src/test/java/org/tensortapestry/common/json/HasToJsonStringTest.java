@@ -1,11 +1,9 @@
 package org.tensortapestry.common.json;
 
-import static org.junit.Assert.*;
-
 import lombok.Builder;
 import lombok.Data;
 import lombok.extern.jackson.Jacksonized;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.tensortapestry.common.testing.BaseTestClass;
 
 public class HasToJsonStringTest extends BaseTestClass {
@@ -22,7 +20,7 @@ public class HasToJsonStringTest extends BaseTestClass {
   @Test
   public void test_toJsonString() {
     var example = Example.builder().name("John").age(42).build();
-    assertEquals("{\"name\":\"John\",\"age\":42}", example.toJsonString());
+    assertThat("{\"name\":\"John\",\"age\":42}").isEqualTo(example.toJsonString());
     assertThat(example.toPrettyJsonString())
       .isEqualTo(
         """

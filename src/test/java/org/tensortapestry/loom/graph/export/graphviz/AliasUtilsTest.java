@@ -2,7 +2,7 @@ package org.tensortapestry.loom.graph.export.graphviz;
 
 import java.util.List;
 import java.util.UUID;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.tensortapestry.common.testing.BaseTestClass;
 
 public class AliasUtilsTest extends BaseTestClass {

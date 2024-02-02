@@ -2,7 +2,7 @@ package org.tensortapestry.loom.graph.export.graphviz;
 
 import org.dom4j.DocumentHelper;
 import org.dom4j.Text;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.tensortapestry.common.testing.BaseTestClass;
 import org.tensortapestry.common.testing.XmlAssertions;
 

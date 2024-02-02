@@ -1,6 +1,6 @@
 package org.tensortapestry.common.lazy;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.tensortapestry.common.testing.BaseTestClass;
 
 public class ThunkTest extends BaseTestClass {

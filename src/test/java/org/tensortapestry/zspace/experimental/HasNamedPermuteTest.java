@@ -4,7 +4,7 @@ import java.util.List;
 import javax.annotation.Nonnull;
 import lombok.Builder;
 import lombok.Value;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.tensortapestry.zspace.HasDimension;
 import org.tensortapestry.zspace.exceptions.ZDimMissMatchError;
 import org.tensortapestry.zspace.indexing.IndexingFns;

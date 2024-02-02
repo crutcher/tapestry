@@ -3,7 +3,7 @@ package org.tensortapestry.loom.graph.dialects.tensorops;
 import guru.nidi.graphviz.engine.Format;
 import java.util.List;
 import java.util.Map;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.tensortapestry.common.testing.BaseTestClass;
 import org.tensortapestry.loom.graph.CommonEnvironments;
 import org.tensortapestry.loom.graph.export.graphviz.GraphVisualizer;

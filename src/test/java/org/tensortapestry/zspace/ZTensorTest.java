@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.function.IntBinaryOperator;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.tensortapestry.zspace.exceptions.ZDimMissMatchError;
 import org.tensortapestry.zspace.experimental.ZSpaceTestAssertions;
 import org.tensortapestry.zspace.impl.ZSpaceJsonUtil;

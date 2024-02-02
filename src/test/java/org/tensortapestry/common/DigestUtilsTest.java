@@ -1,6 +1,6 @@
 package org.tensortapestry.common;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.tensortapestry.common.testing.BaseTestClass;
 
 public class DigestUtilsTest extends BaseTestClass {

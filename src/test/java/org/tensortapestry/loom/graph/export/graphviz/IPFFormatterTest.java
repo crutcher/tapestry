@@ -1,6 +1,6 @@
 package org.tensortapestry.loom.graph.export.graphviz;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.tensortapestry.common.testing.BaseTestClass;
 import org.tensortapestry.common.testing.XmlAssertions;
 import org.tensortapestry.zspace.ZAffineMap;

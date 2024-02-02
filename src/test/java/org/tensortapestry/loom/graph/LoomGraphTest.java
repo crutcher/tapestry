@@ -1,7 +1,7 @@
 package org.tensortapestry.loom.graph;
 
 import java.util.UUID;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.tensortapestry.common.json.JsonUtil;
 import org.tensortapestry.common.testing.BaseTestClass;
 import org.tensortapestry.loom.graph.dialects.common.NoteNode;

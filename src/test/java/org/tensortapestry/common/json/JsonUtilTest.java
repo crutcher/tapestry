@@ -8,7 +8,7 @@ import com.jayway.jsonpath.TypeRef;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.tensortapestry.common.testing.CommonAssertions;
 
 public class JsonUtilTest implements CommonAssertions, JsonUtil.WithNodeBuilders {

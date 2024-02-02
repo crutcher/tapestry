@@ -1,6 +1,6 @@
 package org.tensortapestry.loom.graph.dialects.tensorops;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.tensortapestry.common.testing.BaseTestClass;
 import org.tensortapestry.zspace.ZPoint;
 import org.tensortapestry.zspace.ZRange;

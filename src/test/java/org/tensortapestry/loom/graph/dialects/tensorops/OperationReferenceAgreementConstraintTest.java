@@ -6,7 +6,7 @@ import static org.tensortapestry.loom.graph.LoomConstants.Errors.NODE_VALIDATION
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.tensortapestry.common.testing.BaseTestClass;
 import org.tensortapestry.common.validation.ListValidationIssueCollector;
 import org.tensortapestry.common.validation.ValidationIssue;

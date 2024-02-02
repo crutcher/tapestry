@@ -1,6 +1,6 @@
 package org.tensortapestry.zspace.ops;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.tensortapestry.zspace.ZTensor;
 import org.tensortapestry.zspace.experimental.ZSpaceTestAssertions;
 

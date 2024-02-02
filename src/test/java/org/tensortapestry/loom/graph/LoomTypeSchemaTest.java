@@ -7,7 +7,7 @@ import lombok.Builder;
 import lombok.Value;
 import lombok.extern.jackson.Jacksonized;
 import org.apache.commons.lang3.tuple.Pair;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.tensortapestry.common.json.JsonUtil;
 import org.tensortapestry.common.testing.BaseTestClass;
 import org.tensortapestry.common.validation.ListValidationIssueCollector;

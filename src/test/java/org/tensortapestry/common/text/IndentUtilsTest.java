@@ -1,7 +1,7 @@
 package org.tensortapestry.common.text;
 
 import java.util.ArrayList;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.tensortapestry.common.testing.BaseTestClass;
 
 public class IndentUtilsTest extends BaseTestClass {

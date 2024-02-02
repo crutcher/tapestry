@@ -1,6 +1,6 @@
 package org.tensortapestry.loom.graph;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.tensortapestry.common.testing.BaseTestClass;
 import org.tensortapestry.common.validation.ValidationIssueCollector;
 import org.tensortapestry.loom.graph.dialects.tensorops.TensorNode;

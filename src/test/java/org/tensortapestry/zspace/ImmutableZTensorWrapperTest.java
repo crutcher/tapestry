@@ -1,7 +1,7 @@
 package org.tensortapestry.zspace;
 
 import javax.annotation.Nonnull;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.tensortapestry.zspace.exceptions.ZDimMissMatchError;
 import org.tensortapestry.zspace.experimental.ZSpaceTestAssertions;
 

@@ -3,7 +3,7 @@ package org.tensortapestry.zspace;
 import java.util.List;
 import javax.annotation.Nonnull;
 import lombok.Value;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.tensortapestry.zspace.experimental.ZSpaceTestAssertions;
 
 public class HasPermuteIOTest implements ZSpaceTestAssertions {

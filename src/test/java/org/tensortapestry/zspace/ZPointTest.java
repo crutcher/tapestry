@@ -1,7 +1,7 @@
 package org.tensortapestry.zspace;
 
 import java.util.List;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.tensortapestry.zspace.exceptions.ZDimMissMatchError;
 import org.tensortapestry.zspace.experimental.ZSpaceTestAssertions;
 import org.tensortapestry.zspace.ops.DominanceOrderingOps;
