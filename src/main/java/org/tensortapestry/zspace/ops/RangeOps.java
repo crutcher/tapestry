@@ -4,10 +4,7 @@ import java.util.Arrays;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import lombok.experimental.UtilityClass;
-import org.tensortapestry.zspace.HasDimension;
-import org.tensortapestry.zspace.ZPoint;
-import org.tensortapestry.zspace.ZRange;
-import org.tensortapestry.zspace.ZTensorWrapper;
+import org.tensortapestry.zspace.*;
 
 @UtilityClass
 public class RangeOps {
@@ -60,8 +57,10 @@ public class RangeOps {
    * @return the intersection of this range with another, null if there is no intersection.
    */
   @Nullable public static ZRange intersection(@Nonnull ZRange lhs, @Nonnull ZRange rhs) {
-    var iStart = CellWise.maximum(lhs.getStart(), rhs.getStart()).newZPoint();
-    var iEnd = CellWise.minimum(lhs.getEnd(), rhs.getEnd()).newZPoint();
+    ZTensor zTensor1 = CellWise.maximum(lhs.getStart(), rhs.getStart());
+    var iStart = ZPoint.of(zTensor1);
+    ZTensor zTensor = CellWise.minimum(lhs.getEnd(), rhs.getEnd());
+    var iEnd = ZPoint.of(zTensor);
     if (iStart.le(iEnd)) {
       return new ZRange(iStart, iEnd);
     } else {

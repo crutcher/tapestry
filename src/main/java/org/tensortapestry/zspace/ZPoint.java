@@ -95,6 +95,22 @@ public final class ZPoint extends ImmutableZTensorWrapper<ZPoint> implements Has
   }
 
   /**
+   * Create a ZPoint of the given coordinates.
+   *
+   * <p>Equivalent to {@code new ZPoint(coords)}.
+   *
+   * @param coords the coordinates.
+   * @return a new ZPoint.
+   */
+  @Nonnull
+  public static ZPoint of(@Nonnull ZTensorWrapper coords) {
+    if (coords instanceof ZPoint) {
+      return (ZPoint) coords;
+    }
+    return new ZPoint(coords);
+  }
+
+  /**
    * Parse a ZPoint from a string.
    *
    * @param source the string to parse.

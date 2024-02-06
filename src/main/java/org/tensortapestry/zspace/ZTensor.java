@@ -39,9 +39,10 @@ import org.tensortapestry.zspace.ops.ReduceOps;
  * and cloning. These concepts functionally impact the class's interactions with operators and
  * storage management.
  *
- * <p>As this tensor exists solely to support discrete space range calculations, C/C++/JNI/CUDA/BLAS
- * accelerations are not needed; the focus is on what permits the block expression index projection
- * math to be as readable as possible; targeting succinctness with range and shape assertions.
+ * <p>As this tensor exists solely to support discrete space range calculations,
+ * C/C++/JNI/CUDA/BLAS accelerations are not needed; the focus is on what permits the block
+ * expression index projection math to be as readable as possible; targeting succinctness with range
+ * and shape assertions.
  *
  * <h2>Mutability</h2>
  *
@@ -216,7 +217,8 @@ public final class ZTensor
   }
 
   /**
-   * Construct a new mutable ZTensor filled with the fill value with a shape like the given ZTensor.
+   * Construct a new mutable ZTensor filled with the fill value with a shape like the given
+   * ZTensor.
    *
    * @param ref the ZTensor to copy the shape from.
    * @param fill_value the value to fill the tensor with.
@@ -435,7 +437,9 @@ public final class ZTensor
     return !mutable;
   }
 
-  /** Asserts that this tensor is mutable. */
+  /**
+   * Asserts that this tensor is mutable.
+   */
   public void assertMutable() {
     if (!mutable) {
       throw new IllegalStateException("tensor is immutable");
@@ -519,6 +523,7 @@ public final class ZTensor
 
   /**
    * Return a formatted string of this tensor.
+   *
    * @return the string.
    */
   @Override
@@ -588,16 +593,6 @@ public final class ZTensor
   }
 
   /**
-   * Construct an immutable ZPoint from this ZTensor. Asserts that this is a 1-dim tensor.
-   *
-   * @return a new immutable ZPoint.
-   */
-  @Nonnull
-  public ZPoint newZPoint() {
-    return new ZPoint(this);
-  }
-
-  /**
    * Assert that this tensor has the same shape as another tensor.
    *
    * @param other the other tensor.
@@ -634,9 +629,9 @@ public final class ZTensor
   /**
    * Returns an {@code Iterable<int[]>} over the coordinates of this tensor.
    *
-   * <p>When the buffer mode is {@link BufferMode#REUSED}, the buffer is shared between subsequent
-   * calls to {@link Iterator#next()}. When the buffer mode is {@link BufferMode#SAFE}, the buffer
-   * is not shared between subsequent calls to {@link Iterator#next()}.
+   * <p>When the buffer mode is {@link BufferMode#REUSED}, the buffer is shared between
+   * subsequent calls to {@link Iterator#next()}. When the buffer mode is {@link BufferMode#SAFE},
+   * the buffer is not shared between subsequent calls to {@link Iterator#next()}.
    *
    * <p>Empty tensors will return an empty iterable.
    *
@@ -701,10 +696,10 @@ public final class ZTensor
   /**
    * Iterate over the coordinates and values of this tensor.
    *
-   * <p>When the buffer mode is {@link BufferMode#REUSED}, the buffer is shared between subsequent
-   * calls to {@link TensorEntryConsumer#accept(int[], int)}. When the buffer mode is {@link
-   * BufferMode#SAFE}, the buffer is not shared between subsequent calls to {@link
-   * TensorEntryConsumer#accept(int[], int)}.
+   * <p>When the buffer mode is {@link BufferMode#REUSED}, the buffer is shared between
+   * subsequent calls to {@link TensorEntryConsumer#accept(int[], int)}. When the buffer mode is
+   * {@link BufferMode#SAFE}, the buffer is not shared between subsequent calls to
+   * {@link TensorEntryConsumer#accept(int[], int)}.
    *
    * @param consumer the consumer.
    * @param bufferMode the buffer mode.
@@ -823,7 +818,9 @@ public final class ZTensor
     }
   }
 
-  /** Convert this structure to a T1 (a vector) value. Assert that the shape is valid. */
+  /**
+   * Convert this structure to a T1 (a vector) value. Assert that the shape is valid.
+   */
   @Nonnull
   public int[] toT1() {
     assertNDim(1);
@@ -867,6 +864,7 @@ public final class ZTensor
 
   /**
    * Convert this tensor to a flat Java array.
+   *
    * @return an ArrayData ( shape, data ) pair.
    */
   @Nonnull
@@ -875,18 +873,24 @@ public final class ZTensor
     return new ArrayData(compact.shape, compact.data);
   }
 
-  /** Get the value of this tensor as a T0 (a scalar). */
+  /**
+   * Get the value of this tensor as a T0 (a scalar).
+   */
   public int item() {
     return toT0();
   }
 
-  /** Convert this structure to a T0 (a scalar) value. Assert that the shape is valid. */
+  /**
+   * Convert this structure to a T0 (a scalar) value. Assert that the shape is valid.
+   */
   public int toT0() {
     assertNDim(0);
     return get();
   }
 
-  /** Convert this structure to a T2 (a matrix) value. Assert that the shape is valid. */
+  /**
+   * Convert this structure to a T2 (a matrix) value. Assert that the shape is valid.
+   */
   @Nonnull
   public int[][] toT2() {
     assertNDim(2);
@@ -1000,7 +1004,8 @@ public final class ZTensor
   /**
    * Return a view of this tensor with a broadcastable dimension expanded.
    *
-   * @param dim the dimension to expand (must be size 1, or a previously broadcasted dimension).
+   * @param dim the dimension to expand (must be size 1, or a previously broadcasted
+   *         dimension).
    * @param size the new size of the dimension.
    * @return a view of this tensor with a broadcastable dimension expanded.
    */
@@ -1142,8 +1147,8 @@ public final class ZTensor
    * Applies the given reduction operation to all values in the given tensor; grouping by the
    * specified dimensions.
    *
-   * <p>The shape of the returned tensor is the same as the shape of the input tensor, except that
-   * the specified dimensions are removed.
+   * <p>The shape of the returned tensor is the same as the shape of the input tensor, except
+   * that the specified dimensions are removed.
    *
    * @param op the reduction operation
    * @param initial the initial value
@@ -1191,9 +1196,9 @@ public final class ZTensor
    *
    * <p>Semantically equivalent to {@code clone(false)}.
    *
-   * <p>A performance oriented Tensor library would track open mutable views of the underlying data,
-   * and perform copy-on-write when necessary; as this is a correctness-oriented Tensor library, we
-   * simply clone the data to go from mutable to immutable.
+   * <p>A performance oriented Tensor library would track open mutable views of the underlying
+   * data, and perform copy-on-write when necessary; as this is a correctness-oriented Tensor
+   * library, we simply clone the data to go from mutable to immutable.
    *
    * @return an immutable tensor.
    */
@@ -1202,7 +1207,9 @@ public final class ZTensor
     return clone(false);
   }
 
-  /** Asserts that this tensor is read-only / immutable. */
+  /**
+   * Asserts that this tensor is read-only / immutable.
+   */
   public void assertReadOnly() {
     if (mutable) {
       throw new IllegalStateException("tensor is mutable");
@@ -1261,21 +1268,22 @@ public final class ZTensor
   /**
    * Transposes (swaps) two dimensions of this tensor.
    *
-   * <p>This method creates a new view of the tensor where the specified dimensions are swapped. The
-   * original tensor remains unchanged. The returned tensor shares data with the original tensor.
+   * <p>This method creates a new view of the tensor where the specified dimensions are swapped.
+   * The original tensor remains unchanged. The returned tensor shares data with the original
+   * tensor.
    *
    * <p>This operation can be useful in scenarios where you need to change the order of two
    * dimensions in a tensor, for example, when you want to switch rows and columns in a 2D tensor
    * (matrix).
    *
-   * <p>Supports negative dimension indexing - i.e. -1 represents the last dimension, -2 represents
-   * the second last, and so on.
+   * <p>Supports negative dimension indexing - i.e. -1 represents the last dimension, -2
+   * represents the second last, and so on.
    *
    * @param a The index of the first dimension to be transposed.
    * @param b The index of the second dimension to be transposed.
    * @return A new tensor that is a transposed view of the original tensor.
-   * @throws IllegalArgumentException If the provided indices are not valid dimensions of the
-   *     tensor.
+   * @throws IllegalArgumentException If the provided indices are not valid dimensions of
+   *         the tensor.
    */
   @Nonnull
   public ZTensor transpose(int a, int b) {
@@ -1424,7 +1432,7 @@ public final class ZTensor
    * t = [[0, 1, 2],
    *      [3, 4, 5]]
    * </pre>
-   *
+   * <p>
    * If we call {@code t.reorderDim([1,0,2], 1)}, the returned tensor will look like:
    *
    * <pre>
@@ -1432,13 +1440,14 @@ public final class ZTensor
    *      [4, 3, 5]]
    * </pre>
    *
-   * <p>Supports negative dimension indexing - i.e. -1 represents the last dimension, -2 represents
-   * the second last, and so on.
+   * <p>Supports negative dimension indexing - i.e. -1 represents the last dimension, -2
+   * represents the second last, and so on.
    *
-   * @param permutation An array of unique integers representing the new order of indices along the
-   *     specified dimension. Each integer should be a valid index for that dimension.
-   * @param dim Index of the dimension to be reordered. Dimensions are zero-indexed. This must be a
-   *     valid dimension of this tensor.
+   * @param permutation An array of unique integers representing the new order of indices
+   *         along the specified dimension. Each integer should be a valid index for that
+   *         dimension.
+   * @param dim Index of the dimension to be reordered. Dimensions are zero-indexed. This
+   *         must be a valid dimension of this tensor.
    * @return A new ZTensor, with the specified dimension reordered.
    */
   @Nonnull
@@ -1570,8 +1579,8 @@ public final class ZTensor
   /**
    * Returns the sum of all elements in the tensor, grouped by the specified dimensions.
    *
-   * <p>The shape of the returned tensor is the same as the shape of the input tensor, except that
-   * the specified dimensions are removed.
+   * <p>The shape of the returned tensor is the same as the shape of the input tensor, except
+   * that the specified dimensions are removed.
    *
    * @param dims the dimensions to group by.
    * @return a new tensor.
@@ -1603,8 +1612,8 @@ public final class ZTensor
   /**
    * Returns the product of all elements in the tensor, grouped by the specified dimensions.
    *
-   * <p>The shape of the returned tensor is the same as the shape of the input tensor, except that
-   * the specified dimensions are removed.
+   * <p>The shape of the returned tensor is the same as the shape of the input tensor, except
+   * that the specified dimensions are removed.
    *
    * @param dims the dimensions to group by.
    * @return a new tensor.
@@ -1634,11 +1643,11 @@ public final class ZTensor
   }
 
   /**
-   * Returns a new ZTensor that contains the minimum value in this ZTensor, grouped by the specified
-   * dimensions.
+   * Returns a new ZTensor that contains the minimum value in this ZTensor, grouped by the
+   * specified dimensions.
    *
-   * <p>The shape of the returned tensor is the same as the shape of the input tensor, except that
-   * the specified dimensions are removed.
+   * <p>The shape of the returned tensor is the same as the shape of the input tensor, except
+   * that the specified dimensions are removed.
    *
    * @param dims the dimensions to group by.
    * @return a new tensor.
@@ -1668,11 +1677,11 @@ public final class ZTensor
   }
 
   /**
-   * Returns a new ZTensor that contains the maximum value in this ZTensor, grouped by the specified
-   * dimensions.
+   * Returns a new ZTensor that contains the maximum value in this ZTensor, grouped by the
+   * specified dimensions.
    *
-   * <p>The shape of the returned tensor is the same as the shape of the input tensor, except that
-   * the specified dimensions are removed.
+   * <p>The shape of the returned tensor is the same as the shape of the input tensor, except
+   * that the specified dimensions are removed.
    *
    * @param dims the dimensions to group by.
    * @return a new tensor.
@@ -1682,25 +1691,33 @@ public final class ZTensor
     return ReduceOps.max(this, dims);
   }
 
-  /** Returns a new elementwise negation of this tensor. */
+  /**
+   * Returns a new elementwise negation of this tensor.
+   */
   @Nonnull
   public ZTensor neg() {
     return CellWise.neg(this);
   }
 
-  /** Returns a new elementwise absolute value of this tensor. */
+  /**
+   * Returns a new elementwise absolute value of this tensor.
+   */
   @Nonnull
   public ZTensor abs() {
     return CellWise.abs(this);
   }
 
-  /** Returns an elementwise broadcast addition with this tensor. */
+  /**
+   * Returns an elementwise broadcast addition with this tensor.
+   */
   @Nonnull
   public ZTensor add(@Nonnull ZTensorWrapper rhs) {
     return CellWise.add(this, rhs);
   }
 
-  /** Returns an elementwise broadcast addition with this tensor. */
+  /**
+   * Returns an elementwise broadcast addition with this tensor.
+   */
   @Nonnull
   public ZTensor add(int rhs) {
     return CellWise.add(this, rhs);

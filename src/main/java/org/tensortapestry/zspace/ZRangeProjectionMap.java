@@ -93,7 +93,7 @@ public class ZRangeProjectionMap implements HasJsonOutput {
     @Nonnull
     @JsonSetter
     public ZRangeProjectionMapBuilder shape(@Nonnull ZTensorWrapper shape) {
-      this.shape = shape.unwrap().newZPoint();
+      this.shape = ZPoint.of(shape);
       return this;
     }
   }
@@ -102,8 +102,7 @@ public class ZRangeProjectionMap implements HasJsonOutput {
    * Create a new ZRangeProjectionMap.
    *
    * <p>This is a private builder to force the type of the {@link #affineMap} and {@link #shape}
-   * used
-   * in the builder to be {@link ZAffineMap} and {@link ZPoint}, respectively; and to prevent
+   * used in the builder to be {@link ZAffineMap} and {@link ZPoint}, respectively; and to prevent
    * collision with {@link ZTensorWrapper}.
    *
    * @param affineMap the affine map.
@@ -134,8 +133,7 @@ public class ZRangeProjectionMap implements HasJsonOutput {
    */
   public ZRangeProjectionMap(@Nonnull ZAffineMap affineMap, @Nullable ZTensorWrapper shape) {
     this.affineMap = affineMap;
-    this.shape =
-      shape == null ? ZPoint.newOnes(affineMap.getOutputNDim()) : shape.unwrap().newZPoint();
+    this.shape = shape == null ? ZPoint.newOnes(affineMap.getOutputNDim()) : ZPoint.of(shape);
 
     if (this.affineMap.getOutputNDim() != this.shape.getNDim()) {
       throw new IllegalArgumentException(
@@ -161,8 +159,7 @@ public class ZRangeProjectionMap implements HasJsonOutput {
    */
   @Nonnull
   public ZRange apply(@Nonnull ZTensorWrapper source) {
-    ZTensorWrapper start = affineMap.apply(source).newZPoint();
-    return ZRange.builder().start(start).shape(shape).build();
+    return ZRange.builder().start(ZPoint.of(affineMap.apply(source))).shape(shape).build();
   }
 
   /**

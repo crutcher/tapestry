@@ -68,16 +68,14 @@ public class ZAffineMap implements HasPermuteIO<ZAffineMap>, HasJsonOutput {
     if (offset == null) {
       offset = ZTensor.newZeros(this.projection.getOutputNDim());
     }
-    var zoffset = offset.unwrap();
-    this.offset = zoffset.newZPoint();
+    this.offset = ZPoint.of(offset);
 
-    zoffset.assertNDim(1);
-    if (zoffset.shape(0) != getOutputNDim()) {
+    if (this.offset.getNDim() != getOutputNDim()) {
       throw new IllegalArgumentException(
         String.format(
           "projection.shape[1] != offset.shape[0]: %s != %s",
           this.projection.shapeAsList(),
-          zoffset.shapeAsList()
+          this.offset.unwrap().shapeAsList()
         )
       );
     }

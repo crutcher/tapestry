@@ -95,7 +95,7 @@ public class ZRange implements Cloneable, HasSize, HasPermute<ZRange>, HasJsonOu
      */
     @Nonnull
     public ZRangeBuilder start(@Nonnull ZTensorWrapper start) {
-      this.start = start.unwrap().newZPoint();
+      this.start = ZPoint.of(start);
       return this;
     }
 
@@ -119,7 +119,7 @@ public class ZRange implements Cloneable, HasSize, HasPermute<ZRange>, HasJsonOu
      */
     @Nonnull
     public ZRangeBuilder end(@Nonnull ZTensorWrapper end) {
-      this.end = end.unwrap().newZPoint();
+      this.end = ZPoint.of(end);
       return this;
     }
 
@@ -148,7 +148,7 @@ public class ZRange implements Cloneable, HasSize, HasPermute<ZRange>, HasJsonOu
         if (end != null) {
           throw new IllegalArgumentException("Cannot set both shape and end");
         }
-        end = start.tensor.add(shape).newZPoint();
+        end = ZPoint.of(start.tensor.add(shape));
       }
       return new ZRange(start, end);
     }
@@ -292,8 +292,8 @@ public class ZRange implements Cloneable, HasSize, HasPermute<ZRange>, HasJsonOu
    * @param end the exclusive end point.
    */
   public ZRange(@Nonnull ZTensorWrapper start, @Nonnull ZTensorWrapper end) {
-    var zstart = start.unwrap().newZPoint();
-    var zend = end.unwrap().newZPoint();
+    var zstart = ZPoint.of(start);
+    var zend = ZPoint.of(end);
 
     zstart.tensor.assertMatchingShape(zend);
     if (zstart.gt(end)) {
