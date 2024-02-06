@@ -444,6 +444,7 @@ public final class ZTensor
   }
 
   @Override
+  @Nonnull
   public ZTensor unwrap() {
     return this;
   }
@@ -772,7 +773,7 @@ public final class ZTensor
    * @return true if every cell matches the predicate.
    */
   public boolean allMatch(@Nonnull IntPredicate predicate) {
-    return byCoords(BufferOwnership.REUSED).stream().allMatch(c -> predicate.test(get(c)));
+    return byCoords(BufferOwnership.REUSED).stream().mapToInt(this::get).allMatch(predicate);
   }
 
   /**
@@ -784,7 +785,7 @@ public final class ZTensor
    * @return true if any cell matches the predicate.
    */
   public boolean anyMatch(@Nonnull IntPredicate predicate) {
-    return byCoords(BufferOwnership.REUSED).stream().anyMatch(c -> predicate.test(get(c)));
+    return byCoords(BufferOwnership.REUSED).stream().mapToInt(this::get).anyMatch(predicate);
   }
 
   /**
