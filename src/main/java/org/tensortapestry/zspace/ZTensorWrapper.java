@@ -10,13 +10,16 @@ import org.tensortapestry.zspace.indexing.IndexingFns;
 public interface ZTensorWrapper {
   /**
    * Returns the ZTensor representation of this object.
+   *
    * @return the ZTensor.
    */
   @JsonIgnore
+  @Nonnull
   ZTensor unwrap();
 
   /**
    * Returns the common broadcast shape of this tensor and the given shape.
+   *
    * @param shape the shape.
    * @return the common broadcast shape.
    */
@@ -27,6 +30,7 @@ public interface ZTensorWrapper {
 
   /**
    * Returns the common broadcast shape of this tensor and the given tensor.
+   *
    * @param other the tensor.
    * @return the common broadcast shape.
    */
