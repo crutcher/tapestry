@@ -15,7 +15,7 @@ import org.tensortapestry.zspace.HasDimension;
 
 /** Utility functions for computing tensor indices. */
 @UtilityClass
-public final class IndexingFns {
+public class IndexingFns {
 
   /**
    * Return an array of integers from 0 to n - 1.

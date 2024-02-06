@@ -23,7 +23,7 @@ public class ReduceOps {
    * @param initial the initial value
    * @return the int result of the reduction.
    */
-  public static int reduceCellsAtomic(
+  public int reduceCellsAtomic(
     @Nonnull ZTensorWrapper tensor,
     @Nonnull IntBinaryOperator op,
     int initial
@@ -50,7 +50,7 @@ public class ReduceOps {
    * @return a new tensor.
    */
   @Nonnull
-  public static ZTensor reduceCells(
+  public ZTensor reduceCells(
     @Nonnull ZTensorWrapper tensor,
     @Nonnull IntBinaryOperator op,
     int initial
@@ -63,8 +63,7 @@ public class ReduceOps {
    * specified dimensions.
    *
    * <p>The shape of the returned tensor is the same as the shape of the input tensor, except
-   * that
-   * the specified dimensions are removed.
+   * that the specified dimensions are removed.
    *
    * @param tensor the tensor
    * @param op the reduction operation
@@ -73,7 +72,7 @@ public class ReduceOps {
    * @return a new tensor.
    */
   @Nonnull
-  public static ZTensor reduceCells(
+  public ZTensor reduceCells(
     @Nonnull ZTensorWrapper tensor,
     @Nonnull IntBinaryOperator op,
     int initial,
@@ -111,7 +110,7 @@ public class ReduceOps {
    * @param tensor the tensor.
    * @return the int sum of all elements in the tensor.
    */
-  public static int sumAsInt(@Nonnull ZTensorWrapper tensor) {
+  public int sumAsInt(@Nonnull ZTensorWrapper tensor) {
     return reduceCellsAtomic(tensor, Integer::sum, 0);
   }
 
@@ -122,7 +121,7 @@ public class ReduceOps {
    * @return the scalar ZTensor sum of all elements in the tensor.
    */
   @Nonnull
-  public static ZTensor sum(@Nonnull ZTensorWrapper tensor) {
+  public ZTensor sum(@Nonnull ZTensorWrapper tensor) {
     return reduceCells(tensor, Integer::sum, 0);
   }
 
@@ -130,15 +129,14 @@ public class ReduceOps {
    * Returns the sum of all elements in the tensor, grouped by the specified dimensions.
    *
    * <p>The shape of the returned tensor is the same as the shape of the input tensor, except
-   * that
-   * the specified dimensions are removed.
+   * that the specified dimensions are removed.
    *
    * @param tensor the tensor.
    * @param dims the dimensions to group by.
    * @return a new tensor.
    */
   @Nonnull
-  public static ZTensor sum(@Nonnull ZTensorWrapper tensor, @Nonnull int... dims) {
+  public ZTensor sum(@Nonnull ZTensorWrapper tensor, @Nonnull int... dims) {
     return reduceCells(tensor, Integer::sum, 0, dims);
   }
 
@@ -148,7 +146,7 @@ public class ReduceOps {
    * @param tensor the tensor.
    * @return the int product of all elements in the tensor.
    */
-  public static int prodAsInt(@Nonnull ZTensorWrapper tensor) {
+  public int prodAsInt(@Nonnull ZTensorWrapper tensor) {
     return reduceCellsAtomic(tensor, (a, b) -> a * b, 1);
   }
 
@@ -159,7 +157,7 @@ public class ReduceOps {
    * @return the scalar ZTensor product of all elements in the tensor.
    */
   @Nonnull
-  public static ZTensor prod(@Nonnull ZTensorWrapper tensor) {
+  public ZTensor prod(@Nonnull ZTensorWrapper tensor) {
     return reduceCells(tensor, (a, b) -> a * b, 1);
   }
 
@@ -167,15 +165,14 @@ public class ReduceOps {
    * Returns the product of all elements in the tensor, grouped by the specified dimensions.
    *
    * <p>The shape of the returned tensor is the same as the shape of the input tensor, except
-   * that
-   * the specified dimensions are removed.
+   * that the specified dimensions are removed.
    *
    * @param tensor the tensor.
    * @param dims the dimensions to group by.
    * @return a new tensor.
    */
   @Nonnull
-  public static ZTensor prod(@Nonnull ZTensorWrapper tensor, @Nonnull int... dims) {
+  public ZTensor prod(@Nonnull ZTensorWrapper tensor, @Nonnull int... dims) {
     return reduceCells(tensor, (a, b) -> a * b, 1, dims);
   }
 
@@ -185,7 +182,7 @@ public class ReduceOps {
    * @param tensor the tensor.
    * @return the int min of all elements in the tensor.
    */
-  public static int minAsInt(@Nonnull ZTensorWrapper tensor) {
+  public int minAsInt(@Nonnull ZTensorWrapper tensor) {
     return reduceCellsAtomic(tensor, Math::min, Integer.MAX_VALUE);
   }
 
@@ -196,7 +193,7 @@ public class ReduceOps {
    * @return the scalar ZTensor min of all elements in the tensor.
    */
   @Nonnull
-  public static ZTensor min(@Nonnull ZTensorWrapper tensor) {
+  public ZTensor min(@Nonnull ZTensorWrapper tensor) {
     return reduceCells(tensor, Math::min, Integer.MAX_VALUE);
   }
 
@@ -204,15 +201,14 @@ public class ReduceOps {
    * Returns the min of all elements in the tensor, grouped by the specified dimensions.
    *
    * <p>The shape of the returned tensor is the same as the shape of the input tensor, except
-   * that
-   * the specified dimensions are removed.
+   * that the specified dimensions are removed.
    *
    * @param tensor the tensor.
    * @param dims the dimensions to group by.
    * @return a new tensor.
    */
   @Nonnull
-  public static ZTensor min(@Nonnull ZTensorWrapper tensor, @Nonnull int... dims) {
+  public ZTensor min(@Nonnull ZTensorWrapper tensor, @Nonnull int... dims) {
     return reduceCells(tensor, Math::min, Integer.MAX_VALUE, dims);
   }
 
@@ -222,7 +218,7 @@ public class ReduceOps {
    * @param tensor the tensor.
    * @return the int min of all elements in the tensor.
    */
-  public static int maxAsInt(@Nonnull ZTensorWrapper tensor) {
+  public int maxAsInt(@Nonnull ZTensorWrapper tensor) {
     return reduceCellsAtomic(tensor, Math::max, Integer.MIN_VALUE);
   }
 
@@ -233,7 +229,7 @@ public class ReduceOps {
    * @return the scalar ZTensor max of all elements in the tensor.
    */
   @Nonnull
-  public static ZTensor max(@Nonnull ZTensorWrapper tensor) {
+  public ZTensor max(@Nonnull ZTensorWrapper tensor) {
     return reduceCells(tensor, Math::max, Integer.MIN_VALUE);
   }
 
@@ -241,15 +237,14 @@ public class ReduceOps {
    * Returns the max of all elements in the tensor, grouped by the specified dimensions.
    *
    * <p>The shape of the returned tensor is the same as the shape of the input tensor, except
-   * that
-   * the specified dimensions are removed.
+   * that the specified dimensions are removed.
    *
    * @param tensor the tensor.
    * @param dims the dimensions to group by.
    * @return a new tensor.
    */
   @Nonnull
-  public static ZTensor max(@Nonnull ZTensorWrapper tensor, @Nonnull int... dims) {
+  public ZTensor max(@Nonnull ZTensorWrapper tensor, @Nonnull int... dims) {
     return reduceCells(tensor, Math::max, Integer.MIN_VALUE, dims);
   }
 }

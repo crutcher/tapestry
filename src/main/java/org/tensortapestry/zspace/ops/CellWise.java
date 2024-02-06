@@ -20,7 +20,7 @@ public class CellWise {
    * @return a new tensor.
    */
   @Nonnull
-  public static ZTensor neg(@Nonnull ZTensorWrapper tensor) {
+  public ZTensor neg(@Nonnull ZTensorWrapper tensor) {
     return map(x -> -x, tensor);
   }
 
@@ -32,7 +32,7 @@ public class CellWise {
    * @return a new tensor.
    */
   @Nonnull
-  public static ZTensor map(@Nonnull IntUnaryOperator op, @Nonnull ZTensorWrapper tensor) {
+  public ZTensor map(@Nonnull IntUnaryOperator op, @Nonnull ZTensorWrapper tensor) {
     var result = ZTensor.newZerosLike(tensor);
     result.assignFromMap_(op, tensor);
     return result;
@@ -45,7 +45,7 @@ public class CellWise {
    * @return a new tensor.
    */
   @Nonnull
-  public static ZTensor abs(@Nonnull ZTensorWrapper tensor) {
+  public ZTensor abs(@Nonnull ZTensorWrapper tensor) {
     return map(Math::abs, tensor);
   }
 
@@ -57,7 +57,7 @@ public class CellWise {
    * @return a new tensor.
    */
   @Nonnull
-  public static ZTensor minimum(@Nonnull ZTensorWrapper lhs, @Nonnull ZTensorWrapper rhs) {
+  public ZTensor minimum(@Nonnull ZTensorWrapper lhs, @Nonnull ZTensorWrapper rhs) {
     return zipWith(Math::min, lhs, rhs);
   }
 
@@ -70,7 +70,7 @@ public class CellWise {
    * @return a new tensor.
    */
   @Nonnull
-  public static ZTensor zipWith(
+  public ZTensor zipWith(
     @Nonnull IntBinaryOperator op,
     @Nonnull ZTensorWrapper lhs,
     @Nonnull ZTensorWrapper rhs
@@ -88,7 +88,7 @@ public class CellWise {
    * @return a new tensor.
    */
   @Nonnull
-  public static ZTensor minimum(@Nonnull ZTensorWrapper lhs, int rhs) {
+  public ZTensor minimum(@Nonnull ZTensorWrapper lhs, int rhs) {
     return zipWith(Math::min, lhs, rhs);
   }
 
@@ -101,11 +101,7 @@ public class CellWise {
    * @return a new tensor.
    */
   @Nonnull
-  public static ZTensor zipWith(
-    @Nonnull IntBinaryOperator op,
-    @Nonnull ZTensorWrapper lhs,
-    int rhs
-  ) {
+  public ZTensor zipWith(@Nonnull IntBinaryOperator op, @Nonnull ZTensorWrapper lhs, int rhs) {
     return zipWith(op, lhs, ZTensor.newScalar(rhs));
   }
 
@@ -117,7 +113,7 @@ public class CellWise {
    * @return a new tensor.
    */
   @Nonnull
-  public static ZTensor minimum(int lhs, @Nonnull ZTensorWrapper rhs) {
+  public ZTensor minimum(int lhs, @Nonnull ZTensorWrapper rhs) {
     return zipWith(Math::min, lhs, rhs);
   }
 
@@ -130,11 +126,7 @@ public class CellWise {
    * @return a new tensor.
    */
   @Nonnull
-  public static ZTensor zipWith(
-    @Nonnull IntBinaryOperator op,
-    int lhs,
-    @Nonnull ZTensorWrapper rhs
-  ) {
+  public ZTensor zipWith(@Nonnull IntBinaryOperator op, int lhs, @Nonnull ZTensorWrapper rhs) {
     return zipWith(op, ZTensor.newScalar(lhs), rhs);
   }
 
@@ -146,7 +138,7 @@ public class CellWise {
    * @return a new tensor.
    */
   @Nonnull
-  public static ZTensor maximum(@Nonnull ZTensorWrapper lhs, @Nonnull ZTensorWrapper rhs) {
+  public ZTensor maximum(@Nonnull ZTensorWrapper lhs, @Nonnull ZTensorWrapper rhs) {
     return zipWith(Math::max, lhs, rhs);
   }
 
@@ -158,7 +150,7 @@ public class CellWise {
    * @return a new tensor.
    */
   @Nonnull
-  public static ZTensor maximum(@Nonnull ZTensorWrapper lhs, int rhs) {
+  public ZTensor maximum(@Nonnull ZTensorWrapper lhs, int rhs) {
     return zipWith(Math::max, lhs, rhs);
   }
 
@@ -170,7 +162,7 @@ public class CellWise {
    * @return a new tensor.
    */
   @Nonnull
-  public static ZTensor maximum(int lhs, @Nonnull ZTensorWrapper rhs) {
+  public ZTensor maximum(int lhs, @Nonnull ZTensorWrapper rhs) {
     return zipWith(Math::max, lhs, rhs);
   }
 
@@ -182,7 +174,7 @@ public class CellWise {
    * @return a new tensor.
    */
   @Nonnull
-  public static ZTensor add(@Nonnull ZTensorWrapper lhs, @Nonnull ZTensorWrapper rhs) {
+  public ZTensor add(@Nonnull ZTensorWrapper lhs, @Nonnull ZTensorWrapper rhs) {
     return zipWith(Integer::sum, lhs, rhs);
   }
 
@@ -194,7 +186,7 @@ public class CellWise {
    * @return a new tensor.
    */
   @Nonnull
-  public static ZTensor add(@Nonnull ZTensorWrapper lhs, int rhs) {
+  public ZTensor add(@Nonnull ZTensorWrapper lhs, int rhs) {
     return zipWith(Integer::sum, lhs, rhs);
   }
 
@@ -206,7 +198,7 @@ public class CellWise {
    * @return a new tensor.
    */
   @Nonnull
-  public static ZTensor add(int lhs, @Nonnull ZTensorWrapper rhs) {
+  public ZTensor add(int lhs, @Nonnull ZTensorWrapper rhs) {
     return zipWith(Integer::sum, lhs, rhs);
   }
 
@@ -216,7 +208,7 @@ public class CellWise {
    * @param lhs the left-hand side tensor, modified in-place; must be mutable.
    * @param rhs the right-hand side tensor.
    */
-  public static void add_(@Nonnull ZTensor lhs, @Nonnull ZTensorWrapper rhs) {
+  public void add_(@Nonnull ZTensor lhs, @Nonnull ZTensorWrapper rhs) {
     lhs.zipWith_(Integer::sum, rhs);
   }
 
@@ -226,7 +218,7 @@ public class CellWise {
    * @param lhs the left-hand side tensor, modified in-place; must be mutable.
    * @param rhs the right-hand side tensor.
    */
-  public static void add_(@Nonnull ZTensor lhs, int rhs) {
+  public void add_(@Nonnull ZTensor lhs, int rhs) {
     lhs.zipWith_(Integer::sum, rhs);
   }
 
@@ -238,7 +230,7 @@ public class CellWise {
    * @return a new tensor.
    */
   @Nonnull
-  public static ZTensor sub(@Nonnull ZTensorWrapper lhs, @Nonnull ZTensorWrapper rhs) {
+  public ZTensor sub(@Nonnull ZTensorWrapper lhs, @Nonnull ZTensorWrapper rhs) {
     return zipWith((l, r) -> l - r, lhs, rhs);
   }
 
@@ -250,7 +242,7 @@ public class CellWise {
    * @return a new tensor.
    */
   @Nonnull
-  public static ZTensor sub(@Nonnull ZTensorWrapper lhs, int rhs) {
+  public ZTensor sub(@Nonnull ZTensorWrapper lhs, int rhs) {
     return zipWith((l, r) -> l - r, lhs, rhs);
   }
 
@@ -262,7 +254,7 @@ public class CellWise {
    * @return a new tensor.
    */
   @Nonnull
-  public static ZTensor sub(int lhs, @Nonnull ZTensorWrapper rhs) {
+  public ZTensor sub(int lhs, @Nonnull ZTensorWrapper rhs) {
     return zipWith((l, r) -> l - r, lhs, rhs);
   }
 
@@ -272,7 +264,7 @@ public class CellWise {
    * @param lhs the left-hand side tensor, modified in-place; must be mutable.
    * @param rhs the right-hand side tensor.
    */
-  public static void sub_(@Nonnull ZTensor lhs, @Nonnull ZTensorWrapper rhs) {
+  public void sub_(@Nonnull ZTensor lhs, @Nonnull ZTensorWrapper rhs) {
     lhs.zipWith_((l, r) -> l - r, rhs);
   }
 
@@ -282,7 +274,7 @@ public class CellWise {
    * @param lhs the left-hand side tensor, modified in-place; must be mutable.
    * @param rhs the right-hand side tensor.
    */
-  public static void sub_(@Nonnull ZTensor lhs, int rhs) {
+  public void sub_(@Nonnull ZTensor lhs, int rhs) {
     lhs.zipWith_((l, r) -> l - r, rhs);
   }
 
@@ -294,7 +286,7 @@ public class CellWise {
    * @return a new tensor.
    */
   @Nonnull
-  public static ZTensor mul(@Nonnull ZTensorWrapper lhs, @Nonnull ZTensorWrapper rhs) {
+  public ZTensor mul(@Nonnull ZTensorWrapper lhs, @Nonnull ZTensorWrapper rhs) {
     return zipWith((l, r) -> l * r, lhs, rhs);
   }
 
@@ -306,7 +298,7 @@ public class CellWise {
    * @return a new tensor.
    */
   @Nonnull
-  public static ZTensor mul(@Nonnull ZTensorWrapper lhs, int rhs) {
+  public ZTensor mul(@Nonnull ZTensorWrapper lhs, int rhs) {
     return zipWith((l, r) -> l * r, lhs, rhs);
   }
 
@@ -318,7 +310,7 @@ public class CellWise {
    * @return a new tensor.
    */
   @Nonnull
-  public static ZTensor mul(int lhs, @Nonnull ZTensorWrapper rhs) {
+  public ZTensor mul(int lhs, @Nonnull ZTensorWrapper rhs) {
     return zipWith((l, r) -> l * r, lhs, rhs);
   }
 
@@ -328,7 +320,7 @@ public class CellWise {
    * @param lhs the left-hand side tensor, modified in-place; must be mutable.
    * @param rhs the right-hand side tensor.
    */
-  public static void mul_(@Nonnull ZTensor lhs, @Nonnull ZTensorWrapper rhs) {
+  public void mul_(@Nonnull ZTensor lhs, @Nonnull ZTensorWrapper rhs) {
     lhs.zipWith_((l, r) -> l * r, rhs);
   }
 
@@ -338,7 +330,7 @@ public class CellWise {
    * @param lhs the left-hand side tensor, modified in-place; must be mutable.
    * @param rhs the right-hand side tensor.
    */
-  public static void mul_(@Nonnull ZTensor lhs, int rhs) {
+  public void mul_(@Nonnull ZTensor lhs, int rhs) {
     lhs.zipWith_((l, r) -> l * r, rhs);
   }
 
@@ -350,7 +342,7 @@ public class CellWise {
    * @return a new tensor.
    */
   @Nonnull
-  public static ZTensor div(@Nonnull ZTensorWrapper lhs, @Nonnull ZTensorWrapper rhs) {
+  public ZTensor div(@Nonnull ZTensorWrapper lhs, @Nonnull ZTensorWrapper rhs) {
     return zipWith((l, r) -> l / r, lhs, rhs);
   }
 
@@ -362,7 +354,7 @@ public class CellWise {
    * @return a new tensor.
    */
   @Nonnull
-  public static ZTensor div(@Nonnull ZTensorWrapper lhs, int rhs) {
+  public ZTensor div(@Nonnull ZTensorWrapper lhs, int rhs) {
     return zipWith((l, r) -> l / r, lhs, rhs);
   }
 
@@ -374,7 +366,7 @@ public class CellWise {
    * @return a new tensor.
    */
   @Nonnull
-  public static ZTensor div(int lhs, @Nonnull ZTensorWrapper rhs) {
+  public ZTensor div(int lhs, @Nonnull ZTensorWrapper rhs) {
     return zipWith((l, r) -> l / r, lhs, rhs);
   }
 
@@ -384,7 +376,7 @@ public class CellWise {
    * @param lhs the left-hand side tensor, modified in-place; must be mutable.
    * @param rhs the right-hand side tensor.
    */
-  public static void div_(@Nonnull ZTensor lhs, @Nonnull ZTensorWrapper rhs) {
+  public void div_(@Nonnull ZTensor lhs, @Nonnull ZTensorWrapper rhs) {
     lhs.zipWith_((l, r) -> l / r, rhs);
   }
 
@@ -394,7 +386,7 @@ public class CellWise {
    * @param lhs the left-hand side tensor, modified in-place; must be mutable.
    * @param rhs the right-hand side tensor.
    */
-  public static void div_(@Nonnull ZTensor lhs, int rhs) {
+  public void div_(@Nonnull ZTensor lhs, int rhs) {
     lhs.zipWith_((l, r) -> l / r, rhs);
   }
 
@@ -406,7 +398,7 @@ public class CellWise {
    * @return a new tensor.
    */
   @Nonnull
-  public static ZTensor mod(@Nonnull ZTensorWrapper lhs, @Nonnull ZTensorWrapper base) {
+  public ZTensor mod(@Nonnull ZTensorWrapper lhs, @Nonnull ZTensorWrapper base) {
     return zipWith((l, r) -> l % r, lhs, base);
   }
 
@@ -418,7 +410,7 @@ public class CellWise {
    * @return a new tensor.
    */
   @Nonnull
-  public static ZTensor mod(@Nonnull ZTensorWrapper lhs, int base) {
+  public ZTensor mod(@Nonnull ZTensorWrapper lhs, int base) {
     return zipWith((l, r) -> l % r, lhs, base);
   }
 
@@ -430,7 +422,7 @@ public class CellWise {
    * @return a new tensor.
    */
   @Nonnull
-  public static ZTensor mod(int lhs, @Nonnull ZTensorWrapper base) {
+  public ZTensor mod(int lhs, @Nonnull ZTensorWrapper base) {
     return zipWith((l, r) -> l % r, lhs, base);
   }
 
@@ -440,7 +432,7 @@ public class CellWise {
    * @param lhs the left-hand side tensor, modified in-place; must be mutable.
    * @param base the right-hand side tensor.
    */
-  public static void mod_(@Nonnull ZTensor lhs, @Nonnull ZTensorWrapper base) {
+  public void mod_(@Nonnull ZTensor lhs, @Nonnull ZTensorWrapper base) {
     lhs.zipWith_((l, r) -> l % r, base);
   }
 
@@ -450,7 +442,7 @@ public class CellWise {
    * @param lhs the left-hand side tensor, modified in-place; must be mutable.
    * @param base the right-hand side tensor.
    */
-  public static void mod_(@Nonnull ZTensor lhs, int base) {
+  public void mod_(@Nonnull ZTensor lhs, int base) {
     lhs.zipWith_((l, r) -> l % r, base);
   }
 
@@ -483,7 +475,7 @@ public class CellWise {
    * @param exp the right-hand side tensor.
    * @return a new tensor.
    */
-  public static ZTensor pow(@Nonnull ZTensorWrapper lhs, @Nonnull ZTensorWrapper exp) {
+  public ZTensor pow(@Nonnull ZTensorWrapper lhs, @Nonnull ZTensorWrapper exp) {
     return zipWith(CellWise::intPow, lhs, exp);
   }
 
@@ -494,7 +486,7 @@ public class CellWise {
    * @param exp the right-hand side scalar.
    * @return a new tensor.
    */
-  public static ZTensor pow(int lhs, @Nonnull ZTensorWrapper exp) {
+  public ZTensor pow(int lhs, @Nonnull ZTensorWrapper exp) {
     return zipWith(CellWise::intPow, lhs, exp);
   }
 
@@ -505,7 +497,7 @@ public class CellWise {
    * @param exp the right-hand side scalar.
    * @return a new tensor.
    */
-  public static ZTensor pow(@Nonnull ZTensorWrapper lhs, int exp) {
+  public ZTensor pow(@Nonnull ZTensorWrapper lhs, int exp) {
     return zipWith(CellWise::intPow, lhs, exp);
   }
 
@@ -515,7 +507,7 @@ public class CellWise {
    * @param lhs the left-hand side tensor, modified in-place; must be mutable.
    * @param exp the right-hand side tensor.
    */
-  public static void pow_(@Nonnull ZTensor lhs, @Nonnull ZTensorWrapper exp) {
+  public void pow_(@Nonnull ZTensor lhs, @Nonnull ZTensorWrapper exp) {
     lhs.zipWith_(CellWise::intPow, exp);
   }
 
@@ -525,7 +517,7 @@ public class CellWise {
    * @param lhs the left-hand side tensor, modified in-place; must be mutable.
    * @param exp the right-hand side tensor.
    */
-  public static void pow_(@Nonnull ZTensor lhs, int exp) {
+  public void pow_(@Nonnull ZTensor lhs, int exp) {
     lhs.zipWith_(CellWise::intPow, exp);
   }
 
@@ -569,7 +561,7 @@ public class CellWise {
    * @param base the right-hand side tensor.
    * @return a new tensor.
    */
-  public static ZTensor log(@Nonnull ZTensorWrapper lhs, @Nonnull ZTensorWrapper base) {
+  public ZTensor log(@Nonnull ZTensorWrapper lhs, @Nonnull ZTensorWrapper base) {
     return zipWith(CellWise::intLog, lhs, base);
   }
 
@@ -580,7 +572,7 @@ public class CellWise {
    * @param base the right-hand side tensor.
    * @return a new tensor.
    */
-  public static ZTensor log(int lhs, @Nonnull ZTensorWrapper base) {
+  public ZTensor log(int lhs, @Nonnull ZTensorWrapper base) {
     return zipWith(CellWise::intLog, lhs, base);
   }
 
@@ -591,7 +583,7 @@ public class CellWise {
    * @param base the right-hand side scalar.
    * @return a new tensor.
    */
-  public static ZTensor log(@Nonnull ZTensorWrapper lhs, int base) {
+  public ZTensor log(@Nonnull ZTensorWrapper lhs, int base) {
     return zipWith(CellWise::intLog, lhs, base);
   }
 
@@ -601,7 +593,7 @@ public class CellWise {
    * @param lhs the left-hand side tensor, modified in-place; must be mutable.
    * @param base the right-hand side tensor.
    */
-  public static void log_(@Nonnull ZTensor lhs, @Nonnull ZTensorWrapper base) {
+  public void log_(@Nonnull ZTensor lhs, @Nonnull ZTensorWrapper base) {
     lhs.zipWith_(CellWise::intLog, base);
   }
 
@@ -611,7 +603,7 @@ public class CellWise {
    * @param lhs the left-hand side tensor, modified in-place; must be mutable.
    * @param base the right-hand side tensor.
    */
-  public static void log_(@Nonnull ZTensor lhs, int base) {
+  public void log_(@Nonnull ZTensor lhs, int base) {
     lhs.zipWith_(CellWise::intLog, base);
   }
 }

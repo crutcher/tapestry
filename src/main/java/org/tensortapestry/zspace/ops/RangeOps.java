@@ -17,7 +17,7 @@ public class RangeOps {
    * @return the cartesian product.
    */
   @Nonnull
-  public static ZRange cartesianProduct(@Nonnull ZRange lhs, @Nonnull ZRange rhs) {
+  public ZRange cartesianProduct(@Nonnull ZRange lhs, @Nonnull ZRange rhs) {
     int baseNDim = rhs.getNDim();
     int embedNDim = lhs.getNDim();
     ZPoint rStart = rhs.getStart().addDims(0, embedNDim).add(lhs.getStart().addDims(-1, baseNDim));
@@ -33,7 +33,7 @@ public class RangeOps {
    * @return the cartesian product.
    */
   @Nonnull
-  public static ZRange cartesianProduct(@Nonnull ZRange lhs, @Nonnull ZTensorWrapper rhs) {
+  public ZRange cartesianProduct(@Nonnull ZRange lhs, @Nonnull ZTensorWrapper rhs) {
     return cartesianProduct(lhs, ZRange.newFromShape(rhs));
   }
 
@@ -45,7 +45,7 @@ public class RangeOps {
    * @return the cartesian product.
    */
   @Nonnull
-  public static ZRange cartesianProduct(@Nonnull ZTensorWrapper lhs, @Nonnull ZTensorWrapper rhs) {
+  public ZRange cartesianProduct(@Nonnull ZTensorWrapper lhs, @Nonnull ZTensorWrapper rhs) {
     return cartesianProduct(ZRange.newFromShape(lhs), ZRange.newFromShape(rhs));
   }
 
@@ -56,7 +56,7 @@ public class RangeOps {
    * @param rhs the right-hand range.
    * @return the intersection of this range with another, null if there is no intersection.
    */
-  @Nullable public static ZRange intersection(@Nonnull ZRange lhs, @Nonnull ZRange rhs) {
+  @Nullable public ZRange intersection(@Nonnull ZRange lhs, @Nonnull ZRange rhs) {
     ZTensor zTensor1 = CellWise.maximum(lhs.getStart(), rhs.getStart());
     var iStart = ZPoint.of(zTensor1);
     ZTensor zTensor = CellWise.minimum(lhs.getEnd(), rhs.getEnd());
@@ -75,7 +75,7 @@ public class RangeOps {
    * @return the minimum bounding range.
    */
   @Nonnull
-  public static ZRange boundingRange(@Nonnull ZRange... ranges) {
+  public ZRange boundingRange(@Nonnull ZRange... ranges) {
     return boundingRange(Arrays.asList(ranges));
   }
 
@@ -86,7 +86,7 @@ public class RangeOps {
    * @return the minimum bounding range.
    */
   @Nonnull
-  public static ZRange boundingRange(@Nonnull Iterable<ZRange> ranges) {
+  public ZRange boundingRange(@Nonnull Iterable<ZRange> ranges) {
     var it = ranges.iterator();
     if (!it.hasNext()) {
       throw new IllegalArgumentException("no ranges");

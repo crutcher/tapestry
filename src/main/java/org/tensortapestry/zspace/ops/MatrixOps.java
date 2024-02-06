@@ -9,7 +9,7 @@ import org.tensortapestry.zspace.ZTensorWrapper;
  * ZTensor matrix operations.
  */
 @UtilityClass
-public final class MatrixOps {
+public class MatrixOps {
 
   /**
    * Matrix multiplication of {@code lhs * rhs}.
@@ -19,7 +19,7 @@ public final class MatrixOps {
    * @return a new tensor.
    */
   @Nonnull
-  public static ZTensor matmul(@Nonnull ZTensorWrapper lhs, @Nonnull ZTensorWrapper rhs) {
+  public ZTensor matmul(@Nonnull ZTensorWrapper lhs, @Nonnull ZTensorWrapper rhs) {
     var zlhs = lhs.unwrap();
     var zrhs = rhs.unwrap();
 
