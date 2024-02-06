@@ -270,6 +270,11 @@ public class DimShapeMatcher {
     return new DimShapeMatcher(parsePatternList(source));
   }
 
+  @Override
+  public String toString() {
+    return patterns.toString();
+  }
+
   @VisibleForTesting
   static List<ShapePattern> validatePatternList(List<ShapePattern> pl) {
     Set<String> names = new HashSet<>();
