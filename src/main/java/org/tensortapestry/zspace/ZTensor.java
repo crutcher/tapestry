@@ -464,7 +464,7 @@ public final class ZTensor
     }
     if (hash == null) {
       synchronized (this) {
-        hash = reduceCellsAtomic((a, b) -> 31 * a + b, Arrays.hashCode(shape));
+        hash = reduceCellsAtomic((a, b) -> 31 * a + b, 17 + Arrays.hashCode(shape));
       }
     }
     return hash;

@@ -1,5 +1,6 @@
 package org.tensortapestry.zspace;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonValue;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -25,8 +26,11 @@ public abstract class ImmutableZTensorWrapper<T>
   @SuppressWarnings("Immutable")
   protected final ZTensor tensor;
 
+  @JsonIgnore
+  private Integer hashCash;
+
   @Override
-  public ZTensor unwrap() {
+  public final ZTensor unwrap() {
     return tensor;
   }
 
@@ -73,7 +77,10 @@ public abstract class ImmutableZTensorWrapper<T>
 
   @Override
   public final int hashCode() {
-    return tensor.hashCode();
+    if (hashCash == null) {
+      hashCash = tensor.hashCode();
+    }
+    return hashCash;
   }
 
   @Override
@@ -92,7 +99,7 @@ public abstract class ImmutableZTensorWrapper<T>
    *
    * @return true if all cells are {@code > 0}.
    */
-  public boolean isStrictlyPositive() {
+  public final boolean isStrictlyPositive() {
     return tensor.isStrictlyPositive();
   }
 
@@ -101,7 +108,7 @@ public abstract class ImmutableZTensorWrapper<T>
    *
    * @return true if all cells are {@code >= 0}.
    */
-  public boolean isNonNegative() {
+  public final boolean isNonNegative() {
     return tensor.isNonNegative();
   }
 

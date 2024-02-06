@@ -2,12 +2,12 @@ package org.tensortapestry.zspace;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import javax.annotation.concurrent.ThreadSafe;
 import lombok.Builder;
+import lombok.EqualsAndHashCode;
 import lombok.Value;
 import lombok.extern.jackson.Jacksonized;
 import org.tensortapestry.zspace.impl.HasJsonOutput;
@@ -21,6 +21,7 @@ import org.tensortapestry.zspace.impl.HasJsonOutput;
 @Jacksonized
 @Builder(toBuilder = true)
 @JsonPropertyOrder({ "projection", "offset" })
+@EqualsAndHashCode(cacheStrategy = EqualsAndHashCode.CacheStrategy.LAZY)
 public class ZAffineMap implements HasPermuteIO<ZAffineMap>, HasJsonOutput {
 
   /**
@@ -98,18 +99,6 @@ public class ZAffineMap implements HasPermuteIO<ZAffineMap>, HasJsonOutput {
   @Override
   public int getOutputNDim() {
     return projection.getOutputNDim();
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hash(projection, offset);
-  }
-
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
-    if (!(o instanceof ZAffineMap that)) return false;
-    return projection.equals(that.projection) && offset.equals(that.offset);
   }
 
   @Override

@@ -9,6 +9,7 @@ import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import javax.annotation.concurrent.ThreadSafe;
 import lombok.Builder;
+import lombok.EqualsAndHashCode;
 import lombok.Value;
 import org.tensortapestry.zspace.impl.HasJsonOutput;
 import org.tensortapestry.zspace.impl.ParseUtil;
@@ -46,6 +47,7 @@ import org.tensortapestry.zspace.ops.RangeOps;
 @ThreadSafe
 @Immutable
 @Value
+@EqualsAndHashCode(cacheStrategy = EqualsAndHashCode.CacheStrategy.LAZY)
 public class ZRange implements Cloneable, HasSize, HasPermute<ZRange>, HasJsonOutput {
 
   /**
@@ -273,16 +275,20 @@ public class ZRange implements Cloneable, HasSize, HasPermute<ZRange>, HasJsonOu
   }
 
   @Nonnull
+  @EqualsAndHashCode.Include
   ZPoint start;
 
   @Nonnull
+  @EqualsAndHashCode.Include
   ZPoint end;
 
   @JsonIgnore
   @Nonnull
+  @EqualsAndHashCode.Exclude
   ZPoint shape;
 
   @JsonIgnore
+  @EqualsAndHashCode.Exclude
   int size;
 
   /**
@@ -304,18 +310,6 @@ public class ZRange implements Cloneable, HasSize, HasPermute<ZRange>, HasJsonOu
 
     shape = zend.sub(zstart.tensor);
     size = shape.prodAsInt();
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hash(start, end);
-  }
-
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
-    if (!(o instanceof ZRange zRange)) return false;
-    return (Objects.equals(start, zRange.start) && Objects.equals(end, zRange.end));
   }
 
   @Override

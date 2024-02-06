@@ -9,6 +9,7 @@ import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import javax.annotation.concurrent.ThreadSafe;
 import lombok.Builder;
+import lombok.EqualsAndHashCode;
 import lombok.Value;
 import org.tensortapestry.zspace.impl.HasJsonOutput;
 
@@ -18,6 +19,7 @@ import org.tensortapestry.zspace.impl.HasJsonOutput;
 @Value
 @Immutable
 @ThreadSafe
+@EqualsAndHashCode(cacheStrategy = EqualsAndHashCode.CacheStrategy.LAZY)
 public class ZRangeProjectionMap implements HasJsonOutput {
 
   @SuppressWarnings("unused")
