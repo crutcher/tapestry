@@ -12,10 +12,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.IntNode;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import java.lang.reflect.Array;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.*;
 import javax.annotation.Nonnull;
 import lombok.Getter;
@@ -24,8 +21,8 @@ import lombok.experimental.UtilityClass;
 import org.tensortapestry.zspace.exceptions.ZDimMissMatchError;
 import org.tensortapestry.zspace.impl.HasJsonOutput;
 import org.tensortapestry.zspace.impl.ZSpaceJsonUtil;
-import org.tensortapestry.zspace.indexing.ArrayData;
 import org.tensortapestry.zspace.indexing.BufferMode;
+import org.tensortapestry.zspace.indexing.FlatArray;
 import org.tensortapestry.zspace.indexing.IndexingFns;
 import org.tensortapestry.zspace.indexing.IterableCoordinates;
 import org.tensortapestry.zspace.ops.CellWise;
@@ -296,6 +293,29 @@ public final class ZTensor
   }
 
   /**
+   * Build a new ZTensor from an FlatArray, taking ownership of the data.
+   *
+   * @param flatArray the array data.
+   * @return a new ZTensor.
+   */
+  public static ZTensor _newFromFlatArray(@Nonnull FlatArray flatArray) {
+    return new ZTensor(true, flatArray.getShape(), flatArray.getStrides(), flatArray.getData(), 0);
+  }
+
+  /**
+   * Decode a base64 encoded FlatArray into a ZTensor.
+   *
+   * @param encoded the base64 encoded FlatArray.
+   * @return the new tensor.
+   */
+  public static ZTensor newFromFlatBase64(@Nonnull String encoded) {
+    byte[] bytes = Base64.getDecoder().decode(encoded);
+    return _newFromFlatArray(
+      Objects.requireNonNull(ZSpaceJsonUtil.fromMsgPack(bytes, FlatArray.class))
+    );
+  }
+
+  /**
    * Given a non-sparse list of unknown dimensionality, returns a ZTensor with the same shape and
    * data.
    *
@@ -387,7 +407,7 @@ public final class ZTensor
    *
    * @param shape the shape.
    */
-  ZTensor(@Nonnull int[] shape) {
+  public ZTensor(@Nonnull int[] shape) {
     this(
       true,
       shape,
@@ -865,12 +885,22 @@ public final class ZTensor
   /**
    * Convert this tensor to a flat Java array.
    *
-   * @return an ArrayData ( shape, data ) pair.
+   * @return an FlatArray ( shape, data ) pair.
    */
   @Nonnull
-  ArrayData toFlatArrayData() {
+  FlatArray toFlatArray() {
     var compact = asImmutable();
-    return new ArrayData(compact.shape, compact.data);
+    return new FlatArray(compact.shape, compact.data);
+  }
+
+  /**
+   * Encode this tensor to a base64 encoded FlatArray.
+   *
+   * @return the base64 encoded FlatArray.
+   */
+  @Nonnull
+  String toFlatBase64() {
+    return new String(Base64.getEncoder().encode(ZSpaceJsonUtil.toMsgPack(toFlatArray())));
   }
 
   /**
@@ -1231,6 +1261,7 @@ public final class ZTensor
    *
    * @return the shape.
    */
+  @Nonnull
   int[] _unsafeGetShape() {
     return shape;
   }

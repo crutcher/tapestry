@@ -2,21 +2,58 @@ package org.tensortapestry.zspace;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.IntBinaryOperator;
 import org.junit.jupiter.api.Test;
 import org.tensortapestry.zspace.exceptions.ZDimMissMatchError;
 import org.tensortapestry.zspace.experimental.ZSpaceTestAssertions;
 import org.tensortapestry.zspace.impl.ZSpaceJsonUtil;
-import org.tensortapestry.zspace.indexing.ArrayData;
 import org.tensortapestry.zspace.indexing.BufferMode;
+import org.tensortapestry.zspace.indexing.FlatArray;
 import org.tensortapestry.zspace.indexing.IterableCoordinates;
 import org.tensortapestry.zspace.ops.CellWise;
 
 public class ZTensorTest implements ZSpaceTestAssertions {
+
+  @Test
+  public void test_json() {
+    ZTensor z3 = ZTensor.newZeros(0, 0, 0);
+    assertObjectJsonEquivalence(z3, "[[[]]]");
+
+    // Degenerate tensors map to emtpy tensors.
+    ZTensor deg = ZTensor.newZeros(0, 5);
+    assertThat(ZSpaceJsonUtil.toJson(deg)).isEqualTo("[[]]");
+
+    ZTensor t = ZTensor.newFromArray(new int[][] { { 2, 3 }, { 4, 5 } });
+    ZTensor s = ZTensor.newScalar(3);
+
+    assertObjectJsonEquivalence(t, "[[2,3],[4,5]]");
+    assertObjectJsonEquivalence(s, "3");
+
+    // As a field.
+    assertObjectJsonEquivalence(new JsonExampleContainer(t), "{\"tensor\": [[2,3],[4,5]]}");
+    assertObjectJsonEquivalence(new JsonExampleContainer(s), "{\"tensor\": 3}");
+  }
+
+  @Test
+  public void test_msgpack() {
+    {
+      ZTensor tensor = ZTensor.newZeros(5, 3, 2);
+      assertThat(ZSpaceJsonUtil.fromMsgPack(ZSpaceJsonUtil.toMsgPack(tensor), ZTensor.class))
+        .isEqualTo(tensor);
+    }
+    {
+      ZTensor tensor = ZTensor.newScalar(12);
+      assertThat(ZSpaceJsonUtil.fromMsgPack(ZSpaceJsonUtil.toMsgPack(tensor), ZTensor.class))
+        .isEqualTo(tensor);
+    }
+  }
+
+  @Test
+  public void test_tofrom_base64() {
+    ZTensor tensor = ZTensor.newOnes(5, 3, 2);
+    assertThat(ZTensor.newFromFlatBase64(tensor.toFlatBase64())).isEqualTo(tensor);
+  }
 
   @Test
   public void test_allMatch_anyMatch() {
@@ -290,26 +327,6 @@ public class ZTensorTest implements ZSpaceTestAssertions {
 
     assertThatExceptionOfType(ZDimMissMatchError.class)
       .isThrownBy(() -> ZTensor.newScalar(3).toT2());
-  }
-
-  @Test
-  public void test_JSON() {
-    ZTensor z3 = ZTensor.newZeros(0, 0, 0);
-    assertObjectJsonEquivalence(z3, "[[[]]]");
-
-    // Degenerate tensors map to emtpy tensors.
-    ZTensor deg = ZTensor.newZeros(0, 5);
-    assertThat(ZSpaceJsonUtil.toJson(deg)).isEqualTo("[[]]");
-
-    ZTensor t = ZTensor.newFromArray(new int[][] { { 2, 3 }, { 4, 5 } });
-    ZTensor s = ZTensor.newScalar(3);
-
-    assertObjectJsonEquivalence(t, "[[2,3],[4,5]]");
-    assertObjectJsonEquivalence(s, "3");
-
-    // As a field.
-    assertObjectJsonEquivalence(new JsonExampleContainer(t), "{\"tensor\": [[2,3],[4,5]]}");
-    assertObjectJsonEquivalence(new JsonExampleContainer(s), "{\"tensor\": 3}");
   }
 
   @Test
@@ -1253,7 +1270,7 @@ public class ZTensorTest implements ZSpaceTestAssertions {
   }
 
   @Test
-  public void test_toFlatArrayData() {
+  public void test_toFlatArray() {
     var tensor = ZTensor
       .newFromArray(new int[][] { { 1, 2 }, { 3, 4 } })
       .reverse(1)
@@ -1261,7 +1278,8 @@ public class ZTensorTest implements ZSpaceTestAssertions {
 
     assertThat(tensor).isEqualTo(ZTensor.newFromArray(new int[] { 2, 1 }));
 
-    assertThat(tensor.toFlatArrayData())
-      .isEqualTo(new ArrayData(new int[] { 2 }, new int[] { 2, 1 }));
+    assertThat(tensor).isEqualTo(ZTensor._newFromFlatArray(tensor.toFlatArray()));
+
+    assertThat(tensor.toFlatArray()).isEqualTo(new FlatArray(new int[] { 2 }, new int[] { 2, 1 }));
   }
 }

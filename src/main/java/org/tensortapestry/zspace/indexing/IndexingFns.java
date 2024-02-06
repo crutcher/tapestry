@@ -13,7 +13,9 @@ import javax.annotation.Nonnull;
 import lombok.experimental.UtilityClass;
 import org.tensortapestry.zspace.HasDimension;
 
-/** Utility functions for computing tensor indices. */
+/**
+ * Utility functions for computing tensor indices.
+ */
 @UtilityClass
 public class IndexingFns {
 
@@ -200,8 +202,8 @@ public class IndexingFns {
    *
    * @param arr the array.
    * @param permutation the permutation.
-   * @return a new array with the permutation applied.
    * @param <T> the type of the array.
+   * @return a new array with the permutation applied.
    */
   @Nonnull
   public <T> T[] applyResolvedPermutation(@Nonnull T[] arr, @Nonnull int[] permutation) {
@@ -297,7 +299,7 @@ public class IndexingFns {
     for (int i = shape.length - 1; i >= 0; --i) {
       int k = shape[i];
       if (k < 0) {
-        throw new IllegalArgumentException("shape must be non-negative");
+        throw new IllegalArgumentException("shape must be non-negative: " + Arrays.toString(shape));
       }
 
       if (k == 0 || k == 1) {
@@ -464,7 +466,7 @@ public class IndexingFns {
    * @param nodeAsSimpleArray get a coherent chunk of data for a final layer array.
    * @return a {@code Pair<int[], int[]>} of (shape, data)
    */
-  public <T> @Nonnull ArrayData arrayFromTree(
+  public <T> @Nonnull FlatArray arrayFromTree(
     @Nonnull T root,
     @Nonnull Predicate<T> isArray,
     @Nonnull ToIntFunction<T> getArrayLength,
@@ -474,7 +476,7 @@ public class IndexingFns {
   ) {
     try {
       if (!isArray.test(root)) {
-        return new ArrayData(new int[] {}, new int[] { nodeAsScalar.applyAsInt(root) });
+        return new FlatArray(new int[] {}, new int[] { nodeAsScalar.applyAsInt(root) });
       }
 
       var shapeList = treeSpineShape(root, isArray, getArrayLength, getArrayElement);
@@ -483,7 +485,7 @@ public class IndexingFns {
 
       if (shapeList.contains(0)) {
         // Handle degenerate tensors.
-        return new ArrayData(new int[ndim], new int[] {});
+        return new FlatArray(new int[ndim], new int[] {});
       }
 
       int[] shape = shapeList.stream().mapToInt(i -> i).toArray();
@@ -506,7 +508,7 @@ public class IndexingFns {
         chunkCount++;
       }
 
-      return new ArrayData(shape, data);
+      return new FlatArray(shape, data);
     } catch (Exception e) {
       throw new IllegalArgumentException("Could not parse array from tree", e);
     }
