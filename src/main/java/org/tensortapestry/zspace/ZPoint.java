@@ -104,8 +104,8 @@ public final class ZPoint extends ImmutableZTensorWrapper<ZPoint> implements Has
    */
   @Nonnull
   public static ZPoint of(@Nonnull ZTensorWrapper coords) {
-    if (coords instanceof ZPoint) {
-      return (ZPoint) coords;
+    if (coords instanceof ZPoint zp) {
+      return zp;
     }
     return new ZPoint(coords);
   }
@@ -136,7 +136,7 @@ public final class ZPoint extends ImmutableZTensorWrapper<ZPoint> implements Has
    *
    * @param coord the coordinates.
    */
-  public ZPoint(@Nonnull ZTensorWrapper coord) {
+  ZPoint(@Nonnull ZTensorWrapper coord) {
     super(coord);
     this.tensor.assertNDim(1);
   }
