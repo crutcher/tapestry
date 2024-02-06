@@ -607,7 +607,7 @@ public final class ZTensor
     }
 
     var res = new ZTensor(shape);
-    forEachEntry(res::set, BufferOwnership.REUSED);
+    forEach(res::set, BufferOwnership.REUSED);
     if (!mutable) {
       return new ZTensor(false, res.shape, res.stride, res.data, 0);
     }
@@ -701,7 +701,7 @@ public final class ZTensor
    */
   public void assign_(@Nonnull ZTensorWrapper tensor) {
     assertMutable();
-    tensor.unwrap().broadcastLike(this).forEachEntry(this::_unchecked_set, BufferOwnership.REUSED);
+    tensor.unwrap().broadcastLike(this).forEach(this::_unchecked_set, BufferOwnership.REUSED);
   }
 
   /**
@@ -727,13 +727,8 @@ public final class ZTensor
    * @param consumer the consumer.
    * @param bufferOwnership the buffer mode.
    */
-  public void forEachEntry(
-    @Nonnull CellConsumer consumer,
-    @Nonnull BufferOwnership bufferOwnership
-  ) {
-    for (int[] coords : byCoords(bufferOwnership)) {
-      consumer.accept(coords, get(coords));
-    }
+  public void forEach(@Nonnull CellConsumer consumer, @Nonnull BufferOwnership bufferOwnership) {
+    byCoords(bufferOwnership).forEach(c -> consumer.accept(c, get(c)));
   }
 
   /**
@@ -1110,7 +1105,7 @@ public final class ZTensor
     tensor
       .unwrap()
       .broadcastLike(this)
-      .forEachEntry(
+      .forEach(
         (coords, value) -> _unchecked_set(coords, op.applyAsInt(value)),
         BufferOwnership.REUSED
       );
