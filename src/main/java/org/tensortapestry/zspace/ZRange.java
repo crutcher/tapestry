@@ -15,7 +15,6 @@ import org.tensortapestry.zspace.impl.ParseUtil;
 import org.tensortapestry.zspace.impl.ZSpaceJsonUtil;
 import org.tensortapestry.zspace.indexing.BufferMode;
 import org.tensortapestry.zspace.indexing.IterableCoordinates;
-import org.tensortapestry.zspace.ops.CellWise;
 import org.tensortapestry.zspace.ops.DominanceOrderingOps;
 import org.tensortapestry.zspace.ops.RangeOps;
 
@@ -227,7 +226,7 @@ public class ZRange implements Cloneable, HasSize, HasPermute<ZRange>, HasJsonOu
    */
   @Nonnull
   public static ZRange boundingRange(@Nonnull ZRange... ranges) {
-    return boundingRange(Arrays.asList(ranges));
+    return RangeOps.boundingRange(ranges);
   }
 
   /**
@@ -238,24 +237,7 @@ public class ZRange implements Cloneable, HasSize, HasPermute<ZRange>, HasJsonOu
    */
   @Nonnull
   public static ZRange boundingRange(@Nonnull Iterable<ZRange> ranges) {
-    var it = ranges.iterator();
-    if (!it.hasNext()) {
-      throw new IllegalArgumentException("no ranges");
-    }
-
-    var first = it.next();
-    var start = first.start.tensor;
-    var end = first.end.tensor;
-
-    while (it.hasNext()) {
-      var r = it.next();
-      HasDimension.assertSameNDim(first, r);
-
-      start = CellWise.minimum(start, r.start.tensor);
-      end = CellWise.maximum(end, r.end.tensor);
-    }
-
-    return new ZRange(start, end);
+    return RangeOps.boundingRange(ranges);
   }
 
   /**
@@ -498,7 +480,6 @@ public class ZRange implements Cloneable, HasSize, HasPermute<ZRange>, HasJsonOu
     if (isEmpty()) {
       throw new IndexOutOfBoundsException("Empty range");
     }
-
     return end.sub(1);
   }
 
@@ -509,13 +490,7 @@ public class ZRange implements Cloneable, HasSize, HasPermute<ZRange>, HasJsonOu
    * @return the intersection of this range with another, null if there is no intersection.
    */
   @Nullable public ZRange intersection(@Nonnull ZRange other) {
-    var iStart = CellWise.maximum(start, other.start).newZPoint();
-    var iEnd = CellWise.minimum(end, other.end).newZPoint();
-    if (iStart.le(iEnd)) {
-      return new ZRange(iStart, iEnd);
-    } else {
-      return null;
-    }
+    return RangeOps.intersection(this, other);
   }
 
   /**
