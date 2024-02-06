@@ -719,14 +719,14 @@ public final class ZTensor
      * Iterate over the coordinates and values of this tensor.
      *
      * <p>When the buffer mode is {@link BufferMode#REUSED}, the buffer is shared between
-     * subsequent calls to {@link TensorEntryConsumer#accept(int[], int)}. When the buffer mode is
+     * subsequent calls to {@link CellConsumer#accept(int[], int)}. When the buffer mode is
      * {@link BufferMode#SAFE}, the buffer is not shared between subsequent calls to
-     * {@link TensorEntryConsumer#accept(int[], int)}.
+     * {@link CellConsumer#accept(int[], int)}.
      *
      * @param consumer the consumer.
      * @param bufferMode the buffer mode.
      */
-    public void forEachEntry(@Nonnull TensorEntryConsumer consumer, @Nonnull BufferMode bufferMode) {
+    public void forEachEntry(@Nonnull CellConsumer consumer, @Nonnull BufferMode bufferMode) {
         for (int[] coords : byCoords(bufferMode)) {
             consumer.accept(coords, get(coords));
         }
