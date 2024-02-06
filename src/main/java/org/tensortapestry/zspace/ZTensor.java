@@ -14,6 +14,7 @@ import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import java.lang.reflect.Array;
 import java.util.*;
 import java.util.function.*;
+import java.util.stream.IntStream;
 import javax.annotation.Nonnull;
 import lombok.Getter;
 import lombok.SneakyThrows;
@@ -736,14 +737,45 @@ public final class ZTensor
   }
 
   /**
+   * Return an IntStream of the values of this tensor.
+   *
+   * @return the stream.
+   */
+  public IntStream valueStream() {
+    return byCoords(BufferOwnership.REUSED).stream().mapToInt(this::get);
+  }
+
+  /**
    * Iterate over the values of this tensor.
    *
    * @param consumer the consumer.
    */
   public void forEachValue(@Nonnull IntConsumer consumer) {
-    for (int[] coords : byCoords(BufferOwnership.REUSED)) {
-      consumer.accept(get(coords));
-    }
+    valueStream().forEach(consumer);
+  }
+
+  /**
+   * Does every cell in this tensor match the given predicate?
+   *
+   * <p>Trivially true for an empty tensor.
+   *
+   * @param predicate the predicate.
+   * @return true if every cell matches the predicate.
+   */
+  public boolean allMatch(@Nonnull IntPredicate predicate) {
+    return valueStream().allMatch(predicate);
+  }
+
+  /**
+   * Does any cell in this tensor match the given predicate?
+   *
+   * <p>Trivially false for an empty tensor.
+   *
+   * @param predicate the predicate.
+   * @return true if any cell matches the predicate.
+   */
+  public boolean anyMatch(@Nonnull IntPredicate predicate) {
+    return valueStream().anyMatch(predicate);
   }
 
   /**
@@ -762,30 +794,6 @@ public final class ZTensor
    */
   public boolean isNonNegative() {
     return allMatch(x -> x >= 0);
-  }
-
-  /**
-   * Does every cell in this tensor match the given predicate?
-   *
-   * <p>Trivially true for an empty tensor.
-   *
-   * @param predicate the predicate.
-   * @return true if every cell matches the predicate.
-   */
-  public boolean allMatch(@Nonnull IntPredicate predicate) {
-    return byCoords(BufferOwnership.REUSED).stream().mapToInt(this::get).allMatch(predicate);
-  }
-
-  /**
-   * Does any cell in this tensor match the given predicate?
-   *
-   * <p>Trivially false for an empty tensor.
-   *
-   * @param predicate the predicate.
-   * @return true if any cell matches the predicate.
-   */
-  public boolean anyMatch(@Nonnull IntPredicate predicate) {
-    return byCoords(BufferOwnership.REUSED).stream().mapToInt(this::get).anyMatch(predicate);
   }
 
   /**
