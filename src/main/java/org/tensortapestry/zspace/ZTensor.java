@@ -476,7 +476,7 @@ public final class ZTensor
      * @return true if this tensor is compact.
      */
     public boolean isCompact() {
-        return Array.getLength(data) == size;
+        return data.length == size;
     }
 
     @Override
@@ -855,6 +855,7 @@ public final class ZTensor
      * @return the new java structure.
      */
     @Nonnull
+    @SuppressWarnings("ConstantConditions")
     public Object toArray() {
         if (isScalar()) {
             return item();
@@ -876,8 +877,6 @@ public final class ZTensor
                 }
                 chunk = (int[]) it;
             }
-
-            assert chunk != null;
             chunk[lsd] = get(coords);
         }
 
@@ -965,7 +964,10 @@ public final class ZTensor
         var res = this;
         if (res.getNDim() > targetShape.length) {
             throw new IllegalArgumentException(
-                    "Cannot broadcast shape " + Arrays.toString(shape) + " to " + Arrays.toString(targetShape)
+                    "Cannot broadcast shape %s to %s".formatted(
+                            Arrays.toString(shape),
+                            Arrays.toString(targetShape)
+                    )
             );
         }
         while (res.getNDim() < targetShape.length) {
@@ -974,10 +976,10 @@ public final class ZTensor
         for (int i = 0; i < targetShape.length; ++i) {
             if (res.shape[i] > 1 && res.shape[i] != targetShape[i]) {
                 throw new IllegalArgumentException(
-                        "Cannot broadcast shape " +
-                        Arrays.toString(this.shape) +
-                        " to " +
-                        Arrays.toString(targetShape)
+                        "Cannot broadcast shape %s to %s".formatted(
+                                Arrays.toString(this.shape),
+                                Arrays.toString(targetShape)
+                        )
                 );
             }
             if (res.shape[i] == 1 && targetShape[i] > 1) {
@@ -997,19 +999,13 @@ public final class ZTensor
     public ZTensor unsqueeze(int dim) {
         int rDim = IndexingFns.resolveDim(dim, getNDim() + 1);
 
-        int[] newShape = new int[getNDim() + 1];
-        int[] newStride = new int[getNDim() + 1];
-
-        System.arraycopy(shape, 0, newShape, 0, rDim);
-        System.arraycopy(shape, rDim, newShape, rDim + 1, getNDim() - rDim);
-
-        System.arraycopy(stride, 0, newStride, 0, rDim);
-        System.arraycopy(stride, rDim, newStride, rDim + 1, getNDim() - rDim);
-
-        newShape[rDim] = 1;
-        newStride[rDim] = 0;
-
-        return new ZTensor(mutable, newShape, newStride, data, data_offset);
+        return new ZTensor(
+                mutable,
+                IndexingFns.addIdx(shape, rDim, 1),
+                IndexingFns.addIdx(stride, rDim, 0),
+                data,
+                data_offset
+        );
     }
 
     /**

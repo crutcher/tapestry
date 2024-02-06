@@ -408,6 +408,22 @@ public class IndexingFns {
   }
 
   /**
+   * Copy an array, adding a value at the given index.
+   * @param arr the array.
+   * @param index the index to add the value.
+   * @param value the value to add.
+   * @return a copy of the array with the given value added at the given index.
+   */
+  @Nonnull
+  public int[] addIdx(@Nonnull int[] arr, int index, int value) {
+    int[] res = new int[arr.length + 1];
+    System.arraycopy(arr, 0, res, 0, index);
+    res[index] = value;
+    System.arraycopy(arr, index, res, index + 1, arr.length - index);
+    return res;
+  }
+
+  /**
    * Assert that this tensor has the given shape.
    *
    * @param actual the actual shape.
