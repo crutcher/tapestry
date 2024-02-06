@@ -196,17 +196,6 @@ public class ZRange implements Cloneable, HasSize, HasPermute<ZRange>, HasJsonOu
   }
 
   /**
-   * Shift the entire range by the given delta.
-   *
-   * @param delta the delta to shift by.
-   * @return the shifted range.
-   */
-  @Nonnull
-  public ZRange translate(@Nonnull ZTensorWrapper delta) {
-    return ZRange.of(start.tensor.add(delta), end.tensor.add(delta));
-  }
-
-  /**
    * Construct a new ZRange of {@code [start, end)}.
    *
    * @param start the start point.
@@ -481,6 +470,17 @@ public class ZRange implements Cloneable, HasSize, HasPermute<ZRange>, HasJsonOu
       throw new IndexOutOfBoundsException("Empty range");
     }
     return end.sub(1);
+  }
+
+  /**
+   * Shift the entire range by the given delta.
+   *
+   * @param delta the delta to shift by.
+   * @return the shifted range.
+   */
+  @Nonnull
+  public ZRange translate(@Nonnull ZTensorWrapper delta) {
+    return ZRange.of(start.tensor.add(delta), end.tensor.add(delta));
   }
 
   /**
