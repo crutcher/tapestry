@@ -9,7 +9,7 @@ import lombok.Singular;
 import lombok.Value;
 import lombok.experimental.Delegate;
 import lombok.extern.jackson.Jacksonized;
-import org.tensortapestry.common.collections.IterableStreamable;
+import org.tensortapestry.common.collections.StreamableIterable;
 import org.tensortapestry.common.json.HasToJsonString;
 import org.tensortapestry.loom.graph.AbstractNodeWrapper;
 import org.tensortapestry.loom.graph.LoomGraph;
@@ -78,7 +78,7 @@ public final class OperationNode extends AbstractNodeWrapper<OperationNode.Body>
     return getBody();
   }
 
-  public IterableStreamable<ApplicationNode> getApplicationNodes() {
+  public StreamableIterable<ApplicationNode> getApplicationNodes() {
     var id = getId();
     return () ->
       assertGraph()

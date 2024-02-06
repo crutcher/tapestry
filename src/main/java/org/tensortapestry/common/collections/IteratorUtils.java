@@ -6,7 +6,6 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 import javax.annotation.Nonnull;
 import lombok.experimental.UtilityClass;
-import org.apache.commons.lang3.tuple.Pair;
 
 @UtilityClass
 public class IteratorUtils {
@@ -45,44 +44,5 @@ public class IteratorUtils {
    */
   public boolean iterableIsNotEmpty(Iterable<?> iterable) {
     return iterable != null && iterable.iterator().hasNext();
-  }
-
-  public static class EnumerateIterable<T> implements Iterable<Pair<Integer, T>> {
-
-    private final Iterable<T> iterable;
-
-    public EnumerateIterable(Iterable<T> iterable) {
-      this.iterable = iterable;
-    }
-
-    @Override
-    @Nonnull
-    public Iterator<Pair<Integer, T>> iterator() {
-      return new EnumerateIterator<>(iterable.iterator());
-    }
-  }
-
-  public static class EnumerateIterator<T> implements Iterator<Pair<Integer, T>> {
-
-    private int index = 0;
-    private final Iterator<T> iterator;
-
-    public EnumerateIterator(Iterator<T> iterator) {
-      this.iterator = iterator;
-    }
-
-    @Override
-    public boolean hasNext() {
-      return iterator.hasNext();
-    }
-
-    @Override
-    public Pair<Integer, T> next() {
-      return Pair.of(index++, iterator.next());
-    }
-  }
-
-  public <T> Iterable<Pair<Integer, T>> enumerate(Iterable<T> iterator) {
-    return new EnumerateIterable<>(iterator);
   }
 }

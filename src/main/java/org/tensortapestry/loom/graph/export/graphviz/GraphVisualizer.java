@@ -18,7 +18,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.Getter;
 import org.apache.commons.lang3.tuple.Pair;
-import org.tensortapestry.common.collections.IteratorUtils;
+import org.tensortapestry.common.collections.EnumerationUtils;
 import org.tensortapestry.common.json.JsonUtil;
 import org.tensortapestry.common.json.JsonViewWrapper;
 import org.tensortapestry.loom.graph.LoomGraph;
@@ -430,15 +430,15 @@ public class GraphVisualizer {
     public void colorTensorOperationNodes() {
       var coloring = TraversalUtils.tensorOperationColoring(getGraph());
 
-      for (Pair<Integer, Set<UUID>> colorPair : IteratorUtils.enumerate(
+      for (Map.Entry<Integer, Set<UUID>> colorPair : EnumerationUtils.enumerate(
         coloring.getColorClasses()
       )) {
-        int color = colorPair.getLeft();
-        var colorSet = colorPair.getRight();
+        int color = colorPair.getKey();
+        var colorSet = colorPair.getValue();
 
-        for (var idxId : IteratorUtils.enumerate(colorSet.stream().sorted().toList())) {
-          int idx = idxId.getLeft();
-          var id = idxId.getRight();
+        for (var idxId : EnumerationUtils.enumerate(colorSet.stream().sorted().toList())) {
+          int idx = idxId.getKey();
+          var id = idxId.getValue();
           setColoringForNode(id, color, idx);
         }
       }

@@ -16,7 +16,7 @@ import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.UtilityClass;
-import org.tensortapestry.common.collections.IterableStreamable;
+import org.tensortapestry.common.collections.StreamableIterable;
 import org.tensortapestry.common.json.HasToJsonString;
 import org.tensortapestry.common.json.MapValueListUtil;
 import org.tensortapestry.common.runtime.ReflectionUtils;
@@ -28,7 +28,7 @@ import org.tensortapestry.loom.graph.dialects.common.JsdType;
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @Getter
 @Setter
-public final class LoomGraph implements HasToJsonString, IterableStreamable<LoomNode> {
+public final class LoomGraph implements HasToJsonString, StreamableIterable<LoomNode> {
 
   @Nullable @JsonIgnore
   private LoomEnvironment env = null;
@@ -111,7 +111,7 @@ public final class LoomGraph implements HasToJsonString, IterableStreamable<Loom
    * @return the nodes.
    */
   @Nonnull
-  public IterableStreamable<LoomNode> byType(String type) {
+  public StreamableIterable<LoomNode> byType(String type) {
     return () -> nodes.values().stream().filter(node -> node.getType().equals(type)).iterator();
   }
 
@@ -122,7 +122,7 @@ public final class LoomGraph implements HasToJsonString, IterableStreamable<Loom
    * @param <W> the wrapper type.
    */
   @Nonnull
-  public <W extends LoomNodeWrapper> IterableStreamable<W> byType(Class<W> wrapperClass) {
+  public <W extends LoomNodeWrapper> StreamableIterable<W> byType(Class<W> wrapperClass) {
     return byType(
       JsdType.Util.assertType(wrapperClass),
       n -> ReflectionUtils.newInstance(wrapperClass, n)
@@ -137,7 +137,7 @@ public final class LoomGraph implements HasToJsonString, IterableStreamable<Loom
    * @param <W> the wrapper type.
    */
   @Nonnull
-  public <W extends LoomNodeWrapper> IterableStreamable<W> byType(
+  public <W extends LoomNodeWrapper> StreamableIterable<W> byType(
     String type,
     Function<LoomNode, W> wrap
   ) {
