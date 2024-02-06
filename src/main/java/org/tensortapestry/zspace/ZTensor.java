@@ -609,7 +609,7 @@ public final class ZTensor
     var res = new ZTensor(shape);
     forEach(res::set, BufferOwnership.REUSED);
     if (!mutable) {
-      return new ZTensor(false, res.shape, res.stride, res.data, 0);
+      return new ZTensor(false, res.shape, res.stride, res.data, res.data_offset);
     }
     return res;
   }
