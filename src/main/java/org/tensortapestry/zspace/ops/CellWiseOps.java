@@ -11,7 +11,7 @@ import org.tensortapestry.zspace.ZTensorWrapper;
  * ZTensor cell wise operations.
  */
 @UtilityClass
-public class CellWise {
+public class CellWiseOps {
 
   /**
    * Elementwise negation of a tensor.
@@ -476,7 +476,7 @@ public class CellWise {
    * @return a new tensor.
    */
   public ZTensor pow(@Nonnull ZTensorWrapper lhs, @Nonnull ZTensorWrapper exp) {
-    return zipWith(CellWise::intPow, lhs, exp);
+    return zipWith(CellWiseOps::intPow, lhs, exp);
   }
 
   /**
@@ -487,7 +487,7 @@ public class CellWise {
    * @return a new tensor.
    */
   public ZTensor pow(int lhs, @Nonnull ZTensorWrapper exp) {
-    return zipWith(CellWise::intPow, lhs, exp);
+    return zipWith(CellWiseOps::intPow, lhs, exp);
   }
 
   /**
@@ -498,7 +498,7 @@ public class CellWise {
    * @return a new tensor.
    */
   public ZTensor pow(@Nonnull ZTensorWrapper lhs, int exp) {
-    return zipWith(CellWise::intPow, lhs, exp);
+    return zipWith(CellWiseOps::intPow, lhs, exp);
   }
 
   /**
@@ -508,7 +508,7 @@ public class CellWise {
    * @param exp the right-hand side tensor.
    */
   public void pow_(@Nonnull ZTensor lhs, @Nonnull ZTensorWrapper exp) {
-    lhs.zipWith_(CellWise::intPow, exp);
+    lhs.zipWith_(CellWiseOps::intPow, exp);
   }
 
   /**
@@ -518,7 +518,7 @@ public class CellWise {
    * @param exp the right-hand side tensor.
    */
   public void pow_(@Nonnull ZTensor lhs, int exp) {
-    lhs.zipWith_(CellWise::intPow, exp);
+    lhs.zipWith_(CellWiseOps::intPow, exp);
   }
 
   /**
@@ -562,7 +562,7 @@ public class CellWise {
    * @return a new tensor.
    */
   public ZTensor log(@Nonnull ZTensorWrapper lhs, @Nonnull ZTensorWrapper base) {
-    return zipWith(CellWise::intLog, lhs, base);
+    return zipWith(CellWiseOps::intLog, lhs, base);
   }
 
   /**
@@ -573,7 +573,7 @@ public class CellWise {
    * @return a new tensor.
    */
   public ZTensor log(int lhs, @Nonnull ZTensorWrapper base) {
-    return zipWith(CellWise::intLog, lhs, base);
+    return zipWith(CellWiseOps::intLog, lhs, base);
   }
 
   /**
@@ -584,7 +584,7 @@ public class CellWise {
    * @return a new tensor.
    */
   public ZTensor log(@Nonnull ZTensorWrapper lhs, int base) {
-    return zipWith(CellWise::intLog, lhs, base);
+    return zipWith(CellWiseOps::intLog, lhs, base);
   }
 
   /**
@@ -594,7 +594,7 @@ public class CellWise {
    * @param base the right-hand side tensor.
    */
   public void log_(@Nonnull ZTensor lhs, @Nonnull ZTensorWrapper base) {
-    lhs.zipWith_(CellWise::intLog, base);
+    lhs.zipWith_(CellWiseOps::intLog, base);
   }
 
   /**
@@ -604,6 +604,6 @@ public class CellWise {
    * @param base the right-hand side tensor.
    */
   public void log_(@Nonnull ZTensor lhs, int base) {
-    lhs.zipWith_(CellWise::intLog, base);
+    lhs.zipWith_(CellWiseOps::intLog, base);
   }
 }

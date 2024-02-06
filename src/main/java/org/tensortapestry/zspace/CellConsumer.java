@@ -5,11 +5,11 @@ package org.tensortapestry.zspace;
  */
 @FunctionalInterface
 public interface CellConsumer {
-    /**
-     * Accept a coordinate array and a value.
-     *
-     * @param coords the coordinate array.
-     * @param value the value.
-     */
-    void accept(int[] coords, int value);
+  /**
+   * Accept a coordinate array and a value.
+   *
+   * @param coords the coordinate array.
+   * @param value the value.
+   */
+  void accept(int[] coords, int value);
 }

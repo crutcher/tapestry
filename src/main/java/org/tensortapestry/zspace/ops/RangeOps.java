@@ -57,9 +57,9 @@ public class RangeOps {
    * @return the intersection of this range with another, null if there is no intersection.
    */
   @Nullable public ZRange intersection(@Nonnull ZRange lhs, @Nonnull ZRange rhs) {
-    ZTensor zTensor1 = CellWise.maximum(lhs.getStart(), rhs.getStart());
+    ZTensor zTensor1 = CellWiseOps.maximum(lhs.getStart(), rhs.getStart());
     var iStart = ZPoint.of(zTensor1);
-    ZTensor zTensor = CellWise.minimum(lhs.getEnd(), rhs.getEnd());
+    ZTensor zTensor = CellWiseOps.minimum(lhs.getEnd(), rhs.getEnd());
     var iEnd = ZPoint.of(zTensor);
     if (iStart.le(iEnd)) {
       return new ZRange(iStart, iEnd);
@@ -100,8 +100,8 @@ public class RangeOps {
       var r = it.next();
       HasDimension.assertSameNDim(first, r);
 
-      start = CellWise.minimum(start, r.getStart());
-      end = CellWise.maximum(end, r.getEnd());
+      start = CellWiseOps.minimum(start, r.getStart());
+      end = CellWiseOps.maximum(end, r.getEnd());
     }
 
     return new ZRange(start, end);

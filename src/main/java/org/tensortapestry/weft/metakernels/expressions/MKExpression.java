@@ -11,7 +11,7 @@ import lombok.Value;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
-import org.tensortapestry.zspace.ops.CellWise;
+import org.tensortapestry.zspace.ops.CellWiseOps;
 
 public abstract class MKExpression {
 
@@ -23,7 +23,7 @@ public abstract class MKExpression {
     MUL("*", 3, (a, b) -> a * b),
     DIV("/", 3, (a, b) -> a / b),
     MOD("%", 3, (a, b) -> a % b),
-    POW("^", 1, CellWise::intPow);
+    POW("^", 1, CellWiseOps::intPow);
 
     private final String op;
     private final int precedence;

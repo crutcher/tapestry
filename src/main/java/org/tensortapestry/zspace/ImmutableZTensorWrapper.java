@@ -7,7 +7,7 @@ import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import javax.annotation.concurrent.ThreadSafe;
 import org.tensortapestry.zspace.impl.HasJsonOutput;
-import org.tensortapestry.zspace.ops.CellWise;
+import org.tensortapestry.zspace.ops.CellWiseOps;
 import org.tensortapestry.zspace.ops.DominanceOrderingOps;
 
 /**
@@ -214,7 +214,7 @@ public abstract class ImmutableZTensorWrapper<T>
    * @return the cell-wise negation as a new {@code T}.
    */
   public final T neg() {
-    return create(CellWise.neg(this));
+    return create(CellWiseOps.neg(this));
   }
 
   /**
@@ -223,7 +223,7 @@ public abstract class ImmutableZTensorWrapper<T>
    * @return the cell-wise absolute value as a new {@code T}.
    */
   public final T abs() {
-    return create(CellWise.abs(this));
+    return create(CellWiseOps.abs(this));
   }
 
   /**
@@ -233,7 +233,7 @@ public abstract class ImmutableZTensorWrapper<T>
    * @return the broadcast addition with {@code rhs} as a new {@code T}.
    */
   public final T add(@Nonnull ZTensorWrapper rhs) {
-    return create(CellWise.add(this, rhs));
+    return create(CellWiseOps.add(this, rhs));
   }
 
   /**
@@ -243,7 +243,7 @@ public abstract class ImmutableZTensorWrapper<T>
    * @return the cell-wise addition with {@code rhs} as a new {@code T}.
    */
   public final T add(int rhs) {
-    return create(CellWise.add(this, rhs));
+    return create(CellWiseOps.add(this, rhs));
   }
 
   /**
@@ -253,7 +253,7 @@ public abstract class ImmutableZTensorWrapper<T>
    * @return the broadcast subtraction with {@code rhs} as a new {@code T}.
    */
   public final T sub(@Nonnull ZTensorWrapper rhs) {
-    return create(CellWise.sub(this, rhs));
+    return create(CellWiseOps.sub(this, rhs));
   }
 
   /**
@@ -263,7 +263,7 @@ public abstract class ImmutableZTensorWrapper<T>
    * @return the cell-wise subtraction with {@code rhs} as a new {@code T}.
    */
   public final T sub(int rhs) {
-    return create(CellWise.sub(this, rhs));
+    return create(CellWiseOps.sub(this, rhs));
   }
 
   /**
@@ -273,7 +273,7 @@ public abstract class ImmutableZTensorWrapper<T>
    * @return the broadcast multiplication with {@code rhs} as a new {@code T}.
    */
   public final T mul(@Nonnull ZTensorWrapper rhs) {
-    return create(CellWise.mul(this, rhs));
+    return create(CellWiseOps.mul(this, rhs));
   }
 
   /**
@@ -283,7 +283,7 @@ public abstract class ImmutableZTensorWrapper<T>
    * @return the cell-wise multiplication with {@code rhs} as a new {@code T}.
    */
   public final T mul(int rhs) {
-    return create(CellWise.mul(this, rhs));
+    return create(CellWiseOps.mul(this, rhs));
   }
 
   /**
@@ -293,7 +293,7 @@ public abstract class ImmutableZTensorWrapper<T>
    * @return the broadcast division with {@code rhs} as a new {@code T}.
    */
   public final T div(@Nonnull ZTensorWrapper rhs) {
-    return create(CellWise.div(this, rhs));
+    return create(CellWiseOps.div(this, rhs));
   }
 
   /**
@@ -303,7 +303,7 @@ public abstract class ImmutableZTensorWrapper<T>
    * @return the cell-wise division with {@code rhs} as a new {@code T}.
    */
   public final T div(int rhs) {
-    return create(CellWise.div(this, rhs));
+    return create(CellWiseOps.div(this, rhs));
   }
 
   /**
@@ -313,7 +313,7 @@ public abstract class ImmutableZTensorWrapper<T>
    * @return the broadcast modulo with {@code rhs} as a new {@code T}.
    */
   public final T mod(@Nonnull ZTensorWrapper base) {
-    return create(CellWise.mod(this, base));
+    return create(CellWiseOps.mod(this, base));
   }
 
   /**
@@ -323,7 +323,7 @@ public abstract class ImmutableZTensorWrapper<T>
    * @return the cell-wise modulo with {@code rhs} as a new {@code T}.
    */
   public final T mod(int base) {
-    return create(CellWise.mod(this, base));
+    return create(CellWiseOps.mod(this, base));
   }
 
   /**
@@ -333,7 +333,7 @@ public abstract class ImmutableZTensorWrapper<T>
    * @return the broadcast power with {@code rhs} as a new {@code T}.
    */
   public final T pow(@Nonnull ZTensorWrapper exp) {
-    return create(CellWise.pow(this, exp));
+    return create(CellWiseOps.pow(this, exp));
   }
 
   /**
@@ -343,7 +343,7 @@ public abstract class ImmutableZTensorWrapper<T>
    * @return the cell-wise power with {@code rhs} as a new {@code T}.
    */
   public final T pow(int exp) {
-    return create(CellWise.pow(this, exp));
+    return create(CellWiseOps.pow(this, exp));
   }
 
   /**
@@ -353,7 +353,7 @@ public abstract class ImmutableZTensorWrapper<T>
    * @return the broadcast log with {@code rhs} as a new {@code T}.
    */
   public final T log(@Nonnull ZTensorWrapper base) {
-    return create(CellWise.log(this, base));
+    return create(CellWiseOps.log(this, base));
   }
 
   /**
@@ -363,6 +363,6 @@ public abstract class ImmutableZTensorWrapper<T>
    * @return the cell-wise log with {@code rhs} as a new {@code T}.
    */
   public final T log(int base) {
-    return create(CellWise.log(this, base));
+    return create(CellWiseOps.log(this, base));
   }
 }

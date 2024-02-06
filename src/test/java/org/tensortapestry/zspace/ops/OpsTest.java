@@ -9,26 +9,26 @@ public class OpsTest implements ZSpaceTestAssertions {
   @Test
   @SuppressWarnings("unused")
   public void test_intPow() {
-    assertThat(CellWise.intPow(2, 0)).isEqualTo(1);
-    assertThat(CellWise.intPow(2, 1)).isEqualTo(2);
-    assertThat(CellWise.intPow(2, 2)).isEqualTo(4);
+    assertThat(CellWiseOps.intPow(2, 0)).isEqualTo(1);
+    assertThat(CellWiseOps.intPow(2, 1)).isEqualTo(2);
+    assertThat(CellWiseOps.intPow(2, 2)).isEqualTo(4);
 
     assertThatExceptionOfType(IllegalArgumentException.class)
       .isThrownBy(() -> {
-        var _ignored = CellWise.intPow(2, -1);
+        var _ignored = CellWiseOps.intPow(2, -1);
       });
   }
 
   @Test
   public void test_intLog() {
-    assertThat(CellWise.intLog(1, 2)).isEqualTo(0);
-    assertThat(CellWise.intLog(2, 2)).isEqualTo(1);
-    assertThat(CellWise.intLog(4, 2)).isEqualTo(2);
+    assertThat(CellWiseOps.intLog(1, 2)).isEqualTo(0);
+    assertThat(CellWiseOps.intLog(2, 2)).isEqualTo(1);
+    assertThat(CellWiseOps.intLog(4, 2)).isEqualTo(2);
 
     assertThatExceptionOfType(IllegalArgumentException.class)
-      .isThrownBy(() -> CellWise.intLog(0, 2));
+      .isThrownBy(() -> CellWiseOps.intLog(0, 2));
     assertThatExceptionOfType(IllegalArgumentException.class)
-      .isThrownBy(() -> CellWise.intLog(-1, 2));
+      .isThrownBy(() -> CellWiseOps.intLog(-1, 2));
   }
 
   @Test
