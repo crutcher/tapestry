@@ -367,12 +367,14 @@ public class ZRangeTest implements ZSpaceTestAssertions {
     }
 
     @Test
-    public void test_embed() {
-        var embedding = ZRange.builder().start(2).end(5).build();
-        var range = ZRange.builder().start(10, 4).end(20, 8).build();
+    public void test_cartesianProduct() {
+        var lhs = ZRange.builder().start(2).end(5).build();
+        var rhs = ZRange.builder().start(10, 4).end(20, 8).build();
 
-        assertThat(range.embed(embedding)).isEqualTo(ZRange.builder().start(2, 10, 4).end(5, 20, 8).build());
+        assertThat(lhs.cartesianProduct(rhs))
+                .isEqualTo(ZRange.builder().start(2, 10, 4).end(5, 20, 8).build());
 
-        assertThat(range.embed(ZPoint.of(2, 3))).isEqualTo(ZRange.builder().start(0, 0, 10, 4).end(2, 3, 20, 8).build());
+        assertThat(lhs.cartesianProduct(ZPoint.of(2, 3)))
+                .isEqualTo(ZRange.builder().start(2, 0, 0).end(5, 2, 3).build());
     }
 }
