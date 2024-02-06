@@ -2,10 +2,10 @@ grammar DimShapePattern;
 
 prog : patternList EOF;
 
-patternList : pattern (COMMA pattern)* ;
+patternList : LBRACK pattern (COMMA pattern)* RBRACK ;
 
 pattern
-     : name=ID EQUALS LBRACK parts=patternList RBRACK # GroupPattern
+     : name=ID EQUALS parts=patternList # GroupPattern
      | STAR name=ID # StarPattern
      | PLUS name=ID # PlusPattern
      | name=ID # SingleDim

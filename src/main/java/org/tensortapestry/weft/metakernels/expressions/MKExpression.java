@@ -27,6 +27,8 @@ public abstract class MKExpression {
 
     private final String op;
     private final int precedence;
+
+    @SuppressWarnings("ImmutableEnumChecker")
     private final IntBinaryOperator opFn;
 
     public static BinOp fromOpString(String op) {
