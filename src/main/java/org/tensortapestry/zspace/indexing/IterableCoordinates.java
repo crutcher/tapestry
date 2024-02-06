@@ -4,6 +4,7 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+
 import lombok.Getter;
 import org.tensortapestry.common.collections.StreamableIterable;
 
@@ -12,113 +13,114 @@ import org.tensortapestry.common.collections.StreamableIterable;
  */
 public final class IterableCoordinates implements StreamableIterable<int[]> {
 
-  /**
-   * An Iterator over coordinates.
-   *
-   * <p>When the buffer mode is {@link BufferMode#REUSED}, the buffer is shared between
-   * subsequent
-   * calls to {@link Iterator#next()}. When the buffer mode is {@link BufferMode#SAFE}, the buffer
-   * is not shared between subsequent calls to {@link Iterator#next()}.
-   */
-  public final class CoordIterator implements Iterator<int[]> {
+    /**
+     * An Iterator over coordinates.
+     *
+     * <p>When the buffer mode is {@link BufferOwnership#REUSED}, the buffer is shared between
+     * subsequent calls to {@link Iterator#next()}. When the buffer mode is
+     * {@link BufferOwnership#CLONED}, the buffer is not shared between subsequent calls to
+     * {@link Iterator#next()}.
+     */
+    public final class CoordIterator implements Iterator<int[]> {
 
-    private int remaining = size;
+        private int remaining = size;
 
-    @Nullable private int[] current = null;
+        @Nullable
+        private int[] current = null;
 
-    @Nonnull
-    public BufferMode getBufferMode() {
-      return bufferMode;
-    }
-
-    @Override
-    public boolean hasNext() {
-      return remaining > 0;
-    }
-
-    @Override
-    @Nonnull
-    public int[] next() {
-      if (!hasNext()) {
-        throw new NoSuchElementException();
-      }
-
-      // Decrement remaining.
-      remaining--;
-
-      if (current == null) {
-        // First call to next(); initialize coords to start.
-        current = start.clone();
-      } else {
-        // Increment coords least-significant first.
-        current[current.length - 1]++;
-
-        // Propagate carry; rollover at end.
-        for (int i = current.length - 1; i >= 0; --i) {
-          if (current[i] == end[i]) {
-            current[i] = start[i];
-            current[i - 1]++;
-          }
+        @Nonnull
+        public BufferOwnership getBufferMode() {
+            return bufferOwnership;
         }
-      }
 
-      if (bufferMode == BufferMode.SAFE) {
-        return current.clone();
-      }
+        @Override
+        public boolean hasNext() {
+            return remaining > 0;
+        }
 
-      return current;
+        @Override
+        @Nonnull
+        public int[] next() {
+            if (!hasNext()) {
+                throw new NoSuchElementException();
+            }
+
+            // Decrement remaining.
+            remaining--;
+
+            if (current == null) {
+                // First call to next(); initialize coords to start.
+                current = start.clone();
+            } else {
+                // Increment coords least-significant first.
+                current[current.length - 1]++;
+
+                // Propagate carry; rollover at end.
+                for (int i = current.length - 1; i >= 0; --i) {
+                    if (current[i] == end[i]) {
+                        current[i] = start[i];
+                        current[i - 1]++;
+                    }
+                }
+            }
+
+            if (bufferOwnership == BufferOwnership.CLONED) {
+                return current.clone();
+            }
+
+            return current;
+        }
     }
-  }
 
-  @Nonnull
-  @Getter
-  private final BufferMode bufferMode;
+    @Nonnull
+    @Getter
+    private final BufferOwnership bufferOwnership;
 
-  @Nonnull
-  private final int[] start;
+    @Nonnull
+    private final int[] start;
 
-  @Nonnull
-  private final int[] end;
+    @Nonnull
+    private final int[] end;
 
-  @Getter
-  private final int size;
+    @Getter
+    private final int size;
 
-  /**
-   * Construct an iterable view over coordinates in a range.
-   *
-   * @param bufferMode the buffer mode.
-   * @param end the end coordinates.
-   */
-  public IterableCoordinates(@Nonnull BufferMode bufferMode, @Nonnull int[] end) {
-    this(bufferMode, new int[end.length], end);
-  }
-
-  /**
-   * Construct an iterable view over coordinates in a range.
-   *
-   * @param bufferMode the buffer mode.
-   * @param start the start coordinates.
-   * @param end the end coordinates.
-   */
-  public IterableCoordinates(
-    @Nonnull BufferMode bufferMode,
-    @Nonnull int[] start,
-    @Nonnull int[] end
-  ) {
-    this.bufferMode = bufferMode;
-    this.start = start;
-    this.end = end;
-
-    int acc = 1;
-    for (int i = 0; i < start.length; ++i) {
-      acc *= end[i] - start[i];
+    /**
+     * Construct an iterable view over coordinates in a range.
+     *
+     * @param bufferOwnership the buffer mode.
+     * @param end the end coordinates.
+     */
+    public IterableCoordinates(@Nonnull BufferOwnership bufferOwnership, @Nonnull int[] end) {
+        this(bufferOwnership, new int[end.length], end);
     }
-    this.size = acc;
-  }
 
-  @Override
-  @Nonnull
-  public CoordIterator iterator() {
-    return new CoordIterator();
-  }
+    /**
+     * Construct an iterable view over coordinates in a range.
+     *
+     * @param bufferOwnership the buffer mode.
+     * @param start the start coordinates.
+     * @param end the end coordinates.
+     */
+    public IterableCoordinates(
+            @Nonnull BufferOwnership bufferOwnership,
+            @Nonnull int[] start,
+            @Nonnull int[] end
+    ) {
+        this.bufferOwnership = bufferOwnership;
+        this.start = start;
+        this.end = end;
+
+        int acc = 1;
+        for (int i = 0; i < start.length; ++i) {
+            acc *= end[i] - start[i];
+        }
+        this.size = acc;
+    }
+
+    @Override
+    @Nonnull
+    public CoordIterator iterator() {
+        return new CoordIterator();
+    }
 }

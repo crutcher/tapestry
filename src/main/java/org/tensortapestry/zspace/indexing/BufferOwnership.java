@@ -2,7 +2,7 @@ package org.tensortapestry.zspace.indexing;
 
 import java.util.Iterator;
 
-public enum BufferMode {
+public enum BufferOwnership {
   /**
    * The buffer is shared between subsequent calls to {@link Iterator#next()}.
    *
@@ -15,5 +15,5 @@ public enum BufferMode {
    *
    * <p>The caller owns the buffer, and may modify it.
    */
-  SAFE,
+  CLONED,
 }
