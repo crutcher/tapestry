@@ -257,11 +257,6 @@
             <groupId>guru.nidi</groupId>
             <artifactId>graphviz-java</artifactId>
         </dependency>
-        <dependency>
-            <groupId>net.objecthunter</groupId>
-            <artifactId>exp4j</artifactId>
-            <version>0.4.8</version>
-        </dependency>
         <!--
         <dependency>
             <groupId>org.graalvm.js</groupId>
@@ -386,7 +381,7 @@
                                 <ORDER_MAP_ENTRIES_BY_KEYS>false</ORDER_MAP_ENTRIES_BY_KEYS>
                             </features>
                             <jsonFeatures>
-                                <QUOTE_FIELD_NAMES>true</QUOTE_FIELD_NAMES>                   <!-- false by default -->
+                                <QUOTE_FIELD_NAMES>true</QUOTE_FIELD_NAMES>
                             </jsonFeatures>
                             <spaceBeforeSeparator>false</spaceBeforeSeparator>
                         </jackson>
