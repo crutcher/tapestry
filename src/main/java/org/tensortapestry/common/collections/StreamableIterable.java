@@ -1,7 +1,6 @@
 package org.tensortapestry.common.collections;
 
 import java.util.List;
-import java.util.function.Consumer;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -13,9 +12,5 @@ public interface StreamableIterable<T> extends Iterable<T> {
 
   default List<T> toList() {
     return stream().toList();
-  }
-
-  default void forEach(Consumer<? super T> forEach) {
-    stream().forEach(forEach);
   }
 }

@@ -2,19 +2,21 @@ package org.tensortapestry.zspace.indexing;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
-import java.util.stream.Stream;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import lombok.Getter;
-import org.tensortapestry.zspace.impl.ZSpaceIteratorUtils;
+import org.tensortapestry.common.collections.StreamableIterable;
 
-/** An iterable and streamable view over coordinates in a range. */
-public final class IterableCoordinates implements Iterable<int[]> {
+/**
+ * An iterable and streamable view over coordinates in a range.
+ */
+public final class IterableCoordinates implements StreamableIterable<int[]> {
 
   /**
    * An Iterator over coordinates.
    *
-   * <p>When the buffer mode is {@link BufferMode#REUSED}, the buffer is shared between subsequent
+   * <p>When the buffer mode is {@link BufferMode#REUSED}, the buffer is shared between
+   * subsequent
    * calls to {@link Iterator#next()}. When the buffer mode is {@link BufferMode#SAFE}, the buffer
    * is not shared between subsequent calls to {@link Iterator#next()}.
    */
@@ -118,10 +120,5 @@ public final class IterableCoordinates implements Iterable<int[]> {
   @Nonnull
   public CoordIterator iterator() {
     return new CoordIterator();
-  }
-
-  @Nonnull
-  public Stream<int[]> stream() {
-    return ZSpaceIteratorUtils.iterableToStream(this);
   }
 }
