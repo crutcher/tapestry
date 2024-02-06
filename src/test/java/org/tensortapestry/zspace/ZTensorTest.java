@@ -139,7 +139,7 @@ public class ZTensorTest implements ZSpaceTestAssertions {
 
             {
                 var it = coords.iterator();
-                assertThat(it.getBufferMode()).isEqualTo(BufferOwnership.REUSED);
+                assertThat(it.getBufferOwnership()).isEqualTo(BufferOwnership.REUSED);
 
                 assertThat(it.hasNext()).isTrue();
                 var buf = it.next();
@@ -187,7 +187,7 @@ public class ZTensorTest implements ZSpaceTestAssertions {
 
             {
                 var it = coords.iterator();
-                assertThat(it.getBufferMode()).isEqualTo(BufferOwnership.CLONED);
+                assertThat(it.getBufferOwnership()).isEqualTo(BufferOwnership.CLONED);
             }
 
             assertThat(coords.stream().toList())

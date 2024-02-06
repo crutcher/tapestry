@@ -29,7 +29,7 @@ public final class IterableCoordinates implements StreamableIterable<int[]> {
         private int[] current = null;
 
         @Nonnull
-        public BufferOwnership getBufferMode() {
+        public BufferOwnership getBufferOwnership() {
             return bufferOwnership;
         }
 
