@@ -30,6 +30,7 @@ public final class ZMatrix
    * @return a new ZMatrix.
    */
   @JsonCreator
+  @Nonnull
   private static ZMatrix privateCreator(@Nonnull ZTensor tensor) {
     return new ZMatrix(tensor);
   }

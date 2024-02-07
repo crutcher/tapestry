@@ -168,6 +168,7 @@ public class ZRange implements Cloneable, HasSize, HasPermute<ZRange>, HasJsonOu
    */
   @JsonCreator
   @Builder
+  @Nonnull
   private static ZRange privateCreator(
     @Nonnull @JsonProperty(value = "start") ZPoint start,
     @Nonnull @JsonProperty(value = "end") ZPoint end

@@ -28,6 +28,7 @@ public final class ZPoint extends ImmutableZTensorWrapper<ZPoint> implements Has
    * @return a new ZPoint.
    */
   @JsonCreator
+  @Nonnull
   private static ZPoint privateCreator(ZTensor tensor) {
     return new ZPoint(tensor);
   }
