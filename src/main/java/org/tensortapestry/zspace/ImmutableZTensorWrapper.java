@@ -39,6 +39,7 @@ public abstract class ImmutableZTensorWrapper<T>
   }
 
   @Override
+  @Nonnull
   public final ZTensor unwrap() {
     return tensor;
   }
