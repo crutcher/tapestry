@@ -17,6 +17,7 @@ import java.util.*;
 import java.util.function.*;
 import java.util.stream.IntStream;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import lombok.Getter;
 import lombok.SneakyThrows;
@@ -279,25 +280,47 @@ public final class ZTensor
      *
      * @param source the source array.
      * @return a new ZTensor.
+     * @throws IllegalArgumentException if the source is not an array.
      */
     @Nonnull
     public static ZTensor newFromArray(@Nonnull Object source) {
-        if (!IndexingFns.isRecursiveIntArray(source)) {
+        var tensor = _newFromArray(source);
+        if (tensor == null) {
             throw new IllegalArgumentException(
                     "Cannot convert object of type %s to ZTensor".formatted(
                             source.getClass().getCanonicalName()
                     )
             );
         }
+        return tensor;
+    }
 
-        return newFromTree(
-                source,
-                obj -> obj.getClass().isArray(),
-                Array::getLength,
-                Array::get,
-                obj -> (int) obj,
-                int[].class::cast
-        );
+    /**
+     * Given a non-sparse array of unknown dimensionality, returns a ZTensor with the same shape and
+     * data.
+     *
+     * <p>For {@code Integer} input, returns a scalar ZTensor.
+     *
+     * @param source the source array.
+     * @return a new ZTensor, or null if the source is not an array.
+     */
+    @Nullable
+    private static ZTensor _newFromArray(@Nonnull Object source) {
+        if (!IndexingFns.isRecursiveIntArray(source)) {
+            return null;
+        }
+        try {
+            return newFromTree(
+                    source,
+                    obj -> obj.getClass().isArray(),
+                    Array::getLength,
+                    Array::get,
+                    obj -> (int) obj,
+                    int[].class::cast
+            );
+        } catch (IllegalArgumentException e) {
+            return null;
+        }
     }
 
     /**
@@ -517,10 +540,8 @@ public final class ZTensor
      */
     private boolean equalsTree(Object other) {
         // TODO: implement tree-walking comparison without a constructor.
-        ZTensor that;
-        try {
-            that = newFromArray(other);
-        } catch (IllegalArgumentException e) {
+        ZTensor that = _newFromArray(other);
+        if (that == null) {
             return false;
         }
         return equalsZTensor(that);
