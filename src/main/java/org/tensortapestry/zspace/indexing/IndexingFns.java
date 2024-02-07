@@ -20,6 +20,36 @@ import org.tensortapestry.zspace.HasDimension;
 public class IndexingFns {
 
   /**
+   * Convert a list of integers to an array of integers.
+   * @param list the list of integers.
+   * @return an array of integers.
+   */
+  @Nonnull
+  public int[] unboxList(@Nonnull List<Integer> list) {
+    var size = list.size();
+    var res = new int[size];
+    for (int i = 0; i < size; ++i) {
+      res[i] = list.get(i);
+    }
+    return res;
+  }
+
+  /**
+   * Convert an array of integers to a list of integers.
+   * @param arr the array of integers.
+   * @return a list of integers.
+   */
+  @Nonnull
+  public List<Integer> boxArray(@Nonnull int[] arr) {
+    var size = arr.length;
+    List<Integer> res = new ArrayList<>(size);
+    for (int j : arr) {
+      res.add(j);
+    }
+    return res;
+  }
+
+  /**
    * Return an array of integers from 0 to n - 1.
    *
    * @param n the number of integers to return.
