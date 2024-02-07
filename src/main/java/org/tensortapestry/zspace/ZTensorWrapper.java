@@ -18,6 +18,15 @@ public interface ZTensorWrapper {
   ZTensor unwrap();
 
   /**
+   * Is this tensor all zero?
+   *
+   * @return true if all zero.
+   */
+  default boolean allZero() {
+    return unwrap().allMatch(x -> x == 0);
+  }
+
+  /**
    * Returns the common broadcast shape of this tensor and the given shape.
    *
    * @param shape the shape.

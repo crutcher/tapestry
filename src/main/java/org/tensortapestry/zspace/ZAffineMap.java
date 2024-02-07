@@ -103,7 +103,11 @@ public class ZAffineMap implements HasPermuteIO<ZAffineMap>, HasJsonOutput {
 
   @Override
   public String toString() {
-    return ("λx." + projection.toJsonString() + "⋅x + " + offset.toJsonString());
+    String res = "λx." + projection.toJsonString() + "⋅x";
+    if (!offset.allZero()) {
+      res += " + " + offset.toJsonString();
+    }
+    return res;
   }
 
   @Override

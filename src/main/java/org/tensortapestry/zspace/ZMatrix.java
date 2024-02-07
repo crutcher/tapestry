@@ -31,7 +31,7 @@ public final class ZMatrix
    */
   @JsonCreator
   @Nonnull
-  private static ZMatrix privateCreator(@Nonnull ZTensor tensor) {
+  static ZMatrix privateCreator(@Nonnull ZTensor tensor) {
     return new ZMatrix(tensor);
   }
 

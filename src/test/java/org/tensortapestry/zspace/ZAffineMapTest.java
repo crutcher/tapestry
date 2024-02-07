@@ -19,6 +19,9 @@ public class ZAffineMapTest implements ZSpaceTestAssertions {
 
     assertThat(map).hasToString("λx.[[1,0],[0,2],[1,2]]⋅x + [4,5,6]");
 
+    assertThat(ZAffineMap.fromMatrix(ZMatrix.newDiagonalMatrix(1, 2)))
+      .hasToString("λx.[[1,0],[0,2]]⋅x");
+
     assertThat(map)
       .hasSameHashCodeAs(
         new ZAffineMap(

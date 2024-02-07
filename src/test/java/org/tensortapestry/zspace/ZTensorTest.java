@@ -16,6 +16,17 @@ import org.tensortapestry.zspace.ops.CellWiseOps;
 public class ZTensorTest implements ZSpaceTestAssertions {
 
   @Test
+  public void test_allZero() {
+    assertThat(ZTensor.newZeros(2, 2).allZero()).isTrue();
+    assertThat(ZTensor.newOnes(2, 2).allZero()).isFalse();
+
+    assertThat(ZTensor.newOnes(2, 0).allZero()).isTrue();
+
+    assertThat(ZTensor.newScalar(0).allZero()).isTrue();
+    assertThat(ZTensor.newScalar(1).allZero()).isFalse();
+  }
+
+  @Test
   public void test_json() {
     ZTensor z3 = ZTensor.newZeros(0, 0, 0);
     assertObjectJsonEquivalence(z3, "[[[]]]");
