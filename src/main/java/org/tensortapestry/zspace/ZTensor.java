@@ -144,7 +144,10 @@ public final class ZTensor
     int[] data = new int[numRows * numCols];
     for (int i = 0; i < numRows; ++i) {
       if (rows[i].length != numCols) {
-        throw new IllegalArgumentException("All rows must have the same length");
+        throw new IllegalArgumentException(
+          "All rows must have the same length, found: " +
+          Arrays.toString(Arrays.stream(rows).mapToInt(Array::getLength).toArray())
+        );
       }
       System.arraycopy(rows[i], 0, data, numCols * i, numCols);
     }

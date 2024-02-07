@@ -47,6 +47,7 @@ public class ZAffineMapTest implements ZSpaceTestAssertions {
     assertThat(new ZAffineMap(A, b))
       .isEqualTo(new ZAffineMap(A))
       .isEqualTo(new ZAffineMap(A, null))
+      .isEqualTo(ZAffineMap.fromMatrix(new int[] { 1, 0 }, new int[] { 0, 2 }, new int[] { 1, 2 }))
       .isEqualTo(ZAffineMap.fromMatrix(A))
       .isEqualTo(ZAffineMap.fromMatrix(mat));
   }

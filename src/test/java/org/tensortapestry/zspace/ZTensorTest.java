@@ -325,6 +325,10 @@ public class ZTensorTest implements ZSpaceTestAssertions {
 
     assertThat(tensor.toT2()).isEqualTo(new int[][] { { 3, 7 }, { 8, 9 } });
 
+    assertThatExceptionOfType(IllegalArgumentException.class)
+      .isThrownBy(() -> ZTensor.newMatrix(new int[] { 3, 7 }, new int[] { 8, 9, 10 }))
+      .withMessage("All rows must have the same length, found: [2, 3]");
+
     assertThatExceptionOfType(ZDimMissMatchError.class)
       .isThrownBy(() -> ZTensor.newScalar(3).toT2());
   }

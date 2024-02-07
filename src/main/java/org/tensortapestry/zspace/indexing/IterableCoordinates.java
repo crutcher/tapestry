@@ -5,7 +5,7 @@ import java.util.NoSuchElementException;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import lombok.Getter;
-import org.tensortapestry.common.collections.StreamableIterable;
+import org.tensortapestry.zspace.impl.StreamableIterable;
 
 /**
  * An iterable and streamable view over coordinates in a range.

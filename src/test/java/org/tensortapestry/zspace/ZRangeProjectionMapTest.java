@@ -18,24 +18,25 @@ public class ZRangeProjectionMapTest implements ZSpaceTestAssertions {
     assertObjectJsonEquivalence(
       ipf,
       """
-            {
-              "affineMap": {
-                "projection": [
-                  [1, 0],
-                  [0, 1],
-                  [1, 1]
-                ],
-                "offset": [10, 20, 30]
-              },
-              "shape": [4, 4, 1]
-            }
-            """
+                        {
+                          "affineMap": {
+                            "projection": [
+                              [1, 0],
+                              [0, 1],
+                              [1, 1]
+                            ],
+                            "offset": [10, 20, 30]
+                          },
+                          "shape": [4, 4, 1]
+                        }
+                        """
     );
   }
 
   @Test
   public void test_builder() {
-    ZAffineMap affineMap = ZAffineMap.fromMatrix(new int[][] { { 1, 0 }, { 0, 1 }, { 1, 1 } });
+    int[][] rows = { { 1, 0 }, { 0, 1 }, { 1, 1 } };
+    ZAffineMap affineMap = ZAffineMap.fromMatrix(rows);
 
     assertThat(new ZRangeProjectionMap(affineMap, ZPoint.of(4, 4, 1)))
       .isEqualTo(
@@ -43,6 +44,15 @@ public class ZRangeProjectionMapTest implements ZSpaceTestAssertions {
           .builder()
           .affineMap(affineMap)
           .shape(ZTensor.newVector(4, 4, 1))
+          .translate(ZPoint.of(1, 2, 3))
+          .translate(-1, -2, -3)
+          .build()
+      )
+      .isEqualTo(
+        ZRangeProjectionMap
+          .builder()
+          .affineMap(rows)
+          .shape(ZPoint.of(4, 4, 1))
           .translate(ZPoint.of(1, 2, 3))
           .translate(-1, -2, -3)
           .build()

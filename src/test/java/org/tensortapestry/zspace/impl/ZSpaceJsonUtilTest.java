@@ -1,6 +1,7 @@
 package org.tensortapestry.zspace.impl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
@@ -40,17 +41,34 @@ public class ZSpaceJsonUtilTest implements ZSpaceTestAssertions {
     )
       .isEqualTo(
         """
-                {
-                  "bar" : {
-                    "x" : 12,
-                    "y" : "abc"
-                  },
-                  "foo" : [ 1, 2, 3 ]
-                }"""
+                                {
+                                  "bar" : {
+                                    "x" : 12,
+                                    "y" : "abc"
+                                  },
+                                  "foo" : [ 1, 2, 3 ]
+                                }"""
       );
 
     assertThatExceptionOfType(IllegalArgumentException.class)
       .isThrownBy(() -> ZSpaceJsonUtil.toPrettyJson(new Object()))
       .withCauseInstanceOf(JsonProcessingException.class);
+  }
+
+  @Test
+  public void test_msgpack() {
+    var tensor = ZTensor.newMatrix(new int[][] { { 2, 3 }, { 4, 5 } });
+
+    byte[] msgpack = ZSpaceJsonUtil.toMsgPack(tensor);
+
+    assertThat(ZSpaceJsonUtil.fromMsgPack(msgpack, ZTensor.class)).isEqualTo(tensor);
+
+    assertThatExceptionOfType(IllegalArgumentException.class)
+      .isThrownBy(() -> ZSpaceJsonUtil.fromMsgPack(new byte[] { 0, 0, 0 }, int[].class))
+      .withCauseInstanceOf(IOException.class);
+
+    assertThatExceptionOfType(IllegalArgumentException.class)
+      .isThrownBy(() -> ZSpaceJsonUtil.toMsgPack(new Object()))
+      .withCauseInstanceOf(IOException.class);
   }
 }

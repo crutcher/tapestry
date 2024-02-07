@@ -3,7 +3,6 @@ package org.tensortapestry.zspace.indexing;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -85,17 +84,8 @@ public class FlatArray {
       @Override
       public FlatArray deserialize(@Nonnull JsonParser p, @Nonnull DeserializationContext context)
         throws java.io.IOException {
-        if (p.nextToken() != JsonToken.START_ARRAY) {
-          throw new IOException("Expected start of array");
-        }
-
-        int[] shape = p.readValueAs(int[].class);
-        int[] data = p.readValueAs(int[].class);
-
-        if (p.nextToken() != JsonToken.END_ARRAY) {
-          throw new IOException("Expected end of array");
-        }
-        return new FlatArray(shape, data);
+        int[][] shapeAndData = p.readValueAs(int[][].class);
+        return new FlatArray(shapeAndData[0], shapeAndData[1]);
       }
     }
   }
