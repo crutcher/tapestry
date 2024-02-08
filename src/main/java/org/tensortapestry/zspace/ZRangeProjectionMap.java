@@ -182,8 +182,7 @@ public class ZRangeProjectionMap implements HasJsonOutput {
     // TODO: Does the linear nature of the affine map mean that this is sufficient?
     ZRange r1 = apply(source.getStart());
     if (source.isEmpty()) {
-      ZTensorWrapper shape1 = ZPoint.newZeros(r1.getNDim());
-      return ZRange.builder().start(r1.getStart()).shape(shape1).build();
+        return ZRange.builder().start(r1.getStart()).shape(ZPoint.newZeros(r1.getNDim())).build();
     }
     return ZRange.boundingRange(r1, apply(source.getInclusiveEnd()));
   }

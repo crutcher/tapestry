@@ -100,6 +100,7 @@ public final class IterableCoordinates implements StreamableIterable<int[]> {
    * @param start the start coordinates.
    * @param end the end coordinates.
    */
+  @SuppressWarnings("InconsistentOverloads")
   public IterableCoordinates(
     @Nonnull BufferOwnership bufferOwnership,
     @Nonnull int[] start,

@@ -19,21 +19,21 @@ public class JsonPathUtils {
     }
 
     // JSON Pointer starts with a '/', but JSON Path starts with a '$'
-    StringBuilder jsonPath = new StringBuilder("$");
+    var sb = new StringBuilder("$");
 
     // Split the JSON Pointer into parts
     for (String part : Splitter.on('/').split(jsonPointer)) {
       if (!part.isEmpty()) {
         try {
           var idx = Integer.parseInt(part);
-          jsonPath.append("[").append(idx).append("]");
+          sb.append("[").append(idx).append("]");
         } catch (NumberFormatException e) {
-          jsonPath.append(".").append(part);
+          sb.append(".").append(part);
         }
       }
     }
 
-    return jsonPath.toString();
+    return sb.toString();
   }
 
   /**

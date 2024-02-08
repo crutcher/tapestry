@@ -113,8 +113,8 @@ public class GH {
   @ExcludeFromJacocoGeneratedReport
   public String nodeToXml(Node node) {
     try {
-      StringWriter sw = new StringWriter();
-      XMLWriter xmlWriter = new XMLWriter(sw, XML_OUTPUT_FORMAT);
+      var sw = new StringWriter();
+      var xmlWriter = new XMLWriter(sw, XML_OUTPUT_FORMAT);
       xmlWriter.write(node);
       xmlWriter.close();
       return sw.toString().trim();

@@ -514,6 +514,7 @@ public final class ZTensor
    * @param data the data.
    * @param dataOffset the offset in the source data.
    */
+  @SuppressWarnings("InconsistentOverloads")
   ZTensor(
     boolean mutable,
     @Nonnull int[] shape,
@@ -597,7 +598,7 @@ public final class ZTensor
    */
   private boolean equalsTree(Object other) {
     // TODO: implement tree-walking comparison without a constructor.
-    ZTensor that = newFromArrayNull(other);
+    var that = newFromArrayNull(other);
     if (that == null) {
       return false;
     }
@@ -630,7 +631,7 @@ public final class ZTensor
    */
   @Override
   public String toString() {
-    StringBuilder sb = new StringBuilder();
+    var sb = new StringBuilder();
     toTree(() -> sb.append('['), () -> sb.append(']'), () -> sb.append(", "), sb::append);
     return sb.toString();
   }
