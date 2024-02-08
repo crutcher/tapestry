@@ -53,8 +53,3 @@ to understand, verify, visualize, and extend the code.
 
 In the current stage of development, **loom** produces no tool targets; and exists solely as a
 collection of libraries and tests.
-
-Interesting test suites:
-
-* [src/test/java/org/tensortapestry/loom/zspace](src/test/java/org/tensortapestry/loom/zspace) - tests for the **Z**-space tensor math library.
-* [src/test/java/org/tensortapestry/loom/graph](src/test/java/org/tensortapestry/loom/graph) - tests for the **IR** tensor expression library.
