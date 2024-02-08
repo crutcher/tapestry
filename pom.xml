@@ -361,6 +361,7 @@
                         <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED</arg>
 
                         <arg>-Xplugin:ErrorProne
+                            -XepAllWarningsAsErrors
                             -XepDisableWarningsInGeneratedCode
                             -XepExcludedPaths:.*/generated-sources/.*
                             -Xep:MemberName:ERROR</arg>
