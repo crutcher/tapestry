@@ -11,7 +11,9 @@ import lombok.extern.jackson.Jacksonized;
 import org.tensortapestry.loom.graph.LoomNodeWrapper;
 import org.tensortapestry.zspace.ZRange;
 
-/** Describes the sub-range of a tensor that is selected by an application node. */
+/**
+ * Describes the sub-range of a tensor that is selected by an application node.
+ */
 @Value
 @Jacksonized
 @Builder
@@ -39,7 +41,8 @@ public class TensorSelection {
   /**
    * Creates a TensorSelection from a TensorNode and a range.
    *
-   * <p>The TensorSelection will have the given range, which must be contained in the TensorNode's
+   * <p>The TensorSelection will have the given range, which must be contained in the
+   * TensorNode's
    * range.
    *
    * @param tensorNode the TensorNode

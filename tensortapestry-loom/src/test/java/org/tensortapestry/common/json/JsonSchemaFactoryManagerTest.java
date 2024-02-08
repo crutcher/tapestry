@@ -4,13 +4,11 @@ import static org.tensortapestry.loom.graph.LoomConstants.Errors.JSD_ERROR;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.ValidationMessage;
-
 import java.net.URI;
 import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 import javax.annotation.Nonnull;
-
 import lombok.Builder;
 import lombok.Data;
 import lombok.Value;
@@ -26,76 +24,76 @@ import org.tensortapestry.zspace.ZTensor;
 
 public class JsonSchemaFactoryManagerTest extends BaseTestClass {
 
+  @Nonnull
+  private final JsonSchemaFactoryManager manager = new JsonSchemaFactoryManager();
+
+  @Value
+  @Jacksonized
+  @Builder
+  public static class Example {
+
     @Nonnull
-    private final JsonSchemaFactoryManager manager = new JsonSchemaFactoryManager();
+    UUID id;
 
-    @Value
-    @Jacksonized
-    @Builder
-    public static class Example {
+    @Nonnull
+    String name;
+  }
 
-        @Nonnull
-        UUID id;
+  @Test
+  @SuppressWarnings("ResultOfMethodCallIgnored")
+  public void test_unmapped_uri() {
+    assertThatExceptionOfType(RuntimeException.class)
+      .isThrownBy(() -> manager.loadSchema(URI.create("http://loom.example/data")));
+  }
 
-        @Nonnull
-        String name;
-    }
+  @Test
+  public void test_core_schema() {
+    JsonSchemaFactoryManager manager = new JsonSchemaFactoryManager()
+      .bindResourcePath(
+        "http://tensortapestry.org/schemas",
+        LoomConstants.LOOM_SCHEMA_RESOURCES.getPath()
+      );
 
-    @Test
-    @SuppressWarnings("ResultOfMethodCallIgnored")
-    public void test_unmapped_uri() {
-        assertThatExceptionOfType(RuntimeException.class)
-                .isThrownBy(() -> manager.loadSchema(URI.create("http://loom.example/data")));
-    }
+    BiConsumer<String, Object> check = (path, value) -> {
+      var schema = manager.loadSchema(URI.create(path));
+      assert schema != null;
+      assertThat(schema.validate(JsonUtil.valueToJsonNodeTree(value))).isEqualTo(Set.of());
+    };
 
-    @Test
-    public void test_core_schema() {
-        JsonSchemaFactoryManager manager = new JsonSchemaFactoryManager()
-                .bindResourcePath(
-                        "http://tensortapestry.org/schemas",
-                        LoomConstants.LOOM_SCHEMA_RESOURCES.getPath()
-                );
+    check.accept(
+      "http://tensortapestry.org/schemas/loom/2024-01/node_types.jsd#/nodes/Tensor",
+      TensorNode.Body
+        .builder()
+        .dtype("float32")
+        .range(ZRange.builder().start(0, 2).end(3, 4).build())
+        .build()
+    );
 
-        BiConsumer<String, Object> check = (path, value) -> {
-            var schema = manager.loadSchema(URI.create(path));
-            assert schema != null;
-            assertThat(schema.validate(JsonUtil.valueToJsonNodeTree(value))).isEqualTo(Set.of());
-        };
+    check.accept(
+      "http://tensortapestry.org/schemas/loom/2024-01/data_types.jsd#/data_types/ZRange",
+      ZRange.newFromShape(1, 2, 3)
+    );
 
-        check.accept(
-                "http://tensortapestry.org/schemas/loom/2024-01/node_types.jsd#/nodes/Tensor",
-                TensorNode.Body
-                        .builder()
-                        .dtype("float32")
-                        .range(ZRange.builder().start(0, 2).end(3, 4).build())
-                        .build()
-        );
+    check.accept(
+      "http://tensortapestry.org/schemas/loom/2024-01/annotation_types.jsd#/annotations/IPFIndex",
+      ZRange.newFromShape(1, 2, 3)
+    );
 
-        check.accept(
-                "http://tensortapestry.org/schemas/loom/2024-01/data_types.jsd#/data_types/ZRange",
-                ZRange.newFromShape(1, 2, 3)
-        );
+    check.accept(
+      "http://tensortapestry.org/schemas/loom/2024-01/data_types.jsd#/data_types/ZTensor",
+      ZTensor.newScalar(9)
+    );
+    check.accept(
+      "http://tensortapestry.org/schemas/loom/2024-01/data_types.jsd#/data_types/ZTensor",
+      ZTensor.newZeros(2, 3, 4)
+    );
+  }
 
-        check.accept(
-                "http://tensortapestry.org/schemas/loom/2024-01/annotation_types.jsd#/annotations/IPFIndex",
-                ZRange.newFromShape(1, 2, 3)
-        );
-
-        check.accept(
-                "http://tensortapestry.org/schemas/loom/2024-01/data_types.jsd#/data_types/ZTensor",
-                ZTensor.newScalar(9)
-        );
-        check.accept(
-                "http://tensortapestry.org/schemas/loom/2024-01/data_types.jsd#/data_types/ZTensor",
-                ZTensor.newZeros(2, 3, 4)
-        );
-    }
-
-    @Test
-    public void test_if() {
-        manager.addSchema(
-                "http://loom.example/data",
-                """
+  @Test
+  public void test_if() {
+    manager.addSchema(
+      "http://loom.example/data",
+      """
                         {
                              "$schema": "https://json-schema.org/draft/2020-12/schema#",
                              "allOf": [
@@ -154,41 +152,41 @@ public class JsonSchemaFactoryManagerTest extends BaseTestClass {
                              }
                         }
                         """
-        );
+    );
 
-        var schemaUri = URI.create("http://loom.example/data");
-        var schema = manager.loadSchema(schemaUri);
-        schema.initializeValidators();
+    var schemaUri = URI.create("http://loom.example/data");
+    var schema = manager.loadSchema(schemaUri);
+    schema.initializeValidators();
 
-        assertThat(schema.validate(JsonUtil.valueToJsonNodeTree(Map.of("type", "A", "a", "foo"))))
-                .isEmpty();
-        assertThat(schema.validate(JsonUtil.valueToJsonNodeTree(Map.of("type", "B", "x", 12))))
-                .isEmpty();
+    assertThat(schema.validate(JsonUtil.valueToJsonNodeTree(Map.of("type", "A", "a", "foo"))))
+      .isEmpty();
+    assertThat(schema.validate(JsonUtil.valueToJsonNodeTree(Map.of("type", "B", "x", 12))))
+      .isEmpty();
 
-        assertThat(schema.validate(JsonUtil.valueToJsonNodeTree(Map.of("type", "A", "a", 12))))
-                .hasSize(1);
-    }
+    assertThat(schema.validate(JsonUtil.valueToJsonNodeTree(Map.of("type", "A", "a", 12))))
+      .hasSize(1);
+  }
 
-    @Test
-    public void test_load_resource() {
-        var manager = new JsonSchemaFactoryManager();
+  @Test
+  public void test_load_resource() {
+    var manager = new JsonSchemaFactoryManager();
 
-        var schema = manager.loadSchema(
-                URI.create("resource:schemas/test_schema.jsd#/definitions/example")
-        );
+    var schema = manager.loadSchema(
+      URI.create("resource:schemas/test_schema.jsd#/definitions/example")
+    );
 
-        var example = Example.builder().id(UUID.randomUUID()).name("N").build();
-        JsonNode exampleTree = JsonUtil.valueToJsonNodeTree(example);
+    var example = Example.builder().id(UUID.randomUUID()).name("N").build();
+    JsonNode exampleTree = JsonUtil.valueToJsonNodeTree(example);
 
-        Set<ValidationMessage> errors = schema.validate(exampleTree);
-        assertThat(errors).hasSize(1);
-    }
+    Set<ValidationMessage> errors = schema.validate(exampleTree);
+    assertThat(errors).hasSize(1);
+  }
 
-    @Test
-    public void test() {
-        manager.addSchema(
-                "http://loom.example/data",
-                """
+  @Test
+  public void test() {
+    manager.addSchema(
+      "http://loom.example/data",
+      """
                         {
                              "$schema": "https://json-schema.org/draft/2020-12/schema#",
                              "definitions": {
@@ -200,10 +198,10 @@ public class JsonSchemaFactoryManagerTest extends BaseTestClass {
                              }
                         }
                         """
-        );
-        manager.addSchema(
-                "http://loom.example/example",
-                """
+    );
+    manager.addSchema(
+      "http://loom.example/example",
+      """
                         {
                             "$id": "http://loom.example/example",
                             "$schema": "https://json-schema.org/draft/2020-12/schema#",
@@ -228,30 +226,30 @@ public class JsonSchemaFactoryManagerTest extends BaseTestClass {
                             }
                         }
                         """
-        );
+    );
 
-        var schemaUri = URI.create("http://loom.example/example");
-        var schema = manager.loadSchema(schemaUri);
-        schema.initializeValidators();
+    var schemaUri = URI.create("http://loom.example/example");
+    var schema = manager.loadSchema(schemaUri);
+    schema.initializeValidators();
 
-        var example = Example.builder().id(UUID.randomUUID()).name("N").build();
-        JsonNode exampleTree = JsonUtil.valueToJsonNodeTree(example);
+    var example = Example.builder().id(UUID.randomUUID()).name("N").build();
+    JsonNode exampleTree = JsonUtil.valueToJsonNodeTree(example);
 
-        Set<ValidationMessage> errors = schema.validate(exampleTree);
-        assertThat(errors).hasSize(1);
+    Set<ValidationMessage> errors = schema.validate(exampleTree);
+    assertThat(errors).hasSize(1);
 
-        var msg = errors.stream().findAny().orElseThrow();
-        assertThat(
-                JsonUtil.jsonPathOnValue(exampleTree, msg.getInstanceLocation().toString(), String.class)
-        )
-                .isEqualTo("N");
-    }
+    var msg = errors.stream().findAny().orElseThrow();
+    assertThat(
+      JsonUtil.jsonPathOnValue(exampleTree, msg.getInstanceLocation().toString(), String.class)
+    )
+      .isEqualTo("N");
+  }
 
-    @Test
-    public void test_lookup_by_pointer() {
-        manager.addSchema(
-                "http://loom.example/data",
-                """
+  @Test
+  public void test_lookup_by_pointer() {
+    manager.addSchema(
+      "http://loom.example/data",
+      """
                         {
                           "$schema": "http://json-schema.org/draft/2020-12/schema#",
                           "type": "object",
@@ -267,20 +265,20 @@ public class JsonSchemaFactoryManagerTest extends BaseTestClass {
                           }
                         }
                         """
-        );
-        var schema = manager.loadSchema(
-                URI.create("http://loom.example/data#/$defs/nodes/$defs/ztype")
-        );
+    );
+    var schema = manager.loadSchema(
+      URI.create("http://loom.example/data#/$defs/nodes/$defs/ztype")
+    );
 
-        assertThat(schema.validate(JsonUtil.valueToJsonNodeTree("A"))).isEmpty();
-        assertThat(schema.validate(JsonUtil.valueToJsonNodeTree("X"))).hasSize(1);
-    }
+    assertThat(schema.validate(JsonUtil.valueToJsonNodeTree("A"))).isEmpty();
+    assertThat(schema.validate(JsonUtil.valueToJsonNodeTree("X"))).hasSize(1);
+  }
 
-    @Test
-    public void test_nested_schemas() {
-        manager.addSchema(
-                "http://loom.example/schema1",
-                """
+  @Test
+  public void test_nested_schemas() {
+    manager.addSchema(
+      "http://loom.example/schema1",
+      """
                         {
                           "innerA": {
                             "$schema": "http://json-schema.org/draft/2020-12/schema#",
@@ -301,10 +299,10 @@ public class JsonSchemaFactoryManagerTest extends BaseTestClass {
                           }
                         }
                         """
-        );
-        manager.addSchema(
-                "http://loom.example/schema2",
-                """
+    );
+    manager.addSchema(
+      "http://loom.example/schema2",
+      """
                         {
                           "innerC": {
                             "$schema": "http://json-schema.org/draft/2020-12/schema#",
@@ -312,42 +310,42 @@ public class JsonSchemaFactoryManagerTest extends BaseTestClass {
                           }
                         }
                         """
-        );
+    );
 
-        {
-            var schema = manager.loadSchema(
-                    URI.create("http://loom.example/schema1#/innerA/$defs/ztype")
-            );
-            assertThat(schema.validate(JsonUtil.valueToJsonNodeTree("A"))).isEmpty();
-            assertThat(schema.validate(JsonUtil.valueToJsonNodeTree("X"))).hasSize(1);
-        }
-
-        {
-            var schema = manager.loadSchema(URI.create("http://loom.example/schema1#/innerB"));
-            assertThat(schema.validate(JsonUtil.valueToJsonNodeTree(List.of("A", "B")))).isEmpty();
-            assertThat(schema.validate(JsonUtil.valueToJsonNodeTree(List.of("X")))).hasSize(1);
-        }
-
-        {
-            var schema = manager.loadSchema(URI.create("http://loom.example/schema2#/innerC"));
-            assertThat(schema.validate(JsonUtil.valueToJsonNodeTree(List.of("A", "B")))).isEmpty();
-            assertThat(schema.validate(JsonUtil.valueToJsonNodeTree(List.of("X")))).hasSize(1);
-        }
+    {
+      var schema = manager.loadSchema(
+        URI.create("http://loom.example/schema1#/innerA/$defs/ztype")
+      );
+      assertThat(schema.validate(JsonUtil.valueToJsonNodeTree("A"))).isEmpty();
+      assertThat(schema.validate(JsonUtil.valueToJsonNodeTree("X"))).hasSize(1);
     }
 
-    @Data
-    @Jacksonized
-    @Builder
-    public static class ExampleClass {
-
-        private UUID id;
-        private List<Integer> shape;
+    {
+      var schema = manager.loadSchema(URI.create("http://loom.example/schema1#/innerB"));
+      assertThat(schema.validate(JsonUtil.valueToJsonNodeTree(List.of("A", "B")))).isEmpty();
+      assertThat(schema.validate(JsonUtil.valueToJsonNodeTree(List.of("X")))).hasSize(1);
     }
 
-    @Test
-    public void test_adapt_scan() {
-        manager.addSchema(
-                """
+    {
+      var schema = manager.loadSchema(URI.create("http://loom.example/schema2#/innerC"));
+      assertThat(schema.validate(JsonUtil.valueToJsonNodeTree(List.of("A", "B")))).isEmpty();
+      assertThat(schema.validate(JsonUtil.valueToJsonNodeTree(List.of("X")))).hasSize(1);
+    }
+  }
+
+  @Data
+  @Jacksonized
+  @Builder
+  public static class ExampleClass {
+
+    private UUID id;
+    private List<Integer> shape;
+  }
+
+  @Test
+  public void test_adapt_scan() {
+    manager.addSchema(
+      """
                         {
                             "$id": "http://loom.example/data",
                             "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -363,10 +361,10 @@ public class JsonSchemaFactoryManagerTest extends BaseTestClass {
                             }
                         }
                         """
-        );
+    );
 
-        manager.addSchema(
-                """
+    manager.addSchema(
+      """
                         {
                             "$id": "http://loom.example/example",
                             "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -383,54 +381,54 @@ public class JsonSchemaFactoryManagerTest extends BaseTestClass {
                             "required": ["id", "shape"]
                         }
                         """
-        );
+    );
 
-        final var path = "$.nodes[@.id = 'foo']";
-        var example = ExampleClass.builder().id(UUID.randomUUID()).shape(List.of(1, 2, 3, -1)).build();
+    final var path = "$.nodes[@.id = 'foo']";
+    var example = ExampleClass.builder().id(UUID.randomUUID()).shape(List.of(1, 2, 3, -1)).build();
 
-        var uri = URI.create("http://loom.example/example");
-        var schema = manager.loadSchema(uri);
-        schema.initializeValidators();
+    var uri = URI.create("http://loom.example/example");
+    var schema = manager.loadSchema(uri);
+    schema.initializeValidators();
 
-        var data = JsonUtil.valueToJsonNodeTree(example);
+    var data = JsonUtil.valueToJsonNodeTree(example);
 
-        Supplier<List<ValidationIssue.Context>> contexts = () ->
-                List.of(ValidationIssue.Context.builder().name("Node").jsonpath(path).data(data).build());
+    Supplier<List<ValidationIssue.Context>> contexts = () ->
+      List.of(ValidationIssue.Context.builder().name("Node").jsonpath(path).data(data).build());
 
-        var collector = new ListValidationIssueCollector();
-        manager
-                .issueScan()
-                .issueCollector(collector)
-                .type(JSD_ERROR)
-                .summaryPrefix("NoteBody ")
-                .jsonPathPrefix(path)
-                .schema(schema)
-                .data(data)
-                .contexts(contexts)
-                .build()
-                .scan();
+    var collector = new ListValidationIssueCollector();
+    manager
+      .issueScan()
+      .issueCollector(collector)
+      .type(JSD_ERROR)
+      .summaryPrefix("NoteBody ")
+      .jsonPathPrefix(path)
+      .schema(schema)
+      .data(data)
+      .contexts(contexts)
+      .build()
+      .scan();
 
-        assertValidationIssues(
-                collector,
-                ValidationIssue
-                        .builder()
-                        .type(JSD_ERROR)
-                        .param("keyword", "minimum")
-                        .param("keywordArgs", List.of(1))
-                        .param("path", "$.nodes[@.id = 'foo'].shape[3]")
-                        .param("schemaPath", "http://loom.example/data#/definitions/Shape/items/minimum")
-                        .summary("NoteBody [minimum] :: $.shape[3]: -1")
-                        .message("$.shape[3]: must have a minimum value of 1")
-                        .context(
-                                ValidationIssue.Context
-                                        .builder()
-                                        .name("Data")
-                                        .jsonpath("$.nodes[@.id = 'foo'].shape[3]")
-                                        .data(-1)
-                                        .build()
-                        )
-                        .withContexts(contexts)
-                        .build()
-        );
-    }
+    assertValidationIssues(
+      collector,
+      ValidationIssue
+        .builder()
+        .type(JSD_ERROR)
+        .param("keyword", "minimum")
+        .param("keywordArgs", List.of(1))
+        .param("path", "$.nodes[@.id = 'foo'].shape[3]")
+        .param("schemaPath", "http://loom.example/data#/definitions/Shape/items/minimum")
+        .summary("NoteBody [minimum] :: $.shape[3]: -1")
+        .message("$.shape[3]: must have a minimum value of 1")
+        .context(
+          ValidationIssue.Context
+            .builder()
+            .name("Data")
+            .jsonpath("$.nodes[@.id = 'foo'].shape[3]")
+            .data(-1)
+            .build()
+        )
+        .withContexts(contexts)
+        .build()
+    );
+  }
 }

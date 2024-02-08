@@ -14,11 +14,11 @@ public class TensorNodeTest extends BaseTestClass {
     assertJsonEquals(
       body,
       """
-            {
-                "dtype": "int32",
-                "range": {"start": [], "end": []}
-            }
-            """
+                        {
+                            "dtype": "int32",
+                            "range": {"start": [], "end": []}
+                        }
+                        """
     );
 
     assertThat(body.getNDim()).isEqualTo(0);
@@ -38,11 +38,11 @@ public class TensorNodeTest extends BaseTestClass {
     assertJsonEquals(
       body,
       """
-          {
-            "dtype": "int32",
-            "range": {"start":[-1, -1], "end":[2, 3]}
-          }
-          """
+                        {
+                          "dtype": "int32",
+                          "range": {"start":[-1, -1], "end":[2, 3]}
+                        }
+                        """
     );
 
     assertThat(body.getNDim()).isEqualTo(2);

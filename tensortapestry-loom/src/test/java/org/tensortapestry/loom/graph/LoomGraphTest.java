@@ -112,30 +112,30 @@ public class LoomGraphTest extends BaseTestClass {
   public void test_json() {
     var source =
       """
-        {
-           "id": "00000000-0000-0000-0000-000000000000",
-           "nodes": [
-              {
-                "id": "00000000-0000-0000-0000-000000000001",
-                "type": "%1$s",
-                "label": "foo",
-                "body": {
-                  "dtype": "int32",
-                  "range": {"start": [0, 0], "end": [2, 3] }
-                }
-              },
-              {
-                "id": "00000000-0000-0000-0000-000000000002",
-                "type": "%1$s",
-                "label": "bar",
-                "body": {
-                  "dtype": "float32",
-                  "range": {"start": [0, 0], "end": [4, 5] }
-                }
-              }
-           ]
-        }
-        """.formatted(
+                        {
+                           "id": "00000000-0000-0000-0000-000000000000",
+                           "nodes": [
+                              {
+                                "id": "00000000-0000-0000-0000-000000000001",
+                                "type": "%1$s",
+                                "label": "foo",
+                                "body": {
+                                  "dtype": "int32",
+                                  "range": {"start": [0, 0], "end": [2, 3] }
+                                }
+                              },
+                              {
+                                "id": "00000000-0000-0000-0000-000000000002",
+                                "type": "%1$s",
+                                "label": "bar",
+                                "body": {
+                                  "dtype": "float32",
+                                  "range": {"start": [0, 0], "end": [4, 5] }
+                                }
+                              }
+                           ]
+                        }
+                        """.formatted(
           TensorNode.TYPE
         );
 
@@ -156,30 +156,30 @@ public class LoomGraphTest extends BaseTestClass {
   public void testBoundEnvironment() {
     var source =
       """
-            {
-               "id": "00000000-0000-0000-0000-000000000000",
-               "nodes": [
-                  {
-                    "id": "00000000-0000-0000-0000-000000000001",
-                    "type": "%1$s",
-                    "label": "foo",
-                    "body": {
-                      "dtype": "int32",
-                      "range": { "start": [0, 0], "end": [2, 3] }
-                    }
-                  },
-                  {
-                    "id": "00000000-0000-0000-0000-000000000002",
-                    "type": "%1$s",
-                    "label": "bar",
-                    "body": {
-                      "dtype": "float32",
-                      "range": { "start": [0, 0], "end": [4, 5] }
-                    }
-                  }
-               ]
-            }
-            """.formatted(
+                        {
+                           "id": "00000000-0000-0000-0000-000000000000",
+                           "nodes": [
+                              {
+                                "id": "00000000-0000-0000-0000-000000000001",
+                                "type": "%1$s",
+                                "label": "foo",
+                                "body": {
+                                  "dtype": "int32",
+                                  "range": { "start": [0, 0], "end": [2, 3] }
+                                }
+                              },
+                              {
+                                "id": "00000000-0000-0000-0000-000000000002",
+                                "type": "%1$s",
+                                "label": "bar",
+                                "body": {
+                                  "dtype": "float32",
+                                  "range": { "start": [0, 0], "end": [4, 5] }
+                                }
+                              }
+                           ]
+                        }
+                        """.formatted(
           TensorNode.TYPE
         );
 
