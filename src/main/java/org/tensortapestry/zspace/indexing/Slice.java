@@ -2,7 +2,6 @@ package org.tensortapestry.zspace.indexing;
 
 import java.util.ArrayList;
 import javax.annotation.Nullable;
-
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Value;
