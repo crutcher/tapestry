@@ -19,7 +19,6 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import lombok.Value;
 import lombok.experimental.UtilityClass;
-import org.tensortapestry.common.collections.IteratorUtils;
 
 @UtilityClass
 public final class JsonUtil {
@@ -86,7 +85,8 @@ public final class JsonUtil {
      * @return The Stream.
      */
     public Stream<Map.Entry<String, JsonNode>> stream(ObjectNode object) {
-      return IteratorUtils.iteratorToStream(object.fields());
+      Iterable<Map.Entry<String, JsonNode>> entries = object::fields;
+      return StreamSupport.stream(entries.spliterator(), false);
     }
   }
 

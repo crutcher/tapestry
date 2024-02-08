@@ -1,4 +1,4 @@
-package org.tensortapestry.common.json;
+package org.tensortapestry.loom.json;
 
 import static org.tensortapestry.loom.graph.LoomConstants.Errors.JSD_ERROR;
 
@@ -14,6 +14,7 @@ import lombok.Data;
 import lombok.Value;
 import lombok.extern.jackson.Jacksonized;
 import org.junit.jupiter.api.Test;
+import org.tensortapestry.common.json.JsonUtil;
 import org.tensortapestry.common.testing.BaseTestClass;
 import org.tensortapestry.common.validation.ListValidationIssueCollector;
 import org.tensortapestry.common.validation.ValidationIssue;

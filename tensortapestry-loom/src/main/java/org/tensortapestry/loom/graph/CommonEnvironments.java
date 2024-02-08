@@ -2,10 +2,10 @@ package org.tensortapestry.loom.graph;
 
 import java.util.Set;
 import lombok.experimental.UtilityClass;
-import org.tensortapestry.common.json.JsonSchemaFactoryManager;
 import org.tensortapestry.loom.graph.dialects.common.SchemaTypeConstraint;
 import org.tensortapestry.loom.graph.dialects.tensorops.*;
 import org.tensortapestry.loom.graph.dialects.tensorops.TensorDTypesAreValidConstraint;
+import org.tensortapestry.loom.json.JsonSchemaFactoryManager;
 
 @UtilityClass
 public final class CommonEnvironments {

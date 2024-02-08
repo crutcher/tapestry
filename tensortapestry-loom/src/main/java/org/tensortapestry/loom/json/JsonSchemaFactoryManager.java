@@ -1,4 +1,4 @@
-package org.tensortapestry.common.json;
+package org.tensortapestry.loom.json;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
@@ -19,6 +19,8 @@ import javax.annotation.Nullable;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Singular;
+import org.tensortapestry.common.json.JsonPathUtils;
+import org.tensortapestry.common.json.JsonUtil;
 import org.tensortapestry.common.validation.ValidationIssue;
 import org.tensortapestry.common.validation.ValidationIssueCollector;
 import org.tensortapestry.loom.graph.LoomConstants;

@@ -17,30 +17,38 @@ import lombok.Value;
 import lombok.extern.jackson.Jacksonized;
 import org.apache.commons.lang3.tuple.Pair;
 import org.tensortapestry.common.json.JsonPathUtils;
-import org.tensortapestry.common.json.JsonSchemaFactoryManager;
 import org.tensortapestry.common.json.JsonUtil;
 import org.tensortapestry.common.validation.ValidationIssue;
 import org.tensortapestry.common.validation.ValidationIssueCollector;
+import org.tensortapestry.loom.json.JsonSchemaFactoryManager;
 
-/** A schema for validating the graph structure of a type in a LoomGraph. */
+/**
+ * A schema for validating the graph structure of a type in a LoomGraph.
+ */
 @Value
 @ThreadSafe
 @Jacksonized
 @Builder
 public class LoomTypeSchema {
 
-  /** A schema for validating a link in a LoomGraph. */
+  /**
+   * A schema for validating a link in a LoomGraph.
+   */
   @Value
   @ThreadSafe
   @Jacksonized
   @Builder
   public static class ReferenceSchema {
 
-    /** A list of json paths to node references described by the schema. */
+    /**
+     * A list of json paths to node references described by the schema.
+     */
     @Singular
     List<String> paths;
 
-    /** A list of legal types that the referenced nodes can have. */
+    /**
+     * A list of legal types that the referenced nodes can have.
+     */
     @Singular
     List<String> types;
 

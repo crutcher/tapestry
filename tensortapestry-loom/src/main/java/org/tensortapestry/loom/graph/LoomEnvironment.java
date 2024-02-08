@@ -1,21 +1,17 @@
 package org.tensortapestry.loom.graph;
 
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
 import java.net.URI;
 import java.util.*;
 import javax.annotation.Nonnull;
 import lombok.Builder;
 import lombok.Data;
-import org.tensortapestry.common.json.JsonSchemaFactoryManager;
 import org.tensortapestry.common.json.JsonUtil;
 import org.tensortapestry.common.runtime.ExcludeFromJacocoGeneratedReport;
 import org.tensortapestry.common.validation.ListValidationIssueCollector;
 import org.tensortapestry.common.validation.LoomValidationError;
 import org.tensortapestry.common.validation.ValidationIssueCollector;
+import org.tensortapestry.loom.json.JsonSchemaFactoryManager;
 
 /**
  * Loom Graph Environment.
@@ -26,14 +22,17 @@ import org.tensortapestry.common.validation.ValidationIssueCollector;
 @Builder
 public final class LoomEnvironment {
 
-  /** Constraint interface for graph validating plugins. */
+  /**
+   * Constraint interface for graph validating plugins.
+   */
   @FunctionalInterface
   public interface Constraint {
     /**
      * Check that the environment supports the requirements of this constraint.
      *
      * @param env the LoomEnvironment.
-     * @throws IllegalStateException if the environment does not support the requirements of this
+     * @throws IllegalStateException if the environment does not support the
+     *         requirements of this
      */
     @ExcludeFromJacocoGeneratedReport
     default void checkRequirements(LoomEnvironment env) {}
@@ -45,25 +44,10 @@ public final class LoomEnvironment {
     );
   }
 
-  @Target({ ElementType.TYPE })
-  @Retention(RetentionPolicy.RUNTIME)
-  public @interface WithConstraints {
-    Class<? extends Constraint>[] value();
-  }
-
   private final List<Constraint> constraints = new ArrayList<>();
 
   @Builder.Default
   private final JsonSchemaFactoryManager jsonSchemaFactoryManager = new JsonSchemaFactoryManager();
-
-  @ExcludeFromJacocoGeneratedReport
-  private static Constraint createConstraint(Class<? extends Constraint> constraintClass) {
-    try {
-      return constraintClass.getDeclaredConstructor().newInstance();
-    } catch (ReflectiveOperationException e) {
-      throw new RuntimeException(e);
-    }
-  }
 
   @Builder.Default
   private Map<String, String> urlAliasMap = new HashMap<>();
