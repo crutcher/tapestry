@@ -561,7 +561,7 @@ public class ZTensorTest implements ZSpaceTestAssertions {
     // CellGenerator
     {
       var t = ZTensor.newZeros(2, 3);
-      CellGenerator cellGenerator = coords -> IndexingFns.intSum(coords);
+      CellGenerator cellGenerator = IndexingFns::intSum;
       t.fill(cellGenerator);
       assertThat(t)
         .isEqualTo(ZTensor.newFilled(new int[] { 2, 3 }, cellGenerator))
