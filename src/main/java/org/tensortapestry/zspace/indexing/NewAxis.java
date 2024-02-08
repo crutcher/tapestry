@@ -1,14 +1,32 @@
 package org.tensortapestry.zspace.indexing;
 
+import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
+import lombok.RequiredArgsConstructor;
 import lombok.Value;
 
 @Value
 @EqualsAndHashCode(callSuper = false)
 public class NewAxis extends Selector {
+    int size;
 
-  @Override
-  public String toString() {
-    return "+";
-  }
+    public NewAxis() {
+        this(1);
+    }
+
+    public NewAxis(int size) {
+        if (size < 1) {
+            throw new IllegalArgumentException("Size must be greater than 0: " + size);
+        }
+        this.size = size;
+    }
+
+    @Override
+    public String toString() {
+        if (size > 1) {
+            return "+" + size;
+        } else {
+            return "+";
+        }
+    }
 }

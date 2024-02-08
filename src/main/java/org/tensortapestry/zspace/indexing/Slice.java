@@ -2,11 +2,14 @@ package org.tensortapestry.zspace.indexing;
 
 import java.util.ArrayList;
 import javax.annotation.Nullable;
+
+import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Value;
 
 @Value
 @EqualsAndHashCode(callSuper = false)
+@Builder
 public class Slice extends Selector {
 
   @Nullable Integer start;
