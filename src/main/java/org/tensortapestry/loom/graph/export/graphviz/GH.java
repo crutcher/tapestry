@@ -296,6 +296,7 @@ public class GH {
      * @param objects the objects to add.
      * @return {@code this}
      */
+    @CanIgnoreReturnValue
     public T addAll(Stream<?> objects) {
       objects.forEach(this::add);
       return self();

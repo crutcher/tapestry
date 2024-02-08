@@ -11,6 +11,9 @@ import lombok.Value;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
+import org.tensortapestry.weft.metakernels.antlr.generated.MKExpressionsBaseVisitor;
+import org.tensortapestry.weft.metakernels.antlr.generated.MKExpressionsLexer;
+import org.tensortapestry.weft.metakernels.antlr.generated.MKExpressionsParser;
 import org.tensortapestry.zspace.ops.CellWiseOps;
 
 public abstract class MKExpression {
@@ -175,7 +178,7 @@ public abstract class MKExpression {
 
     @Override
     public MKExpression visitIdentifierExpr(MKExpressionsParser.IdentifierExprContext ctx) {
-      return new IdentExpr(ctx.dotted_id().ID().stream().map(ParseTree::getText).toList());
+      return new IdentExpr(ctx.dottedId().ID().stream().map(ParseTree::getText).toList());
     }
 
     @Override

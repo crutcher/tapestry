@@ -41,11 +41,13 @@ public class IPFSignature implements HasToJsonString {
       return this;
     }
 
+    @CanIgnoreReturnValue
     public IPFSignatureBuilder input(@Nonnull String name, @Nonnull ZRangeProjectionMap ipf) {
       this.inputs.computeIfAbsent(name, k -> new ArrayList<>()).add(ipf);
       return this;
     }
 
+    @CanIgnoreReturnValue
     public IPFSignatureBuilder input(
       @Nonnull String name,
       @Nonnull ZRangeProjectionMap.ZRangeProjectionMapBuilder builder
@@ -69,11 +71,13 @@ public class IPFSignature implements HasToJsonString {
       return this;
     }
 
+    @CanIgnoreReturnValue
     public IPFSignatureBuilder output(@Nonnull String name, @Nonnull ZRangeProjectionMap ipf) {
       this.outputs.computeIfAbsent(name, k -> new ArrayList<>()).add(ipf);
       return this;
     }
 
+    @CanIgnoreReturnValue
     public IPFSignatureBuilder output(
       @Nonnull String name,
       @Nonnull ZRangeProjectionMap.ZRangeProjectionMapBuilder builder

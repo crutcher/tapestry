@@ -1,6 +1,7 @@
 package org.tensortapestry.weft.metakernels.expressions;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -10,6 +11,9 @@ import lombok.experimental.SuperBuilder;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.tensortapestry.common.collections.EnumerationUtils;
+import org.tensortapestry.weft.metakernels.antlr.generated.DimShapePatternBaseVisitor;
+import org.tensortapestry.weft.metakernels.antlr.generated.DimShapePatternLexer;
+import org.tensortapestry.weft.metakernels.antlr.generated.DimShapePatternParser;
 import org.tensortapestry.zspace.indexing.IndexingFns;
 
 @Value
@@ -276,6 +280,7 @@ public class DimShapeMatcher {
   }
 
   @VisibleForTesting
+  @CanIgnoreReturnValue
   static List<ShapePattern> validatePatternList(List<ShapePattern> pl) {
     Set<String> names = new HashSet<>();
     LinkedHashSet<String> duplicates = new LinkedHashSet<>();

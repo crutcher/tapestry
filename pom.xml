@@ -309,6 +309,7 @@
     </dependencies>
 
     <build>
+        <!--
         <extensions>
             <extension>
                 <groupId>org.apache.maven.extensions</groupId>
@@ -316,6 +317,7 @@
                 <version>1.1.0</version>
             </extension>
         </extensions>
+        -->
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -361,10 +363,16 @@
                         <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED</arg>
 
                         <arg>-Xplugin:ErrorProne
-                            -XepAllWarningsAsErrors
                             -XepDisableWarningsInGeneratedCode
-                            -XepExcludedPaths:.*/generated-sources/.*
-                            -Xep:MemberName:ERROR</arg>
+                            -XepExcludedPaths:".*/generated-source/.*"
+                            -Xep:MemberName:ERROR
+                            -Xep:ClassName:ERROR
+                            -Xep:LongLiteralLowerCaseSuffix:ERROR
+                            -Xep:EmptyIf:ERROR
+                            -Xep:AssertFalse:ERROR
+                            -Xep:CanIgnoreReturnValueSuggester:ERROR
+                            -Xep:MissingDefault:ERROR
+                        </arg>
                     </compilerArgs>
                     <annotationProcessorPaths>
                         <path>

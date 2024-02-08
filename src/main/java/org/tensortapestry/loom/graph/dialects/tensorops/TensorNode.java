@@ -1,6 +1,7 @@
 package org.tensortapestry.loom.graph.dialects.tensorops;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import javax.annotation.Nonnull;
 import lombok.ToString;
 import lombok.Value;
@@ -47,6 +48,7 @@ public final class TensorNode extends AbstractNodeWrapper<TensorNode.Body> {
        * @return this builder.
        */
       @JsonIgnore
+      @CanIgnoreReturnValue
       public BodyBuilder shape(int... shape) {
         return range(ZRange.newFromShape(shape));
       }
@@ -58,6 +60,7 @@ public final class TensorNode extends AbstractNodeWrapper<TensorNode.Body> {
        * @return this builder.
        */
       @JsonIgnore
+      @CanIgnoreReturnValue
       public BodyBuilder shape(@Nonnull ZTensorWrapper shape) {
         return range(ZRange.newFromShape(shape));
       }

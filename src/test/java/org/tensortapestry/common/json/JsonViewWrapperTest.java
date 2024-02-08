@@ -1,5 +1,6 @@
 package org.tensortapestry.common.json;
 
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,6 +21,7 @@ public class JsonViewWrapperTest implements CommonAssertions, JsonUtil.WithNodeB
     @SuppressWarnings("unused")
     public static class ExpNodeBuilder {
 
+      @CanIgnoreReturnValue
       public ExpNodeBuilder body(Object value) {
         if (value instanceof JsonViewWrapper wrapper) {
           this.body = wrapper;
@@ -29,6 +31,7 @@ public class JsonViewWrapperTest implements CommonAssertions, JsonUtil.WithNodeB
         return this;
       }
 
+      @CanIgnoreReturnValue
       public ExpNodeBuilder annotation(String key, Object value) {
         if (this.annotations == null) {
           this.annotations = new HashMap<>();

@@ -68,6 +68,7 @@ public final class LoomEnvironment {
   @Builder.Default
   private Map<String, String> urlAliasMap = new HashMap<>();
 
+  @CanIgnoreReturnValue
   public LoomEnvironment addUrlAlias(String url, String alias) {
     urlAliasMap.put(url, alias);
     return this;
@@ -134,6 +135,7 @@ public final class LoomEnvironment {
    * @return the modified LoomEnvironment with the added constraint.
    * @throws IllegalArgumentException if the constraint is not valid in this environment.
    */
+  @CanIgnoreReturnValue
   public LoomEnvironment addConstraint(Constraint constraint) {
     constraint.checkRequirements(this);
     constraints.add(constraint);

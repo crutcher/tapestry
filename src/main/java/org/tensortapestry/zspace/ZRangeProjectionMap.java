@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
@@ -33,6 +34,7 @@ public class ZRangeProjectionMap implements HasJsonOutput {
      */
     @Nonnull
     @JsonIgnore
+    @CanIgnoreReturnValue
     public ZRangeProjectionMapBuilder affineMap(@Nonnull int[][] matrix) {
       return affineMap(ZAffineMap.fromMatrix(matrix));
     }
@@ -45,6 +47,7 @@ public class ZRangeProjectionMap implements HasJsonOutput {
      */
     @Nonnull
     @JsonSetter
+    @CanIgnoreReturnValue
     public ZRangeProjectionMapBuilder affineMap(@Nonnull ZAffineMap affineMap) {
       this.affineMap = affineMap;
       return this;
@@ -58,6 +61,7 @@ public class ZRangeProjectionMap implements HasJsonOutput {
      */
     @Nonnull
     @JsonIgnore
+    @CanIgnoreReturnValue
     public ZRangeProjectionMapBuilder translate(@Nonnull int... offset) {
       return affineMap(affineMap.translate(offset));
     }
@@ -70,6 +74,7 @@ public class ZRangeProjectionMap implements HasJsonOutput {
      */
     @Nonnull
     @JsonIgnore
+    @CanIgnoreReturnValue
     public ZRangeProjectionMapBuilder translate(@Nonnull ZTensorWrapper offset) {
       return affineMap(affineMap.translate(offset));
     }
@@ -82,6 +87,7 @@ public class ZRangeProjectionMap implements HasJsonOutput {
      */
     @Nonnull
     @JsonIgnore
+    @CanIgnoreReturnValue
     public ZRangeProjectionMapBuilder shape(@Nonnull int... shape) {
       return shape(ZPoint.of(shape));
     }
@@ -94,6 +100,7 @@ public class ZRangeProjectionMap implements HasJsonOutput {
      */
     @Nonnull
     @JsonSetter
+    @CanIgnoreReturnValue
     public ZRangeProjectionMapBuilder shape(@Nonnull ZTensorWrapper shape) {
       this.shape = ZPoint.of(shape);
       return this;

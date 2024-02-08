@@ -1,6 +1,7 @@
 package org.tensortapestry.common.validation;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.errorprone.annotations.FormatMethod;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -17,20 +18,26 @@ import org.tensortapestry.common.json.HasToJsonString;
 import org.tensortapestry.common.json.JsonPathUtils;
 import org.tensortapestry.common.json.JsonUtil;
 
-/** A Description of a validation failure. */
+/**
+ * A Description of a validation failure.
+ */
 @Data
 @Builder(toBuilder = true)
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public final class ValidationIssue {
 
-  /** A named Context for a ValidationIssue. */
+  /**
+   * A named Context for a ValidationIssue.
+   */
   @Data
   @Jacksonized
   @Builder
   @JsonInclude(JsonInclude.Include.NON_NULL)
   public static final class Context implements HasToJsonString {
 
-    /** Extensions to the ContextBuilder. */
+    /**
+     * Extensions to the ContextBuilder.
+     */
     public static class ContextBuilder {
 
       /**
@@ -39,6 +46,7 @@ public final class ValidationIssue {
        * @param jsonpath the jsonpath.
        * @return the builder.
        */
+      @CanIgnoreReturnValue
       public ContextBuilder jsonpath(String jsonpath) {
         this.jsonpath = jsonpath;
         return this;
@@ -52,6 +60,7 @@ public final class ValidationIssue {
        * @param parts the parts of the jsonpath.
        * @return the builder.
        */
+      @CanIgnoreReturnValue
       public ContextBuilder jsonpath(Object... parts) {
         return jsonpath(JsonPathUtils.concatJsonPath(parts));
       }
@@ -64,6 +73,7 @@ public final class ValidationIssue {
        * @param value the object to convert.
        * @return the builder.
        */
+      @CanIgnoreReturnValue
       public ContextBuilder data(Object value) {
         this.data = JsonUtil.treeToSimpleJson(JsonUtil.valueToJsonNodeTree(value));
         return this;
@@ -75,6 +85,7 @@ public final class ValidationIssue {
        * @param json the string to parse.
        * @return the builder.
        */
+      @CanIgnoreReturnValue
       public ContextBuilder dataFromJson(String json) {
         return data(JsonUtil.fromJson(json, Object.class));
       }
@@ -106,11 +117,15 @@ public final class ValidationIssue {
 
     @Nullable private final String jsonpath;
 
-    /** This should always be a simple JSON Java value. */
+    /**
+     * This should always be a simple JSON Java value.
+     */
     @Nullable private final Object data;
   }
 
-  /** Extensions to the ValidationIssueBuilder. */
+  /**
+   * Extensions to the ValidationIssueBuilder.
+   */
   public static final class ValidationIssueBuilder {
 
     /**
@@ -119,6 +134,7 @@ public final class ValidationIssue {
      * @param params the params to add.
      * @return this builder, for chaining.
      */
+    @CanIgnoreReturnValue
     public ValidationIssueBuilder params(@Nullable Map<String, String> params) {
       if (params != null) {
         params.forEach(this::param);
@@ -133,6 +149,7 @@ public final class ValidationIssue {
      * @param value the value of the param.
      * @return this builder, for chaining.
      */
+    @CanIgnoreReturnValue
     public ValidationIssueBuilder param(String key, Object value) {
       if (this.params == null) {
         // TODO: it would be nice if param insertion order was preserved.
@@ -149,6 +166,7 @@ public final class ValidationIssue {
      * @param summary the summary.
      * @return this builder, for chaining.
      */
+    @CanIgnoreReturnValue
     public ValidationIssueBuilder summary(String summary) {
       this.summary = summary;
       return this;
@@ -162,6 +180,7 @@ public final class ValidationIssue {
      * @return this builder, for chaining.
      */
     @FormatMethod
+    @CanIgnoreReturnValue
     public ValidationIssueBuilder summary(String format, Object... args) {
       this.summary = String.format(format, args);
       return this;
@@ -173,6 +192,7 @@ public final class ValidationIssue {
      * @param message the message.
      * @return this builder, for chaining.
      */
+    @CanIgnoreReturnValue
     public ValidationIssueBuilder message(String message) {
       this.message = message;
       return this;
@@ -186,6 +206,7 @@ public final class ValidationIssue {
      * @return this builder, for chaining.
      */
     @FormatMethod
+    @CanIgnoreReturnValue
     public ValidationIssueBuilder message(String format, Object... args) {
       this.message = String.format(format, args);
       return this;
@@ -197,6 +218,7 @@ public final class ValidationIssue {
      * @param context the context to add.
      * @return this builder, for chaining.
      */
+    @CanIgnoreReturnValue
     public ValidationIssueBuilder context(@Nullable Context context) {
       if (context == null) {
         return this;
@@ -215,6 +237,7 @@ public final class ValidationIssue {
      * @param supplier the supplier to get the context from.
      * @return this builder, for chaining.
      */
+    @CanIgnoreReturnValue
     public ValidationIssueBuilder context(@Nullable Supplier<Context> supplier) {
       if (supplier == null) {
         return this;
@@ -228,6 +251,7 @@ public final class ValidationIssue {
      * @param builder the builder to build a Context from.
      * @return this builder, for chaining.
      */
+    @CanIgnoreReturnValue
     public ValidationIssueBuilder context(@Nullable Context.ContextBuilder builder) {
       if (builder == null) {
         return this;
@@ -241,6 +265,7 @@ public final class ValidationIssue {
      * @param consumer the consumer to fill in the ContextBuilder.
      * @return this builder, for chaining.
      */
+    @CanIgnoreReturnValue
     public ValidationIssueBuilder context(@Nonnull Consumer<Context.ContextBuilder> consumer) {
       var builder = Context.builder();
       consumer.accept(builder);
@@ -253,6 +278,7 @@ public final class ValidationIssue {
      * @param contexts the contexts to add.
      * @return this builder, for chaining.
      */
+    @CanIgnoreReturnValue
     public ValidationIssueBuilder withContexts(@Nullable List<Context> contexts) {
       if (contexts == null) {
         return this;
@@ -267,6 +293,7 @@ public final class ValidationIssue {
      * @param supplier the supplier to get the contexts from.
      * @return this builder, for chaining.
      */
+    @CanIgnoreReturnValue
     public ValidationIssueBuilder withContexts(@Nullable Supplier<List<Context>> supplier) {
       if (supplier == null) {
         return this;

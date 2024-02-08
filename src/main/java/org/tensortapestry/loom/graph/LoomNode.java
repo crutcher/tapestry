@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -40,6 +41,7 @@ public final class LoomNode implements LoomNodeWrapper, HasToJsonString {
      * @return {@code this}
      */
     @Nonnull
+    @CanIgnoreReturnValue
     public Builder id(@Nonnull UUID value) {
       this.id = value;
       return this;
@@ -53,6 +55,7 @@ public final class LoomNode implements LoomNodeWrapper, HasToJsonString {
      */
     @Nonnull
     @JsonSetter
+    @CanIgnoreReturnValue
     public Builder body(@Nonnull Object value) {
       this.body = JsonViewWrapper.of(value);
       return this;
@@ -64,6 +67,7 @@ public final class LoomNode implements LoomNodeWrapper, HasToJsonString {
      * @return {@code this}
      */
     @Nonnull
+    @CanIgnoreReturnValue
     public Builder body(@Nonnull Supplier<Object> supplier) {
       this.body = JsonViewWrapper.of(supplier);
       return this;
@@ -77,6 +81,7 @@ public final class LoomNode implements LoomNodeWrapper, HasToJsonString {
      * @return {@code this}
      */
     @Nonnull
+    @CanIgnoreReturnValue
     public Builder annotation(@Nonnull String type, @Nonnull Object value) {
       if (this.annotations == null) {
         annotations(new HashMap<>());
@@ -92,6 +97,7 @@ public final class LoomNode implements LoomNodeWrapper, HasToJsonString {
      * @return {@code this}
      */
     @Nonnull
+    @CanIgnoreReturnValue
     public Builder withAnnotations(@Nonnull Map<String, Object> annotations) {
       annotations.forEach(this::annotation);
       return this;
@@ -226,6 +232,7 @@ public final class LoomNode implements LoomNodeWrapper, HasToJsonString {
    * @return {@code this}
    * @throws IllegalStateException if the node does not have the given type.
    */
+  @CanIgnoreReturnValue
   public LoomNode assertType(String type) {
     if (!this.type.equals(type)) {
       throw new IllegalStateException("Node type does not match: " + id);

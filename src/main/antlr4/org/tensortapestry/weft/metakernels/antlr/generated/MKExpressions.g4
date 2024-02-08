@@ -22,10 +22,10 @@ expr
 
 atom
     : val=integer # NumberExpr
-    | id=dotted_id # IdentifierExpr
+    | id=dottedId # IdentifierExpr
     ;
 
-dotted_id
+dottedId
     : ID (DOT ID)*
     ;
 

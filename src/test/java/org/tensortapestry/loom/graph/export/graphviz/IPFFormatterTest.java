@@ -9,18 +9,18 @@ import org.tensortapestry.zspace.ZTensor;
 
 public class IPFFormatterTest extends BaseTestClass implements XmlAssertions {
 
-    @Test
-    public void test_3x2() {
-        var ipf = ZRangeProjectionMap
-                .builder()
-                .affineMap(new int[][]{{1, 1, 0}, {0, 1, 1}})
-                .translate(2, 3)
-                .shape(4, 4)
-                .build();
+  @Test
+  public void test_3x2() {
+    var ipf = ZRangeProjectionMap
+      .builder()
+      .affineMap(new int[][] { { 1, 1, 0 }, { 0, 1, 1 } })
+      .translate(2, 3)
+      .shape(4, 4)
+      .build();
 
-        assertXmlEquals(
-                IPFFormatter.renderRangeProjectionMap(ipf),
-                """
+    assertXmlEquals(
+      IPFFormatter.renderRangeProjectionMap(ipf),
+      """
                         <table border="0" cellborder="0" cellspacing="0">
                           <tr>
                             <td>
@@ -43,21 +43,21 @@ public class IPFFormatterTest extends BaseTestClass implements XmlAssertions {
                           </tr>
                         </table>
                         """
-        );
-    }
+    );
+  }
 
-    @Test
-    public void test_2x1() {
-        var ipf = ZRangeProjectionMap
-                .builder()
-                .affineMap(new int[][]{{1}, {0}})
-                .translate(2, 3)
-                .shape(4, 4)
-                .build();
+  @Test
+  public void test_2x1() {
+    var ipf = ZRangeProjectionMap
+      .builder()
+      .affineMap(new int[][] { { 1 }, { 0 } })
+      .translate(2, 3)
+      .shape(4, 4)
+      .build();
 
-        assertXmlEquals(
-                IPFFormatter.renderRangeProjectionMap(ipf),
-                """
+    assertXmlEquals(
+      IPFFormatter.renderRangeProjectionMap(ipf),
+      """
                         <table border="0" cellborder="0" cellspacing="0">
                           <tr>
                             <td>
@@ -76,25 +76,25 @@ public class IPFFormatterTest extends BaseTestClass implements XmlAssertions {
                           </tr>
                         </table>
                         """
-        );
-    }
+    );
+  }
 
-    @Test
-    public void test_scalar() {
-        var ipf = ZRangeProjectionMap
-                .builder()
-                .affineMap(ZAffineMap.fromMatrix(ZTensor.newZeros(0, 3)))
-                .build();
+  @Test
+  public void test_scalar() {
+    var ipf = ZRangeProjectionMap
+      .builder()
+      .affineMap(ZAffineMap.fromMatrix(ZTensor.newZeros(0, 3)))
+      .build();
 
-        assertXmlEquals(
-                IPFFormatter.renderRangeProjectionMap(ipf),
-                """
+    assertXmlEquals(
+      IPFFormatter.renderRangeProjectionMap(ipf),
+      """
                         <table border="0" cellborder="0" cellspacing="0">
                           <tr>
                             <td>[−]<sub>0×3</sub> ⊕ []</td>
                           </tr>
                         </table>
                         """
-        );
-    }
+    );
+  }
 }

@@ -3,6 +3,7 @@ package org.tensortapestry.zspace;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.util.*;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -67,6 +68,7 @@ public class ZRange implements Cloneable, HasSize, HasPermute<ZRange>, HasJsonOu
      * @return {@code this}
      */
     @Nonnull
+    @CanIgnoreReturnValue
     public ZRangeBuilder shape(@Nonnull ZTensorWrapper shape) {
       this.shape = shape.unwrap();
       if (start == null) {
@@ -84,6 +86,7 @@ public class ZRange implements Cloneable, HasSize, HasPermute<ZRange>, HasJsonOu
      * @return {@code this}
      */
     @Nonnull
+    @CanIgnoreReturnValue
     public ZRangeBuilder shape(@Nonnull int... shape) {
       shape(new ZPoint(shape));
       return this;
@@ -96,6 +99,7 @@ public class ZRange implements Cloneable, HasSize, HasPermute<ZRange>, HasJsonOu
      * @return {@code this}
      */
     @Nonnull
+    @CanIgnoreReturnValue
     public ZRangeBuilder start(@Nonnull ZTensorWrapper start) {
       this.start = ZPoint.of(start);
       return this;
@@ -108,6 +112,7 @@ public class ZRange implements Cloneable, HasSize, HasPermute<ZRange>, HasJsonOu
      * @return {@code this}
      */
     @Nonnull
+    @CanIgnoreReturnValue
     public ZRangeBuilder start(@Nonnull int... start) {
       start(new ZPoint(start));
       return this;
@@ -120,6 +125,7 @@ public class ZRange implements Cloneable, HasSize, HasPermute<ZRange>, HasJsonOu
      * @return {@code this}
      */
     @Nonnull
+    @CanIgnoreReturnValue
     public ZRangeBuilder end(@Nonnull ZTensorWrapper end) {
       this.end = ZPoint.of(end);
       return this;
@@ -132,6 +138,7 @@ public class ZRange implements Cloneable, HasSize, HasPermute<ZRange>, HasJsonOu
      * @return {@code this}
      */
     @Nonnull
+    @CanIgnoreReturnValue
     public ZRangeBuilder end(@Nonnull int... end) {
       end(new ZPoint(end));
       return this;
