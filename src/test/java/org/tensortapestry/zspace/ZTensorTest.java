@@ -4,16 +4,36 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import java.lang.reflect.Array;
 import java.util.*;
 import java.util.function.IntBinaryOperator;
+import java.util.function.IntSupplier;
 import org.junit.jupiter.api.Test;
 import org.tensortapestry.zspace.exceptions.ZDimMissMatchError;
 import org.tensortapestry.zspace.experimental.ZSpaceTestAssertions;
 import org.tensortapestry.zspace.impl.ZSpaceJsonUtil;
-import org.tensortapestry.zspace.indexing.BufferOwnership;
-import org.tensortapestry.zspace.indexing.FlatArray;
-import org.tensortapestry.zspace.indexing.IterableCoordinates;
+import org.tensortapestry.zspace.indexing.*;
 import org.tensortapestry.zspace.ops.CellWiseOps;
 
 public class ZTensorTest implements ZSpaceTestAssertions {
+
+  @Test
+  public void test_select() {
+    var gen = new Random();
+
+    var t = ZTensor.newFilled(new int[] { 2, 3, 4, 5 }, (IntSupplier) gen::nextInt);
+
+    assertThat(t.select("1, +, ..., +, :, ::-2"))
+      .isEqualTo(
+        t.select(
+          new Index(1),
+          new NewAxis(),
+          new Ellipsis(),
+          new NewAxis(),
+          new Slice(null, null, null),
+          new Slice(null, null, -2)
+        )
+      )
+      .extracting(ZTensor::shapeAsList)
+      .isEqualTo(List.of(1, 3, 1, 4, 3));
+  }
 
   @Test
   public void test_allZero() {

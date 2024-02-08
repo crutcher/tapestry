@@ -23,10 +23,7 @@ import lombok.experimental.UtilityClass;
 import org.tensortapestry.zspace.exceptions.ZDimMissMatchError;
 import org.tensortapestry.zspace.impl.HasJsonOutput;
 import org.tensortapestry.zspace.impl.ZSpaceJsonUtil;
-import org.tensortapestry.zspace.indexing.BufferOwnership;
-import org.tensortapestry.zspace.indexing.FlatArray;
-import org.tensortapestry.zspace.indexing.IndexingFns;
-import org.tensortapestry.zspace.indexing.IterableCoordinates;
+import org.tensortapestry.zspace.indexing.*;
 import org.tensortapestry.zspace.ops.CellWiseOps;
 import org.tensortapestry.zspace.ops.ReduceOps;
 
@@ -224,6 +221,34 @@ public final class ZTensor
   }
 
   /**
+   * Construct a new mutable tensor filled with the given fill value.
+   *
+   * @param shape the shape of the tensor.
+   * @param generator the generator to fill the tensor with.
+   * @return a new mutable ZTensor.
+   */
+  @Nonnull
+  public static ZTensor newFilled(@Nonnull int[] shape, @Nonnull CellGenerator generator) {
+    var tensor = new ZTensor(shape);
+    tensor.fill(generator);
+    return tensor;
+  }
+
+  /**
+   * Construct a new mutable tensor filled with the given fill value.
+   *
+   * @param shape the shape of the tensor.
+   * @param generator the generator to fill the tensor with.
+   * @return a new mutable ZTensor.
+   */
+  @Nonnull
+  public static ZTensor newFilled(@Nonnull int[] shape, @Nonnull IntSupplier generator) {
+    var tensor = new ZTensor(shape);
+    tensor.fill(generator);
+    return tensor;
+  }
+
+  /**
    * Construct a new mutable ZTensor filled with the fill value with a shape like the given
    * ZTensor.
    *
@@ -234,6 +259,22 @@ public final class ZTensor
   @Nonnull
   public static ZTensor newFilledLike(@Nonnull ZTensorWrapper ref, int fill_value) {
     return newFilled(ref.unwrap().shape, fill_value);
+  }
+
+  /**
+   * Construct a new mutable ZTensor filled with the fill value with a shape like the given
+   * ZTensor.
+   *
+   * @param ref the ZTensor to copy the shape from.
+   * @param generator the generator to fill the tensor with.
+   * @return a new mutable ZTensor.
+   */
+  @Nonnull
+  public static ZTensor newFilledLike(
+    @Nonnull ZTensorWrapper ref,
+    @Nonnull CellGenerator generator
+  ) {
+    return newFilled(ref.unwrap().shape, generator);
   }
 
   /**
@@ -661,6 +702,73 @@ public final class ZTensor
   }
 
   /**
+   * Return a view of this tensor with the given dimensional selection.
+   *
+   * @param selectorExpr the selector expression.
+   * @return the view tensor.
+   */
+  @Nonnull
+  public ZTensor select(@Nonnull String selectorExpr) {
+    return select(Selector.parseSelectors(selectorExpr));
+  }
+
+  /**
+   * Return a view of this tensor with the given dimensional selection.
+   *
+   * @param selectors the selectors.
+   * @return the view tensor.
+   */
+  @Nonnull
+  public ZTensor select(@Nonnull Selector... selectors) {
+    return select(Arrays.asList(selectors));
+  }
+
+  /**
+   * Return a view of this tensor with the given dimensional selection.
+   *
+   * @param selectors the selectors.
+   * @return the view tensor.
+   */
+  @Nonnull
+  @SuppressWarnings("unused")
+  public ZTensor select(@Nonnull List<Selector> selectors) {
+    var ellipsisCount = selectors.stream().filter(selector -> selector instanceof Ellipsis).count();
+    if (ellipsisCount > 1) {
+      throw new IllegalArgumentException("Multiple ellipsis in selection: " + selectors);
+    }
+
+    int nextDim = 0;
+    var cur = this;
+
+    for (var selIdx = 0; selIdx < selectors.size(); selIdx++) {
+      var selector = selectors.get(selIdx);
+      switch (selector) {
+        case Index index -> cur = cur.selectDim(nextDim, index.getIndex()); // shrinks cur, so we don't increment nextDim.
+        case NewAxis newAxis -> {
+          cur = cur.unsqueeze(nextDim);
+          nextDim++;
+        }
+        case Slice slice -> {
+          cur = cur.sliceDim(nextDim, slice.getStart(), slice.getStop(), slice.getStep());
+          nextDim++;
+        }
+        case Ellipsis ellipsis -> {
+          var renaming = (int) selectors
+            .subList(selIdx + 1, selectors.size())
+            .stream()
+            .filter(s -> !(s instanceof NewAxis))
+            .count();
+
+          var skipDims = selectors.size() - selIdx - 1 - renaming;
+          nextDim += skipDims;
+        }
+        case null, default -> throw new IllegalArgumentException("Unknown selector: " + selector);
+      }
+    }
+    return cur;
+  }
+
+  /**
    * Compute the ravel index into the data array for the given coordinates.
    *
    * @param coords the coordinates.
@@ -739,6 +847,30 @@ public final class ZTensor
       for (int[] coords : byCoords(BufferOwnership.REUSED)) {
         _unchecked_set(coords, fill_value);
       }
+    }
+  }
+
+  /**
+   * Fill the tensor with generated values.
+   *
+   * @param generator the generator.
+   */
+  public void fill(@Nonnull CellGenerator generator) {
+    assertMutable();
+    for (int[] coords : byCoords(BufferOwnership.REUSED)) {
+      _unchecked_set(coords, generator.generate(coords));
+    }
+  }
+
+  /**
+   * Fill the tensor with generated values.
+   *
+   * @param generator the supplier.
+   */
+  public void fill(@Nonnull IntSupplier generator) {
+    assertMutable();
+    for (int[] coords : byCoords(BufferOwnership.REUSED)) {
+      _unchecked_set(coords, generator.getAsInt());
     }
   }
 
@@ -1485,6 +1617,66 @@ public final class ZTensor
     int new_offset = data_offset + i * stride[d];
 
     return new ZTensor(mutable, new_shape, new_stride, data, new_offset).squeeze(d);
+  }
+
+  /**
+   * Return a view of this tensor with the given dimension sliced.
+   *
+   * @param dim the dimension to slice.
+   * @param start the start index, inclusive; may be negative.
+   * @param end the end index, exclusive; may be negative.
+   * @param step the step size; may be negative.
+   * @return a view of this tensor with the given dimension sliced.
+   */
+  @Nonnull
+  public ZTensor sliceDim(int dim, Integer start, Integer end, Integer step) {
+    var d = resolveDim(dim);
+
+    if (start == null && end == null && step != null && step < 0) {
+      start = shape[d] - 1;
+      end = -shape[d];
+    }
+
+    if (start == null) {
+      start = 0;
+    }
+    if (end == null) {
+      end = shape[d];
+    }
+    start = IndexingFns.resolveIndex("start", start, shape[d]);
+    end = IndexingFns.resolveIndex("end", end, shape[d] + 1);
+
+    if (step == null) {
+      step = (start < end) ? 1 : -1;
+    }
+
+    if (step == 0) {
+      throw new IllegalArgumentException("slice step cannot be zero");
+    } else if (step > 0 && start > end) {
+      throw new IllegalArgumentException(
+        "slice start (%d) must be less than end (%d) for positive step (%d)".formatted(
+            start,
+            end,
+            step
+          )
+      );
+    } else if (step < 0 && start < end) {
+      throw new IllegalArgumentException(
+        "slice start (%d) must be greater than end (%d) for negative step (%d)".formatted(
+            start,
+            end,
+            step
+          )
+      );
+    }
+
+    var new_shape = shapeAsArray();
+    new_shape[d] = (end - start + step - 1) / step;
+    var new_stride = stride.clone();
+    new_stride[d] *= step;
+    int new_offset = data_offset + start * stride[d];
+
+    return new ZTensor(mutable, new_shape, new_stride, data, new_offset);
   }
 
   /**
