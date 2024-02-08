@@ -767,7 +767,7 @@ public final class ZTensor
           cur = cur.broadcastDim(nextDim - 1, newAxis.getSize());
         }
         case Slice slice -> {
-          cur = cur.sliceDim(nextDim, slice.getStart(), slice.getStop(), slice.getStep());
+          cur = cur.sliceDim(nextDim, slice);
           nextDim++;
         }
         case Ellipsis ellipsis -> {
@@ -1640,19 +1640,6 @@ public final class ZTensor
   /**
    * Return a view of this tensor with the given dimension sliced.
    *
-   * @param dim the dimension to slice.
-   * @param start the start index, inclusive; may be negative.
-   * @param end the end index, exclusive; may be negative.
-   * @return a view of this tensor with the given dimension sliced.
-   */
-  @Nonnull
-  public ZTensor sliceDim(int dim, @Nullable Integer start, @Nullable Integer end) {
-    return sliceDim(dim, start, end, null);
-  }
-
-  /**
-   * Return a view of this tensor with the given dimension sliced.
-   *
    * <p>Supports negative indexing - i.e. -1 represents the last index, -2 represents the
    * second.</p>
    *
@@ -1663,19 +1650,16 @@ public final class ZTensor
    *     </ul>
    *
    * @param dim the dimension to slice.
-   * @param start the start index, inclusive; may be negative.
-   * @param end the end index, exclusive; may be negative.
-   * @param step the step size; may be negative.
+   * @param slice the slice description..
    * @return a view of this tensor with the given dimension sliced.
    */
   @Nonnull
-  public ZTensor sliceDim(
-    int dim,
-    @Nullable Integer start,
-    @Nullable Integer end,
-    @Nullable Integer step
-  ) {
+  public ZTensor sliceDim(int dim, @Nonnull Slice slice) {
     var d = resolveDim(dim);
+
+    var start = slice.getStart();
+    var end = slice.getEnd();
+    var step = slice.getStep();
 
     if (step == null || step > 0) {
       if (start == null) {
@@ -1700,21 +1684,23 @@ public final class ZTensor
     end = IndexingFns.resolveEndIndex("end", end, shape[d]);
 
     if (step == 0) {
-      throw new IllegalArgumentException("slice step cannot be zero");
+      throw new IllegalArgumentException("slice step cannot be zero: " + slice);
     } else if (step > 0 && start > end) {
       throw new IllegalArgumentException(
-        "slice start (%d) must be less than end (%d) for positive step (%d)".formatted(
+        "slice start (%d) must be less than end (%d) for positive step (%d): %s".formatted(
             start,
             end,
-            step
+            step,
+            slice
           )
       );
     } else if (step < 0 && start < end) {
       throw new IllegalArgumentException(
-        "slice start (%d) must be greater than end (%d) for negative step (%d)".formatted(
+        "slice start (%d) must be greater than end (%d) for negative step (%d): %s".formatted(
             start,
             end,
-            step
+            step,
+            slice
           )
       );
     }

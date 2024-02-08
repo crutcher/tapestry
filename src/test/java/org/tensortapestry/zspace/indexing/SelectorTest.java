@@ -36,7 +36,7 @@ class SelectorTest implements WithAssertions {
   @Test
   public void test_slice_builders() {
     assertThat(Selector.sliceBuilder().start(1).build()).isEqualTo(new Slice(1, null, null));
-    assertThat(Selector.sliceBuilder().stop(2).build()).isEqualTo(new Slice(null, 2, null));
+    assertThat(Selector.sliceBuilder().end(2).build()).isEqualTo(new Slice(null, 2, null));
     assertThat(Selector.sliceBuilder().step(-2).build()).isEqualTo(new Slice(null, null, -2));
 
     assertThat(Selector.slice()).isEqualTo(new Slice(null, null, null));

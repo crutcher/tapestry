@@ -118,7 +118,10 @@ public class IndexingFns {
   }
 
   /**
-   * Resolve an inclusive end dimension index with negative indexing.
+   * Resolve an exclusive end dimension index with negative indexing.
+   *
+   * <p>Intended for use with exclusive end dimensions, so 1 element before
+   * and after the last array element are legal results.</p>
    *
    * @param msg the dimension name.
    * @param idx the index.
@@ -132,7 +135,7 @@ public class IndexingFns {
 
     if (idx >= bounds || idx < -bounds) {
       throw new IndexOutOfBoundsException(
-        String.format("%s: index %d out of range [0, %d]", msg, idx, bounds)
+        String.format("%s: end index %d out of range [-1, %d]", msg, idx, size)
       );
     }
 

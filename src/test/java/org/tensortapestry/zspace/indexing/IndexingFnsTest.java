@@ -43,6 +43,26 @@ public class IndexingFnsTest implements ZSpaceTestAssertions {
   }
 
   @Test
+  public void test_resolveEndIndex() {
+    assertThat(IndexingFns.resolveEndIndex("test", 0, 3)).isEqualTo(0);
+    assertThat(IndexingFns.resolveEndIndex("test", 2, 3)).isEqualTo(2);
+    assertThat(IndexingFns.resolveEndIndex("test", 3, 3)).isEqualTo(3);
+
+    assertThat(IndexingFns.resolveEndIndex("test", -1, 3)).isEqualTo(2);
+    assertThat(IndexingFns.resolveEndIndex("test", -2, 3)).isEqualTo(1);
+    assertThat(IndexingFns.resolveEndIndex("test", -3, 3)).isEqualTo(0);
+    assertThat(IndexingFns.resolveEndIndex("test", -4, 3)).isEqualTo(-1);
+
+    assertThatExceptionOfType(IndexOutOfBoundsException.class)
+      .isThrownBy(() -> IndexingFns.resolveEndIndex("test", 4, 3))
+      .withMessageContaining("test: end index 4 out of range [-1, 3]");
+
+    assertThatExceptionOfType(IndexOutOfBoundsException.class)
+      .isThrownBy(() -> IndexingFns.resolveEndIndex("test", -5, 3))
+      .withMessageContaining("test: end index -5 out of range [-1, 3]");
+  }
+
+  @Test
   public void test_resolveDim() {
     assertThat(IndexingFns.resolveDim(0, 3)).isEqualTo(0);
     assertThat(IndexingFns.resolveDim(2, 3)).isEqualTo(2);
@@ -147,7 +167,6 @@ public class IndexingFnsTest implements ZSpaceTestAssertions {
       .withMessageContaining("shape [2, 3] and coords [0] must have the same dimensions");
   }
 
-  @SuppressWarnings("ResultOfMethodCallIgnored")
   @Test
   public void test_shapeToLFSStrides() {
     assertThat(IndexingFns.shapeToLSFStrides(new int[] { 2, 1, 3 }))

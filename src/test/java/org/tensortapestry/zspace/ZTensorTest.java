@@ -60,21 +60,29 @@ public class ZTensorTest implements ZSpaceTestAssertions {
   public void test_sliceDim() {
     var t = ZTensor.newFromArray(new int[][] { { 2, 3, 4 }, { 5, 6, 7 } });
 
-    assertThat(t.sliceDim(1, null, null, null))
-      .isSameAs(t.sliceDim(1, 0, 3, 1))
-      .isSameAs(t.sliceDim(1, -3, null, 1))
+    assertThat(t.sliceDim(1, new Slice()))
+      .isSameAs(t.sliceDim(1, new Slice(0, 3, 1)))
+      .isSameAs(t.sliceDim(1, new Slice(-3, null, 1)))
       .isSameAs(t);
 
-    assertThat(t.sliceDim(1, null, null)).isEqualTo(t);
-
-    assertThat(t.sliceDim(1, 1, 3))
-      .isEqualTo(t.sliceDim(1, 1, null))
-      .isEqualTo(t.sliceDim(1, 1, 3, 1))
-      .isEqualTo(t.sliceDim(1, -2, null, null))
+    assertThat(t.sliceDim(1, new Slice(1, 3)))
+      .isEqualTo(t.sliceDim(1, new Slice(1, null)))
+      .isEqualTo(t.sliceDim(1, new Slice(1, 3, 1)))
+      .isEqualTo(t.sliceDim(1, new Slice(-2, null)))
       .isEqualTo(ZTensor.newFromArray(new int[][] { { 3, 4 }, { 6, 7 } }));
 
-    assertThat(ZTensor.newZeros(3).sliceDim(0, -2, null, -1))
+    assertThat(ZTensor.newZeros(3).sliceDim(0, new Slice(-2, null, -1)))
       .isEqualTo(ZTensor.newFromArray(new int[] { 0, 0 }));
+
+    assertThatExceptionOfType(IllegalArgumentException.class)
+      .isThrownBy(() -> ZTensor.newZeros(3).sliceDim(0, new Slice(null, null, 0)))
+      .withMessage("slice step cannot be zero: ::0");
+    assertThatExceptionOfType(IllegalArgumentException.class)
+      .isThrownBy(() -> ZTensor.newZeros(3).sliceDim(0, new Slice(1, 0)))
+      .withMessage("slice start (1) must be less than end (0) for positive step (1): 1:0");
+    assertThatExceptionOfType(IllegalArgumentException.class)
+      .isThrownBy(() -> ZTensor.newZeros(3).sliceDim(0, new Slice(0, 1, -1)))
+      .withMessage("slice start (0) must be greater than end (1) for negative step (-1): 0:1:-1");
   }
 
   @Test
