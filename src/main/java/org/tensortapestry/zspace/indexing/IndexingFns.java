@@ -256,7 +256,7 @@ public class IndexingFns {
    * @param permutation the permutation
    * @return the shared length
    */
-  private int _checkResolvedPermutation(@Nonnull Object arr, @Nonnull int[] permutation) {
+  private int checkResolvedPermutation(@Nonnull Object arr, @Nonnull int[] permutation) {
     var length = Array.getLength(arr);
 
     if (length != permutation.length) {
@@ -281,7 +281,7 @@ public class IndexingFns {
    */
   @Nonnull
   public <T> T[] applyResolvedPermutation(@Nonnull T[] arr, @Nonnull int[] permutation) {
-    int length = _checkResolvedPermutation(arr, permutation);
+    int length = checkResolvedPermutation(arr, permutation);
     var res = arr.clone();
     for (int i = 0; i < length; ++i) {
       res[i] = arr[permutation[i]];
@@ -298,7 +298,7 @@ public class IndexingFns {
    */
   @Nonnull
   public int[] applyResolvedPermutation(@Nonnull int[] arr, @Nonnull int[] permutation) {
-    int length = _checkResolvedPermutation(arr, permutation);
+    int length = checkResolvedPermutation(arr, permutation);
     var res = arr.clone();
     for (int i = 0; i < length; ++i) {
       res[i] = arr[permutation[i]];
@@ -363,7 +363,7 @@ public class IndexingFns {
    * @return a new array of strides.
    */
   @Nonnull
-  public int[] shapeToLSFStrides(@Nonnull int[] shape) {
+  public int[] shapeToLfsStrides(@Nonnull int[] shape) {
     var stride = new int[shape.length];
     if (shape.length == 0) {
       return stride;

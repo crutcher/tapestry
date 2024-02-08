@@ -32,7 +32,7 @@ public class JsonSchemaFactoryManager {
 
   private final Map<URI, String> schemas = new HashMap<>();
 
-  private static URI baseURL(URI uri) {
+  private static URI baseUrl(URI uri) {
     uri = uri.normalize();
     try {
       return new URI(uri.getScheme(), uri.getAuthority(), uri.getPath(), uri.getQuery(), null);
@@ -44,7 +44,7 @@ public class JsonSchemaFactoryManager {
   private final Map<String, String> resourceDirMap = new HashMap<>();
 
   private final URIFetcher uriFetcher = uri -> {
-    URI burl = baseURL(uri);
+    URI burl = baseUrl(uri);
 
     var schemaSource = schemas.get(burl);
     if (schemaSource != null) {
@@ -128,7 +128,7 @@ public class JsonSchemaFactoryManager {
     if (uri.getFragment() != null) {
       throw new IllegalArgumentException("URI must not have a fragment: " + uri);
     }
-    URI normUri = baseURL(uri);
+    URI normUri = baseUrl(uri);
     if (hasSchema(normUri)) {
       throw new IllegalArgumentException("Schema already registered for URI: " + normUri);
     }

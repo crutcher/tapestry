@@ -21,12 +21,12 @@ public class ResourceHandle {
     this.path = path;
     this.classLoader = classLoader;
 
-    if (getURL() == null) {
+    if (getUrl() == null) {
       throw new IllegalArgumentException("Resource not found: " + path);
     }
   }
 
-  public URL getURL() {
+  public URL getUrl() {
     return classLoader.getResource(path);
   }
 

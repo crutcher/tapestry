@@ -276,6 +276,7 @@ public final class LoomGraph implements HasToJsonString, StreamableIterable<Loom
    */
   @Nonnull
   @CanIgnoreReturnValue
+  @SuppressWarnings("ReferenceEquality")
   public LoomNode addNode(@Nonnull LoomNodeWrapper wrapper) {
     var node = wrapper.unwrap();
 

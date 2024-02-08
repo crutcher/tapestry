@@ -41,7 +41,7 @@ public class JsonViewWrapper {
     return objectValue == null;
   }
 
-  private JsonNode _asTree() {
+  private JsonNode nonUpdatingTreeView() {
     if (objectValue != null) {
       return JsonUtil.convertValue(objectValue, JsonNode.class);
     }
@@ -53,7 +53,7 @@ public class JsonViewWrapper {
   @CanIgnoreReturnValue
   public synchronized JsonNode viewAsJsonNode() {
     if (objectValue != null) {
-      setValue(_asTree());
+      setValue(nonUpdatingTreeView());
     }
     assert jsonValue != null;
     return jsonValue;
@@ -78,11 +78,11 @@ public class JsonViewWrapper {
   public synchronized boolean equals(Object o) {
     if (this == o) return true;
     if (!(o instanceof JsonViewWrapper wrapper)) return false;
-    return _asTree().equals(wrapper._asTree());
+    return nonUpdatingTreeView().equals(wrapper.nonUpdatingTreeView());
   }
 
   @Override
   public int hashCode() {
-    return _asTree().hashCode();
+    return nonUpdatingTreeView().hashCode();
   }
 }

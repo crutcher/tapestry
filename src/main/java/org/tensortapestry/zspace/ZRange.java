@@ -521,7 +521,7 @@ public class ZRange implements Cloneable, HasSize, HasPermute<ZRange>, HasJsonOu
     }
     chunks[numChunks - 1] = dimSize - (numChunks - 1) * chunkSize;
 
-    return _split(dim, chunks);
+    return splitImpl(dim, chunks);
   }
 
   /**
@@ -565,7 +565,7 @@ public class ZRange implements Cloneable, HasSize, HasPermute<ZRange>, HasJsonOu
       );
     }
 
-    return _split(dim, chunks);
+    return splitImpl(dim, chunks);
   }
 
   /**
@@ -578,7 +578,7 @@ public class ZRange implements Cloneable, HasSize, HasPermute<ZRange>, HasJsonOu
    * @return the sub-ranges.
    */
   @Nonnull
-  private ZRange[] _split(int dim, int... chunks) {
+  private ZRange[] splitImpl(int dim, int... chunks) {
     int numChunks = chunks.length;
 
     if (numChunks == 1) {

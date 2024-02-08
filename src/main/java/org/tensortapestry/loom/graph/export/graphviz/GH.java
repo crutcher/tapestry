@@ -583,7 +583,7 @@ public class GH {
      * @return {@code this}
      */
     @CanIgnoreReturnValue
-    public FontWrapper point_size(int size) {
+    public FontWrapper pointSize(int size) {
       attr("point-size", size);
       return this;
     }

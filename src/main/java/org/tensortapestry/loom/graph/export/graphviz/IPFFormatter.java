@@ -12,7 +12,7 @@ public class IPFFormatter {
    * @param ipf the ZRangeProjectionMap.
    * @return the Graphviz HTML Label element.
    */
-  public GH.TableWrapper renderIPF(ZRangeProjectionMap ipf) {
+  public GH.TableWrapper renderRangeProjectionMap(ZRangeProjectionMap ipf) {
     var affineMap = ipf.getAffineMap();
 
     var tableWrapper = GH.table().border(0).cellborder(0).cellspacing(0);
