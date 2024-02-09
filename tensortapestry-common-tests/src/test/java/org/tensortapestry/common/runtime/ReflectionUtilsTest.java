@@ -37,8 +37,9 @@ public class ReflectionUtilsTest implements CommonAssertions {
 
     public int abc;
 
-    public Example(String abc) {
-      this(Integer.parseInt(abc));
+    @SuppressWarnings("unused")
+    public Example(String src) {
+      this.abc = Integer.parseInt(src);
     }
   }
 
@@ -47,24 +48,24 @@ public class ReflectionUtilsTest implements CommonAssertions {
     assertThat(ReflectionUtils.newInstance(Example.class, "123")).isEqualTo(new Example(123));
 
     assertThatExceptionOfType(RuntimeException.class)
-      .isThrownBy(() -> ReflectionUtils.newInstance(Example.class, new Object()))
-      .withCauseInstanceOf(NoSuchMethodException.class);
+        .isThrownBy(() -> ReflectionUtils.newInstance(Example.class, new Object()))
+        .withCauseInstanceOf(NoSuchMethodException.class);
   }
 
   @Test
   @SuppressWarnings("unchecked")
   public void testGetTypeArgumentsForGenericSuperclass() {
     assertThatExceptionOfType(IllegalArgumentException.class)
-      .isThrownBy(() ->
-        ReflectionUtils.getTypeArgumentsForGenericSuperclass(
-          (Class<? extends Base<?, ?>>) (Class<?>) Integer.class,
-          Base.class
-        )
-      );
+        .isThrownBy(() ->
+            ReflectionUtils.getTypeArgumentsForGenericSuperclass(
+                (Class<? extends Base<?, ?>>) (Class<?>) Integer.class,
+                Base.class
+            )
+        );
     assertThat(ReflectionUtils.getTypeArgumentsForGenericSuperclass(Level1.class, Base.class))
-      .containsExactly(String.class, Integer.class);
+        .containsExactly(String.class, Integer.class);
     assertThat(ReflectionUtils.getTypeArgumentsForGenericSuperclass(Level2.class, Base.class))
-      .containsExactly(String.class, Integer.class);
+        .containsExactly(String.class, Integer.class);
   }
 
   @Test
@@ -76,17 +77,19 @@ public class ReflectionUtilsTest implements CommonAssertions {
       }
     }
 
-    class A {}
-    class B extends A implements I {}
+    class A {
+    }
+    class B extends A implements I {
+    }
 
     assertThat(new B().foo()).isEqualTo(2);
 
     ReflectionUtils.checkIsSubclass(B.class, A.class);
     assertThatExceptionOfType(ClassCastException.class)
-      .isThrownBy(() -> ReflectionUtils.checkIsSubclass(A.class, B.class));
+        .isThrownBy(() -> ReflectionUtils.checkIsSubclass(A.class, B.class));
 
     ReflectionUtils.checkIsSubclass(B.class, I.class);
     assertThatExceptionOfType(ClassCastException.class)
-      .isThrownBy(() -> ReflectionUtils.checkIsSubclass(A.class, I.class));
+        .isThrownBy(() -> ReflectionUtils.checkIsSubclass(A.class, I.class));
   }
 }

@@ -6,10 +6,10 @@ import java.util.List;
 import java.util.Map;
 import lombok.Builder;
 import lombok.Data;
+import lombok.Value;
 import lombok.extern.jackson.Jacksonized;
 import org.junit.jupiter.api.Test;
 import org.tensortapestry.common.testing.CommonAssertions;
-import org.tensortapestry.zspace.ZTensor;
 
 public class JsonViewWrapperTest implements CommonAssertions, JsonUtil.WithNodeBuilders {
 
@@ -57,17 +57,26 @@ public class JsonViewWrapperTest implements CommonAssertions, JsonUtil.WithNodeB
     }
   }
 
+  @Value
+  @Jacksonized
+  @Builder
+  public static class Example {
+
+    List<Integer> data;
+  }
+
   @Test
   public void test_view_map() {
-    var vm = ExpNode
-      .builder()
-      .body(ZTensor.newVector(1, 2, 3))
-      .annotation("abc", ZTensor.newVector(4, 5, 6))
-      .build();
+    var example1 = Example.builder().data(List.of(1, 2, 3)).build();
+    var example2 = Example.builder().data(List.of(4, 5, 6)).build();
+    var vm = ExpNode.builder().body(example1).annotation("abc", example2).build();
 
-    assertThat(vm.getBody().viewAs(ZTensor.class)).isEqualTo(ZTensor.newVector(1, 2, 3));
+    assertThat(vm.getBody().viewAs(Example.class)).isEqualTo(example1);
 
-    assertJsonEquals(vm, "{\"body\":[1,2,3], \"annotations\":{\"abc\":[4,5,6]}}");
+    assertJsonEquals(
+      vm,
+      "{\"body\":{\"data\":[1,2,3]}, \"annotations\":{\"abc\":{\"data\":[4,5,6]}}}"
+    );
   }
 
   @Test
@@ -78,21 +87,22 @@ public class JsonViewWrapperTest implements CommonAssertions, JsonUtil.WithNodeB
 
   @Test
   public void test_raw_container() {
-    var wrapper = new JsonViewWrapper(arrayNode().add(1).add(2).add(3));
+    String source = "{\"data\": [1,2,3]}";
+    var wrapper = new JsonViewWrapper(JsonUtil.parseToJsonNodeTree(source));
 
-    assertEquivalentJson(JsonUtil.toJson(wrapper), "[1,2,3]");
-    JsonUtil.fromJson("[1,2,3]", JsonViewWrapper.class);
+    assertEquivalentJson(JsonUtil.toJson(wrapper), source);
+    JsonUtil.fromJson(source, JsonViewWrapper.class);
 
-    assertJsonEquals(wrapper, "[1,2,3]");
+    assertJsonEquals(wrapper, source);
 
-    assertThat(wrapper.viewAs(ZTensor.class))
-      .isSameAs(wrapper.viewAs(ZTensor.class))
-      .isEqualTo(ZTensor.newVector(1, 2, 3));
+    assertThat(wrapper.viewAs(Example.class))
+      .isSameAs(wrapper.viewAs(Example.class))
+      .isEqualTo(Example.builder().data(List.of(1, 2, 3)).build());
 
-    assertThat(wrapper.viewAs(List.class)).isEqualTo(List.of(1, 2, 3));
+    assertThat(wrapper.viewAs(Object.class)).isEqualTo(Map.of("data", List.of(1, 2, 3)));
 
     assertThatExceptionOfType(ViewConversionError.class)
       .isThrownBy(() -> wrapper.viewAs(Float.class))
-      .withMessageContaining("Failed to convert [1,2,3] to class java.lang.Float");
+      .withMessageContaining("Failed to convert <{\"data\":[1,2,3]}> to class java.lang.Float");
   }
 }

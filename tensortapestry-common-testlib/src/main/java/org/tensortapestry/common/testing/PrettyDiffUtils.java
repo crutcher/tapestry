@@ -1,8 +1,9 @@
-package org.tensortapestry.common.text;
+package org.tensortapestry.common.testing;
 
 import com.google.common.base.Splitter;
 import java.util.List;
 import org.assertj.core.util.diff.DiffUtils;
+import org.tensortapestry.common.text.IndentUtils;
 
 public class PrettyDiffUtils {
 
