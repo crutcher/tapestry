@@ -442,6 +442,27 @@
           </reportSets>
           -->
         </plugin>
+
+        <plugin>
+          <groupId>org.antlr</groupId>
+          <artifactId>antlr4-maven-plugin</artifactId>
+          <version>${antlr.version}</version>
+          <executions>
+            <execution>
+              <phase>generate-sources</phase>
+              <id>antlr</id>
+              <goals>
+                <goal>antlr4</goal>
+              </goals>
+            </execution>
+          </executions>
+          <configuration>
+            <arguments>
+              <argument>-visitor</argument>
+            </arguments>
+          </configuration>
+        </plugin>
+
         <plugin>
           <groupId>org.projectlombok</groupId>
           <artifactId>lombok-maven-plugin</artifactId>
@@ -476,24 +497,6 @@
             <sourcepath>${project.build.directory}/delombok</sourcepath>
           </configuration>
         </plugin>
-        <plugin>
-          <groupId>org.antlr</groupId>
-          <artifactId>antlr4-maven-plugin</artifactId>
-          <version>${antlr.version}</version>
-          <executions>
-            <execution>
-              <id>antlr</id>
-              <goals>
-                <goal>antlr4</goal>
-              </goals>
-            </execution>
-          </executions>
-          <configuration>
-            <arguments>
-              <argument>-visitor</argument>
-            </arguments>
-          </configuration>
-        </plugin>
 
       </plugins>
     </pluginManagement>
@@ -518,6 +521,12 @@
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>versions-maven-plugin</artifactId>
       </plugin>
+
+      <plugin>
+        <groupId>org.antlr</groupId>
+        <artifactId>antlr4-maven-plugin</artifactId>
+      </plugin>
+
       <plugin>
         <groupId>org.projectlombok</groupId>
         <artifactId>lombok-maven-plugin</artifactId>
@@ -526,10 +535,6 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
-      </plugin>
-      <plugin>
-        <groupId>org.antlr</groupId>
-        <artifactId>antlr4-maven-plugin</artifactId>
       </plugin>
     </plugins>
   </build>
