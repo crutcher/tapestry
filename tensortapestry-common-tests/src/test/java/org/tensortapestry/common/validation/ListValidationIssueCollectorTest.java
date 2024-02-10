@@ -24,15 +24,15 @@ public class ListValidationIssueCollectorTest implements CommonAssertions {
     assertThat(collector.getIssues()).hasSize(2);
 
     assertThat(collector.toDisplayString())
-        .isEqualTo(
-            """
+      .isEqualTo(
+        """
                 Validation failed with 2 issues:
 
                 * Error [foo]: a test
 
                 * Error [bar]: xyz
                 """
-        );
+      );
 
     assertThatExceptionOfType(LoomValidationError.class).isThrownBy(collector::check);
   }

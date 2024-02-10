@@ -22,12 +22,12 @@ public class HasToJsonStringTest implements CommonAssertions {
     var example = Example.builder().name("John").age(42).build();
     assertThat("{\"name\":\"John\",\"age\":42}").isEqualTo(example.toJsonString());
     assertThat(example.toPrettyJsonString())
-        .isEqualTo(
-            """
+      .isEqualTo(
+        """
                 {
                   "name" : "John",
                   "age" : 42
                 }"""
-        );
+      );
   }
 }

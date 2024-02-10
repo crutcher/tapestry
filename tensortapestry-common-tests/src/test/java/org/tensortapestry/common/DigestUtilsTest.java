@@ -7,8 +7,8 @@ public class DigestUtilsTest implements CommonAssertions {
 
   @Test
   public void test_bytesToHex() {
-    assertThat(DigestUtils.bytesToHex(new byte[]{0x01, 0x02, 0x03, 0x04, (byte) 0xff}))
-        .isEqualTo("01020304ff");
+    assertThat(DigestUtils.bytesToHex(new byte[] { 0x01, 0x02, 0x03, 0x04, (byte) 0xff }))
+      .isEqualTo("01020304ff");
   }
 
   @Test
@@ -16,9 +16,9 @@ public class DigestUtilsTest implements CommonAssertions {
     var d = DigestUtils.getMD5Digest();
 
     assertThat(d)
-        .isInstanceOf(java.security.MessageDigest.class)
-        .extracting("algorithm")
-        .isEqualTo("MD5");
+      .isInstanceOf(java.security.MessageDigest.class)
+      .extracting("algorithm")
+      .isEqualTo("MD5");
   }
 
   @Test

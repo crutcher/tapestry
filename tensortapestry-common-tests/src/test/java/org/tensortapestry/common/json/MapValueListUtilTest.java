@@ -2,11 +2,9 @@ package org.tensortapestry.common.json;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-
 import lombok.Data;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.jackson.Jacksonized;
@@ -31,7 +29,7 @@ public class MapValueListUtilTest implements CommonAssertions {
     private final Map<UUID, Node> nodes = new HashMap<>();
 
     public static class NodeListToMapDeserializer
-        extends MapValueListUtil.MapDeserializer<UUID, Node> {
+      extends MapValueListUtil.MapDeserializer<UUID, Node> {
 
       public NodeListToMapDeserializer() {
         super(Node.class, Node::getId, HashMap::new);
@@ -42,7 +40,7 @@ public class MapValueListUtilTest implements CommonAssertions {
   @Test
   public void testBasic() {
     String json =
-        """
+      """
             {
               "nodes": [
                  {
@@ -54,9 +52,9 @@ public class MapValueListUtilTest implements CommonAssertions {
 
     var doc = new TestDoc();
     var node = TestDoc.Node
-        .builder()
-        .id(UUID.fromString("00000000-0000-0000-0000-000000000000"))
-        .build();
+      .builder()
+      .id(UUID.fromString("00000000-0000-0000-0000-000000000000"))
+      .build();
     doc.nodes.put(node.getId(), node);
 
     assertJsonEquals(doc, json);

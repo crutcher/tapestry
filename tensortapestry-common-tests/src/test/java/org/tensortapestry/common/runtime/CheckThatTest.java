@@ -12,11 +12,11 @@ public class CheckThatTest implements CommonAssertions {
     CheckThat.valueIsNotNull("foo", RuntimeException.class, "bar %s", "baz");
 
     assertThatExceptionOfType(RuntimeException.class)
-        .isThrownBy(() -> CheckThat.valueIsNotNull(null, RuntimeException.class, "bar"))
-        .withMessage("bar");
+      .isThrownBy(() -> CheckThat.valueIsNotNull(null, RuntimeException.class, "bar"))
+      .withMessage("bar");
 
     assertThatExceptionOfType(RuntimeException.class)
-        .isThrownBy(() -> CheckThat.valueIsNotNull(null, RuntimeException.class, "bar %s", "baz"))
-        .withMessage("bar baz");
+      .isThrownBy(() -> CheckThat.valueIsNotNull(null, RuntimeException.class, "bar %s", "baz"))
+      .withMessage("bar baz");
   }
 }

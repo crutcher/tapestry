@@ -16,6 +16,9 @@ import org.tensortapestry.weft.metakernels.antlr.generated.DimShapePatternLexer;
 import org.tensortapestry.weft.metakernels.antlr.generated.DimShapePatternParser;
 import org.tensortapestry.zspace.indexing.IndexingFns;
 
+/**
+ * The DimShapeMatcher class is used for matching and parsing dimensional shape patterns.
+ */
 @Value
 public class DimShapeMatcher {
 
@@ -106,9 +109,12 @@ public class DimShapeMatcher {
     abstract Stream<ShapePattern> flatLeaves();
   }
 
+  /**
+   * Common base class for index groups.
+   */
   @Data
   @SuperBuilder
-  public static class DimGroupBase {
+  public abstract static class DimGroupBase {
 
     int size;
 

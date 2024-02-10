@@ -25,10 +25,10 @@ public class ThunkTest implements CommonAssertions {
       throw new RuntimeException("boo");
     });
     assertThatExceptionOfType(RuntimeException.class)
-        .isThrownBy(t::get)
-        .withMessageContaining("boo");
+      .isThrownBy(t::get)
+      .withMessageContaining("boo");
     assertThatExceptionOfType(RuntimeException.class)
-        .isThrownBy(t::get)
-        .withMessageContaining("boo");
+      .isThrownBy(t::get)
+      .withMessageContaining("boo");
   }
 }
