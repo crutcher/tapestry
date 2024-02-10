@@ -1,10 +1,11 @@
 package org.tensortapestry.common.text;
 
 import java.util.List;
-import org.junit.jupiter.api.Test;
-import org.tensortapestry.common.testing.BaseTestClass;
 
-public class TextUtilsTest extends BaseTestClass {
+import org.junit.jupiter.api.Test;
+import org.tensortapestry.common.testing.CommonAssertions;
+
+public class TextUtilsTest implements CommonAssertions {
 
   @Test
   public void test_longestCommonPrefix() {

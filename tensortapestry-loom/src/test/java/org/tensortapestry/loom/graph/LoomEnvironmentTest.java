@@ -1,11 +1,11 @@
 package org.tensortapestry.loom.graph;
 
 import org.junit.jupiter.api.Test;
-import org.tensortapestry.common.testing.BaseTestClass;
+import org.tensortapestry.common.testing.CommonAssertions;
 import org.tensortapestry.common.validation.ValidationIssueCollector;
 import org.tensortapestry.loom.graph.dialects.tensorops.TensorNode;
 
-public class LoomEnvironmentTest extends BaseTestClass {
+public class LoomEnvironmentTest implements CommonAssertions {
 
   @Test
   public void test_toString() {
@@ -28,21 +28,21 @@ public class LoomEnvironmentTest extends BaseTestClass {
   public void testGraphFromJson() {
     var source =
       """
-      {
-        "id": "00000000-0000-4000-8000-00000000000A",
-        "nodes": [
-          {
-            "id": "00000000-0000-0000-0000-000000000000",
-            "type": "%1$s",
-            "label": "foo",
-            "body": {
-              "dtype": "int32",
-              "range": {"start": [0, 0], "end": [2, 3] }
-            }
-          }
-        ]
-       }
-      """.formatted(
+            {
+              "id": "00000000-0000-4000-8000-00000000000A",
+              "nodes": [
+                {
+                  "id": "00000000-0000-0000-0000-000000000000",
+                  "type": "%1$s",
+                  "label": "foo",
+                  "body": {
+                    "dtype": "int32",
+                    "range": {"start": [0, 0], "end": [2, 3] }
+                  }
+                }
+              ]
+             }
+            """.formatted(
           TensorNode.TYPE
         );
 

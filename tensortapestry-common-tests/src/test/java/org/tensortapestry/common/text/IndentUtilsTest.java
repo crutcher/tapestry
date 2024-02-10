@@ -1,10 +1,11 @@
 package org.tensortapestry.common.text;
 
 import java.util.ArrayList;
-import org.junit.jupiter.api.Test;
-import org.tensortapestry.common.testing.BaseTestClass;
 
-public class IndentUtilsTest extends BaseTestClass {
+import org.junit.jupiter.api.Test;
+import org.tensortapestry.common.testing.CommonAssertions;
+
+public class IndentUtilsTest implements CommonAssertions {
 
   @Test
   public void testWhitespacePrefixLength() {

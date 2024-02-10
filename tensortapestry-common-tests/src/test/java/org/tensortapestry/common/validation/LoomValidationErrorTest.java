@@ -1,10 +1,11 @@
 package org.tensortapestry.common.validation;
 
 import java.util.List;
-import org.junit.jupiter.api.Test;
-import org.tensortapestry.common.testing.BaseTestClass;
 
-public class LoomValidationErrorTest extends BaseTestClass {
+import org.junit.jupiter.api.Test;
+import org.tensortapestry.common.testing.CommonAssertions;
+
+public class LoomValidationErrorTest implements CommonAssertions {
 
   @Test
   public void testConstructors() {

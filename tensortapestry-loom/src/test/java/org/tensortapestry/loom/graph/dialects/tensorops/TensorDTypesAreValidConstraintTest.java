@@ -1,7 +1,7 @@
 package org.tensortapestry.loom.graph.dialects.tensorops;
 
 import org.junit.jupiter.api.Test;
-import org.tensortapestry.common.testing.BaseTestClass;
+import org.tensortapestry.common.testing.CommonAssertions;
 import org.tensortapestry.common.validation.ListValidationIssueCollector;
 import org.tensortapestry.common.validation.ValidationIssue;
 import org.tensortapestry.loom.graph.CommonEnvironments;
@@ -10,7 +10,7 @@ import org.tensortapestry.loom.graph.LoomEnvironment;
 import org.tensortapestry.loom.graph.LoomGraph;
 import org.tensortapestry.zspace.ZPoint;
 
-public class TensorDTypesAreValidConstraintTest extends BaseTestClass {
+public class TensorDTypesAreValidConstraintTest implements CommonAssertions {
 
   public LoomEnvironment createEnv() {
     return CommonEnvironments.expressionEnvironment();

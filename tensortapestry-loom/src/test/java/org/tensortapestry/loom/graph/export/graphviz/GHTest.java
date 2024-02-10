@@ -3,10 +3,10 @@ package org.tensortapestry.loom.graph.export.graphviz;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Text;
 import org.junit.jupiter.api.Test;
-import org.tensortapestry.common.testing.BaseTestClass;
+import org.tensortapestry.common.testing.CommonAssertions;
 import org.tensortapestry.common.testing.XmlAssertions;
 
-public class GHTest extends BaseTestClass implements XmlAssertions {
+public class GHTest implements XmlAssertions, CommonAssertions {
 
   @Test
   public void test_NodeWrapper() {
@@ -154,32 +154,32 @@ public class GHTest extends BaseTestClass implements XmlAssertions {
     assertXmlEquals(
       table,
       """
-                        <table
-                            align="CENTER"
-                            valign="TOP"
-                            border="1"
-                            cellborder="4"
-                            cellspacing="2"
-                            cellpadding="3"
-                            columns="*"
-                            rows="*"
-                            color="red"
-                            bgcolor="blue"
-                            sides="LR"
-                            style="dotted"
-                            fixedsize="true"
-                            gradientangle="45"
-                            height="100"
-                            width="200"
-                            href="http://example.com"
-                            target="foo"
-                            port="xyz"
-                            id="12345"
-                            tooltip="I like tables"
-                          >
-                          <tr><td><br/></td><td colspan="2">xyz</td><td>c</td></tr>
-                          <tr><td align="TEXT" balign="CENTER" colspan="3" rowspan="3"/></tr>
-                        </table>"""
+            <table
+                align="CENTER"
+                valign="TOP"
+                border="1"
+                cellborder="4"
+                cellspacing="2"
+                cellpadding="3"
+                columns="*"
+                rows="*"
+                color="red"
+                bgcolor="blue"
+                sides="LR"
+                style="dotted"
+                fixedsize="true"
+                gradientangle="45"
+                height="100"
+                width="200"
+                href="http://example.com"
+                target="foo"
+                port="xyz"
+                id="12345"
+                tooltip="I like tables"
+              >
+              <tr><td><br/></td><td colspan="2">xyz</td><td>c</td></tr>
+              <tr><td align="TEXT" balign="CENTER" colspan="3" rowspan="3"/></tr>
+            </table>"""
     );
   }
 

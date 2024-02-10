@@ -1,11 +1,11 @@
 package org.tensortapestry.loom.graph;
 
 import org.junit.jupiter.api.Test;
-import org.tensortapestry.common.testing.BaseTestClass;
+import org.tensortapestry.common.testing.CommonAssertions;
 import org.tensortapestry.loom.graph.dialects.common.NoteNode;
 import org.tensortapestry.loom.graph.dialects.tensorops.*;
 
-public class CommonEnvironmentsTest extends BaseTestClass {
+public class CommonEnvironmentsTest implements CommonAssertions {
 
   @Test
   public void test_expressionEnvironment() {

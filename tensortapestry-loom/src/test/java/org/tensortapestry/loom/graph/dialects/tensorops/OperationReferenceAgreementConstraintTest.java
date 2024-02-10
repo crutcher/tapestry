@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
-import org.tensortapestry.common.testing.BaseTestClass;
+import org.tensortapestry.common.testing.CommonAssertions;
 import org.tensortapestry.common.validation.ListValidationIssueCollector;
 import org.tensortapestry.common.validation.ValidationIssue;
 import org.tensortapestry.loom.graph.CommonEnvironments;
@@ -17,7 +17,7 @@ import org.tensortapestry.loom.graph.dialects.common.NoteNode;
 import org.tensortapestry.zspace.ZPoint;
 import org.tensortapestry.zspace.ZRange;
 
-public class OperationReferenceAgreementConstraintTest extends BaseTestClass {
+public class OperationReferenceAgreementConstraintTest implements CommonAssertions {
 
   public LoomGraph createGraph() {
     var env = CommonEnvironments.expressionEnvironment();

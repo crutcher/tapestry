@@ -9,13 +9,13 @@ import lombok.extern.jackson.Jacksonized;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.Test;
 import org.tensortapestry.common.json.JsonUtil;
-import org.tensortapestry.common.testing.BaseTestClass;
+import org.tensortapestry.common.testing.CommonAssertions;
 import org.tensortapestry.common.validation.ListValidationIssueCollector;
 import org.tensortapestry.common.validation.ValidationIssue;
 import org.tensortapestry.loom.graph.dialects.common.NoteNode;
 import org.tensortapestry.loom.graph.dialects.tensorops.TensorNode;
 
-public class LoomTypeSchemaTest extends BaseTestClass {
+public class LoomTypeSchemaTest implements CommonAssertions {
 
   @Value
   @Jacksonized
@@ -62,27 +62,27 @@ public class LoomTypeSchemaTest extends BaseTestClass {
       )
       .jsonSchema(
         """
-                                {
-                                  "type": "object",
-                                  "properties": {
-                                    "inputs": {
-                                      "type": "object",
-                                      "patternProperties": {
-                                          "^[a-zA-Z_][a-zA-Z0-9_]*$": {
-                                              "type": "array",
-                                              "items": {
-                                                "type": "string",
-                                                "format": "uuid"
-                                              }
-                                          }
-                                      },
-                                      "additionalProperties": false
-                                    }
-                                  },
-                                  "required": ["inputs"],
-                                  "additionalProperties": false
-                                }
-                                """
+                {
+                  "type": "object",
+                  "properties": {
+                    "inputs": {
+                      "type": "object",
+                      "patternProperties": {
+                          "^[a-zA-Z_][a-zA-Z0-9_]*$": {
+                              "type": "array",
+                              "items": {
+                                "type": "string",
+                                "format": "uuid"
+                              }
+                          }
+                      },
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": ["inputs"],
+                  "additionalProperties": false
+                }
+                """
       )
       .build();
 

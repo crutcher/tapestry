@@ -1,12 +1,12 @@
 package org.tensortapestry.loom.graph.dialects.tensorops;
 
 import org.junit.jupiter.api.Test;
-import org.tensortapestry.common.testing.BaseTestClass;
+import org.tensortapestry.common.testing.CommonAssertions;
 import org.tensortapestry.zspace.ZPoint;
 import org.tensortapestry.zspace.ZRange;
 import org.tensortapestry.zspace.ZTensor;
 
-public class TensorNodeTest extends BaseTestClass {
+public class TensorNodeTest implements CommonAssertions {
 
   @Test
   public void test_scalar_body() {
@@ -14,11 +14,11 @@ public class TensorNodeTest extends BaseTestClass {
     assertJsonEquals(
       body,
       """
-                        {
-                            "dtype": "int32",
-                            "range": {"start": [], "end": []}
-                        }
-                        """
+            {
+                "dtype": "int32",
+                "range": {"start": [], "end": []}
+            }
+            """
     );
 
     assertThat(body.getNDim()).isEqualTo(0);
@@ -38,11 +38,11 @@ public class TensorNodeTest extends BaseTestClass {
     assertJsonEquals(
       body,
       """
-                        {
-                          "dtype": "int32",
-                          "range": {"start":[-1, -1], "end":[2, 3]}
-                        }
-                        """
+            {
+              "dtype": "int32",
+              "range": {"start":[-1, -1], "end":[2, 3]}
+            }
+            """
     );
 
     assertThat(body.getNDim()).isEqualTo(2);

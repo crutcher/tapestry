@@ -1,9 +1,9 @@
 package org.tensortapestry.common.validation;
 
 import org.junit.jupiter.api.Test;
-import org.tensortapestry.common.testing.BaseTestClass;
+import org.tensortapestry.common.testing.CommonAssertions;
 
-public class ListValidationIssueCollectorTest extends BaseTestClass {
+public class ListValidationIssueCollectorTest implements CommonAssertions {
 
   @Test
   public void testEmpty() {
@@ -24,15 +24,15 @@ public class ListValidationIssueCollectorTest extends BaseTestClass {
     assertThat(collector.getIssues()).hasSize(2);
 
     assertThat(collector.toDisplayString())
-      .isEqualTo(
-        """
-        Validation failed with 2 issues:
+        .isEqualTo(
+            """
+                Validation failed with 2 issues:
 
-        * Error [foo]: a test
+                * Error [foo]: a test
 
-        * Error [bar]: xyz
-        """
-      );
+                * Error [bar]: xyz
+                """
+        );
 
     assertThatExceptionOfType(LoomValidationError.class).isThrownBy(collector::check);
   }

@@ -3,13 +3,13 @@ package org.tensortapestry.loom.graph;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.tensortapestry.common.lazy.LazyString;
-import org.tensortapestry.common.testing.BaseTestClass;
+import org.tensortapestry.common.testing.CommonAssertions;
 import org.tensortapestry.common.validation.ListValidationIssueCollector;
 import org.tensortapestry.common.validation.ValidationIssue;
 import org.tensortapestry.loom.graph.dialects.common.NoteNode;
 import org.tensortapestry.loom.graph.dialects.tensorops.TensorNode;
 
-public class ValidationUtilsTest extends BaseTestClass {
+public class ValidationUtilsTest implements CommonAssertions {
 
   public LoomEnvironment createEnv() {
     return CommonEnvironments.expressionEnvironment();

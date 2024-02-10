@@ -1,9 +1,9 @@
 package org.tensortapestry.common.lazy;
 
 import org.junit.jupiter.api.Test;
-import org.tensortapestry.common.testing.BaseTestClass;
+import org.tensortapestry.common.testing.CommonAssertions;
 
-public class ThunkTest extends BaseTestClass {
+public class ThunkTest implements CommonAssertions {
 
   @Test
   public void test_lazy() {
@@ -25,10 +25,10 @@ public class ThunkTest extends BaseTestClass {
       throw new RuntimeException("boo");
     });
     assertThatExceptionOfType(RuntimeException.class)
-      .isThrownBy(t::get)
-      .withMessageContaining("boo");
+        .isThrownBy(t::get)
+        .withMessageContaining("boo");
     assertThatExceptionOfType(RuntimeException.class)
-      .isThrownBy(t::get)
-      .withMessageContaining("boo");
+        .isThrownBy(t::get)
+        .withMessageContaining("boo");
   }
 }

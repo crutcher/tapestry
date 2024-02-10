@@ -3,11 +3,11 @@ package org.tensortapestry.loom.graph.dialects.tensorops;
 import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
-import org.tensortapestry.common.testing.BaseTestClass;
+import org.tensortapestry.common.testing.CommonAssertions;
 import org.tensortapestry.loom.graph.CommonEnvironments;
 import org.tensortapestry.zspace.ZRange;
 
-public class ApplicationNodeTest extends BaseTestClass {
+public class ApplicationNodeTest implements CommonAssertions {
 
   @Test
   public void test_body() {
@@ -29,29 +29,29 @@ public class ApplicationNodeTest extends BaseTestClass {
     assertJsonEquals(
       body,
       """
-                        {
-                          "operationId": "%s",
-                          "inputs": {
-                            "source": [
-                              {
-                                "tensorId": "%s",
-                                "range": {
-                                  "start": [0, 0],
-                                  "end": [2, 3]
-                                }
-                              },
-                              {
-                                "tensorId": "%s",
-                                "range": {
-                                  "start": [],
-                                  "end": []
-                                }
-                              }
-                            ]
-                          },
-                          "outputs": {}
-                        }
-                        """.formatted(
+            {
+              "operationId": "%s",
+              "inputs": {
+                "source": [
+                  {
+                    "tensorId": "%s",
+                    "range": {
+                      "start": [0, 0],
+                      "end": [2, 3]
+                    }
+                  },
+                  {
+                    "tensorId": "%s",
+                    "range": {
+                      "start": [],
+                      "end": []
+                    }
+                  }
+                ]
+              },
+              "outputs": {}
+            }
+            """.formatted(
           operationId,
           tensorIdA,
           tensorIdB

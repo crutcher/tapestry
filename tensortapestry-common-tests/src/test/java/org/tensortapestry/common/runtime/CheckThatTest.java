@@ -1,10 +1,10 @@
 package org.tensortapestry.common.runtime;
 
 import org.junit.jupiter.api.Test;
-import org.tensortapestry.common.testing.BaseTestClass;
+import org.tensortapestry.common.testing.CommonAssertions;
 
 @SuppressWarnings("ConstantConditions")
-public class CheckThatTest extends BaseTestClass {
+public class CheckThatTest implements CommonAssertions {
 
   @Test
   public void test_valueIsNotNull() {
@@ -12,11 +12,11 @@ public class CheckThatTest extends BaseTestClass {
     CheckThat.valueIsNotNull("foo", RuntimeException.class, "bar %s", "baz");
 
     assertThatExceptionOfType(RuntimeException.class)
-      .isThrownBy(() -> CheckThat.valueIsNotNull(null, RuntimeException.class, "bar"))
-      .withMessage("bar");
+        .isThrownBy(() -> CheckThat.valueIsNotNull(null, RuntimeException.class, "bar"))
+        .withMessage("bar");
 
     assertThatExceptionOfType(RuntimeException.class)
-      .isThrownBy(() -> CheckThat.valueIsNotNull(null, RuntimeException.class, "bar %s", "baz"))
-      .withMessage("bar baz");
+        .isThrownBy(() -> CheckThat.valueIsNotNull(null, RuntimeException.class, "bar %s", "baz"))
+        .withMessage("bar baz");
   }
 }

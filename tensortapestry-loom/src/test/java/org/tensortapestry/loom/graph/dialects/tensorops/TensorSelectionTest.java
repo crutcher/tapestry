@@ -2,11 +2,11 @@ package org.tensortapestry.loom.graph.dialects.tensorops;
 
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
-import org.tensortapestry.common.testing.BaseTestClass;
+import org.tensortapestry.common.testing.CommonAssertions;
 import org.tensortapestry.zspace.ZRange;
 import org.tensortapestry.zspace.exceptions.ZDimMissMatchError;
 
-public class TensorSelectionTest extends BaseTestClass {
+public class TensorSelectionTest implements CommonAssertions {
 
   @Test
   public void test_from() {

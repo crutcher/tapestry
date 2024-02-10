@@ -1,9 +1,9 @@
 package org.tensortapestry.common.lazy;
 
 import org.junit.jupiter.api.Test;
-import org.tensortapestry.common.testing.BaseTestClass;
+import org.tensortapestry.common.testing.CommonAssertions;
 
-public class LazyStringTest extends BaseTestClass {
+public class LazyStringTest implements CommonAssertions {
 
   @Test
   public void test_format() {

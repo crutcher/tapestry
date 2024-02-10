@@ -4,9 +4,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.extern.jackson.Jacksonized;
 import org.junit.jupiter.api.Test;
-import org.tensortapestry.common.testing.BaseTestClass;
+import org.tensortapestry.common.testing.CommonAssertions;
 
-public class HasToJsonStringTest extends BaseTestClass {
+public class HasToJsonStringTest implements CommonAssertions {
 
   @Jacksonized
   @Builder
@@ -22,12 +22,12 @@ public class HasToJsonStringTest extends BaseTestClass {
     var example = Example.builder().name("John").age(42).build();
     assertThat("{\"name\":\"John\",\"age\":42}").isEqualTo(example.toJsonString());
     assertThat(example.toPrettyJsonString())
-      .isEqualTo(
-        """
+        .isEqualTo(
+            """
                 {
                   "name" : "John",
                   "age" : 42
                 }"""
-      );
+        );
   }
 }

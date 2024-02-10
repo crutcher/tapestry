@@ -2,10 +2,11 @@ package org.tensortapestry.common.collections;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.junit.jupiter.api.Test;
-import org.tensortapestry.common.testing.BaseTestClass;
 
-public class IteratorUtilsTest extends BaseTestClass {
+import org.junit.jupiter.api.Test;
+import org.tensortapestry.common.testing.CommonAssertions;
+
+public class IteratorUtilsTest implements CommonAssertions {
 
   @Test
   public void testIterableToStream() {

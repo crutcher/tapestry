@@ -1,13 +1,13 @@
 package org.tensortapestry.loom.graph.export.graphviz;
 
 import org.junit.jupiter.api.Test;
-import org.tensortapestry.common.testing.BaseTestClass;
+import org.tensortapestry.common.testing.CommonAssertions;
 import org.tensortapestry.common.testing.XmlAssertions;
 import org.tensortapestry.zspace.ZAffineMap;
 import org.tensortapestry.zspace.ZRangeProjectionMap;
 import org.tensortapestry.zspace.ZTensor;
 
-public class IPFFormatterTest extends BaseTestClass implements XmlAssertions {
+public class IPFFormatterTest implements XmlAssertions, CommonAssertions {
 
   @Test
   public void test_3x2() {
@@ -21,28 +21,28 @@ public class IPFFormatterTest extends BaseTestClass implements XmlAssertions {
     assertXmlEquals(
       IPFFormatter.renderRangeProjectionMap(ipf),
       """
-                        <table border="0" cellborder="0" cellspacing="0">
-                          <tr>
-                            <td>
-                              <table border="0" cellborder="0" cellspacing="0">
-                                <tr>
-                                  <td border="1" sides="L">1</td>
-                                  <td>1</td>
-                                  <td border="1" sides="R">0</td>
-                                  <td border="1" sides="R">2</td>
-                                </tr>
-                                <tr>
-                                  <td border="1" sides="L">0</td>
-                                  <td>1</td>
-                                  <td border="1" sides="R">1</td>
-                                  <td border="1" sides="R">3</td>
-                                </tr>
-                              </table>
-                            </td>
-                            <td> ⊕ [4, 4]</td>
-                          </tr>
-                        </table>
-                        """
+            <table border="0" cellborder="0" cellspacing="0">
+              <tr>
+                <td>
+                  <table border="0" cellborder="0" cellspacing="0">
+                    <tr>
+                      <td border="1" sides="L">1</td>
+                      <td>1</td>
+                      <td border="1" sides="R">0</td>
+                      <td border="1" sides="R">2</td>
+                    </tr>
+                    <tr>
+                      <td border="1" sides="L">0</td>
+                      <td>1</td>
+                      <td border="1" sides="R">1</td>
+                      <td border="1" sides="R">3</td>
+                    </tr>
+                  </table>
+                </td>
+                <td> ⊕ [4, 4]</td>
+              </tr>
+            </table>
+            """
     );
   }
 
@@ -58,24 +58,24 @@ public class IPFFormatterTest extends BaseTestClass implements XmlAssertions {
     assertXmlEquals(
       IPFFormatter.renderRangeProjectionMap(ipf),
       """
-                        <table border="0" cellborder="0" cellspacing="0">
-                          <tr>
-                            <td>
-                              <table border="0" cellborder="0" cellspacing="0">
-                                <tr>
-                                  <td border="1" sides="LR">1</td>
-                                  <td border="1" sides="R">2</td>
-                                </tr>
-                                <tr>
-                                  <td border="1" sides="LR">0</td>
-                                  <td border="1" sides="R">3</td>
-                                </tr>
-                              </table>
-                            </td>
-                            <td> ⊕ [4, 4]</td>
-                          </tr>
-                        </table>
-                        """
+            <table border="0" cellborder="0" cellspacing="0">
+              <tr>
+                <td>
+                  <table border="0" cellborder="0" cellspacing="0">
+                    <tr>
+                      <td border="1" sides="LR">1</td>
+                      <td border="1" sides="R">2</td>
+                    </tr>
+                    <tr>
+                      <td border="1" sides="LR">0</td>
+                      <td border="1" sides="R">3</td>
+                    </tr>
+                  </table>
+                </td>
+                <td> ⊕ [4, 4]</td>
+              </tr>
+            </table>
+            """
     );
   }
 
@@ -89,12 +89,12 @@ public class IPFFormatterTest extends BaseTestClass implements XmlAssertions {
     assertXmlEquals(
       IPFFormatter.renderRangeProjectionMap(ipf),
       """
-                        <table border="0" cellborder="0" cellspacing="0">
-                          <tr>
-                            <td>[−]<sub>0×3</sub> ⊕ []</td>
-                          </tr>
-                        </table>
-                        """
+            <table border="0" cellborder="0" cellspacing="0">
+              <tr>
+                <td>[−]<sub>0×3</sub> ⊕ []</td>
+              </tr>
+            </table>
+            """
     );
   }
 }

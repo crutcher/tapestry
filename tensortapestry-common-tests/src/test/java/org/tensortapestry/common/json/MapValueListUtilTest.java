@@ -2,16 +2,18 @@ package org.tensortapestry.common.json;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+
 import lombok.Data;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.jackson.Jacksonized;
 import org.junit.jupiter.api.Test;
-import org.tensortapestry.common.testing.BaseTestClass;
+import org.tensortapestry.common.testing.CommonAssertions;
 
-public class MapValueListUtilTest extends BaseTestClass {
+public class MapValueListUtilTest implements CommonAssertions {
 
   @Data
   public static class TestDoc {
@@ -29,7 +31,7 @@ public class MapValueListUtilTest extends BaseTestClass {
     private final Map<UUID, Node> nodes = new HashMap<>();
 
     public static class NodeListToMapDeserializer
-      extends MapValueListUtil.MapDeserializer<UUID, Node> {
+        extends MapValueListUtil.MapDeserializer<UUID, Node> {
 
       public NodeListToMapDeserializer() {
         super(Node.class, Node::getId, HashMap::new);
@@ -40,21 +42,21 @@ public class MapValueListUtilTest extends BaseTestClass {
   @Test
   public void testBasic() {
     String json =
-      """
-                {
-                  "nodes": [
-                     {
-                       "id": "00000000-0000-0000-0000-000000000000"
-                     }
-                  ]
-                }
-                """;
+        """
+            {
+              "nodes": [
+                 {
+                   "id": "00000000-0000-0000-0000-000000000000"
+                 }
+              ]
+            }
+            """;
 
     var doc = new TestDoc();
     var node = TestDoc.Node
-      .builder()
-      .id(UUID.fromString("00000000-0000-0000-0000-000000000000"))
-      .build();
+        .builder()
+        .id(UUID.fromString("00000000-0000-0000-0000-000000000000"))
+        .build();
     doc.nodes.put(node.getId(), node);
 
     assertJsonEquals(doc, json);

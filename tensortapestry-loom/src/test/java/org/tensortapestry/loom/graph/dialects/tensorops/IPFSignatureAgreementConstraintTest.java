@@ -4,7 +4,7 @@ import guru.nidi.graphviz.engine.Format;
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
-import org.tensortapestry.common.testing.BaseTestClass;
+import org.tensortapestry.common.testing.CommonAssertions;
 import org.tensortapestry.loom.graph.CommonEnvironments;
 import org.tensortapestry.loom.graph.export.graphviz.GraphVisualizer;
 import org.tensortapestry.zspace.ZPoint;
@@ -12,7 +12,7 @@ import org.tensortapestry.zspace.ZRange;
 import org.tensortapestry.zspace.ZRangeProjectionMap;
 
 @SuppressWarnings("unused")
-public class IPFSignatureAgreementConstraintTest extends BaseTestClass {
+public class IPFSignatureAgreementConstraintTest implements CommonAssertions {
 
   @Test
   @SuppressWarnings("ConstantConditions")

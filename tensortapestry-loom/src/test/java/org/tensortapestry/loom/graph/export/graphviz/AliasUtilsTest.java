@@ -3,9 +3,9 @@ package org.tensortapestry.loom.graph.export.graphviz;
 import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
-import org.tensortapestry.common.testing.BaseTestClass;
+import org.tensortapestry.common.testing.CommonAssertions;
 
-public class AliasUtilsTest extends BaseTestClass {
+public class AliasUtilsTest implements CommonAssertions {
 
   @Test
   public void test_uuidAliasMap() {
