@@ -440,23 +440,6 @@
         </plugin>
 
         <plugin>
-          <groupId>org.codehaus.mojo</groupId>
-          <artifactId>versions-maven-plugin</artifactId>
-          <version>2.16.2</version>
-          <!--
-          <reportSets>
-              <reportSet>
-                  <reports>
-                      <report>dependency-updates-report</report>
-                      <report>plugin-updates-report</report>
-                      <report>property-updates-report</report>
-                  </reports>
-              </reportSet>
-          </reportSets>
-          -->
-        </plugin>
-
-        <plugin>
           <groupId>org.projectlombok</groupId>
           <artifactId>lombok-maven-plugin</artifactId>
           <version>${lombok.plugin.version}</version>
@@ -469,8 +452,9 @@
             </execution>
           </executions>
           <configuration>
-            <addOutputDirectory>false</addOutputDirectory>
             <sourceDirectory>src/main/java</sourceDirectory>
+            <outputDirectory>${project.build.directory}/delombok</outputDirectory>
+            <addOutputDirectory>false</addOutputDirectory>
           </configuration>
           <dependencies>
             <dependency>
@@ -515,11 +499,26 @@
   <reporting>
     <plugins>
       <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>versions-maven-plugin</artifactId>
+        <version>2.16.2</version>
+        <reportSets>
+          <reportSet>
+            <reports>
+              <report>dependency-updates-report</report>
+              <report>plugin-updates-report</report>
+              <report>property-updates-report</report>
+            </reports>
+          </reportSet>
+        </reportSets>
+      </plugin>
+
+      <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
         <version>${javadoc.plugin.version}</version>
         <configuration>
-          <sourcepath>${project.build.directory}/generated-sources/delombok</sourcepath>
+          <sourcepath>${project.build.directory}/delombok</sourcepath>
         </configuration>
       </plugin>
       <plugin>
