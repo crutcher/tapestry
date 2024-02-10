@@ -299,6 +299,9 @@
   </dependencies>
 
   <build>
+    <!--
+    The maven-build-cache-extension breaks dependency analysis in this project
+    due to some nasty interaction between delombok and javadoc.
     <extensions>
       <extension>
         <groupId>org.apache.maven.extensions</groupId>
@@ -306,6 +309,7 @@
         <version>1.1.0</version>
       </extension>
     </extensions>
+    -->
     <pluginManagement>
       <plugins>
         <plugin>
@@ -453,26 +457,6 @@
         </plugin>
 
         <plugin>
-          <groupId>org.antlr</groupId>
-          <artifactId>antlr4-maven-plugin</artifactId>
-          <version>${antlr.version}</version>
-          <executions>
-            <execution>
-              <phase>generate-sources</phase>
-              <id>antlr</id>
-              <goals>
-                <goal>antlr4</goal>
-              </goals>
-            </execution>
-          </executions>
-          <configuration>
-            <arguments>
-              <argument>-visitor</argument>
-            </arguments>
-          </configuration>
-        </plugin>
-
-        <plugin>
           <groupId>org.projectlombok</groupId>
           <artifactId>lombok-maven-plugin</artifactId>
           <version>${lombok.plugin.version}</version>
@@ -486,7 +470,6 @@
           </executions>
           <configuration>
             <addOutputDirectory>false</addOutputDirectory>
-            <outputDirectory>${project.build.directory}/delombok</outputDirectory>
             <sourceDirectory>src/main/java</sourceDirectory>
           </configuration>
           <dependencies>
@@ -498,19 +481,6 @@
           </dependencies>
         </plugin>
 
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-javadoc-plugin</artifactId>
-          <version>${javadoc.plugin.version}</version>
-          <configuration>
-            <sourcepath>${project.build.directory}/delombok</sourcepath>
-          </configuration>
-        </plugin>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-project-info-reports-plugin</artifactId>
-          <version>3.5.0</version>
-        </plugin>
       </plugins>
     </pluginManagement>
 
@@ -539,12 +509,26 @@
         <groupId>org.projectlombok</groupId>
         <artifactId>lombok-maven-plugin</artifactId>
       </plugin>
+    </plugins>
+  </build>
 
+  <reporting>
+    <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
+        <version>${javadoc.plugin.version}</version>
+        <configuration>
+          <sourcepath>${project.build.directory}/generated-sources/delombok</sourcepath>
+        </configuration>
       </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-project-info-reports-plugin</artifactId>
+        <version>3.5.0</version>
+      </plugin>
+
     </plugins>
-  </build>
+  </reporting>
 
 </project>
