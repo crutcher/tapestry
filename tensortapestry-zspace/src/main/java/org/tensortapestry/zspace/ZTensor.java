@@ -26,6 +26,7 @@ import org.tensortapestry.zspace.impl.HasJsonOutput;
 import org.tensortapestry.zspace.impl.ZSpaceJsonUtil;
 import org.tensortapestry.zspace.indexing.*;
 import org.tensortapestry.zspace.ops.CellWiseOps;
+import org.tensortapestry.zspace.ops.ChunkOps;
 import org.tensortapestry.zspace.ops.ReduceOps;
 
 /**
@@ -421,6 +422,30 @@ public final class ZTensor
       obj -> (Integer) obj,
       obj -> IndexingFns.unboxList(((List<Integer>) obj))
     );
+  }
+
+  /**
+   * Concatenate tensors along an axis.
+   *
+   * @param axis the axis.
+   * @param tensors the tensors.
+   * @return the concatenated tensor.
+   */
+  @Nonnull
+  public static ZTensor concat(int axis, @Nonnull ZTensorWrapper... tensors) {
+    return ChunkOps.concat(axis, tensors);
+  }
+
+  /**
+   * Concatenate tensors along an axis.
+   *
+   * @param axis the axis.
+   * @param tensors the tensors.
+   * @return the concatenated tensor.
+   */
+  @Nonnull
+  public static ZTensor concat(int axis, @Nonnull List<ZTensorWrapper> tensors) {
+    return ChunkOps.concat(axis, tensors);
   }
 
   /**
@@ -1218,7 +1243,7 @@ public final class ZTensor
    * Return a view of this tensor with a broadcastable dimension expanded.
    *
    * @param dim the dimension to expand (must be size 1, or a previously broadcasted
-   *         dimension).
+   *     dimension).
    * @param size the new size of the dimension.
    * @return a view of this tensor with a broadcastable dimension expanded.
    */
@@ -1496,8 +1521,8 @@ public final class ZTensor
    * @param a The index of the first dimension to be transposed.
    * @param b The index of the second dimension to be transposed.
    * @return A new tensor that is a transposed view of the original tensor.
-   * @throws IllegalArgumentException If the provided indices are not valid dimensions of
-   *         the tensor.
+   * @throws IllegalArgumentException If the provided indices are not valid dimensions of the
+   *     tensor.
    */
   @Nonnull
   public ZTensor transpose(int a, int b) {
@@ -1724,6 +1749,21 @@ public final class ZTensor
     return new ZTensor(mutable, new_shape, new_stride, data, new_offset);
   }
 
+  @Nonnull
+  public ZTensor sliceDim(int dim, @Nullable Integer start, @Nullable Integer end) {
+    return sliceDim(dim, Selector.slice(start, end));
+  }
+
+  @Nonnull
+  public ZTensor sliceDim(
+    int dim,
+    @Nullable Integer start,
+    @Nullable Integer end,
+    @Nullable Integer step
+  ) {
+    return sliceDim(dim, Selector.slice(start, end, step));
+  }
+
   /**
    * Creates a reordered view of this tensor along a specified dimension.
    *
@@ -1744,11 +1784,10 @@ public final class ZTensor
    * <p>Supports negative dimension indexing - i.e. -1 represents the last dimension, -2
    * represents the second last, and so on.
    *
-   * @param permutation An array of unique integers representing the new order of indices
-   *         along the specified dimension. Each integer should be a valid index for that
-   *         dimension.
-   * @param dim Index of the dimension to be reordered. Dimensions are zero-indexed. This
-   *         must be a valid dimension of this tensor.
+   * @param permutation An array of unique integers representing the new order of indices along
+   *     the specified dimension. Each integer should be a valid index for that dimension.
+   * @param dim Index of the dimension to be reordered. Dimensions are zero-indexed. This must
+   *     be a valid dimension of this tensor.
    * @return A new ZTensor, with the specified dimension reordered.
    */
   @Nonnull
@@ -1944,8 +1983,8 @@ public final class ZTensor
   }
 
   /**
-   * Returns a new ZTensor that contains the minimum value in this ZTensor, grouped by the
-   * specified dimensions.
+   * Returns a new ZTensor that contains the minimum value in this ZTensor, grouped by the specified
+   * dimensions.
    *
    * <p>The shape of the returned tensor is the same as the shape of the input tensor, except
    * that the specified dimensions are removed.
@@ -1978,8 +2017,8 @@ public final class ZTensor
   }
 
   /**
-   * Returns a new ZTensor that contains the maximum value in this ZTensor, grouped by the
-   * specified dimensions.
+   * Returns a new ZTensor that contains the maximum value in this ZTensor, grouped by the specified
+   * dimensions.
    *
    * <p>The shape of the returned tensor is the same as the shape of the input tensor, except
    * that the specified dimensions are removed.

@@ -13,6 +13,7 @@ import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Value;
 import org.tensortapestry.zspace.impl.HasJsonOutput;
+import org.tensortapestry.zspace.indexing.Selector;
 
 /**
  * A function which maps coordinates in a space to ranges in another space.
@@ -25,6 +26,19 @@ public class ZRangeProjectionMap implements HasJsonOutput {
 
   @SuppressWarnings("unused")
   public static class ZRangeProjectionMapBuilder {
+
+    /**
+     * Create a new ZRangeProjectionMapBuilder.
+     *
+     * @param n the number of dimensions.
+     * @return {@code this}
+     */
+    @Nonnull
+    @JsonIgnore
+    @CanIgnoreReturnValue
+    public ZRangeProjectionMapBuilder identityMap(int n) {
+      return affineMap(ZAffineMap.newIdentityMap(n));
+    }
 
     /**
      * Build an ZAffineMap from a matrix.
@@ -137,8 +151,7 @@ public class ZRangeProjectionMap implements HasJsonOutput {
    * Create a new ZRangeProjectionMap.
    *
    * @param affineMap the affine map.
-   * @param shape the shape, or {@code null} to use one's in the affine map's output
-   *         dims.
+   * @param shape the shape, or {@code null} to use one's in the affine map's output dims.
    */
   public ZRangeProjectionMap(@Nonnull ZAffineMap affineMap, @Nullable ZTensorWrapper shape) {
     this.affineMap = affineMap;
@@ -169,6 +182,17 @@ public class ZRangeProjectionMap implements HasJsonOutput {
   @Nonnull
   public ZRange apply(@Nonnull ZTensorWrapper source) {
     return ZRange.builder().start(ZPoint.of(affineMap.apply(source))).shape(shape).build();
+  }
+
+  @Nonnull
+  public ZRange broadcastApply(@Nonnull ZTensorWrapper source) {
+    var t = source.unwrap();
+    t.assertNDim(1);
+    var prefix = t.select(Selector.slice(0, -affineMap.getInputNDim()));
+    var ones = ZTensor.newOnes(prefix.getSize());
+    var b = affineMap.broadcastApply(source);
+
+    return ZRange.builder().start(b).shape(ZPoint.of(ZTensor.concat(0, ones, shape))).build();
   }
 
   /**

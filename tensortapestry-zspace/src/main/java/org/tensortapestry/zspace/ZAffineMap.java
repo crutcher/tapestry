@@ -11,6 +11,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Value;
 import lombok.extern.jackson.Jacksonized;
 import org.tensortapestry.zspace.impl.HasJsonOutput;
+import org.tensortapestry.zspace.indexing.Selector;
 
 /**
  * A linear map from {@code Z^inDim} to {@code Z^outDim}.
@@ -23,6 +24,17 @@ import org.tensortapestry.zspace.impl.HasJsonOutput;
 @JsonPropertyOrder({ "projection", "offset" })
 @EqualsAndHashCode(cacheStrategy = EqualsAndHashCode.CacheStrategy.LAZY)
 public class ZAffineMap implements HasPermuteIO<ZAffineMap>, HasJsonOutput {
+
+  /**
+   * Create a new ZAffineMap which is an identity projection.
+   *
+   * @param n the number of dimensions.
+   * @return the new matrix.
+   */
+  @Nonnull
+  public static ZAffineMap newIdentityMap(int n) {
+    return fromMatrix(ZMatrix.newIdentityMatrix(n));
+  }
 
   /**
    * Create a ZAffineMap from a matrix.
@@ -61,7 +73,7 @@ public class ZAffineMap implements HasPermuteIO<ZAffineMap>, HasJsonOutput {
    *
    * @param projection the matrix.
    * @param offset the bias; if null, will be a zero vector of size
-   *         {@code projection.shape[0]}.
+   *     {@code projection.shape[0]}.
    */
   @JsonCreator
   public ZAffineMap(@Nonnull ZTensorWrapper projection, @Nullable ZTensorWrapper offset) {
@@ -131,6 +143,26 @@ public class ZAffineMap implements HasPermuteIO<ZAffineMap>, HasJsonOutput {
   @Nonnull
   public ZTensor apply(@Nonnull ZTensorWrapper x) {
     return projection.matmul(x).add(offset);
+  }
+
+  /**
+   * Broadcast apply this affine map to the given tensor.
+   * <p>
+   * If the expected input dimension is 2, and the provided input size is 3, then the first
+   * dimension is carried over, and the affine map is applied to the last two dimensions.
+   *
+   * @param x input tensor
+   * @return output tensor
+   */
+  @Nonnull
+  public ZTensor broadcastApply(@Nonnull ZTensorWrapper x) {
+    var t = x.unwrap();
+    t.assertNDim(1);
+    return ZTensor.concat(
+      0,
+      t.select(Selector.slice(0, -getInputNDim())),
+      apply(t.select(Selector.slice(-getInputNDim(), null)))
+    );
   }
 
   /**

@@ -18,18 +18,18 @@ public class ZRangeProjectionMapTest implements ZSpaceTestAssertions {
     assertObjectJsonEquivalence(
       ipf,
       """
-                        {
-                          "affineMap": {
-                            "projection": [
-                              [1, 0],
-                              [0, 1],
-                              [1, 1]
-                            ],
-                            "offset": [10, 20, 30]
-                          },
-                          "shape": [4, 4, 1]
-                        }
-                        """
+            {
+              "affineMap": {
+                "projection": [
+                  [1, 0],
+                  [0, 1],
+                  [1, 1]
+                ],
+                "offset": [10, 20, 30]
+              },
+              "shape": [4, 4, 1]
+            }
+            """
     );
   }
 
@@ -118,8 +118,8 @@ public class ZRangeProjectionMapTest implements ZSpaceTestAssertions {
   }
 
   @Test
-  public void test() {
-    var ipf = new ZRangeProjectionMap(
+  public void test_apply() {
+    var rpm = new ZRangeProjectionMap(
       new ZAffineMap(
         ZTensor.newMatrix(new int[][] { { 1, 0 }, { 0, 1 }, { 1, 1 } }),
         ZTensor.newVector(10, 20, 30)
@@ -129,21 +129,41 @@ public class ZRangeProjectionMapTest implements ZSpaceTestAssertions {
 
     var start3 = ZPoint.of(15, 26, 41);
     var shape3 = ZPoint.of(4, 4, 1);
-    assertThat(ipf.apply(ZPoint.of(5, 6)))
+    assertThat(rpm.apply(ZPoint.of(5, 6)))
       .isEqualTo(ZRange.builder().start(start3).shape(shape3).build());
     var start2 = ZPoint.of(15, 26, 41);
     var shape2 = ZPoint.of(4, 4, 1);
-    assertThat(ipf.apply(ZTensor.newVector(5, 6)))
+    assertThat(rpm.apply(ZTensor.newVector(5, 6)))
       .isEqualTo(ZRange.builder().start(start2).shape(shape2).build());
 
     var start1 = ZPoint.of(15, 26, 41);
     var shape1 = ZPoint.of(5, 5, 3);
-    assertThat(ipf.apply(ZRange.of(ZPoint.of(5, 6), ZPoint.of(7, 8))))
+    assertThat(rpm.apply(ZRange.of(ZPoint.of(5, 6), ZPoint.of(7, 8))))
       .isEqualTo(ZRange.builder().start(start1).shape(shape1).build());
 
     var start = ZPoint.of(15, 26, 41);
     var shape = ZPoint.newZeros(3);
-    assertThat(ipf.apply(ZRange.of(ZPoint.of(5, 6), ZPoint.of(5, 6))))
+    assertThat(rpm.apply(ZRange.of(ZPoint.of(5, 6), ZPoint.of(5, 6))))
       .isEqualTo(ZRange.builder().start(start).shape(shape).build());
+  }
+
+  @Test
+  public void test_broadcastApply() {
+    var rpm = new ZRangeProjectionMap(
+      new ZAffineMap(
+        ZTensor.newMatrix(new int[][] { { 1, 0 }, { 0, 1 }, { 1, 1 } }),
+        ZTensor.newVector(10, 20, 30)
+      ),
+      ZPoint.of(4, 4, 1)
+    );
+
+    assertThat(rpm.broadcastApply(ZPoint.of(100, 20, 5, 6)))
+      .isEqualTo(
+        ZRange
+          .builder()
+          .start(ZPoint.of(100, 20, 15, 26, 41))
+          .shape(ZPoint.of(1, 1, 4, 4, 1))
+          .build()
+      );
   }
 }

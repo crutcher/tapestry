@@ -135,4 +135,15 @@ public class ZAffineMapTest implements ZSpaceTestAssertions {
       .isThrownBy(() -> map.apply(ZTensor.newVector(1, 1, 1)))
       .withMessageContaining("lhs shape [3, 2] not compatible with rhs shape [3]");
   }
+
+  @Test
+  public void test_broadcastApply() {
+    var map = new ZAffineMap(
+      ZTensor.newFromArray(new int[][] { { 1, 0 }, { 0, 2 }, { 1, 2 } }),
+      ZTensor.newVector(4, 5, 6)
+    );
+
+    assertThat(map.broadcastApply(ZTensor.newVector(100, 20, 1, 1)))
+      .isEqualTo(ZTensor.newVector(100, 20, 5, 7, 9));
+  }
 }
