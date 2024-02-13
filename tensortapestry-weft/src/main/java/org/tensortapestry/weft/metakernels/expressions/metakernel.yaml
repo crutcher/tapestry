@@ -1,0 +1,76 @@
+add:
+  index: "[$.shape...]"
+
+  constraints:
+    dtype:
+      enum:
+        - int32
+        - int64
+        - float32
+        - float64
+        - complex64
+        - complex128
+
+  inputs:
+    tensors:
+      shape: "[$.shape...]"
+      dtype: "$.dtype"
+      # ipf defaults to: "[...] >: [...]"
+
+  outputs:
+    result:
+      # shape defaults to: "[$.index...]"
+      # ipf defaults to: "[...] >: [...]"
+      dtype: "$.dtype"
+
+matmul:
+  index: "[$.shape..., $.a, $.c]"
+
+  constraints:
+    dtype:
+      enum:
+        - int32
+        - int64
+        - float32
+        - float64
+        - complex64
+        - complex128
+
+  inputs:
+    X:
+      shape: "[$.shape..., $.a, $.b]"
+      dtype: "$.dtype"
+
+      # this is shorthand for:
+      # ipf:
+      #   map: "[..., 1, 0]"
+      #   shape: "[..., 1, $b]"
+      #
+      # which is shorthand for:
+      # ipf:
+      #   map: "[ones($index.size - 2)..., 1, 0]"
+      #   shape: "[ones($index.size - 2)..., 1, $b]"
+      #
+      # Where the map unpacks to a diagonal matrix
+      # with 1s on the prefix dimensions.
+      ipf: "[..., 1, 0] :> [..., 1, $b]"
+
+    W:
+      shape: "[$.shape..., $.b, $.c]"
+      dtype: "$.dtype"
+      ipf: "[..., 0, 1] :> [..., $b, 1]"
+
+  outputs:
+    result:
+      # shape defaults to: "[$.index...]"
+      # ipf defaults to: "[...] >: [...]"
+      dtype: "$.dtype"
+
+
+concat:
+  # How to handle `axis` ?
+  inputs:
+    tensors:
+      shape: "[$.shape...]"
+      dtype: "$.dtype"
+      ipf: "[$.shape...]"

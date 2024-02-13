@@ -1,0 +1,66 @@
+{
+  "add" : {
+    "index" : {
+      "shape" : "[+shape]"
+    },
+    "inputs" : {
+      "tensors" : {
+        "shape" : "[+shape]",
+        "dtype" : "{dtype}",
+        "maxInput" : -1,
+        "ipf" : {
+          "projection" : "identity"
+        }
+      }
+    },
+    "outputs" : {
+      "result" : {
+        "shape" : "[+shape]",
+        "dtype" : "{dtype}",
+        "ipf" : {
+          "projection" : "identity"
+        }
+      }
+    }
+  },
+  "matmul" : {
+    "index" : {
+      "shape" : "[+batch, a, c]"
+    },
+    "inputs" : {
+      "A" : {
+        "shape" : "[+batch, a, b]",
+        "ipf" : {
+          "map" : {
+            "_func_" : "brodcast_embed",
+            "brodcast" : "[*batch]",
+            "map" : {
+              "projection" : [ 1, 0 ],
+              "shape" : "[1, b]"
+            }
+          },
+          "shape" : "[+ones(batch.size), 1, b]"
+        }
+      },
+      "X" : {
+        "shape" : "[+batch, b, c]",
+        "ipf" : {
+          "map" : {
+            "projection" : "[+ones(batch.size), 0, 1]",
+            "offset" : "X.start"
+          },
+          "shape" : "[+ones(batch.size), b, 1]"
+        }
+      }
+    },
+    "outputs" : {
+      "result" : {
+        "shape" : "[+batch, a, c]",
+        "ipf" : {
+          "projection" : "identity",
+          "shape" : "[+index]"
+        }
+      }
+    }
+  }
+}

@@ -272,7 +272,7 @@ public class DimShapeMatcher {
 
     @Override
     public List<ShapePattern> visitSingleDim(DimShapePatternParser.SingleDimContext ctx) {
-      return List.of(new ShapePattern.NamedDim(ctx.ID().getText()));
+      return List.of(new ShapePattern.NamedDim(ctx.identifier().getText()));
     }
   }
 

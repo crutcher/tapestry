@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.node.*;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.jayway.jsonpath.Configuration;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.ParseContext;
@@ -118,6 +119,8 @@ public final class JsonUtil {
 
   private final ObjectMapper COMMON_MAPPER = new ObjectMapper()
     .configure(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS, true);
+
+  private final ObjectMapper YAML_MAPPER = new ObjectMapper(new YAMLFactory());
 
   private final Configuration JSON_PATH_CONFIG = Configuration
     .builder()
@@ -250,6 +253,14 @@ public final class JsonUtil {
     return toPrettyJson(parseToJsonNodeTree(json));
   }
 
+  public String toYaml(Object obj) {
+    try {
+      return YAML_MAPPER.writer().writeValueAsString(obj);
+    } catch (JsonProcessingException e) {
+      throw new IllegalArgumentException(e);
+    }
+  }
+
   /**
    * Parse a JSON string to a Jackson JsonNode tree.
    *
@@ -282,7 +293,7 @@ public final class JsonUtil {
    * @param <T> the type of the object to de-serialize.
    * @return the de-serialized object.
    * @throws IllegalArgumentException if the JSON string cannot be de-serialized to the
-   *         specified class.
+   *     specified class.
    */
   public <T> T fromJson(String json, Class<T> clazz) {
     try {
@@ -300,7 +311,7 @@ public final class JsonUtil {
    * @param <T> the type of the object to de-serialize.
    * @return the de-serialized object.
    * @throws JsonProcessingException if the JSON string cannot be de-serialized to the
-   *         specified.
+   *     specified.
    */
   public <T> T readValue(String json, Class<T> cls) throws JsonProcessingException {
     return getObjectMapper().readValue(json, cls);
@@ -313,8 +324,7 @@ public final class JsonUtil {
    * @param clazz the class of the object to convert to.
    * @param <T> the type of the object to convert to.
    * @return the converted object.
-   * @throws IllegalArgumentException if the object cannot be converted to the specified
-   *         class.
+   * @throws IllegalArgumentException if the object cannot be converted to the specified class.
    */
   public <T> T convertValue(Object tree, Class<T> clazz) {
     return getObjectMapper().convertValue(tree, clazz);

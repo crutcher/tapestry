@@ -140,6 +140,11 @@
       </dependency>
       <dependency>
         <groupId>com.fasterxml.jackson.dataformat</groupId>
+        <artifactId>jackson-dataformat-yaml</artifactId>
+        <version>${jackson.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.fasterxml.jackson.dataformat</groupId>
         <artifactId>jackson-dataformat-xml</artifactId>
         <version>${jackson.version}</version>
       </dependency>
@@ -258,6 +263,10 @@
       <artifactId>jackson-dataformat-xml</artifactId>
     </dependency>
     <dependency>
+      <groupId>com.fasterxml.jackson.dataformat</groupId>
+      <artifactId>jackson-dataformat-yaml</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.msgpack</groupId>
       <artifactId>jackson-dataformat-msgpack</artifactId>
     </dependency>
@@ -357,7 +366,7 @@
 
               <arg>-Xplugin:ErrorProne
                 -XepDisableWarningsInGeneratedCode
-                -XepExcludedPaths:".*/generated-source/.*"
+                -XepExcludedPaths:.*/generated-sources/.*
                 -Xep:AssertFalse:ERROR
                 -Xep:CanIgnoreReturnValueSuggester:ERROR
                 -Xep:ClassName:ERROR
@@ -410,6 +419,11 @@
                 <spaceBeforeSeparator>false</spaceBeforeSeparator>
               </jackson>
             </json>
+            <antlr4>
+              <antlr4Formatter>
+                <version>1.2.1</version>
+              </antlr4Formatter>
+            </antlr4>
             <java>
               <prettier>
                 <devDependencies>

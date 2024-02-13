@@ -1,22 +1,18 @@
 package org.tensortapestry.weft.metakernels;
 
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
-import guru.nidi.graphviz.engine.Format;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-
 import lombok.Data;
 import org.junit.jupiter.api.Test;
 import org.tensortapestry.common.testing.CommonAssertions;
 import org.tensortapestry.loom.graph.CommonEnvironments;
 import org.tensortapestry.loom.graph.LoomGraph;
 import org.tensortapestry.loom.graph.dialects.tensorops.*;
-import org.tensortapestry.loom.graph.export.graphviz.GraphVisualizer;
 import org.tensortapestry.zspace.ZRange;
 import org.tensortapestry.zspace.ZRangeProjectionMap;
 import org.tensortapestry.zspace.indexing.IndexingFns;
@@ -64,9 +60,9 @@ public class MKTest implements CommonAssertions {
     }
 
     public abstract OperationNode apply(
-        @Nonnull LoomGraph graph,
-        @Nullable Map<String, List<TensorSelection>> inputs,
-        @Nullable Map<String, Object> params
+      @Nonnull LoomGraph graph,
+      @Nullable Map<String, List<TensorSelection>> inputs,
+      @Nullable Map<String, Object> params
     );
   }
 
@@ -76,9 +72,9 @@ public class MKTest implements CommonAssertions {
 
     @Override
     public OperationNode apply(
-        @Nonnull LoomGraph graph,
-        @Nullable Map<String, List<TensorSelection>> inputs,
-        @Nullable Map<String, Object> params
+      @Nonnull LoomGraph graph,
+      @Nullable Map<String, List<TensorSelection>> inputs,
+      @Nullable Map<String, Object> params
     ) {
       if (params != null && !params.isEmpty()) {
         throw new IllegalArgumentException("`add` takes no parameters.");
@@ -87,7 +83,7 @@ public class MKTest implements CommonAssertions {
       var expectedKeys = Set.of("tensors");
       if (inputs == null || !inputs.keySet().equals(expectedKeys)) {
         throw new IllegalArgumentException(
-            "Unexpected input keys, found %s, expected %s".formatted(inputs.keySet(), expectedKeys)
+          "Unexpected input keys, found %s, expected %s".formatted(inputs.keySet(), expectedKeys)
         );
       }
 
@@ -101,24 +97,24 @@ public class MKTest implements CommonAssertions {
       var shape = IndexingFns.commonBroadcastShape(shapes.toArray(int[][]::new));
 
       var result = TensorNode
-          .builder()
-          .graph(graph)
-          .label("%s.result".formatted(kernelName))
-          .configure(c -> c.dtype("int32").shape(shape))
-          .build();
+        .builder()
+        .graph(graph)
+        .label("%s.result".formatted(kernelName))
+        .configure(c -> c.dtype("int32").shape(shape))
+        .build();
 
       var outputs = Map.of("result", List.of(TensorSelection.from(result)));
 
       var op = OperationNode
-          .builder()
-          .graph(graph)
-          .label(kernelName)
-          .configure(c -> {
-            c.kernel(kernelName);
-            c.inputs(inputs);
-            c.outputs(outputs);
-          })
-          .build();
+        .builder()
+        .graph(graph)
+        .label(kernelName)
+        .configure(c -> {
+          c.kernel(kernelName);
+          c.inputs(inputs);
+          c.outputs(outputs);
+        })
+        .build();
 
       var index = ZRange.newFromShape(shape);
       op.addAnnotation(TensorOpNodes.IPF_INDEX_ANNOTATION_TYPE, index);
@@ -126,18 +122,18 @@ public class MKTest implements CommonAssertions {
       var commonProjection = ZRangeProjectionMap.builder().identityMap(shape.length).build();
 
       op.addAnnotation(
-          TensorOpNodes.IPF_SIGNATURE_ANNOTATION_TYPE,
-          IPFSignature
-              .builder()
-              .input(
-                  "tensors",
-                  tensors
-                      .stream()
-                      .map(ts -> commonProjection.translate(ts.getRange().getStart()))
-                      .toList()
-              )
-              .output("result", commonProjection)
-              .build()
+        TensorOpNodes.IPF_SIGNATURE_ANNOTATION_TYPE,
+        IPFSignature
+          .builder()
+          .input(
+            "tensors",
+            tensors
+              .stream()
+              .map(ts -> commonProjection.translate(ts.getRange().getStart()))
+              .toList()
+          )
+          .output("result", commonProjection)
+          .build()
       );
 
       OperationUtils.createIpfShards(op, List.of(index));
@@ -153,29 +149,28 @@ public class MKTest implements CommonAssertions {
     var graph = env.newGraph();
 
     var tensorA = TensorNode
-        .builder(graph)
-        .label("A")
-        .configure(c -> c.dtype("int32").shape(10, 10))
-        .build();
+      .builder(graph)
+      .label("A")
+      .configure(c -> c.dtype("int32").shape(10, 10))
+      .build();
 
     var tensorB = TensorNode
-        .builder(graph)
-        .label("B")
-        .configure(c -> c.dtype("int32").shape(10, 10))
-        .build();
+      .builder(graph)
+      .label("B")
+      .configure(c -> c.dtype("int32").shape(10, 10))
+      .build();
 
     var add = new AddKernel();
 
     var op = add
-        .on(graph)
-        .input("tensors", List.of(TensorSelection.from(tensorA), TensorSelection.from(tensorB)))
-        .apply();
+      .on(graph)
+      .input("tensors", List.of(TensorSelection.from(tensorA), TensorSelection.from(tensorB)))
+      .apply();
 
     graph.validate();
-
-    var exporter = GraphVisualizer.buildDefault();
-    var export = exporter.export(graph);
-    var gv = export.getGraphviz();
-    var img = gv.render(Format.PNG).toImage();
+    // var exporter = GraphVisualizer.buildDefault();
+    // var export = exporter.export(graph);
+    // var gv = export.getGraphviz();
+    // var img = gv.render(Format.PNG).toImage();
   }
 }

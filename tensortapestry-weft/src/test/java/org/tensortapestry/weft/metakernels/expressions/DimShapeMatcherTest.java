@@ -4,11 +4,11 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.tensortapestry.common.testing.CommonAssertions;
 
-public class DimShapePatternTest implements CommonAssertions {
+public class DimShapeMatcherTest implements CommonAssertions {
 
   @Test
   public void test_parse() {
-    var source = "[*batch, shape=[height, width], channels]";
+    var source = "[*batch, shape=[height, width], $.channels]";
     var matcher = DimShapeMatcher.parse(source);
     assertThat(matcher).hasToString(source);
 
@@ -22,7 +22,7 @@ public class DimShapePatternTest implements CommonAssertions {
             new DimShapeMatcher.ShapePattern.NamedDim("width")
           )
         ),
-        new DimShapeMatcher.ShapePattern.NamedDim("channels")
+        new DimShapeMatcher.ShapePattern.NamedDim("$.channels")
       );
 
     var shape = new int[] { 100, 20, 5, 10, 255, 255, 3 };
@@ -35,7 +35,7 @@ public class DimShapePatternTest implements CommonAssertions {
           .size(7)
           .dim("height", 4)
           .dim("width", 5)
-          .dim("channels", 6)
+          .dim("$.channels", 6)
           .group("batch", List.of(0, 1, 2, 3))
           .group("shape", List.of(4, 5))
           .build()
@@ -48,7 +48,7 @@ public class DimShapePatternTest implements CommonAssertions {
           .size(7)
           .dim("height", 255)
           .dim("width", 255)
-          .dim("channels", 3)
+          .dim("$.channels", 3)
           .group("batch", List.of(100, 20, 5, 10))
           .group("shape", List.of(255, 255))
           .build()

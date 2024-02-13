@@ -1,79 +1,123 @@
 grammar MKExpressions;
 
-
 eqnProgram
-    : eqn EOF;
+   : eqn EOF
+   ;
 
 eqn
-    : lhs=expr op=(GT | GE | EQ | NE | LT | LE) rhs=expr
-    ;
+   : lhs = expr op = (GT | GE | EQ | NE | LT | LE) rhs = expr
+   ;
 
 exprProgram
-    : e=expr EOF;
+   : e = expr EOF
+   ;
 
 expr
-    : lhs=expr op=(TIMES | DIV | MOD) rhs=expr # BinOpExpr
-    | lhs=expr op=(PLUS | MINUS) rhs=expr # BinOpExpr
-    | lhs=expr op=POW rhs=expr # BinOpExpr
-    | op=MINUS e=expr # NegateExpr
-    | LPAREN e=expr RPAREN # ParensExpr
-    | a=atom # AtomExpr
-    ;
+   : lhs = expr op = (TIMES | DIV | MOD) rhs = expr # BinOpExpr
+   | lhs = expr op = (PLUS | MINUS) rhs = expr # BinOpExpr
+   | lhs = expr op = POW rhs = expr # BinOpExpr
+   | op = MINUS e = expr # NegateExpr
+   | LPAREN e = expr RPAREN # ParensExpr
+   | a = atom # AtomExpr
+   ;
 
 atom
-    : val=integer # NumberExpr
-    | id=dottedId # IdentifierExpr
-    ;
+   : val = integer # NumberExpr
+   | id = dottedId # IdentifierExpr
+   ;
 
 dottedId
-    : ID (DOT ID)*
-    ;
+   : ID (DOT ID)*
+   ;
 
 integer
-    : INTEGER_LITERAL
-    ;
+   : INTEGER_LITERAL
+   ;
 
 ID
-    : VALID_ID_START VALID_ID_CHAR*
-    ;
+   : VALID_ID_START VALID_ID_CHAR*
+   ;
 
 fragment VALID_ID_START
-    : 'a' .. 'z'
-    | 'A' .. 'Z'
-    | '_'
-    ;
+   : 'a' .. 'z'
+   | 'A' .. 'Z'
+   | '_'
+   ;
 
 fragment VALID_ID_CHAR
-    : VALID_ID_START
-    | '0' .. '9'
-    ;
+   : VALID_ID_START
+   | '0' .. '9'
+   ;
 
-GT : '>';
-LT : '<';
-EQ : '=';
-GE : '>=';
-LE : '<=';
-NE : '!=';
+GT
+   : '>'
+   ;
 
-COMMA : ',';
-LPAREN : '(';
-RPAREN : ')';
+LT
+   : '<'
+   ;
 
-PLUS : '+';
-MINUS : '-';
+EQ
+   : '='
+   ;
 
-TIMES : '*';
-DIV : '/';
-MOD : '%';
+GE
+   : '>='
+   ;
 
-POW : '^';
+LE
+   : '<='
+   ;
 
-DOT : '.';
+NE
+   : '!='
+   ;
+
+COMMA
+   : ','
+   ;
+
+LPAREN
+   : '('
+   ;
+
+RPAREN
+   : ')'
+   ;
+
+PLUS
+   : '+'
+   ;
+
+MINUS
+   : '-'
+   ;
+
+TIMES
+   : '*'
+   ;
+
+DIV
+   : '/'
+   ;
+
+MOD
+   : '%'
+   ;
+
+POW
+   : '^'
+   ;
+
+DOT
+   : '.'
+   ;
 
 INTEGER_LITERAL
-    : [0-9]+
-    ;
+   : [0-9]+
+   ;
 
 WS
-    : [ \r\n\t]+ -> skip
-    ;
+   : [ \r\n\t]+ -> skip
+   ;
+
