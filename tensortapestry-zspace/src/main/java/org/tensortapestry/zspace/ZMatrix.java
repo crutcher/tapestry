@@ -168,6 +168,17 @@ public final class ZMatrix
   }
 
   /**
+   * Construct a diagonal matrix from a list of values.
+   *
+   * @param diag the values to put on the diagonal.
+   * @return a new ZTensor.
+   */
+  @Nonnull
+  public static ZMatrix newDiagonalMatrix(@Nonnull ZTensorWrapper diag) {
+    return newDiagonalMatrix(diag.unwrap().toT1());
+  }
+
+  /**
    * Parse a ZMatrix from a string.
    *
    * @param source the string to parse.

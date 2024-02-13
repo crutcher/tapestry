@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
+import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
@@ -28,7 +29,7 @@ public class ZRangeProjectionMap implements HasJsonOutput {
   public static class ZRangeProjectionMapBuilder {
 
     /**
-     * Create a new ZRangeProjectionMapBuilder.
+     * Construct the affine map from an identity matrix.
      *
      * @param n the number of dimensions.
      * @return {@code this}
@@ -38,6 +39,45 @@ public class ZRangeProjectionMap implements HasJsonOutput {
     @CanIgnoreReturnValue
     public ZRangeProjectionMapBuilder identityMap(int n) {
       return affineMap(ZAffineMap.newIdentityMap(n));
+    }
+
+    /**
+     * Construct the affine map from a diagonal matrix.
+     *
+     * @param diagonal the diagonal values.
+     * @return {@code this}
+     */
+    @Nonnull
+    @JsonIgnore
+    @CanIgnoreReturnValue
+    public ZRangeProjectionMapBuilder fromDiagonal(@Nonnull int... diagonal) {
+      return affineMap(ZAffineMap.newFromDiagonal(diagonal));
+    }
+
+    /**
+     * Construct the affine map from a diagonal matrix.
+     *
+     * @param diagonal the diagonal values.
+     * @return {@code this}
+     */
+    @Nonnull
+    @JsonIgnore
+    @CanIgnoreReturnValue
+    public ZRangeProjectionMapBuilder fromDiagonal(@Nonnull List<Integer> diagonal) {
+      return affineMap(ZAffineMap.newFromDiagonal(diagonal));
+    }
+
+    /**
+     * Construct the affine map from a diagonal matrix.
+     *
+     * @param diagonal the diagonal values.
+     * @return {@code this}
+     */
+    @Nonnull
+    @JsonIgnore
+    @CanIgnoreReturnValue
+    public ZRangeProjectionMapBuilder fromDiagonal(@Nonnull ZTensorWrapper diagonal) {
+      return affineMap(ZAffineMap.newFromDiagonal(diagonal));
     }
 
     /**

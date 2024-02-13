@@ -2,6 +2,7 @@ package org.tensortapestry.zspace;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
@@ -34,6 +35,39 @@ public class ZAffineMap implements HasPermuteIO<ZAffineMap>, HasJsonOutput {
   @Nonnull
   public static ZAffineMap newIdentityMap(int n) {
     return fromMatrix(ZMatrix.newIdentityMatrix(n));
+  }
+
+  /**
+   * Create a new ZAffineMap which is a diagonal projection.
+   *
+   * @param diagonal the diagonal.
+   * @return the new matrix.
+   */
+  @Nonnull
+  public static ZAffineMap newFromDiagonal(@Nonnull int[] diagonal) {
+    return fromMatrix(ZMatrix.newDiagonalMatrix(diagonal));
+  }
+
+  /**
+   * Create a new ZAffineMap which is a diagonal projection.
+   *
+   * @param diagonal the diagonal.
+   * @return the new matrix.
+   */
+  @Nonnull
+  public static ZAffineMap newFromDiagonal(@Nonnull List<Integer> diagonal) {
+    return fromMatrix(ZMatrix.newDiagonalMatrix(diagonal));
+  }
+
+  /**
+   * Create a new ZAffineMap which is a diagonal projection.
+   *
+   * @param diagonal the diagonal.
+   * @return the new matrix.
+   */
+  @Nonnull
+  public static ZAffineMap newFromDiagonal(@Nonnull ZTensorWrapper diagonal) {
+    return fromMatrix(ZMatrix.newDiagonalMatrix(diagonal));
   }
 
   /**
