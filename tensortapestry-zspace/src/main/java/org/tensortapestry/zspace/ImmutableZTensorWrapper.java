@@ -6,7 +6,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import javax.annotation.concurrent.ThreadSafe;
-import org.tensortapestry.zspace.impl.HasJsonOutput;
+import org.tensortapestry.common.json.HasToJsonString;
 import org.tensortapestry.zspace.ops.CellWiseOps;
 import org.tensortapestry.zspace.ops.DominanceOrderingOps;
 
@@ -19,7 +19,7 @@ import org.tensortapestry.zspace.ops.DominanceOrderingOps;
 @Immutable
 @SuppressWarnings("Immutable")
 public abstract class ImmutableZTensorWrapper<T>
-  implements ZTensorWrapper, Cloneable, HasJsonOutput {
+  implements ZTensorWrapper, Cloneable, HasToJsonString {
 
   @JsonValue
   @Nonnull

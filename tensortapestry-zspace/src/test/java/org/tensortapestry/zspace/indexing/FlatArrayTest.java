@@ -1,8 +1,8 @@
 package org.tensortapestry.zspace.indexing;
 
 import org.junit.jupiter.api.Test;
+import org.tensortapestry.common.json.JsonUtil;
 import org.tensortapestry.zspace.experimental.ZSpaceTestAssertions;
-import org.tensortapestry.zspace.impl.ZSpaceJsonUtil;
 
 public class FlatArrayTest implements ZSpaceTestAssertions {
 
@@ -14,15 +14,15 @@ public class FlatArrayTest implements ZSpaceTestAssertions {
 
     String json =
       """
-                        [
-                           [1, 2, 3],
-                           [1, 2, 3, 4, 5, 6]
-                        ]
-                        """;
+        [
+           [1, 2, 3],
+           [1, 2, 3, 4, 5, 6]
+        ]
+        """;
 
     assertObjectJsonEquivalence(arrayData, json);
 
-    assertThat(arrayData).isEqualTo(ZSpaceJsonUtil.fromJson(json, FlatArray.class));
+    assertThat(arrayData).isEqualTo(JsonUtil.fromJson(json, FlatArray.class));
   }
 
   @Test

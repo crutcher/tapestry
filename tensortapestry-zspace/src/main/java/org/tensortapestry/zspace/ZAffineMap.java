@@ -11,7 +11,7 @@ import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Value;
 import lombok.extern.jackson.Jacksonized;
-import org.tensortapestry.zspace.impl.HasJsonOutput;
+import org.tensortapestry.common.json.HasToJsonString;
 import org.tensortapestry.zspace.indexing.Selector;
 
 /**
@@ -24,7 +24,7 @@ import org.tensortapestry.zspace.indexing.Selector;
 @Builder(toBuilder = true)
 @JsonPropertyOrder({ "projection", "offset" })
 @EqualsAndHashCode(cacheStrategy = EqualsAndHashCode.CacheStrategy.LAZY)
-public class ZAffineMap implements HasPermuteIO<ZAffineMap>, HasJsonOutput {
+public class ZAffineMap implements HasPermuteIO<ZAffineMap>, HasToJsonString {
 
   /**
    * Create a new ZAffineMap which is an identity projection.

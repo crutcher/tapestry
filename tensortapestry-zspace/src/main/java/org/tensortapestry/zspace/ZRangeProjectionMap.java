@@ -13,7 +13,7 @@ import javax.annotation.concurrent.ThreadSafe;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Value;
-import org.tensortapestry.zspace.impl.HasJsonOutput;
+import org.tensortapestry.common.json.HasToJsonString;
 import org.tensortapestry.zspace.indexing.Selector;
 
 /**
@@ -23,7 +23,7 @@ import org.tensortapestry.zspace.indexing.Selector;
 @Immutable
 @ThreadSafe
 @EqualsAndHashCode(cacheStrategy = EqualsAndHashCode.CacheStrategy.LAZY)
-public class ZRangeProjectionMap implements HasJsonOutput {
+public class ZRangeProjectionMap implements HasToJsonString {
 
   @SuppressWarnings("unused")
   public static class ZRangeProjectionMapBuilder {

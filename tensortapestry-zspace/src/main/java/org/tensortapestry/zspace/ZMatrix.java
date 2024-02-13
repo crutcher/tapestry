@@ -5,7 +5,7 @@ import com.google.errorprone.annotations.Immutable;
 import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.ThreadSafe;
-import org.tensortapestry.zspace.impl.ZSpaceExcludeJacocoGeneratedReport;
+import org.tensortapestry.common.runtime.ExcludeFromJacocoGeneratedReport;
 import org.tensortapestry.zspace.ops.MatrixOps;
 
 /**
@@ -32,7 +32,7 @@ public final class ZMatrix
    */
   @JsonCreator
   @Nonnull
-  @ZSpaceExcludeJacocoGeneratedReport
+  @ExcludeFromJacocoGeneratedReport
   static ZMatrix privateCreator(@Nonnull ZTensor tensor) {
     return new ZMatrix(tensor);
   }

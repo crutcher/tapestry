@@ -12,6 +12,7 @@ import com.jayway.jsonpath.ParseContext;
 import com.jayway.jsonpath.TypeRef;
 import com.jayway.jsonpath.spi.json.JacksonJsonNodeJsonProvider;
 import com.jayway.jsonpath.spi.mapper.JacksonMappingProvider;
+import java.io.IOException;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
@@ -20,6 +21,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import lombok.Value;
 import lombok.experimental.UtilityClass;
+import org.msgpack.jackson.dataformat.MessagePackFactory;
 
 @UtilityClass
 public final class JsonUtil {
@@ -292,8 +294,8 @@ public final class JsonUtil {
    * @param clazz the class of the object to de-serialize.
    * @param <T> the type of the object to de-serialize.
    * @return the de-serialized object.
-   * @throws IllegalArgumentException if the JSON string cannot be de-serialized to the
-   *     specified class.
+   * @throws IllegalArgumentException if the JSON string cannot be de-serialized to the specified
+   *   class.
    */
   public <T> T fromJson(String json, Class<T> clazz) {
     try {
@@ -310,8 +312,7 @@ public final class JsonUtil {
    * @param cls the class of the object to de-serialize.
    * @param <T> the type of the object to de-serialize.
    * @return the de-serialized object.
-   * @throws JsonProcessingException if the JSON string cannot be de-serialized to the
-   *     specified.
+   * @throws JsonProcessingException if the JSON string cannot be de-serialized to the specified.
    */
   public <T> T readValue(String json, Class<T> cls) throws JsonProcessingException {
     return getObjectMapper().readValue(json, cls);
@@ -518,6 +519,57 @@ public final class JsonUtil {
       throw new IllegalArgumentException(
         "Unexpected value type (%s) at %s".formatted(target.getClass().getSimpleName(), item)
       );
+    }
+  }
+
+  private final ObjectMapper MSGPACK_MAPPER = new ObjectMapper(new MessagePackFactory());
+
+  /**
+   * Serialize an object from msgpack via Jackson.
+   *
+   * @param obj the object to serialize.
+   * @return the msgpack byte[]s.
+   * @throws IllegalArgumentException if the object cannot be serialized.
+   */
+  @Nonnull
+  public byte[] toMsgPack(@Nullable Object obj) {
+    try {
+      return MSGPACK_MAPPER.writer().writeValueAsBytes(obj);
+    } catch (JsonProcessingException e) {
+      throw new IllegalArgumentException(e);
+    }
+  }
+
+  /**
+   * Deserialize an object from msgpack via Jackson.
+   *
+   * @param bytes the msgpack byte[].
+   * @param clazz the class of the object to deserialize.
+   * @param <T> the type of the object to deserialize.
+   * @return the deserialized object.
+   * @throws IllegalArgumentException if the object cannot be deserialized.
+   */
+  @Nullable public <T> T fromMsgPack(@Nonnull byte[] bytes, @Nonnull Class<T> clazz) {
+    return fromMsgPack(bytes, 0, bytes.length, clazz);
+  }
+
+  /**
+   * Deserialize an object from msgpack via Jackson.
+   *
+   * @param bytes the msgpack byte[].
+   * @param offset the offset of the byte[].
+   * @param len the length of the byte[].
+   * @param clazz the class of the object to deserialize.
+   * @param <T> the type of the object to deserialize.
+   * @return the deserialized object.
+   * @throws IllegalArgumentException if the object cannot be deserialized.
+   */
+  @Nullable @SuppressWarnings("InconsistentOverloads")
+  public <T> T fromMsgPack(@Nonnull byte[] bytes, int offset, int len, @Nonnull Class<T> clazz) {
+    try {
+      return MSGPACK_MAPPER.readValue(bytes, offset, len, clazz);
+    } catch (IOException e) {
+      throw new IllegalArgumentException(e);
     }
   }
 }

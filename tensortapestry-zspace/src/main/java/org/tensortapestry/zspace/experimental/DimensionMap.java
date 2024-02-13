@@ -11,17 +11,17 @@ import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.Immutable;
 import javax.annotation.concurrent.ThreadSafe;
+import org.tensortapestry.common.json.HasToJsonString;
+import org.tensortapestry.common.json.JsonUtil;
 import org.tensortapestry.zspace.HasDimension;
 import org.tensortapestry.zspace.ZPoint;
-import org.tensortapestry.zspace.impl.HasJsonOutput;
-import org.tensortapestry.zspace.impl.ZSpaceJsonUtil;
 import org.tensortapestry.zspace.indexing.IndexingFns;
 
 @Immutable
 @ThreadSafe
 @JsonDeserialize(using = DimensionMap.Deserializer.class)
 public final class DimensionMap
-  implements HasDimension, HasNamedPermute<DimensionMap>, HasJsonOutput {
+  implements HasDimension, HasNamedPermute<DimensionMap>, HasToJsonString {
 
   static final class Deserializer extends StdDeserializer<DimensionMap> {
 
@@ -73,7 +73,7 @@ public final class DimensionMap
 
   @Nonnull
   public static DimensionMap parseDimensionMap(@Nonnull String json) {
-    return Objects.requireNonNull(ZSpaceJsonUtil.fromJson(json, DimensionMap.class));
+    return Objects.requireNonNull(JsonUtil.fromJson(json, DimensionMap.class));
   }
 
   @Override

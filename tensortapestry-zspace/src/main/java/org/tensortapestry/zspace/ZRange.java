@@ -12,9 +12,9 @@ import javax.annotation.concurrent.ThreadSafe;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Value;
-import org.tensortapestry.zspace.impl.HasJsonOutput;
-import org.tensortapestry.zspace.impl.ParseUtil;
-import org.tensortapestry.zspace.impl.ZSpaceJsonUtil;
+import org.tensortapestry.common.json.HasToJsonString;
+import org.tensortapestry.common.json.JsonUtil;
+import org.tensortapestry.common.text.TextUtils;
 import org.tensortapestry.zspace.indexing.BufferOwnership;
 import org.tensortapestry.zspace.indexing.IterableCoordinates;
 import org.tensortapestry.zspace.ops.DominanceOrderingOps;
@@ -49,7 +49,7 @@ import org.tensortapestry.zspace.ops.RangeOps;
 @Immutable
 @Value
 @EqualsAndHashCode(cacheStrategy = EqualsAndHashCode.CacheStrategy.LAZY)
-public class ZRange implements Cloneable, HasSize, HasPermute<ZRange>, HasJsonOutput {
+public class ZRange implements Cloneable, HasSize, HasPermute<ZRange>, HasToJsonString {
 
   /**
    * ZRange builder.
@@ -253,7 +253,7 @@ public class ZRange implements Cloneable, HasSize, HasPermute<ZRange>, HasJsonOu
     str = str.strip();
 
     if (str.startsWith("{")) {
-      return Objects.requireNonNull(ZSpaceJsonUtil.fromJson(str, ZRange.class));
+      return Objects.requireNonNull(JsonUtil.fromJson(str, ZRange.class));
     }
 
     if (str.startsWith("zr[") && str.endsWith("]")) {
@@ -262,12 +262,12 @@ public class ZRange implements Cloneable, HasSize, HasPermute<ZRange>, HasJsonOu
         return new ZRange(new ZPoint(), new ZPoint());
       }
 
-      var parts = ParseUtil.splitCommas(t);
+      var parts = TextUtils.COMMA_SPLITTER.trimResults().splitToList(t);
       var start = new int[parts.size()];
       var end = new int[parts.size()];
 
       for (int i = 0; i < parts.size(); ++i) {
-        var rangeParts = ParseUtil.splitColons(parts.get(i));
+        var rangeParts = TextUtils.COLON_SPLITTER.trimResults().splitToList(parts.get(i));
         if (rangeParts.size() != 2) {
           throw new IllegalArgumentException(String.format("Invalid ZRange: \"%s\"", str));
         }

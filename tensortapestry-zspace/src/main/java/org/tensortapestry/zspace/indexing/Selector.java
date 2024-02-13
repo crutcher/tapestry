@@ -4,7 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.tensortapestry.zspace.impl.ParseUtil;
+import lombok.*;
+import org.tensortapestry.common.text.TextUtils;
 
 public abstract class Selector {
 
@@ -100,7 +101,7 @@ public abstract class Selector {
   @Nonnull
   public static List<Selector> parseSelectors(@Nonnull String selector) {
     List<Selector> selectors = new ArrayList<>();
-    for (var atom : ParseUtil.splitCommas(selector)) {
+    for (var atom : TextUtils.COMMA_SPLITTER.split(selector)) {
       selectors.add(parseSelectorAtom(atom));
     }
     return selectors;
@@ -123,7 +124,7 @@ public abstract class Selector {
     } else if (atom.startsWith("+")) {
       return new NewAxis(Integer.parseInt(atom.substring(1)));
     } else if (atom.contains(":")) {
-      var parts = ParseUtil.splitColons(atom).iterator();
+      var parts = TextUtils.COLON_SPLITTER.trimResults().split(atom).iterator();
       var start = parts.next();
       var stop = parts.next();
       var step = parts.hasNext() ? parts.next() : null;
@@ -134,6 +135,98 @@ public abstract class Selector {
       );
     } else {
       return new Index(Integer.parseInt(atom));
+    }
+  }
+
+  @Value
+  @EqualsAndHashCode(callSuper = false)
+  public static class Ellipsis extends Selector {
+
+    @Override
+    public String toString() {
+      return "...";
+    }
+  }
+
+  @Value
+  @EqualsAndHashCode(callSuper = false)
+  public static class Index extends Selector {
+
+    int index;
+
+    public Index(int index) {
+      this.index = index;
+    }
+
+    @Override
+    public String toString() {
+      return Integer.toString(index);
+    }
+  }
+
+  @Value
+  @EqualsAndHashCode(callSuper = false)
+  public static class NewAxis extends Selector {
+
+    int size;
+
+    public NewAxis() {
+      this(1);
+    }
+
+    public NewAxis(int size) {
+      if (size < 1) {
+        throw new IllegalArgumentException("Size must be greater than 0: " + size);
+      }
+      this.size = size;
+    }
+
+    @Override
+    public String toString() {
+      if (size > 1) {
+        return "+" + size;
+      } else {
+        return "+";
+      }
+    }
+  }
+
+  @Value
+  @EqualsAndHashCode(callSuper = false)
+  @Builder
+  @AllArgsConstructor
+  @NoArgsConstructor
+  public static class Slice extends Selector {
+
+    @Builder.Default
+    @Nullable Integer start = null;
+
+    @Builder.Default
+    @Nullable Integer end = null;
+
+    @Builder.Default
+    @Nullable Integer step = null;
+
+    public Slice(@Nullable Integer start, @Nullable Integer end) {
+      this(start, end, null);
+    }
+
+    @Override
+    @SuppressWarnings("ConstantConditions")
+    public String toString() {
+      var parts = new ArrayList<String>();
+      if (start != null) {
+        parts.add(start.toString());
+      }
+      parts.add(":");
+      if (end != null) {
+        parts.add(end.toString());
+      }
+      if (step != null) {
+        parts.add(":");
+        parts.add(step.toString());
+      }
+      return String.join("", parts);
     }
   }
 }

@@ -7,9 +7,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.IntBinaryOperator;
 import java.util.function.IntSupplier;
 import org.junit.jupiter.api.Test;
+import org.tensortapestry.common.json.JsonUtil;
 import org.tensortapestry.zspace.exceptions.ZDimMissMatchError;
 import org.tensortapestry.zspace.experimental.ZSpaceTestAssertions;
-import org.tensortapestry.zspace.impl.ZSpaceJsonUtil;
 import org.tensortapestry.zspace.indexing.*;
 import org.tensortapestry.zspace.ops.CellWiseOps;
 
@@ -61,28 +61,28 @@ public class ZTensorTest implements ZSpaceTestAssertions {
   public void test_sliceDim() {
     var t = ZTensor.newFromArray(new int[][] { { 2, 3, 4 }, { 5, 6, 7 } });
 
-    assertThat(t.sliceDim(1, new Slice()))
-      .isSameAs(t.sliceDim(1, new Slice(0, 3, 1)))
-      .isSameAs(t.sliceDim(1, new Slice(-3, null, 1)))
+    assertThat(t.sliceDim(1, new Selector.Slice()))
+      .isSameAs(t.sliceDim(1, new Selector.Slice(0, 3, 1)))
+      .isSameAs(t.sliceDim(1, new Selector.Slice(-3, null, 1)))
       .isSameAs(t);
 
-    assertThat(t.sliceDim(1, new Slice(1, 3)))
-      .isEqualTo(t.sliceDim(1, new Slice(1, null)))
-      .isEqualTo(t.sliceDim(1, new Slice(1, 3, 1)))
-      .isEqualTo(t.sliceDim(1, new Slice(-2, null)))
+    assertThat(t.sliceDim(1, new Selector.Slice(1, 3)))
+      .isEqualTo(t.sliceDim(1, new Selector.Slice(1, null)))
+      .isEqualTo(t.sliceDim(1, new Selector.Slice(1, 3, 1)))
+      .isEqualTo(t.sliceDim(1, new Selector.Slice(-2, null)))
       .isEqualTo(ZTensor.newFromArray(new int[][] { { 3, 4 }, { 6, 7 } }));
 
-    assertThat(ZTensor.newZeros(3).sliceDim(0, new Slice(-2, null, -1)))
+    assertThat(ZTensor.newZeros(3).sliceDim(0, new Selector.Slice(-2, null, -1)))
       .isEqualTo(ZTensor.newFromArray(new int[] { 0, 0 }));
 
     assertThatExceptionOfType(IllegalArgumentException.class)
-      .isThrownBy(() -> ZTensor.newZeros(3).sliceDim(0, new Slice(null, null, 0)))
+      .isThrownBy(() -> ZTensor.newZeros(3).sliceDim(0, new Selector.Slice(null, null, 0)))
       .withMessage("slice step cannot be zero: ::0");
     assertThatExceptionOfType(IllegalArgumentException.class)
-      .isThrownBy(() -> ZTensor.newZeros(3).sliceDim(0, new Slice(1, 0)))
+      .isThrownBy(() -> ZTensor.newZeros(3).sliceDim(0, new Selector.Slice(1, 0)))
       .withMessage("slice start (1) must be less than end (0) for positive step (1): 1:0");
     assertThatExceptionOfType(IllegalArgumentException.class)
-      .isThrownBy(() -> ZTensor.newZeros(3).sliceDim(0, new Slice(0, 1, -1)))
+      .isThrownBy(() -> ZTensor.newZeros(3).sliceDim(0, new Selector.Slice(0, 1, -1)))
       .withMessage("slice start (0) must be greater than end (1) for negative step (-1): 0:1:-1");
   }
 
@@ -104,7 +104,7 @@ public class ZTensorTest implements ZSpaceTestAssertions {
 
     // Degenerate tensors map to emtpy tensors.
     var deg = ZTensor.newZeros(0, 5);
-    assertThat(ZSpaceJsonUtil.toJson(deg)).isEqualTo("[[]]");
+    assertThat(JsonUtil.toJson(deg)).isEqualTo("[[]]");
 
     var t = ZTensor.newFromArray(new int[][] { { 2, 3 }, { 4, 5 } });
     var s = ZTensor.newScalar(3);
@@ -121,13 +121,11 @@ public class ZTensorTest implements ZSpaceTestAssertions {
   public void test_msgpack() {
     {
       var tensor = ZTensor.newZeros(5, 3, 2);
-      assertThat(ZSpaceJsonUtil.fromMsgPack(ZSpaceJsonUtil.toMsgPack(tensor), ZTensor.class))
-        .isEqualTo(tensor);
+      assertThat(JsonUtil.fromMsgPack(JsonUtil.toMsgPack(tensor), ZTensor.class)).isEqualTo(tensor);
     }
     {
       var tensor = ZTensor.newScalar(12);
-      assertThat(ZSpaceJsonUtil.fromMsgPack(ZSpaceJsonUtil.toMsgPack(tensor), ZTensor.class))
-        .isEqualTo(tensor);
+      assertThat(JsonUtil.fromMsgPack(JsonUtil.toMsgPack(tensor), ZTensor.class)).isEqualTo(tensor);
     }
   }
 

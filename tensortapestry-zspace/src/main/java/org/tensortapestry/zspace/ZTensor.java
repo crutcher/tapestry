@@ -21,9 +21,9 @@ import javax.annotation.Nullable;
 import lombok.Getter;
 import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
+import org.tensortapestry.common.json.HasToJsonString;
+import org.tensortapestry.common.json.JsonUtil;
 import org.tensortapestry.zspace.exceptions.ZDimMissMatchError;
-import org.tensortapestry.zspace.impl.HasJsonOutput;
-import org.tensortapestry.zspace.impl.ZSpaceJsonUtil;
 import org.tensortapestry.zspace.indexing.*;
 import org.tensortapestry.zspace.ops.CellWiseOps;
 import org.tensortapestry.zspace.ops.ChunkOps;
@@ -90,7 +90,8 @@ import org.tensortapestry.zspace.ops.ReduceOps;
 @JsonDeserialize(using = ZTensor.Serialization.Deserializer.class)
 @SuppressWarnings("MemberName")
 public final class ZTensor
-  implements ZTensorWrapper, HasJsonOutput, Cloneable, HasDimension, HasSize, HasPermute<ZTensor> {
+  implements
+    ZTensorWrapper, HasToJsonString, Cloneable, HasDimension, HasSize, HasPermute<ZTensor> {
 
   /**
    * Construct a new mutable scalar (0-dim) tensor.
@@ -398,9 +399,7 @@ public final class ZTensor
    */
   public static ZTensor newFromFlatBase64(@Nonnull String encoded) {
     byte[] bytes = Base64.getDecoder().decode(encoded);
-    return newFromFlatArray_(
-      Objects.requireNonNull(ZSpaceJsonUtil.fromMsgPack(bytes, FlatArray.class))
-    );
+    return newFromFlatArray_(Objects.requireNonNull(JsonUtil.fromMsgPack(bytes, FlatArray.class)));
   }
 
   /**
@@ -457,7 +456,7 @@ public final class ZTensor
    */
   @Nonnull
   public static ZTensor parse(@Nonnull String str) {
-    return Objects.requireNonNull(ZSpaceJsonUtil.fromJson(str, ZTensor.class));
+    return Objects.requireNonNull(JsonUtil.fromJson(str, ZTensor.class));
   }
 
   /**
@@ -774,7 +773,10 @@ public final class ZTensor
   @Nonnull
   @SuppressWarnings("unused")
   public ZTensor select(@Nonnull List<Selector> selectors) {
-    var ellipsisCount = selectors.stream().filter(selector -> selector instanceof Ellipsis).count();
+    var ellipsisCount = selectors
+      .stream()
+      .filter(selector -> selector instanceof Selector.Ellipsis)
+      .count();
     if (ellipsisCount > 1) {
       throw new IllegalArgumentException("Multiple ellipsis in selection: " + selectors);
     }
@@ -785,21 +787,21 @@ public final class ZTensor
     for (var selIdx = 0; selIdx < selectors.size(); selIdx++) {
       var selector = Objects.requireNonNull(selectors.get(selIdx), "selector");
       switch (selector) {
-        case Index index -> cur = cur.selectDim(nextDim, index.getIndex()); // shrinks cur, so we don't increment nextDim.
-        case NewAxis newAxis -> {
+        case Selector.Index index -> cur = cur.selectDim(nextDim, index.getIndex()); // shrinks cur, so we don't increment nextDim.
+        case Selector.NewAxis newAxis -> {
           cur = cur.unsqueeze(nextDim);
           nextDim++;
           cur = cur.broadcastDim(nextDim - 1, newAxis.getSize());
         }
-        case Slice slice -> {
+        case Selector.Slice slice -> {
           cur = cur.sliceDim(nextDim, slice);
           nextDim++;
         }
-        case Ellipsis ellipsis -> {
+        case Selector.Ellipsis ellipsis -> {
           var renaming = (int) selectors
             .subList(selIdx + 1, selectors.size())
             .stream()
-            .filter(s -> !(s instanceof NewAxis))
+            .filter(s -> !(s instanceof Selector.NewAxis))
             .count();
 
           var skipDims = selectors.size() - selIdx - 1 - renaming;
@@ -1126,7 +1128,7 @@ public final class ZTensor
   @Nonnull
   String toFlatBase64() {
     return new String(
-      Base64.getEncoder().encode(ZSpaceJsonUtil.toMsgPack(toFlatArray())),
+      Base64.getEncoder().encode(JsonUtil.toMsgPack(toFlatArray())),
       StandardCharsets.UTF_8
     );
   }
@@ -1242,8 +1244,7 @@ public final class ZTensor
   /**
    * Return a view of this tensor with a broadcastable dimension expanded.
    *
-   * @param dim the dimension to expand (must be size 1, or a previously broadcasted
-   *     dimension).
+   * @param dim the dimension to expand (must be size 1, or a previously broadcasted dimension).
    * @param size the new size of the dimension.
    * @return a view of this tensor with a broadcastable dimension expanded.
    */
@@ -1522,7 +1523,7 @@ public final class ZTensor
    * @param b The index of the second dimension to be transposed.
    * @return A new tensor that is a transposed view of the original tensor.
    * @throws IllegalArgumentException If the provided indices are not valid dimensions of the
-   *     tensor.
+   *   tensor.
    */
   @Nonnull
   public ZTensor transpose(int a, int b) {
@@ -1682,7 +1683,7 @@ public final class ZTensor
    * @return a view of this tensor with the given dimension sliced.
    */
   @Nonnull
-  public ZTensor sliceDim(int dim, @Nonnull Slice slice) {
+  public ZTensor sliceDim(int dim, @Nonnull Selector.Slice slice) {
     var d = resolveDim(dim);
 
     var start = slice.getStart();
@@ -1785,9 +1786,9 @@ public final class ZTensor
    * represents the second last, and so on.
    *
    * @param permutation An array of unique integers representing the new order of indices along
-   *     the specified dimension. Each integer should be a valid index for that dimension.
-   * @param dim Index of the dimension to be reordered. Dimensions are zero-indexed. This must
-   *     be a valid dimension of this tensor.
+   *   the specified dimension. Each integer should be a valid index for that dimension.
+   * @param dim Index of the dimension to be reordered. Dimensions are zero-indexed. This must be
+   *   a valid dimension of this tensor.
    * @return A new ZTensor, with the specified dimension reordered.
    */
   @Nonnull

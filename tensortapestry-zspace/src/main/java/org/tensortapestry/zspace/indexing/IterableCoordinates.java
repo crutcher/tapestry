@@ -5,12 +5,12 @@ import java.util.NoSuchElementException;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import lombok.Getter;
-import org.tensortapestry.zspace.impl.StreamableIterable;
 
 /**
  * An iterable and streamable view over coordinates in a range.
  */
-public final class IterableCoordinates implements StreamableIterable<int[]> {
+public final class IterableCoordinates
+  implements org.tensortapestry.common.collections.StreamableIterable<int[]> {
 
   /**
    * An Iterator over coordinates.
