@@ -64,9 +64,9 @@ public abstract class AbstractNodeWrapper<BodyT> implements LoomNodeWrapper {
     }
 
     @Nonnull
-    public final BuilderT configure(@Nonnull Consumer<BodyBuilderT> config) {
+    public final BuilderT body(@Nonnull Consumer<BodyBuilderT> body) {
       var bodyBuilder = createBodyBuilder.get();
-      config.accept(bodyBuilder);
+      body.accept(bodyBuilder);
       nodeBuilder.body(bodyBuilderBuild.apply(bodyBuilder));
       return self();
     }

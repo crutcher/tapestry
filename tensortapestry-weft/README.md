@@ -22,13 +22,13 @@ static class Example {
     var tensorA = TensorNode
       .builder(graph)
       .label("A")
-      .configure(c -> c.dtype("int32").shape(10, 10))
+      .body(c -> c.dtype("int32").shape(10, 10))
       .build();
 
     var tensorB = TensorNode
       .builder(graph)
       .label("B")
-      .configure(c -> c.dtype("int32").shape(10, 10))
+      .body(c -> c.dtype("int32").shape(10, 10))
       .build();
 
     var add = new AddKernel();

@@ -84,7 +84,7 @@ public class ValidationUtilsTest implements CommonAssertions {
   public void test_validateNodeReference_wrongType() {
     var graph = createGraph();
 
-    var node = NoteNode.builder(graph).configure(b -> b.message("Hello")).build();
+    var node = NoteNode.builder(graph).body(b -> b.message("Hello")).build();
 
     var collector = new ListValidationIssueCollector();
     LoomNode result = ValidationUtils.validateNodeReference(

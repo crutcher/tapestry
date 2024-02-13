@@ -16,7 +16,7 @@ public class LoomGraphTest implements CommonAssertions {
     var graph = env.newGraph();
 
     for (int i = 0; i < 10; i++) {
-      NoteNode.builder(graph).configure(b -> b.message("test")).build();
+      NoteNode.builder(graph).body(b -> b.message("test")).build();
     }
 
     var nodeId = graph.genNodeId();
@@ -28,7 +28,7 @@ public class LoomGraphTest implements CommonAssertions {
     var env = CommonEnvironments.expressionEnvironment();
     var graph = env.newGraph();
 
-    var node1 = NoteNode.builder(graph).configure(b -> b.message("node 1")).label("foo").build();
+    var node1 = NoteNode.builder(graph).body(b -> b.message("node 1")).label("foo").build();
 
     assertThat(graph.getNode(node1.getId())).isSameAs(node1.unwrap());
     assertThat(graph.getNode(node1.getId().toString())).isSameAs(node1.unwrap());
@@ -42,15 +42,15 @@ public class LoomGraphTest implements CommonAssertions {
 
     {
       var graph2 = env.newGraph();
-      var node2 = NoteNode.builder(graph2).configure(b -> b.message("node 1")).build();
+      var node2 = NoteNode.builder(graph2).body(b -> b.message("node 1")).build();
 
       assertThatExceptionOfType(IllegalArgumentException.class)
         .isThrownBy(() -> graph.addNode(node2))
         .withMessage("Node already belongs to a graph: %s".formatted(graph2.getId()));
     }
 
-    var node2 = NoteNode.builder(graph).configure(b -> b.message("node 2")).label("bar").build();
-    var node3 = NoteNode.builder(graph).configure(b -> b.message("node 3")).label("qux").build();
+    var node2 = NoteNode.builder(graph).body(b -> b.message("node 2")).label("bar").build();
+    var node3 = NoteNode.builder(graph).body(b -> b.message("node 3")).label("qux").build();
 
     {
       // By Node
@@ -91,7 +91,7 @@ public class LoomGraphTest implements CommonAssertions {
     assertThatExceptionOfType(IllegalStateException.class)
       .isThrownBy(() -> graph.assertNode(nodeIdA.toString()));
 
-    var nodeA = NoteNode.builder(graph).configure(b -> b.message("test")).id(nodeIdA).build();
+    var nodeA = NoteNode.builder(graph).body(b -> b.message("test")).id(nodeIdA).build();
 
     assertThat(nodeA)
       .hasFieldOrPropertyWithValue("id", nodeIdA)

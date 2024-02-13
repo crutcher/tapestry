@@ -88,8 +88,8 @@ public class LoomTypeSchemaTest implements CommonAssertions {
 
     var env = CommonEnvironments.expressionEnvironment();
     var graph = env.newGraph();
-    var note = NoteNode.builder(graph).configure(b -> b.message("hello")).build();
-    var tensor = TensorNode.builder(graph).configure(b -> b.dtype("int32").shape(2)).build();
+    var note = NoteNode.builder(graph).body(b -> b.message("hello")).build();
+    var tensor = TensorNode.builder(graph).body(b -> b.dtype("int32").shape(2)).build();
 
     UUID missingId = UUID.randomUUID();
     String garbage = "garbage";

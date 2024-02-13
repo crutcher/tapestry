@@ -83,7 +83,7 @@ public class OperationUtils {
       .builder(graph)
       .annotation(TensorOpNodes.IPF_SIGNATURE_ANNOTATION_TYPE, ipfSignature)
       .annotation(TensorOpNodes.IPF_INDEX_ANNOTATION_TYPE, ipfIndex)
-      .configure(b -> {
+      .body(b -> {
         b.kernel(kernelName);
 
         if (params != null) {
@@ -120,7 +120,7 @@ public class OperationUtils {
               .builder()
               .label("%s/%s[%d]".formatted(kernelName, name, idx))
               .graph(graph)
-              .configure(tb -> tb.dtype(t).range(p.apply(ipfIndex)))
+              .body(tb -> tb.dtype(t).range(p.apply(ipfIndex)))
               .build();
 
             selections.add(TensorSelection.from(tensor));
@@ -159,7 +159,7 @@ public class OperationUtils {
     return ApplicationNode
       .builder(operation.assertGraph())
       .annotation(TensorOpNodes.IPF_INDEX_ANNOTATION_TYPE, shardIndex)
-      .configure(b -> {
+      .body(b -> {
         b.operationId(operation.getId());
 
         for (var entry : ipfSig.getInputs().entrySet()) {

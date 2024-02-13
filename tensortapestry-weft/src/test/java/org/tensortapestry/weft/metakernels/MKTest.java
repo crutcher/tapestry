@@ -102,7 +102,7 @@ public class MKTest implements CommonAssertions {
         .builder()
         .graph(graph)
         .label("%s.result".formatted(kernelName))
-        .configure(c -> c.dtype("int32").shape(shape))
+        .body(b -> b.dtype("int32").shape(shape))
         .build();
 
       var outputs = Map.of("result", List.of(TensorSelection.from(result)));
@@ -111,10 +111,10 @@ public class MKTest implements CommonAssertions {
         .builder()
         .graph(graph)
         .label(kernelName)
-        .configure(c -> {
-          c.kernel(kernelName);
-          c.inputs(inputs);
-          c.outputs(outputs);
+        .body(b -> {
+          b.kernel(kernelName);
+          b.inputs(inputs);
+          b.outputs(outputs);
         })
         .build();
 
@@ -153,13 +153,13 @@ public class MKTest implements CommonAssertions {
     var tensorA = TensorNode
       .builder(graph)
       .label("A")
-      .configure(c -> c.dtype("int32").shape(10, 10))
+      .body(b -> b.dtype("int32").shape(10, 10))
       .build();
 
     var tensorB = TensorNode
       .builder(graph)
       .label("B")
-      .configure(c -> c.dtype("int32").shape(10, 10))
+      .body(b -> b.dtype("int32").shape(10, 10))
       .build();
 
     var add = new AddKernel();

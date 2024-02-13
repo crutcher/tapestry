@@ -27,7 +27,7 @@ public class TensorDTypesAreValidConstraintTest implements CommonAssertions {
     TensorNode
       .builder(graph)
       .label("Good")
-      .configure(b -> {
+      .body(b -> {
         b.dtype("int32");
         b.shape(new ZPoint(2, 3));
       })
@@ -36,7 +36,7 @@ public class TensorDTypesAreValidConstraintTest implements CommonAssertions {
     var badTensor = TensorNode
       .builder(graph)
       .label("Bad")
-      .configure(b -> {
+      .body(b -> {
         b.dtype("nonesuch");
         b.shape(new ZPoint(2, 3));
       })

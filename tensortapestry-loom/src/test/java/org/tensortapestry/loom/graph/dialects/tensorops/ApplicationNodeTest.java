@@ -64,15 +64,12 @@ public class ApplicationNodeTest implements CommonAssertions {
     var env = CommonEnvironments.expressionEnvironment();
     var graph = env.newGraph();
 
-    var inputTensor = TensorNode
-      .builder(graph)
-      .configure(b -> b.shape(2, 3).dtype("float32"))
-      .build();
-    var outputTensor = TensorNode.builder(graph).configure(b -> b.shape(10).dtype("int32")).build();
+    var inputTensor = TensorNode.builder(graph).body(b -> b.shape(2, 3).dtype("float32")).build();
+    var outputTensor = TensorNode.builder(graph).body(b -> b.shape(10).dtype("int32")).build();
 
     var operation = OperationNode
       .builder(graph)
-      .configure(b ->
+      .body(b ->
         b
           .kernel("increment")
           .input(
@@ -98,7 +95,7 @@ public class ApplicationNodeTest implements CommonAssertions {
 
     var application = ApplicationNode
       .builder(graph)
-      .configure(b ->
+      .body(b ->
         b
           .operationId(UUID.randomUUID())
           .operationId(operation.getId())
