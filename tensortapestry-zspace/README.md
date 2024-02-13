@@ -35,32 +35,30 @@ static class Example {
 
 Core Features:
 
-- [ZTensor](src/main/java/org/tensortapestry/zspace/ZTensor.java): An n-dimensional integer tensor.
+- [ZTensor](src/main/java/org/tensortapestry/zspace/ZTensor.java): n-dimensional integer tensor.
 
-* Supports mutable and immutable tensors.
-* Supports broadcasting and element wise operations.
-* Supports slicing and selecting sub-tensor views.
-* Supports view manipulation and reshaping.
-* Supports serialization and deserialization to and from JSON, Java Arrays, and MsgPack.
+  - Supports mutable and immutable tensors.
+  - Supports broadcasting and element wise operations.
+  - Supports slicing and selecting sub-tensor views.
+  - Supports view manipulation and reshaping.
+  - Supports serialization and deserialization to and from JSON, Java Arrays, and MsgPack.
 
-- [ZPoint](src/main/java/org/tensortapestry/zspace/ZPoint.java): An immutable n-dimensional integer
-  point wrapper around a ZTensor.
+- [ZPoint](src/main/java/org/tensortapestry/zspace/ZPoint.java): immutable coordinate
 
-* Supports point addition, subtraction, and scalar multiplication.
-* Supports dominance ordering point comparison and equality.
+  - Supports point addition, subtraction, and scalar multiplication.
+  - Supports dominance ordering point comparison and equality.
 
-- [ZRange](src/main/java/org/tensortapestry/zspace/ZRange.java): An immutable n-dimensional integer
-  range wrapper around a ZTensor.
+- [ZRange](src/main/java/org/tensortapestry/zspace/ZRange.java): immutable n-dimensional coordinate
+  range
 
-* Supports range addition, subtraction, and scalar multiplication.
-* Supports range intersection, union, and containment.
-* Supports range iteration and enumeration.
+  - Supports range addition, subtraction, and scalar multiplication.
+  - Supports range intersection, union, and containment.
+  - Supports range iteration and enumeration.
 
-- [ZMatrix](src/main/java/org/tensortapestry/zspace/ZMatrix.java): An immutable 2-dimensional
-  integer matrix wrapper around a ZTensor.
-- [ZAffineMap](src/main/java/org/tensortapestry/zspace/ZAffineMap.java): An immutable affine project
-  from one space to another.
-- [ZRangeProjectionMap](src/main/java/org/tensortapestry/zspace/ZRangeProjectionMap.java): A
+- [ZMatrix](src/main/java/org/tensortapestry/zspace/ZMatrix.java): immutable 2-dimensional
+- [ZAffineMap](src/main/java/org/tensortapestry/zspace/ZAffineMap.java): immutable affine coordinate
+  projection
+- [ZRangeProjectionMap](src/main/java/org/tensortapestry/zspace/ZRangeProjectionMap.java):
   ZAffineMap decorated with a shape.
 
 ## Json Serialization
