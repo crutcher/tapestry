@@ -1,6 +1,9 @@
 .idea/*
 !.idea/runConfigurations/
 
+# macos directory metadata.
+.DS_Store
+
 out
 build
 target
