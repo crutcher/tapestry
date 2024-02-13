@@ -1,8 +1,6 @@
-# Tapestry Compiler Suite
+# Tensor Tapestry Compiler Suite
 
-**Tapestry** is an experimental optimizing tensor expression compiler suite.
-
-![example](tensortapestry-loom/docs/media/example.svg)
+**Tapestry** is an experimental tensor expression optimizing compiler suite.
 
 The goal of **Tapestry** is to provide an ecosystem for a high-performance stochastic pareto-front
 optimizer for distributed tensor expressions, targeting optimizations which are permitted to search
@@ -12,29 +10,36 @@ Many modern tensor expressions may see 10k GPU-**years** of computation time ove
 such as a trained inference model hosted in production; and seeking optimizations which can reduce
 this computation time by any extent is worth extensive optimization search.
 
-It is built in several layers:
+Roughly, the target layers of **Tapestry** are intended to be:
 
-- an in-memory, GPU-free **Z**-space tensor math library. This provides a framework for reasoning
-  about polyhedral types, coordinate-space ranges, and index projection functions.
-- an extensible, JSON serializable **IR** (intermediate representation) for tensor expressions. This
-  provides a framework for reasoning about tensor expressions, and for applying transformations to
-  them.
-- an extensible validation stack for **IR** expressions. This provides a framework for reasoning
-  about the correctness of tensor expressions.
+- coordinate space range and projection api for describing kernel index projections
+- metakernel descriptions of tensor kernel operations
+- symbolic execution api for metakernel expressions to static block operation graphs
+- representation and manipulation api for static block operation graphs
+- graph rewrite expressions over static block operation graphs
+- execution cost models for target environments
+- pareto optimization of execution graphs with respect to cost models
+- code generation for optimized execution graphs in target environments
 
 In the current stage of development, **Tapestry** is a research prototype. It lacks many features,
 including code generation and optimization machinery.
 
-See the [Tapestry Project Writeup](https://crutcher.github.io/Tapestry/) for a more detailed
-overview of the theory and goals of **loom**. Note, this document predates much of the current
-development, and is more of a research direction plan and overview of polyhedral optimization
-theory.
+An example intermediate static graph, showcasing block sharding:
+
+<img src="tensortapestry-loom/docs/media/example.svg" width="800"/>
+
+There is a [Tapestry Project Writeup](https://crutcher.github.io/Tapestry/) for a more detailed
+overview (~100 pages) of the theory and goals of the project. Note that this document was written
+before the current development project, and is more of a research direction plan and overview of
+polyhedral optimization theory than a description of the current state of the project's
+architecture.
 
 ## Sub-Projects
 
-- **[ZSpace](tensortapestry-zspace/README.md)** - integer space (Z-space) tensors.
 - **[loom](tensortapestry-loom/README.md)** - tensor expression graph representation.
 - **[weft](tensortapestry-weft/README.md)** - metakernel symbolic execution api.
+- **[ZSpace](tensortapestry-zspace/README.md)** - integer space (Z-space) tensor math library, with
+  focus on index ranges and projection functions.
 
 ## Development Philosophy
 
