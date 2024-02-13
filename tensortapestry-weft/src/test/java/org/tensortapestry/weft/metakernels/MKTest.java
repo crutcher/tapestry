@@ -99,8 +99,7 @@ public class MKTest implements CommonAssertions {
       var shape = IndexingFns.commonBroadcastShape(shapes.toArray(int[][]::new));
 
       var result = TensorNode
-        .builder()
-        .graph(graph)
+        .builder(graph)
         .label("%s.result".formatted(kernelName))
         .body(b -> b.dtype("int32").shape(shape))
         .build();
@@ -108,8 +107,7 @@ public class MKTest implements CommonAssertions {
       var outputs = Map.of("result", List.of(TensorSelection.from(result)));
 
       var op = OperationNode
-        .builder()
-        .graph(graph)
+        .builder(graph)
         .label(kernelName)
         .body(b -> {
           b.kernel(kernelName);
