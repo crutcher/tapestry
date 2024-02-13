@@ -24,7 +24,7 @@ add:
       dtype: "$.dtype"
 
 matmul:
-  index: "[$.shape..., $.a, $.c]"
+  index: "[$shape..., $a, $c]"
 
   constraints:
     dtype:
@@ -38,8 +38,8 @@ matmul:
 
   inputs:
     X:
-      shape: "[$.shape..., $.a, $.b]"
-      dtype: "$.dtype"
+      shape: "[$shape..., $a, $b]"
+      dtype: "$dtype"
 
       # this is shorthand for:
       # ipf:
@@ -56,15 +56,15 @@ matmul:
       ipf: "[..., 1, 0] :> [..., 1, $b]"
 
     W:
-      shape: "[$.shape..., $.b, $.c]"
-      dtype: "$.dtype"
+      shape: "[$shape..., $b, $c]"
+      dtype: "$dtype"
       ipf: "[..., 0, 1] :> [..., $b, 1]"
 
   outputs:
     result:
       # shape defaults to: "[$.index...]"
       # ipf defaults to: "[...] >: [...]"
-      dtype: "$.dtype"
+      dtype: "$dtype"
 
 
 concat:

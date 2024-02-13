@@ -1,6 +1,7 @@
 package org.tensortapestry.weft.metakernels;
 
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
+import guru.nidi.graphviz.engine.Format;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,6 +14,7 @@ import org.tensortapestry.common.testing.CommonAssertions;
 import org.tensortapestry.loom.graph.CommonEnvironments;
 import org.tensortapestry.loom.graph.LoomGraph;
 import org.tensortapestry.loom.graph.dialects.tensorops.*;
+import org.tensortapestry.loom.graph.export.graphviz.GraphVisualizer;
 import org.tensortapestry.zspace.ZRange;
 import org.tensortapestry.zspace.ZRangeProjectionMap;
 import org.tensortapestry.zspace.indexing.IndexingFns;
@@ -168,9 +170,9 @@ public class MKTest implements CommonAssertions {
       .apply();
 
     graph.validate();
-    // var exporter = GraphVisualizer.buildDefault();
-    // var export = exporter.export(graph);
-    // var gv = export.getGraphviz();
-    // var img = gv.render(Format.PNG).toImage();
+    var exporter = GraphVisualizer.buildDefault();
+    var export = exporter.export(graph);
+    var gv = export.getGraphviz();
+    var img = gv.render(Format.PNG).toImage();
   }
 }

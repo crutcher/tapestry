@@ -402,6 +402,26 @@
           <artifactId>spotless-maven-plugin</artifactId>
           <version>${spotless.plugin.version}</version>
           <configuration>
+            <markdown>
+              <includes>
+                <include>*.md</include>
+                <include>src/**/*.md</include>
+              </includes>
+              <excludes>
+                <exclude>**/target/**</exclude>
+              </excludes>
+              <prettier>
+                <devDependencies>
+                  <prettier>${spotless.prettier.version}</prettier>
+                  <prettier-plugin-java>${spotless.prettier.plugin.version}</prettier-plugin-java>
+                </devDependencies>
+                <config>
+                  <parser>markdown</parser>
+                  <printWidth>100</printWidth>
+                  <proseWrap>always</proseWrap>
+                </config>
+              </prettier>
+            </markdown>
             <json>
               <includes>
                 <include>src/**/*.json</include>

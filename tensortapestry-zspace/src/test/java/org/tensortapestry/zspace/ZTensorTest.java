@@ -3,6 +3,7 @@ package org.tensortapestry.zspace;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import java.lang.reflect.Array;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.IntBinaryOperator;
 import java.util.function.IntSupplier;
 import org.junit.jupiter.api.Test;
@@ -586,6 +587,11 @@ public class ZTensorTest implements ZSpaceTestAssertions {
         .isEqualTo(ZTensor.newFilled(new int[] { 2, 3 }, vals.iterator()::next))
         .isEqualTo(ZTensor.newFilledLike(t, vals.iterator()::next))
         .isEqualTo(ZTensor.newMatrix(new int[][] { { 1, 2, 3 }, { 4, 5, 6 } }));
+    }
+
+    {
+      assertThat(ZTensor.newFilled(new int[] { 2, 3 }, new AtomicInteger(0)::incrementAndGet))
+        .isEqualTo(ZTensor.newFromArray(new int[][] { { 1, 2, 3 }, { 4, 5, 6 } }));
     }
   }
 
