@@ -2,7 +2,14 @@
 
 ## Table of Contents
 
-- [Polyhedral Types and Index Projection](PolyhedralTypesAndIndexProjection.md)
+- [Overview](#overview)
+- [Development Philosophy](#development-philosophy)
+- Theory
+  - [Polyhedral Types and Index Projection](PolyhedralTypesAndIndexProjection.md)
+- Sub-Projects
+  - [Tapestry Loom](TapestryLoom.md)
+  - [Tapestry Weft](TapestryWeft.md)
+  - [Tapestry ZSpace](TapestryZSpace.md)
 
 
 ## Overview
@@ -39,7 +46,7 @@ including code generation and optimization machinery.
 
 An example intermediate static graph, showcasing block sharding:
 
-<img src="media/example.svg" width="800"/>
+<img alt="example" src="media/example.svg" width="800"/>
 
 ## Development Philosophy
 
