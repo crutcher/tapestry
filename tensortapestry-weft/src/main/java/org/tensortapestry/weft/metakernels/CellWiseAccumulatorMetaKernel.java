@@ -9,6 +9,7 @@ import javax.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
 import org.tensortapestry.loom.graph.LoomGraph;
 import org.tensortapestry.loom.graph.dialects.tensorops.*;
+import org.tensortapestry.zspace.ZAffineMap;
 import org.tensortapestry.zspace.ZRange;
 import org.tensortapestry.zspace.ZRangeProjectionMap;
 import org.tensortapestry.zspace.indexing.IndexingFns;
@@ -96,7 +97,16 @@ public class CellWiseAccumulatorMetaKernel extends MetaKernel {
         .builder()
         .input(
           "tensors",
-          tensors.stream().map(ts -> commonProjection.translate(ts.getRange().getStart())).toList()
+          tensors
+            .stream()
+            .map(ts ->
+              ZRangeProjectionMap
+                .builder()
+                .affineMap(ZAffineMap.newBroadcastMatrix(shape.length, ts.getShape()))
+                .translate(ts.getRange().getStart())
+                .build()
+            )
+            .toList()
         )
         .output("result", commonProjection)
         .build()

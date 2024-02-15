@@ -26,6 +26,17 @@ import org.tensortapestry.zspace.indexing.Selector;
 @EqualsAndHashCode(cacheStrategy = EqualsAndHashCode.CacheStrategy.LAZY)
 public class ZAffineMap implements HasPermuteIO<ZAffineMap>, HasToJsonString {
 
+  @Nonnull
+  public static ZAffineMap newBroadcastMatrix(int inputSize, ZPoint targetShape) {
+    int targetSize = targetShape.getNDim();
+    var proj = ZTensor.newZeros(targetSize, inputSize);
+    int offset = inputSize - targetSize;
+    for (int i = 0; i < targetSize; i++) {
+      proj.set(new int[] { i, i + offset }, targetShape.get(i) == 1 ? 0 : 1);
+    }
+    return fromMatrix(proj);
+  }
+
   /**
    * Create a new ZAffineMap which is an identity projection.
    *
@@ -106,8 +117,7 @@ public class ZAffineMap implements HasPermuteIO<ZAffineMap>, HasToJsonString {
    * Create a new ZAffineMap.
    *
    * @param projection the matrix.
-   * @param offset the bias; if null, will be a zero vector of size
-   *     {@code projection.shape[0]}.
+   * @param offset the bias; if null, will be a zero vector of size {@code projection.shape[0]}.
    */
   @JsonCreator
   public ZAffineMap(@Nonnull ZTensorWrapper projection, @Nullable ZTensorWrapper offset) {
