@@ -6,7 +6,6 @@ import java.util.Map;
 import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-
 import lombok.RequiredArgsConstructor;
 import org.tensortapestry.loom.graph.LoomGraph;
 import org.tensortapestry.loom.graph.dialects.tensorops.*;
@@ -66,8 +65,10 @@ public class CellWiseAccumulatorMetaKernel extends MetaKernel {
     var shapes = tensorSelections.stream().map(ts -> ts.getRange().getShape().toArray()).toList();
     var shape = IndexingFns.commonBroadcastShape(shapes.toArray(int[][]::new));
 
+    // TODO: broadcasting requires changing the projection maps.
+
     var result = TensorNode
-      .builder(graph)
+      .on(graph)
       .label("%s.result".formatted(kernelName))
       .body(b -> b.dtype(dtype).shape(shape))
       .build();
@@ -75,7 +76,7 @@ public class CellWiseAccumulatorMetaKernel extends MetaKernel {
     var outputs = Map.of("result", List.of(TensorSelection.from(result)));
 
     var op = OperationNode
-      .builder(graph)
+      .on(graph)
       .label(kernelName)
       .body(b -> {
         b.kernel(kernelName);

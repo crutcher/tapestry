@@ -80,7 +80,7 @@ public class OperationUtils {
     var ipfIndex = indexBuilder.apply(inputs);
 
     var operation = OperationNode
-      .builder(graph)
+      .on(graph)
       .annotation(TensorOpNodes.IPF_SIGNATURE_ANNOTATION_TYPE, ipfSignature)
       .annotation(TensorOpNodes.IPF_INDEX_ANNOTATION_TYPE, ipfIndex)
       .body(b -> {
@@ -157,7 +157,7 @@ public class OperationUtils {
     assert ipfIndex.contains(shardIndex);
 
     return ApplicationNode
-      .builder(operation.assertGraph())
+      .on(operation.assertGraph())
       .annotation(TensorOpNodes.IPF_INDEX_ANNOTATION_TYPE, shardIndex)
       .body(b -> {
         b.operationId(operation.getId());

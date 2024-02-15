@@ -23,16 +23,12 @@ public class IPFSignatureAgreementConstraintTest implements CommonAssertions {
     var graph = env.newGraph();
 
     var tensorA = TensorNode
-      .builder(graph)
+      .on(graph)
       .label("A")
       .body(b -> b.dtype("int32").range(ZRange.builder().start(-10, 4).shape(3, 4).build()))
       .build();
 
-    var tensorB = TensorNode
-      .builder(graph)
-      .label("B")
-      .body(b -> b.dtype("int32").shape(4, 5))
-      .build();
+    var tensorB = TensorNode.on(graph).label("B").body(b -> b.dtype("int32").shape(4, 5)).build();
 
     var op = OperationUtils.applyRelativeSignature(
       graph,

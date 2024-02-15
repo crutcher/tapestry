@@ -85,7 +85,7 @@ public class ApplicationNode extends AbstractNodeWrapper<ApplicationNode.Body> {
    * @return a new Builder.
    */
   @Nonnull
-  public static Builder builder(LoomGraph graph) {
+  public static Builder on(LoomGraph graph) {
     return new Builder().graph(graph);
   }
 

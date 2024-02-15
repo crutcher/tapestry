@@ -36,13 +36,13 @@ public class OperationReferenceAgreementConstraintTest implements CommonAssertio
     var graph = createGraph();
 
     var tensorA = TensorNode
-      .builder(graph)
+      .on(graph)
       .body(b -> b.dtype("int32").shape(new ZPoint(2, 3)))
       .label("A")
       .build();
 
     var sourceOp = OperationNode
-      .builder(graph)
+      .on(graph)
       .body(b -> {
         b.kernel("source");
         b.output(
@@ -58,7 +58,7 @@ public class OperationReferenceAgreementConstraintTest implements CommonAssertio
       .build();
 
     ApplicationNode
-      .builder(graph)
+      .on(graph)
       .body(b -> {
         b.operationId(sourceOp.getId());
         b.output(
@@ -75,7 +75,7 @@ public class OperationReferenceAgreementConstraintTest implements CommonAssertio
       .build();
 
     ApplicationNode
-      .builder(graph)
+      .on(graph)
       .body(b -> {
         b.operationId(sourceOp.getId());
         b.output(
@@ -92,7 +92,7 @@ public class OperationReferenceAgreementConstraintTest implements CommonAssertio
       .build();
 
     var sinkOp = OperationNode
-      .builder(graph)
+      .on(graph)
       .body(b -> {
         b.kernel("sink");
         b.input(
@@ -108,7 +108,7 @@ public class OperationReferenceAgreementConstraintTest implements CommonAssertio
       .build();
 
     ApplicationNode
-      .builder(graph)
+      .on(graph)
       .body(b -> {
         b.operationId(sinkOp.getId());
         b.input(
@@ -125,7 +125,7 @@ public class OperationReferenceAgreementConstraintTest implements CommonAssertio
       .build();
 
     ApplicationNode
-      .builder(graph)
+      .on(graph)
       .body(b -> {
         b.operationId(sinkOp.getId());
         b.input(
@@ -149,7 +149,7 @@ public class OperationReferenceAgreementConstraintTest implements CommonAssertio
     var graph = createGraph();
 
     var tensorA = TensorNode
-      .builder(graph)
+      .on(graph)
       .body(b -> {
         b.dtype("int32");
         b.shape(new ZPoint(2, 3));
@@ -158,7 +158,7 @@ public class OperationReferenceAgreementConstraintTest implements CommonAssertio
       .build();
 
     var op = OperationNode
-      .builder(graph)
+      .on(graph)
       .body(b -> {
         b.kernel("source");
         b.output(
@@ -193,7 +193,7 @@ public class OperationReferenceAgreementConstraintTest implements CommonAssertio
   public void test_application_operation_disagreement() {
     var graph = createGraph();
     var tensorA = TensorNode
-      .builder(graph)
+      .on(graph)
       .body(b -> {
         b.dtype("int32");
         b.shape(new ZPoint(100));
@@ -202,7 +202,7 @@ public class OperationReferenceAgreementConstraintTest implements CommonAssertio
       .build();
 
     var sourceOp = OperationNode
-      .builder(graph)
+      .on(graph)
       .body(b -> {
         b.kernel("source");
         b.input(
@@ -218,7 +218,7 @@ public class OperationReferenceAgreementConstraintTest implements CommonAssertio
       .build();
 
     var app1 = ApplicationNode
-      .builder(graph)
+      .on(graph)
       .body(b -> {
         b.operationId(sourceOp.getId());
         b.input("foo", List.of());
@@ -227,7 +227,7 @@ public class OperationReferenceAgreementConstraintTest implements CommonAssertio
       .build();
 
     var app2 = ApplicationNode
-      .builder(graph)
+      .on(graph)
       .body(b -> {
         b.operationId(sourceOp.getId());
         b.input("bar", List.of());
@@ -235,7 +235,7 @@ public class OperationReferenceAgreementConstraintTest implements CommonAssertio
       .label("Misaligned Input Keys")
       .build();
     var app3 = ApplicationNode
-      .builder(graph)
+      .on(graph)
       .body(b -> {
         b.operationId(sourceOp.getId());
         b.input(
@@ -292,7 +292,7 @@ public class OperationReferenceAgreementConstraintTest implements CommonAssertio
     var graph = createGraph();
 
     var tensorA = TensorNode
-      .builder(graph)
+      .on(graph)
       .body(b -> {
         b.dtype("int32");
         b.shape(new ZPoint(2, 3));
@@ -301,7 +301,7 @@ public class OperationReferenceAgreementConstraintTest implements CommonAssertio
       .build();
 
     var sourceOp = OperationNode
-      .builder(graph)
+      .on(graph)
       .body(b -> {
         b.kernel("source");
         b.output(
@@ -317,7 +317,7 @@ public class OperationReferenceAgreementConstraintTest implements CommonAssertio
       .build();
 
     var app1 = ApplicationNode
-      .builder(graph)
+      .on(graph)
       .body(b -> {
         b.operationId(sourceOp.getId());
         b.output(
@@ -334,7 +334,7 @@ public class OperationReferenceAgreementConstraintTest implements CommonAssertio
       .build();
 
     var app2 = ApplicationNode
-      .builder(graph)
+      .on(graph)
       .body(b -> {
         b.operationId(sourceOp.getId());
         b.output(
@@ -351,7 +351,7 @@ public class OperationReferenceAgreementConstraintTest implements CommonAssertio
       .build();
 
     var sinkOp = OperationNode
-      .builder(graph)
+      .on(graph)
       .body(b -> {
         b.kernel("sink");
         b.input(
@@ -367,7 +367,7 @@ public class OperationReferenceAgreementConstraintTest implements CommonAssertio
       .build();
 
     var app3 = ApplicationNode
-      .builder(graph)
+      .on(graph)
       .body(b -> {
         b.operationId(sinkOp.getId());
         b.input(
@@ -384,7 +384,7 @@ public class OperationReferenceAgreementConstraintTest implements CommonAssertio
       .build();
 
     var app4 = ApplicationNode
-      .builder(graph)
+      .on(graph)
       .body(b -> {
         b.operationId(sinkOp.getId());
         b.input(
@@ -475,7 +475,7 @@ public class OperationReferenceAgreementConstraintTest implements CommonAssertio
     var graph = createGraph();
 
     var tensorA = TensorNode
-      .builder(graph)
+      .on(graph)
       .body(b -> {
         b.dtype("int32");
         b.shape(new ZPoint(2, 3));
@@ -483,7 +483,7 @@ public class OperationReferenceAgreementConstraintTest implements CommonAssertio
       .label("A")
       .build();
     var tensorB = TensorNode
-      .builder(graph)
+      .on(graph)
       .body(b -> {
         b.dtype("int32");
         b.shape(new ZPoint(2, 3));
@@ -492,7 +492,7 @@ public class OperationReferenceAgreementConstraintTest implements CommonAssertio
       .build();
 
     var opSig = OperationNode
-      .builder(graph)
+      .on(graph)
       .body(b -> {
         b.kernel("source");
         b.output(
@@ -508,7 +508,7 @@ public class OperationReferenceAgreementConstraintTest implements CommonAssertio
       .build();
 
     var app1 = ApplicationNode
-      .builder(graph)
+      .on(graph)
       .body(b -> {
         b.operationId(opSig.getId());
         b.output(
@@ -524,7 +524,7 @@ public class OperationReferenceAgreementConstraintTest implements CommonAssertio
       })
       .build();
     var app2 = ApplicationNode
-      .builder(graph)
+      .on(graph)
       .body(b -> {
         b.operationId(opSig.getId());
         b.output(
@@ -597,7 +597,7 @@ public class OperationReferenceAgreementConstraintTest implements CommonAssertio
     var graph = createGraph();
     var missingOperationId = UUID.randomUUID();
 
-    var app = ApplicationNode.builder(graph).body(b -> b.operationId(missingOperationId)).build();
+    var app = ApplicationNode.on(graph).body(b -> b.operationId(missingOperationId)).build();
 
     var constraint = graph
       .assertEnv()
@@ -632,7 +632,7 @@ public class OperationReferenceAgreementConstraintTest implements CommonAssertio
 
     @SuppressWarnings("unused")
     var op = OperationNode
-      .builder(graph)
+      .on(graph)
       .body(b -> {
         b.kernel("source");
         b.input("source", List.of(new TensorSelection(missingInputId, ZRange.newFromShape(1, 2))));
@@ -640,7 +640,7 @@ public class OperationReferenceAgreementConstraintTest implements CommonAssertio
       })
       .build();
     ApplicationNode
-      .builder(graph)
+      .on(graph)
       .body(b -> {
         b.operationId(op.getId());
         b.input(
@@ -713,7 +713,7 @@ public class OperationReferenceAgreementConstraintTest implements CommonAssertio
 
     @SuppressWarnings("unused")
     var op = OperationNode
-      .builder(graph)
+      .on(graph)
       .body(b -> {
         b.kernel("source");
         b.input(
@@ -724,7 +724,7 @@ public class OperationReferenceAgreementConstraintTest implements CommonAssertio
       })
       .build();
     ApplicationNode
-      .builder(graph)
+      .on(graph)
       .body(b -> {
         b.operationId(op.getId());
         b.input(
@@ -797,7 +797,7 @@ public class OperationReferenceAgreementConstraintTest implements CommonAssertio
     var graph = createGraph();
 
     var tensorA = TensorNode
-      .builder(graph)
+      .on(graph)
       .body(b -> {
         b.dtype("int32");
         b.shape(new ZPoint(2, 3));
@@ -806,7 +806,7 @@ public class OperationReferenceAgreementConstraintTest implements CommonAssertio
       .build();
 
     var sourceOp = OperationNode
-      .builder(graph)
+      .on(graph)
       .body(b -> {
         b.kernel("source");
         b.output("output", List.of(new TensorSelection(tensorA.getId(), ZRange.newFromShape(200))));
@@ -814,7 +814,7 @@ public class OperationReferenceAgreementConstraintTest implements CommonAssertio
       .build();
 
     ApplicationNode
-      .builder(graph)
+      .on(graph)
       .body(b -> {
         b.operationId(sourceOp.getId());
         b.output("output", List.of(new TensorSelection(tensorA.getId(), ZRange.newFromShape(200))));
@@ -822,7 +822,7 @@ public class OperationReferenceAgreementConstraintTest implements CommonAssertio
       .build();
 
     var sinkOp = OperationNode
-      .builder(graph)
+      .on(graph)
       .body(b -> {
         b.kernel("sink");
         b.input("input", List.of(new TensorSelection(tensorA.getId(), ZRange.newFromShape(200))));
@@ -830,7 +830,7 @@ public class OperationReferenceAgreementConstraintTest implements CommonAssertio
       .build();
 
     ApplicationNode
-      .builder(graph)
+      .on(graph)
       .body(b -> {
         b.operationId(sinkOp.getId());
         b.input("input", List.of(new TensorSelection(tensorA.getId(), ZRange.newFromShape(200))));
@@ -885,7 +885,7 @@ public class OperationReferenceAgreementConstraintTest implements CommonAssertio
     var graph = createGraph();
 
     var tensorA = TensorNode
-      .builder(graph)
+      .on(graph)
       .body(b -> {
         b.dtype("int32");
         b.shape(new ZPoint(2, 3));
@@ -894,7 +894,7 @@ public class OperationReferenceAgreementConstraintTest implements CommonAssertio
       .build();
 
     var sourceOp = OperationNode
-      .builder(graph)
+      .on(graph)
       .body(b -> {
         b.kernel("source");
         b.output(
@@ -905,7 +905,7 @@ public class OperationReferenceAgreementConstraintTest implements CommonAssertio
       .build();
 
     ApplicationNode
-      .builder(graph)
+      .on(graph)
       .body(b -> {
         b.operationId(sourceOp.getId());
         b.output(
@@ -916,7 +916,7 @@ public class OperationReferenceAgreementConstraintTest implements CommonAssertio
       .build();
 
     var sinkOp = OperationNode
-      .builder(graph)
+      .on(graph)
       .body(b -> {
         b.kernel("sink");
         b.input("input", List.of(new TensorSelection(tensorA.getId(), ZRange.newFromShape(2, 8))));
@@ -924,7 +924,7 @@ public class OperationReferenceAgreementConstraintTest implements CommonAssertio
       .build();
 
     ApplicationNode
-      .builder(graph)
+      .on(graph)
       .body(b -> {
         b.operationId(sinkOp.getId());
         b.input("input", List.of(new TensorSelection(tensorA.getId(), ZRange.newFromShape(2, 8))));
@@ -974,25 +974,25 @@ public class OperationReferenceAgreementConstraintTest implements CommonAssertio
     var graph = createGraph();
 
     var tensorA = TensorNode
-      .builder(graph)
+      .on(graph)
       .label("A")
       .body(b -> b.dtype("int32").shape(new ZPoint(2, 3)))
       .build();
 
     var tensorB = TensorNode
-      .builder(graph)
+      .on(graph)
       .label("B")
       .body(b -> b.dtype("int32").shape(new ZPoint(4, 5)))
       .build();
 
     var tensorC = TensorNode
-      .builder(graph)
+      .on(graph)
       .label("C")
       .body(b -> b.dtype("int32").shape(new ZPoint(6, 7)))
       .build();
 
     var opNode = OperationNode
-      .builder(graph)
+      .on(graph)
       .label("Add")
       .body(b -> {
         b.kernel("increment");
@@ -1014,7 +1014,7 @@ public class OperationReferenceAgreementConstraintTest implements CommonAssertio
       .build();
 
     ApplicationNode
-      .builder(graph)
+      .on(graph)
       .body(b ->
         b
           .operationId(opNode.getId())

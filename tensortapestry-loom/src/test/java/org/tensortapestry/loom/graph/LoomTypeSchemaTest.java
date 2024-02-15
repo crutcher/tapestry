@@ -62,34 +62,34 @@ public class LoomTypeSchemaTest implements CommonAssertions {
       )
       .jsonSchema(
         """
-                {
-                  "type": "object",
-                  "properties": {
-                    "inputs": {
-                      "type": "object",
-                      "patternProperties": {
-                          "^[a-zA-Z_][a-zA-Z0-9_]*$": {
-                              "type": "array",
-                              "items": {
-                                "type": "string",
-                                "format": "uuid"
-                              }
-                          }
-                      },
-                      "additionalProperties": false
+          {
+            "type": "object",
+            "properties": {
+              "inputs": {
+                "type": "object",
+                "patternProperties": {
+                    "^[a-zA-Z_][a-zA-Z0-9_]*$": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "format": "uuid"
+                        }
                     }
-                  },
-                  "required": ["inputs"],
-                  "additionalProperties": false
-                }
-                """
+                },
+                "additionalProperties": false
+              }
+            },
+            "required": ["inputs"],
+            "additionalProperties": false
+          }
+          """
       )
       .build();
 
     var env = CommonEnvironments.expressionEnvironment();
     var graph = env.newGraph();
     var note = NoteNode.builder(graph).body(b -> b.message("hello")).build();
-    var tensor = TensorNode.builder(graph).body(b -> b.dtype("int32").shape(2)).build();
+    var tensor = TensorNode.on(graph).body(b -> b.dtype("int32").shape(2)).build();
 
     UUID missingId = UUID.randomUUID();
     String garbage = "garbage";

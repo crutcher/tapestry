@@ -1,7 +1,6 @@
 package org.tensortapestry.weft.metakernels;
 
 import java.util.Set;
-
 import lombok.experimental.UtilityClass;
 
 @UtilityClass

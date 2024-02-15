@@ -15,15 +15,16 @@ public class MKTest implements CommonAssertions {
     var graph = env.newGraph();
 
     var tensorA = TensorNode
-      .builder(graph)
+      .on(graph)
       .label("A")
-      .body(b -> b.dtype("float32").shape(10, 10))
+      .body(b -> b.dtype("float32").shape(10, 10, 10))
       .build();
 
     var tensorB = TensorNode
-      .builder(graph)
+      .on(graph)
       .label("B")
-      .body(b -> b.dtype("float32").shape(10, 10))
+      // TODO: fix .shape(1, 10) here.
+      .body(b -> b.dtype("float32").shape(10, 10, 10))
       .build();
 
     var tensorC = CommonMetaKernels.ADD
@@ -32,7 +33,8 @@ public class MKTest implements CommonAssertions {
       .apply()
       .getResult();
 
-    assertThat(tensorC.getShape()).isEqualTo(ZPoint.of(10, 10));
+
+    assertThat(tensorC.getShape()).isEqualTo(ZPoint.of(10, 10, 10));
     assertThat(tensorC.getDtype()).isEqualTo("float32");
 
     graph.validate();

@@ -29,29 +29,29 @@ public class ApplicationNodeTest implements CommonAssertions {
     assertJsonEquals(
       body,
       """
-            {
-              "operationId": "%s",
-              "inputs": {
-                "source": [
-                  {
-                    "tensorId": "%s",
-                    "range": {
-                      "start": [0, 0],
-                      "end": [2, 3]
-                    }
-                  },
-                  {
-                    "tensorId": "%s",
-                    "range": {
-                      "start": [],
-                      "end": []
-                    }
-                  }
-                ]
+        {
+          "operationId": "%s",
+          "inputs": {
+            "source": [
+              {
+                "tensorId": "%s",
+                "range": {
+                  "start": [0, 0],
+                  "end": [2, 3]
+                }
               },
-              "outputs": {}
-            }
-            """.formatted(
+              {
+                "tensorId": "%s",
+                "range": {
+                  "start": [],
+                  "end": []
+                }
+              }
+            ]
+          },
+          "outputs": {}
+        }
+        """.formatted(
           operationId,
           tensorIdA,
           tensorIdB
@@ -64,11 +64,11 @@ public class ApplicationNodeTest implements CommonAssertions {
     var env = CommonEnvironments.expressionEnvironment();
     var graph = env.newGraph();
 
-    var inputTensor = TensorNode.builder(graph).body(b -> b.shape(2, 3).dtype("float32")).build();
-    var outputTensor = TensorNode.builder(graph).body(b -> b.shape(10).dtype("int32")).build();
+    var inputTensor = TensorNode.on(graph).body(b -> b.shape(2, 3).dtype("float32")).build();
+    var outputTensor = TensorNode.on(graph).body(b -> b.shape(10).dtype("int32")).build();
 
     var operation = OperationNode
-      .builder(graph)
+      .on(graph)
       .body(b ->
         b
           .kernel("increment")
@@ -94,7 +94,7 @@ public class ApplicationNodeTest implements CommonAssertions {
       .build();
 
     var application = ApplicationNode
-      .builder(graph)
+      .on(graph)
       .body(b ->
         b
           .operationId(UUID.randomUUID())

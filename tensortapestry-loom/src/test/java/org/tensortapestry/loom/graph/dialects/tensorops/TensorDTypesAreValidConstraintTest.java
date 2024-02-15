@@ -25,7 +25,7 @@ public class TensorDTypesAreValidConstraintTest implements CommonAssertions {
     var graph = createGraph();
 
     TensorNode
-      .builder(graph)
+      .on(graph)
       .label("Good")
       .body(b -> {
         b.dtype("int32");
@@ -34,7 +34,7 @@ public class TensorDTypesAreValidConstraintTest implements CommonAssertions {
       .build();
 
     var badTensor = TensorNode
-      .builder(graph)
+      .on(graph)
       .label("Bad")
       .body(b -> {
         b.dtype("nonesuch");

@@ -104,7 +104,7 @@ public final class TensorNode
   }
 
   @Nonnull
-  public static Builder builder(LoomGraph graph) {
+  public static Builder on(LoomGraph graph) {
     return new Builder().graph(graph);
   }
 

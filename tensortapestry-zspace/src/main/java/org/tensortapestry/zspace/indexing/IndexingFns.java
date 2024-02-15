@@ -10,6 +10,7 @@ import java.util.function.Predicate;
 import java.util.function.ToIntFunction;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
+
 import lombok.experimental.UtilityClass;
 import org.tensortapestry.zspace.HasDimension;
 
@@ -198,10 +199,10 @@ public class IndexingFns {
           // Duplicate dimensions detected.
           throw new IllegalArgumentException(
             "dims %s resolve to %s on shape %s with duplicate dimensions".formatted(
-                Arrays.toString(dims),
-                Arrays.toString(res),
-                Arrays.toString(shape)
-              )
+              Arrays.toString(dims),
+              Arrays.toString(res),
+              Arrays.toString(shape)
+            )
           );
         }
       }
@@ -262,9 +263,9 @@ public class IndexingFns {
     if (length != permutation.length) {
       throw new IllegalArgumentException(
         "array length %d and permutation length %d must be equal".formatted(
-            length,
-            permutation.length
-          )
+          length,
+          permutation.length
+        )
       );
     }
 
@@ -321,17 +322,17 @@ public class IndexingFns {
     if (stride.length != ndim) {
       throw new IllegalArgumentException(
         "shape %s and stride %s must have the same dimensions".formatted(
-            Arrays.toString(shape),
-            Arrays.toString(stride)
-          )
+          Arrays.toString(shape),
+          Arrays.toString(stride)
+        )
       );
     }
     if (coords.length != ndim) {
       throw new IllegalArgumentException(
         "shape %s and coords %s must have the same dimensions".formatted(
-            Arrays.toString(shape),
-            Arrays.toString(coords)
-          )
+          Arrays.toString(shape),
+          Arrays.toString(coords)
+        )
       );
     }
 
@@ -431,12 +432,12 @@ public class IndexingFns {
       for (int d = shift; d < ndim; ++d) {
         var size = shape[d - shift];
 
-        if (res[d] == size) {
+        if (res[d] == -1 || res[d] == 1) {
+          res[d] = size;
           continue;
         }
 
-        if (res[d] == 1 || res[d] == -1) {
-          res[d] = size;
+        if (size == 1 || res[d] == size) {
           continue;
         }
 
@@ -567,7 +568,7 @@ public class IndexingFns {
   ) {
     try {
       if (!isArray.test(root)) {
-        return new FlatArray(new int[] {}, new int[] { nodeAsScalar.applyAsInt(root) });
+        return new FlatArray(new int[]{}, new int[]{nodeAsScalar.applyAsInt(root)});
       }
 
       var shapeList = treeSpineShape(root, isArray, getArrayLength, getArrayElement);
@@ -576,7 +577,7 @@ public class IndexingFns {
 
       if (shapeList.contains(0)) {
         // Handle degenerate tensors.
-        return new FlatArray(new int[ndim], new int[] {});
+        return new FlatArray(new int[ndim], new int[]{});
       }
 
       int[] shape = shapeList.stream().mapToInt(i -> i).toArray();
