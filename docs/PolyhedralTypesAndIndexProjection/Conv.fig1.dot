@@ -1,0 +1,144 @@
+digraph G {
+  rankdir=RL;
+
+  idx [
+    shape="plain",
+    label=<
+    <table border="0">
+    <tr><td><table cellpadding="8">
+          <tr>
+              <td>⋱</td>
+              <td>…</td>
+              <td>…</td>
+              <td>⋰</td>
+              </tr>
+          <tr>
+              <td>…</td>
+              <td bgcolor="#D6EAF8">i,j</td>
+              <td border="3">i,j+1</td>
+              <td>…</td>
+              </tr>
+          <tr>
+              <td>⋰</td>
+              <td>…</td>
+              <td>…</td>
+              <td>⋱</td>
+              </tr>
+          </table></td></tr>
+    <tr><td><i>index</i></td></tr>
+        </table>
+    >,
+  ];
+
+  X [
+      shape="plain",
+      label=<
+      <table cellpadding="8">
+          <tr>
+              <td bgcolor="#D6EAF8">⋱</td>
+              <td border="3" bgcolor="#D6EAF8">…</td>
+              <td border="3" bgcolor="#D6EAF8">…</td>
+              <td border="3">…</td>
+              <td>⋰</td>
+              </tr>
+          <tr>
+              <td bgcolor="#D6EAF8">…</td>
+              <td border="3" bgcolor="#D6EAF8">x<sub>i,j</sub></td>
+              <td border="3" bgcolor="#D6EAF8">x<sub>i,j+1</sub></td>
+              <td border="3">…</td>
+              <td>…</td>
+              </tr>
+          <tr>
+              <td bgcolor="#D6EAF8">…</td>
+              <td border="3" bgcolor="#D6EAF8">…</td>
+              <td border="3" bgcolor="#D6EAF8">…</td>
+              <td border="3">…</td>
+              <td>…</td>
+              </tr>
+          <tr>
+              <td>⋰</td>
+              <td>…</td>
+              <td>…</td>
+              <td>…</td>
+              <td>⋱</td>
+              </tr>
+          </table>
+      >,
+  ];
+
+  F [
+      shape="plain",
+      label=<
+      <table bgcolor="#D5F5E3" cellpadding="8">
+          <tr>
+              <td >f<sub>a,b</sub></td>
+              <td >…</td>
+              <td>⋰</td>
+              </tr>
+          <tr>
+              <td>…</td>
+              <td>…</td>
+              <td>…</td>
+              </tr>
+          <tr>
+              <td>⋰</td>
+              <td>…</td>
+              <td>⋱</td>
+              </tr>
+          </table>
+      >,
+  ];
+
+  Conv [
+      shape=rarrow,
+      style=filled,
+      fillcolor="#E5E8E8",
+      margin=0.25
+  ];
+
+  Y [
+      shape="plain",
+      label=<
+      <table cellpadding="8">
+          <tr>
+              <td>⋱</td>
+              <td>…</td>
+              <td>…</td>
+              <td>…</td>
+              <td>⋰</td>
+              </tr>
+          <tr>
+              <td>…</td>
+              <td bgcolor="#D6EAF8">y<sub>i,j,k</sub></td>
+              <td border="3">y<sub>i,j+1,k</sub></td>
+              <td>…</td>
+              <td>…</td>
+              </tr>
+          <tr>
+              <td>…</td>
+              <td>…</td>
+              <td>…</td>
+              <td>…</td>
+              <td>…</td>
+              </tr>
+          <tr>
+              <td>⋰</td>
+              <td>…</td>
+              <td>…</td>
+              <td>…</td>
+              <td>⋱</td>
+              </tr>
+          </table>
+      >,
+  ];
+
+  Conv -> X;
+  Conv -> F;
+  Y -> Conv;
+
+  idx -> X [label=<P<sub>X</sub>(i)>, constraint=false, style=dotted, arrowhead=empty];
+  idx -> F [label=<P<sub>F</sub>(i)>, constraint=false, style=dotted, arrowhead=empty];
+  idx -> Y [label=<P<sub>Y</sub>(i)>, constraint=false, style=dotted, arrowhead=empty];
+
+  { rank=same; idx; Conv; }
+}

@@ -1,0 +1,18 @@
+digraph D {
+    rankdir=RL;
+    X, W, b, Z [shape=box3d, fillcolor="#d0d0ff", style=filled];
+
+    Matmul -> X;
+    Matmul -> W;
+
+    Matmul, Sum [
+        shape=rarrow,
+        margin=0.25,
+        style=filled,
+        fillcolor="#E5E8E8",
+    ];
+
+    Sum -> Matmul;
+    Sum -> b;
+    Z -> Sum;
+}

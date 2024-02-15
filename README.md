@@ -6,6 +6,8 @@ The goal of **Tapestry** is to provide an ecosystem for a high-performance stoch
 optimizer for distributed tensor expressions, targeting optimizations which are permitted to search
 for extended time on a large number of machines.
 
+See the [Tapestry Documentation](docs/README.md) for more information.
+
 Many modern tensor expressions may see 10k GPU-**years** of computation time over their lifetime,
 such as a trained inference model hosted in production; and seeking optimizations which can reduce
 this computation time by any extent is worth extensive optimization search.
@@ -41,34 +43,13 @@ architecture.
 - **[ZSpace](tensortapestry-zspace/README.md)** - integer space (Z-space) tensor math library, with
   focus on index ranges and projection functions.
 
-## Development Philosophy
-
-The **Tapestry** values are, in order of precedence:
-
-1. **long term velocity** - the ability to add new features and fix bugs over the long term.
-   - **clean apis** - every layer of the apis should be easy to understand and extend.
-   - **clean tests** - the readability and extendability of the tests should be a priority.
-   - **documentation** - all behavior should be documented.
-2. **clean theory** - the mechanics being modeled should be consistent and correct.
-   - **no escape hatches** - the behavior models should not have catch-all escape hatches.
-3. **speed** - the algorithms should be fast.
-4. **extensibility** - the ability to add new features.
-   - **plugins** - as much behavior as possible should be implemented as plugins.
-5. **usefulness** - the ability to solve real-world problems.
-
-As the target for **Tapestry** is a high-throughput stochastic pareto-front optimizer; speed and
-correctness are critically important; and that is why **Tapestry** is built in a compiled language.
-
-However, **speed** and **correctness** are **products** of the ability of researchers and developers
-to understand, verify, visualize, and extend the code.
-
-**Usefulness** is the last on the list. This represents a focus on the long-term internal velocity
-and correctness of tapestry over short-term feature velocity of applications.
-
 ## Getting Started
 
 In the current stage of development, **loom** produces no tool targets; and exists solely as a
 collection of libraries and tests.
+
+It **should** setup cleanly in any modern development environment; but full external dependencies
+are not yet documented.
 
 ## Active Work Surfaces
 

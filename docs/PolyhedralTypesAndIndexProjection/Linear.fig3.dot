@@ -1,0 +1,79 @@
+digraph D {
+    rankdir=RL;
+    X, X_1, X_2, W, b, Z_1, Z_2, Y, Y_1, Y_2 [shape=box3d, fillcolor="#d0d0ff", style=filled];
+    Linear_1, Linear_2, ReLU_1, ReLU_2 [
+        shape=rarrow,
+        margin=0.25,
+        style=filled,
+        fillcolor="#E5E8E8",
+    ];
+
+    SX1 [
+      label=<slice[:, 0:k]>,
+      margin=0,
+      shape=parallelogram,
+      style=filled,
+      fillcolor="#a0d0d0",
+      color=black,
+    ];
+    SX2 [
+      label=<slice[:, k:0]>,
+      margin=0,
+      shape=parallelogram,
+      style=filled,
+      fillcolor="#a0d0d0",
+      color=black,
+    ];
+
+    SX1 -> X;
+    SX2 -> X;
+
+    X_1 [label=<X<sub>1</sub>>];
+    X_2 [label=<X<sub>2</sub>>];
+
+    X_1 -> SX1;
+    X_2 -> SX2;
+
+    Linear_1 [label=<Linear<sub>1</sub>>];
+    Linear_2 [label=<Linear<sub>2</sub>>];
+    ReLU_1 [label=<ReLU<sub>1</sub>>];
+    ReLU_2 [label=<ReLU<sub>2</sub>>];
+
+    Z_1 [label=<Z<sub>1</sub>>];
+    Z_2 [label=<Z<sub>2</sub>>];
+    Y_1 [label=<Y<sub>1</sub>>];
+    Y_2 [label=<Y<sub>2</sub>>];
+
+    Linear_1 -> X_1;
+    Linear_1 -> W;
+    Linear_1 -> b;
+    Z_1 -> Linear_1;
+    ReLU_1 -> Z_1;
+    Y_1 -> ReLU_1;
+
+    Linear_2 -> X_2;
+    Linear_2 -> W;
+    Linear_2 -> b;
+    Z_2 -> Linear_2;
+    ReLU_2 -> Z_2;
+    Y_2 -> ReLU_2;
+
+    SY [
+      label=<
+         <table border="0" cellspacing="0" cellpadding="0">
+           <tr><td>concat</td></tr>
+           <tr><td>dim=0</td></tr>
+           </table>
+      >,
+      margin=0,
+      shape=parallelogram,
+      style=filled,
+      fillcolor="#a0d0d0",
+      color=black,
+    ];
+
+    SY -> Y_1;
+    SY -> Y_2;
+
+    Y -> SY;
+}

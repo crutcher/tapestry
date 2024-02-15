@@ -1,0 +1,183 @@
+digraph G {
+rankdir=RL;
+
+idx [
+shape="plain",
+label=<
+<table border="0">
+<tr><td>
+
+      <table cellpadding="8">
+          <tr>
+              <td>⋱</td>
+              <td>…</td>
+              <td>…</td>
+              <td>…</td>
+              <td>⋰</td>
+              </tr>
+          <tr>
+              <td>…</td>
+              <td bgcolor="#D6EAF8">i,j</td>
+              <td border="3">i,j+1</td>
+              <td>…</td>
+              <td>…</td>
+              </tr>
+          <tr>
+              <td>…</td>
+              <td>…</td>
+              <td>…</td>
+              <td>…</td>
+              <td>…</td>
+              </tr>
+          <tr>
+              <td>⋰</td>
+              <td>…</td>
+              <td>…</td>
+              <td>…</td>
+              <td>⋱</td>
+              </tr>
+          </table>
+	</td></tr>
+
+    <tr><td><i>index</i></td></tr>
+          </table>
+    >,
+];
+
+X [
+shape="plain",
+label=<
+<table cellpadding="8">
+<tr>
+<td bgcolor="#D6EAF8">⋱</td>
+<td border="3">…</td>
+<td bgcolor="#D6EAF8">…</td>
+<td border="3">…</td>
+<td bgcolor="#D6EAF8">…</td>
+<td border="3">…</td>
+<td>…</td>
+<td>⋰</td>
+</tr>
+<tr>
+<td bgcolor="#D6EAF8">…</td>
+<td border="3">…</td>
+<td bgcolor="#D6EAF8">x<sub>i,j</sub></td>
+<td border="3">x<sub>i,j+1</sub></td>
+<td bgcolor="#D6EAF8">…</td>
+<td border="3">…</td>
+<td>…</td>
+<td>…</td>
+</tr>
+<tr>
+<td bgcolor="#D6EAF8">…</td>
+<td border="3">…</td>
+<td bgcolor="#D6EAF8">…</td>
+<td border="3">…</td>
+<td bgcolor="#D6EAF8">…</td>
+<td border="3">…</td>
+<td>…</td>
+<td>…</td>
+</tr>
+<tr>
+<td>⋰</td>
+<td>…</td>
+<td>…</td>
+<td>…</td>
+<td>…</td>
+<td>…</td>
+<td>…</td>
+<td>⋱</td>
+</tr>
+</table>
+>,
+];
+
+F [
+shape="plain",
+label=<
+<table cellpadding="8">
+<tr><td>
+<table bgcolor="#D5F5E3" cellpadding="8">
+<tr>
+<td >f<sub>a,b,k</sub></td>
+<td >…</td>
+<td>⋰</td>
+</tr>
+<tr>
+<td>…</td>
+<td>…</td>
+<td>…</td>
+</tr>
+<tr>
+<td>⋰</td>
+<td>…</td>
+<td>⋱</td>
+</tr>
+</table>
+</td></tr>
+</table>
+>,
+];
+
+Conv [
+shape=rarrow,
+style=filled,
+fillcolor="#E5E8E8",
+margin=0.25
+];
+
+strides [
+label=<strides: [1,<b>2</b>,…]>,
+shape=rectangle,
+];
+
+strides -> Conv;
+
+Y [
+shape="plain",
+label=<
+<table cellpadding="8">
+<tr><td>
+
+      <table cellpadding="8">
+          <tr>
+              <td>⋱</td>
+              <td>…</td>
+              <td>…</td>
+              <td>…</td>
+              <td>⋰</td>
+              </tr>
+          <tr>
+              <td>…</td>
+              <td bgcolor="#D6EAF8">y<sub>i,j</sub></td>
+              <td border="3">y<sub>i,j+1</sub></td>
+              <td>…</td>
+              <td>…</td>
+              </tr>
+          <tr>
+              <td>…</td>
+              <td>…</td>
+              <td>…</td>
+              <td>…</td>
+              <td>…</td>
+              </tr>
+          <tr>
+              <td>⋰</td>
+              <td>…</td>
+              <td>…</td>
+              <td>…</td>
+              <td>⋱</td>
+              </tr>
+          </table>
+
+	  </td></tr>
+        </table>
+      >,
+];
+
+Conv -> X;
+Conv -> F;
+Y -> Conv;
+
+{ rank=same; idx; Conv; strides; }
+}

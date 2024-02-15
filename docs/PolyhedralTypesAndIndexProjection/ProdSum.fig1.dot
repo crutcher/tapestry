@@ -1,0 +1,26 @@
+digraph D {
+    rankdir=RL;
+    X, W, V, Z [shape=box3d, fillcolor="#d0d0ff", style=filled];
+
+    Prod -> X;
+    Prod -> W;
+
+    Prod [
+        shape=rarrow,
+        margin=0.25,
+        style=filled,
+        fillcolor="#E5E8E8",
+    ];
+
+    V -> Prod;
+    SumDim -> V;
+
+    SumDim [
+      shape=rpromoter,
+      margin=0.25,
+      style=filled,
+      fillcolor="#E5E8E8",
+    ];
+
+    Z -> SumDim;
+}
