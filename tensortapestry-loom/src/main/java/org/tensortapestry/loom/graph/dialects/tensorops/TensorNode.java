@@ -19,7 +19,9 @@ import org.tensortapestry.zspace.ZRange;
 import org.tensortapestry.zspace.ZTensorWrapper;
 
 @JsdType(TensorNode.TYPE)
-public final class TensorNode extends AbstractNodeWrapper<TensorNode.Body> {
+public final class TensorNode
+  extends AbstractNodeWrapper<TensorNode.Body>
+  implements TensorSelectionSupplier {
 
   public static final String TYPE =
     "http://tensortapestry.org/schemas/loom/2024-01/node_types.jsd#/nodes/Tensor";
@@ -119,5 +121,12 @@ public final class TensorNode extends AbstractNodeWrapper<TensorNode.Body> {
   @SuppressWarnings("unused")
   private Body delegateBodyMethods() {
     return getBody();
+  }
+
+  @Nonnull
+  @JsonIgnore
+  @Override
+  public TensorSelection getTensorSelection() {
+    return TensorSelection.builder().tensorId(getId()).range(getBody().getRange()).build();
   }
 }

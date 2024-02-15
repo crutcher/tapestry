@@ -1,16 +1,16 @@
 package org.tensortapestry.weft.metakernels;
 
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import lombok.Data;
 import org.tensortapestry.loom.graph.LoomGraph;
 import org.tensortapestry.loom.graph.dialects.tensorops.OperationNode;
 import org.tensortapestry.loom.graph.dialects.tensorops.TensorSelection;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import org.tensortapestry.loom.graph.dialects.tensorops.TensorSelectionSupplier;
 
 public abstract class MetaKernel {
 
@@ -32,9 +32,22 @@ public abstract class MetaKernel {
     }
 
     @CanIgnoreReturnValue
-    public CallBuilder input(String key, List<TensorSelection> items) {
-      this.inputs.put(key, items);
+    public CallBuilder input(String key, List<TensorSelectionSupplier> items) {
+      this.inputs.put(
+          key,
+          items.stream().map(TensorSelectionSupplier::getTensorSelection).toList()
+        );
       return this;
+    }
+
+    @CanIgnoreReturnValue
+    public CallBuilder input(String key, TensorSelectionSupplier... items) {
+      return input(key, List.of(items));
+    }
+
+    @CanIgnoreReturnValue
+    public CallBuilder input(String key, TensorSelectionSupplier item) {
+      return input(key, List.of(item));
     }
 
     @CanIgnoreReturnValue

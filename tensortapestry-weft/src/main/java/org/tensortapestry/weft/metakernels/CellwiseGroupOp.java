@@ -1,5 +1,11 @@
 package org.tensortapestry.weft.metakernels;
 
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
 import org.tensortapestry.loom.graph.LoomGraph;
 import org.tensortapestry.loom.graph.dialects.tensorops.*;
@@ -7,16 +13,12 @@ import org.tensortapestry.zspace.ZRange;
 import org.tensortapestry.zspace.ZRangeProjectionMap;
 import org.tensortapestry.zspace.indexing.IndexingFns;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 @RequiredArgsConstructor
 public class CellwiseGroupOp extends MetaKernel {
 
   private final String kernelName;
+
+  private final Set<String> dataTypes;
 
   @Override
   public OperationNode apply(
@@ -35,19 +37,38 @@ public class CellwiseGroupOp extends MetaKernel {
       );
     }
 
-    var tensors = inputs.get("tensors");
+    var tensorSelections = inputs.get("tensors");
+    var tensors = tensorSelections
+      .stream()
+      .map(TensorSelection::getTensorId)
+      .map(id -> graph.assertNode(id, TensorNode.class))
+      .toList();
+    var seenTypes = new HashSet<String>();
+    for (var tensor : tensors) {
+      String dtype = tensor.getDtype();
+      seenTypes.add(dtype);
+      if (!dataTypes.contains(dtype)) {
+        throw new IllegalArgumentException(
+          "Unexpected dtype %s, expected one of %s".formatted(dtype, dataTypes)
+        );
+      }
+    }
 
-    // TODO:
-    // 1. Validate tensors exist.
-    // 2. Validate shared dtype.
+    if (seenTypes.size() != 1) {
+      throw new IllegalArgumentException(
+        "Expected all tensors to have the same dtype, found %s".formatted(seenTypes)
+      );
+    }
 
-    var shapes = tensors.stream().map(ts -> ts.getRange().getShape().toArray()).toList();
+    var dtype = seenTypes.iterator().next();
+
+    var shapes = tensorSelections.stream().map(ts -> ts.getRange().getShape().toArray()).toList();
     var shape = IndexingFns.commonBroadcastShape(shapes.toArray(int[][]::new));
 
     var result = TensorNode
       .builder(graph)
       .label("%s.result".formatted(kernelName))
-      .body(b -> b.dtype("int32").shape(shape))
+      .body(b -> b.dtype(dtype).shape(shape))
       .build();
 
     var outputs = Map.of("result", List.of(TensorSelection.from(result)));
@@ -73,10 +94,7 @@ public class CellwiseGroupOp extends MetaKernel {
         .builder()
         .input(
           "tensors",
-          tensors
-            .stream()
-            .map(ts -> commonProjection.translate(ts.getRange().getStart()))
-            .toList()
+          tensors.stream().map(ts -> commonProjection.translate(ts.getRange().getStart())).toList()
         )
         .output("result", commonProjection)
         .build()
