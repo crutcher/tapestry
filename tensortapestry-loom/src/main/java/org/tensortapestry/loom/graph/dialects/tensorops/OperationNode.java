@@ -2,9 +2,12 @@ package org.tensortapestry.loom.graph.dialects.tensorops;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
+
 import lombok.Singular;
 import lombok.Value;
 import lombok.experimental.Delegate;
@@ -34,7 +37,7 @@ public final class OperationNode extends AbstractNodeWrapper<OperationNode.Body>
   @Jacksonized
   @lombok.Builder
   @JsonInclude(JsonInclude.Include.NON_EMPTY)
-  @JsonPropertyOrder({ "kernel", "params", "inputs", "outputs" })
+  @JsonPropertyOrder({"kernel", "params", "inputs", "outputs"})
   @JsdType(TYPE)
   public static class Body implements HasToJsonString {
 
@@ -86,5 +89,39 @@ public final class OperationNode extends AbstractNodeWrapper<OperationNode.Body>
         .stream()
         .filter(n -> n.getOperationId().equals(id))
         .iterator();
+  }
+
+  /**
+   * Map the output selections to the actual TensorNodes in the graph.
+   *
+   * @return a map of output names to the TensorNodes.
+   */
+  public Map<String, List<TensorNode>> getOutputNodes() {
+    var g = assertGraph();
+    return getOutputs()
+      .entrySet()
+      .stream()
+      .collect(
+        Collectors.toUnmodifiableMap(
+          Map.Entry::getKey,
+          e -> e.getValue().stream().map(ts -> g.assertNode(ts.getTensorId(), TensorNode.class)).toList()));
+  }
+
+  /**
+   * Get the single result node from the operation.
+   *
+   * @return the result node.
+   * @throws IllegalStateException if there is not exactly one output.
+   */
+  public TensorNode getResult() {
+    var outputs = getOutputNodes();
+    if (outputs.size() != 1) {
+      throw new IllegalStateException("OperationNode has more than one output: " + getOutputs());
+    }
+    var nodes = outputs.values().stream().findFirst().orElseThrow();
+    if (nodes.size() != 1) {
+      throw new IllegalStateException("OperationNode has more than one output: " + getOutputs());
+    }
+    return nodes.getFirst();
   }
 }
