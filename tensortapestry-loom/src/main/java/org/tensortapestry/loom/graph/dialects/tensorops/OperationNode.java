@@ -2,12 +2,10 @@ package org.tensortapestry.loom.graph.dialects.tensorops;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
-
 import lombok.Singular;
 import lombok.Value;
 import lombok.experimental.Delegate;
@@ -37,7 +35,7 @@ public final class OperationNode extends AbstractNodeWrapper<OperationNode.Body>
   @Jacksonized
   @lombok.Builder
   @JsonInclude(JsonInclude.Include.NON_EMPTY)
-  @JsonPropertyOrder({"kernel", "params", "inputs", "outputs"})
+  @JsonPropertyOrder({ "kernel", "params", "inputs", "outputs" })
   @JsdType(TYPE)
   public static class Body implements HasToJsonString {
 
@@ -104,7 +102,14 @@ public final class OperationNode extends AbstractNodeWrapper<OperationNode.Body>
       .collect(
         Collectors.toUnmodifiableMap(
           Map.Entry::getKey,
-          e -> e.getValue().stream().map(ts -> g.assertNode(ts.getTensorId(), TensorNode.class)).toList()));
+          e ->
+            e
+              .getValue()
+              .stream()
+              .map(ts -> g.assertNode(ts.getTensorId(), TensorNode.class))
+              .toList()
+        )
+      );
   }
 
   /**

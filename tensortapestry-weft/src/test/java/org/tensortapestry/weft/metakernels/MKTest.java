@@ -2,14 +2,12 @@ package org.tensortapestry.weft.metakernels;
 
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import guru.nidi.graphviz.engine.Format;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-
 import lombok.Data;
 import org.junit.jupiter.api.Test;
 import org.tensortapestry.common.testing.CommonAssertions;
