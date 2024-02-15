@@ -24,16 +24,16 @@ select
    ;
 
 atom
-   : val=integer # NumberAtom
-   | id=variable # VariableAtom
+   : val = integer # NumberAtom
+   | id = variable # VariableAtom
    ;
 
 integer
-    : INTEGER_LITERAL
-    ;
+   : INTEGER_LITERAL
+   ;
 
 variable
-   : DOLLAR id=qual_id
+   : DOLLAR id = qual_id
    ;
 
 qual_id
@@ -100,8 +100,8 @@ LBRACKET
    ;
 
 RBRACKET
-    : ']'
-    ;
+   : ']'
+   ;
 
 LPAREN
    : '('
