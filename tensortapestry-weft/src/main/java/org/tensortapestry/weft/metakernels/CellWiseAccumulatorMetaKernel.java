@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+
 import lombok.RequiredArgsConstructor;
 import org.tensortapestry.loom.graph.LoomGraph;
 import org.tensortapestry.loom.graph.dialects.tensorops.*;
@@ -14,7 +15,7 @@ import org.tensortapestry.zspace.ZRangeProjectionMap;
 import org.tensortapestry.zspace.indexing.IndexingFns;
 
 @RequiredArgsConstructor
-public class CellwiseGroupOp extends MetaKernel {
+public class CellWiseAccumulatorMetaKernel extends MetaKernel {
 
   private final String kernelName;
 
