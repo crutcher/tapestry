@@ -39,16 +39,16 @@ The operation is intended as a stand-in for the fully-connected linear layer ope
 neural networks:
 
 ```math
-\begin{eqnarray\*}
+\begin{eqnarray*}
 Linear(X_{[batch,in]}, W_{[in,out]}, b_{[out]}) := X \times W + b
-\end{eqnarray\*}
+\end{eqnarray*}
 ```
 
 By examining the implementation of **Linear**, and assuming that **X** has shape **[batch, in]** ,
 we can show that the operation can be cleanly sharded along any batch dimensions of the input **X**:
 
 ```math
-\begin{eqnarray\*}
+\begin{eqnarray*}
 \left\\{ \begin{split}
 Z &= Linear(X, W, b) \\\\
 Y &= ReLU(Z)
@@ -77,7 +77,7 @@ Z_2
 \end{split} \right) \\\\
 Y &= ReLU(Z)
 \end{split} \right\\} \\\\ \\\\
-\end{eqnarray\*}
+\end{eqnarray*}
 ```
 
 ![Linear.fig2](PolyhedralTypesAndIndexProjection/Linear.fig2.dot.png)
@@ -85,9 +85,9 @@ Y &= ReLU(Z)
 By exploiting our knowledge of the implementation of $ReLU$:
 
 ```math
-\begin{eqnarray\*}
+\begin{eqnarray*}
 ReLU(Z) := Z \circ [Z > 0]
-\end{eqnarray\*}
+\end{eqnarray*}
 ```
 
 > 📝 Note: While many activation functions are more complex, ReLU specifically
@@ -99,7 +99,7 @@ ReLU(Z) := Z \circ [Z > 0]
 We know that we can also re-write $ReLU$ expressions upon the batch dimensions:
 
 ```math
-\begin{eqnarray\*}
+\begin{eqnarray*}
 \left\\{ \begin{split}
 X_1 &= X[.. k, ...] \\\\
 X_2 &= X[k .., ...] \\\\
@@ -136,7 +136,7 @@ Y_1 \\\\
 Y_2
 \end{split} \right) \\\\
 \end{split} \right\\}
-\end{eqnarray\*}
+\end{eqnarray*}
 ```
 
 
@@ -146,7 +146,7 @@ And finally, seeing $Z_1$ and $Z_2$ do not escape, we can fuse $Linear$ and $ReL
 into the combined $Linear \Rightarrow ReLU$ operation, and collapse the shards:
 
 ```math
-\begin{eqnarray\*}
+\begin{eqnarray*}
 \left\\{ \begin{split}
 X_1 &= X[.. k, ...] \\\\
 X_2 &= X[k .., ...] \\\\
@@ -185,7 +185,7 @@ Y_1 \\\\
 Y_2
 \end{split} \right)
 \end{split} \right\\} \\\\ \\\\
-\end{eqnarray\*}
+\end{eqnarray*}
 ```
 
 ![Linear.fig4](PolyhedralTypesAndIndexProjection/Linear.fig4.dot.png)
@@ -311,9 +311,9 @@ What components make up an affine index projection function?:
 The simplest representation of this is a simple affine transform + a shape:
 
 ```math
-\begin{eqnarray\*}
+\begin{eqnarray*}
 P_T(i) := ZRange(start: A_T i + B_T, shape: S_T)
-\end{eqnarray\*}
+\end{eqnarray*}
 ```
 
 Are affine expressions the *right* or *best* solution to te design of projection functions?
@@ -339,9 +339,9 @@ but some of the implications can be complex to unpack. We'll explore a few here.
 Consider $Linear$ again:
 
 ```math
-\begin{eqnarray\*}
+\begin{eqnarray*}
 Linear(X_{[batch,in]}, W_{[in,out]}, b_{[out]}) := X \times W + b
-\end{eqnarray\*}
+\end{eqnarray*}
 ```
 
 In order to discuss projection functions, we need to extract the dimensions
@@ -367,13 +367,13 @@ in terms of the indexed $batch$ dimension, and the shapes in terms of the total 
 shapes.
 
 ```math
-\begin{eqnarray\*}
+\begin{eqnarray*}
 P_X(i) &=& ZRange \left\\{ \begin{split} start&:& [i_{batch}, 0], \\\\ shape &:& [1, X_{in}]
 \end{split} \right\\} \\\\
 \\\\
 P_Y(i) &=& ZRange \left\\{ \begin{split} start&:& [i_{batch}, 0], \\\\ shape &:& [1, Y_{out}]
 \end{split} \right\\}
-\end{eqnarray\*}
+\end{eqnarray*}
 ```
 
 ![Linear.fig9](PolyhedralTypesAndIndexProjection/Linear.fig9.dot.png)
@@ -386,9 +386,9 @@ correspond to coherent tensor ranges in the mapped coordinate space:
 #### Sharding Linear over the out dimension
 
 ```math
-\begin{eqnarray\*}
+\begin{eqnarray*}
 Linear(X, W, b) := X \times W + b
-\end{eqnarray\*}
+\end{eqnarray*}
 ```
 
 We'll now consider the projection functions $P_W(i)$, $P_b(i)$, and $P_Y(i)$;
@@ -410,7 +410,7 @@ and $P_Y(i)$ $start$ coordinates in terms of the indexed $out$ coordinate, and t
 terms of the $W_{out}$ out dimension size.
 
 ```math
-\begin{eqnarray\*}
+\begin{eqnarray*}
 P_W(i) &=& ZRange \left\\{ \begin{split} start&:& [0, i_{out}], \\\\ shape &:& [W_{out}, 1]
 \end{split} \right\\} \\\\
 \\\\
@@ -419,7 +419,7 @@ P_b(i) &=& ZRange \left\\{ \begin{split} start&:& [i_{out}], \\\\ shape &:& [1] 
 \\\\
 P_Y(i) &=& ZRange \left\\{ \begin{split} start&:& [0, i_{out}], \\\\ shape &:& [W_{out}, 1]
 \end{split} \right\\}
-\end{eqnarray\*}
+\end{eqnarray*}
 ```
 
 ![Linear.fig13](PolyhedralTypesAndIndexProjection/Linear.fig13.dot.png)
@@ -436,9 +436,9 @@ tensor-valued $Linear$
 operation, assuming dimensions: $X: [batch, in]$, $W: [in, out]$, $b: [out]$, $Y: [batch, out]$:
 
 ```math
-\begin{eqnarray\*}
+\begin{eqnarray*}
 Linear(X_{[batch,in]}, W_{[in,out]}, b_{[out]})_{[batch,out]} := X \times W + b
-\end{eqnarray\*}
+\end{eqnarray*}
 ```
 
 To examine sharding over the $in$ dimension, we'll need to focus on the nature of the matrix
@@ -446,10 +446,10 @@ multiplication
 operation, and discuss $Matmul$ and $Sum$ operations.
 
 ```math
-\begin{eqnarray\*}
+\begin{eqnarray*}
 Matmul(X_{[batch,in]}, W_{[in,out]})_{[batch,out]} &:=& X \times W \\\\
 Sum(A\_{[...]}, B\_{[...]})\_{[...]} &:=& A + B
-\end{eqnarray\*}
+\end{eqnarray*}
 ```
 
 What's important here is that, while $Matmul$ is linearly shardable in its $batch$ and $out$
@@ -457,13 +457,13 @@ dimensions,
 it contains an implicit reduce sum reduction operation in its $input$ dimension.
 
 ```math
-\begin{eqnarray\*}
+\begin{eqnarray*}
 Matmul(X_{[batch,in]}, W_{[in,out]}) := \left(
 \begin{split}
 \left\\{\sum_{in=1}^n x_{batch,in}w_{in,out}\right\\}_{batch,out} &\qquad& ... \\\\
 ... &\qquad& ...
 \end{split} \right)
-\end{eqnarray\*}
+\end{eqnarray*}
 ```
 
 > 📝 Note: careful readers may note that there exists a large body of work dedicated to the question
@@ -482,9 +482,9 @@ Matmul(X_{[batch,in]}, W_{[in,out]}) := \left(
 Returning to $Linear$, we can rewrite $Linear$ as a composition of $Matmul$ and $Sum$:
 
 ```math
-\begin{eqnarray\*}
+\begin{eqnarray*}
 Linear(X_{[batch,in]}, W_{[in,out]}, b_{[out]})_{[batch,out]} := Sum(Matuml(X, W), b)
-\end{eqnarray\*}
+\end{eqnarray*}
 ```
 
 Applying this re-write would restructure our expression graph from this:
@@ -506,9 +506,9 @@ To do this, we need to extend and broadcast $X$ and $W$ to the combined shape $[
 to produce an intermediate result $V$:
 
 ```math
-\begin{eqnarray\*}
+\begin{eqnarray*}
 V := (X\_{[batch,in,1]} \cdot W\_{[1,in,out]})\_{[batch,in,out]}
-\end{eqnarray\*}
+\end{eqnarray*}
 ```
 
 And we need to introduce a new operator $SumDim(T, dim)$ which sums along and removes one dim of
@@ -517,13 +517,13 @@ $T$.
 We can now define $Matmul$ in terms of this intermediate result, and $SumDim$
 
 ```math
-\begin{eqnarray\*}
+\begin{eqnarray*}
 Matmul(X_{[batch,in]}, W_{[in,out]})_{[batch,out]} &:=& X\_{[batch,in]} \times W\_{[in,out]\} \\\\
 &=& SumDim \left( \begin{split}
 (X\_{[batch,in,1]} \times W\_{[1,in,out]})\_{[batch,in,out]}, \\\\
 dim = \langle in \rangle
 \end{split} \right)
-\end{eqnarray\*}
+\end{eqnarray*}
 ```
 
 This decomposition yields the following expression graph:
@@ -540,13 +540,13 @@ Consider $Prod$; a simple cell-wise multiplication. We expect the output
 to have the same shape and dimensions as the input:
 
 ```math
-\begin{eqnarray\*}
+\begin{eqnarray*}
 Prod(A\_{[...]\}, B\_{[...]})\_{[...]} &:=& A \cdot B \\\\
 Prod(A\_{[m,n,o]}, B\_{[m,n,o]})\_{[m,n,o]} &:=& \left( \begin{split}
 (a\_{m,n,o} \cdot b\_{m,n,o}) &\qquad& ... \\\\
 ... &\qquad& ...
 \end{split} \right)
-\end{eqnarray\*}
+\end{eqnarray*}
 ```
 
 To achieve this in tensor operations over inputs where the shapes are not initially the
@@ -555,12 +555,12 @@ treat any dimension which is $1$ for one input, but non $1$ for another input
 as though it were broadcast or spread to cover the size of the other:
 
 ```math
-\begin{eqnarray\*}
+\begin{eqnarray*}
 Prod(A\_{[1,n,o]}, B\_{[m,1,o]})\_{[m,n,o]} := \left( \begin{split}
 (a\_{1,n,o} \cdot b\_{m,1,o}) &\qquad& ... \\\\
 ... &\qquad& ...
 \end{split} \right)
-\end{eqnarray\*}
+\end{eqnarray*}
 ```
 
 It is also common in tensor operations to perform various permutations,
@@ -626,10 +626,10 @@ Suppose we notice that the summation reduction follows the monadic laws (it is a
 and commutative); such that we can re-order and regroup it as we see fit:
 
 ```math
-\begin{eqnarray\*}
+\begin{eqnarray*}
 a \oplus b \oplus c \oplus d &=& (a \oplus b) \oplus (c \oplus d) \\\\
 &=& (c \oplus d) \oplus (a \oplus b)
-\end{eqnarray\*} 
+\end{eqnarray*} 
 ```
 
 Any operation with this property, no matter what the implementation is doing,
@@ -656,7 +656,7 @@ representation of the index space, as $⟪reduce⟫$ is no longer a simple count
 Returning to the definition of $Matmul$,
 
 ```math
-\begin{eqnarray\*}
+\begin{eqnarray*}
 Matmul(X_{[batch,in]}, W_{[in,out]}) &:=& \left(
 \begin{split}
 \left\\{\sum_{in=1}^n x_{batch,in}w_{in,out}\right\\}_{batch,out} &\qquad& ... \\\\
@@ -666,7 +666,7 @@ Matmul(X_{[batch,in]}, W_{[in,out]}) &:=& \left(
 (X\_{[batch,in,1]} \cdot W\_{[1,in,out]})\_{[batch,in,out]}, \\\\
 dim = \langle in \rangle
 \end{split} \right)
-\end{eqnarray\*}
+\end{eqnarray*}
 ```
 
 We can now construct $Matmul$ from the combination of a block operation and a reduce operation:
@@ -678,9 +678,9 @@ We can now construct $Matmul$ from the combination of a block operation and a re
 Putting this together with the definition of $Linear$,
 
 ```math
-\begin{eqnarray\*}
+\begin{eqnarray*}
 Linear(X_{[batch,in]}, W_{[in,out]}, b_{[out]})_{[batch,out]} := X \times W + b
-\end{eqnarray\*} 
+\end{eqnarray*} 
 ```
 
 We can now express $Linear$ as a form of high-level reduction operation,
@@ -767,9 +767,9 @@ Consider:
 * yielding a 100 batch, $[8,8]$ shape, 128-channel output $Y$.
 
 ```math
-\begin{eqnarray\*}
+\begin{eqnarray*}
 Y_{[100,128,8,8]} = Conv2D(X_{[100,1,10,10]}, F_{[128,1,3,3]})
-\end{eqnarray\*}
+\end{eqnarray*}
 ```
 
 #### Sparse Strided Convolution Operators
