@@ -6,7 +6,6 @@ import java.util.Map;
 import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import lombok.RequiredArgsConstructor;
 import org.tensortapestry.loom.graph.LoomGraph;
 import org.tensortapestry.loom.graph.dialects.tensorops.*;
 import org.tensortapestry.zspace.ZAffineMap;
@@ -14,12 +13,14 @@ import org.tensortapestry.zspace.ZRange;
 import org.tensortapestry.zspace.ZRangeProjectionMap;
 import org.tensortapestry.zspace.indexing.IndexingFns;
 
-@RequiredArgsConstructor
-public class CellWiseAccumulatorMetaKernel extends MetaKernel {
+public class CellWiseAccumulatorMetaKernel extends DataTypeCheckingMetaKernel {
 
   private final String kernelName;
 
-  private final Set<String> dataTypes;
+  public CellWiseAccumulatorMetaKernel(String kernelName, Set<String> dataTypes) {
+    super(dataTypes);
+    this.kernelName = kernelName;
+  }
 
   @Override
   public OperationNode apply(
@@ -48,11 +49,7 @@ public class CellWiseAccumulatorMetaKernel extends MetaKernel {
     for (var tensor : tensors) {
       String dtype = tensor.getDtype();
       seenTypes.add(dtype);
-      if (!dataTypes.contains(dtype)) {
-        throw new IllegalArgumentException(
-          "Unexpected dtype %s, expected one of %s".formatted(dtype, dataTypes)
-        );
-      }
+      checkDataType(dtype);
     }
 
     if (seenTypes.size() != 1) {
