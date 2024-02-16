@@ -1,7 +1,6 @@
 package org.tensortapestry.loom.graph.dialects.tensorops;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import java.util.UUID;
 import javax.annotation.Nonnull;
@@ -10,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.Value;
 import lombok.extern.jackson.Jacksonized;
 import org.tensortapestry.loom.graph.LoomNodeWrapper;
+import org.tensortapestry.zspace.ZPoint;
 import org.tensortapestry.zspace.ZRange;
 
 /**
@@ -60,18 +60,27 @@ public class TensorSelection implements TensorSelectionSupplier {
     return TensorSelection.builder().tensorId(tensorNode.getId()).range(range).build();
   }
 
-  @JsonProperty(required = true)
   @Nonnull
   UUID tensorId;
 
-  @JsonProperty(required = true)
   @Nonnull
   ZRange range;
+
+  @Nonnull
+  @JsonIgnore
+  public ZPoint getShape() {
+    return range.getShape();
+  }
 
   @Nonnull
   @JsonIgnore
   @Override
   public TensorSelection getTensorSelection() {
     return this;
+  }
+
+  @Override
+  public int getNDim() {
+    return range.getNDim();
   }
 }

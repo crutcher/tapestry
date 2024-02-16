@@ -1,6 +1,5 @@
 package org.tensortapestry.weft.metakernels;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -15,11 +14,8 @@ import org.tensortapestry.zspace.indexing.IndexingFns;
 
 public class CellWiseAccumulatorMetaKernel extends DataTypeCheckingMetaKernel {
 
-  private final String kernelName;
-
   public CellWiseAccumulatorMetaKernel(String kernelName, Set<String> dataTypes) {
-    super(dataTypes);
-    this.kernelName = kernelName;
+    super(kernelName, dataTypes);
   }
 
   @Override
@@ -29,36 +25,19 @@ public class CellWiseAccumulatorMetaKernel extends DataTypeCheckingMetaKernel {
     @Nullable Map<String, Object> params
   ) {
     if (params != null && !params.isEmpty()) {
-      throw new IllegalArgumentException("`add` takes no parameters.");
+      throw new IllegalArgumentException("`%s` takes no parameters.".formatted(getKernelName()));
     }
 
     var expectedKeys = Set.of("tensors");
-    if (inputs == null || !inputs.keySet().equals(expectedKeys)) {
+    if (!(inputs != null && inputs.keySet().equals(expectedKeys))) {
       throw new IllegalArgumentException(
         "Unexpected input keys, found %s, expected %s".formatted(inputs.keySet(), expectedKeys)
       );
     }
 
     var tensorSelections = inputs.get("tensors");
-    var tensors = tensorSelections
-      .stream()
-      .map(TensorSelection::getTensorId)
-      .map(id -> graph.assertNode(id, TensorNode.class))
-      .toList();
-    var seenTypes = new HashSet<String>();
-    for (var tensor : tensors) {
-      String dtype = tensor.getDtype();
-      seenTypes.add(dtype);
-      checkDataType(dtype);
-    }
 
-    if (seenTypes.size() != 1) {
-      throw new IllegalArgumentException(
-        "Expected all tensors to have the same dtype, found %s".formatted(seenTypes)
-      );
-    }
-
-    var dtype = seenTypes.iterator().next();
+    var dtype = uniformDtypeCheck(graph, tensorSelections);
 
     var shapes = tensorSelections.stream().map(ts -> ts.getRange().getShape().toArray()).toList();
     var shape = IndexingFns.commonBroadcastShape(shapes.toArray(int[][]::new));
@@ -67,7 +46,7 @@ public class CellWiseAccumulatorMetaKernel extends DataTypeCheckingMetaKernel {
 
     var result = TensorNode
       .on(graph)
-      .label("%s.result".formatted(kernelName))
+      .label("%s.result".formatted(getKernelName()))
       .body(b -> b.dtype(dtype).shape(shape))
       .build();
 
@@ -75,9 +54,9 @@ public class CellWiseAccumulatorMetaKernel extends DataTypeCheckingMetaKernel {
 
     var op = OperationNode
       .on(graph)
-      .label(kernelName)
+      .label(getKernelName())
       .body(b -> {
-        b.kernel(kernelName);
+        b.kernel(getKernelName());
         b.inputs(inputs);
         b.outputs(outputs);
       })
@@ -86,15 +65,13 @@ public class CellWiseAccumulatorMetaKernel extends DataTypeCheckingMetaKernel {
     var index = ZRange.newFromShape(shape);
     op.addAnnotation(TensorOpNodes.IPF_INDEX_ANNOTATION_TYPE, index);
 
-    var commonProjection = ZRangeProjectionMap.builder().identityMap(shape.length).build();
-
     op.addAnnotation(
       TensorOpNodes.IPF_SIGNATURE_ANNOTATION_TYPE,
       IPFSignature
         .builder()
         .input(
           "tensors",
-          tensors
+          tensorSelections
             .stream()
             .map(ts ->
               ZRangeProjectionMap
@@ -105,7 +82,7 @@ public class CellWiseAccumulatorMetaKernel extends DataTypeCheckingMetaKernel {
             )
             .toList()
         )
-        .output("result", commonProjection)
+        .output("result", ZRangeProjectionMap.builder().identityMap(shape.length).build())
         .build()
     );
 

@@ -27,10 +27,10 @@ public class DimShapeMatcherTest implements CommonAssertions {
 
     var shape = new int[] { 100, 20, 5, 10, 255, 255, 3 };
 
-    DimShapeMatcher.DimMatchIndex matchIndex = matcher.layout(shape.length);
+    DimShapeMatcher.DimLocationIndex matchIndex = matcher.matchLocations(shape.length);
     assertThat(matchIndex)
       .isEqualTo(
-        DimShapeMatcher.DimMatchIndex
+        DimShapeMatcher.DimLocationIndex
           .builder()
           .size(7)
           .dim("height", 4)
@@ -79,9 +79,9 @@ public class DimShapeMatcherTest implements CommonAssertions {
         new DimShapeMatcher.ShapePattern.NamedDim("c")
       );
 
-    assertThat(matcher.layout(7))
+    assertThat(matcher.matchLocations(7))
       .isEqualTo(
-        DimShapeMatcher.DimMatchIndex
+        DimShapeMatcher.DimLocationIndex
           .builder()
           .size(7)
           .dim("a", 0)

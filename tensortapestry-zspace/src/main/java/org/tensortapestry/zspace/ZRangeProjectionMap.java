@@ -94,6 +94,19 @@ public class ZRangeProjectionMap implements HasToJsonString {
     }
 
     /**
+     * Build an ZAffineMap from a matrix.
+     *
+     * @param matrix the matrix.
+     * @return {@code this}
+     */
+    @Nonnull
+    @JsonIgnore
+    @CanIgnoreReturnValue
+    public ZRangeProjectionMapBuilder affineMap(@Nonnull ZTensorWrapper matrix) {
+      return affineMap(ZAffineMap.fromMatrix(matrix));
+    }
+
+    /**
      * Set a ZAffineMap on the builder.
      *
      * @param affineMap the ZAffineMap.

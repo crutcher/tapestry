@@ -14,6 +14,7 @@ import org.tensortapestry.common.collections.EnumerationUtils;
 import org.tensortapestry.weft.metakernels.antlr.generated.DimShapePatternBaseVisitor;
 import org.tensortapestry.weft.metakernels.antlr.generated.DimShapePatternLexer;
 import org.tensortapestry.weft.metakernels.antlr.generated.DimShapePatternParser;
+import org.tensortapestry.zspace.ZPoint;
 import org.tensortapestry.zspace.indexing.IndexingFns;
 
 /**
@@ -125,12 +126,28 @@ public class DimShapeMatcher {
     @Singular
     @Nonnull
     Map<String, List<Integer>> groups;
+
+    public int getDim(String name) {
+      return dims.get(name);
+    }
+
+    public List<Integer> getGroup(String name) {
+      return groups.get(name);
+    }
   }
 
   @Value
   @EqualsAndHashCode(callSuper = true)
   @SuperBuilder
-  public static class DimMatchIndex extends DimGroupBase {
+  public static class DimLocationIndex extends DimGroupBase {
+
+    public DimShapeIndex toShapeIndex(ZPoint shape) {
+      return toShapeIndex(shape.toArray());
+    }
+
+    public DimShapeIndex toShapeIndex(List<Integer> shape) {
+      return toShapeIndex(IndexingFns.unboxList(shape));
+    }
 
     public DimShapeIndex toShapeIndex(int[] shape) {
       return DimShapeIndex
@@ -162,11 +179,24 @@ public class DimShapeMatcher {
   @SuperBuilder
   public static class DimShapeIndex extends DimGroupBase {}
 
+  @Value
+  @RequiredArgsConstructor
+  public static class DimLayout {
+
+    DimLocationIndex locations;
+    DimShapeIndex shapes;
+  }
+
   private Stream<ShapePattern> flatLeaves() {
     return patterns.stream().flatMap(ShapePattern::flatLeaves);
   }
 
-  public DimMatchIndex layout(int numDims) {
+  public DimLayout match(ZPoint shape) {
+    var locations = matchLocations(shape.getNDim());
+    return new DimLayout(locations, locations.toShapeIndex(shape));
+  }
+
+  public DimLocationIndex matchLocations(int numDims) {
     Map<String, Integer> dims = new LinkedHashMap<>();
     Map<String, List<Integer>> groups = new LinkedHashMap<>();
 
@@ -244,7 +274,7 @@ public class DimShapeMatcher {
       groups.put(cur.getName(), List.copyOf(indexes));
     }
 
-    return DimMatchIndex.builder().size(numDims).dims(dims).groups(groups).build();
+    return DimLocationIndex.builder().size(numDims).dims(dims).groups(groups).build();
   }
 
   @VisibleForTesting

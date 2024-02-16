@@ -201,6 +201,17 @@ public class ZRange implements Cloneable, HasSize, HasPermute<ZRange>, HasToJson
    * @return a new range.
    */
   @Nonnull
+  public static ZRange newFromShape(@Nonnull List<Integer> shape) {
+    return newFromShape(new ZPoint(shape));
+  }
+
+  /**
+   * Build a range from {@code [0, shape)}.
+   *
+   * @param shape the shape of the range.
+   * @return a new range.
+   */
+  @Nonnull
   public static ZRange newFromShape(@Nonnull ZTensorWrapper shape) {
     return new ZRange(ZPoint.newZerosLike(shape), shape);
   }

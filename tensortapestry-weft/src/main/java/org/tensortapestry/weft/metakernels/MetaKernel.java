@@ -7,11 +7,15 @@ import java.util.Map;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import lombok.Data;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import org.tensortapestry.loom.graph.LoomGraph;
 import org.tensortapestry.loom.graph.dialects.tensorops.OperationNode;
 import org.tensortapestry.loom.graph.dialects.tensorops.TensorSelection;
 import org.tensortapestry.loom.graph.dialects.tensorops.TensorSelectionSupplier;
 
+@Getter
+@RequiredArgsConstructor
 public abstract class MetaKernel {
 
   @Data
@@ -60,6 +64,9 @@ public abstract class MetaKernel {
       return MetaKernel.this.apply(graph, inputs, params);
     }
   }
+
+  @Nonnull
+  private final String kernelName;
 
   public CallBuilder on(@Nonnull LoomGraph graph) {
     return new CallBuilder().graph(graph);
