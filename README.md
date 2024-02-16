@@ -8,9 +8,11 @@ The goal of **Tapestry** is to provide an ecosystem for a high-performance stoch
 optimizer for distributed tensor expressions, targeting optimizations which are permitted to search
 for extended time on a large number of machines.
 
-Here is in an example of the same _Linear_ operation, with and without sub-block sharding:
-<img alt="linear" src="docs/media/linear.jpg" width="800"/>
-<img alt="linear.4x" src="docs/media/linear.4x.jpg" width="800"/>
+Here are examples showing a **Linear**/**ReLU** pipeline, with and without sub-block sharding;
+demonstrating the potential for sub-shard operation fusion:
+
+<img alt="linear.relu" src="docs/media/linear.relu.jpg" width="800"/>
+<img alt="linear.relu.4x" src="docs/media/linear.relu.4x.jpg" width="800"/>
 
 ## Getting Started
 

@@ -21,6 +21,7 @@ public class LinearMetaKernel extends DataTypeCheckingMetaKernel {
     super(KERNEL_NAME, dataTypes);
   }
 
+  @Nonnull
   @Override
   public OperationNode apply(
     @Nonnull LoomGraph graph,

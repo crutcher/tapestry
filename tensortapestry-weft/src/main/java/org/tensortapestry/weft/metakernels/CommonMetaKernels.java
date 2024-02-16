@@ -10,4 +10,6 @@ public class CommonMetaKernels {
   public final MetaKernel ADD = new CellWiseAccumulatorMetaKernel("op:add", DATA_TYPES);
 
   public final MetaKernel LINEAR = new LinearMetaKernel(DATA_TYPES);
+
+  public final MetaKernel RELU = new ReluMetaKernel(DATA_TYPES);
 }

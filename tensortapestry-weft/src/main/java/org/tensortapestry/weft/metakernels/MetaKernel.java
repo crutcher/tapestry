@@ -72,6 +72,7 @@ public abstract class MetaKernel {
     return new CallBuilder().graph(graph);
   }
 
+  @Nonnull
   public abstract OperationNode apply(
     @Nonnull LoomGraph graph,
     @Nullable Map<String, List<TensorSelection>> inputs,

@@ -18,6 +18,7 @@ public class CellWiseAccumulatorMetaKernel extends DataTypeCheckingMetaKernel {
     super(kernelName, dataTypes);
   }
 
+  @Nonnull
   @Override
   public OperationNode apply(
     @Nonnull LoomGraph graph,

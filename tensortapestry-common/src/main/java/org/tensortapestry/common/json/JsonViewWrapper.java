@@ -69,7 +69,7 @@ public class JsonViewWrapper {
         setValue(JsonUtil.convertValue(jsonValue, clazz));
       } catch (Exception e) {
         throw new ViewConversionError(
-          "Failed to convert <%s> to %s".formatted(jsonValue, clazz),
+          "Failed to convert <%s> to %s".formatted(JsonUtil.toPrettyJson(jsonValue), clazz),
           e
         );
       }

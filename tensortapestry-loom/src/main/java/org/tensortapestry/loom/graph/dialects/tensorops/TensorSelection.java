@@ -66,7 +66,22 @@ public class TensorSelection implements TensorSelectionSupplier {
   @Nonnull
   ZRange range;
 
-  @Nonnull
+  @Override
+  @JsonIgnore
+  public int getNDim() {
+    return range.getNDim();
+  }
+
+  @JsonIgnore
+  public ZPoint getStart() {
+    return range.getStart();
+  }
+
+  @JsonIgnore
+  public ZPoint getEnd() {
+    return range.getEnd();
+  }
+
   @JsonIgnore
   public ZPoint getShape() {
     return range.getShape();
@@ -77,10 +92,5 @@ public class TensorSelection implements TensorSelectionSupplier {
   @Override
   public TensorSelection getTensorSelection() {
     return this;
-  }
-
-  @Override
-  public int getNDim() {
-    return range.getNDim();
   }
 }

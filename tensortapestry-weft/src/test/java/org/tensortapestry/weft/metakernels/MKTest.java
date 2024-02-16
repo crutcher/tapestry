@@ -55,7 +55,7 @@ public class MKTest implements CommonAssertions {
     var env = CommonEnvironments.expressionEnvironment();
     var graph = env.newGraph();
 
-    var reshard = true;
+    var reshard = false;
 
     var dtype = "float32";
 
@@ -69,31 +69,44 @@ public class MKTest implements CommonAssertions {
 
     var bias = TensorNode.on(graph).label("bias").body(b -> b.dtype(dtype).shape(32)).build();
 
-    var op = CommonMetaKernels.LINEAR
+    var linearOp = CommonMetaKernels.LINEAR
       .on(graph)
       .input("x", input)
       .input("A", weights)
       .input("b", bias)
       .apply();
 
-    var result = op.getResult().withLabel("Z");
+    var z = linearOp.getResult().withLabel("Z");
+
+    var reluOp = CommonMetaKernels.RELU.on(graph).input("tensor", z).apply();
+
+    var y = reluOp.getResult().withLabel("Y");
 
     if (reshard) {
       // Re-shard 2 ways.
-      op.getApplicationNodes().toList().forEach(graph::removeNode);
-      var index = op
+      linearOp.getApplicationNodes().toList().forEach(graph::removeNode);
+      reluOp.getApplicationNodes().toList().forEach(graph::removeNode);
+      var linearIndex = linearOp
+        .getAnnotations()
+        .get(TensorOpNodes.IPF_INDEX_ANNOTATION_TYPE)
+        .viewAs(ZRange.class);
+      var reluIndex = reluOp
         .getAnnotations()
         .get(TensorOpNodes.IPF_INDEX_ANNOTATION_TYPE)
         .viewAs(ZRange.class);
 
-      OperationUtils.createIpfShards(
-        op,
-        Arrays.stream(index.split(0, 50)).flatMap(i -> Arrays.stream(i.split(1, 16))).toList()
-      );
+      assertThat(linearIndex).isEqualTo(reluIndex);
+      var indexShards = Arrays
+        .stream(linearIndex.split(0, 50))
+        .flatMap(i -> Arrays.stream(i.split(1, 16)))
+        .toList();
+
+      OperationUtils.createIpfShards(linearOp, indexShards);
+      OperationUtils.createIpfShards(reluOp, indexShards);
     }
 
-    assertThat(result.getShape()).isEqualTo(ZPoint.of(100, 32));
-    assertThat(result.getDtype()).isEqualTo(dtype);
+    assertThat(z.getShape()).isEqualTo(ZPoint.of(100, 32));
+    assertThat(z.getDtype()).isEqualTo(dtype);
 
     graph.validate();
 
