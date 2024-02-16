@@ -18,7 +18,7 @@ import org.tensortapestry.loom.graph.LoomNode;
 import org.tensortapestry.loom.graph.dialects.common.JsdType;
 
 @JsdType(OperationNode.TYPE)
-public final class OperationNode extends AbstractNodeWrapper<OperationNode.Body> {
+public final class OperationNode extends AbstractNodeWrapper<OperationNode, OperationNode.Body> {
 
   public static final String TYPE =
     "http://tensortapestry.org/schemas/loom/2024-01/node_types.jsd#/nodes/Operation";

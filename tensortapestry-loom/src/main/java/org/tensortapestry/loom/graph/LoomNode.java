@@ -27,7 +27,7 @@ import org.tensortapestry.common.validation.ValidationIssue;
 @Jacksonized
 @Builder(builderClassName = "Builder")
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
-public final class LoomNode implements LoomNodeWrapper, HasToJsonString {
+public final class LoomNode implements LoomNodeWrapper<LoomNode>, HasToJsonString {
 
   /**
    * Builder for a LoomNode.
@@ -63,6 +63,7 @@ public final class LoomNode implements LoomNodeWrapper, HasToJsonString {
 
     /**
      * Set the body of the node.
+     *
      * @param supplier supplier for the body.
      * @return {@code this}
      */
@@ -182,7 +183,7 @@ public final class LoomNode implements LoomNodeWrapper, HasToJsonString {
   public boolean equals(Object other) {
     if (other == this) return true;
     if (other == null) return false;
-    if (other instanceof LoomNodeWrapper wrapper) {
+    if (other instanceof LoomNodeWrapper<?> wrapper) {
       other = wrapper.unwrap();
     }
     if (other instanceof LoomNode node) {
@@ -218,6 +219,7 @@ public final class LoomNode implements LoomNodeWrapper, HasToJsonString {
 
   /**
    * Get the environment that this node belongs to.
+   *
    * @return the environment.
    * @throws IllegalStateException if the node does not belong to an environment.
    */
@@ -242,6 +244,7 @@ public final class LoomNode implements LoomNodeWrapper, HasToJsonString {
 
   /**
    * Get the type alias of the node.
+   *
    * @return the type alias.
    * @throws IllegalStateException if the node does not belong to an environment.
    */
@@ -252,6 +255,7 @@ public final class LoomNode implements LoomNodeWrapper, HasToJsonString {
 
   /**
    * Get the json path of the node.
+   *
    * @return the json path.
    */
   @JsonIgnore

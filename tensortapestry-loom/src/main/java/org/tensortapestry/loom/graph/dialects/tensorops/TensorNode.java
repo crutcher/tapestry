@@ -20,7 +20,7 @@ import org.tensortapestry.zspace.ZTensorWrapper;
 
 @JsdType(TensorNode.TYPE)
 public final class TensorNode
-  extends AbstractNodeWrapper<TensorNode.Body>
+  extends AbstractNodeWrapper<TensorNode, TensorNode.Body>
   implements TensorSelectionSupplier {
 
   public static final String TYPE =

@@ -30,7 +30,7 @@ public class TensorSelection implements TensorSelectionSupplier {
    * @param tensorNode the TensorNode
    * @return the TensorSelection
    */
-  public static TensorSelection from(LoomNodeWrapper tensorNode) {
+  public static TensorSelection from(LoomNodeWrapper<?> tensorNode) {
     tensorNode.unwrap().assertType(TensorNode.TYPE);
     return TensorSelection
       .builder()
@@ -43,14 +43,13 @@ public class TensorSelection implements TensorSelectionSupplier {
    * Creates a TensorSelection from a TensorNode and a range.
    *
    * <p>The TensorSelection will have the given range, which must be contained in the
-   * TensorNode's
-   * range.
+   * TensorNode's range.
    *
    * @param tensorNode the TensorNode
    * @param range the range
    * @return the TensorSelection
    */
-  public static TensorSelection from(LoomNodeWrapper tensorNode, ZRange range) {
+  public static TensorSelection from(LoomNodeWrapper<?> tensorNode, ZRange range) {
     tensorNode.unwrap().assertType(TensorNode.TYPE);
     var tensorRange = tensorNode.unwrap().viewBodyAs(TensorNode.Body.class).getRange();
     if (!tensorRange.contains(range)) {

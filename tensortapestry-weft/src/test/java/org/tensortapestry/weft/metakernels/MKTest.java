@@ -32,9 +32,8 @@ public class MKTest implements CommonAssertions {
       .on(graph)
       .input("tensors", tensorA, tensorB)
       .apply()
-      .getResult();
-
-    tensorC.setLabel("C");
+      .getResult()
+      .withLabel("C");
 
     assertThat(tensorC.getShape()).isEqualTo(ZPoint.of(10, 10, 10));
     assertThat(tensorC.getDtype()).isEqualTo("float32");

@@ -11,7 +11,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.Delegate;
 
 @RequiredArgsConstructor
-public abstract class AbstractNodeWrapper<BodyT> implements LoomNodeWrapper {
+public abstract class AbstractNodeWrapper<
+  WrapperT extends AbstractNodeWrapper<WrapperT, BodyT>, BodyT
+>
+  implements LoomNodeWrapper<WrapperT> {
 
   public abstract static class AbstractNodeWrapperBuilder<WrapperT, BuilderT, BodyT, BodyBuilderT> {
 
@@ -84,7 +87,7 @@ public abstract class AbstractNodeWrapper<BodyT> implements LoomNodeWrapper {
   }
 
   @Nonnull
-  @Delegate
+  @Delegate(excludes = LoomNodeWrapper.class)
   @JsonValue
   protected final LoomNode node;
 

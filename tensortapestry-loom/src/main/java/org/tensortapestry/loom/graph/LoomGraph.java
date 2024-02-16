@@ -24,7 +24,9 @@ import org.tensortapestry.common.validation.LoomValidationError;
 import org.tensortapestry.common.validation.ValidationIssueCollector;
 import org.tensortapestry.loom.graph.dialects.common.JsdType;
 
-/** A Loom Graph document. */
+/**
+ * A Loom Graph document.
+ */
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @Getter
 @Setter
@@ -58,6 +60,7 @@ public final class LoomGraph implements HasToJsonString, StreamableIterable<Loom
 
   /**
    * Get the environment this graph belongs to.
+   *
    * @return the environment.
    * @throws IllegalStateException if the environment is not set.
    */
@@ -71,6 +74,7 @@ public final class LoomGraph implements HasToJsonString, StreamableIterable<Loom
 
   /**
    * Validate the graph.
+   *
    * @throws LoomValidationError if the graph is invalid.
    */
   public void validate() {
@@ -79,6 +83,7 @@ public final class LoomGraph implements HasToJsonString, StreamableIterable<Loom
 
   /**
    * Validate the graph.
+   *
    * @param issueCollector the issue collector to use.
    */
   public void validate(ValidationIssueCollector issueCollector) {
@@ -87,6 +92,7 @@ public final class LoomGraph implements HasToJsonString, StreamableIterable<Loom
 
   /**
    * Get an iterator over all nodes in the graph.
+   *
    * @return the iterator.
    */
   @Override
@@ -97,6 +103,7 @@ public final class LoomGraph implements HasToJsonString, StreamableIterable<Loom
 
   /**
    * Get a stream of all nodes in the graph.
+   *
    * @return the stream.
    */
   @Override
@@ -107,6 +114,7 @@ public final class LoomGraph implements HasToJsonString, StreamableIterable<Loom
 
   /**
    * Get all nodes of the given type.
+   *
    * @param type the node type.
    * @return the nodes.
    */
@@ -117,12 +125,14 @@ public final class LoomGraph implements HasToJsonString, StreamableIterable<Loom
 
   /**
    * Get all nodes of the given type, wrapped in the given wrapper class.
-   * @param wrapperClass the wrapper class; must have a constructor taking a {@link LoomNode} and a {@code @JsdType} annotation.
-   * @return the nodes.
+   *
+   * @param wrapperClass the wrapper class; must have a constructor taking a {@link LoomNode} and
+   *   a {@code @JsdType} annotation.
    * @param <W> the wrapper type.
+   * @return the nodes.
    */
   @Nonnull
-  public <W extends LoomNodeWrapper> StreamableIterable<W> byType(Class<W> wrapperClass) {
+  public <W extends LoomNodeWrapper<W>> StreamableIterable<W> byType(Class<W> wrapperClass) {
     return byType(
       JsdType.Util.assertType(wrapperClass),
       n -> ReflectionUtils.newInstance(wrapperClass, n)
@@ -131,13 +141,14 @@ public final class LoomGraph implements HasToJsonString, StreamableIterable<Loom
 
   /**
    * Get all nodes of the given type, wrapped in the given wrapper class.
+   *
    * @param type the node type.
    * @param wrap a function to wrap the nodes.
-   * @return the nodes.
    * @param <W> the wrapper type.
+   * @return the nodes.
    */
   @Nonnull
-  public <W extends LoomNodeWrapper> StreamableIterable<W> byType(
+  public <W extends LoomNodeWrapper<W>> StreamableIterable<W> byType(
     String type,
     Function<LoomNode, W> wrap
   ) {
@@ -215,11 +226,11 @@ public final class LoomGraph implements HasToJsonString, StreamableIterable<Loom
     return node;
   }
 
-  public <W extends LoomNodeWrapper> W assertNode(UUID id, Function<LoomNode, W> wrap) {
+  public <W extends LoomNodeWrapper<W>> W assertNode(UUID id, Function<LoomNode, W> wrap) {
     return wrap.apply(assertNode(id));
   }
 
-  public <W extends LoomNodeWrapper> W assertNode(UUID id, Class<W> wrapper) {
+  public <W extends LoomNodeWrapper<W>> W assertNode(UUID id, Class<W> wrapper) {
     return ReflectionUtils.newInstance(wrapper, assertNode(id));
   }
 
@@ -249,6 +260,7 @@ public final class LoomGraph implements HasToJsonString, StreamableIterable<Loom
 
   /**
    * Create a new node builder, bound to this graph.
+   *
    * @return the builder.
    */
   @Nonnull
@@ -259,6 +271,7 @@ public final class LoomGraph implements HasToJsonString, StreamableIterable<Loom
 
   /**
    * Create a new node builder, bound to this graph.
+   *
    * @param type the node type.
    * @return the builder.
    */
@@ -277,7 +290,7 @@ public final class LoomGraph implements HasToJsonString, StreamableIterable<Loom
   @Nonnull
   @CanIgnoreReturnValue
   @SuppressWarnings("ReferenceEquality")
-  public LoomNode addNode(@Nonnull LoomNodeWrapper wrapper) {
+  public LoomNode addNode(@Nonnull LoomNodeWrapper<?> wrapper) {
     var node = wrapper.unwrap();
 
     var nodeGraph = node.getGraph();
@@ -348,7 +361,7 @@ public final class LoomGraph implements HasToJsonString, StreamableIterable<Loom
    */
   @Nonnull
   @CanIgnoreReturnValue
-  public LoomNode removeNode(@Nonnull LoomNodeWrapper node) {
+  public LoomNode removeNode(@Nonnull LoomNodeWrapper<?> node) {
     return removeNode(node.unwrap().getId());
   }
 

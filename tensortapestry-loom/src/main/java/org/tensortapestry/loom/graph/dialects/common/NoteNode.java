@@ -9,7 +9,7 @@ import org.tensortapestry.loom.graph.LoomGraph;
 import org.tensortapestry.loom.graph.LoomNode;
 
 @JsdType(NoteNode.TYPE)
-public final class NoteNode extends AbstractNodeWrapper<NoteNode.Body> {
+public final class NoteNode extends AbstractNodeWrapper<NoteNode, NoteNode.Body> {
 
   public static final String TYPE =
     "http://tensortapestry.org/schemas/loom/2024-01/node_types.jsd#/nodes/Note";
