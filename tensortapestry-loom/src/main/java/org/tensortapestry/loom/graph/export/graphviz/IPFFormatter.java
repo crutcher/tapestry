@@ -56,9 +56,8 @@ public class IPFFormatter {
           td.add(Integer.toString(projection.get(i, j)));
         }
         GH.td().withParent(tr).border(1).sides("R").add(Integer.toString(offset.get(i)));
+        GH.td().withParent(tr).border(1).sides("R").add(Integer.toString(ipf.getShape().get(i)));
       }
-
-      row.add(GH.td(" ⊕ " + ipf.getShape()));
     }
 
     return tableWrapper;

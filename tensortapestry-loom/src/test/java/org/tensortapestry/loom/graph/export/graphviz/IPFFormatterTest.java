@@ -21,28 +21,29 @@ public class IPFFormatterTest implements XmlAssertions, CommonAssertions {
     assertXmlEquals(
       IPFFormatter.renderRangeProjectionMap(ipf),
       """
-            <table border="0" cellborder="0" cellspacing="0">
-              <tr>
-                <td>
-                  <table border="0" cellborder="0" cellspacing="0">
-                    <tr>
-                      <td border="1" sides="L">1</td>
-                      <td>1</td>
-                      <td border="1" sides="R">0</td>
-                      <td border="1" sides="R">2</td>
-                    </tr>
-                    <tr>
-                      <td border="1" sides="L">0</td>
-                      <td>1</td>
-                      <td border="1" sides="R">1</td>
-                      <td border="1" sides="R">3</td>
-                    </tr>
-                  </table>
-                </td>
-                <td> ⊕ [4, 4]</td>
-              </tr>
-            </table>
-            """
+        <table border="0" cellborder="0" cellspacing="0">
+          <tr>
+            <td>
+              <table border="0" cellborder="0" cellspacing="0">
+                <tr>
+                  <td border="1" sides="L">1</td>
+                  <td>1</td>
+                  <td border="1" sides="R">0</td>
+                  <td border="1" sides="R">2</td>
+                  <td border="1" sides="R">4</td>
+                </tr>
+                <tr>
+                  <td border="1" sides="L">0</td>
+                  <td>1</td>
+                  <td border="1" sides="R">1</td>
+                  <td border="1" sides="R">3</td>
+                  <td border="1" sides="R">4</td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
+        """
     );
   }
 
@@ -58,24 +59,25 @@ public class IPFFormatterTest implements XmlAssertions, CommonAssertions {
     assertXmlEquals(
       IPFFormatter.renderRangeProjectionMap(ipf),
       """
-            <table border="0" cellborder="0" cellspacing="0">
-              <tr>
-                <td>
-                  <table border="0" cellborder="0" cellspacing="0">
-                    <tr>
-                      <td border="1" sides="LR">1</td>
-                      <td border="1" sides="R">2</td>
-                    </tr>
-                    <tr>
-                      <td border="1" sides="LR">0</td>
-                      <td border="1" sides="R">3</td>
-                    </tr>
-                  </table>
-                </td>
-                <td> ⊕ [4, 4]</td>
-              </tr>
-            </table>
-            """
+        <table border="0" cellborder="0" cellspacing="0">
+          <tr>
+            <td>
+              <table border="0" cellborder="0" cellspacing="0">
+                <tr>
+                  <td border="1" sides="LR">1</td>
+                  <td border="1" sides="R">2</td>
+                  <td border="1" sides="R">4</td>
+                </tr>
+                <tr>
+                  <td border="1" sides="LR">0</td>
+                  <td border="1" sides="R">3</td>
+                  <td border="1" sides="R">4</td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
+        """
     );
   }
 
@@ -89,12 +91,12 @@ public class IPFFormatterTest implements XmlAssertions, CommonAssertions {
     assertXmlEquals(
       IPFFormatter.renderRangeProjectionMap(ipf),
       """
-            <table border="0" cellborder="0" cellspacing="0">
-              <tr>
-                <td>[−]<sub>0×3</sub> ⊕ []</td>
-              </tr>
-            </table>
-            """
+        <table border="0" cellborder="0" cellspacing="0">
+          <tr>
+            <td>[−]<sub>0×3</sub> ⊕ []</td>
+          </tr>
+        </table>
+        """
     );
   }
 }

@@ -375,11 +375,9 @@ public class GraphVisualizer {
               .table()
               .border(0)
               .cellborder(0)
-              .tr(
-                jsonToElement(JsonUtil.valueToJsonNodeTree(sel.getTensorId())),
-                GH.bold(sel.getRange().toRangeString()),
-                GH.bold(sel.getRange().toShapeString())
-              );
+              .tr(jsonToElement(JsonUtil.valueToJsonNodeTree(sel.getTensorId())))
+              .tr(GH.bold(sel.getRange().toRangeString()))
+              .tr(GH.bold(sel.getRange().toShapeString()));
           } catch (Exception ignored) {
             // ignore
           }
@@ -394,8 +392,9 @@ public class GraphVisualizer {
             return GH
               .table()
               .border(0)
-              .cellborder(0)
-              .cellspacing(2)
+              .cellborder(1)
+              .cellspacing(0)
+              .cellpadding(2)
               .addAll(
                 JsonUtil.Tree.stream(array).map(item -> GH.tr(asDataValueTd(jsonToElement(item))))
               );
