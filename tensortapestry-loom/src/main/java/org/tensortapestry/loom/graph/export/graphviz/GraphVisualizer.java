@@ -195,16 +195,17 @@ public class GraphVisualizer {
       exportGraph.setDirected(true);
 
       // default: 0.25
-      // exportGraph.graphAttrs().add("nodesep", "0.4");
+      exportGraph.graphAttrs().add("nodesep", "0.4");
 
-      // default: 0.5
-      // exportGraph.graphAttrs().add("ranksep", "0.8");
+      // default: 0.5j
+      exportGraph.graphAttrs().add("ranksep", "1.2");
 
       if (rankDir != Rank.RankDir.TOP_TO_BOTTOM) {
         exportGraph.graphAttrs().add(Rank.dir(rankDir));
       }
 
-      exportGraph.graphAttrs().add("splines", "true");
+      exportGraph.graphAttrs().add("concentrate", "true");
+      // exportGraph.graphAttrs().add("splines", "ortho");
       exportGraph.graphAttrs().add("bgcolor", backgroundColor);
 
       if (displayColorLegend) {
