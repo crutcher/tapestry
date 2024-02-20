@@ -1,7 +1,6 @@
 package org.tensortapestry.weft.metakernels;
 
 import java.util.Arrays;
-
 import org.junit.jupiter.api.Test;
 import org.tensortapestry.common.testing.CommonAssertions;
 import org.tensortapestry.loom.graph.CommonEnvironments;
@@ -41,7 +40,7 @@ public class MKTest implements CommonAssertions {
   }
 
   @Test
-  @SuppressWarnings({"unused", "ConstantConditions"})
+  @SuppressWarnings({ "unused", "ConstantConditions" })
   public void test_Linear() {
     var env = CommonEnvironments.expressionEnvironment();
     var graph = env.newGraph();
@@ -101,7 +100,7 @@ public class MKTest implements CommonAssertions {
     graph.validate();
   }
 
-  @SuppressWarnings({"unused", "ConstantConditions"})
+  @SuppressWarnings({ "unused", "ConstantConditions" })
   public static void main(String[] args) {
     var env = CommonEnvironments.expressionEnvironment();
     var graph = env.newGraph();

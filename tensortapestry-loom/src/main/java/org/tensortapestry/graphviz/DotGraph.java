@@ -4,7 +4,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-
 import lombok.Data;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -44,8 +43,7 @@ public class DotGraph {
 
       private final String port;
 
-      @Nullable
-      private final CompassDir compassDir;
+      @Nullable private final CompassDir compassDir;
 
       public Port(@Nonnull String port) {
         this(port, null);
@@ -135,8 +133,7 @@ public class DotGraph {
       super(id);
     }
 
-    @Nullable
-    public GraphItem lookup(@Nonnull String id) {
+    @Nullable public GraphItem lookup(@Nonnull String id) {
       if (id.equals(getId())) {
         return this;
       }
@@ -213,11 +210,13 @@ public class DotGraph {
 
     protected String format(int indent) {
       var prefix = BASE_INDENT.repeat(indent);
-      return prefix +
-             "subgraph \"%s\" {\n".formatted(subgraphId()) +
-             formatBody(indent + 1) +
-             prefix +
-             "}\n";
+      return (
+        prefix +
+        "subgraph \"%s\" {\n".formatted(subgraphId()) +
+        formatBody(indent + 1) +
+        prefix +
+        "}\n"
+      );
     }
 
     protected String subgraphId() {

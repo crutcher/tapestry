@@ -16,6 +16,11 @@ demonstrating the potential for sub-shard operation fusion:
 
 ## Getting Started
 
+I'm actively looking for contributors to help with building or reviewing the project.
+
+If you'd like to get involved, please post any questions in the project
+[Discussions](https://github.com/crutcher/loom/discussions) board, or open an issue.
+
 In the current stage of development, **loom** produces no tool targets; and exists solely as a
 collection of libraries and tests.
 
