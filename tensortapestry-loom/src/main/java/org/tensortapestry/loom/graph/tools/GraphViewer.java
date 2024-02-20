@@ -112,6 +112,7 @@ public class GraphViewer {
     var exporter = GraphVisualizer.buildDefault();
     var export = exporter.export(graph);
     var gv = export.getGraphviz();
+    System.err.println(export.getDotGraph());
     return gv.render(Format.PNG).toImage();
   }
 

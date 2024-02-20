@@ -82,20 +82,30 @@ public class TraversalUtils {
       coloringGraph.addVertex(opId);
 
       List<UUID> tensorIds = new ArrayList<>();
-      for (var entry : operation.getInputs().entrySet()) {
-        for (var tensorSelection : entry.getValue()) {
-          var tensorId = tensorSelection.getTensorId();
+      for (var entry : operation.getInputNodes().entrySet()) {
+        for (var tensorNode : entry.getValue()) {
+          var tensorId = tensorNode.getId();
           tensorIds.add(tensorId);
           coloringGraph.addVertex(tensorId);
           coloringGraph.addEdge(opId, tensorId);
+
+          for (var neighborOp : tensorNode.getSourceNodes()) {
+            coloringGraph.addVertex(neighborOp.getId());
+            coloringGraph.addEdge(opId, neighborOp.getId());
+          }
         }
       }
-      for (var entry : operation.getOutputs().entrySet()) {
-        for (var tensorSelection : entry.getValue()) {
-          var tensorId = tensorSelection.getTensorId();
+      for (var entry : operation.getOutputNodes().entrySet()) {
+        for (var tensorNode : entry.getValue()) {
+          var tensorId = tensorNode.getId();
           tensorIds.add(tensorId);
           coloringGraph.addVertex(tensorId);
           coloringGraph.addEdge(opId, tensorId);
+
+          for (var neighborOp : tensorNode.getConsumerNodes()) {
+            coloringGraph.addVertex(neighborOp.getId());
+            coloringGraph.addEdge(opId, neighborOp.getId());
+          }
         }
       }
 

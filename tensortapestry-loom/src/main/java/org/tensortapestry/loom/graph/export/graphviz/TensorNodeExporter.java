@@ -1,7 +1,7 @@
 package org.tensortapestry.loom.graph.export.graphviz;
 
-import guru.nidi.graphviz.attribute.Shape;
-import guru.nidi.graphviz.attribute.Style;
+import org.tensortapestry.graphviz.GraphvizAttribute;
+import org.tensortapestry.graphviz.HtmlLabel;
 import org.tensortapestry.loom.graph.LoomNode;
 import org.tensortapestry.loom.graph.dialects.tensorops.TensorNode;
 
@@ -15,36 +15,37 @@ public class TensorNodeExporter implements GraphVisualizer.NodeTypeExporter {
   ) {
     loomNode.assertType(TensorNode.TYPE);
     var tensorData = loomNode.viewBodyAs(TensorNode.Body.class);
-    var gvNode = context.standardNodePrefix(loomNode);
+
+    var colorScheme = context.colorSchemeForNode(loomNode.getId());
+
+    var dotNode = context.createPrimaryNode(loomNode);
+    dotNode
+      .set(GraphvizAttribute.SHAPE, "box3d")
+      .set(GraphvizAttribute.STYLE, "filled")
+      .set(GraphvizAttribute.FILLCOLOR, colorScheme.getKey())
+      .set(GraphvizAttribute.GRADIENTANGLE, 315)
+      .set(GraphvizAttribute.PENWIDTH, 2)
+      .set(GraphvizAttribute.MARGIN, 0.2);
+
     context.maybeRenderAnnotations(loomNode);
 
-    gvNode.add(Shape.BOX_3D);
-    gvNode.add(Style.FILLED);
-    gvNode.add("gradientangle", 315);
-    gvNode.add("penwidth", 2);
-    gvNode.add("margin", 0.2);
-
-    gvNode.add(context.colorSchemeForNode(loomNode.getId()).fill());
-
-    gvNode.add(
-      GraphVisualizer.asHtmlLabel(
+    GH.TableWrapper labelTable = GH
+      .table()
+      .bgcolor("white")
+      .border(1)
+      .cellborder(0)
+      .cellspacing(0)
+      .add(
         GH
-          .table()
-          .bgcolor("white")
-          .border(1)
-          .cellborder(0)
-          .cellspacing(0)
-          .add(
-            GH
-              .td()
-              .colspan(2)
-              .align(GH.TableDataAlign.LEFT)
-              .add(GH.font().add(GH.bold(" %s ".formatted(loomNode.getTypeAlias())))),
-            context.asDataKeyValueTr("dtype", tensorData.getDtype()),
-            context.asDataKeyValueTr("range", tensorData.getRange().toRangeString()),
-            context.asDataKeyValueTr("shape", tensorData.getRange().toShapeString())
-          )
-      )
-    );
+          .td()
+          .colspan(2)
+          .align(GH.TableDataAlign.LEFT)
+          .add(GH.font().add(GH.bold(" %s ".formatted(loomNode.getTypeAlias())))),
+        context.asDataKeyValueTr("dtype", tensorData.getDtype()),
+        context.asDataKeyValueTr("range", tensorData.getRange().toRangeString()),
+        context.asDataKeyValueTr("shape", tensorData.getRange().toShapeString())
+      );
+
+    dotNode.set(GraphvizAttribute.LABEL, HtmlLabel.from(labelTable));
   }
 }

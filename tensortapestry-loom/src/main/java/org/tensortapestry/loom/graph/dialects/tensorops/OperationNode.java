@@ -90,6 +90,29 @@ public final class OperationNode extends AbstractNodeWrapper<OperationNode, Oper
   }
 
   /**
+   * Map the input selections to the actual TensorNodes in the graph.
+   *
+   * @return a map of output names to the TensorNodes.
+   */
+  public Map<String, List<TensorNode>> getInputNodes() {
+    var g = assertGraph();
+    return getInputs()
+      .entrySet()
+      .stream()
+      .collect(
+        Collectors.toUnmodifiableMap(
+          Map.Entry::getKey,
+          e ->
+            e
+              .getValue()
+              .stream()
+              .map(ts -> g.assertNode(ts.getTensorId(), TensorNode.class))
+              .toList()
+        )
+      );
+  }
+
+  /**
    * Map the output selections to the actual TensorNodes in the graph.
    *
    * @return a map of output names to the TensorNodes.

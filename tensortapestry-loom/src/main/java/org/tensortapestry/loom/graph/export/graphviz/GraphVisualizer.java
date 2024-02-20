@@ -3,15 +3,13 @@ package org.tensortapestry.loom.graph.export.graphviz;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import guru.nidi.graphviz.attribute.*;
+import guru.nidi.graphviz.attribute.Label;
+import guru.nidi.graphviz.attribute.Rank;
 import guru.nidi.graphviz.engine.Graphviz;
 import guru.nidi.graphviz.engine.GraphvizCmdLineEngine;
-import guru.nidi.graphviz.model.Factory;
-import guru.nidi.graphviz.model.Link;
-import guru.nidi.graphviz.model.MutableGraph;
-import guru.nidi.graphviz.model.MutableNode;
+import java.awt.Color;
 import java.util.*;
-import java.util.function.Function;
+import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import lombok.Builder;
@@ -21,11 +19,13 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.tensortapestry.common.collections.EnumerationUtils;
 import org.tensortapestry.common.json.JsonUtil;
 import org.tensortapestry.common.json.JsonViewWrapper;
+import org.tensortapestry.graphviz.DotGraph;
+import org.tensortapestry.graphviz.GraphvizAttribute;
+import org.tensortapestry.graphviz.HtmlLabel;
 import org.tensortapestry.loom.graph.LoomGraph;
 import org.tensortapestry.loom.graph.LoomNode;
 import org.tensortapestry.loom.graph.TraversalUtils;
 import org.tensortapestry.loom.graph.dialects.tensorops.*;
-import org.tensortapestry.loom.graph.export.ExportUtils;
 import org.tensortapestry.zspace.ZRange;
 import org.tensortapestry.zspace.ZRangeProjectionMap;
 
@@ -37,9 +37,6 @@ public class GraphVisualizer {
     // TODO: how do I shut up the INFO level logging on this?
     Graphviz.useEngine(new GraphvizCmdLineEngine());
   }
-
-  @Builder.Default
-  private final boolean displayColorLegend = false;
 
   @Builder.Default
   private final boolean foldApplicationNodes = true;
@@ -89,15 +86,17 @@ public class GraphVisualizer {
 
     @Override
     public void exportNode(GraphVisualizer visualizer, ExportContext context, LoomNode loomNode) {
-      var gvNode = context.standardNodePrefix(loomNode);
+      var dotNode = context.createPrimaryNode(loomNode);
+      dotNode
+        .set(GraphvizAttribute.SHAPE, "rectangle")
+        .set(GraphvizAttribute.STYLE, "filled")
+        .set(GraphvizAttribute.COLOR, "gray");
+
       context.maybeRenderAnnotations(loomNode);
 
-      gvNode.add(Shape.RECTANGLE);
-      gvNode.add(Style.FILLED);
-      gvNode.add(Color.named("gray").fill());
-
-      gvNode.add(
-        asHtmlLabel(
+      dotNode.set(
+        GraphvizAttribute.LABEL,
+        HtmlLabel.from(
           GH
             .table()
             .border(0)
@@ -107,17 +106,6 @@ public class GraphVisualizer {
             .bgcolor("white")
             .add(context.renderDataTable(loomNode.getTypeAlias(), loomNode.viewBodyAsJsonNode()))
         )
-      );
-
-      ExportUtils.findLinks(
-        loomNode.viewBodyAsJsonNode(),
-        context.getGraph()::hasNode,
-        (path, targetId) -> {
-          // Remove "$." prefix.
-          var p = path.substring(2);
-
-          context.addLink(loomNode.getId(), targetId, link -> link.with(Label.of(p)));
-        }
       );
     }
   }
@@ -140,7 +128,7 @@ public class GraphVisualizer {
     private final Map<UUID, String> nodeHexAliasMap = renderNodeHexAliasMap();
 
     @Getter
-    private MutableGraph exportGraph = null;
+    private DotGraph dotGraph = new DotGraph();
 
     @Getter(lazy = true)
     private final Graphviz graphviz = renderGraphviz();
@@ -165,108 +153,113 @@ public class GraphVisualizer {
       }
     }
 
-    /**
-     * Constraint nodes to be on the same rank.
-     *
-     * @param nodeIds the ids of the nodes to constrain.
-     */
-    public void sameRank(Object... nodeIds) {
-      var nodes = Arrays.stream(nodeIds).map(Object::toString).map(Factory::mutNode).toList();
-      exportGraph.add(
-        Factory
-          .mutGraph()
-          .setDirected(true)
-          .graphAttrs()
-          .add(Rank.inSubgraph(Rank.RankType.SAME))
-          .add(nodes)
-      );
-    }
-
-    public void addLink(Object fromId, Object toId, Function<Link, Link> config) {
-      var link = Link.to(Factory.mutNode(toId.toString()));
-      link = config.apply(link);
-      exportGraph.add(Factory.mutNode(fromId.toString()).addLink(link));
-    }
-
     private void export() {
       colorTensorOperationNodes();
 
-      exportGraph = Factory.mutGraph("graph");
-      exportGraph.setDirected(true);
+      dotGraph
+        .getAttributes()
+        .set(GraphvizAttribute.NEWRANK, true)
+        .set(GraphvizAttribute.SPLINES, "ortho")
+        .set(GraphvizAttribute.CONCENTRATE, true)
+        // .set(GraphAttribute.CLUSTERRANK, "local")
+        // .set(GraphAttribute.NODESEP, 0.4)
+        .set(GraphvizAttribute.RANKSEP, 1.2)
+        .set(GraphvizAttribute.BGCOLOR, backgroundColor);
 
-      // default: 0.25
-      exportGraph.graphAttrs().add("nodesep", "0.4");
-
-      // default: 0.5j
-      exportGraph.graphAttrs().add("ranksep", "1.2");
-
-      if (rankDir != Rank.RankDir.TOP_TO_BOTTOM) {
-        exportGraph.graphAttrs().add(Rank.dir(rankDir));
-      }
-
-      exportGraph.graphAttrs().add("concentrate", "true");
-      // exportGraph.graphAttrs().add("splines", "ortho");
-      exportGraph.graphAttrs().add("bgcolor", backgroundColor);
-
-      if (displayColorLegend) {
-        var table = GH
-          .table()
-          .border(0)
-          .cellborder(0)
-          .cellspacing(0)
-          .cellpadding(0)
-          .add(GH.td().colspan(2).add(GH.bold("Color Legend")));
-
-        table.add(GH.td().colspan(2).add(GH.bold("Node Edge Colors")));
-        for (var color : NODE_COLORS) {
-          table.add(GH.tr(GH.td().width(10).bgcolor(color).add(" "), GH.td().add(color)));
+      Set<TensorNode> sourceNodes = new HashSet<>();
+      var visited = new HashSet<UUID>();
+      for (var node : graph.byType(TensorNode.TYPE)) {
+        if (!visited.add(node.getId())) {
+          continue;
         }
-        exportGraph.add(Factory.mutNode("colors").add(Shape.NONE).add(asHtmlLabel(table)));
-      }
 
-      for (var node : graph) {
+        var tensorNode = TensorNode.wrap(node);
+        sourceNodes.add(tensorNode);
+
         exporterForNodeType(node.getType()).exportNode(GraphVisualizer.this, this, node);
       }
+      for (var node : graph.byType(OperationNode.TYPE)) {
+        if (!visited.add(node.getId())) {
+          continue;
+        }
+
+        var operationNode = OperationNode.wrap(node);
+        operationNode
+          .getOutputNodes()
+          .values()
+          .stream()
+          .flatMap(List::stream)
+          .forEach(sourceNodes::remove);
+
+        exporterForNodeType(node.getType()).exportNode(GraphVisualizer.this, this, node);
+      }
+      for (var node : graph) {
+        if (!visited.add(node.getId())) {
+          continue;
+        }
+        exporterForNodeType(node.getType()).exportNode(GraphVisualizer.this, this, node);
+      }
+
+      dotGraph.sameRank(
+        sourceNodes
+          .stream()
+          .map(TensorNode::getId)
+          .map(Object::toString)
+          .map(dotGraph::lookup)
+          .toList()
+      );
     }
 
-    public MutableNode standardNodePrefix(LoomNode node) {
-      var gvnode = Factory.mutNode(node.getId().toString());
-
+    public void decoratePrimaryNode(LoomNode loomNode, DotGraph.Node dotNode) {
       var table = GH
         .table()
         .border(0)
         .cellborder(0)
         .cellspacing(0)
         .cellpadding(0)
-        .add(nodeAliasTable(node.getId()));
-      if (node.getLabel() != null) {
-        table.add(GH.font().color("green").add(GH.bold("\"%s\"".formatted(node.getLabel()))));
+        .add(nodeAliasTable(loomNode.getId()));
+
+      if (loomNode.getLabel() != null) {
+        table.add(GH.font().color("green").add(GH.bold("\"%s\"".formatted(loomNode.getLabel()))));
       }
-      gvnode.add(asHtmlLabel(table).external());
 
-      exportGraph.add(gvnode);
+      dotNode.set(GraphvizAttribute.XLABEL, HtmlLabel.from(table));
+    }
 
-      return gvnode;
+    public DotGraph.Node createPrimaryNode(LoomNode node) {
+      var dotNode = dotGraph.createNode(node.getId().toString());
+      decoratePrimaryNode(node, dotNode);
+      return dotNode;
+    }
+
+    public void maybeRenderAnnotations(LoomNode node, DotGraph.SubGraph subGraph) {
+      maybeRenderAnnotations(node.getId().toString(), node.getAnnotations(), subGraph);
     }
 
     public void maybeRenderAnnotations(LoomNode node) {
-      maybeRenderAnnotations(node.getId().toString(), node.getAnnotations());
+      maybeRenderAnnotations(node, dotGraph.getRoot());
     }
 
-    public void maybeRenderAnnotations(String nodeId, Map<String, JsonViewWrapper> annotations) {
+    public void maybeRenderAnnotations(
+      String nodeId,
+      Map<String, JsonViewWrapper> annotations,
+      DotGraph.SubGraph subGraph
+    ) {
       if (annotations.isEmpty()) {
         return;
       }
       var env = graph.assertEnv();
 
-      String gvAnnotationNodeId = nodeId + "#annotations";
-      var aNode = Factory.mutNode(gvAnnotationNodeId);
-      aNode.add(Shape.COMPONENT);
-      aNode.add(Style.FILLED);
-      aNode.add("penwidth", 2);
-      aNode.add(Color.rgb("#45eebf").fill());
+      String dotId = nodeId + "#annotations";
 
-      var wrapperTable = GH.table().border(0).cellborder(0).cellspacing(2).cellpadding(2);
+      var dotAnnotationNode = subGraph.createNode(dotId);
+      dotAnnotationNode
+        .set(GraphvizAttribute.SHAPE, "component")
+        .set(GraphvizAttribute.STYLE, "filled")
+        .set(GraphvizAttribute.PENWIDTH, 2)
+        .set(GraphvizAttribute.FILLCOLOR, "#45eebf");
+
+      var labelTable = GH.table().border(0).cellborder(0).cellspacing(2).cellpadding(2);
       for (var entry : annotations
         .entrySet()
         .stream()
@@ -277,20 +270,19 @@ public class GraphVisualizer {
           JsonUtil.valueToJsonNodeTree(entry.getValue())
         )
           .bgcolor("white")
-          .withParent(wrapperTable);
+          .withParent(labelTable);
       }
 
-      aNode.add(asHtmlLabel(wrapperTable));
+      dotAnnotationNode.set(GraphvizAttribute.LABEL, HtmlLabel.from(labelTable));
 
-      exportGraph.add(aNode);
+      var dotNode = dotGraph.assertLookup(nodeId, DotGraph.Node.class);
+      var link = dotGraph.createEdge(dotNode, dotAnnotationNode);
+      link
+        .set(GraphvizAttribute.ARROWHEAD, "odotodot")
+        .set(GraphvizAttribute.STYLE, "bold")
+        .set(GraphvizAttribute.WEIGHT, 5);
 
-      addLink(
-        nodeId,
-        gvAnnotationNodeId,
-        link -> link.with(Arrow.DOT.open().and(Arrow.DOT.open())).with(Style.BOLD).with("weight", 5)
-      );
-
-      sameRank(nodeId, gvAnnotationNodeId);
+      dotGraph.sameRank(dotNode, dotAnnotationNode);
     }
 
     public GH.TableDataWrapper renderDataTypeTitle(String title) {
@@ -313,7 +305,7 @@ public class GraphVisualizer {
     }
 
     private Graphviz renderGraphviz() {
-      return Graphviz.fromGraph(exportGraph).scale(graphScale);
+      return Graphviz.fromString(dotGraph.toString()).scale(graphScale);
     }
 
     public GH.ElementWrapper<?> asDataKeyValueTr(Object key, Object... values) {
@@ -455,9 +447,9 @@ public class GraphVisualizer {
       "#22ccbb"
     );
 
-    public Color colorSchemeForNode(UUID id) {
-      var colorPair = getColoringForNode(id);
-      return Color.named(colorPair.getLeft()).gradient(Color.named(colorPair.getRight()));
+    public Pair<Color, Color> colorSchemeForNode(UUID id) {
+      var p = getColoringForNode(id);
+      return Pair.of(Color.decode(p.getLeft()), Color.decode(p.getRight()));
     }
 
     private final Map<UUID, Pair<String, String>> nodeColorings = new HashMap<>();

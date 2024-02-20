@@ -2,6 +2,7 @@ package org.tensortapestry.loom.graph.dialects.tensorops;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
+import java.util.List;
 import javax.annotation.Nonnull;
 import lombok.ToString;
 import lombok.Value;
@@ -128,5 +129,37 @@ public final class TensorNode
   @Override
   public TensorSelection getTensorSelection() {
     return TensorSelection.builder().tensorId(getId()).range(getBody().getRange()).build();
+  }
+
+  public List<OperationNode> getSourceNodes() {
+    return assertGraph()
+      .byType(OperationNode.class)
+      .stream()
+      .filter(op ->
+        op
+          .getOutputs()
+          .values()
+          .stream()
+          .flatMap(List::stream)
+          .anyMatch(ts -> ts.getTensorId().equals(getId()))
+      )
+      .distinct()
+      .toList();
+  }
+
+  public List<OperationNode> getConsumerNodes() {
+    return assertGraph()
+      .byType(OperationNode.class)
+      .stream()
+      .filter(op ->
+        op
+          .getInputs()
+          .values()
+          .stream()
+          .flatMap(List::stream)
+          .anyMatch(ts -> ts.getTensorId().equals(getId()))
+      )
+      .distinct()
+      .toList();
   }
 }

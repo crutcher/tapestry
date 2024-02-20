@@ -392,7 +392,6 @@
                 -Xep:ClassName:ERROR
                 -Xep:DifferentNameButSame:ERROR
                 -Xep:EmptyIf:ERROR
-                -Xep:InconsistentOverloads:ERROR
                 -Xep:LongLiteralLowerCaseSuffix:ERROR
                 -Xep:MemberName:ERROR
                 -Xep:MissingDefault:ERROR
