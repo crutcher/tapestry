@@ -46,7 +46,8 @@ including code generation and optimization machinery.
 
 An example intermediate static graph, showcasing block sharding:
 
-<img alt="example" src="media/example.svg" width="800"/>
+<img alt="linear.relu" src="media/linear.relu.ortho.jpg" width="800"/>
+<img alt="linear.relu.4x" src="media/linear.relu.4x.ortho.jpg" width="800"/>
 
 ## Development Philosophy
 

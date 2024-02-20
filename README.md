@@ -11,8 +11,8 @@ for extended time on a large number of machines.
 Here are examples showing a **Linear**/**ReLU** pipeline, with and without sub-block sharding;
 demonstrating the potential for sub-shard operation fusion:
 
-<img alt="linear.relu" src="docs/media/linear.relu.jpg" width="800"/>
-<img alt="linear.relu.4x" src="docs/media/linear.relu.4x.jpg" width="800"/>
+<img alt="linear.relu" src="docs/media/linear.relu.ortho.jpg" width="800"/>
+<img alt="linear.relu.4x" src="docs/media/linear.relu.4x.ortho.jpg" width="800"/>
 
 ## Getting Started
 
