@@ -13,14 +13,14 @@ patternSequence
    ;
 
 pattern
-   : name=qualName EQUALS LPAREN patternSequence RPAREN # GroupPattern
-   | name=qualName ELLIPSIS # EllipsisPattern
-   | name=qualName # SingleDimPattern
+   : name = qualName EQUALS LPAREN patternSequence RPAREN # GroupPattern
+   | name = qualName ELLIPSIS # EllipsisPattern
+   | name = qualName # SingleDimPattern
    ;
 
 qualName
-   : name=identifier LBRACK index=identifier RBRACK # IndexName
-   | name=identifier # GlobalName
+   : name = identifier LBRACK index = identifier RBRACK # IndexName
+   | name = identifier # GlobalName
    ;
 
 identifier
@@ -40,12 +40,12 @@ DOT
    ;
 
 LPAREN
-    : '('
-    ;
+   : '('
+   ;
 
 RPAREN
-    : ')'
-    ;
+   : ')'
+   ;
 
 LBRACK
    : '['
