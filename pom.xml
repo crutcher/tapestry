@@ -311,7 +311,6 @@
     <!--
     The maven-build-cache-extension breaks dependency analysis in this project
     due to some nasty interaction between delombok and javadoc.
-    -->
     <extensions>
       <extension>
         <groupId>org.apache.maven.extensions</groupId>
@@ -319,6 +318,7 @@
         <version>1.1.0</version>
       </extension>
     </extensions>
+    -->
     <pluginManagement>
       <plugins>
         <plugin>
