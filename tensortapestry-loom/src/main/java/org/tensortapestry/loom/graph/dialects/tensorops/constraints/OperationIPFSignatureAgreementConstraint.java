@@ -3,7 +3,6 @@ package org.tensortapestry.loom.graph.dialects.tensorops.constraints;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
-
 import org.tensortapestry.common.json.JsonPathUtils;
 import org.tensortapestry.common.validation.ValidationIssue;
 import org.tensortapestry.common.validation.ValidationIssueCollector;
@@ -11,7 +10,6 @@ import org.tensortapestry.loom.graph.LoomConstants;
 import org.tensortapestry.loom.graph.LoomEnvironment;
 import org.tensortapestry.loom.graph.LoomGraph;
 import org.tensortapestry.loom.graph.dialects.tensorops.*;
-import org.tensortapestry.loom.graph.dialects.tensorops.constraints.OperationApplicationAgreementConstraint;
 import org.tensortapestry.zspace.ZRange;
 import org.tensortapestry.zspace.ZRangeProjectionMap;
 

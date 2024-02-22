@@ -1,10 +1,8 @@
 package org.tensortapestry.loom.graph.dialects.tensorops;
 
 import guru.nidi.graphviz.engine.Format;
-
 import java.util.List;
 import java.util.Map;
-
 import org.junit.jupiter.api.Test;
 import org.tensortapestry.common.testing.CommonAssertions;
 import org.tensortapestry.loom.graph.CommonEnvironments;
@@ -42,17 +40,17 @@ public class OperationIPFSignatureAgreementConstraintTest implements CommonAsser
           "x",
           ZRangeProjectionMap
             .builder()
-            .affineMap(new int[][]{{1, 0}, {0, 0}})
+            .affineMap(new int[][] { { 1, 0 }, { 0, 0 } })
             .shape(ZPoint.of(1, tensorA.getShape().get(1)))
         )
         .input(
           "y",
           ZRangeProjectionMap
             .builder()
-            .affineMap(new int[][]{{0, 0}, {0, 1}})
+            .affineMap(new int[][] { { 0, 0 }, { 0, 1 } })
             .shape(ZPoint.of(tensorB.getShape().get(0), 1))
         )
-        .output("z", ZRangeProjectionMap.builder().affineMap(new int[][]{{1, 0}, {0, 1}}))
+        .output("z", ZRangeProjectionMap.builder().affineMap(new int[][] { { 1, 0 }, { 0, 1 } }))
         .build(),
       inputs -> {
         var x = inputs.get("x").getFirst().getRange().getShape().get(0);
@@ -96,11 +94,11 @@ public class OperationIPFSignatureAgreementConstraintTest implements CommonAsser
           "tensor",
           ZRangeProjectionMap
             .builder()
-            .affineMap(new int[][]{{1}, {0}})
+            .affineMap(new int[][] { { 1 }, { 0 } })
             .shape(ZPoint.of(1, matmulResult.getShape().get(1)))
             .build()
         )
-        .output("result", ZRangeProjectionMap.builder().affineMap(new int[][]{{1}}).build())
+        .output("result", ZRangeProjectionMap.builder().affineMap(new int[][] { { 1 } }).build())
         .build(),
       inputs -> {
         var x = inputs.get("tensor").getFirst().getRange().getShape().get(0);

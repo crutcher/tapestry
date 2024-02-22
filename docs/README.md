@@ -6,6 +6,7 @@
 - [Development Philosophy](#development-philosophy)
 - Theory
   - [Polyhedral Types and Index Projection](PolyhedralTypesAndIndexProjection.md)
+- [Dialects](#Dialects)
 - Sub-Projects
   - [Tapestry Loom](TapestryLoom.md)
   - [Tapestry Weft](TapestryWeft.md)
@@ -85,3 +86,10 @@ to understand, verify, visualize, and extend the code.
 **Usefulness** is the last on the list. This represents a focus on the long-term internal velocity
 and correctness of tapestry over short-term feature velocity of applications.
 
+## Dialects
+
+### Operation Expression Dialect
+
+The [Operation Expression Dialect](dialects/OperationExpressionDialect.md) is a dialect for representing un-sharded operations and tensors in a graph.
+
+<img src="dialects/OperationExpressionDialect/example1.dot.png" width="25%"/>

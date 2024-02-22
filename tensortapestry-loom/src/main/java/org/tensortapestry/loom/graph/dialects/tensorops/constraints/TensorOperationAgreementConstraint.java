@@ -3,7 +3,6 @@ package org.tensortapestry.loom.graph.dialects.tensorops.constraints;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
-
 import org.tensortapestry.common.json.JsonPathUtils;
 import org.tensortapestry.common.lazy.LazyString;
 import org.tensortapestry.common.lazy.Thunk;

@@ -1,14 +1,12 @@
 package org.tensortapestry.loom.graph.dialects.tensorops.constraints;
 
 import com.google.common.collect.Streams;
-
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
-
 import org.tensortapestry.common.json.JsonPathUtils;
 import org.tensortapestry.common.lazy.LazyString;
 import org.tensortapestry.common.lazy.Thunk;

@@ -1,10 +1,9 @@
 package org.tensortapestry.loom.graph;
 
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Supplier;
-
-import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import lombok.experimental.UtilityClass;
 import org.tensortapestry.common.lazy.LazyString;
 import org.tensortapestry.common.lazy.Thunk;

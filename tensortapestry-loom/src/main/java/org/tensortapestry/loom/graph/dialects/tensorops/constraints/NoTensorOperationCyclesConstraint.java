@@ -1,7 +1,6 @@
 package org.tensortapestry.loom.graph.dialects.tensorops.constraints;
 
 import java.util.HashMap;
-
 import org.tensortapestry.common.validation.ValidationIssue;
 import org.tensortapestry.common.validation.ValidationIssueCollector;
 import org.tensortapestry.loom.graph.*;
