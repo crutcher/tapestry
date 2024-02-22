@@ -2,7 +2,6 @@ package org.tensortapestry.loom.graph.dialects.common;
 
 import java.net.URI;
 import java.util.List;
-
 import org.tensortapestry.common.json.JsonPathUtils;
 import org.tensortapestry.common.json.JsonUtil;
 import org.tensortapestry.common.validation.ValidationIssue;

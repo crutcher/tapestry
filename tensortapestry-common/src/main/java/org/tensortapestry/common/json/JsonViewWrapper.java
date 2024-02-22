@@ -24,6 +24,11 @@ public class JsonViewWrapper {
     setValue(value);
   }
 
+  @Nonnull
+  public JsonViewWrapper copy() {
+    return new JsonViewWrapper(viewAsJsonNode());
+  }
+
   public synchronized void setValue(Object value) {
     this.jsonValue = null;
     this.objectValue = null;

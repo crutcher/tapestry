@@ -43,8 +43,8 @@ public class LoomEnvironmentTest implements CommonAssertions {
           ]
          }
         """.formatted(
-        TensorNode.TYPE
-      );
+          TensorNode.TYPE
+        );
 
     var env = CommonEnvironments.expressionEnvironment();
 

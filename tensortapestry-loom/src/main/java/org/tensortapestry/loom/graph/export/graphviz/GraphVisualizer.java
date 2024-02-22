@@ -7,13 +7,11 @@ import guru.nidi.graphviz.attribute.Label;
 import guru.nidi.graphviz.attribute.Rank;
 import guru.nidi.graphviz.engine.Graphviz;
 import guru.nidi.graphviz.engine.GraphvizCmdLineEngine;
-
 import java.awt.Color;
 import java.util.*;
 import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-
 import lombok.Builder;
 import lombok.Data;
 import lombok.Getter;
@@ -142,13 +140,11 @@ public class GraphVisualizer {
       );
     }
 
-    @Nullable
-    private LoomNode maybeNode(UUID id) {
+    @Nullable private LoomNode maybeNode(UUID id) {
       return graph.getNode(id);
     }
 
-    @Nullable
-    private LoomNode maybeNode(String idString) {
+    @Nullable private LoomNode maybeNode(String idString) {
       try {
         var id = UUID.fromString(idString);
         return maybeNode(id);
@@ -256,11 +252,7 @@ public class GraphVisualizer {
         .set(GraphvizAttribute.FILLCOLOR, "#45eebf");
 
       var labelTable = GH.table().border(0).cellborder(0).cellspacing(2).cellpadding(2);
-      for (var entry : tags
-        .entrySet()
-        .stream()
-        .sorted(Map.Entry.comparingByKey())
-        .toList()) {
+      for (var entry : tags.entrySet().stream().sorted(Map.Entry.comparingByKey()).toList()) {
         renderDataTable(
           env.getTypeAlias(entry.getKey()),
           JsonUtil.valueToJsonNodeTree(entry.getValue())

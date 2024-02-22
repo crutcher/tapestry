@@ -5,15 +5,14 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-
 import lombok.Builder;
 import lombok.Data;
 import lombok.extern.jackson.Jacksonized;
@@ -144,8 +143,7 @@ public final class LoomNode implements LoomNodeWrapper<LoomNode>, HasToJsonStrin
    * The graph that this node belongs to.
    */
   @JsonIgnore
-  @Nullable
-  private LoomGraph graph;
+  @Nullable private LoomGraph graph;
 
   /**
    * The ID of the node.
@@ -162,8 +160,7 @@ public final class LoomNode implements LoomNodeWrapper<LoomNode>, HasToJsonStrin
   /**
    * The label of the node.
    */
-  @Nullable
-  private String label;
+  @Nullable private String label;
 
   /**
    * The body of the node.
@@ -176,6 +173,21 @@ public final class LoomNode implements LoomNodeWrapper<LoomNode>, HasToJsonStrin
    */
   @Nonnull
   private final Map<String, JsonViewWrapper> tags;
+
+  @Nonnull
+  public LoomNode copy() {
+    return new LoomNode(
+      graph,
+      id,
+      type,
+      label,
+      body.copy(),
+      tags
+        .entrySet()
+        .stream()
+        .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().copy()))
+    );
+  }
 
   @Override
   @Nonnull

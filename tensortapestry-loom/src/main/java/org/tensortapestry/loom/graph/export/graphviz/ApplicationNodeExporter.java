@@ -3,7 +3,6 @@ package org.tensortapestry.loom.graph.export.graphviz;
 import java.awt.*;
 import java.util.*;
 import java.util.List;
-
 import org.tensortapestry.graphviz.*;
 import org.tensortapestry.loom.graph.LoomNode;
 import org.tensortapestry.loom.graph.dialects.tensorops.*;
@@ -29,9 +28,9 @@ public class ApplicationNodeExporter implements GraphVisualizer.NodeTypeExporter
 
     var clusterColor =
       "%s:%s".formatted(
-        FormatUtils.colorToRgbaString(operationColor.brighter().brighter().brighter()),
-        FormatUtils.colorToRgbaString(operationColor.brighter().brighter())
-      );
+          FormatUtils.colorToRgbaString(operationColor.brighter().brighter().brighter()),
+          FormatUtils.colorToRgbaString(operationColor.brighter().brighter())
+        );
 
     var dotCluster = opCluster.createCluster("app_%s".formatted(appNode.getId()));
     dotCluster

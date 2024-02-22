@@ -3,7 +3,6 @@ package org.tensortapestry.loom.graph.dialects.tensorops;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
-
 import org.tensortapestry.common.json.JsonPathUtils;
 import org.tensortapestry.common.validation.ValidationIssue;
 import org.tensortapestry.common.validation.ValidationIssueCollector;
@@ -74,10 +73,7 @@ public class IPFSignatureAgreementConstraint implements LoomEnvironment.Constrai
         return;
       }
 
-      var ipfIndex = operation.viewTagAs(
-        TensorOpNodes.IPF_INDEX_ANNOTATION_TYPE,
-        ZRange.class
-      );
+      var ipfIndex = operation.viewTagAs(TensorOpNodes.IPF_INDEX_ANNOTATION_TYPE, ZRange.class);
 
       validateProjectionAgreement(
         ipfIndex,
@@ -112,10 +108,7 @@ public class IPFSignatureAgreementConstraint implements LoomEnvironment.Constrai
         continue;
       }
       var appData = appNode.viewBodyAs(ApplicationNode.Body.class);
-      var ipfIndex = appNode.viewTagAs(
-        TensorOpNodes.IPF_INDEX_ANNOTATION_TYPE,
-        ZRange.class
-      );
+      var ipfIndex = appNode.viewTagAs(TensorOpNodes.IPF_INDEX_ANNOTATION_TYPE, ZRange.class);
 
       validateProjectionAgreement(
         ipfIndex,

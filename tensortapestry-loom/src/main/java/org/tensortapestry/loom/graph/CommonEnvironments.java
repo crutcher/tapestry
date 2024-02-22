@@ -1,7 +1,6 @@
 package org.tensortapestry.loom.graph;
 
 import java.util.Set;
-
 import lombok.experimental.UtilityClass;
 import org.tensortapestry.loom.graph.dialects.common.NoteNode;
 import org.tensortapestry.loom.graph.dialects.common.SchemaTypeConstraint;
@@ -26,7 +25,8 @@ public final class CommonEnvironments {
   }
 
   public static LoomEnvironment operationGraphEnvironment() {
-    var typeRestriction = TypeRestrictionConstraint.builder()
+    var typeRestriction = TypeRestrictionConstraint
+      .builder()
       .nodeType(TensorNode.TYPE)
       .nodeType(OperationNode.TYPE)
       .tagType(TensorOpNodes.IPF_INDEX_ANNOTATION_TYPE)
@@ -43,7 +43,6 @@ public final class CommonEnvironments {
       .urlAlias("http://tensortapestry.org/schemas/loom/2024-01/tag_types.jsd", "loom")
       .constraint(commonDTypeConstraint())
       .build();
-
     // FIXME:
     // - environments should be immutable after construction,
     //   since they are shared between graphs.
@@ -52,7 +51,8 @@ public final class CommonEnvironments {
   }
 
   public static LoomEnvironment expressionEnvironment() {
-    var typeRestriction = TypeRestrictionConstraint.builder()
+    var typeRestriction = TypeRestrictionConstraint
+      .builder()
       .nodeType(NoteNode.TYPE)
       .nodeType(TensorNode.TYPE)
       .nodeType(OperationNode.TYPE)

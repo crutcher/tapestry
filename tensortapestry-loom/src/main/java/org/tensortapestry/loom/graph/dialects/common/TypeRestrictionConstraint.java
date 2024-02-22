@@ -1,5 +1,7 @@
 package org.tensortapestry.loom.graph.dialects.common;
 
+import java.util.Set;
+import javax.annotation.Nonnull;
 import lombok.Builder;
 import lombok.Singular;
 import lombok.Value;
@@ -9,12 +11,11 @@ import org.tensortapestry.loom.graph.LoomEnvironment;
 import org.tensortapestry.loom.graph.LoomGraph;
 import org.tensortapestry.loom.graph.LoomNode;
 
-import javax.annotation.Nonnull;
-import java.util.Set;
-
 @Value
 @Builder(toBuilder = true)
-public class TypeRestrictionConstraint implements LoomEnvironment.Constraint, LoomEnvironment.TypeSupportProvider {
+public class TypeRestrictionConstraint
+  implements LoomEnvironment.Constraint, LoomEnvironment.TypeSupportProvider {
+
   @Nonnull
   @Singular
   Set<String> nodeTypes;
@@ -42,10 +43,7 @@ public class TypeRestrictionConstraint implements LoomEnvironment.Constraint, Lo
     graph.getNodes().values().forEach(node -> checkNode(node, issueCollector));
   }
 
-  private void checkNode(
-    LoomNode node,
-    ValidationIssueCollector issueCollector
-  ) {
+  private void checkNode(LoomNode node, ValidationIssueCollector issueCollector) {
     checkType(node, "node", node.getType(), nodeTypes, issueCollector);
     for (var type : node.getTags().keySet()) {
       checkType(node, "tag", type, tagTypes, issueCollector);
@@ -57,17 +55,17 @@ public class TypeRestrictionConstraint implements LoomEnvironment.Constraint, Lo
     String description,
     String type,
     Set<String> validTypes,
-    ValidationIssueCollector issueCollector) {
+    ValidationIssueCollector issueCollector
+  ) {
     if (!validTypes.contains(type)) {
       issueCollector.addIssue(
-        ValidationIssue.builder()
+        ValidationIssue
+          .builder()
           .summary("Illegal %s type".formatted(description))
           .param("type", type)
-          .context(
-            ValidationIssue.Context.builder()
-              .name("Valid Types")
-              .data(nodeTypes))
-          .context(node.asValidationContext("Node")));
+          .context(ValidationIssue.Context.builder().name("Valid Types").data(nodeTypes))
+          .context(node.asValidationContext("Node"))
+      );
     }
   }
 }

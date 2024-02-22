@@ -58,6 +58,14 @@ public final class LoomGraph implements HasToJsonString, StreamableIterable<Loom
     }
   }
 
+  @Nonnull
+  public LoomGraph copy() {
+    var g = new LoomGraph(env);
+    g.id = id;
+    nodes.values().stream().map(LoomNode::copy).forEach(g::addNode);
+    return g;
+  }
+
   /**
    * Get the environment this graph belongs to.
    *

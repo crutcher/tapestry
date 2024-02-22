@@ -76,7 +76,7 @@ public class JsonSchemaFactoryManagerTest implements CommonAssertions {
     );
 
     check.accept(
-      "http://tensortapestry.org/schemas/loom/2024-01/annotation_types.jsd#/annotations/IPFIndex",
+      "http://tensortapestry.org/schemas/loom/2024-01/tag_types.jsd#/tags/IPFIndex",
       ZRange.newFromShape(1, 2, 3)
     );
 
@@ -95,64 +95,64 @@ public class JsonSchemaFactoryManagerTest implements CommonAssertions {
     manager.addSchema(
       "http://loom.example/data",
       """
-            {
-                 "$schema": "https://json-schema.org/draft/2020-12/schema#",
-                 "allOf": [
-                    {
-                        "if": {
-                            "properties": {
-                                "type": {
-                                    "enum": [ "A" ],
-                                    "description": "A"
-                                }
-                            },
-                            "required": ["type"]
+        {
+             "$schema": "https://json-schema.org/draft/2020-12/schema#",
+             "allOf": [
+                {
+                    "if": {
+                        "properties": {
+                            "type": {
+                                "enum": [ "A" ],
+                                "description": "A"
+                            }
                         },
-                        "then": {
-                            "properties": {
-                                "type": {
-                                    "const": "A"
-                                },
-                                "a": {
-                                    "type": "string"
-                                }
-                            },
-                            "required": ["type", "a"],
-                            "additionalProperties": false
-                        }
+                        "required": ["type"]
                     },
-                    {
-                        "if": {
-                            "properties": {
-                                "type": {
-                                    "enum": [ "B" ]
-                                }
+                    "then": {
+                        "properties": {
+                            "type": {
+                                "const": "A"
                             },
-                            "required": ["type"]
+                            "a": {
+                                "type": "string"
+                            }
                         },
-                        "then": {
-                            "properties": {
-                                "type": {
-                                    "const": "B"
-                                },
-                                "x": {
-                                    "type": "integer"
-                                }
-                            },
-                            "required": ["type", "x"],
-                            "additionalProperties": false
-                        }
+                        "required": ["type", "a"],
+                        "additionalProperties": false
                     }
-                 ],
-                 "definitions": {
-                     "ZType": {
-                         "$anchor": "zz",
-                         "type": "string",
-                         "enum": ["A", "B", "C"]
-                     }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "type": {
+                                "enum": [ "B" ]
+                            }
+                        },
+                        "required": ["type"]
+                    },
+                    "then": {
+                        "properties": {
+                            "type": {
+                                "const": "B"
+                            },
+                            "x": {
+                                "type": "integer"
+                            }
+                        },
+                        "required": ["type", "x"],
+                        "additionalProperties": false
+                    }
+                }
+             ],
+             "definitions": {
+                 "ZType": {
+                     "$anchor": "zz",
+                     "type": "string",
+                     "enum": ["A", "B", "C"]
                  }
-            }
-            """
+             }
+        }
+        """
     );
 
     var schemaUri = URI.create("http://loom.example/data");
@@ -188,45 +188,45 @@ public class JsonSchemaFactoryManagerTest implements CommonAssertions {
     manager.addSchema(
       "http://loom.example/data",
       """
-            {
-                 "$schema": "https://json-schema.org/draft/2020-12/schema#",
-                 "definitions": {
-                     "ZType": {
-                         "$anchor": "zz",
-                         "type": "string",
-                         "enum": ["A", "B", "C"]
-                     }
+        {
+             "$schema": "https://json-schema.org/draft/2020-12/schema#",
+             "definitions": {
+                 "ZType": {
+                     "$anchor": "zz",
+                     "type": "string",
+                     "enum": ["A", "B", "C"]
                  }
-            }
-            """
+             }
+        }
+        """
     );
     manager.addSchema(
       "http://loom.example/example",
       """
-            {
-                "$id": "http://loom.example/example",
-                "$schema": "https://json-schema.org/draft/2020-12/schema#",
-                "title": "Example Schema",
-                "type": "object",
-                "properties": {
-                    "id": {
-                        "$ref": "#foo"
-                    },
-                    "name": {
-                        "$ref": "http://loom.example/data#zz"
-                    }
+        {
+            "$id": "http://loom.example/example",
+            "$schema": "https://json-schema.org/draft/2020-12/schema#",
+            "title": "Example Schema",
+            "type": "object",
+            "properties": {
+                "id": {
+                    "$ref": "#foo"
                 },
-                "required": [ "id", "name" ],
-                "additionalProperties": false,
-                "definitions": {
-                    "id": {
-                        "$anchor": "foo",
-                        "type": "string",
-                        "format": "uuid"
-                    }
+                "name": {
+                    "$ref": "http://loom.example/data#zz"
+                }
+            },
+            "required": [ "id", "name" ],
+            "additionalProperties": false,
+            "definitions": {
+                "id": {
+                    "$anchor": "foo",
+                    "type": "string",
+                    "format": "uuid"
                 }
             }
-            """
+        }
+        """
     );
 
     var schemaUri = URI.create("http://loom.example/example");
@@ -251,21 +251,21 @@ public class JsonSchemaFactoryManagerTest implements CommonAssertions {
     manager.addSchema(
       "http://loom.example/data",
       """
-            {
-              "$schema": "http://json-schema.org/draft/2020-12/schema#",
-              "type": "object",
+        {
+          "$schema": "http://json-schema.org/draft/2020-12/schema#",
+          "type": "object",
+          "$defs": {
+            "nodes": {
               "$defs": {
-                "nodes": {
-                  "$defs": {
-                    "ztype": {
-                        "type": "string",
-                        "enum": ["A", "B", "C"]
-                    }
-                  }
+                "ztype": {
+                    "type": "string",
+                    "enum": ["A", "B", "C"]
                 }
               }
             }
-            """
+          }
+        }
+        """
     );
     var schema = manager.loadSchema(
       URI.create("http://loom.example/data#/$defs/nodes/$defs/ztype")
@@ -280,37 +280,37 @@ public class JsonSchemaFactoryManagerTest implements CommonAssertions {
     manager.addSchema(
       "http://loom.example/schema1",
       """
-            {
-              "innerA": {
-                "$schema": "http://json-schema.org/draft/2020-12/schema#",
-                "type": "object",
-                "$defs": {
-                  "ztype": {
-                      "type": "string",
-                      "enum": ["A", "B", "C"]
-                  }
-                }
-              },
-              "innerB": {
-                "$schema": "http://json-schema.org/draft/2020-12/schema#",
-                "type": "array",
-                "items": {
-                  "$ref": "#/innerA/$defs/ztype"
-                }
+        {
+          "innerA": {
+            "$schema": "http://json-schema.org/draft/2020-12/schema#",
+            "type": "object",
+            "$defs": {
+              "ztype": {
+                  "type": "string",
+                  "enum": ["A", "B", "C"]
               }
             }
-            """
+          },
+          "innerB": {
+            "$schema": "http://json-schema.org/draft/2020-12/schema#",
+            "type": "array",
+            "items": {
+              "$ref": "#/innerA/$defs/ztype"
+            }
+          }
+        }
+        """
     );
     manager.addSchema(
       "http://loom.example/schema2",
       """
-            {
-              "innerC": {
-                "$schema": "http://json-schema.org/draft/2020-12/schema#",
-                "$ref": "http://loom.example/schema1#/innerB"
-              }
-            }
-            """
+        {
+          "innerC": {
+            "$schema": "http://json-schema.org/draft/2020-12/schema#",
+            "$ref": "http://loom.example/schema1#/innerB"
+          }
+        }
+        """
     );
 
     {
@@ -347,41 +347,41 @@ public class JsonSchemaFactoryManagerTest implements CommonAssertions {
   public void test_adapt_scan() {
     manager.addSchema(
       """
-            {
-                "$id": "http://loom.example/data",
-                "$schema": "https://json-schema.org/draft/2020-12/schema",
-                "definitions": {
-                    "Shape": {
-                        "type": "array",
-                        "items": {
-                            "type": "integer",
-                            "minimum": 1
-                        },
-                        "minItems": 1
-                    }
+        {
+            "$id": "http://loom.example/data",
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
+            "definitions": {
+                "Shape": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer",
+                        "minimum": 1
+                    },
+                    "minItems": 1
                 }
             }
-            """
+        }
+        """
     );
 
     manager.addSchema(
       """
-            {
-                "$id": "http://loom.example/example",
-                "$schema": "https://json-schema.org/draft/2020-12/schema",
-                "type": "object",
-                "properties": {
-                    "id": {
-                        "type": "string",
-                        "format": "uuid"
-                    },
-                    "shape": {
-                        "$ref": "http://loom.example/data#/definitions/Shape"
-                    }
+        {
+            "$id": "http://loom.example/example",
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "format": "uuid"
                 },
-                "required": ["id", "shape"]
-            }
-            """
+                "shape": {
+                    "$ref": "http://loom.example/data#/definitions/Shape"
+                }
+            },
+            "required": ["id", "shape"]
+        }
+        """
     );
 
     final var path = "$.nodes[@.id = 'foo']";

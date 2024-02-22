@@ -2,7 +2,6 @@ package org.tensortapestry.loom.graph.export.graphviz;
 
 import java.util.*;
 import java.util.List;
-
 import org.tensortapestry.graphviz.DotGraph;
 import org.tensortapestry.graphviz.GraphvizAttribute;
 import org.tensortapestry.graphviz.HtmlLabel;
