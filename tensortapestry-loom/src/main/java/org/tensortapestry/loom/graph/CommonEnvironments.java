@@ -29,9 +29,9 @@ public final class CommonEnvironments {
     var typeRestriction = TypeRestrictionConstraint.builder()
       .nodeType(TensorNode.TYPE)
       .nodeType(OperationNode.TYPE)
-      .annotationType(TensorOpNodes.IPF_INDEX_ANNOTATION_TYPE)
-      .annotationType(TensorOpNodes.IPF_SIGNATURE_ANNOTATION_TYPE)
-      .annotationType(TensorOpNodes.IO_SEQUENCE_POINT_TYPE)
+      .tagType(TensorOpNodes.IPF_INDEX_ANNOTATION_TYPE)
+      .tagType(TensorOpNodes.IPF_SIGNATURE_ANNOTATION_TYPE)
+      .tagType(TensorOpNodes.IO_SEQUENCE_POINT_TYPE)
       .build();
 
     return LoomEnvironment
@@ -57,9 +57,9 @@ public final class CommonEnvironments {
       .nodeType(TensorNode.TYPE)
       .nodeType(OperationNode.TYPE)
       .nodeType(ApplicationNode.TYPE)
-      .annotationType(TensorOpNodes.IPF_INDEX_ANNOTATION_TYPE)
-      .annotationType(TensorOpNodes.IPF_SIGNATURE_ANNOTATION_TYPE)
-      .annotationType(TensorOpNodes.IO_SEQUENCE_POINT_TYPE)
+      .tagType(TensorOpNodes.IPF_INDEX_ANNOTATION_TYPE)
+      .tagType(TensorOpNodes.IPF_SIGNATURE_ANNOTATION_TYPE)
+      .tagType(TensorOpNodes.IO_SEQUENCE_POINT_TYPE)
       .build();
 
     return LoomEnvironment
