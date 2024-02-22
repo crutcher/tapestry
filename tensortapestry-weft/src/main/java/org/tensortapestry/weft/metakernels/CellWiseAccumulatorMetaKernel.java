@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+
 import org.tensortapestry.loom.graph.LoomGraph;
 import org.tensortapestry.loom.graph.dialects.tensorops.*;
 import org.tensortapestry.zspace.ZAffineMap;
@@ -64,9 +65,9 @@ public class CellWiseAccumulatorMetaKernel extends DataTypeCheckingMetaKernel {
       .build();
 
     var index = ZRange.newFromShape(shape);
-    op.addAnnotation(TensorOpNodes.IPF_INDEX_ANNOTATION_TYPE, index);
+    op.addTag(TensorOpNodes.IPF_INDEX_ANNOTATION_TYPE, index);
 
-    op.addAnnotation(
+    op.addTag(
       TensorOpNodes.IPF_SIGNATURE_ANNOTATION_TYPE,
       IPFSignature
         .builder()

@@ -1,19 +1,21 @@
 package org.tensortapestry.loom.graph;
 
 import com.fasterxml.jackson.annotation.JsonValue;
+
 import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.Delegate;
 
 @RequiredArgsConstructor
 public abstract class AbstractNodeWrapper<
   WrapperT extends AbstractNodeWrapper<WrapperT, BodyT>, BodyT
->
+  >
   implements LoomNodeWrapper<WrapperT> {
 
   public abstract static class AbstractNodeWrapperBuilder<WrapperT, BuilderT, BodyT, BodyBuilderT> {
@@ -76,7 +78,7 @@ public abstract class AbstractNodeWrapper<
 
     @Nonnull
     public final BuilderT annotation(@Nonnull String type, @Nonnull Object value) {
-      nodeBuilder.annotation(type, value);
+      nodeBuilder.tag(type, value);
       return self();
     }
 

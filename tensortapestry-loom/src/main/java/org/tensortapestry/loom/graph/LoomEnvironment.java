@@ -4,17 +4,14 @@ import com.google.errorprone.annotations.CanIgnoreReturnValue;
 
 import java.util.*;
 import javax.annotation.Nonnull;
-import javax.validation.Constraint;
 
 import lombok.Builder;
 import lombok.Data;
 import lombok.Singular;
-import lombok.experimental.Delegate;
 import org.tensortapestry.common.json.JsonUtil;
 import org.tensortapestry.common.runtime.ExcludeFromJacocoGeneratedReport;
 import org.tensortapestry.common.validation.ListValidationIssueCollector;
 import org.tensortapestry.common.validation.LoomValidationError;
-import org.tensortapestry.common.validation.ValidationIssue;
 import org.tensortapestry.common.validation.ValidationIssueCollector;
 import org.tensortapestry.loom.json.JsonSchemaFactoryManager;
 
@@ -52,7 +49,7 @@ public final class LoomEnvironment {
   public interface TypeSupportProvider extends Constraint {
     boolean supportsNodeType(String type);
 
-    boolean supportsAnnotationType(String type);
+    boolean supportsTagType(String type);
   }
 
 
@@ -90,8 +87,6 @@ public final class LoomEnvironment {
    * @return the type alias.
    */
   public String getTypeAlias(String type) {
-    // TODO: something real.
-    assertSupportsNodeType(type);
     return urlAlias(type);
   }
 
@@ -107,14 +102,14 @@ public final class LoomEnvironment {
   }
 
   /**
-   * Does this environment support the given annotation type?
+   * Does this environment support the given tag type?
    *
-   * @param type the annotation type.
-   * @return true if the annotation type is supported.
+   * @param type the tag type.
+   * @return true if the tag type is supported.
    */
   @SuppressWarnings({"CheckReturnValue", "ResultOfMethodCallIgnored"})
-  public boolean supportsAnnotationType(String type) {
-    return typeSupportProvider.supportsAnnotationType(type);
+  public boolean supportsTagType(String type) {
+    return typeSupportProvider.supportsTagType(type);
   }
 
   /**

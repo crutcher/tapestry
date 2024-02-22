@@ -26,7 +26,7 @@ public class TensorNodeExporter implements GraphVisualizer.NodeTypeExporter {
       .set(GraphvizAttribute.GRADIENTANGLE, 315)
       .set(GraphvizAttribute.MARGIN, 0.2);
 
-    context.maybeRenderAnnotations(loomNode);
+    context.renderTags(loomNode);
 
     GH.TableWrapper labelTable = GH
       .table()

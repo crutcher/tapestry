@@ -12,7 +12,7 @@ public class LoomConstants {
 
   public String LOOM_DATA_TYPES_SCHEMA = LOOM_SCHEMA_BASE_URL + "data_types.jsd";
   public String LOOM_NODE_TYPES_SCHEMA = LOOM_SCHEMA_BASE_URL + "node_types.jsd";
-  public String LOOM_ANNOTATION_TYPES_SCHEMA = LOOM_SCHEMA_BASE_URL + "annotation_types.jsd";
+  public String LOOM_ANNOTATION_TYPES_SCHEMA = LOOM_SCHEMA_BASE_URL + "tag_types.jsd";
 
   public ResourceHandle LOOM_SCHEMA_RESOURCES = new ResourceHandle("org/tensortapestry/schemas");
 

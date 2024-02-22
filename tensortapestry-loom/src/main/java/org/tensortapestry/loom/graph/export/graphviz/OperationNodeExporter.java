@@ -1,8 +1,8 @@
 package org.tensortapestry.loom.graph.export.graphviz;
 
-import java.awt.*;
 import java.util.*;
 import java.util.List;
+
 import org.tensortapestry.graphviz.DotGraph;
 import org.tensortapestry.graphviz.GraphvizAttribute;
 import org.tensortapestry.graphviz.HtmlLabel;
@@ -31,7 +31,7 @@ public class OperationNodeExporter implements GraphVisualizer.NodeTypeExporter {
       .set(GraphvizAttribute.PENWIDTH, 4)
       .set(GraphvizAttribute.STYLE, "rounded");
 
-    if (operation.hasAnnotation(TensorOpNodes.IO_SEQUENCE_POINT_TYPE)) {
+    if (operation.hasTag(TensorOpNodes.IO_SEQUENCE_POINT_TYPE)) {
       opCluster
         .getAttributes()
         .set(GraphvizAttribute.BGCOLOR, "lightblue")
@@ -47,7 +47,7 @@ public class OperationNodeExporter implements GraphVisualizer.NodeTypeExporter {
       .set(GraphvizAttribute.STYLE, "filled")
       .set(GraphvizAttribute.FILLCOLOR, colorScheme.getKey());
 
-    context.maybeRenderAnnotations(loomNode, opCluster);
+    context.renderTags(loomNode, opCluster);
 
     GH.TableWrapper labelTable = GH
       .table()

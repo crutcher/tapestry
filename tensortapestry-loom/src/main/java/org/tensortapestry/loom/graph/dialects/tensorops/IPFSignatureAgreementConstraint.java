@@ -3,6 +3,7 @@ package org.tensortapestry.loom.graph.dialects.tensorops;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
+
 import org.tensortapestry.common.json.JsonPathUtils;
 import org.tensortapestry.common.validation.ValidationIssue;
 import org.tensortapestry.common.validation.ValidationIssueCollector;
@@ -29,7 +30,7 @@ public class IPFSignatureAgreementConstraint implements LoomEnvironment.Constrai
     ValidationIssueCollector issueCollector
   ) {
     for (var operation : graph.byType(OperationNode.class)) {
-      if (operation.hasAnnotation(TensorOpNodes.IPF_SIGNATURE_ANNOTATION_TYPE)) {
+      if (operation.hasTag(TensorOpNodes.IPF_SIGNATURE_ANNOTATION_TYPE)) {
         checkOperation(operation, issueCollector);
       }
     }
@@ -38,7 +39,7 @@ public class IPFSignatureAgreementConstraint implements LoomEnvironment.Constrai
   private void checkOperation(OperationNode operation, ValidationIssueCollector issueCollector) {
     operation.assertType(OperationNode.TYPE);
 
-    var ipfSignature = operation.viewAnnotationAs(
+    var ipfSignature = operation.viewTagAs(
       TensorOpNodes.IPF_SIGNATURE_ANNOTATION_TYPE,
       IPFSignature.class
     );
@@ -60,7 +61,7 @@ public class IPFSignatureAgreementConstraint implements LoomEnvironment.Constrai
       );
 
     {
-      if (!operation.hasAnnotation(TensorOpNodes.IPF_INDEX_ANNOTATION_TYPE)) {
+      if (!operation.hasTag(TensorOpNodes.IPF_INDEX_ANNOTATION_TYPE)) {
         issueCollector.addIssue(
           ValidationIssue
             .builder()
@@ -73,7 +74,7 @@ public class IPFSignatureAgreementConstraint implements LoomEnvironment.Constrai
         return;
       }
 
-      var ipfIndex = operation.viewAnnotationAs(
+      var ipfIndex = operation.viewTagAs(
         TensorOpNodes.IPF_INDEX_ANNOTATION_TYPE,
         ZRange.class
       );
@@ -97,7 +98,7 @@ public class IPFSignatureAgreementConstraint implements LoomEnvironment.Constrai
     }
 
     for (var appNode : operation.getApplicationNodes()) {
-      if (!appNode.hasAnnotation(TensorOpNodes.IPF_INDEX_ANNOTATION_TYPE)) {
+      if (!appNode.hasTag(TensorOpNodes.IPF_INDEX_ANNOTATION_TYPE)) {
         issueCollector.addIssue(
           ValidationIssue
             .builder()
@@ -111,7 +112,7 @@ public class IPFSignatureAgreementConstraint implements LoomEnvironment.Constrai
         continue;
       }
       var appData = appNode.viewBodyAs(ApplicationNode.Body.class);
-      var ipfIndex = appNode.viewAnnotationAs(
+      var ipfIndex = appNode.viewTagAs(
         TensorOpNodes.IPF_INDEX_ANNOTATION_TYPE,
         ZRange.class
       );

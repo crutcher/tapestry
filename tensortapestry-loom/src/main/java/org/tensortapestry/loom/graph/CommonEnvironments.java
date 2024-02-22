@@ -40,7 +40,7 @@ public final class CommonEnvironments {
       .jsonSchemaFactoryManager(buildJsonSchemaFactoryManager())
       .constraint(new SchemaTypeConstraint())
       .urlAlias("http://tensortapestry.org/schemas/loom/2024-01/node_types.jsd", "loom")
-      .urlAlias("http://tensortapestry.org/schemas/loom/2024-01/annotation_types.jsd", "loom")
+      .urlAlias("http://tensortapestry.org/schemas/loom/2024-01/tag_types.jsd", "loom")
       .constraint(commonDTypeConstraint())
       .build();
 
@@ -68,7 +68,7 @@ public final class CommonEnvironments {
       .jsonSchemaFactoryManager(buildJsonSchemaFactoryManager())
       .constraint(new SchemaTypeConstraint())
       .urlAlias("http://tensortapestry.org/schemas/loom/2024-01/node_types.jsd", "loom")
-      .urlAlias("http://tensortapestry.org/schemas/loom/2024-01/annotation_types.jsd", "loom")
+      .urlAlias("http://tensortapestry.org/schemas/loom/2024-01/tag_types.jsd", "loom")
       .constraint(commonDTypeConstraint())
       .constraint(new OperationReferenceAgreementConstraint())
       .constraint(new IPFSignatureAgreementConstraint())

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -12,6 +13,7 @@ import java.util.UUID;
 import java.util.function.Supplier;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+
 import lombok.Builder;
 import lombok.Data;
 import lombok.extern.jackson.Jacksonized;
@@ -75,32 +77,32 @@ public final class LoomNode implements LoomNodeWrapper<LoomNode>, HasToJsonStrin
     }
 
     /**
-     * Add an annotation to the node.
+     * Add a tag to the node.
      *
-     * @param type the type of the annotation.
-     * @param value the value of the annotation.
+     * @param type the type of the tag.
+     * @param value the value of the tag, will be converted to a JsonViewWrapper.
      * @return {@code this}
      */
     @Nonnull
     @CanIgnoreReturnValue
-    public Builder annotation(@Nonnull String type, @Nonnull Object value) {
-      if (this.annotations == null) {
-        annotations(new HashMap<>());
+    public Builder tag(@Nonnull String type, @Nonnull Object value) {
+      if (this.tags == null) {
+        tags(new HashMap<>());
       }
-      this.annotations.put(type, JsonViewWrapper.of(value));
+      this.tags.put(type, JsonViewWrapper.of(value));
       return this;
     }
 
     /**
      * Add all the given annotations to the node.
      *
-     * @param annotations the annotations to add.
+     * @param tags the annotations to add.
      * @return {@code this}
      */
     @Nonnull
     @CanIgnoreReturnValue
-    public Builder withAnnotations(@Nonnull Map<String, Object> annotations) {
-      annotations.forEach(this::annotation);
+    public Builder withTags(@Nonnull Map<String, Object> tags) {
+      tags.forEach(this::tag);
       return this;
     }
 
@@ -116,8 +118,8 @@ public final class LoomNode implements LoomNodeWrapper<LoomNode>, HasToJsonStrin
      */
     @Nonnull
     public LoomNode build() {
-      if (this.annotations == null) {
-        this.annotations = new HashMap<>();
+      if (this.tags == null) {
+        this.tags = new HashMap<>();
       }
       if (this.id == null && this.graph != null) {
         this.id = this.graph.genNodeId();
@@ -129,7 +131,7 @@ public final class LoomNode implements LoomNodeWrapper<LoomNode>, HasToJsonStrin
         this.type,
         this.label,
         this.body,
-        this.annotations
+        this.tags
       );
       if (this.graph != null) {
         this.graph.addNode(node);
@@ -142,7 +144,8 @@ public final class LoomNode implements LoomNodeWrapper<LoomNode>, HasToJsonStrin
    * The graph that this node belongs to.
    */
   @JsonIgnore
-  @Nullable private LoomGraph graph;
+  @Nullable
+  private LoomGraph graph;
 
   /**
    * The ID of the node.
@@ -159,7 +162,8 @@ public final class LoomNode implements LoomNodeWrapper<LoomNode>, HasToJsonStrin
   /**
    * The label of the node.
    */
-  @Nullable private String label;
+  @Nullable
+  private String label;
 
   /**
    * The body of the node.
@@ -168,10 +172,10 @@ public final class LoomNode implements LoomNodeWrapper<LoomNode>, HasToJsonStrin
   private final JsonViewWrapper body;
 
   /**
-   * The annotations of the node.
+   * The tags of the node.
    */
   @Nonnull
-  private final Map<String, JsonViewWrapper> annotations;
+  private final Map<String, JsonViewWrapper> tags;
 
   @Override
   @Nonnull
@@ -192,7 +196,7 @@ public final class LoomNode implements LoomNodeWrapper<LoomNode>, HasToJsonStrin
         Objects.equals(node.type, type) &&
         Objects.equals(node.label, label) &&
         Objects.equals(node.body, body) &&
-        Objects.equals(node.annotations, annotations)
+        Objects.equals(node.tags, tags)
       );
     }
     return false;
@@ -200,7 +204,7 @@ public final class LoomNode implements LoomNodeWrapper<LoomNode>, HasToJsonStrin
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, type, label, body, annotations);
+    return Objects.hash(id, type, label, body, tags);
   }
 
   /**
@@ -315,57 +319,57 @@ public final class LoomNode implements LoomNodeWrapper<LoomNode>, HasToJsonStrin
   }
 
   /**
-   * Does this node have an annotation with the given type?
+   * Does this node have an tags with the given type?
    *
    * @param type the type to check.
-   * @return true if the node has an annotation with the given type.
+   * @return true if the node has a tag with the given type.
    */
-  public boolean hasAnnotation(@Nonnull String type) {
-    return annotations.containsKey(type);
+  public boolean hasTag(@Nonnull String type) {
+    return tags.containsKey(type);
   }
 
   /**
-   * View the annotation with the given type as the given type.
-   * <p>Equivalent to {@code this.getAnnotation(type).viewAs(clazz)}</p>
+   * View the tag with the given type as the given type.
+   * <p>Equivalent to {@code this.getTag(type).viewAs(clazz)}</p>
    *
-   * @param type the type of the annotation.
-   * @param clazz the type to view the annotation as.
-   * @param <T> the type to view the annotation as.
-   * @return the annotation.
-   * @throws ViewConversionError if the annotation cannot be converted to the given type.
+   * @param type the type of the tag.
+   * @param clazz the type to view the tag as.
+   * @param <T> the type to view the tag as.
+   * @return the tag.
+   * @throws ViewConversionError if the tag cannot be converted to the given type.
    */
-  public <T> T viewAnnotationAs(@Nonnull String type, @Nonnull Class<T> clazz) {
-    return annotations.get(type).viewAs(clazz);
+  public <T> T viewTagAs(@Nonnull String type, @Nonnull Class<T> clazz) {
+    return tags.get(type).viewAs(clazz);
   }
 
   /**
-   * View the annotation with the given type as a JsonNode.
-   * <p>Equivalent to {@code this.getAnnotation(type).viewAsJsonNode()}</p>
+   * View the tag with the given type as a JsonNode.
+   * <p>Equivalent to {@code this.getTag(type).viewAsJsonNode()}</p>
    *
-   * @param type the type of the annotation.
-   * @return the annotation.
+   * @param type the type of the tag.
+   * @return the tag.
    */
   @Nonnull
-  public JsonNode viewAnnotationAsJsonNode(String type) {
-    return annotations.get(type).viewAsJsonNode();
+  public JsonNode viewTagAsJsonNode(String type) {
+    return tags.get(type).viewAsJsonNode();
   }
 
   /**
-   * Add an annotation to the node.
+   * Add a tag to the node.
    *
-   * @param type the type of the annotation.
-   * @param value the value of the annotation.
+   * @param type the type of the tag.
+   * @param value the value of the tag.
    */
-  public void addAnnotation(@Nonnull String type, @Nonnull Object value) {
-    annotations.put(type, JsonViewWrapper.of(value));
+  public void addTag(@Nonnull String type, @Nonnull Object value) {
+    tags.put(type, JsonViewWrapper.of(value));
   }
 
   /**
-   * Remove an annotation from the node.
+   * Remove a tag from the node.
    *
-   * @param type the type of the annotation.
+   * @param type the type of the tag.
    */
-  public void removeAnnotation(@Nonnull String type) {
-    annotations.remove(type);
+  public void removeTag(@Nonnull String type) {
+    tags.remove(type);
   }
 }
