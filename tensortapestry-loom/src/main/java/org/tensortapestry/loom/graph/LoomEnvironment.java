@@ -1,15 +1,20 @@
 package org.tensortapestry.loom.graph;
 
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
-import java.net.URI;
+
 import java.util.*;
 import javax.annotation.Nonnull;
+import javax.validation.Constraint;
+
 import lombok.Builder;
 import lombok.Data;
+import lombok.Singular;
+import lombok.experimental.Delegate;
 import org.tensortapestry.common.json.JsonUtil;
 import org.tensortapestry.common.runtime.ExcludeFromJacocoGeneratedReport;
 import org.tensortapestry.common.validation.ListValidationIssueCollector;
 import org.tensortapestry.common.validation.LoomValidationError;
+import org.tensortapestry.common.validation.ValidationIssue;
 import org.tensortapestry.common.validation.ValidationIssueCollector;
 import org.tensortapestry.loom.json.JsonSchemaFactoryManager;
 
@@ -19,7 +24,7 @@ import org.tensortapestry.loom.json.JsonSchemaFactoryManager;
  * <p>Describes the parsing and validation environment for a graph.
  */
 @Data
-@Builder
+@Builder(toBuilder = true)
 public final class LoomEnvironment {
 
   /**
@@ -31,11 +36,11 @@ public final class LoomEnvironment {
      * Check that the environment supports the requirements of this constraint.
      *
      * @param env the LoomEnvironment.
-     * @throws IllegalStateException if the environment does not support the
-     *         requirements of this
+     * @throws IllegalStateException if the environment does not support the requirements of this
      */
     @ExcludeFromJacocoGeneratedReport
-    default void checkRequirements(LoomEnvironment env) {}
+    default void checkRequirements(LoomEnvironment env) {
+    }
 
     void validateConstraint(
       LoomEnvironment env,
@@ -44,19 +49,25 @@ public final class LoomEnvironment {
     );
   }
 
-  private final List<Constraint> constraints = new ArrayList<>();
+  public interface TypeSupportProvider extends Constraint {
+    boolean supportsNodeType(String type);
+
+    boolean supportsAnnotationType(String type);
+  }
+
+
+  @Nonnull
+  private final TypeSupportProvider typeSupportProvider;
+
+  @Singular
+  private final List<Constraint> constraints;
 
   @Builder.Default
   private final JsonSchemaFactoryManager jsonSchemaFactoryManager = new JsonSchemaFactoryManager();
 
-  @Builder.Default
-  private Map<String, String> urlAliasMap = new HashMap<>();
-
-  @CanIgnoreReturnValue
-  public LoomEnvironment addUrlAlias(String url, String alias) {
-    urlAliasMap.put(url, alias);
-    return this;
-  }
+  @Nonnull
+  @Singular
+  private final Map<String, String> urlAliases;
 
   public String urlAlias(String type) {
     if (type.contains("#")) {
@@ -64,7 +75,7 @@ public final class LoomEnvironment {
       var url = parts[0];
       var path = parts[1];
 
-      var alias = urlAliasMap.get(url);
+      var alias = urlAliases.get(url);
       if (alias != null) {
         return alias + ":" + path.substring(path.lastIndexOf('/') + 1);
       }
@@ -90,14 +101,20 @@ public final class LoomEnvironment {
    * @param type the node type.
    * @return true if the node type is supported.
    */
-  @SuppressWarnings({ "CheckReturnValue", "ResultOfMethodCallIgnored" })
+  @SuppressWarnings({"CheckReturnValue", "ResultOfMethodCallIgnored"})
   public boolean supportsNodeType(String type) {
-    try {
-      getJsonSchemaFactoryManager().loadSchema(URI.create(type));
-      return true;
-    } catch (LoomValidationError e) {
-      return false;
-    }
+    return typeSupportProvider.supportsNodeType(type);
+  }
+
+  /**
+   * Does this environment support the given annotation type?
+   *
+   * @param type the annotation type.
+   * @return true if the annotation type is supported.
+   */
+  @SuppressWarnings({"CheckReturnValue", "ResultOfMethodCallIgnored"})
+  public boolean supportsAnnotationType(String type) {
+    return typeSupportProvider.supportsAnnotationType(type);
   }
 
   /**
@@ -110,20 +127,6 @@ public final class LoomEnvironment {
     if (!supportsNodeType(type)) {
       throw new IllegalStateException("Unsupported node type: " + type);
     }
-  }
-
-  /**
-   * Add a constraint to the LoomEnvironment.
-   *
-   * @param constraint the constraint to add.
-   * @return the modified LoomEnvironment with the added constraint.
-   * @throws IllegalArgumentException if the constraint is not valid in this environment.
-   */
-  @CanIgnoreReturnValue
-  public LoomEnvironment addConstraint(Constraint constraint) {
-    constraint.checkRequirements(this);
-    constraints.add(constraint);
-    return this;
   }
 
   /**
@@ -188,6 +191,7 @@ public final class LoomEnvironment {
    * @param issueCollector the ValidationIssueCollector.
    */
   public void validateGraph(LoomGraph graph, ValidationIssueCollector issueCollector) {
+    typeSupportProvider.validateConstraint(this, graph, issueCollector);
     for (var constraint : constraints) {
       constraint.validateConstraint(this, graph, issueCollector);
     }

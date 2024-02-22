@@ -28,23 +28,23 @@ public class LoomEnvironmentTest implements CommonAssertions {
   public void testGraphFromJson() {
     var source =
       """
+        {
+          "id": "00000000-0000-4000-8000-00000000000A",
+          "nodes": [
             {
-              "id": "00000000-0000-4000-8000-00000000000A",
-              "nodes": [
-                {
-                  "id": "00000000-0000-0000-0000-000000000000",
-                  "type": "%1$s",
-                  "label": "foo",
-                  "body": {
-                    "dtype": "int32",
-                    "range": {"start": [0, 0], "end": [2, 3] }
-                  }
-                }
-              ]
-             }
-            """.formatted(
-          TensorNode.TYPE
-        );
+              "id": "00000000-0000-0000-0000-000000000000",
+              "type": "%1$s",
+              "label": "foo",
+              "body": {
+                "dtype": "int32",
+                "range": {"start": [0, 0], "end": [2, 3] }
+              }
+            }
+          ]
+         }
+        """.formatted(
+        TensorNode.TYPE
+      );
 
     var env = CommonEnvironments.expressionEnvironment();
 
@@ -88,8 +88,8 @@ public class LoomEnvironmentTest implements CommonAssertions {
     assertThatExceptionOfType(IllegalStateException.class)
       .isThrownBy(() -> env.assertConstraint(constraint.getClass()));
 
-    env.addConstraint(constraint);
+    var extEnv = env.toBuilder().constraint(constraint).build();
 
-    env.assertConstraint(constraint.getClass());
+    extEnv.assertConstraint(constraint.getClass());
   }
 }
