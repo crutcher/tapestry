@@ -1,10 +1,12 @@
-package org.tensortapestry.loom.graph.dialects.tensorops;
+package org.tensortapestry.loom.graph.dialects.tensorops.constraints;
 
 import com.google.common.collect.Streams;
+
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
+
 import org.tensortapestry.common.json.JsonPathUtils;
 import org.tensortapestry.common.lazy.LazyString;
 import org.tensortapestry.common.lazy.Thunk;
@@ -14,6 +16,8 @@ import org.tensortapestry.loom.graph.LoomConstants;
 import org.tensortapestry.loom.graph.LoomEnvironment;
 import org.tensortapestry.loom.graph.LoomGraph;
 import org.tensortapestry.loom.graph.ValidationUtils;
+import org.tensortapestry.loom.graph.dialects.tensorops.ApplicationNode;
+import org.tensortapestry.loom.graph.dialects.tensorops.OperationNode;
 import org.tensortapestry.zspace.ZRange;
 
 public class ApplicationOutputRangeCoverageIsExactConstraint implements LoomEnvironment.Constraint {

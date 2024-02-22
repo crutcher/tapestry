@@ -1,14 +1,18 @@
-package org.tensortapestry.loom.graph.dialects.tensorops;
+package org.tensortapestry.loom.graph.dialects.tensorops.constraints;
 
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
+
 import org.tensortapestry.common.json.JsonPathUtils;
 import org.tensortapestry.common.lazy.LazyString;
 import org.tensortapestry.common.lazy.Thunk;
 import org.tensortapestry.common.validation.ValidationIssue;
 import org.tensortapestry.common.validation.ValidationIssueCollector;
 import org.tensortapestry.loom.graph.*;
+import org.tensortapestry.loom.graph.dialects.tensorops.OperationNode;
+import org.tensortapestry.loom.graph.dialects.tensorops.TensorNode;
+import org.tensortapestry.loom.graph.dialects.tensorops.TensorSelection;
 
 public class TensorOperationAgreementConstraint implements LoomEnvironment.Constraint {
 

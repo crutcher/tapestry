@@ -4,6 +4,10 @@ import org.junit.jupiter.api.Test;
 import org.tensortapestry.common.testing.CommonAssertions;
 import org.tensortapestry.loom.graph.dialects.common.NoteNode;
 import org.tensortapestry.loom.graph.dialects.tensorops.*;
+import org.tensortapestry.loom.graph.dialects.tensorops.constraints.NoTensorOperationCyclesConstraint;
+import org.tensortapestry.loom.graph.dialects.tensorops.constraints.OperationApplicationAgreementConstraint;
+import org.tensortapestry.loom.graph.dialects.tensorops.constraints.TensorDTypesAreValidConstraint;
+import org.tensortapestry.loom.graph.dialects.tensorops.constraints.TensorOperationAgreementConstraint;
 
 public class CommonEnvironmentsTest implements CommonAssertions {
 

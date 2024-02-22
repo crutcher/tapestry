@@ -1,6 +1,7 @@
-package org.tensortapestry.loom.graph.dialects.tensorops;
+package org.tensortapestry.loom.graph.dialects.tensorops.constraints;
 
 import java.util.Set;
+
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Singular;
@@ -10,6 +11,7 @@ import org.tensortapestry.loom.graph.LoomConstants;
 import org.tensortapestry.loom.graph.LoomEnvironment;
 import org.tensortapestry.loom.graph.LoomGraph;
 import org.tensortapestry.loom.graph.LoomNode;
+import org.tensortapestry.loom.graph.dialects.tensorops.TensorNode;
 
 @Getter
 @Builder
