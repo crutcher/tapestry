@@ -30,7 +30,7 @@ public class ApplicationOutputRangeCoverageIsExactConstraint implements LoomEnvi
     ValidationIssueCollector issueCollector
   ) {
     for (var application : graph.byType(ApplicationNode.class)) {
-      var opNode = ValidationUtils.validateNodeReference(
+      ValidationUtils.validateNodeReference(
         graph,
         application.getOperationId(),
         OperationNode.TYPE,
@@ -43,12 +43,11 @@ public class ApplicationOutputRangeCoverageIsExactConstraint implements LoomEnvi
     }
 
     for (var operation : graph.byType(OperationNode.class)) {
-      validateOperationNode(graph, operation, issueCollector);
+      validateOperationNode(operation, issueCollector);
     }
   }
 
   private static boolean validateOperationNode(
-    LoomGraph graph,
     OperationNode operation,
     ValidationIssueCollector issueCollector
   ) {

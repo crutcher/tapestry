@@ -3,6 +3,7 @@ package org.tensortapestry.weft.metakernels;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
 import lombok.experimental.UtilityClass;
 import org.tensortapestry.loom.graph.LoomGraph;
 import org.tensortapestry.loom.graph.dialects.tensorops.*;
@@ -30,7 +31,7 @@ public class CommonMetaKernels {
 
     op.addTag(TensorOpNodes.IO_SEQUENCE_POINT_TYPE, IOSequencePoint.builder().build());
 
-    var ap = ApplicationNode
+    ApplicationNode
       .on(graph)
       .body(b -> b.operationId(op.getId()).outputs(outputs))
       .build();
@@ -51,7 +52,7 @@ public class CommonMetaKernels {
 
     op.addTag(TensorOpNodes.IO_SEQUENCE_POINT_TYPE, IOSequencePoint.builder().build());
 
-    var ap = ApplicationNode.on(graph).body(b -> b.operationId(op.getId()).inputs(inputs)).build();
+    ApplicationNode.on(graph).body(b -> b.operationId(op.getId()).inputs(inputs)).build();
 
     return op;
   }

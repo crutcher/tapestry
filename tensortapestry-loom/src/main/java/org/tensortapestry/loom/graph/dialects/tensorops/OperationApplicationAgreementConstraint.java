@@ -32,7 +32,7 @@ public class OperationApplicationAgreementConstraint implements LoomEnvironment.
     ValidationIssueCollector issueCollector
   ) {
     for (var application : graph.byType(ApplicationNode.class)) {
-      var opNode = ValidationUtils.validateNodeReference(
+      ValidationUtils.validateNodeReference(
         graph,
         application.getOperationId(),
         OperationNode.TYPE,
@@ -45,12 +45,11 @@ public class OperationApplicationAgreementConstraint implements LoomEnvironment.
     }
 
     for (var operation : graph.byType(OperationNode.class)) {
-      validateOperationNode(graph, operation, issueCollector);
+      validateOperationNode(operation, issueCollector);
     }
   }
 
   private static void validateOperationNode(
-    LoomGraph graph,
     OperationNode operation,
     ValidationIssueCollector issueCollector
   ) {

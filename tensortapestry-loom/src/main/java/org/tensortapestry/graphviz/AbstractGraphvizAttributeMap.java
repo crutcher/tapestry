@@ -1,10 +1,8 @@
 package org.tensortapestry.graphviz;
 
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+
+import java.util.*;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import lombok.Data;
@@ -28,7 +26,7 @@ public abstract class AbstractGraphvizAttributeMap<
     @Nonnull Object value
   ) {
     try {
-      return Enum.valueOf(enumClass, key.toUpperCase());
+      return Enum.valueOf(enumClass, key.toUpperCase(Locale.ROOT));
     } catch (IllegalArgumentException e) {
       throw new IllegalArgumentException(
         "Illegal %s attribute, unknown key: %s=%s".formatted(description, key, value)
@@ -52,7 +50,7 @@ public abstract class AbstractGraphvizAttributeMap<
   @Nonnull
   @CanIgnoreReturnValue
   public final T set(@Nonnull String key, @Nonnull Object value) {
-    key = key.toLowerCase();
+    key = key.toLowerCase(Locale.ROOT);
     validateAttribute(key, value);
     items.put(key, value);
     return self();
@@ -107,7 +105,7 @@ public abstract class AbstractGraphvizAttributeMap<
   }
 
   @Nullable public final Object get(@Nonnull String key) {
-    return items.get(key.toLowerCase());
+    return items.get(key.toLowerCase(Locale.ROOT));
   }
 
   @Nullable public final Object get(@Nonnull K key) {

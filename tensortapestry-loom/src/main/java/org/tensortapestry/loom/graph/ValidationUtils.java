@@ -3,6 +3,8 @@ package org.tensortapestry.loom.graph;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Supplier;
+
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import lombok.experimental.UtilityClass;
 import org.tensortapestry.common.lazy.LazyString;
 import org.tensortapestry.common.lazy.Thunk;
@@ -12,6 +14,7 @@ import org.tensortapestry.common.validation.ValidationIssueCollector;
 @UtilityClass
 public class ValidationUtils {
 
+  @CanIgnoreReturnValue
   public static LoomNode validateNodeReference(
     LoomGraph graph,
     UUID nodeId,
