@@ -3,9 +3,7 @@ package org.tensortapestry.loom.graph.export.graphviz;
 import java.awt.*;
 import java.util.*;
 import java.util.List;
-
 import org.tensortapestry.graphviz.DotGraph;
-import org.tensortapestry.graphviz.FormatUtils;
 import org.tensortapestry.graphviz.GraphvizAttribute;
 import org.tensortapestry.graphviz.HtmlLabel;
 import org.tensortapestry.loom.graph.LoomNode;
@@ -36,7 +34,7 @@ public class OperationNodeExporter implements GraphVisualizer.NodeTypeExporter {
     if (operation.hasAnnotation(TensorOpNodes.IO_SEQUENCE_POINT_TYPE)) {
       opCluster
         .getAttributes()
-        .set(GraphvizAttribute.BGCOLOR, "yellow")
+        .set(GraphvizAttribute.BGCOLOR, "lightblue")
         .set(GraphvizAttribute.STYLE, "filled, rounded");
       // .set(GraphvizAttribute.BGCOLOR, "yellow:black:yellow:black:yellow:black")
       // .set(GraphvizAttribute.STYLE, "striped, dashed");
@@ -114,12 +112,10 @@ public class OperationNodeExporter implements GraphVisualizer.NodeTypeExporter {
         DotGraph.Edge routeEdge;
         if (isInput) {
           routeEdge = dotGraph.createEdge(tensorNode, routeNode);
-          routeEdge
-            .set(GraphvizAttribute.HEADCLIP, false);
+          routeEdge.set(GraphvizAttribute.HEADCLIP, false);
         } else {
           routeEdge = dotGraph.createEdge(routeNode, tensorNode);
-          routeEdge
-            .set(GraphvizAttribute.TAILCLIP, false);
+          routeEdge.set(GraphvizAttribute.TAILCLIP, false);
         }
 
         routeEdge
@@ -139,10 +135,8 @@ public class OperationNodeExporter implements GraphVisualizer.NodeTypeExporter {
         } else {
           orderingEdge = dotGraph.createEdge(routeNodes.get(0), tensorNode);
         }
-        orderingEdge
-          .set(GraphvizAttribute.STYLE, "invis");
+        orderingEdge.set(GraphvizAttribute.STYLE, "invis");
       }
-
 
       List<List<DotGraph.Node>> rows = new ArrayList<>();
       for (int r = 0; r < routeNodes.size(); r++) {

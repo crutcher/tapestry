@@ -3,7 +3,6 @@ package org.tensortapestry.graphviz;
 import java.awt.*;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
-
 import lombok.experimental.UtilityClass;
 
 @UtilityClass

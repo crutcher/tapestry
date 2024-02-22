@@ -7,5 +7,4 @@ import lombok.extern.jackson.Jacksonized;
 @Value
 @Jacksonized
 @Builder
-public class IOSequencePoint {
-}
+public class IOSequencePoint {}

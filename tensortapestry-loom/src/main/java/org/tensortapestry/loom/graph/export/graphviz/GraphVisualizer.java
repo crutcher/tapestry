@@ -7,13 +7,11 @@ import guru.nidi.graphviz.attribute.Label;
 import guru.nidi.graphviz.attribute.Rank;
 import guru.nidi.graphviz.engine.Graphviz;
 import guru.nidi.graphviz.engine.GraphvizCmdLineEngine;
-
 import java.awt.Color;
 import java.util.*;
 import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-
 import lombok.Builder;
 import lombok.Data;
 import lombok.Getter;
@@ -142,13 +140,11 @@ public class GraphVisualizer {
       );
     }
 
-    @Nullable
-    private LoomNode maybeNode(UUID id) {
+    @Nullable private LoomNode maybeNode(UUID id) {
       return graph.getNode(id);
     }
 
-    @Nullable
-    private LoomNode maybeNode(String idString) {
+    @Nullable private LoomNode maybeNode(String idString) {
       try {
         var id = UUID.fromString(idString);
         return maybeNode(id);
@@ -203,7 +199,6 @@ public class GraphVisualizer {
         }
         exporterForNodeType(node.getType()).exportNode(GraphVisualizer.this, this, node);
       }
-
     }
 
     public void decoratePrimaryNode(LoomNode loomNode, DotGraph.Node dotNode) {
@@ -273,7 +268,8 @@ public class GraphVisualizer {
       dotAnnotationNode.set(GraphvizAttribute.LABEL, HtmlLabel.from(labelTable));
 
       var dotNode = dotGraph.assertLookup(nodeId, DotGraph.Node.class);
-      dotGraph.createEdge(dotNode, dotAnnotationNode)
+      dotGraph
+        .createEdge(dotNode, dotAnnotationNode)
         .set(GraphvizAttribute.PENWIDTH, 3)
         .set(GraphvizAttribute.COLOR, "black:white:white:white:white:white:white:black")
         .set(GraphvizAttribute.ARROWHEAD, "none")
@@ -436,23 +432,26 @@ public class GraphVisualizer {
       }
     }
 
-    private static final List<String> NODE_COLORS = List.of(
-      "#EF7BDE",
-      "#38DAE0",
-      "#ee9944",
-      "#99dd55",
-      "#DC9E87",
-      "#44dd88",
-      "#E98FA5",
-      "#22ccbb"
+    private static final List<String> NODE_COLORS_RGB = List.of(
+      "#f43143",
+      "#01be5e",
+      "#088ce4",
+      "#7a50f0",
+      "#a938bc",
+      "#e6518f",
+      "#455d75"
     );
 
+    private static final List<Color> NODE_COLORS = NODE_COLORS_RGB
+      .stream()
+      .map(Color::decode)
+      .toList();
+
     public Pair<Color, Color> colorSchemeForNode(UUID id) {
-      var p = getColoringForNode(id);
-      return Pair.of(Color.decode(p.getLeft()), Color.decode(p.getRight()));
+      return getColoringForNode(id);
     }
 
-    private final Map<UUID, Pair<String, String>> nodeColorings = new HashMap<>();
+    private final Map<UUID, Pair<Color, Color>> nodeColorings = new HashMap<>();
 
     public void setColoringForNode(UUID id, int color, int idx) {
       var k = NODE_COLORS.size();
@@ -468,11 +467,11 @@ public class GraphVisualizer {
       nodeColorings.put(id, Pair.of(baseColor, stripeColor));
     }
 
-    public String getPrimaryColorForNode(UUID id) {
+    public Color getPrimaryColorForNode(UUID id) {
       return nodeColorings.get(id).getLeft();
     }
 
-    public Pair<String, String> getColoringForNode(UUID id) {
+    public Pair<Color, Color> getColoringForNode(UUID id) {
       return nodeColorings.get(id);
     }
 

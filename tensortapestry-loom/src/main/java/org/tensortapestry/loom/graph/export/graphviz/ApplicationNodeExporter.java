@@ -3,7 +3,6 @@ package org.tensortapestry.loom.graph.export.graphviz;
 import java.awt.*;
 import java.util.*;
 import java.util.List;
-
 import org.tensortapestry.graphviz.*;
 import org.tensortapestry.loom.graph.LoomNode;
 import org.tensortapestry.loom.graph.dialects.tensorops.*;
@@ -20,13 +19,18 @@ public class ApplicationNodeExporter implements GraphVisualizer.NodeTypeExporter
     var application = ApplicationNode.wrap(appNode);
     var operation = application.getOperationNode();
 
-    var opCluster = dotGraph.assertLookup(operation.getId() + "_op_cluster", DotGraph.Cluster.class);
+    var opCluster = dotGraph.assertLookup(
+      operation.getId() + "_op_cluster",
+      DotGraph.Cluster.class
+    );
 
     Color operationColor = context.colorSchemeForNode(operation.getId()).getKey();
 
-    var clusterColor = "%s:%s".formatted(
-      FormatUtils.colorToRgbaString(operationColor.brighter()),
-      FormatUtils.colorToRgbaString(operationColor));
+    var clusterColor =
+      "%s:%s".formatted(
+          FormatUtils.colorToRgbaString(operationColor.brighter().brighter().brighter()),
+          FormatUtils.colorToRgbaString(operationColor.brighter().brighter())
+        );
 
     var dotCluster = opCluster.createCluster("app_%s".formatted(appNode.getId()));
     dotCluster
@@ -68,8 +72,24 @@ public class ApplicationNodeExporter implements GraphVisualizer.NodeTypeExporter
 
     var useRouteNodes = operation.getApplicationNodes().stream().count() > 1;
 
-    selectionMapNodes(context, dotCluster, application, dotNode, application.getInputs(), useRouteNodes, true);
-    selectionMapNodes(context, dotCluster, application, dotNode, application.getOutputs(), useRouteNodes, false);
+    selectionMapNodes(
+      context,
+      dotCluster,
+      application,
+      dotNode,
+      application.getInputs(),
+      useRouteNodes,
+      true
+    );
+    selectionMapNodes(
+      context,
+      dotCluster,
+      application,
+      dotNode,
+      application.getOutputs(),
+      useRouteNodes,
+      false
+    );
   }
 
   protected static void selectionMapNodes(
@@ -153,7 +173,6 @@ public class ApplicationNodeExporter implements GraphVisualizer.NodeTypeExporter
           if (useRouteNodes) {
             routeEdge.set(GraphvizAttribute.TAILCLIP, false);
           }
-
         } else {
           selEdge = dotCluster.createEdge(dotNode, dotSelectionNode);
           routeEdge = dotGraph.createEdge(dotSelectionNode, sourceNode);
@@ -163,17 +182,17 @@ public class ApplicationNodeExporter implements GraphVisualizer.NodeTypeExporter
           }
         }
 
+        String colorStr = FormatUtils.colorToRgbaString(tensorColor);
+        String transColorStr = colorStr + "C0";
+
         selEdge
-          .set(GraphvizAttribute.COLOR, tensorColor)
+          .set(GraphvizAttribute.PENWIDTH, 24)
+          .set(GraphvizAttribute.COLOR, colorStr)
           .set(GraphvizAttribute.ARROWHEAD, "none");
         routeEdge
-          .set(GraphvizAttribute.COLOR, tensorColor + "C0")
+          .set(GraphvizAttribute.PENWIDTH, 24)
+          .set(GraphvizAttribute.COLOR, transColorStr)
           .set(GraphvizAttribute.ARROWHEAD, "none");
-
-        for (var e : List.of(routeEdge, selEdge)) {
-          e
-            .set(GraphvizAttribute.PENWIDTH, 24);
-        }
 
         // Force the selection nodes to cluster and layout in call order.
         if (selCluster.getNodes().size() > 1) {
