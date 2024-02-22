@@ -29,7 +29,7 @@ public class TypeRestrictionConstraint implements LoomEnvironment.Constraint, Lo
   }
 
   @Override
-  public boolean supportsAnnotationType(String type) {
+  public boolean supportsTagType(String type) {
     return annotationTypes.contains(type);
   }
 
@@ -47,7 +47,7 @@ public class TypeRestrictionConstraint implements LoomEnvironment.Constraint, Lo
     ValidationIssueCollector issueCollector
   ) {
     checkType(node, "node", node.getType(), nodeTypes, issueCollector);
-    for (var type : node.getAnnotations().keySet()) {
+    for (var type : node.getTags().keySet()) {
       checkType(node, "annotation", type, annotationTypes, issueCollector);
     }
   }

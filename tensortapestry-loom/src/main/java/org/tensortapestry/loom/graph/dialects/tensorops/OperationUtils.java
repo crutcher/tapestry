@@ -1,12 +1,14 @@
 package org.tensortapestry.loom.graph.dialects.tensorops;
 
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import javax.annotation.Nullable;
+
 import lombok.experimental.UtilityClass;
 import org.tensortapestry.loom.graph.LoomGraph;
 import org.tensortapestry.zspace.ZRange;
@@ -145,11 +147,11 @@ public class OperationUtils {
 
   @CanIgnoreReturnValue
   public ApplicationNode createIpfShard(OperationNode operation, ZRange shardIndex) {
-    var ipfSig = operation.viewAnnotationAs(
+    var ipfSig = operation.viewTagAs(
       TensorOpNodes.IPF_SIGNATURE_ANNOTATION_TYPE,
       IPFSignature.class
     );
-    var ipfIndex = operation.viewAnnotationAs(
+    var ipfIndex = operation.viewTagAs(
       TensorOpNodes.IPF_INDEX_ANNOTATION_TYPE,
       ZRange.class
     );

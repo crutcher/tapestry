@@ -2,6 +2,7 @@ package org.tensortapestry.loom.graph.dialects.common;
 
 import java.net.URI;
 import java.util.List;
+
 import org.tensortapestry.common.json.JsonPathUtils;
 import org.tensortapestry.common.json.JsonUtil;
 import org.tensortapestry.common.validation.ValidationIssue;
@@ -51,7 +52,7 @@ public class SchemaTypeConstraint implements LoomEnvironment.Constraint {
       .build()
       .scan();
 
-    for (var entry : node.getAnnotations().entrySet()) {
+    for (var entry : node.getTags().entrySet()) {
       var annotationType = entry.getKey();
       var annotation = entry.getValue();
 

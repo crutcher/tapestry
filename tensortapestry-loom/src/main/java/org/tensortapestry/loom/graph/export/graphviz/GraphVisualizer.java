@@ -7,11 +7,13 @@ import guru.nidi.graphviz.attribute.Label;
 import guru.nidi.graphviz.attribute.Rank;
 import guru.nidi.graphviz.engine.Graphviz;
 import guru.nidi.graphviz.engine.GraphvizCmdLineEngine;
+
 import java.awt.Color;
 import java.util.*;
 import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+
 import lombok.Builder;
 import lombok.Data;
 import lombok.Getter;
@@ -92,7 +94,7 @@ public class GraphVisualizer {
         .set(GraphvizAttribute.STYLE, "filled")
         .set(GraphvizAttribute.COLOR, "gray");
 
-      context.maybeRenderAnnotations(loomNode);
+      context.renderTags(loomNode);
 
       dotNode.set(
         GraphvizAttribute.LABEL,
@@ -140,11 +142,13 @@ public class GraphVisualizer {
       );
     }
 
-    @Nullable private LoomNode maybeNode(UUID id) {
+    @Nullable
+    private LoomNode maybeNode(UUID id) {
       return graph.getNode(id);
     }
 
-    @Nullable private LoomNode maybeNode(String idString) {
+    @Nullable
+    private LoomNode maybeNode(String idString) {
       try {
         var id = UUID.fromString(idString);
         return maybeNode(id);
@@ -224,35 +228,35 @@ public class GraphVisualizer {
       return dotNode;
     }
 
-    public void maybeRenderAnnotations(LoomNode node, DotGraph.SubGraph subGraph) {
-      maybeRenderAnnotations(node.getId().toString(), node.getAnnotations(), subGraph);
+    public void renderTags(LoomNode node, DotGraph.SubGraph subGraph) {
+      renderTags(node.getId().toString(), node.getTags(), subGraph);
     }
 
-    public void maybeRenderAnnotations(LoomNode node) {
-      maybeRenderAnnotations(node, dotGraph.getRoot());
+    public void renderTags(LoomNode node) {
+      renderTags(node, dotGraph.getRoot());
     }
 
-    public void maybeRenderAnnotations(
+    public void renderTags(
       String nodeId,
-      Map<String, JsonViewWrapper> annotations,
+      Map<String, JsonViewWrapper> tags,
       DotGraph.SubGraph subGraph
     ) {
-      if (annotations.isEmpty()) {
+      if (tags.isEmpty()) {
         return;
       }
       var env = graph.assertEnv();
 
-      String dotId = nodeId + "#annotations";
+      String dotId = nodeId + "_tags";
 
-      var dotAnnotationNode = subGraph.createNode(dotId);
-      dotAnnotationNode
+      var dotTagNode = subGraph.createNode(dotId);
+      dotTagNode
         .set(GraphvizAttribute.SHAPE, "component")
         .set(GraphvizAttribute.STYLE, "filled")
         .set(GraphvizAttribute.PENWIDTH, 2)
         .set(GraphvizAttribute.FILLCOLOR, "#45eebf");
 
       var labelTable = GH.table().border(0).cellborder(0).cellspacing(2).cellpadding(2);
-      for (var entry : annotations
+      for (var entry : tags
         .entrySet()
         .stream()
         .sorted(Map.Entry.comparingByKey())
@@ -265,17 +269,17 @@ public class GraphVisualizer {
           .withParent(labelTable);
       }
 
-      dotAnnotationNode.set(GraphvizAttribute.LABEL, HtmlLabel.from(labelTable));
+      dotTagNode.set(GraphvizAttribute.LABEL, HtmlLabel.from(labelTable));
 
       var dotNode = dotGraph.assertLookup(nodeId, DotGraph.Node.class);
       dotGraph
-        .createEdge(dotNode, dotAnnotationNode)
+        .createEdge(dotNode, dotTagNode)
         .set(GraphvizAttribute.PENWIDTH, 3)
         .set(GraphvizAttribute.COLOR, "black:white:white:white:white:white:white:black")
         .set(GraphvizAttribute.ARROWHEAD, "none")
         .set(GraphvizAttribute.WEIGHT, 5);
 
-      dotGraph.sameRank(dotNode, dotAnnotationNode);
+      dotGraph.sameRank(dotNode, dotTagNode);
     }
 
     public GH.TableDataWrapper renderDataTypeTitle(String title) {
