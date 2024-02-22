@@ -88,8 +88,21 @@ and correctness of tapestry over short-term feature velocity of applications.
 
 ## Dialects
 
+Tapestry is structured with a modular graph system.
+
+A given graph is attached to a *LoomEnvironment*, which defines the legal node and tag types
+used in the graph; along with a collection of constraints and rules for the graph.
+
+In this way, dialects focused on different aspects of the tool chain can be developed and
+remain strictly defined, while sharing common scan and validation tooling.
+
 ### Operation Expression Dialect
 
 The [Operation Expression Dialect](dialects/OperationExpressionDialect.md) is a dialect for representing un-sharded operations and tensors in a graph.
 
 <img src="dialects/OperationExpressionDialect/example1.dot.png" width="25%"/>
+
+### Application Expression Dialect
+
+The Application Expression Dialect is a dialect for representing operation expressions
+sharded into application sub-shards in a graph.
