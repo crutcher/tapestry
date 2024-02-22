@@ -7,11 +7,13 @@ import guru.nidi.graphviz.attribute.Label;
 import guru.nidi.graphviz.attribute.Rank;
 import guru.nidi.graphviz.engine.Graphviz;
 import guru.nidi.graphviz.engine.GraphvizCmdLineEngine;
+
 import java.awt.Color;
 import java.util.*;
 import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+
 import lombok.Builder;
 import lombok.Data;
 import lombok.Getter;
@@ -140,11 +142,13 @@ public class GraphVisualizer {
       );
     }
 
-    @Nullable private LoomNode maybeNode(UUID id) {
+    @Nullable
+    private LoomNode maybeNode(UUID id) {
       return graph.getNode(id);
     }
 
-    @Nullable private LoomNode maybeNode(String idString) {
+    @Nullable
+    private LoomNode maybeNode(String idString) {
       try {
         var id = UUID.fromString(idString);
         return maybeNode(id);
@@ -163,7 +167,7 @@ public class GraphVisualizer {
         .set(GraphvizAttribute.CONCENTRATE, true)
         // .set(GraphAttribute.CLUSTERRANK, "local")
         // .set(GraphAttribute.NODESEP, 0.4)
-        .set(GraphvizAttribute.RANKSEP, 1.2)
+        .set(GraphvizAttribute.RANKSEP, 0.6)
         .set(GraphvizAttribute.BGCOLOR, backgroundColor);
 
       Set<TensorNode> sourceNodes = new HashSet<>();
@@ -200,14 +204,6 @@ public class GraphVisualizer {
         exporterForNodeType(node.getType()).exportNode(GraphVisualizer.this, this, node);
       }
 
-      dotGraph.sameRank(
-        sourceNodes
-          .stream()
-          .map(TensorNode::getId)
-          .map(Object::toString)
-          .map(dotGraph::lookup)
-          .toList()
-      );
     }
 
     public void decoratePrimaryNode(LoomNode loomNode, DotGraph.Node dotNode) {
@@ -224,6 +220,7 @@ public class GraphVisualizer {
       }
 
       dotNode.set(GraphvizAttribute.XLABEL, HtmlLabel.from(table));
+      dotNode.set(GraphvizAttribute.PENWIDTH, 2);
     }
 
     public DotGraph.Node createPrimaryNode(LoomNode node) {
@@ -276,10 +273,10 @@ public class GraphVisualizer {
       dotAnnotationNode.set(GraphvizAttribute.LABEL, HtmlLabel.from(labelTable));
 
       var dotNode = dotGraph.assertLookup(nodeId, DotGraph.Node.class);
-      var link = dotGraph.createEdge(dotNode, dotAnnotationNode);
-      link
-        .set(GraphvizAttribute.ARROWHEAD, "odotodot")
-        .set(GraphvizAttribute.STYLE, "bold")
+      dotGraph.createEdge(dotNode, dotAnnotationNode)
+        .set(GraphvizAttribute.PENWIDTH, 3)
+        .set(GraphvizAttribute.COLOR, "black:white:white:white:white:white:white:black")
+        .set(GraphvizAttribute.ARROWHEAD, "none")
         .set(GraphvizAttribute.WEIGHT, 5);
 
       dotGraph.sameRank(dotNode, dotAnnotationNode);
@@ -394,6 +391,9 @@ public class GraphVisualizer {
           }
         }
         case ObjectNode object -> {
+          if (object.isEmpty()) {
+            return GH.bold("(empty)");
+          }
           return GH
             .table()
             .border(0)

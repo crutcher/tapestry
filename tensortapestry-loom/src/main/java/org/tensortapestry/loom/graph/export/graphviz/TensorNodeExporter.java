@@ -24,7 +24,6 @@ public class TensorNodeExporter implements GraphVisualizer.NodeTypeExporter {
       .set(GraphvizAttribute.STYLE, "filled")
       .set(GraphvizAttribute.FILLCOLOR, colorScheme.getKey())
       .set(GraphvizAttribute.GRADIENTANGLE, 315)
-      .set(GraphvizAttribute.PENWIDTH, 2)
       .set(GraphvizAttribute.MARGIN, 0.2);
 
     context.maybeRenderAnnotations(loomNode);

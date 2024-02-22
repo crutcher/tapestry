@@ -1,6 +1,7 @@
 package org.tensortapestry.weft.metakernels;
 
 import java.util.Arrays;
+
 import org.junit.jupiter.api.Test;
 import org.tensortapestry.common.testing.CommonAssertions;
 import org.tensortapestry.loom.graph.CommonEnvironments;
@@ -40,7 +41,7 @@ public class MKTest implements CommonAssertions {
   }
 
   @Test
-  @SuppressWarnings({ "unused", "ConstantConditions" })
+  @SuppressWarnings({"unused", "ConstantConditions"})
   public void test_Linear() {
     var env = CommonEnvironments.expressionEnvironment();
     var graph = env.newGraph();
@@ -100,7 +101,7 @@ public class MKTest implements CommonAssertions {
     graph.validate();
   }
 
-  @SuppressWarnings({ "unused", "ConstantConditions" })
+  @SuppressWarnings({"unused", "ConstantConditions"})
   public static void main(String[] args) {
     var env = CommonEnvironments.expressionEnvironment();
     var graph = env.newGraph();
@@ -112,10 +113,13 @@ public class MKTest implements CommonAssertions {
       .label("input")
       .body(b -> b.dtype(dtype).range(ZRange.builder().start(-40, 20).shape(100, 12).build()))
       .build();
+    CommonMetaKernels.importTensor(graph, input);
 
     var weights = TensorNode.on(graph).label("W").body(b -> b.dtype(dtype).shape(12, 32)).build();
+    CommonMetaKernels.importTensor(graph, weights);
 
     var bias = TensorNode.on(graph).label("bias").body(b -> b.dtype(dtype).shape(32)).build();
+    CommonMetaKernels.importTensor(graph, bias);
 
     var linearOp = CommonMetaKernels.LINEAR
       .on(graph)
@@ -129,6 +133,7 @@ public class MKTest implements CommonAssertions {
     var reluOp = CommonMetaKernels.RELU.on(graph).input("tensor", z).apply();
 
     var y = reluOp.getResult().withLabel("Y");
+    CommonMetaKernels.exportTensor(graph, y);
 
     var reshard = true;
     if (reshard) {

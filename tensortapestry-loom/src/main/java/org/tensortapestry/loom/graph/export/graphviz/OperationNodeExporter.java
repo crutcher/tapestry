@@ -1,11 +1,16 @@
 package org.tensortapestry.loom.graph.export.graphviz;
 
+import java.awt.*;
 import java.util.*;
+import java.util.List;
+
 import org.tensortapestry.graphviz.DotGraph;
+import org.tensortapestry.graphviz.FormatUtils;
 import org.tensortapestry.graphviz.GraphvizAttribute;
 import org.tensortapestry.graphviz.HtmlLabel;
 import org.tensortapestry.loom.graph.LoomNode;
 import org.tensortapestry.loom.graph.dialects.tensorops.OperationNode;
+import org.tensortapestry.loom.graph.dialects.tensorops.TensorOpNodes;
 import org.tensortapestry.loom.graph.dialects.tensorops.TensorSelection;
 
 public class OperationNodeExporter implements GraphVisualizer.NodeTypeExporter {
@@ -20,14 +25,31 @@ public class OperationNodeExporter implements GraphVisualizer.NodeTypeExporter {
 
     var colorScheme = context.colorSchemeForNode(loomNode.getId());
 
-    var dotNode = context.createPrimaryNode(loomNode);
+    var opCluster = context.getDotGraph().createCluster(loomNode.getId() + "_op_cluster");
+    opCluster
+      .getAttributes()
+      .set(GraphvizAttribute.MARGIN, 16)
+      .set(GraphvizAttribute.PERIPHERIES, 2)
+      .set(GraphvizAttribute.PENWIDTH, 4)
+      .set(GraphvizAttribute.STYLE, "rounded");
+
+    if (operation.hasAnnotation(TensorOpNodes.IO_SEQUENCE_POINT_TYPE)) {
+      opCluster
+        .getAttributes()
+        .set(GraphvizAttribute.BGCOLOR, "yellow")
+        .set(GraphvizAttribute.STYLE, "filled, rounded");
+      // .set(GraphvizAttribute.BGCOLOR, "yellow:black:yellow:black:yellow:black")
+      // .set(GraphvizAttribute.STYLE, "striped, dashed");
+    }
+
+    var dotNode = opCluster.createNode(loomNode.getId().toString());
+    context.decoratePrimaryNode(loomNode, dotNode);
     dotNode
       .set(GraphvizAttribute.SHAPE, "tab")
       .set(GraphvizAttribute.STYLE, "filled")
-      .set(GraphvizAttribute.FILLCOLOR, colorScheme.getKey())
-      .set(GraphvizAttribute.PENWIDTH, 2);
+      .set(GraphvizAttribute.FILLCOLOR, colorScheme.getKey());
 
-    context.maybeRenderAnnotations(loomNode);
+    context.maybeRenderAnnotations(loomNode, opCluster);
 
     GH.TableWrapper labelTable = GH
       .table()
@@ -39,8 +61,10 @@ public class OperationNodeExporter implements GraphVisualizer.NodeTypeExporter {
 
     dotNode.set(GraphvizAttribute.LABEL, HtmlLabel.from(labelTable));
 
-    routeNodes(context, operation.getId(), operation.getInputs(), true);
-    routeNodes(context, operation.getId(), operation.getOutputs(), false);
+    if (operation.getApplicationNodes().stream().count() > 1) {
+      routeNodes(context, operation.getId(), operation.getInputs(), true);
+      routeNodes(context, operation.getId(), operation.getOutputs(), false);
+    }
   }
 
   protected static void routeNodes(
@@ -79,27 +103,47 @@ public class OperationNodeExporter implements GraphVisualizer.NodeTypeExporter {
         var routeNode = routeCluster.createNode(routeId);
         routeNode
           .set(GraphvizAttribute.LABEL, "")
-          .set(GraphvizAttribute.SHAPE, "circle")
-          .set(GraphvizAttribute.HEIGHT, 0.3)
-          .set(GraphvizAttribute.WIDTH, 0.3)
+          .set(GraphvizAttribute.SHAPE, "box")
+          .set(GraphvizAttribute.HEIGHT, 0.4)
+          .set(GraphvizAttribute.WIDTH, 0.4)
           .set(GraphvizAttribute.STYLE, "filled")
-          .set(GraphvizAttribute.FILLCOLOR, tensorColor);
+          .set(GraphvizAttribute.COLOR, tensorColor);
 
         routeNodes.add(routeNode);
 
         DotGraph.Edge routeEdge;
         if (isInput) {
           routeEdge = dotGraph.createEdge(tensorNode, routeNode);
+          routeEdge
+            .set(GraphvizAttribute.HEADCLIP, false);
         } else {
           routeEdge = dotGraph.createEdge(routeNode, tensorNode);
+          routeEdge
+            .set(GraphvizAttribute.TAILCLIP, false);
         }
 
-        routeEdge.set(GraphvizAttribute.COLOR, tensorColor).set(GraphvizAttribute.PENWIDTH, 12);
+        routeEdge
+          .set(GraphvizAttribute.ARROWHEAD, "none")
+          .set(GraphvizAttribute.COLOR, tensorColor)
+          .set(GraphvizAttribute.PENWIDTH, 24);
       }
     }
 
     // Create a grid of route and index nodes to force a diagonal spacing layout.
     if (routeNodes.size() > 1) {
+      for (var id : routedTensors) {
+        var tensorNode = dotGraph.assertLookup(id.toString(), DotGraph.Node.class);
+        DotGraph.Edge orderingEdge;
+        if (isInput) {
+          orderingEdge = dotGraph.createEdge(tensorNode, routeNodes.get(0));
+        } else {
+          orderingEdge = dotGraph.createEdge(routeNodes.get(0), tensorNode);
+        }
+        orderingEdge
+          .set(GraphvizAttribute.STYLE, "invis");
+      }
+
+
       List<List<DotGraph.Node>> rows = new ArrayList<>();
       for (int r = 0; r < routeNodes.size(); r++) {
         var row = new ArrayList<DotGraph.Node>();

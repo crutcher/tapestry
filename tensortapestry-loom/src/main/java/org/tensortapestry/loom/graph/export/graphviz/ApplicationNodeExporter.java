@@ -1,6 +1,9 @@
 package org.tensortapestry.loom.graph.export.graphviz;
 
+import java.awt.*;
 import java.util.*;
+import java.util.List;
+
 import org.tensortapestry.graphviz.*;
 import org.tensortapestry.loom.graph.LoomNode;
 import org.tensortapestry.loom.graph.dialects.tensorops.*;
@@ -13,19 +16,27 @@ public class ApplicationNodeExporter implements GraphVisualizer.NodeTypeExporter
     GraphVisualizer.ExportContext context,
     LoomNode appNode
   ) {
+    DotGraph dotGraph = context.getDotGraph();
     var application = ApplicationNode.wrap(appNode);
     var operation = application.getOperationNode();
 
-    var operationColor = context.colorSchemeForNode(operation.getId()).getKey();
+    var opCluster = dotGraph.assertLookup(operation.getId() + "_op_cluster", DotGraph.Cluster.class);
 
-    DotGraph dotGraph = context.getDotGraph();
-    var dotCluster = dotGraph.createCluster("app_%s".formatted(appNode.getId()));
+    Color operationColor = context.colorSchemeForNode(operation.getId()).getKey();
+
+    var clusterColor = "%s:%s".formatted(
+      FormatUtils.colorToRgbaString(operationColor.brighter()),
+      FormatUtils.colorToRgbaString(operationColor));
+
+    var dotCluster = opCluster.createCluster("app_%s".formatted(appNode.getId()));
     dotCluster
       .getAttributes()
       .set(GraphvizAttribute.NODESEP, 0.2)
       .set(GraphvizAttribute.RANKSEP, 0.2)
-      .set(GraphvizAttribute.FILLCOLOR, operationColor.brighter())
-      .set(GraphvizAttribute.STYLE, "filled, dashed, rounded");
+      .set(GraphvizAttribute.PENWIDTH, 2)
+      .set(GraphvizAttribute.BGCOLOR, clusterColor)
+      .set(GraphvizAttribute.GRADIENTANGLE, 315)
+      .set(GraphvizAttribute.STYLE, "filled, dashed, bold, rounded");
 
     var dotOpNode = dotGraph.assertLookup(operation.getId().toString(), DotGraph.Node.class);
 
@@ -55,8 +66,10 @@ public class ApplicationNodeExporter implements GraphVisualizer.NodeTypeExporter
 
     dotNode.set(GraphvizAttribute.LABEL, HtmlLabel.from(labelTable));
 
-    selectionMapNodes(context, dotCluster, application, dotNode, application.getInputs(), true);
-    selectionMapNodes(context, dotCluster, application, dotNode, application.getOutputs(), false);
+    var useRouteNodes = operation.getApplicationNodes().stream().count() > 1;
+
+    selectionMapNodes(context, dotCluster, application, dotNode, application.getInputs(), useRouteNodes, true);
+    selectionMapNodes(context, dotCluster, application, dotNode, application.getOutputs(), useRouteNodes, false);
   }
 
   protected static void selectionMapNodes(
@@ -65,6 +78,7 @@ public class ApplicationNodeExporter implements GraphVisualizer.NodeTypeExporter
     ApplicationNode application,
     DotGraph.Node dotNode,
     Map<String, List<TensorSelection>> inputs,
+    boolean useRouteNodes,
     boolean isInput
   ) {
     var dotGraph = context.getDotGraph();
@@ -76,6 +90,7 @@ public class ApplicationNodeExporter implements GraphVisualizer.NodeTypeExporter
 
     selCluster
       .getAttributes()
+      .set(GraphvizAttribute.STYLE, "invis")
       .set(GraphvizAttribute.PERIPHERIES, 0)
       .set(GraphvizAttribute.RANK, "same");
 
@@ -120,22 +135,44 @@ public class ApplicationNodeExporter implements GraphVisualizer.NodeTypeExporter
           )
         );
 
-        var routeId = "%s_route_%s_%s".formatted(application.getOperationId(), ioDesc, tensorId);
-        var routeNode = context.getDotGraph().assertLookup(routeId, DotGraph.Node.class);
+        DotGraph.Node sourceNode;
+        if (useRouteNodes) {
+          var routeId = "%s_route_%s_%s".formatted(application.getOperationId(), ioDesc, tensorId);
+          sourceNode = context.getDotGraph().assertLookup(routeId, DotGraph.Node.class);
+        } else {
+          sourceNode = context.getDotGraph().assertLookup(tensorId.toString(), DotGraph.Node.class);
+        }
 
         DotGraph.Edge routeEdge;
         DotGraph.Edge selEdge;
 
         if (isInput) {
-          routeEdge = dotGraph.createEdge(routeNode, dotSelectionNode);
+          routeEdge = dotGraph.createEdge(sourceNode, dotSelectionNode);
           selEdge = dotCluster.createEdge(dotSelectionNode, dotNode);
+
+          if (useRouteNodes) {
+            routeEdge.set(GraphvizAttribute.TAILCLIP, false);
+          }
+
         } else {
           selEdge = dotCluster.createEdge(dotNode, dotSelectionNode);
-          routeEdge = dotGraph.createEdge(dotSelectionNode, routeNode);
+          routeEdge = dotGraph.createEdge(dotSelectionNode, sourceNode);
+
+          if (useRouteNodes) {
+            routeEdge.set(GraphvizAttribute.HEADCLIP, false);
+          }
         }
 
+        selEdge
+          .set(GraphvizAttribute.COLOR, tensorColor)
+          .set(GraphvizAttribute.ARROWHEAD, "none");
+        routeEdge
+          .set(GraphvizAttribute.COLOR, tensorColor + "C0")
+          .set(GraphvizAttribute.ARROWHEAD, "none");
+
         for (var e : List.of(routeEdge, selEdge)) {
-          e.set(GraphvizAttribute.COLOR, tensorColor).set(GraphvizAttribute.PENWIDTH, 12);
+          e
+            .set(GraphvizAttribute.PENWIDTH, 24);
         }
 
         // Force the selection nodes to cluster and layout in call order.

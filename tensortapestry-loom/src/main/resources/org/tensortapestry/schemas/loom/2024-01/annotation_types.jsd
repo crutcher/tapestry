@@ -16,6 +16,13 @@
       "title" : "IPF Index",
       "description" : "Describes the IPF Index of OperationSignature and Application nodes.",
       "$ref" : "data_types.jsd#/data_types/ZRange"
+    },
+    "IOSequencePoint": {
+      "$anchor" : "IOSequencePoint",
+      "title" : "IO Sequence Point",
+      "description" : "Describes the IO Sequence Point of an OperationSignature node.",
+      "type": "object",
+      "additionalProperties": false
     }
   }
 }
