@@ -12,13 +12,14 @@ import org.tensortapestry.loom.graph.LoomGraph;
 import org.tensortapestry.zspace.ZRange;
 import org.tensortapestry.zspace.ZRangeProjectionMap;
 
-public class IPFSignatureAgreementConstraint implements LoomEnvironment.Constraint {
+public class ApplicationIPFSignatureAgreementConstraint implements LoomEnvironment.Constraint {
 
   @Override
   public void checkRequirements(LoomEnvironment env) {
     env.assertSupportsNodeType(TensorNode.TYPE);
     env.assertSupportsNodeType(OperationNode.TYPE);
     env.assertSupportsNodeType(ApplicationNode.TYPE);
+    env.assertConstraint(OperationIPFSignatureAgreementConstraint.class);
   }
 
   @Override
@@ -57,40 +58,6 @@ public class IPFSignatureAgreementConstraint implements LoomEnvironment.Constrai
           .data(operation.getId())
           .build()
       );
-
-    {
-      if (!operation.hasTag(TensorOpNodes.IPF_INDEX_ANNOTATION_TYPE)) {
-        issueCollector.addIssue(
-          ValidationIssue
-            .builder()
-            .type(LoomConstants.Errors.NODE_VALIDATION_ERROR)
-            .param("opSigId", operation.getId())
-            .summary("Operation signature does not have an IPF index")
-            .context(operation.asValidationContext("Operation Signature"))
-            .withContexts(lazyContexts)
-        );
-        return;
-      }
-
-      var ipfIndex = operation.viewTagAs(TensorOpNodes.IPF_INDEX_ANNOTATION_TYPE, ZRange.class);
-
-      validateProjectionAgreement(
-        ipfIndex,
-        "inputs",
-        operation.getBody().getInputs(),
-        ipfSignature.getInputs(),
-        issueCollector,
-        lazyContexts
-      );
-      validateProjectionAgreement(
-        ipfIndex,
-        "outputs",
-        operation.getBody().getOutputs(),
-        ipfSignature.getOutputs(),
-        issueCollector,
-        lazyContexts
-      );
-    }
 
     for (var appNode : operation.getApplicationNodes()) {
       if (!appNode.hasTag(TensorOpNodes.IPF_INDEX_ANNOTATION_TYPE)) {

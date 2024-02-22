@@ -1,16 +1,9 @@
 package org.tensortapestry.loom.graph.dialects.tensorops;
 
-import org.tensortapestry.common.json.JsonPathUtils;
-import org.tensortapestry.common.lazy.LazyString;
-import org.tensortapestry.common.lazy.Thunk;
+import java.util.HashMap;
 import org.tensortapestry.common.validation.ValidationIssue;
 import org.tensortapestry.common.validation.ValidationIssueCollector;
 import org.tensortapestry.loom.graph.*;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Supplier;
 
 public class NoTensorOperationCyclesConstraint implements LoomEnvironment.Constraint {
 

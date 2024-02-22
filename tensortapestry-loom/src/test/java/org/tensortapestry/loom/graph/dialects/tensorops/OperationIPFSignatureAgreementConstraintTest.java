@@ -12,13 +12,13 @@ import org.tensortapestry.zspace.ZRange;
 import org.tensortapestry.zspace.ZRangeProjectionMap;
 
 @SuppressWarnings("unused")
-public class IPFSignatureAgreementConstraintTest implements CommonAssertions {
+public class OperationIPFSignatureAgreementConstraintTest implements CommonAssertions {
 
   @Test
   @SuppressWarnings("ConstantConditions")
   public void test_valid_short() {
     var env = CommonEnvironments.APPLICATION_EXPRESSION_ENVIRONMENT;
-    env = env.toBuilder().constraint(new IPFSignatureAgreementConstraint()).build();
+    env = env.toBuilder().constraint(new OperationIPFSignatureAgreementConstraint()).build();
 
     var graph = env.newGraph();
 

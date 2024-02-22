@@ -1,7 +1,6 @@
 package org.tensortapestry.loom.graph;
 
 import java.util.Set;
-
 import lombok.experimental.UtilityClass;
 import org.tensortapestry.loom.graph.dialects.common.NoteNode;
 import org.tensortapestry.loom.graph.dialects.common.SchemaTypeConstraint;
@@ -46,6 +45,7 @@ public final class CommonEnvironments {
     .constraint(commonDTypeConstraint())
     .constraint(new TensorOperationAgreementConstraint())
     .constraint(new NoTensorOperationCyclesConstraint())
+    .constraint(new OperationIPFSignatureAgreementConstraint())
     .build();
 
   public static final LoomEnvironment APPLICATION_EXPRESSION_ENVIRONMENT = LoomEnvironment
@@ -69,7 +69,9 @@ public final class CommonEnvironments {
     .constraint(commonDTypeConstraint())
     .constraint(new TensorOperationAgreementConstraint())
     .constraint(new NoTensorOperationCyclesConstraint())
+    .constraint(new OperationIPFSignatureAgreementConstraint())
     .constraint(new OperationApplicationAgreementConstraint())
-    .constraint(new IPFSignatureAgreementConstraint())
+    .constraint(new ApplicationIPFSignatureAgreementConstraint())
+    .constraint(new ApplicationOutputRangeCoverageIsExactConstraint())
     .build();
 }

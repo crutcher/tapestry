@@ -1,6 +1,5 @@
 package org.tensortapestry.loom.graph.dialects.tensorops;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;

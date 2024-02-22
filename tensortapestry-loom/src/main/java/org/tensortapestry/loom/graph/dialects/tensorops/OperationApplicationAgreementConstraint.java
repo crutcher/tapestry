@@ -1,6 +1,12 @@
 package org.tensortapestry.loom.graph.dialects.tensorops;
 
 import com.google.common.collect.Streams;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.function.Function;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import org.tensortapestry.common.json.JsonPathUtils;
 import org.tensortapestry.common.lazy.LazyString;
 import org.tensortapestry.common.lazy.Thunk;
@@ -8,14 +14,6 @@ import org.tensortapestry.common.validation.ValidationIssue;
 import org.tensortapestry.common.validation.ValidationIssueCollector;
 import org.tensortapestry.loom.graph.*;
 import org.tensortapestry.zspace.ZRange;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.function.Function;
-import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 public class OperationApplicationAgreementConstraint implements LoomEnvironment.Constraint {
 
@@ -51,12 +49,11 @@ public class OperationApplicationAgreementConstraint implements LoomEnvironment.
     }
   }
 
-  private static boolean validateOperationNode(
+  private static void validateOperationNode(
     LoomGraph graph,
     OperationNode operation,
     ValidationIssueCollector issueCollector
   ) {
-    boolean valid = true;
     var lazyContexts = Thunk.of(() -> List.of(operation.asValidationContext("Operation Node")));
 
     var shards = operation.getApplicationNodes().toList();
@@ -71,78 +68,35 @@ public class OperationApplicationAgreementConstraint implements LoomEnvironment.
           .summary("Operation Signature has no Application shards")
           .withContexts(lazyContexts)
       );
-      return false;
+      return;
     }
+    boolean valid = true;
     for (var appNode : shards) {
       valid &= validateApplicationNode(operation, appNode, issueCollector);
     }
 
     if (!valid) {
-      return false;
+      return;
     }
 
-    valid =
-      validateShardAgreement(
-        shardIds,
-        shards,
-        "inputs",
-        operation.getInputs(),
-        ApplicationNode::getInputs,
-        lazyContexts,
-        issueCollector
-      );
-    valid &=
-      validateShardAgreement(
-        shardIds,
-        shards,
-        "outputs",
-        operation.getOutputs(),
-        ApplicationNode::getOutputs,
-        lazyContexts,
-        issueCollector
-      );
-
-    // check the output range coverage:
-    // 3. The sum of the shard range sizes is equal to the output range size.
-    for (var entry : operation.getOutputs().entrySet()) {
-      final var ioName = entry.getKey();
-      final var selections = entry.getValue();
-
-      final var k = selections.size();
-
-      var shardSelections = shards
-        .stream()
-        .map(s -> s.viewBodyAs(ApplicationNode.Body.class).getOutputs().get(ioName))
-        .toList();
-
-      for (int idx = 0; idx < k; ++idx) {
-        var sigRange = selections.get(idx).getRange();
-        var finalIdx = idx;
-
-        var shardRanges = shardSelections.stream().map(s -> s.get(finalIdx).getRange()).toList();
-
-        var totalSize = shardRanges.stream().mapToInt(ZRange::getSize).sum();
-        if (totalSize != sigRange.getSize()) {
-          // There are overlapping shard ranges.
-          issueCollector.addIssue(
-            ValidationIssue
-              .builder()
-              .type(LoomConstants.Errors.NODE_VALIDATION_ERROR)
-              .summary("Overlapping Application output key \"%s[%d]\" ranges", ioName, idx)
-              .context(
-                ValidationIssue.Context
-                  .builder()
-                  .name("Application Shard Ranges")
-                  .data(rangeMap(shardIds, shardRanges))
-              )
-              .withContexts(lazyContexts)
-          );
-          valid = false;
-        }
-      }
-    }
-
-    return valid;
+    validateShardAgreement(
+      shardIds,
+      shards,
+      "inputs",
+      operation.getInputs(),
+      ApplicationNode::getInputs,
+      lazyContexts,
+      issueCollector
+    );
+    validateShardAgreement(
+      shardIds,
+      shards,
+      "outputs",
+      operation.getOutputs(),
+      ApplicationNode::getOutputs,
+      lazyContexts,
+      issueCollector
+    );
   }
 
   private static boolean validateShardAgreement(

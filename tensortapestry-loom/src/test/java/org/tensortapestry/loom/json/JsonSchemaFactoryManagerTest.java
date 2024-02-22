@@ -4,13 +4,11 @@ import static org.tensortapestry.loom.graph.LoomConstants.Errors.JSD_ERROR;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.ValidationMessage;
-
 import java.net.URI;
 import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 import javax.annotation.Nonnull;
-
 import lombok.Builder;
 import lombok.Data;
 import lombok.Value;

@@ -6,7 +6,6 @@ import static org.tensortapestry.loom.graph.LoomConstants.Errors.NODE_VALIDATION
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-
 import org.junit.jupiter.api.Test;
 import org.tensortapestry.common.testing.CommonAssertions;
 import org.tensortapestry.common.validation.ListValidationIssueCollector;
@@ -212,9 +211,7 @@ public class OperationReferenceAgreementConstraintTest implements CommonAssertio
       .on(graph)
       .body(b -> {
         b.kernel("source");
-        b.input("foo",
-          List.of(tensorA.getTensorSelection())
-        );
+        b.input("foo", List.of(tensorA.getTensorSelection()));
       })
       .build();
 
@@ -222,9 +219,7 @@ public class OperationReferenceAgreementConstraintTest implements CommonAssertio
       .on(graph)
       .body(b -> {
         b.operationId(sourceOp.getId());
-        b.input("foo",
-          List.of(tensorB.getTensorSelection())
-        );
+        b.input("foo", List.of(tensorB.getTensorSelection()));
       })
       .label("Wrong List Size")
       .build();
@@ -233,9 +228,7 @@ public class OperationReferenceAgreementConstraintTest implements CommonAssertio
       .on(graph)
       .body(b -> {
         b.operationId(sourceOp.getId());
-        b.input("bar",
-          List.of(tensorB.getTensorSelection())
-        );
+        b.input("bar", List.of(tensorB.getTensorSelection()));
       })
       .label("Misaligned Input Keys")
       .build();
@@ -243,9 +236,7 @@ public class OperationReferenceAgreementConstraintTest implements CommonAssertio
       .on(graph)
       .body(b -> {
         b.operationId(sourceOp.getId());
-        b.input("foo",
-          List.of(tensorA.getTensorSelection())
-        );
+        b.input("foo", List.of(tensorA.getTensorSelection()));
         b.output("bar", List.of(tensorB.getTensorSelection()));
       })
       .label("Misaligned Output Keys")
@@ -407,7 +398,6 @@ public class OperationReferenceAgreementConstraintTest implements CommonAssertio
       })
       .build();
 
-
     var issueCollector = new ListValidationIssueCollector();
     graph.validate(issueCollector);
     assertValidationIssues(
@@ -451,29 +441,11 @@ public class OperationReferenceAgreementConstraintTest implements CommonAssertio
             )
         )
         .context(sourceOp.asValidationContext("Operation Node"))
-        .build(),
-      ValidationIssue
-        .builder()
-        .type(LoomConstants.Errors.NODE_VALIDATION_ERROR)
-        .summary("Overlapping Application output key \"output[0]\" ranges")
-        .context(context ->
-          context
-            .name("Application Shard Ranges")
-            .data(
-              Map.of(
-                app1.getId(),
-                new ZRange(ZPoint.of(0, 0), ZPoint.of(1, 2)),
-                app2.getId(),
-                new ZRange(ZPoint.of(1, 0), ZPoint.of(2, 2))
-              )
-            )
-        )
-        .context(sourceOp.asValidationContext("Operation Node"))
         .build()
     );
   }
 
-  @SuppressWarnings({"unused", "SequencedCollectionMethodCanBeUsed"})
+  @SuppressWarnings({ "unused", "SequencedCollectionMethodCanBeUsed" })
   @Test
   public void test_application_broken_reference() {
     var graph = createGraph();
