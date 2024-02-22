@@ -4,11 +4,13 @@ import static org.tensortapestry.loom.graph.LoomConstants.Errors.JSD_ERROR;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.ValidationMessage;
+
 import java.net.URI;
 import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 import javax.annotation.Nonnull;
+
 import lombok.Builder;
 import lombok.Data;
 import lombok.Value;
@@ -401,7 +403,7 @@ public class JsonSchemaFactoryManagerTest implements CommonAssertions {
       .issueScan()
       .issueCollector(collector)
       .type(JSD_ERROR)
-      .summaryPrefix("NoteBody ")
+      .summaryPrefix("Node Body ")
       .jsonPathPrefix(path)
       .schema(schema)
       .data(data)
@@ -418,7 +420,7 @@ public class JsonSchemaFactoryManagerTest implements CommonAssertions {
         .param("keywordArgs", List.of(1))
         .param("path", "$.nodes[@.id = 'foo'].shape[3]")
         .param("schemaPath", "http://loom.example/data#/definitions/Shape/items/minimum")
-        .summary("NoteBody [minimum] :: $.shape[3]: -1")
+        .summary("Node Body [minimum] :: $.shape[3]: -1")
         .message("$.shape[3]: must have a minimum value of 1")
         .context(
           ValidationIssue.Context

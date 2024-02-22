@@ -12,7 +12,7 @@ import org.tensortapestry.loom.graph.dialects.tensorops.TensorNode;
 public class ValidationUtilsTest implements CommonAssertions {
 
   public LoomEnvironment createEnv() {
-    return CommonEnvironments.expressionEnvironment();
+    return CommonEnvironments.APPLICATION_EXPRESSION_ENVIRONMENT;
   }
 
   public LoomGraph createGraph() {

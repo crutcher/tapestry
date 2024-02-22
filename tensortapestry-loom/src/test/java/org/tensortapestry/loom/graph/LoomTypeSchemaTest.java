@@ -35,7 +35,7 @@ public class LoomTypeSchemaTest implements CommonAssertions {
       )
       .build();
 
-    var env = CommonEnvironments.expressionEnvironment();
+    var env = CommonEnvironments.APPLICATION_EXPRESSION_ENVIRONMENT;
     var graph = env.newGraph();
 
     var note = graph
@@ -86,7 +86,7 @@ public class LoomTypeSchemaTest implements CommonAssertions {
       )
       .build();
 
-    var env = CommonEnvironments.expressionEnvironment();
+    var env = CommonEnvironments.APPLICATION_EXPRESSION_ENVIRONMENT;
     var graph = env.newGraph();
     var note = NoteNode.builder(graph).body(b -> b.message("hello")).build();
     var tensor = TensorNode.on(graph).body(b -> b.dtype("int32").shape(2)).build();
@@ -117,7 +117,7 @@ public class LoomTypeSchemaTest implements CommonAssertions {
         .param("keyword", "additionalProperties")
         .param("keywordArgs", List.of("9"))
         .param("schemaPath", "#/properties/inputs/additionalProperties")
-        .summary("NoteBody [additionalProperties] :: $.inputs.9: []")
+        .summary("Node Body [additionalProperties] :: $.inputs.9: []")
         .message(
           "$.inputs.9: is not defined in the schema and the schema does not allow additional properties"
         )
@@ -128,7 +128,7 @@ public class LoomTypeSchemaTest implements CommonAssertions {
             .data(data.getInputs().get("9"))
             .jsonpath(prefix, "inputs.9")
         )
-        .context(ValidationIssue.Context.builder().name("NoteBody").jsonpath(prefix).data(data))
+        .context(ValidationIssue.Context.builder().name("Node Body").jsonpath(prefix).data(data))
         .build(),
       ValidationIssue
         .builder()
@@ -140,7 +140,7 @@ public class LoomTypeSchemaTest implements CommonAssertions {
           "schemaPath",
           "#/properties/inputs/patternProperties/^[a-zA-Z_][a-zA-Z0-9_]*$/items/format"
         )
-        .summary("NoteBody [format] :: $.inputs.b[3]: \"garbage\"")
+        .summary("Node Body [format] :: $.inputs.b[3]: \"garbage\"")
         .message("$.inputs.b[3]: does not match the uuid pattern must be a valid RFC 4122 UUID")
         .context(
           ValidationIssue.Context
@@ -149,7 +149,7 @@ public class LoomTypeSchemaTest implements CommonAssertions {
             .data("garbage")
             .jsonpath(prefix, "inputs.b[3]")
         )
-        .context(ValidationIssue.Context.builder().name("NoteBody").jsonpath(prefix).data(data))
+        .context(ValidationIssue.Context.builder().name("Node Body").jsonpath(prefix).data(data))
         .build(),
       ValidationIssue
         .builder()
@@ -173,7 +173,7 @@ public class LoomTypeSchemaTest implements CommonAssertions {
             .message("inputs")
             .data(schema.getReferenceSchemas().get("inputs"))
         )
-        .context(ValidationIssue.Context.builder().name("NoteBody").jsonpath(prefix).data(data))
+        .context(ValidationIssue.Context.builder().name("Node Body").jsonpath(prefix).data(data))
         .build(),
       ValidationIssue
         .builder()
@@ -195,7 +195,7 @@ public class LoomTypeSchemaTest implements CommonAssertions {
             .message("inputs")
             .data(schema.getReferenceSchemas().get("inputs"))
         )
-        .context(ValidationIssue.Context.builder().name("NoteBody").jsonpath(prefix).data(data))
+        .context(ValidationIssue.Context.builder().name("Node Body").jsonpath(prefix).data(data))
         .build(),
       ValidationIssue
         .builder()
@@ -215,7 +215,7 @@ public class LoomTypeSchemaTest implements CommonAssertions {
             .message("inputs")
             .data(schema.getReferenceSchemas().get("inputs"))
         )
-        .context(ValidationIssue.Context.builder().name("NoteBody").jsonpath(prefix).data(data))
+        .context(ValidationIssue.Context.builder().name("Node Body").jsonpath(prefix).data(data))
         .build()
     );
   }

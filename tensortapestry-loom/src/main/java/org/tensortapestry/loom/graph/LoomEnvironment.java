@@ -1,8 +1,10 @@
 package org.tensortapestry.loom.graph;
 
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
+
 import java.util.*;
 import javax.annotation.Nonnull;
+
 import lombok.Builder;
 import lombok.Data;
 import lombok.Singular;
@@ -34,7 +36,8 @@ public final class LoomEnvironment {
      * @throws IllegalStateException if the environment does not support the requirements of this
      */
     @ExcludeFromJacocoGeneratedReport
-    default void checkRequirements(LoomEnvironment env) {}
+    default void checkRequirements(LoomEnvironment env) {
+    }
 
     void validateConstraint(
       LoomEnvironment env,
@@ -92,7 +95,7 @@ public final class LoomEnvironment {
    * @param type the node type.
    * @return true if the node type is supported.
    */
-  @SuppressWarnings({ "CheckReturnValue", "ResultOfMethodCallIgnored" })
+  @SuppressWarnings({"CheckReturnValue", "ResultOfMethodCallIgnored"})
   public boolean supportsNodeType(String type) {
     return typeSupportProvider.supportsNodeType(type);
   }
@@ -103,7 +106,7 @@ public final class LoomEnvironment {
    * @param type the tag type.
    * @return true if the tag type is supported.
    */
-  @SuppressWarnings({ "CheckReturnValue", "ResultOfMethodCallIgnored" })
+  @SuppressWarnings({"CheckReturnValue", "ResultOfMethodCallIgnored"})
   public boolean supportsTagType(String type) {
     return typeSupportProvider.supportsTagType(type);
   }
@@ -182,9 +185,16 @@ public final class LoomEnvironment {
    * @param issueCollector the ValidationIssueCollector.
    */
   public void validateGraph(LoomGraph graph, ValidationIssueCollector issueCollector) {
-    typeSupportProvider.validateConstraint(this, graph, issueCollector);
+    var listCollector = new ListValidationIssueCollector();
+
+    typeSupportProvider.validateConstraint(this, graph, listCollector);
     for (var constraint : constraints) {
-      constraint.validateConstraint(this, graph, issueCollector);
+      if (!listCollector.hasFailed()) {
+        constraint.validateConstraint(this, graph, listCollector);
+      }
+    }
+    if (listCollector.hasFailed()) {
+      listCollector.getIssues().forEach(issueCollector::addIssue);
     }
   }
 

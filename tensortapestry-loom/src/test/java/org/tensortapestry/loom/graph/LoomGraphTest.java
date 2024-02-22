@@ -12,7 +12,7 @@ public class LoomGraphTest implements CommonAssertions {
 
   @Test
   public void testNewUnusedNodeId() {
-    var env = CommonEnvironments.expressionEnvironment();
+    var env = CommonEnvironments.APPLICATION_EXPRESSION_ENVIRONMENT;
     var graph = env.newGraph();
 
     for (int i = 0; i < 10; i++) {
@@ -25,7 +25,7 @@ public class LoomGraphTest implements CommonAssertions {
 
   @Test
   public void testAddRemoveNode() {
-    var env = CommonEnvironments.expressionEnvironment();
+    var env = CommonEnvironments.APPLICATION_EXPRESSION_ENVIRONMENT;
     var graph = env.newGraph();
 
     var node1 = NoteNode.builder(graph).body(b -> b.message("node 1")).label("foo").build();
@@ -79,7 +79,7 @@ public class LoomGraphTest implements CommonAssertions {
 
   @Test
   public void testHasAssertAddNode() {
-    var env = CommonEnvironments.expressionEnvironment();
+    var env = CommonEnvironments.APPLICATION_EXPRESSION_ENVIRONMENT;
     var graph = env.newGraph();
 
     var nodeIdA = UUID.randomUUID();
@@ -112,30 +112,30 @@ public class LoomGraphTest implements CommonAssertions {
   public void test_json() {
     var source =
       """
-            {
-               "id": "00000000-0000-0000-0000-000000000000",
-               "nodes": [
-                  {
-                    "id": "00000000-0000-0000-0000-000000000001",
-                    "type": "%1$s",
-                    "label": "foo",
-                    "body": {
-                      "dtype": "int32",
-                      "range": {"start": [0, 0], "end": [2, 3] }
-                    }
-                  },
-                  {
-                    "id": "00000000-0000-0000-0000-000000000002",
-                    "type": "%1$s",
-                    "label": "bar",
-                    "body": {
-                      "dtype": "float32",
-                      "range": {"start": [0, 0], "end": [4, 5] }
-                    }
-                  }
-               ]
-            }
-            """.formatted(
+        {
+           "id": "00000000-0000-0000-0000-000000000000",
+           "nodes": [
+              {
+                "id": "00000000-0000-0000-0000-000000000001",
+                "type": "%1$s",
+                "label": "foo",
+                "body": {
+                  "dtype": "int32",
+                  "range": {"start": [0, 0], "end": [2, 3] }
+                }
+              },
+              {
+                "id": "00000000-0000-0000-0000-000000000002",
+                "type": "%1$s",
+                "label": "bar",
+                "body": {
+                  "dtype": "float32",
+                  "range": {"start": [0, 0], "end": [4, 5] }
+                }
+              }
+           ]
+        }
+        """.formatted(
           TensorNode.TYPE
         );
 
@@ -156,34 +156,34 @@ public class LoomGraphTest implements CommonAssertions {
   public void testBoundEnvironment() {
     var source =
       """
-            {
-               "id": "00000000-0000-0000-0000-000000000000",
-               "nodes": [
-                  {
-                    "id": "00000000-0000-0000-0000-000000000001",
-                    "type": "%1$s",
-                    "label": "foo",
-                    "body": {
-                      "dtype": "int32",
-                      "range": { "start": [0, 0], "end": [2, 3] }
-                    }
-                  },
-                  {
-                    "id": "00000000-0000-0000-0000-000000000002",
-                    "type": "%1$s",
-                    "label": "bar",
-                    "body": {
-                      "dtype": "float32",
-                      "range": { "start": [0, 0], "end": [4, 5] }
-                    }
-                  }
-               ]
-            }
-            """.formatted(
+        {
+           "id": "00000000-0000-0000-0000-000000000000",
+           "nodes": [
+              {
+                "id": "00000000-0000-0000-0000-000000000001",
+                "type": "%1$s",
+                "label": "foo",
+                "body": {
+                  "dtype": "int32",
+                  "range": { "start": [0, 0], "end": [2, 3] }
+                }
+              },
+              {
+                "id": "00000000-0000-0000-0000-000000000002",
+                "type": "%1$s",
+                "label": "bar",
+                "body": {
+                  "dtype": "float32",
+                  "range": { "start": [0, 0], "end": [4, 5] }
+                }
+              }
+           ]
+        }
+        """.formatted(
           TensorNode.TYPE
         );
 
-    var env = CommonEnvironments.expressionEnvironment();
+    var env = CommonEnvironments.APPLICATION_EXPRESSION_ENVIRONMENT;
 
     var graph = env.graphFromJson(source);
     graph.validate();

@@ -61,7 +61,7 @@ public class ApplicationNodeTest implements CommonAssertions {
 
   @Test
   public void test_valid() {
-    var env = CommonEnvironments.expressionEnvironment();
+    var env = CommonEnvironments.APPLICATION_EXPRESSION_ENVIRONMENT;
     var graph = env.newGraph();
 
     var inputTensor = TensorNode.on(graph).body(b -> b.shape(2, 3).dtype("float32")).build();

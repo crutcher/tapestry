@@ -6,6 +6,7 @@ import static org.tensortapestry.loom.graph.LoomConstants.Errors.NODE_VALIDATION
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+
 import org.junit.jupiter.api.Test;
 import org.tensortapestry.common.testing.CommonAssertions;
 import org.tensortapestry.common.validation.ListValidationIssueCollector;
@@ -20,8 +21,7 @@ import org.tensortapestry.zspace.ZRange;
 public class OperationReferenceAgreementConstraintTest implements CommonAssertions {
 
   public LoomGraph createGraph() {
-    var env = CommonEnvironments.expressionEnvironment();
-    env.assertConstraint(OperationReferenceAgreementConstraint.class);
+    var env = CommonEnvironments.APPLICATION_EXPRESSION_ENVIRONMENT;
     return env.newGraph();
   }
 
@@ -173,11 +173,8 @@ public class OperationReferenceAgreementConstraintTest implements CommonAssertio
       })
       .build();
 
-    var constraint = graph
-      .assertEnv()
-      .assertConstraint(OperationReferenceAgreementConstraint.class);
     var issueCollector = new ListValidationIssueCollector();
-    constraint.validateConstraint(graph.assertEnv(), graph, issueCollector);
+    graph.validate(issueCollector);
     assertValidationIssues(
       issueCollector.getIssues(),
       ValidationIssue
@@ -192,6 +189,7 @@ public class OperationReferenceAgreementConstraintTest implements CommonAssertio
   @Test
   public void test_application_operation_disagreement() {
     var graph = createGraph();
+
     var tensorA = TensorNode
       .on(graph)
       .body(b -> {
@@ -201,18 +199,21 @@ public class OperationReferenceAgreementConstraintTest implements CommonAssertio
       .label("A")
       .build();
 
+    var tensorB = TensorNode
+      .on(graph)
+      .body(b -> {
+        b.dtype("int32");
+        b.shape(new ZPoint(20, 10));
+      })
+      .label("B")
+      .build();
+
     var sourceOp = OperationNode
       .on(graph)
       .body(b -> {
         b.kernel("source");
-        b.input(
-          "foo",
-          List.of(
-            new TensorSelection(
-              tensorA.getId(),
-              tensorA.viewBodyAs(TensorNode.Body.class).getRange()
-            )
-          )
+        b.input("foo",
+          List.of(tensorA.getTensorSelection())
         );
       })
       .build();
@@ -221,7 +222,9 @@ public class OperationReferenceAgreementConstraintTest implements CommonAssertio
       .on(graph)
       .body(b -> {
         b.operationId(sourceOp.getId());
-        b.input("foo", List.of());
+        b.input("foo",
+          List.of(tensorB.getTensorSelection())
+        );
       })
       .label("Wrong List Size")
       .build();
@@ -230,7 +233,9 @@ public class OperationReferenceAgreementConstraintTest implements CommonAssertio
       .on(graph)
       .body(b -> {
         b.operationId(sourceOp.getId());
-        b.input("bar", List.of());
+        b.input("bar",
+          List.of(tensorB.getTensorSelection())
+        );
       })
       .label("Misaligned Input Keys")
       .build();
@@ -238,33 +243,35 @@ public class OperationReferenceAgreementConstraintTest implements CommonAssertio
       .on(graph)
       .body(b -> {
         b.operationId(sourceOp.getId());
-        b.input(
-          "foo",
-          List.of(
-            TensorSelection
-              .builder()
-              .tensorId(tensorA.getId())
-              .range(new ZRange(ZPoint.of(0), ZPoint.of(100)))
-              .build()
-          )
+        b.input("foo",
+          List.of(tensorA.getTensorSelection())
         );
-        b.output("bar", List.of());
+        b.output("bar", List.of(tensorB.getTensorSelection()));
       })
       .label("Misaligned Output Keys")
       .build();
 
-    var constraint = graph
-      .assertEnv()
-      .assertConstraint(OperationReferenceAgreementConstraint.class);
+    // graph.validate();
+
     var issueCollector = new ListValidationIssueCollector();
-    constraint.validateConstraint(graph.assertEnv(), graph, issueCollector);
+    graph.validate(issueCollector);
     assertValidationIssues(
       issueCollector.getIssues(),
       ValidationIssue
         .builder()
         .type(LoomConstants.Errors.NODE_VALIDATION_ERROR)
-        .summary(
-          "Application inputs key \"foo\" selection size (0) != Signature selection size (1)"
+        .summary("Application Tensor Selection Tensor Id != Signature Tensor Id")
+        .context(context ->
+          context
+            .name("Application Tensor Selection")
+            .jsonpath(app1.getJsonPath(), "body.inputs.foo[0]")
+            .data(app1.viewBodyAs(ApplicationNode.Body.class).getInputs().get("foo").get(0))
+        )
+        .context(context ->
+          context
+            .name("Operation Tensor Selection")
+            .jsonpath(sourceOp.getJsonPath(), "body.inputs.foo[0]")
+            .data(sourceOp.viewBodyAs(OperationNode.Body.class).getInputs().get("foo").get(0))
         )
         .context(app1.asValidationContext("Application Node"))
         .context(sourceOp.asValidationContext("Operation Node"))
@@ -400,12 +407,9 @@ public class OperationReferenceAgreementConstraintTest implements CommonAssertio
       })
       .build();
 
-    var constraint = graph
-      .assertEnv()
-      .assertConstraint(OperationReferenceAgreementConstraint.class);
 
     var issueCollector = new ListValidationIssueCollector();
-    constraint.validateConstraint(graph.assertEnv(), graph, issueCollector);
+    graph.validate(issueCollector);
     assertValidationIssues(
       issueCollector.getIssues(),
       ValidationIssue
@@ -469,7 +473,7 @@ public class OperationReferenceAgreementConstraintTest implements CommonAssertio
     );
   }
 
-  @SuppressWarnings({ "unused", "SequencedCollectionMethodCanBeUsed" })
+  @SuppressWarnings({"unused", "SequencedCollectionMethodCanBeUsed"})
   @Test
   public void test_application_broken_reference() {
     var graph = createGraph();
@@ -540,11 +544,8 @@ public class OperationReferenceAgreementConstraintTest implements CommonAssertio
       })
       .build();
 
-    var constraint = graph
-      .assertEnv()
-      .assertConstraint(OperationReferenceAgreementConstraint.class);
     var issueCollector = new ListValidationIssueCollector();
-    constraint.validateConstraint(graph.assertEnv(), graph, issueCollector);
+    graph.validate(issueCollector);
     assertValidationIssues(
       issueCollector.getIssues(),
       ValidationIssue
@@ -599,11 +600,8 @@ public class OperationReferenceAgreementConstraintTest implements CommonAssertio
 
     var app = ApplicationNode.on(graph).body(b -> b.operationId(missingOperationId)).build();
 
-    var constraint = graph
-      .assertEnv()
-      .assertConstraint(OperationReferenceAgreementConstraint.class);
     var issueCollector = new ListValidationIssueCollector();
-    constraint.validateConstraint(graph.assertEnv(), graph, issueCollector);
+    graph.validate(issueCollector);
     assertValidationIssues(
       issueCollector.getIssues(),
       ValidationIssue
@@ -666,12 +664,8 @@ public class OperationReferenceAgreementConstraintTest implements CommonAssertio
       })
       .build();
 
-    var constraint = graph
-      .assertEnv()
-      .assertConstraint(OperationReferenceAgreementConstraint.class);
-
     var issueCollector = new ListValidationIssueCollector();
-    constraint.validateConstraint(graph.assertEnv(), graph, issueCollector);
+    graph.validate(issueCollector);
     assertValidationIssues(
       issueCollector.getIssues(),
       ValidationIssue
@@ -750,12 +744,8 @@ public class OperationReferenceAgreementConstraintTest implements CommonAssertio
       })
       .build();
 
-    var constraint = graph
-      .assertEnv()
-      .assertConstraint(OperationReferenceAgreementConstraint.class);
-
     var issueCollector = new ListValidationIssueCollector();
-    constraint.validateConstraint(graph.assertEnv(), graph, issueCollector);
+    graph.validate(issueCollector);
 
     assertValidationIssues(
       issueCollector.getIssues(),
@@ -837,12 +827,8 @@ public class OperationReferenceAgreementConstraintTest implements CommonAssertio
       })
       .build();
 
-    var constraint = graph
-      .assertEnv()
-      .assertConstraint(OperationReferenceAgreementConstraint.class);
-
     var issueCollector = new ListValidationIssueCollector();
-    constraint.validateConstraint(graph.assertEnv(), graph, issueCollector);
+    graph.validate(issueCollector);
     assertValidationIssues(
       issueCollector.getIssues(),
       ValidationIssue
@@ -931,11 +917,8 @@ public class OperationReferenceAgreementConstraintTest implements CommonAssertio
       })
       .build();
 
-    var constraint = graph
-      .assertEnv()
-      .assertConstraint(OperationReferenceAgreementConstraint.class);
     var issueCollector = new ListValidationIssueCollector();
-    constraint.validateConstraint(graph.assertEnv(), graph, issueCollector);
+    graph.validate(issueCollector);
     assertValidationIssues(
       issueCollector.getIssues(),
       ValidationIssue
@@ -1035,11 +1018,8 @@ public class OperationReferenceAgreementConstraintTest implements CommonAssertio
       )
       .build();
 
-    var constraint = graph
-      .assertEnv()
-      .assertConstraint(OperationReferenceAgreementConstraint.class);
     var issueCollector = new ListValidationIssueCollector();
-    constraint.validateConstraint(graph.assertEnv(), graph, issueCollector);
+    graph.validate(issueCollector);
     assertValidationIssues(
       issueCollector.getIssues(),
       ValidationIssue

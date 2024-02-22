@@ -1,13 +1,6 @@
 package org.tensortapestry.loom.graph.dialects.tensorops;
 
 import com.google.common.collect.Streams;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.function.Function;
-import java.util.function.Supplier;
-import java.util.stream.Collectors;
 import org.tensortapestry.common.json.JsonPathUtils;
 import org.tensortapestry.common.lazy.LazyString;
 import org.tensortapestry.common.lazy.Thunk;
@@ -16,13 +9,22 @@ import org.tensortapestry.common.validation.ValidationIssueCollector;
 import org.tensortapestry.loom.graph.*;
 import org.tensortapestry.zspace.ZRange;
 
-public class OperationReferenceAgreementConstraint implements LoomEnvironment.Constraint {
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.function.Function;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
+
+public class OperationApplicationAgreementConstraint implements LoomEnvironment.Constraint {
 
   @Override
   public void checkRequirements(LoomEnvironment env) {
     env.assertSupportsNodeType(TensorNode.TYPE);
     env.assertSupportsNodeType(OperationNode.TYPE);
     env.assertSupportsNodeType(ApplicationNode.TYPE);
+    env.assertConstraint(TensorOperationAgreementConstraint.class);
   }
 
   @Override
@@ -31,7 +33,6 @@ public class OperationReferenceAgreementConstraint implements LoomEnvironment.Co
     LoomGraph graph,
     ValidationIssueCollector issueCollector
   ) {
-    boolean valid = true;
     for (var application : graph.byType(ApplicationNode.class)) {
       var opNode = ValidationUtils.validateNodeReference(
         graph,
@@ -43,68 +44,20 @@ public class OperationReferenceAgreementConstraint implements LoomEnvironment.Co
         issueCollector,
         Thunk.of(() -> List.of(application.asValidationContext("Application Node")))
       );
-
-      if (opNode == null) {
-        valid = false;
-      }
     }
 
     for (var operation : graph.byType(OperationNode.class)) {
-      valid &= validateOperationSignatureNode(graph, operation, issueCollector);
-    }
-
-    if (valid) {
-      for (var cycle : TraversalUtils.findOperationSimpleCycles(graph)) {
-        var cycleDesc = cycle
-          .stream()
-          .map(item -> {
-            var desc = new HashMap<>();
-            desc.put("id", item.getId());
-            desc.put("type", item.getType());
-            if (item.getLabel() != null) {
-              desc.put("label", item.getLabel());
-            }
-            return desc;
-          })
-          .toList();
-
-        issueCollector.addIssue(
-          ValidationIssue
-            .builder()
-            .type(LoomConstants.Errors.REFERENCE_CYCLE_ERROR)
-            .summary("Reference Cycle detected")
-            .context(b -> b.name("Cycle").data(cycleDesc))
-        );
-      }
+      validateOperationNode(graph, operation, issueCollector);
     }
   }
 
-  private static boolean validateOperationSignatureNode(
+  private static boolean validateOperationNode(
     LoomGraph graph,
     OperationNode operation,
     ValidationIssueCollector issueCollector
   ) {
     boolean valid = true;
     var lazyContexts = Thunk.of(() -> List.of(operation.asValidationContext("Operation Node")));
-
-    valid &=
-      validateTensorSliceMap(
-        graph,
-        operation.unwrap(),
-        "inputs",
-        operation.getInputs(),
-        lazyContexts,
-        issueCollector
-      );
-    valid &=
-      validateTensorSliceMap(
-        graph,
-        operation.unwrap(),
-        "outputs",
-        operation.getOutputs(),
-        lazyContexts,
-        issueCollector
-      );
 
     var shards = operation.getApplicationNodes().toList();
     var shardIds = shards.stream().map(ApplicationNode::getId).toList();
@@ -271,7 +224,7 @@ public class OperationReferenceAgreementConstraint implements LoomEnvironment.Co
 
     boolean valid = true;
     valid &=
-      validateApplicationSignatureAgreement(
+      validateTensorSelectionMapAgreement(
         application,
         operation,
         "inputs",
@@ -281,7 +234,7 @@ public class OperationReferenceAgreementConstraint implements LoomEnvironment.Co
         issueCollector
       );
     valid &=
-      validateApplicationSignatureAgreement(
+      validateTensorSelectionMapAgreement(
         application,
         operation,
         "outputs",
@@ -294,7 +247,7 @@ public class OperationReferenceAgreementConstraint implements LoomEnvironment.Co
     return valid;
   }
 
-  public static boolean validateApplicationSignatureAgreement(
+  public static boolean validateTensorSelectionMapAgreement(
     ApplicationNode application,
     OperationNode operation,
     String sliceMapName,
@@ -409,93 +362,6 @@ public class OperationReferenceAgreementConstraint implements LoomEnvironment.Co
               }
             }
           }
-        }
-      }
-    }
-    return valid;
-  }
-
-  private static boolean validateTensorSliceMap(
-    LoomGraph graph,
-    LoomNode node,
-    String sliceMapName,
-    Map<String, List<TensorSelection>> selectionMap,
-    Supplier<List<ValidationIssue.Context>> contextsSupplier,
-    ValidationIssueCollector issueCollector
-  ) {
-    boolean valid = true;
-    for (var entry : selectionMap.entrySet()) {
-      final var ioName = entry.getKey();
-      final var selections = entry.getValue();
-
-      var fieldPath = LazyString.of(() ->
-        JsonPathUtils.concatJsonPath(node.getJsonPath(), "body", sliceMapName, ioName)
-      );
-
-      for (int idx = 0; idx < selections.size(); ++idx) {
-        var tensorSelection = selections.get(idx);
-
-        var itemPath = LazyString.format("%s[%d]", fieldPath, idx);
-
-        TensorNode tensor;
-        {
-          var tmp = ValidationUtils.validateNodeReference(
-            graph,
-            tensorSelection.getTensorId(),
-            TensorNode.TYPE,
-            itemPath,
-            issueCollector,
-            contextsSupplier
-          );
-          if (tmp == null) {
-            valid = false;
-            continue;
-          }
-          tensor = TensorNode.wrap(tmp);
-        }
-        var tensorRange = tensor.getRange();
-
-        var selectionRange = tensorSelection.getRange();
-        var lazySelectionRangeContext = Thunk.of(() ->
-          ValidationIssue.Context
-            .builder()
-            .name("Selection Range")
-            .jsonpath(itemPath)
-            .data(selectionRange)
-            .build()
-        );
-
-        if (selectionRange.getNDim() != tensorRange.getNDim()) {
-          issueCollector.addIssue(
-            ValidationIssue
-              .builder()
-              .type(LoomConstants.Errors.NODE_VALIDATION_ERROR)
-              .param("nodeType", OperationNode.TYPE)
-              .param("expectedDimensions", selectionRange.getNDim())
-              .param("actualDimensions", tensorRange.getNDim())
-              .summary("Tensor selection has the wrong number of dimensions")
-              .context(lazySelectionRangeContext)
-              .context(tensor.asValidationContext("Tensor Node"))
-              .withContexts(contextsSupplier)
-              .build()
-          );
-          valid = false;
-          continue;
-        }
-
-        if (!tensorRange.contains(selectionRange)) {
-          issueCollector.addIssue(
-            ValidationIssue
-              .builder()
-              .type(LoomConstants.Errors.NODE_VALIDATION_ERROR)
-              .param("nodeType", OperationNode.TYPE)
-              .summary("Tensor selection is out of bounds")
-              .context(lazySelectionRangeContext)
-              .context(tensor.asValidationContext("Tensor Node"))
-              .withContexts(contextsSupplier)
-              .build()
-          );
-          valid = false;
         }
       }
     }

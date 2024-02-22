@@ -9,13 +9,15 @@ public class CommonEnvironmentsTest implements CommonAssertions {
 
   @Test
   public void test_expressionEnvironment() {
-    var env = CommonEnvironments.expressionEnvironment();
+    var env = CommonEnvironments.APPLICATION_EXPRESSION_ENVIRONMENT;
     env.assertSupportsNodeType(NoteNode.TYPE);
     env.assertSupportsNodeType(TensorNode.TYPE);
     env.assertSupportsNodeType(OperationNode.TYPE);
     env.assertSupportsNodeType(ApplicationNode.TYPE);
 
     env.assertConstraint(TensorDTypesAreValidConstraint.class);
-    env.assertConstraint(OperationReferenceAgreementConstraint.class);
+    env.assertConstraint(TensorOperationAgreementConstraint.class);
+    env.assertConstraint(NoTensorOperationCyclesConstraint.class);
+    env.assertConstraint(OperationApplicationAgreementConstraint.class);
   }
 }

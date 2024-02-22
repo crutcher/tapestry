@@ -135,7 +135,7 @@ public class LoomTypeSchema {
       List.of(
         ValidationIssue.Context
           .builder()
-          .name("NoteBody")
+          .name("Node Body")
           .jsonpath(prefix)
           .dataFromJson(json)
           .build()
@@ -148,7 +148,7 @@ public class LoomTypeSchema {
         .issueScan()
         .issueCollector(collector)
         .type(LoomConstants.Errors.NODE_SCHEMA_ERROR)
-        .summaryPrefix("NoteBody ")
+        .summaryPrefix("Node Body ")
         .jsonPathPrefix(prefix)
         .schema(schema)
         .data(JsonUtil.parseToJsonNodeTree(json))
@@ -156,7 +156,7 @@ public class LoomTypeSchema {
           List.of(
             ValidationIssue.Context
               .builder()
-              .name("NoteBody")
+              .name("Node Body")
               .jsonpath(prefix)
               .dataFromJson(json)
               .build()

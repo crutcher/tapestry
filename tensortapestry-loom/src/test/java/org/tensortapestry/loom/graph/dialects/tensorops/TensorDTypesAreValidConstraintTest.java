@@ -13,7 +13,7 @@ import org.tensortapestry.zspace.ZPoint;
 public class TensorDTypesAreValidConstraintTest implements CommonAssertions {
 
   public LoomEnvironment createEnv() {
-    return CommonEnvironments.expressionEnvironment();
+    return CommonEnvironments.APPLICATION_EXPRESSION_ENVIRONMENT;
   }
 
   public LoomGraph createGraph() {

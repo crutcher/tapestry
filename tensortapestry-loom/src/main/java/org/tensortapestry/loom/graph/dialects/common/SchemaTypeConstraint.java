@@ -2,6 +2,7 @@ package org.tensortapestry.loom.graph.dialects.common;
 
 import java.net.URI;
 import java.util.List;
+
 import org.tensortapestry.common.json.JsonPathUtils;
 import org.tensortapestry.common.json.JsonUtil;
 import org.tensortapestry.common.validation.ValidationIssue;
@@ -35,7 +36,7 @@ public class SchemaTypeConstraint implements LoomEnvironment.Constraint {
       .schema(nodeSchema)
       .issueCollector(issueCollector)
       .param("nodeType", nodeType)
-      .summaryPrefix("NoteBody ")
+      .summaryPrefix("Node Body ")
       .jsonPathPrefix(JsonPathUtils.concatJsonPath(node.getJsonPath() + ".body"))
       .data(node.viewBodyAsJsonNode())
       .contexts(() ->
@@ -43,7 +44,7 @@ public class SchemaTypeConstraint implements LoomEnvironment.Constraint {
           node.asValidationContext("Node"),
           ValidationIssue.Context
             .builder()
-            .name("NoteBody Schema")
+            .name("Node Body Schema")
             .data(nodeSchema.getSchemaNode())
             .build()
         )

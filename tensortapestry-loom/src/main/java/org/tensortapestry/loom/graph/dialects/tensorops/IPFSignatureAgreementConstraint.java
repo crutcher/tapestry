@@ -19,7 +19,6 @@ public class IPFSignatureAgreementConstraint implements LoomEnvironment.Constrai
     env.assertSupportsNodeType(TensorNode.TYPE);
     env.assertSupportsNodeType(OperationNode.TYPE);
     env.assertSupportsNodeType(ApplicationNode.TYPE);
-    env.assertConstraint(OperationReferenceAgreementConstraint.class);
   }
 
   @Override
