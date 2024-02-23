@@ -3,6 +3,7 @@ package org.tensortapestry.loom.graph.dialects.tensorops;
 import lombok.experimental.UtilityClass;
 import org.tensortapestry.loom.graph.CommonEnvironments;
 import org.tensortapestry.loom.graph.LoomEnvironment;
+import org.tensortapestry.loom.graph.LoomGraph;
 import org.tensortapestry.loom.graph.dialects.common.SchemaTypeConstraint;
 import org.tensortapestry.loom.graph.dialects.common.TypeRestrictionConstraint;
 import org.tensortapestry.loom.graph.dialects.tensorops.constraints.NoTensorOperationCyclesConstraint;
@@ -12,7 +13,7 @@ import org.tensortapestry.loom.graph.dialects.tensorops.constraints.TensorOperat
 @UtilityClass
 public class OperationExpressionDialect {
 
-  public static final LoomEnvironment OPERATION_EXPRESSION_ENVIRONMENT = LoomEnvironment
+  public static final LoomEnvironment ENVIRONMENT = LoomEnvironment
     .builder()
     .typeSupportProvider(
       TypeRestrictionConstraint
@@ -33,4 +34,8 @@ public class OperationExpressionDialect {
     .constraint(new NoTensorOperationCyclesConstraint())
     .constraint(new OperationIPFSignatureAgreementConstraint())
     .build();
+
+  public LoomGraph newGraph() {
+    return ENVIRONMENT.newGraph();
+  }
 }

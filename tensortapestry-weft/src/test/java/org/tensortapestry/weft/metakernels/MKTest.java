@@ -12,8 +12,7 @@ public class MKTest implements CommonAssertions {
 
   @Test
   public void test_add() {
-    var env = ApplicationExpressionDialect.APPLICATION_EXPRESSION_ENVIRONMENT;
-    var graph = env.newGraph();
+    var graph = ApplicationExpressionDialect.newGraph();
 
     String dtype = "float32";
 
@@ -41,8 +40,7 @@ public class MKTest implements CommonAssertions {
   @Test
   @SuppressWarnings({ "unused", "ConstantConditions" })
   public void test_Linear() {
-    var env = ApplicationExpressionDialect.APPLICATION_EXPRESSION_ENVIRONMENT;
-    var graph = env.newGraph();
+    var graph = ApplicationExpressionDialect.newGraph();
 
     var dtype = "float32";
 
@@ -101,8 +99,7 @@ public class MKTest implements CommonAssertions {
 
   @SuppressWarnings({ "unused", "ConstantConditions" })
   public static void main(String[] args) {
-    var env = ApplicationExpressionDialect.APPLICATION_EXPRESSION_ENVIRONMENT;
-    var graph = env.newGraph();
+    var graph = ApplicationExpressionDialect.newGraph();
 
     var dtype = "float32";
 

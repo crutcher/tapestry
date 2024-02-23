@@ -1,6 +1,7 @@
 package org.tensortapestry.loom.graph.dialects.tensorops;
 
 import guru.nidi.graphviz.engine.Format;
+import java.awt.*;
 import lombok.experimental.UtilityClass;
 import org.tensortapestry.loom.graph.CommonEnvironments;
 import org.tensortapestry.loom.graph.LoomEnvironment;
@@ -11,12 +12,10 @@ import org.tensortapestry.loom.graph.dialects.common.TypeRestrictionConstraint;
 import org.tensortapestry.loom.graph.dialects.tensorops.constraints.*;
 import org.tensortapestry.loom.graph.export.graphviz.GraphVisualizer;
 
-import java.awt.*;
-
 @UtilityClass
 public class ApplicationExpressionDialect {
 
-  public final LoomEnvironment APPLICATION_EXPRESSION_ENVIRONMENT = LoomEnvironment
+  public final LoomEnvironment ENVIRONMENT = LoomEnvironment
     .builder()
     .typeSupportProvider(
       TypeRestrictionConstraint
@@ -42,6 +41,10 @@ public class ApplicationExpressionDialect {
     .constraint(new ApplicationIPFSignatureAgreementConstraint())
     .constraint(new ApplicationOutputRangeCoverageIsExactConstraint())
     .build();
+
+  public LoomGraph newGraph() {
+    return ENVIRONMENT.newGraph();
+  }
 
   public Image toImage(LoomGraph graph) {
     var exporter = GraphVisualizer.buildDefault();

@@ -10,15 +10,14 @@ public class LoomEnvironmentTest implements CommonAssertions {
 
   @Test
   public void test_toString() {
-    var env = ApplicationExpressionDialect.APPLICATION_EXPRESSION_ENVIRONMENT;
+    var env = ApplicationExpressionDialect.ENVIRONMENT;
 
     assertThat(env.toString()).contains("LoomEnvironment");
   }
 
   @Test
   public void testCreateGraph() {
-    var env = ApplicationExpressionDialect.APPLICATION_EXPRESSION_ENVIRONMENT;
-    var graph = env.newGraph();
+    var graph = ApplicationExpressionDialect.newGraph();
 
     assertThat(graph.getEnv()).isNotNull();
 
@@ -47,7 +46,7 @@ public class LoomEnvironmentTest implements CommonAssertions {
           TensorNode.TYPE
         );
 
-    var env = ApplicationExpressionDialect.APPLICATION_EXPRESSION_ENVIRONMENT;
+    var env = ApplicationExpressionDialect.ENVIRONMENT;
 
     var graph = env.graphFromJson(source);
 
@@ -82,7 +81,7 @@ public class LoomEnvironmentTest implements CommonAssertions {
       }
     };
 
-    var env = ApplicationExpressionDialect.APPLICATION_EXPRESSION_ENVIRONMENT;
+    var env = ApplicationExpressionDialect.ENVIRONMENT;
 
     assertThat(env.lookupConstraint(constraint.getClass())).isNull();
 

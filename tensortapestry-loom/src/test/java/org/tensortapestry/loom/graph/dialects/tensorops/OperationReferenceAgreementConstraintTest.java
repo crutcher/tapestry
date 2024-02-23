@@ -19,7 +19,7 @@ import org.tensortapestry.zspace.ZRange;
 public class OperationReferenceAgreementConstraintTest implements CommonAssertions {
 
   public LoomGraph createGraph() {
-    var env = ApplicationExpressionDialect.APPLICATION_EXPRESSION_ENVIRONMENT;
+    var env = ApplicationExpressionDialect.ENVIRONMENT;
     return env.newGraph();
   }
 

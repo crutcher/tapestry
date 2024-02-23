@@ -13,8 +13,7 @@ public class LoomGraphTest implements CommonAssertions {
 
   @Test
   public void testNewUnusedNodeId() {
-    var env = ApplicationExpressionDialect.APPLICATION_EXPRESSION_ENVIRONMENT;
-    var graph = env.newGraph();
+    var graph = ApplicationExpressionDialect.newGraph();
 
     for (int i = 0; i < 10; i++) {
       NoteNode.builder(graph).body(b -> b.message("test")).build();
@@ -26,8 +25,7 @@ public class LoomGraphTest implements CommonAssertions {
 
   @Test
   public void testAddRemoveNode() {
-    var env = ApplicationExpressionDialect.APPLICATION_EXPRESSION_ENVIRONMENT;
-    var graph = env.newGraph();
+    var graph = ApplicationExpressionDialect.newGraph();
 
     var node1 = NoteNode.builder(graph).body(b -> b.message("node 1")).label("foo").build();
 
@@ -42,7 +40,7 @@ public class LoomGraphTest implements CommonAssertions {
       .withMessage("Graph already has node with id: %s".formatted(node1.getId()));
 
     {
-      var graph2 = env.newGraph();
+      var graph2 = ApplicationExpressionDialect.newGraph();
       var node2 = NoteNode.builder(graph2).body(b -> b.message("node 1")).build();
 
       assertThatExceptionOfType(IllegalArgumentException.class)
@@ -80,8 +78,7 @@ public class LoomGraphTest implements CommonAssertions {
 
   @Test
   public void testHasAssertAddNode() {
-    var env = ApplicationExpressionDialect.APPLICATION_EXPRESSION_ENVIRONMENT;
-    var graph = env.newGraph();
+    var graph = ApplicationExpressionDialect.newGraph();
 
     var nodeIdA = UUID.randomUUID();
 
@@ -184,7 +181,7 @@ public class LoomGraphTest implements CommonAssertions {
           TensorNode.TYPE
         );
 
-    var env = ApplicationExpressionDialect.APPLICATION_EXPRESSION_ENVIRONMENT;
+    var env = ApplicationExpressionDialect.ENVIRONMENT;
 
     var graph = env.graphFromJson(source);
     graph.validate();

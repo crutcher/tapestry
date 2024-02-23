@@ -17,7 +17,7 @@ public class OperationIPFSignatureAgreementConstraintTest implements CommonAsser
   @Test
   @SuppressWarnings("ConstantConditions")
   public void test_valid_short() {
-    var env = ApplicationExpressionDialect.APPLICATION_EXPRESSION_ENVIRONMENT;
+    var env = ApplicationExpressionDialect.ENVIRONMENT;
     env = env.toBuilder().constraint(new OperationIPFSignatureAgreementConstraint()).build();
 
     var graph = env.newGraph();

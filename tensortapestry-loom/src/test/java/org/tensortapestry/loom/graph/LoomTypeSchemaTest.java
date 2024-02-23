@@ -36,8 +36,7 @@ public class LoomTypeSchemaTest implements CommonAssertions {
       )
       .build();
 
-    var env = ApplicationExpressionDialect.APPLICATION_EXPRESSION_ENVIRONMENT;
-    var graph = env.newGraph();
+    var graph = ApplicationExpressionDialect.newGraph();
 
     var note = graph
       .nodeBuilder(NoteNode.TYPE)
@@ -87,8 +86,7 @@ public class LoomTypeSchemaTest implements CommonAssertions {
       )
       .build();
 
-    var env = ApplicationExpressionDialect.APPLICATION_EXPRESSION_ENVIRONMENT;
-    var graph = env.newGraph();
+    var graph = ApplicationExpressionDialect.newGraph();
     var note = NoteNode.builder(graph).body(b -> b.message("hello")).build();
     var tensor = TensorNode.on(graph).body(b -> b.dtype("int32").shape(2)).build();
 
@@ -108,7 +106,7 @@ public class LoomTypeSchemaTest implements CommonAssertions {
 
     var collector = new ListValidationIssueCollector();
     var prefix = "$.foo";
-    schema.validateValue(env, graph, prefix, data, collector);
+    schema.validateValue(graph.assertEnv(), graph, prefix, data, collector);
     assertValidationIssues(
       collector,
       ValidationIssue
