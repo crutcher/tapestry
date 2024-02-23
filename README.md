@@ -76,7 +76,7 @@ strictly defined, while sharing common scan and validation tooling.
 The [Operation Expression Dialect](docs/dialects/OperationExpressionDialect.md) is a dialect for
 representing un-sharded operations and tensors in a graph.
 
-<img src="docs/dialects/OperationExpressionDialect/example1.dot.png" width="25%"/>
+<img src="docs/dialects/OperationExpressionDialect/example1.dot.png" width="50%"/>
 
 ### Application Expression Dialect
 
@@ -86,4 +86,4 @@ representing application sharded operations and tensors in a graph.
 It extends the [Operation Expression Dialect](docs/dialects/OperationExpressionDialect.md) to
 include Application shards, and constraints for application sharded operations.
 
-<img src="dialects/ApplicationExpressionDialect/example1.jpg" width="25%"/>
+<img src="docs/dialects/ApplicationExpressionDialect/example1.jpg" width="50%"/>
