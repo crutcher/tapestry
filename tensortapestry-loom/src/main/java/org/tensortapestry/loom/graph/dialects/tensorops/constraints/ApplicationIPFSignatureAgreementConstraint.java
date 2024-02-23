@@ -13,6 +13,11 @@ import org.tensortapestry.loom.graph.dialects.tensorops.*;
 import org.tensortapestry.zspace.ZRange;
 import org.tensortapestry.zspace.ZRangeProjectionMap;
 
+/**
+ * This constraint checks that each `Application` node with an `IPFIndex` tag selection maps
+ * matching the projection of that index through the corresponding `Operation` node's `IPFSignature`
+ * tag.
+ */
 public class ApplicationIPFSignatureAgreementConstraint implements LoomEnvironment.Constraint {
 
   @Override

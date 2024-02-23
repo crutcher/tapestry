@@ -7,6 +7,9 @@ import org.tensortapestry.loom.graph.*;
 import org.tensortapestry.loom.graph.dialects.tensorops.OperationNode;
 import org.tensortapestry.loom.graph.dialects.tensorops.TensorNode;
 
+/**
+ * This constraint checks for cycles in the graph that involve both Tensor and Operation nodes.
+ */
 public class NoTensorOperationCyclesConstraint implements LoomEnvironment.Constraint {
 
   @Override

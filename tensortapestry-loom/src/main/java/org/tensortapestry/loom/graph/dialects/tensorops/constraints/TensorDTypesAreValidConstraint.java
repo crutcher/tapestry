@@ -12,6 +12,9 @@ import org.tensortapestry.loom.graph.LoomGraph;
 import org.tensortapestry.loom.graph.LoomNode;
 import org.tensortapestry.loom.graph.dialects.tensorops.TensorNode;
 
+/**
+ * This constraint checks that the dtype of a Tensor node is a valid type.
+ */
 @Getter
 @Builder
 public class TensorDTypesAreValidConstraint implements LoomEnvironment.Constraint {

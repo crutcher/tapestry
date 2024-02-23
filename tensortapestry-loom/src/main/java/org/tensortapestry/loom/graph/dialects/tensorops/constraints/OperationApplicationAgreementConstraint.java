@@ -16,6 +16,11 @@ import org.tensortapestry.loom.graph.*;
 import org.tensortapestry.loom.graph.dialects.tensorops.*;
 import org.tensortapestry.zspace.ZRange;
 
+/**
+ * This constraint checks that `Application` nodes have a matching `Operation` node;
+ * and that the selection maps of each `Application` node are within bounds of
+ * with the `Operation` node's selection maps.
+ */
 public class OperationApplicationAgreementConstraint implements LoomEnvironment.Constraint {
 
   @Override

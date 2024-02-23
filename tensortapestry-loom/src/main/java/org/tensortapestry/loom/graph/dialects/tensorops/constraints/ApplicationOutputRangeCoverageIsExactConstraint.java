@@ -18,6 +18,11 @@ import org.tensortapestry.loom.graph.dialects.tensorops.ApplicationNode;
 import org.tensortapestry.loom.graph.dialects.tensorops.OperationNode;
 import org.tensortapestry.zspace.ZRange;
 
+/**
+ * This constraint checks that the output range coverage of the sum of the `Application` node shards
+ * of an `Operation` node exactly cover the corresponding `Operation` node's output range for the
+ * same selection.
+ */
 public class ApplicationOutputRangeCoverageIsExactConstraint implements LoomEnvironment.Constraint {
 
   @Override

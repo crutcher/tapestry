@@ -290,6 +290,44 @@ must be total over the output tensor range.
 
 Imports all: [OperationExpressionDialect > Constraints](OperationExpressionDialect.md#constraints)
 
+### TensorDTypesAreValidConstraint
+
+See: [TensorDTypesAreValidConstraint.java](../../tensortapestry-loom/src/main/java/org/tensortapestry/loom/graph/dialects/tensorops/constraints/TensorDTypesAreValidConstraint.java)
+
+This constraint ensures that all tensors in the graph have a data type that is
+one of a predefined set.
+
+> *NOTE*: There are open questions as to if this constraint is appropriate.
+> On the one hand, it sets hard limits on tensor types for a graph;
+> and an environment may wish to enforce what data types are representable.
+> On the other hand, it is implicit in the family of kernels permitted
+> in the graph, and may be redundant.
+>
+> It also complicates environment management; as the set of legal data types
+> can legitimately vary for different graphs which are otherwise sharing
+> the same environment.
+
+### TensorOperationAgreementConstraint
+
+See: [TensorOperationAgreementConstraint.java](../../tensortapestry-loom/src/main/java/org/tensortapestry/loom/graph/dialects/tensorops/constraints/TensorOperationAgreementConstraint.java)
+
+This constraint ensures that the tensors referenced by an operation exist, and that tensor selections
+used by the operation are within the range provided by each operation.
+
+### NoTensorOperationCyclesConstraint
+
+See: [NoTensorOperationCyclesConstraint.java](../../tensortapestry-loom/src/main/java/org/tensortapestry/loom/graph/dialects/tensorops/constraints/NoTensorOperationCyclesConstraint.java)
+
+This constraint ensures that the tensor/operation graph is a directed acyclic graph (DAG)
+with respect to tensor/operation edges, with no cycles.
+
+### OperationIPFSignatureAgreementConstraint
+
+See: [OperationIPFSignatureAgreementConstraint.java](../../tensortapestry-loom/src/main/java/org/tensortapestry/loom/graph/dialects/tensorops/constraints/OperationIPFSignatureAgreementConstraint.java)
+
+This constraint ensures that every operation with a `IPFSignature` tag has an `IPFIndex` tag as well,
+and that the tensor selection maps of the operation are projections of the index through the signature.
+
 ### OperationApplicationAgreementConstraint
 
 See: [OperationApplicationAgreementConstraint.java](../../tensortapestry-loom/src/main/java/org/tensortapestry/loom/graph/dialects/tensorops/constraints/OperationApplicationAgreementConstraint.java)
