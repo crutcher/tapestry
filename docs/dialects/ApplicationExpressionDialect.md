@@ -72,46 +72,10 @@ must be total over the output tensor range.
 <summary>LoomGraph JSON</summary>
 
 ```json
-{
-  "id" : "a0dddda0-34e6-436c-a210-6b25705b271b",
+
+  "id" : "bdc87aaf-3716-419d-abfb-fe6e21bd6892",
   "nodes" : [ {
-    "id" : "aae819bc-7a32-43ba-a1b8-6959f0238ed2",
-    "type" : "http://tensortapestry.org/schemas/loom/2024-01/node_types.jsd#/nodes/Application",
-    "body" : {
-      "operationId" : "476a1cce-60f9-4919-a6b5-cb7e4a627197",
-      "inputs" : {
-        "tensors" : [ {
-          "tensorId" : "3009968e-ded2-412b-b35c-9b964ad4c171",
-          "range" : {
-            "start" : [ 0, 0 ],
-            "end" : [ 5, 5 ]
-          }
-        }, {
-          "tensorId" : "bacbfedc-f55b-4b34-ab03-b7cac4c00235",
-          "range" : {
-            "start" : [ 200, 50 ],
-            "end" : [ 205, 55 ]
-          }
-        } ]
-      },
-      "outputs" : {
-        "result" : [ {
-          "tensorId" : "3e1f8f84-ee99-4bd9-88cb-4c1862ace807",
-          "range" : {
-            "start" : [ 0, 0 ],
-            "end" : [ 5, 5 ]
-          }
-        } ]
-      }
-    },
-    "tags" : {
-      "http://tensortapestry.org/schemas/loom/2024-01/tag_types.jsd#/tags/IPFIndex" : {
-        "start" : [ 0, 0 ],
-        "end" : [ 5, 5 ]
-      }
-    }
-  }, {
-    "id" : "bacbfedc-f55b-4b34-ab03-b7cac4c00235",
+    "id" : "0308d788-0064-4494-9c18-6e4c3d078b13",
     "type" : "http://tensortapestry.org/schemas/loom/2024-01/node_types.jsd#/nodes/Tensor",
     "label" : "t1",
     "body" : {
@@ -122,66 +86,19 @@ must be total over the output tensor range.
       }
     }
   }, {
-    "id" : "2a551bc1-7ba0-4824-821a-752488b26c40",
+    "id" : "2524fb44-d169-4afd-90fa-09711462e4b3",
     "type" : "http://tensortapestry.org/schemas/loom/2024-01/node_types.jsd#/nodes/Application",
     "body" : {
-      "operationId" : "476a1cce-60f9-4919-a6b5-cb7e4a627197",
+      "operationId" : "26434d32-ccbc-442f-9d78-8bf158b00c6b",
       "inputs" : {
         "tensors" : [ {
-          "tensorId" : "3009968e-ded2-412b-b35c-9b964ad4c171",
-          "range" : {
-            "start" : [ 0, 0 ],
-            "end" : [ 10, 5 ]
-          }
-        }, {
-          "tensorId" : "bacbfedc-f55b-4b34-ab03-b7cac4c00235",
-          "range" : {
-            "start" : [ 200, 50 ],
-            "end" : [ 210, 55 ]
-          }
-        } ]
-      },
-      "outputs" : {
-        "result" : [ {
-          "tensorId" : "3e1f8f84-ee99-4bd9-88cb-4c1862ace807",
-          "range" : {
-            "start" : [ 0, 0 ],
-            "end" : [ 10, 5 ]
-          }
-        } ]
-      }
-    },
-    "tags" : {
-      "http://tensortapestry.org/schemas/loom/2024-01/tag_types.jsd#/tags/IPFIndex" : {
-        "start" : [ 0, 0 ],
-        "end" : [ 10, 5 ]
-      }
-    }
-  }, {
-    "id" : "3009968e-ded2-412b-b35c-9b964ad4c171",
-    "type" : "http://tensortapestry.org/schemas/loom/2024-01/node_types.jsd#/nodes/Tensor",
-    "label" : "t0",
-    "body" : {
-      "dtype" : "int32",
-      "range" : {
-        "start" : [ 0, 0 ],
-        "end" : [ 10, 5 ]
-      }
-    }
-  }, {
-    "id" : "3c39fe81-71d1-4f73-89d2-b74eda556312",
-    "type" : "http://tensortapestry.org/schemas/loom/2024-01/node_types.jsd#/nodes/Application",
-    "body" : {
-      "operationId" : "476a1cce-60f9-4919-a6b5-cb7e4a627197",
-      "inputs" : {
-        "tensors" : [ {
-          "tensorId" : "3009968e-ded2-412b-b35c-9b964ad4c171",
+          "tensorId" : "2fa3fe28-2d47-47b6-8767-27c7dadbb18c",
           "range" : {
             "start" : [ 5, 0 ],
             "end" : [ 10, 5 ]
           }
         }, {
-          "tensorId" : "bacbfedc-f55b-4b34-ab03-b7cac4c00235",
+          "tensorId" : "0308d788-0064-4494-9c18-6e4c3d078b13",
           "range" : {
             "start" : [ 205, 50 ],
             "end" : [ 210, 55 ]
@@ -190,7 +107,7 @@ must be total over the output tensor range.
       },
       "outputs" : {
         "result" : [ {
-          "tensorId" : "3e1f8f84-ee99-4bd9-88cb-4c1862ace807",
+          "tensorId" : "781dd44d-cf72-4533-a495-6ff66ba1689a",
           "range" : {
             "start" : [ 5, 0 ],
             "end" : [ 10, 5 ]
@@ -205,31 +122,20 @@ must be total over the output tensor range.
       }
     }
   }, {
-    "id" : "3e1f8f84-ee99-4bd9-88cb-4c1862ace807",
-    "type" : "http://tensortapestry.org/schemas/loom/2024-01/node_types.jsd#/nodes/Tensor",
-    "label" : "z",
-    "body" : {
-      "dtype" : "int32",
-      "range" : {
-        "start" : [ 0, 0 ],
-        "end" : [ 10, 5 ]
-      }
-    }
-  }, {
-    "id" : "476a1cce-60f9-4919-a6b5-cb7e4a627197",
+    "id" : "26434d32-ccbc-442f-9d78-8bf158b00c6b",
     "type" : "http://tensortapestry.org/schemas/loom/2024-01/node_types.jsd#/nodes/Operation",
     "label" : "op:add",
     "body" : {
       "kernel" : "op:add",
       "inputs" : {
         "tensors" : [ {
-          "tensorId" : "3009968e-ded2-412b-b35c-9b964ad4c171",
+          "tensorId" : "2fa3fe28-2d47-47b6-8767-27c7dadbb18c",
           "range" : {
             "start" : [ 0, 0 ],
             "end" : [ 10, 5 ]
           }
         }, {
-          "tensorId" : "bacbfedc-f55b-4b34-ab03-b7cac4c00235",
+          "tensorId" : "0308d788-0064-4494-9c18-6e4c3d078b13",
           "range" : {
             "start" : [ 200, 50 ],
             "end" : [ 210, 55 ]
@@ -238,7 +144,7 @@ must be total over the output tensor range.
       },
       "outputs" : {
         "result" : [ {
-          "tensorId" : "3e1f8f84-ee99-4bd9-88cb-4c1862ace807",
+          "tensorId" : "781dd44d-cf72-4533-a495-6ff66ba1689a",
           "range" : {
             "start" : [ 0, 0 ],
             "end" : [ 10, 5 ]
@@ -276,6 +182,64 @@ must be total over the output tensor range.
             "shape" : [ 1, 1 ]
           } ]
         }
+      }
+    }
+  }, {
+    "id" : "2af709e2-c792-4712-80cc-0624ee767115",
+    "type" : "http://tensortapestry.org/schemas/loom/2024-01/node_types.jsd#/nodes/Application",
+    "body" : {
+      "operationId" : "26434d32-ccbc-442f-9d78-8bf158b00c6b",
+      "inputs" : {
+        "tensors" : [ {
+          "tensorId" : "2fa3fe28-2d47-47b6-8767-27c7dadbb18c",
+          "range" : {
+            "start" : [ 0, 0 ],
+            "end" : [ 5, 5 ]
+          }
+        }, {
+          "tensorId" : "0308d788-0064-4494-9c18-6e4c3d078b13",
+          "range" : {
+            "start" : [ 200, 50 ],
+            "end" : [ 205, 55 ]
+          }
+        } ]
+      },
+      "outputs" : {
+        "result" : [ {
+          "tensorId" : "781dd44d-cf72-4533-a495-6ff66ba1689a",
+          "range" : {
+            "start" : [ 0, 0 ],
+            "end" : [ 5, 5 ]
+          }
+        } ]
+      }
+    },
+    "tags" : {
+      "http://tensortapestry.org/schemas/loom/2024-01/tag_types.jsd#/tags/IPFIndex" : {
+        "start" : [ 0, 0 ],
+        "end" : [ 5, 5 ]
+      }
+    }
+  }, {
+    "id" : "2fa3fe28-2d47-47b6-8767-27c7dadbb18c",
+    "type" : "http://tensortapestry.org/schemas/loom/2024-01/node_types.jsd#/nodes/Tensor",
+    "label" : "t0",
+    "body" : {
+      "dtype" : "int32",
+      "range" : {
+        "start" : [ 0, 0 ],
+        "end" : [ 10, 5 ]
+      }
+    }
+  }, {
+    "id" : "781dd44d-cf72-4533-a495-6ff66ba1689a",
+    "type" : "http://tensortapestry.org/schemas/loom/2024-01/node_types.jsd#/nodes/Tensor",
+    "label" : "z",
+    "body" : {
+      "dtype" : "int32",
+      "range" : {
+        "start" : [ 0, 0 ],
+        "end" : [ 10, 5 ]
       }
     }
   } ]
