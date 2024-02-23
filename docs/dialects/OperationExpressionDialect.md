@@ -11,6 +11,8 @@
 
 The Operation Expression Dialect is a dialect for representing un-sharded operations and tensors in a graph.
 
+See: [OperationExpressionDialect.java](../../tensortapestry-loom/src/main/java/org/tensortapestry/loom/graph/dialects/tensorops/OperationExpressionDialect.java)
+
 ## Types
 
 Supported Node Types:
