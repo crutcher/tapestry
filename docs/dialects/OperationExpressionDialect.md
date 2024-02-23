@@ -1,5 +1,7 @@
 # Operation Expression Dialect
 
+[Tapestry Documentation](../README.md)
+
 ### Contents
 
 * [Overview](#Overview)
@@ -31,10 +33,9 @@ Supported Node Types:
        - `{<name>: [{"tensorId": <id>, "range": <range>}, ...]}`
    - `outputs` - a tensor selection map of output tensors
        - `{<name>: [{"tensorId": <id>, "range": <range>}, ...]}`
-
-Supported Tag Types:
-* `IPFSignature` - operation polyhedral projection signature.
-* `IPFIndex` - operation polyhedral projection index.
+       * *Tags*
+           - `IPFSignature` - operation polyhedral projection signature.
+           - `IPFIndex` - operation polyhedral projection index.
 
 ## Examples
 
@@ -44,7 +45,10 @@ Consider a small operation example, roughly equivalent to the pseudocode:
 t0 = Tensor("int32", shape=(10, 5))
 t1 = Tensor("int32", start=(200, 50), shape=(10, 5))
 mask = Tensor("boolean", shape=(10, 5))
-z = add(tensors=(t0, t1), mask=mask, mask_value=12)
+op = add(tensors=(t0, t1), mask=mask, mask_value=12)
+
+z = op.result()
+# or `z = op.outputs['result'][0]`
 ```
 
 The input tensor selections can select any sub-range of the input tensor, and the output tensor selections

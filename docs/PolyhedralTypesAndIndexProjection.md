@@ -1,5 +1,7 @@
 # Polyhedral Types and Index Projection
 
+[Tapestry Documentation](README.md)
+
 ## Background Reading
 
 [Polyhedral types](https://en.wikipedia.org/wiki/Polyhedral_model) are a way to represent the iteration space of

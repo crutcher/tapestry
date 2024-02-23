@@ -104,5 +104,10 @@ The [Operation Expression Dialect](dialects/OperationExpressionDialect.md) is a 
 
 ### Application Expression Dialect
 
-The Application Expression Dialect is a dialect for representing operation expressions
-sharded into application sub-shards in a graph.
+The [Application Expression Dialect](dialects/ApplicationExpressionDialect.md) is a dialect for representing application sharded
+operations and tensors in a graph.
+
+It extends the [Operation Expression Dialect](dialects/OperationExpressionDialect.md) to include
+Application shards, and constraints for application sharded operations.
+
+<img src="dialects/ApplicationExpressionDialect/example1.jpg" width="25%"/>
