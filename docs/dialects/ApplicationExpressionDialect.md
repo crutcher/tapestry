@@ -72,7 +72,7 @@ must be total over the output tensor range.
 <summary>LoomGraph JSON</summary>
 
 ```json
-
+{
   "id" : "bdc87aaf-3716-419d-abfb-fe6e21bd6892",
   "nodes" : [ {
     "id" : "0308d788-0064-4494-9c18-6e4c3d078b13",
