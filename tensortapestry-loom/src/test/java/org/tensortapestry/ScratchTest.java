@@ -1,6 +1,7 @@
 package org.tensortapestry;
 
 import java.util.List;
+
 import org.junit.jupiter.api.Test;
 import org.tensortapestry.common.testing.CommonAssertions;
 import org.tensortapestry.loom.graph.dialects.tensorops.OperationExpressionDialect;
@@ -29,7 +30,7 @@ public class ScratchTest implements CommonAssertions {
 
     var z = TensorNode.on(graph).body(b -> b.dtype("int32").shape(10, 5)).label("z0").build();
 
-    var op = OperationNode
+    OperationNode
       .on(graph)
       .body(b ->
         b

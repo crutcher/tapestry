@@ -1,11 +1,10 @@
 package org.tensortapestry.loom.graph.tools;
 
-import guru.nidi.graphviz.engine.Format;
 import java.awt.*;
 import java.awt.event.*;
 import lombok.*;
 import org.tensortapestry.loom.graph.LoomGraph;
-import org.tensortapestry.loom.graph.export.graphviz.GraphVisualizer;
+import org.tensortapestry.loom.graph.dialects.tensorops.ApplicationExpressionDialect;
 
 public class GraphViewer {
 
@@ -108,14 +107,6 @@ public class GraphViewer {
     }
   }
 
-  public static Image render(LoomGraph graph) {
-    var exporter = GraphVisualizer.buildDefault();
-    var export = exporter.export(graph);
-    var gv = export.getGraphviz();
-    System.err.println(export.getDotGraph());
-    return gv.render(Format.PNG).toImage();
-  }
-
   public static void graphViewer(LoomGraph graph) {
     // Get the screen size
     Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
@@ -123,7 +114,7 @@ public class GraphViewer {
     var initialHeight = (int) (screenSize.getHeight() * 0.8);
     var initialWidth = (int) (screenSize.getWidth() * 0.8);
 
-    Image img = render(graph);
+    Image img = ApplicationExpressionDialect.toImage(graph);
     var imgComponent = new ImageComponent(img);
     imgComponent.setSize(initialWidth, initialHeight);
     imgComponent.scaleToFit();
