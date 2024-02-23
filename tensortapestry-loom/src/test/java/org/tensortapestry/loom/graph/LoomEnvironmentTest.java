@@ -3,20 +3,21 @@ package org.tensortapestry.loom.graph;
 import org.junit.jupiter.api.Test;
 import org.tensortapestry.common.testing.CommonAssertions;
 import org.tensortapestry.common.validation.ValidationIssueCollector;
+import org.tensortapestry.loom.graph.dialects.tensorops.ApplicationExpressionDialect;
 import org.tensortapestry.loom.graph.dialects.tensorops.TensorNode;
 
 public class LoomEnvironmentTest implements CommonAssertions {
 
   @Test
   public void test_toString() {
-    var env = CommonEnvironments.APPLICATION_EXPRESSION_ENVIRONMENT;
+    var env = ApplicationExpressionDialect.APPLICATION_EXPRESSION_ENVIRONMENT;
 
     assertThat(env.toString()).contains("LoomEnvironment");
   }
 
   @Test
   public void testCreateGraph() {
-    var env = CommonEnvironments.APPLICATION_EXPRESSION_ENVIRONMENT;
+    var env = ApplicationExpressionDialect.APPLICATION_EXPRESSION_ENVIRONMENT;
     var graph = env.newGraph();
 
     assertThat(graph.getEnv()).isNotNull();
@@ -46,7 +47,7 @@ public class LoomEnvironmentTest implements CommonAssertions {
           TensorNode.TYPE
         );
 
-    var env = CommonEnvironments.APPLICATION_EXPRESSION_ENVIRONMENT;
+    var env = ApplicationExpressionDialect.APPLICATION_EXPRESSION_ENVIRONMENT;
 
     var graph = env.graphFromJson(source);
 
@@ -81,7 +82,7 @@ public class LoomEnvironmentTest implements CommonAssertions {
       }
     };
 
-    var env = CommonEnvironments.APPLICATION_EXPRESSION_ENVIRONMENT;
+    var env = ApplicationExpressionDialect.APPLICATION_EXPRESSION_ENVIRONMENT;
 
     assertThat(env.lookupConstraint(constraint.getClass())).isNull();
 

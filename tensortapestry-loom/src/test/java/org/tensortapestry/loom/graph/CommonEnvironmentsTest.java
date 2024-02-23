@@ -13,7 +13,7 @@ public class CommonEnvironmentsTest implements CommonAssertions {
 
   @Test
   public void test_expressionEnvironment() {
-    var env = CommonEnvironments.APPLICATION_EXPRESSION_ENVIRONMENT;
+    var env = ApplicationExpressionDialect.APPLICATION_EXPRESSION_ENVIRONMENT;
     env.assertSupportsNodeType(NoteNode.TYPE);
     env.assertSupportsNodeType(TensorNode.TYPE);
     env.assertSupportsNodeType(OperationNode.TYPE);

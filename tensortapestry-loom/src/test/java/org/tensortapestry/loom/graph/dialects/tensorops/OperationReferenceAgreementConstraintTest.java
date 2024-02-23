@@ -10,7 +10,6 @@ import org.junit.jupiter.api.Test;
 import org.tensortapestry.common.testing.CommonAssertions;
 import org.tensortapestry.common.validation.ListValidationIssueCollector;
 import org.tensortapestry.common.validation.ValidationIssue;
-import org.tensortapestry.loom.graph.CommonEnvironments;
 import org.tensortapestry.loom.graph.LoomConstants;
 import org.tensortapestry.loom.graph.LoomGraph;
 import org.tensortapestry.loom.graph.dialects.common.NoteNode;
@@ -20,7 +19,7 @@ import org.tensortapestry.zspace.ZRange;
 public class OperationReferenceAgreementConstraintTest implements CommonAssertions {
 
   public LoomGraph createGraph() {
-    var env = CommonEnvironments.APPLICATION_EXPRESSION_ENVIRONMENT;
+    var env = ApplicationExpressionDialect.APPLICATION_EXPRESSION_ENVIRONMENT;
     return env.newGraph();
   }
 

@@ -13,6 +13,7 @@ import org.tensortapestry.common.testing.CommonAssertions;
 import org.tensortapestry.common.validation.ListValidationIssueCollector;
 import org.tensortapestry.common.validation.ValidationIssue;
 import org.tensortapestry.loom.graph.dialects.common.NoteNode;
+import org.tensortapestry.loom.graph.dialects.tensorops.ApplicationExpressionDialect;
 import org.tensortapestry.loom.graph.dialects.tensorops.TensorNode;
 
 public class LoomTypeSchemaTest implements CommonAssertions {
@@ -35,7 +36,7 @@ public class LoomTypeSchemaTest implements CommonAssertions {
       )
       .build();
 
-    var env = CommonEnvironments.APPLICATION_EXPRESSION_ENVIRONMENT;
+    var env = ApplicationExpressionDialect.APPLICATION_EXPRESSION_ENVIRONMENT;
     var graph = env.newGraph();
 
     var note = graph
@@ -86,7 +87,7 @@ public class LoomTypeSchemaTest implements CommonAssertions {
       )
       .build();
 
-    var env = CommonEnvironments.APPLICATION_EXPRESSION_ENVIRONMENT;
+    var env = ApplicationExpressionDialect.APPLICATION_EXPRESSION_ENVIRONMENT;
     var graph = env.newGraph();
     var note = NoteNode.builder(graph).body(b -> b.message("hello")).build();
     var tensor = TensorNode.on(graph).body(b -> b.dtype("int32").shape(2)).build();

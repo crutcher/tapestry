@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.tensortapestry.common.testing.CommonAssertions;
-import org.tensortapestry.loom.graph.CommonEnvironments;
 import org.tensortapestry.loom.graph.dialects.tensorops.constraints.OperationIPFSignatureAgreementConstraint;
 import org.tensortapestry.loom.graph.export.graphviz.GraphVisualizer;
 import org.tensortapestry.zspace.ZPoint;
@@ -18,7 +17,7 @@ public class OperationIPFSignatureAgreementConstraintTest implements CommonAsser
   @Test
   @SuppressWarnings("ConstantConditions")
   public void test_valid_short() {
-    var env = CommonEnvironments.APPLICATION_EXPRESSION_ENVIRONMENT;
+    var env = ApplicationExpressionDialect.APPLICATION_EXPRESSION_ENVIRONMENT;
     env = env.toBuilder().constraint(new OperationIPFSignatureAgreementConstraint()).build();
 
     var graph = env.newGraph();

@@ -3,7 +3,7 @@ package org.tensortapestry;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.tensortapestry.common.testing.CommonAssertions;
-import org.tensortapestry.loom.graph.CommonEnvironments;
+import org.tensortapestry.loom.graph.dialects.tensorops.OperationExpressionDialect;
 import org.tensortapestry.loom.graph.dialects.tensorops.OperationNode;
 import org.tensortapestry.loom.graph.dialects.tensorops.TensorNode;
 import org.tensortapestry.zspace.ZRange;
@@ -12,7 +12,7 @@ public class ScratchTest implements CommonAssertions {
 
   @Test
   public void test() {
-    var env = CommonEnvironments.OPERATION_EXPRESSION_ENVIRONMENT;
+    var env = OperationExpressionDialect.OPERATION_EXPRESSION_ENVIRONMENT;
     var graph = env.newGraph();
 
     var t0 = TensorNode.on(graph).body(b -> b.dtype("int32").shape(10, 5)).label("t0").build();

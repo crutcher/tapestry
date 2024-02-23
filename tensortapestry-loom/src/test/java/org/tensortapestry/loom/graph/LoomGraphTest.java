@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.tensortapestry.common.json.JsonUtil;
 import org.tensortapestry.common.testing.CommonAssertions;
 import org.tensortapestry.loom.graph.dialects.common.NoteNode;
+import org.tensortapestry.loom.graph.dialects.tensorops.ApplicationExpressionDialect;
 import org.tensortapestry.loom.graph.dialects.tensorops.TensorNode;
 import org.tensortapestry.zspace.ZRange;
 
@@ -12,7 +13,7 @@ public class LoomGraphTest implements CommonAssertions {
 
   @Test
   public void testNewUnusedNodeId() {
-    var env = CommonEnvironments.APPLICATION_EXPRESSION_ENVIRONMENT;
+    var env = ApplicationExpressionDialect.APPLICATION_EXPRESSION_ENVIRONMENT;
     var graph = env.newGraph();
 
     for (int i = 0; i < 10; i++) {
@@ -25,7 +26,7 @@ public class LoomGraphTest implements CommonAssertions {
 
   @Test
   public void testAddRemoveNode() {
-    var env = CommonEnvironments.APPLICATION_EXPRESSION_ENVIRONMENT;
+    var env = ApplicationExpressionDialect.APPLICATION_EXPRESSION_ENVIRONMENT;
     var graph = env.newGraph();
 
     var node1 = NoteNode.builder(graph).body(b -> b.message("node 1")).label("foo").build();
@@ -79,7 +80,7 @@ public class LoomGraphTest implements CommonAssertions {
 
   @Test
   public void testHasAssertAddNode() {
-    var env = CommonEnvironments.APPLICATION_EXPRESSION_ENVIRONMENT;
+    var env = ApplicationExpressionDialect.APPLICATION_EXPRESSION_ENVIRONMENT;
     var graph = env.newGraph();
 
     var nodeIdA = UUID.randomUUID();
@@ -183,7 +184,7 @@ public class LoomGraphTest implements CommonAssertions {
           TensorNode.TYPE
         );
 
-    var env = CommonEnvironments.APPLICATION_EXPRESSION_ENVIRONMENT;
+    var env = ApplicationExpressionDialect.APPLICATION_EXPRESSION_ENVIRONMENT;
 
     var graph = env.graphFromJson(source);
     graph.validate();

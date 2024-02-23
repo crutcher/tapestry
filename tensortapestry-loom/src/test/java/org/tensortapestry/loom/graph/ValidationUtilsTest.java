@@ -7,12 +7,13 @@ import org.tensortapestry.common.testing.CommonAssertions;
 import org.tensortapestry.common.validation.ListValidationIssueCollector;
 import org.tensortapestry.common.validation.ValidationIssue;
 import org.tensortapestry.loom.graph.dialects.common.NoteNode;
+import org.tensortapestry.loom.graph.dialects.tensorops.ApplicationExpressionDialect;
 import org.tensortapestry.loom.graph.dialects.tensorops.TensorNode;
 
 public class ValidationUtilsTest implements CommonAssertions {
 
   public LoomEnvironment createEnv() {
-    return CommonEnvironments.APPLICATION_EXPRESSION_ENVIRONMENT;
+    return ApplicationExpressionDialect.APPLICATION_EXPRESSION_ENVIRONMENT;
   }
 
   public LoomGraph createGraph() {

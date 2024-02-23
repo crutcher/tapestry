@@ -3,7 +3,6 @@ package org.tensortapestry.weft.metakernels;
 import java.util.Arrays;
 import org.junit.jupiter.api.Test;
 import org.tensortapestry.common.testing.CommonAssertions;
-import org.tensortapestry.loom.graph.CommonEnvironments;
 import org.tensortapestry.loom.graph.dialects.tensorops.*;
 import org.tensortapestry.loom.graph.tools.GraphViewer;
 import org.tensortapestry.zspace.ZPoint;
@@ -13,7 +12,7 @@ public class MKTest implements CommonAssertions {
 
   @Test
   public void test_add() {
-    var env = CommonEnvironments.APPLICATION_EXPRESSION_ENVIRONMENT;
+    var env = ApplicationExpressionDialect.APPLICATION_EXPRESSION_ENVIRONMENT;
     var graph = env.newGraph();
 
     String dtype = "float32";
@@ -42,7 +41,7 @@ public class MKTest implements CommonAssertions {
   @Test
   @SuppressWarnings({ "unused", "ConstantConditions" })
   public void test_Linear() {
-    var env = CommonEnvironments.APPLICATION_EXPRESSION_ENVIRONMENT;
+    var env = ApplicationExpressionDialect.APPLICATION_EXPRESSION_ENVIRONMENT;
     var graph = env.newGraph();
 
     var dtype = "float32";
@@ -102,7 +101,7 @@ public class MKTest implements CommonAssertions {
 
   @SuppressWarnings({ "unused", "ConstantConditions" })
   public static void main(String[] args) {
-    var env = CommonEnvironments.APPLICATION_EXPRESSION_ENVIRONMENT;
+    var env = ApplicationExpressionDialect.APPLICATION_EXPRESSION_ENVIRONMENT;
     var graph = env.newGraph();
 
     var dtype = "float32";

@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.tensortapestry.common.testing.CommonAssertions;
-import org.tensortapestry.loom.graph.CommonEnvironments;
 import org.tensortapestry.zspace.ZRange;
 
 public class ApplicationNodeTest implements CommonAssertions {
@@ -61,7 +60,7 @@ public class ApplicationNodeTest implements CommonAssertions {
 
   @Test
   public void test_valid() {
-    var env = CommonEnvironments.APPLICATION_EXPRESSION_ENVIRONMENT;
+    var env = ApplicationExpressionDialect.APPLICATION_EXPRESSION_ENVIRONMENT;
     var graph = env.newGraph();
 
     var inputTensor = TensorNode.on(graph).body(b -> b.shape(2, 3).dtype("float32")).build();
