@@ -37,6 +37,20 @@ Supported Node Types:
            - `IPFSignature` - operation polyhedral projection signature.
            - `IPFIndex` - operation polyhedral projection index.
 
+The `IPFSignature` is a [Polyhedral Projection Signature](../PolyhedralTypesAndIndexProjection.md)
+map that describes the projection of the operation's input tensors to the operation's output tensors.
+  - `inputs` : `{<name>: [<index projection function>, ...]}`
+  - `outputs` : `{<name>: [<index projection function>, ...]}`
+
+Where an `IPF` or *index projection function* is an affine map from points in
+the index coordinate space to ranges in the tensor coordinate space.
+  - `projection` - an affine projection from a point in the index space to a point in the tensor space.
+    - `affineMap` : a matrix from the index space to the tensor space.
+    - `offset` : a vector offset in the tensor space.
+  - `shape`: the shape of the projected range in tensor space, as an offset from the projection point.
+
+
+
 ## Examples
 
 Consider a small operation example, roughly equivalent to the pseudocode:
@@ -155,7 +169,40 @@ must be total over the output tensor range.
 
 ## Constraints
 
-* `TensorDTypeConstraint`
-* `TensorOperationAgreement`
-* `NoTensorOperationCycles`
-* `OperationIPFSignatureConstraint`
+### TensorDTypesAreValidConstraint
+
+See: [TensorDTypesAreValidConstraint.java](../../tensortapestry-loom/src/main/java/org/tensortapestry/loom/graph/dialects/tensorops/constraints/TensorDTypesAreValidConstraint.java)
+
+This constraint ensures that all tensors in the graph have a data type that is 
+one of a predefined set.
+
+> *NOTE*: There are open questions as to if this constraint is appropriate.
+> On the one hand, it sets hard limits on tensor types for a graph;
+> and an environment may wish to enforce what data types are representable.
+> On the other hand, it is implicit in the family of kernels permitted
+> in the graph, and may be redundant.
+> 
+> It also complicates environment management; as the set of legal data types
+> can legitimately vary for different graphs which are otherwise sharing
+> the same environment.
+
+### TensorOperationAgreementConstraint
+
+See: [TensorOperationAgreementConstraint.java](../../tensortapestry-loom/src/main/java/org/tensortapestry/loom/graph/dialects/tensorops/constraints/TensorOperationAgreementConstraint.java)
+
+This constraint ensures that the tensors referenced by an operation exist, and that tensor selections
+used by the operation are within the range provided by each operation.
+
+### NoTensorOperationCyclesConstraint
+
+See: [NoTensorOperationCyclesConstraint.java](../../tensortapestry-loom/src/main/java/org/tensortapestry/loom/graph/dialects/tensorops/constraints/NoTensorOperationCyclesConstraint.java)
+
+This constraint ensures that the tensor/operation graph is a directed acyclic graph (DAG)
+with respect to tensor/operation edges, with no cycles.
+
+### OperationIPFSignatureAgreementConstraint
+
+See: [OperationIPFSignatureAgreementConstraint.java](../../tensortapestry-loom/src/main/java/org/tensortapestry/loom/graph/dialects/tensorops/constraints/OperationIPFSignatureAgreementConstraint.java)
+
+This constraint ensures that every operation with a `IPFSignature` tag has an `IPFIndex` tag as well,
+and that the tensor selection maps of the operation are projections of the index through the signature.

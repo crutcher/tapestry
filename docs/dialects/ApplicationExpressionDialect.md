@@ -288,7 +288,29 @@ must be total over the output tensor range.
 
 ## Constraints
 
-* `TensorDTypeConstraint`
-* `TensorOperationAgreement`
-* `NoTensorOperationCycles`
-* `OperationIPFSignatureConstraint`
+Imports all: [OperationExpressionDialect > Constraints](OperationExpressionDialect.md#constraints)
+
+### OperationApplicationAgreementConstraint
+
+See: [OperationApplicationAgreementConstraint.java](../../tensortapestry-loom/src/main/java/org/tensortapestry/loom/graph/dialects/tensorops/constraints/OperationApplicationAgreementConstraint.java)
+
+This constraint ensures that the inputs and outputs of an `Application` node are consistent and
+within the ranges of the associated `Operation` node.
+
+It also ensures that no `Application` node is an orphan.
+
+### ApplicationIPFSignatureAgreementConstraint
+
+See: [ApplicationIPFSignatureAgreementConstraint.java](../../tensortapestry-loom/src/main/java/org/tensortapestry/loom/graph/dialects/tensorops/constraints/ApplicationIPFSignatureAgreementConstraint.java)
+
+This constraint ensures that all `Application` nodes with an `IPFIndex` tags
+have `inputs` and `outputs` matching the projection of the index through
+their associated `Operation` node's `IPFSignature` tag.
+
+### ApplicationOutputRangeCoverageIsExactConstraint
+
+See: [ApplicationOutputRangeCoverageIsExactConstraint.java](../../tensortapestry-loom/src/main/java/org/tensortapestry/loom/graph/dialects/tensorops/constraints/ApplicationOutputRangeCoverageIsExactConstraint.java)
+
+This constraint ensures that the output ranges of all `Application` node shards
+of an `Operation` node exactly combine to cover the output ranges of the `Operation` node,
+without overlaps or gaps.
