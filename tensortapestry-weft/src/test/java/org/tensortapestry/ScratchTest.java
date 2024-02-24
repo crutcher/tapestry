@@ -1,7 +1,6 @@
 package org.tensortapestry;
 
 import java.util.List;
-
 import org.junit.jupiter.api.Test;
 import org.tensortapestry.common.testing.CommonAssertions;
 import org.tensortapestry.loom.graph.dialects.tensorops.ApplicationExpressionDialect;

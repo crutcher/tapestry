@@ -205,14 +205,14 @@ public class DimShapeMatcher {
     int minSize = leaves.size();
     int expansionIndex = -1;
 
-    var optionalRange = EnumerationUtils
+    var optionalEllipsis = EnumerationUtils
       .enumerate(leaves)
       .stream()
       .filter(e -> e.getValue() instanceof ShapePattern.DimRange)
       .findFirst();
-    if (optionalRange.isPresent()) {
-      var idx = optionalRange.get().getKey();
-      var range = (ShapePattern.DimRange) optionalRange.get().getValue();
+    if (optionalEllipsis.isPresent()) {
+      var idx = optionalEllipsis.get().getKey();
+      var range = (ShapePattern.DimRange) optionalEllipsis.get().getValue();
 
       expansionIndex = idx;
       if (range.allowEmpty) {
