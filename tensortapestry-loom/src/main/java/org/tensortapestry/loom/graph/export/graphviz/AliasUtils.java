@@ -16,8 +16,8 @@ public class AliasUtils {
    * Given a collection of UUIDs, return a map of UUID to a short alias.
    *
    * <p>The short alias is taken as first {@code k} characters of the hex md5 sum of the ids, where
-   * {@code k} is the length of the longest common prefix of the md5 sums; or {@code
-   * minAliasLength}, whichever is greater.
+   * {@code k} is the length of the longest common prefix of the md5 sums; or
+   * {@code minAliasLength}, whichever is greater.
    *
    * @param ids collection of UUIDs
    * @param minAliasLength minimum length of the alias
@@ -25,7 +25,7 @@ public class AliasUtils {
    */
   @SuppressWarnings("UnstableApiUsage")
   public static Map<UUID, String> uuidAliasMap(Collection<UUID> ids, int minAliasLength) {
-    var idHashes = ids.stream().map(id -> DigestUtils.toMD5HexString(id.toString())).toList();
+    var idHashes = ids.stream().map(id -> DigestUtils.toMd5HexString(id.toString())).toList();
 
     var labelLen = Math.max(TextUtils.longestCommonPrefix(idHashes).length() + 1, minAliasLength);
 

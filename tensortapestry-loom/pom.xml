@@ -1,21 +1,17 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
-
   <parent>
     <groupId>org.tensortapestry</groupId>
     <artifactId>tensortapestry</artifactId>
     <version>0.1.0-SNAPSHOT</version>
   </parent>
-
   <artifactId>tensortapestry-loom</artifactId>
   <version>0.1.0-SNAPSHOT</version>
   <packaging>jar</packaging>
   <!--
   <name>tensortapestry-loom</name>
   -->
-
   <properties>
     <maven.version>3.9.5</maven.version>
     <maven.compiler.plugin.version>3.12.1</maven.compiler.plugin.version>
@@ -32,14 +28,6 @@
     <javadoc.plugin.version>3.6.3</javadoc.plugin.version>
     <antlr.version>4.13.1</antlr.version>
   </properties>
-
-  <repositories>
-    <repository>
-      <id>jitpack.io</id>
-      <url>https://jitpack.io</url>
-    </repository>
-  </repositories>
-
   <dependencies>
     <dependency>
       <groupId>org.tensortapestry</groupId>
@@ -57,7 +45,6 @@
       <artifactId>tensortapestry-zspace</artifactId>
       <version>0.1.0-SNAPSHOT</version>
     </dependency>
-
     <!-- Misc -->
     <dependency>
       <groupId>org.jgrapht</groupId>
@@ -79,12 +66,10 @@
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-math3</artifactId>
     </dependency>
-
     <dependency>
       <groupId>com.networknt</groupId>
       <artifactId>json-schema-validator</artifactId>
     </dependency>
-
     <!-- Jackson / JSON -->
     <dependency>
       <groupId>com.google.guava</groupId>
@@ -98,32 +83,21 @@
       <groupId>guru.nidi</groupId>
       <artifactId>graphviz-java</artifactId>
     </dependency>
-
     <!-- ANTLR -->
     <dependency>
       <groupId>org.antlr</groupId>
       <artifactId>antlr4-runtime</artifactId>
     </dependency>
-
     <!-- XML -->
     <dependency>
       <groupId>org.dom4j</groupId>
       <artifactId>dom4j</artifactId>
     </dependency>
-
   </dependencies>
-
-  <reporting>
-    <plugins>
-      <plugin>
-        <groupId>org.projectlombok</groupId>
-        <artifactId>lombok-maven-plugin</artifactId>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-javadoc-plugin</artifactId>
-      </plugin>
-    </plugins>
-  </reporting>
-
+  <repositories>
+    <repository>
+      <id>jitpack.io</id>
+      <url>https://jitpack.io</url>
+    </repository>
+  </repositories>
 </project>

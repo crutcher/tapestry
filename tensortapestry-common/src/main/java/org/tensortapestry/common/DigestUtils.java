@@ -34,7 +34,7 @@ public class DigestUtils {
    * @return A MD5 MessageDigest instance
    */
   @ExcludeFromJacocoGeneratedReport
-  public MessageDigest getMD5Digest() {
+  public MessageDigest getMd5Digest() {
     try {
       return MessageDigest.getInstance(MD5_ALGORITHM);
     } catch (Exception e) {
@@ -48,8 +48,8 @@ public class DigestUtils {
    * @param str The String to hash
    * @return The MD5 hash of the String as a hex String.
    */
-  public String toMD5HexString(String str) {
-    MessageDigest md = getMD5Digest();
+  public String toMd5HexString(String str) {
+    MessageDigest md = getMd5Digest();
     md.update(str.getBytes(StandardCharsets.UTF_8));
     return bytesToHex(md.digest());
   }

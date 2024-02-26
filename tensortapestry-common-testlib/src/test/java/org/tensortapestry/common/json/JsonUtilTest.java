@@ -89,10 +89,10 @@ public class JsonUtilTest implements CommonAssertions, JsonUtil.WithNodeBuilders
   public void test_reformatToPrettyJson() {
     assertThat(JsonUtil.reformatToPrettyJson("{\"a\":\"a\",\"b\":1}"))
       .isEqualTo("""
-            {
-              "a" : "a",
-              "b" : 1
-            }""");
+        {
+          "a" : "a",
+          "b" : 1
+        }""");
   }
 
   @Test
@@ -105,10 +105,10 @@ public class JsonUtilTest implements CommonAssertions, JsonUtil.WithNodeBuilders
     assertThat(JsonUtil.toJson(obj)).isEqualTo("{\"a\":\"a\",\"b\":1}");
     assertThat(JsonUtil.toPrettyJson(obj))
       .isEqualTo("""
-            {
-              "a" : "a",
-              "b" : 1
-            }""");
+        {
+          "a" : "a",
+          "b" : 1
+        }""");
   }
 
   @Test
@@ -126,11 +126,11 @@ public class JsonUtilTest implements CommonAssertions, JsonUtil.WithNodeBuilders
       JsonUtil.treeToSimpleJson(
         JsonUtil.parseToJsonNodeTree(
           """
-                    {
-                      "a" : "hello",
-                      "b" : 3,
-                      "bool" : true
-                    }"""
+            {
+              "a" : "hello",
+              "b" : 3,
+              "bool" : true
+            }"""
         )
       )
     )
@@ -145,19 +145,19 @@ public class JsonUtilTest implements CommonAssertions, JsonUtil.WithNodeBuilders
     assertThat(
       JsonUtil.parseToJsonNodeTree(
         """
-                {
-                  "a" : "hello",
-                  "b" : 3
-                }"""
+          {
+            "a" : "hello",
+            "b" : 3
+          }"""
       )
     )
       .isEqualTo(
         JsonUtil.parseToJsonNodeTree(
           """
-                {
-                  "b" : 3,
-                  "a" : "hello"
-                }"""
+            {
+              "b" : 3,
+              "a" : "hello"
+            }"""
         )
       );
 

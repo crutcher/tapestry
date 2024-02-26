@@ -2,12 +2,10 @@ package org.tensortapestry.weft.metakernels.expressions;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
-
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nonnull;
-
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.antlr.v4.runtime.CharStreams;
@@ -90,8 +88,7 @@ class SelectionMapShapeMatcherTest implements CommonAssertions {
   @Value
   @EqualsAndHashCode(callSuper = true)
   @SuperBuilder
-  public static class DimShapeIndex extends DimShapeMatcher.DimGroupBase {
-  }
+  public static class DimShapeIndex extends DimShapeMatcher.DimGroupBase {}
 
   @Value
   @RequiredArgsConstructor
@@ -478,7 +475,8 @@ class SelectionMapShapeMatcherTest implements CommonAssertions {
 
   @Test
   public void test() {
-    String tensorPattern = "[$batch..., $shape[$i]=($height, $width, $channels[$i]), $features[$i]]";
+    String tensorPattern =
+      "[$batch..., $shape[$i]=($height, $width, $channels[$i]), $features[$i]]";
     String maskPattern = "[$shape[$i]=($height, $width, $channels[$i])]";
     var matcher = new ShapeListMatcher(tensorPattern);
 
@@ -486,10 +484,7 @@ class SelectionMapShapeMatcherTest implements CommonAssertions {
       ZPoint.of(100, 128, 256, 512, 7, 3),
       ZPoint.of(100, 128, 256, 512, 2, 12)
     );
-    var maskShapes = List.of(
-      ZPoint.of(256, 512, 7),
-      ZPoint.of(256, 512, 2)
-    );
+    var maskShapes = List.of(ZPoint.of(256, 512, 7), ZPoint.of(256, 512, 2));
 
     // %batch := [100, 128]
     // $shape := [
@@ -540,9 +535,7 @@ class SelectionMapShapeMatcherTest implements CommonAssertions {
 
      */
 
-
     var layouts = matcher.match(tensorShapes);
-
     // The goal is, from a pattern like ...:
     // {
     //   <group_name>: {

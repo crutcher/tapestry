@@ -1,13 +1,24 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.tensortapestry</groupId>
   <artifactId>tensortapestry</artifactId>
-  <packaging>pom</packaging>
   <version>0.1.0-SNAPSHOT</version>
+  <packaging>pom</packaging>
   <name>tapestry</name>
-
+  <modules>
+    <module>tensortapestry-common</module>
+    <module>tensortapestry-common-testlib</module>
+    <module>tensortapestry-zspace</module>
+    <module>tensortapestry-loom</module>
+    <module>tensortapestry-weft</module>
+  </modules>
+  <distributionManagement>
+    <site>
+      <id>github</id>
+      <url>scm:git:git@github.com:LorenzoBettini/maven-site-github-example.git</url>
+    </site>
+  </distributionManagement>
   <properties>
     <maven.version>3.9.5</maven.version>
     <maven.compiler.plugin.version>3.12.1</maven.compiler.plugin.version>
@@ -24,17 +35,6 @@
     <javadoc.plugin.version>3.6.3</javadoc.plugin.version>
     <antlr.version>4.13.1</antlr.version>
   </properties>
-
-  <modules>
-    <module>tensortapestry-common</module>
-    <module>tensortapestry-common-testlib</module>
-    <module>tensortapestry-common-tests</module>
-    <module>tensortapestry-zspace</module>
-    <module>tensortapestry-loom</module>
-    <module>tensortapestry-weft</module>
-  </modules>
-
-
   <!--
   <repositories>
     <repository>
@@ -43,10 +43,36 @@
     </repository>
   </repositories>
   -->
-
   <dependencyManagement>
-
     <dependencies>
+      <!--
+      <dependency>
+        <groupId>org.tensortapestry</groupId>
+        <artifactId>tensortapestry-common</artifactId>
+        <version>0.1.0-SNAPSHOT</version>
+      </dependency>
+      <dependency>
+        <groupId>org.tensortapestry</groupId>
+        <artifactId>tensortapestry-common-testlib</artifactId>
+        <scope>test</scope>
+        <version>0.1.0-SNAPSHOT</version>
+      </dependency>
+      <dependency>
+        <groupId>org.tensortapestry</groupId>
+        <artifactId>tensortapestry-zspace</artifactId>
+        <version>0.1.0-SNAPSHOT</version>
+      </dependency>
+      <dependency>
+        <groupId>org.tensortapestry</groupId>
+        <artifactId>tensortapestry-loom</artifactId>
+        <version>0.1.0-SNAPSHOT</version>
+      </dependency>
+      <dependency>
+        <groupId>org.tensortapestry</groupId>
+        <artifactId>tensortapestry-weft</artifactId>
+        <version>0.1.0-SNAPSHOT</version>
+      </dependency>
+      -->
       <!-- Build / Annotations -->
       <dependency>
         <groupId>org.projectlombok</groupId>
@@ -100,13 +126,11 @@
         <artifactId>commons-math3</artifactId>
         <version>3.6.1</version>
       </dependency>
-
       <dependency>
         <groupId>com.networknt</groupId>
         <artifactId>json-schema-validator</artifactId>
         <version>1.2.0</version>
       </dependency>
-
       <!-- Jackson / JSON -->
       <dependency>
         <groupId>com.jayway.jsonpath</groupId>
@@ -153,21 +177,18 @@
         <artifactId>jackson-dataformat-msgpack</artifactId>
         <version>0.9.8</version>
       </dependency>
-
       <!-- Graphviz -->
       <dependency>
         <groupId>guru.nidi</groupId>
         <artifactId>graphviz-java</artifactId>
         <version>0.18.1</version>
       </dependency>
-
       <!-- ANTLR -->
       <dependency>
         <groupId>org.antlr</groupId>
         <artifactId>antlr4-runtime</artifactId>
         <version>${antlr.version}</version>
       </dependency>
-
       <!-- XML -->
       <dependency>
         <groupId>org.dom4j</groupId>
@@ -186,7 +207,6 @@
         <version>2.9.1</version>
         <scope>test</scope>
       </dependency>
-
       <!-- Testing -->
       <dependency>
         <groupId>org.junit.jupiter</groupId>
@@ -194,7 +214,6 @@
         <version>5.10.1</version>
         <scope>test</scope>
       </dependency>
-
       <dependency>
         <groupId>org.assertj</groupId>
         <artifactId>assertj-core</artifactId>
@@ -207,7 +226,6 @@
         <version>3.2.2</version>
         <scope>test</scope>
       </dependency>
-
       <dependency>
         <groupId>org.mockito</groupId>
         <artifactId>mockito-core</artifactId>
@@ -216,7 +234,6 @@
       </dependency>
     </dependencies>
   </dependencyManagement>
-
   <dependencies>
     <!-- Build / Annotations -->
     <dependency>
@@ -240,7 +257,6 @@
       <groupId>com.google.code.findbugs</groupId>
       <artifactId>jsr305</artifactId>
     </dependency>
-
     <!-- Jackson / JSON -->
     <dependency>
       <groupId>com.jayway.jsonpath</groupId>
@@ -270,14 +286,12 @@
       <groupId>org.msgpack</groupId>
       <artifactId>jackson-dataformat-msgpack</artifactId>
     </dependency>
-
     <!-- Testing -->
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-engine</artifactId>
       <scope>test</scope>
     </dependency>
-
     <dependency>
       <groupId>org.assertj</groupId>
       <artifactId>assertj-core</artifactId>
@@ -288,13 +302,11 @@
       <artifactId>json-unit-assertj</artifactId>
       <scope>test</scope>
     </dependency>
-
     <dependency>
       <groupId>org.mockito</groupId>
       <artifactId>mockito-core</artifactId>
       <scope>test</scope>
     </dependency>
-
     <dependency>
       <groupId>org.xmlunit</groupId>
       <artifactId>xmlunit-core</artifactId>
@@ -306,85 +318,97 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
-
   <build>
-    <!--
-    The maven-build-cache-extension breaks dependency analysis in this project
-    due to some nasty interaction between delombok and javadoc.
-    <extensions>
-      <extension>
-        <groupId>org.apache.maven.extensions</groupId>
-        <artifactId>maven-build-cache-extension</artifactId>
-        <version>1.1.0</version>
-      </extension>
-    </extensions>
-    -->
     <pluginManagement>
       <plugins>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-enforcer-plugin</artifactId>
-          <version>3.4.1</version>
-          <executions>
-            <execution>
-              <id>enforce-maven</id>
-              <goals>
-                <goal>enforce</goal>
-              </goals>
-              <configuration>
-                <rules>
-                  <requireMavenVersion>
-                    <version>${maven.version}</version>
-                  </requireMavenVersion>
-                </rules>
-              </configuration>
-            </execution>
-          </executions>
-        </plugin>
-
         <plugin>
           <groupId>org.antlr</groupId>
           <artifactId>antlr4-maven-plugin</artifactId>
           <version>${antlr.version}</version>
+          <configuration>
+            <treatWarningsAsErrors>true</treatWarningsAsErrors>
+            <arguments>
+              <argument>-visitor</argument>
+            </arguments>
+            <atn>true</atn>
+          </configuration>
           <executions>
             <execution>
-              <phase>generate-sources</phase>
-              <id>antlr</id>
               <goals>
                 <goal>antlr4</goal>
               </goals>
             </execution>
           </executions>
-          <configuration>
-            <arguments>
-              <argument>-visitor</argument>
-            </arguments>
-          </configuration>
         </plugin>
-
         <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-compiler-plugin</artifactId>
-          <version>${maven.compiler.plugin.version}</version>
+          <groupId>org.projectlombok</groupId>
+          <artifactId>lombok-maven-plugin</artifactId>
+          <version>${lombok.plugin.version}</version>
           <configuration>
-            <source>${maven.compiler.source}</source>
-            <target>${maven.compiler.target}</target>
-            <compilerArgs>
-              <arg>-XDcompilePolicy=simple</arg>
-
-              <!-- For ErrorProne -->
-              <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED</arg>
-              <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED</arg>
-              <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED</arg>
-              <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.model=ALL-UNNAMED</arg>
-              <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED</arg>
-              <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED</arg>
-              <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED</arg>
-              <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED</arg>
-              <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED</arg>
-              <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED</arg>
-
-              <arg>-Xplugin:ErrorProne
+            <sourceDirectory>src/main/java</sourceDirectory>
+            <!-- <outputDirectory>${project.build.directory}/delombok</outputDirectory> -->
+            <addOutputDirectory>false</addOutputDirectory>
+          </configuration>
+          <dependencies>
+            <dependency>
+              <groupId>org.projectlombok</groupId>
+              <artifactId>lombok</artifactId>
+              <version>${lombok.version}</version>
+            </dependency>
+          </dependencies>
+          <executions>
+            <execution>
+              <goals>
+                <goal>delombok</goal>
+              </goals>
+              <phase>generate-sources</phase>
+            </execution>
+          </executions>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-enforcer-plugin</artifactId>
+        <version>3.4.1</version>
+        <executions>
+          <execution>
+            <id>enforce-maven</id>
+            <goals>
+              <goal>enforce</goal>
+            </goals>
+            <configuration>
+              <rules>
+                <requireMavenVersion>
+                  <version>${maven.version}</version>
+                </requireMavenVersion>
+              </rules>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>${maven.compiler.plugin.version}</version>
+        <configuration>
+          <source>${maven.compiler.source}</source>
+          <target>${maven.compiler.target}</target>
+          <compilerArgs>
+            <arg>-XDcompilePolicy=simple</arg>
+            <!-- For ErrorProne -->
+            <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED</arg>
+            <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED</arg>
+            <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED</arg>
+            <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.model=ALL-UNNAMED</arg>
+            <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED</arg>
+            <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED</arg>
+            <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED</arg>
+            <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED</arg>
+            <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED</arg>
+            <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED</arg>
+            <arg>-Xplugin:ErrorProne
                 -XepDisableWarningsInGeneratedCode
                 -XepExcludedPaths:.*/generated-sources/.*
                 -Xep:AssertFalse:ERROR
@@ -398,188 +422,7 @@
                 -Xep:RedundantOverride:ERROR
                 -Xep:UnescapedEntity:ERROR
                 -Xep:Varifier:ERROR
-                -Xep:YodaCondition:ERROR
-              </arg>
-            </compilerArgs>
-            <annotationProcessorPaths>
-              <path>
-                <groupId>org.projectlombok</groupId>
-                <artifactId>lombok</artifactId>
-                <version>${lombok.version}</version>
-              </path>
-              <path>
-                <groupId>com.google.errorprone</groupId>
-                <artifactId>error_prone_core</artifactId>
-                <version>${error-prone.version}</version>
-              </path>
-            </annotationProcessorPaths>
-          </configuration>
-        </plugin>
-
-        <plugin>
-          <groupId>com.diffplug.spotless</groupId>
-          <artifactId>spotless-maven-plugin</artifactId>
-          <version>${spotless.plugin.version}</version>
-          <configuration>
-            <markdown>
-              <includes>
-                <include>*.md</include>
-                <include>src/**/*.md</include>
-              </includes>
-              <excludes>
-                <exclude>**/target/**</exclude>
-              </excludes>
-              <prettier>
-                <devDependencies>
-                  <prettier>${spotless.prettier.version}</prettier>
-                  <prettier-plugin-java>${spotless.prettier.plugin.version}</prettier-plugin-java>
-                </devDependencies>
-                <config>
-                  <parser>markdown</parser>
-                  <printWidth>100</printWidth>
-                  <proseWrap>always</proseWrap>
-                </config>
-              </prettier>
-            </markdown>
-            <json>
-              <includes>
-                <include>src/**/*.json</include>
-                <include>src/**/*.jsd</include>
-              </includes>
-              <jackson>
-                <version>${jackson.version}</version>
-                <features>
-                  <INDENT_OUTPUT>true</INDENT_OUTPUT>
-                  <ORDER_MAP_ENTRIES_BY_KEYS>false</ORDER_MAP_ENTRIES_BY_KEYS>
-                </features>
-                <jsonFeatures>
-                  <QUOTE_FIELD_NAMES>true</QUOTE_FIELD_NAMES>
-                </jsonFeatures>
-                <spaceBeforeSeparator>false</spaceBeforeSeparator>
-              </jackson>
-            </json>
-            <antlr4>
-              <antlr4Formatter>
-                <version>1.2.1</version>
-              </antlr4Formatter>
-            </antlr4>
-            <java>
-              <prettier>
-                <devDependencies>
-                  <prettier>${spotless.prettier.version}</prettier>
-                  <prettier-plugin-java>${spotless.prettier.plugin.version}</prettier-plugin-java>
-                </devDependencies>
-                <config>
-                  <parser>java</parser>
-                  <tabWidth>2</tabWidth>
-                  <printWidth>100</printWidth>
-                  <bracketSameLine>true</bracketSameLine>
-                </config>
-              </prettier>
-
-              <removeUnusedImports/>
-              <importOrder/>
-
-              <formatAnnotations/>
-              <trimTrailingWhitespace/>
-              <indent>
-                <spaces>true</spaces>
-                <tabs>false</tabs>
-                <spacesPerTab>2</spacesPerTab>
-              </indent>
-              <endWithNewline/>
-            </java>
-          </configuration>
-        </plugin>
-
-
-        <plugin>
-          <groupId>org.projectlombok</groupId>
-          <artifactId>lombok-maven-plugin</artifactId>
-          <version>${lombok.plugin.version}</version>
-          <executions>
-            <execution>
-              <phase>generate-sources</phase>
-              <goals>
-                <goal>delombok</goal>
-              </goals>
-            </execution>
-          </executions>
-          <configuration>
-            <sourceDirectory>src/main/java</sourceDirectory>
-            <outputDirectory>${project.build.directory}/delombok</outputDirectory>
-            <addOutputDirectory>false</addOutputDirectory>
-          </configuration>
-          <dependencies>
-            <dependency>
-              <groupId>org.projectlombok</groupId>
-              <artifactId>lombok</artifactId>
-              <version>${lombok.version}</version>
-            </dependency>
-          </dependencies>
-        </plugin>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-javadoc-plugin</artifactId>
-          <version>${javadoc.plugin.version}</version>
-          <configuration>
-            <sourcepath>${project.build.directory}/delombok</sourcepath>
-          </configuration>
-        </plugin>
-
-      </plugins>
-    </pluginManagement>
-
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-enforcer-plugin</artifactId>
-      </plugin>
-
-      <plugin>
-        <groupId>com.diffplug.spotless</groupId>
-        <artifactId>spotless-maven-plugin</artifactId>
-      </plugin>
-
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <version>${maven.compiler.plugin.version}</version>
-        <configuration>
-          <source>${maven.compiler.source}</source>
-          <target>${maven.compiler.target}</target>
-          <compilerArgs>
-            <arg>-XDcompilePolicy=simple</arg>
-
-            <!-- For ErrorProne -->
-            <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED</arg>
-            <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED</arg>
-            <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED</arg>
-            <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.model=ALL-UNNAMED</arg>
-            <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED</arg>
-            <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED</arg>
-            <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED</arg>
-            <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED</arg>
-            <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED</arg>
-            <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED</arg>
-
-            <arg>-Xplugin:ErrorProne
-              -XepDisableWarningsInGeneratedCode
-              -XepExcludedPaths:.*/generated-sources/.*
-              -Xep:AssertFalse:ERROR
-              -Xep:CanIgnoreReturnValueSuggester:ERROR
-              -Xep:ClassName:ERROR
-              -Xep:DifferentNameButSame:ERROR
-              -Xep:EmptyIf:ERROR
-              -Xep:InconsistentOverloads:ERROR
-              -Xep:LongLiteralLowerCaseSuffix:ERROR
-              -Xep:MemberName:ERROR
-              -Xep:MissingDefault:ERROR
-              -Xep:RedundantOverride:ERROR
-              -Xep:UnescapedEntity:ERROR
-              -Xep:Varifier:ERROR
-              -Xep:YodaCondition:ERROR
-            </arg>
+                -Xep:YodaCondition:ERROR</arg>
           </compilerArgs>
           <annotationProcessorPaths>
             <path>
@@ -595,9 +438,102 @@
           </annotationProcessorPaths>
         </configuration>
       </plugin>
+      <plugin>
+        <groupId>com.diffplug.spotless</groupId>
+        <artifactId>spotless-maven-plugin</artifactId>
+        <version>${spotless.plugin.version}</version>
+        <configuration>
+          <pom>
+            <sortPom>
+              <keepBlankLines>false</keepBlankLines>
+              <expandEmptyElements>false</expandEmptyElements>
+            </sortPom>
+          </pom>
+          <markdown>
+            <includes>
+              <include>*.md</include>
+              <include>src/**/*.md</include>
+            </includes>
+            <excludes>
+              <exclude>**/target/**</exclude>
+            </excludes>
+            <prettier>
+              <devDependencies>
+                <prettier>${spotless.prettier.version}</prettier>
+                <prettier-plugin-java>${spotless.prettier.plugin.version}</prettier-plugin-java>
+              </devDependencies>
+              <config>
+                <parser>markdown</parser>
+                <printWidth>100</printWidth>
+                <proseWrap>always</proseWrap>
+              </config>
+            </prettier>
+          </markdown>
+          <json>
+            <includes>
+              <include>src/**/*.json</include>
+              <include>src/**/*.jsd</include>
+            </includes>
+            <jackson>
+              <version>${jackson.version}</version>
+              <features>
+                <INDENT_OUTPUT>true</INDENT_OUTPUT>
+                <ORDER_MAP_ENTRIES_BY_KEYS>false</ORDER_MAP_ENTRIES_BY_KEYS>
+              </features>
+              <jsonFeatures>
+                <QUOTE_FIELD_NAMES>true</QUOTE_FIELD_NAMES>
+              </jsonFeatures>
+              <spaceBeforeSeparator>false</spaceBeforeSeparator>
+            </jackson>
+          </json>
+          <antlr4>
+            <antlr4Formatter>
+              <version>1.2.1</version>
+            </antlr4Formatter>
+          </antlr4>
+          <java>
+            <prettier>
+              <devDependencies>
+                <prettier>${spotless.prettier.version}</prettier>
+                <prettier-plugin-java>${spotless.prettier.plugin.version}</prettier-plugin-java>
+              </devDependencies>
+              <config>
+                <parser>java</parser>
+                <tabWidth>2</tabWidth>
+                <printWidth>100</printWidth>
+                <bracketSameLine>true</bracketSameLine>
+              </config>
+            </prettier>
+            <removeUnusedImports/>
+            <importOrder/>
+            <formatAnnotations/>
+            <trimTrailingWhitespace/>
+            <indent>
+              <spaces>true</spaces>
+              <tabs>false</tabs>
+              <spacesPerTab>2</spacesPerTab>
+            </indent>
+            <endWithNewline/>
+          </java>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.projectlombok</groupId>
+        <artifactId>lombok-maven-plugin</artifactId>
+      </plugin>
     </plugins>
+    <!--
+    The maven-build-cache-extension breaks dependency analysis in this project
+    due to some nasty interaction between delombok and javadoc.
+    -->
+    <extensions>
+      <extension>
+        <groupId>org.apache.maven.extensions</groupId>
+        <artifactId>maven-build-cache-extension</artifactId>
+        <version>1.1.0</version>
+      </extension>
+    </extensions>
   </build>
-
   <reporting>
     <plugins>
       <plugin>
@@ -614,14 +550,36 @@
           </reportSet>
         </reportSets>
       </plugin>
-
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-project-info-reports-plugin</artifactId>
         <version>3.5.0</version>
       </plugin>
-
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <version>${javadoc.plugin.version}</version>
+        <configuration combine.children="append">
+          <sourcepath>${project.build.directory}/generated-sources/delombok</sourcepath>
+          <show>public</show>
+          <additionalOptions>-Xdoclint:none</additionalOptions>
+        </configuration>
+        <reportSets>
+          <reportSet>
+            <id>aggregate</id>
+            <reports>
+              <report>aggregate</report>
+            </reports>
+            <inherited>false</inherited>
+          </reportSet>
+          <reportSet>
+            <id>default</id>
+            <reports>
+              <report>javadoc</report>
+            </reports>
+          </reportSet>
+        </reportSets>
+      </plugin>
     </plugins>
   </reporting>
-
 </project>

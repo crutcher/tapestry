@@ -13,7 +13,7 @@ public class DigestUtilsTest implements CommonAssertions {
 
   @Test
   public void test_getMD5Digest() {
-    var d = DigestUtils.getMD5Digest();
+    var d = DigestUtils.getMd5Digest();
 
     assertThat(d)
       .isInstanceOf(java.security.MessageDigest.class)
@@ -23,7 +23,7 @@ public class DigestUtilsTest implements CommonAssertions {
 
   @Test
   public void test_toMD5HexString() {
-    var hex = DigestUtils.toMD5HexString("hello world");
+    var hex = DigestUtils.toMd5HexString("hello world");
     assertThat(hex).isEqualTo("5eb63bbbe01eeed093cb22bb8f5acdc3");
   }
 }

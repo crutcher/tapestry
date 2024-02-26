@@ -38,8 +38,8 @@ import org.tensortapestry.loom.graph.dialects.common.JsdType;
  * constraints on the graph; and common collections of permitted types and constraints can be
  * composed together into <b>Loom Dialects</b>.
  *
- * <h3>Serialization</h3>
- * Base **LoomGraph** serialization is a JSON object with the following properties:
+ * <h2>Serialization</h2>
+ * Base {@link LoomGraph} serialization is a JSON object with the following properties:
  * <pre>{@code
  * {
  *   "id": "<graph-uuid>",
@@ -59,12 +59,12 @@ import org.tensortapestry.loom.graph.dialects.common.JsdType;
  * }
  * }</pre>
  *
- * <h4>msgpack</h4>
+ * <h3>msgpack</h3>
  * <p>
  * The chosen serialization format for LoomGraph is JSON, in a way which works equally well with
  * <b>msgpack</b>.
  *
- * <h3>Example</h3>
+ * <h2>Example</h2>
  * <p>
  * Assuming two very simple types, a tensor and a simple operation with no sharding information, we
  * could define types and graphs such that a desaturation operation is performed on a tensor of
@@ -101,6 +101,7 @@ import org.tensortapestry.loom.graph.dialects.common.JsdType;
  *         "outputs": ["8e3f8f1e-6c54-4b01-90e6-0ae1a048f9000"],
  *       }
  *     }
+ *   ]
  * }
  * }</pre>
  */

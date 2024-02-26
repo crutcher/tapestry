@@ -103,6 +103,8 @@ public class JsonViewWrapperTest implements CommonAssertions, JsonUtil.WithNodeB
 
     assertThatExceptionOfType(ViewConversionError.class)
       .isThrownBy(() -> wrapper.viewAs(Float.class))
-      .withMessageContaining("Failed to convert <{\"data\":[1,2,3]}> to class java.lang.Float");
+      .withMessageContaining(
+        "Failed to convert <{\n  \"data\" : [ 1, 2, 3 ]\n}> to class java.lang.Float"
+      );
   }
 }
