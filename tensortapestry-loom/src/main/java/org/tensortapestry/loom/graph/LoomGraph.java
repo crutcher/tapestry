@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
+
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Stream;
@@ -14,6 +15,7 @@ import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
+
 import lombok.*;
 import lombok.experimental.UtilityClass;
 import org.tensortapestry.common.collections.StreamableIterable;
@@ -26,13 +28,89 @@ import org.tensortapestry.loom.graph.dialects.common.JsdType;
 
 /**
  * A Loom Graph document.
+ * <p>
+ * A {@link LoomGraph} is a collection of {@link LoomNode}s, paired with a {@link LoomEnvironment}.
+ * <p>
+ * Relationships, edges, and other graph structures are not directly represented in the graph
+ * document, but are instead represented by data in the nodes themselves.
+ * <p>
+ * Different {@link LoomEnvironment}s may permit different types of nodes, and impose different
+ * constraints on the graph; and common collections of permitted types and constraints can be
+ * composed together into <b>Loom Dialects</b>.
+ *
+ * <h3>Serialization</h3>
+ * Base **LoomGraph** serialization is a JSON object with the following properties:
+ * <pre>{@code
+ * {
+ *   "id": "<graph-uuid>",
+ *   "nodes": [
+ *     {
+ *       "id": "<node-uuid>",
+ *       "type": "<type-url>",
+ *       "label": "<non-unique-label>",  // optional
+ *       "body": <type-specific-JSON>,
+ *       "tags": { // optional
+ *         <tag-type>: <tag-type-specific-JSON>,
+ *         ...
+ *       }
+ *     },
+ *     ...
+ *   ]
+ * }
+ * }</pre>
+ *
+ * <h4>msgpack</h4>
+ * <p>
+ * The chosen serialization format for LoomGraph is JSON, in a way which works equally well with
+ * <b>msgpack</b>.
+ *
+ * <h3>Example</h3>
+ * <p>
+ * Assuming two very simple types, a tensor and a simple operation with no sharding information, we
+ * could define types and graphs such that a desaturation operation is performed on a tensor of
+ * images:
+ *
+ * <pre>{@code
+ * {
+ *   "id": "d290f1ee-6c54-4b01-90e6-d701748f0851",
+ *   "nodes": [
+ *     {
+ *       "id": "8e3f8f1e-6c54-4b01-90e6-0ae1a048f0851",
+ *       "type": "https://<schema-url>#/types/Tensor",
+ *       "label": "Images",
+ *       "body": {
+ *         "dtype": "uint8"
+ *         "shape": [100, 256, 256, 3],
+ *       }
+ *     },
+ *     {
+ *       "id": "8e3f8f1e-6c54-4b01-90e6-0ae1a048f9000",
+ *       "type": "https://<schema-url>#/types/Tensor",
+ *       "label": "Monochrome",
+ *       "body": {
+ *         "dtype": "uint8"
+ *         "shape": [100, 256, 256, 3],
+ *       }
+ *     },
+ *     {
+ *       "id": "8e3f8f1e-6c54-4b01-90e6-0ae1a048faaaa",
+ *       "type": "https://<schema-url>#/types/Operation",
+ *       "body": {
+ *         "kernel": "desaturate",
+ *         "inputs": ["8e3f8f1e-6c54-4b01-90e6-0ae1a048f0851"],
+ *         "outputs": ["8e3f8f1e-6c54-4b01-90e6-0ae1a048f9000"],
+ *       }
+ *     }
+ * }
+ * }</pre>
  */
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @Getter
 @Setter
 public final class LoomGraph implements HasToJsonString, StreamableIterable<LoomNode> {
 
-  @Nullable @JsonIgnore
+  @Nullable
+  @JsonIgnore
   private LoomEnvironment env = null;
 
   @JsonInclude
@@ -104,7 +182,8 @@ public final class LoomGraph implements HasToJsonString, StreamableIterable<Loom
    * @return the iterator.
    */
   @Override
-  @NotNull @Nonnull
+  @NotNull
+  @Nonnull
   public Iterator<LoomNode> iterator() {
     return nodes.values().iterator();
   }
@@ -204,7 +283,8 @@ public final class LoomGraph implements HasToJsonString, StreamableIterable<Loom
    * @param id the ID of the node to get.
    * @return the node, or null if not found.
    */
-  @Nullable public LoomNode getNode(UUID id) {
+  @Nullable
+  public LoomNode getNode(UUID id) {
     return nodes.get(id);
   }
 
@@ -214,7 +294,8 @@ public final class LoomGraph implements HasToJsonString, StreamableIterable<Loom
    * @param id the ID of the node to get.
    * @return the node, or null if not found.
    */
-  @Nullable public LoomNode getNode(String id) {
+  @Nullable
+  public LoomNode getNode(String id) {
     return getNode(UUID.fromString(id));
   }
 
@@ -354,7 +435,8 @@ public final class LoomGraph implements HasToJsonString, StreamableIterable<Loom
    * @param id the ID of the node to remove.
    * @return the removed node.
    */
-  @Nullable @CanIgnoreReturnValue
+  @Nullable
+  @CanIgnoreReturnValue
   public LoomNode removeNode(@Nonnull String id) {
     return removeNode(UUID.fromString(id));
   }
