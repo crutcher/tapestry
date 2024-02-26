@@ -16,6 +16,19 @@ import org.tensortapestry.zspace.ops.CellWiseOps;
 public class ZTensorTest implements ZSpaceTestAssertions {
 
   @Test
+  public void concat() {
+    var a = ZTensor.newMatrix(new int[][] { { 1, 2 }, { 3, 4 } });
+    var b = ZTensor.newMatrix(new int[][] { { 5, 6 }, { 7, 8 } });
+
+    assertThat(ZTensor.concat(0, a, b))
+      .isEqualTo(ZTensor.concat(0, List.of(a, b)))
+      .isEqualTo(ZTensor.newMatrix(new int[][] { { 1, 2 }, { 3, 4 }, { 5, 6 }, { 7, 8 } }));
+    assertThat(ZTensor.concat(1, a, b))
+      .isEqualTo(ZTensor.concat(1, List.of(a, b)))
+      .isEqualTo(ZTensor.newMatrix(new int[][] { { 1, 2, 5, 6 }, { 3, 4, 7, 8 } }));
+  }
+
+  @Test
   public void test_select() {
     var gen = new Random();
 
@@ -54,6 +67,8 @@ public class ZTensorTest implements ZSpaceTestAssertions {
       .isSameAs(t);
 
     assertThat(t.sliceDim(1, new Selector.Slice(1, 3)))
+      .isEqualTo(t.sliceDim(1, 1, 3))
+      .isEqualTo(t.sliceDim(1, 1, 3, null))
       .isEqualTo(t.sliceDim(1, new Selector.Slice(1, null)))
       .isEqualTo(t.sliceDim(1, new Selector.Slice(1, 3, 1)))
       .isEqualTo(t.sliceDim(1, new Selector.Slice(-2, null)))

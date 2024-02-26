@@ -11,7 +11,6 @@ import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.IntNode;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
-
 import java.lang.reflect.Array;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
@@ -19,7 +18,6 @@ import java.util.function.*;
 import java.util.stream.IntStream;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-
 import lombok.Getter;
 import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
@@ -93,7 +91,7 @@ import org.tensortapestry.zspace.ops.ReduceOps;
 @SuppressWarnings("MemberName")
 public final class ZTensor
   implements
-  ZTensorWrapper, HasToJsonString, Cloneable, HasDimension, HasSize, HasPermute<ZTensor> {
+    ZTensorWrapper, HasToJsonString, Cloneable, HasDimension, HasSize, HasPermute<ZTensor> {
 
   /**
    * Construct a new mutable scalar (0-dim) tensor.
@@ -105,9 +103,9 @@ public final class ZTensor
   public static ZTensor newScalar(int value) {
     return new ZTensor(
       true,
-      new int[]{},
-      new int[]{},
-      new int[]{value},
+      new int[] {},
+      new int[] {},
+      new int[] { value },
       0,
       BufferOwnership.REUSED
     );
@@ -149,7 +147,7 @@ public final class ZTensor
     if (numRows > 0) {
       numCols = rows[0].length;
     }
-    int[] shape = new int[]{numRows, numCols};
+    int[] shape = new int[] { numRows, numCols };
 
     int[] data = new int[numRows * numCols];
     for (int i = 0; i < numRows; ++i) {
@@ -325,7 +323,7 @@ public final class ZTensor
     int k = diag.length;
     var tensor = newZeros(k, k);
     for (int i = 0; i < k; ++i) {
-      tensor._unchecked_set(new int[]{i, i}, diag[i]);
+      tensor._unchecked_set(new int[] { i, i }, diag[i]);
     }
     return tensor;
   }
@@ -356,8 +354,8 @@ public final class ZTensor
     if (tensor == null) {
       throw new IllegalArgumentException(
         "Cannot convert object of type %s to ZTensor".formatted(
-          source.getClass().getCanonicalName()
-        )
+            source.getClass().getCanonicalName()
+          )
       );
     }
     return tensor;
@@ -372,8 +370,7 @@ public final class ZTensor
    * @param source the source array.
    * @return a new ZTensor, or null if the source is not an array.
    */
-  @Nullable
-  private static ZTensor newFromArrayNull(@Nonnull Object source) {
+  @Nullable private static ZTensor newFromArrayNull(@Nonnull Object source) {
     if (!IndexingFns.isRecursiveIntArray(source)) {
       return null;
     }
@@ -891,9 +888,7 @@ public final class ZTensor
     for (var selIdx = 0; selIdx < selectors.size(); selIdx++) {
       var selector = Objects.requireNonNull(selectors.get(selIdx), "selector");
       switch (selector) {
-        case Selector.Index index ->
-          // shrinks cur, so we don't increment nextDim.
-          cur = cur.selectDim(nextDim, index.getIndex());
+        case Selector.Index index -> cur = cur.selectDim(nextDim, index.getIndex()); // shrinks cur, so we don't increment nextDim.
         case Selector.NewAxis newAxis -> {
           cur = cur.unsqueeze(nextDim);
           nextDim++;
@@ -1277,9 +1272,9 @@ public final class ZTensor
     if (res.getNDim() > targetShape.length) {
       throw new IllegalArgumentException(
         "Cannot broadcast shape %s to %s".formatted(
-          Arrays.toString(shape),
-          Arrays.toString(targetShape)
-        )
+            Arrays.toString(shape),
+            Arrays.toString(targetShape)
+          )
       );
     }
     while (res.getNDim() < targetShape.length) {
@@ -1289,9 +1284,9 @@ public final class ZTensor
       if (res.shape[i] > 1 && res.shape[i] != targetShape[i]) {
         throw new IllegalArgumentException(
           "Cannot broadcast shape %s to %s".formatted(
-            Arrays.toString(this.shape),
-            Arrays.toString(targetShape)
-          )
+              Arrays.toString(this.shape),
+              Arrays.toString(targetShape)
+            )
         );
       }
       if (res.shape[i] == 1 && targetShape[i] > 1) {
@@ -1796,20 +1791,20 @@ public final class ZTensor
     } else if (step > 0 && start > end) {
       throw new IllegalArgumentException(
         "slice start (%d) must be less than end (%d) for positive step (%d): %s".formatted(
-          start,
-          end,
-          step,
-          slice
-        )
+            start,
+            end,
+            step,
+            slice
+          )
       );
     } else if (step < 0 && start < end) {
       throw new IllegalArgumentException(
         "slice start (%d) must be greater than end (%d) for negative step (%d): %s".formatted(
-          start,
-          end,
-          step,
-          slice
-        )
+            start,
+            end,
+            step,
+            slice
+          )
       );
     }
 
@@ -1829,11 +1824,34 @@ public final class ZTensor
     return new ZTensor(mutable, new_shape, new_stride, data, new_offset, BufferOwnership.REUSED);
   }
 
+  /**
+   * Slices the ZTensor along the specified dimension with the specified start and end indices.
+   *
+   * @param dim the dimension along which the ZTensor should be sliced
+   * @param start the start index of the slice (inclusive), pass null to slice from the beginning
+   * @param end the end index of the slice (exclusive), pass null to slice until the end
+   * @return the sliced ZTensor object
+   */
   @Nonnull
   public ZTensor sliceDim(int dim, @Nullable Integer start, @Nullable Integer end) {
     return sliceDim(dim, Selector.slice(start, end));
   }
 
+  /**
+   * Returns a new ZTensor object that is a slice of the original tensor along the specified
+   * dimension.
+   *
+   * @param dim the dimension along which to slice the tensor
+   * @param start the start index of the slice (inclusive). Set to null to start from the
+   *   beginning of the dimension.
+   * @param end the end index of the slice (exclusive). Set to null to slice until the end of the
+   *   dimension.
+   * @param step the step size between elements in the slice. Set to null to include every
+   *   element.
+   * @return a new ZTensor object that represents the sliced tensor
+   * @throws IllegalArgumentException if the dimension is invalid or any of the indices are out of
+   *   range
+   */
   @Nonnull
   public ZTensor sliceDim(
     int dim,
@@ -1898,6 +1916,12 @@ public final class ZTensor
   @UtilityClass
   public static class Serialization {
 
+    /**
+     * Custom Jackson serializer for ZTensor.
+     *
+     * <p>Uses the {@link #toTree(Runnable, Runnable, Runnable, Consumer)} method to serialize a
+     * tensor to a {@link TreeNode} data structure.
+     */
     public final class Serializer extends StdSerializer<ZTensor> {
 
       public Serializer() {
@@ -1905,7 +1929,7 @@ public final class ZTensor
       }
 
       @Override
-      @SuppressWarnings({"Convert2Lambda", "Anonymous2MethodRef"})
+      @SuppressWarnings({ "Convert2Lambda", "Anonymous2MethodRef" })
       public void serialize(
         @Nonnull ZTensor value,
         @Nonnull JsonGenerator gen,
@@ -1926,8 +1950,7 @@ public final class ZTensor
               gen.writeEndArray();
             }
           },
-          () -> {
-          },
+          () -> {},
           new Consumer<>() {
             @Override
             @SneakyThrows
@@ -1939,6 +1962,12 @@ public final class ZTensor
       }
     }
 
+    /**
+     * Custom Jackson deserializer for ZTensor.
+     * <p>
+     * Uses the {@link #fromTreeNode(TreeNode)} method to deserialize a tensor from a
+     * {@link TreeNode} data structure.
+     */
     public final class Deserializer extends StdDeserializer<ZTensor> {
 
       public Deserializer() {
