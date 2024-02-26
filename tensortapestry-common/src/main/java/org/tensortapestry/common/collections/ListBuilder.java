@@ -8,14 +8,32 @@ import javax.annotation.Nullable;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
+/**
+ * A builder for lists, similar to {@link StringBuilder}.
+ *
+ * @param <T> the type of the list.
+ */
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public final class ListBuilder<T> {
 
+  /**
+   * Create a new list builder.
+   *
+   * @param <T> the type of the list.
+   * @return the new list builder.
+   */
   @Nonnull
   public static <T> ListBuilder<T> builder() {
     return wrap(new ArrayList<>());
   }
 
+  /**
+   * Wrap an existing list in a builder.
+   *
+   * @param list the list to wrap.
+   * @param <T> the type of the list.
+   * @return the new list builder.
+   */
   @Nonnull
   public static <T> ListBuilder<T> wrap(@Nonnull List<T> list) {
     return new ListBuilder<>(list);
@@ -24,6 +42,12 @@ public final class ListBuilder<T> {
   @Nonnull
   private final List<T> list;
 
+  /**
+   * Add an item.
+   *
+   * @param item the item.
+   * @return {@code this}
+   */
   @Nonnull
   @CanIgnoreReturnValue
   public ListBuilder<T> add(@Nonnull T item) {
@@ -31,6 +55,12 @@ public final class ListBuilder<T> {
     return this;
   }
 
+  /**
+   * Add an item if it is not null.
+   *
+   * @param item the item.
+   * @return {@code this}
+   */
   @Nonnull
   @CanIgnoreReturnValue
   public ListBuilder<T> addNonNull(@Nullable T item) {
@@ -40,6 +70,12 @@ public final class ListBuilder<T> {
     return this;
   }
 
+  /**
+   * Add all items.
+   *
+   * @param items the items.
+   * @return {@code this}
+   */
   @Nonnull
   @CanIgnoreReturnValue
   public ListBuilder<T> addAll(@Nonnull List<T> items) {
@@ -47,6 +83,28 @@ public final class ListBuilder<T> {
     return this;
   }
 
+  /**
+   * Add all items.
+   *
+   * @param items the items.
+   * @return {@code this}
+   */
+  @SafeVarargs
+  @Nonnull
+  @CanIgnoreReturnValue
+  public final ListBuilder<T> addAll(T... items) {
+    for (var item : items) {
+      add(item);
+    }
+    return this;
+  }
+
+  /**
+   * Add all non-null items.
+   *
+   * @param items the items.
+   * @return {@code this}
+   */
   @Nonnull
   @CanIgnoreReturnValue
   public ListBuilder<T> addAllNonNull(@Nullable List<T> items) {
@@ -58,16 +116,12 @@ public final class ListBuilder<T> {
     return this;
   }
 
-  @SafeVarargs
-  @Nonnull
-  @CanIgnoreReturnValue
-  public final ListBuilder<T> addAll(T... items) {
-    for (var item : items) {
-      add(item);
-    }
-    return this;
-  }
-
+  /**
+   * Add all non-null items.
+   *
+   * @param items the items.
+   * @return {@code this}
+   */
   @SafeVarargs
   @Nonnull
   @CanIgnoreReturnValue
@@ -78,6 +132,12 @@ public final class ListBuilder<T> {
     return this;
   }
 
+  /**
+   * Return the list.
+   *
+   * @return the list.
+   */
+  @Nonnull
   public List<T> build() {
     return list;
   }
