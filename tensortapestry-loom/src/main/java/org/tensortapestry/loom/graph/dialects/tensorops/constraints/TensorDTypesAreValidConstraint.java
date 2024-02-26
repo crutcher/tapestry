@@ -1,6 +1,7 @@
 package org.tensortapestry.loom.graph.dialects.tensorops.constraints;
 
 import java.util.Set;
+import javax.annotation.Nonnull;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Singular;
@@ -29,9 +30,9 @@ public class TensorDTypesAreValidConstraint implements LoomEnvironment.Constrain
 
   @Override
   public void validateConstraint(
-    LoomEnvironment env,
-    LoomGraph graph,
-    ValidationIssueCollector issueCollector
+    @Nonnull LoomEnvironment env,
+    @Nonnull LoomGraph graph,
+    @Nonnull ValidationIssueCollector issueCollector
   ) {
     for (var node : graph) {
       if (node.getType().equals(TensorNode.TYPE)) {

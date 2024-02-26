@@ -1,5 +1,6 @@
 package org.tensortapestry.loom.graph;
 
+import javax.annotation.Nonnull;
 import org.junit.jupiter.api.Test;
 import org.tensortapestry.common.testing.CommonAssertions;
 import org.tensortapestry.common.validation.ValidationIssueCollector;
@@ -72,9 +73,9 @@ public class LoomEnvironmentTest implements CommonAssertions {
 
       @Override
       public void validateConstraint(
-        @SuppressWarnings("unused") LoomEnvironment env,
-        LoomGraph graph,
-        ValidationIssueCollector issueCollector
+        @Nonnull @SuppressWarnings("unused") LoomEnvironment env,
+        @Nonnull LoomGraph graph,
+        @Nonnull ValidationIssueCollector issueCollector
       ) {
         // pass
 

@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import javax.annotation.Nonnull;
 import org.tensortapestry.common.json.JsonPathUtils;
 import org.tensortapestry.common.lazy.LazyString;
 import org.tensortapestry.common.lazy.Thunk;
@@ -32,9 +33,9 @@ public class ApplicationOutputRangeCoverageIsExactConstraint implements LoomEnvi
 
   @Override
   public void validateConstraint(
-    @SuppressWarnings("unused") LoomEnvironment env,
-    LoomGraph graph,
-    ValidationIssueCollector issueCollector
+    @Nonnull @SuppressWarnings("unused") LoomEnvironment env,
+    @Nonnull LoomGraph graph,
+    @Nonnull ValidationIssueCollector issueCollector
   ) {
     for (var application : graph.byType(ApplicationNode.class)) {
       ValidationUtils.validateNodeReference(

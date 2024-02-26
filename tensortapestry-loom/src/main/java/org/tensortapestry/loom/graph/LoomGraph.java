@@ -7,15 +7,12 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
-
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Stream;
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.validation.constraints.NotNull;
-
 import lombok.*;
 import lombok.experimental.UtilityClass;
 import org.tensortapestry.common.collections.StreamableIterable;
@@ -110,8 +107,7 @@ import org.tensortapestry.loom.graph.dialects.common.JsdType;
 @Setter
 public final class LoomGraph implements HasToJsonString, StreamableIterable<LoomNode> {
 
-  @Nullable
-  @JsonIgnore
+  @Nullable @JsonIgnore
   private LoomEnvironment env = null;
 
   @JsonInclude
@@ -183,7 +179,6 @@ public final class LoomGraph implements HasToJsonString, StreamableIterable<Loom
    * @return the iterator.
    */
   @Override
-  @NotNull
   @Nonnull
   public Iterator<LoomNode> iterator() {
     return nodes.values().iterator();
@@ -284,8 +279,7 @@ public final class LoomGraph implements HasToJsonString, StreamableIterable<Loom
    * @param id the ID of the node to get.
    * @return the node, or null if not found.
    */
-  @Nullable
-  public LoomNode getNode(UUID id) {
+  @Nullable public LoomNode getNode(UUID id) {
     return nodes.get(id);
   }
 
@@ -295,8 +289,7 @@ public final class LoomGraph implements HasToJsonString, StreamableIterable<Loom
    * @param id the ID of the node to get.
    * @return the node, or null if not found.
    */
-  @Nullable
-  public LoomNode getNode(String id) {
+  @Nullable public LoomNode getNode(String id) {
     return getNode(UUID.fromString(id));
   }
 
@@ -436,8 +429,7 @@ public final class LoomGraph implements HasToJsonString, StreamableIterable<Loom
    * @param id the ID of the node to remove.
    * @return the removed node.
    */
-  @Nullable
-  @CanIgnoreReturnValue
+  @Nullable @CanIgnoreReturnValue
   public LoomNode removeNode(@Nonnull String id) {
     return removeNode(UUID.fromString(id));
   }

@@ -15,5 +15,18 @@ public enum BufferOwnership {
    *
    * <p>The caller owns the buffer, and may modify it.
    */
-  CLONED,
+  CLONED;
+
+  /**
+   * Apply the buffer ownership policy to the given array.
+   *
+   * @param arr the array.
+   * @return the array, possibly cloned.
+   */
+  public int[] apply(int[] arr) {
+    if (this == CLONED) {
+      arr = arr.clone();
+    }
+    return arr;
+  }
 }

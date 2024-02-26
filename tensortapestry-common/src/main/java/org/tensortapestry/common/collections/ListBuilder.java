@@ -11,14 +11,17 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public final class ListBuilder<T> {
 
+  @Nonnull
   public static <T> ListBuilder<T> builder() {
     return wrap(new ArrayList<>());
   }
 
-  public static <T> ListBuilder<T> wrap(List<T> list) {
+  @Nonnull
+  public static <T> ListBuilder<T> wrap(@Nonnull List<T> list) {
     return new ListBuilder<>(list);
   }
 
+  @Nonnull
   private final List<T> list;
 
   @Nonnull
@@ -55,18 +58,20 @@ public final class ListBuilder<T> {
     return this;
   }
 
+  @SafeVarargs
   @Nonnull
   @CanIgnoreReturnValue
-  public ListBuilder<T> addAll(T... items) {
+  public final ListBuilder<T> addAll(T... items) {
     for (var item : items) {
       add(item);
     }
     return this;
   }
 
+  @SafeVarargs
   @Nonnull
   @CanIgnoreReturnValue
-  public ListBuilder<T> addAllNonNull(T... items) {
+  public final ListBuilder<T> addAllNonNull(T... items) {
     for (var item : items) {
       addNonNull(item);
     }

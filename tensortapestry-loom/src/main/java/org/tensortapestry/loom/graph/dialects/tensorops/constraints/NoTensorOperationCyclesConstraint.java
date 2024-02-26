@@ -1,6 +1,7 @@
 package org.tensortapestry.loom.graph.dialects.tensorops.constraints;
 
 import java.util.HashMap;
+import javax.annotation.Nonnull;
 import org.tensortapestry.common.validation.ValidationIssue;
 import org.tensortapestry.common.validation.ValidationIssueCollector;
 import org.tensortapestry.loom.graph.*;
@@ -21,9 +22,9 @@ public class NoTensorOperationCyclesConstraint implements LoomEnvironment.Constr
 
   @Override
   public void validateConstraint(
-    @SuppressWarnings("unused") LoomEnvironment env,
-    LoomGraph graph,
-    ValidationIssueCollector issueCollector
+    @Nonnull @SuppressWarnings("unused") LoomEnvironment env,
+    @Nonnull LoomGraph graph,
+    @Nonnull ValidationIssueCollector issueCollector
   ) {
     boolean valid = true;
 

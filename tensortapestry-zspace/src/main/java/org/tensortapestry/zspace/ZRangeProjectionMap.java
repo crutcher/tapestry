@@ -26,7 +26,7 @@ import org.tensortapestry.zspace.indexing.Selector;
 public class ZRangeProjectionMap implements HasToJsonString {
 
   @SuppressWarnings("unused")
-  public static class ZRangeProjectionMapBuilder {
+  public static final class ZRangeProjectionMapBuilder {
 
     /**
      * Construct the affine map from an identity matrix.

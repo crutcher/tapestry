@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.IntNode;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
+
 import java.lang.reflect.Array;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
@@ -18,6 +19,7 @@ import java.util.function.*;
 import java.util.stream.IntStream;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+
 import lombok.Getter;
 import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
@@ -91,7 +93,7 @@ import org.tensortapestry.zspace.ops.ReduceOps;
 @SuppressWarnings("MemberName")
 public final class ZTensor
   implements
-    ZTensorWrapper, HasToJsonString, Cloneable, HasDimension, HasSize, HasPermute<ZTensor> {
+  ZTensorWrapper, HasToJsonString, Cloneable, HasDimension, HasSize, HasPermute<ZTensor> {
 
   /**
    * Construct a new mutable scalar (0-dim) tensor.
@@ -101,7 +103,14 @@ public final class ZTensor
    */
   @Nonnull
   public static ZTensor newScalar(int value) {
-    return new ZTensor(true, new int[] {}, new int[] {}, new int[] { value }, 0);
+    return new ZTensor(
+      true,
+      new int[]{},
+      new int[]{},
+      new int[]{value},
+      0,
+      BufferOwnership.REUSED
+    );
   }
 
   /**
@@ -140,7 +149,7 @@ public final class ZTensor
     if (numRows > 0) {
       numCols = rows[0].length;
     }
-    int[] shape = new int[] { numRows, numCols };
+    int[] shape = new int[]{numRows, numCols};
 
     int[] data = new int[numRows * numCols];
     for (int i = 0; i < numRows; ++i) {
@@ -152,7 +161,7 @@ public final class ZTensor
       }
       System.arraycopy(rows[i], 0, data, numCols * i, numCols);
     }
-    return new ZTensor(true, shape, IndexingFns.shapeToLfsStrides(shape), data, 0);
+    return new ZTensor(true, shape, data, 0, BufferOwnership.REUSED);
   }
 
   /**
@@ -163,7 +172,7 @@ public final class ZTensor
    */
   @Nonnull
   public static ZTensor newZeros(@Nonnull int... shape) {
-    return new ZTensor(shape.clone());
+    return new ZTensor(shape);
   }
 
   /**
@@ -185,7 +194,7 @@ public final class ZTensor
    */
   @Nonnull
   public static ZTensor newZerosLike(@Nonnull ZTensorWrapper ref) {
-    return new ZTensor(ref.unwrap().shapeAsArray());
+    return new ZTensor(ref.unwrap().shape);
   }
 
   /**
@@ -316,7 +325,7 @@ public final class ZTensor
     int k = diag.length;
     var tensor = newZeros(k, k);
     for (int i = 0; i < k; ++i) {
-      tensor._unchecked_set(new int[] { i, i }, diag[i]);
+      tensor._unchecked_set(new int[]{i, i}, diag[i]);
     }
     return tensor;
   }
@@ -347,8 +356,8 @@ public final class ZTensor
     if (tensor == null) {
       throw new IllegalArgumentException(
         "Cannot convert object of type %s to ZTensor".formatted(
-            source.getClass().getCanonicalName()
-          )
+          source.getClass().getCanonicalName()
+        )
       );
     }
     return tensor;
@@ -363,7 +372,8 @@ public final class ZTensor
    * @param source the source array.
    * @return a new ZTensor, or null if the source is not an array.
    */
-  @Nullable private static ZTensor newFromArrayNull(@Nonnull Object source) {
+  @Nullable
+  private static ZTensor newFromArrayNull(@Nonnull Object source) {
     if (!IndexingFns.isRecursiveIntArray(source)) {
       return null;
     }
@@ -388,7 +398,28 @@ public final class ZTensor
    * @return a new ZTensor.
    */
   public static ZTensor newFromFlatArray_(@Nonnull FlatArray flatArray) {
-    return new ZTensor(true, flatArray.getShape(), flatArray.getStrides(), flatArray.getData(), 0);
+    return newFromFlatArray_(flatArray, BufferOwnership.REUSED);
+  }
+
+  /**
+   * Build a new ZTensor from a FlatArray.
+   *
+   * @param flatArray the source array.
+   * @param bufferOwnership should ownership pass, or should the data be cloned?
+   * @return the new ZTensor.
+   */
+  public static ZTensor newFromFlatArray_(
+    @Nonnull FlatArray flatArray,
+    BufferOwnership bufferOwnership
+  ) {
+    return new ZTensor(
+      true,
+      flatArray.getShape(),
+      flatArray.getStrides(),
+      flatArray.getData(),
+      0,
+      bufferOwnership
+    );
   }
 
   /**
@@ -491,7 +522,7 @@ public final class ZTensor
     );
     var shape = arrayData.getShape();
     var data = arrayData.getData();
-    return new ZTensor(true, shape, IndexingFns.shapeToLfsStrides(shape), data, 0);
+    return new ZTensor(true, shape, data, 0, BufferOwnership.REUSED);
   }
 
   @JsonIgnore
@@ -515,28 +546,66 @@ public final class ZTensor
   private Integer hash;
 
   /**
-   * Construct a mutable 0-filled ZTensor of the given shape; takes ownership of the shape.
+   * Construct a mutable 0-filled ZTensor of the given shape.
+   *
+   * @param shape the shape, cloned.
+   */
+  ZTensor(@Nonnull int... shape) {
+    this(shape.clone(), BufferOwnership.REUSED);
+  }
+
+  /**
+   * Construct a ZTensor of the given shape.
    *
    * @param shape the shape.
+   * @param bufferOwnership on REUSED, takes ownership; on CLONE, clones.
    */
-  ZTensor(@Nonnull int[] shape) {
+  ZTensor(@Nonnull int[] shape, BufferOwnership bufferOwnership) {
     this(
       true,
-      shape,
-      IndexingFns.shapeToLfsStrides(shape),
+      bufferOwnership.apply(shape),
       new int[IndexingFns.shapeToSize(shape)],
-      0
+      0,
+      BufferOwnership.REUSED
     );
   }
 
   /**
-   * Constructs a ZTensor from parts; takes ownership of the arrays.
+   * Constructs a ZTensor from parts.
+   *
+   * @param mutable whether the ZTensor is mutable.
+   * @param shape the shape.
+   * @param data the data.
+   * @param dataOffset the offset in the source data.
+   * @param bufferOwnership on REUSED, takes ownership; on CLONE, clones.
+   */
+  @SuppressWarnings("InconsistentOverloads")
+  ZTensor(
+    boolean mutable,
+    @Nonnull int[] shape,
+    @Nonnull int[] data,
+    int dataOffset,
+    BufferOwnership bufferOwnership
+  ) {
+    this(
+      mutable,
+      bufferOwnership.apply(shape),
+      IndexingFns.shapeToLfsStrides(shape),
+      bufferOwnership.apply(data),
+      dataOffset,
+      BufferOwnership.REUSED
+    );
+  }
+
+  /**
+   * Constructs a ZTensor from parts.
    *
    * @param mutable whether the ZTensor is mutable.
    * @param shape the shape.
    * @param stride the strides.
    * @param data the data.
    * @param dataOffset the offset in the source data.
+   * @param bufferOwnership on REUSED, takes ownership; on CLONE, clones.
    */
   @SuppressWarnings("InconsistentOverloads")
   ZTensor(
@@ -544,13 +613,14 @@ public final class ZTensor
     @Nonnull int[] shape,
     @Nonnull int[] stride,
     @Nonnull int[] data,
-    int dataOffset
+    int dataOffset,
+    BufferOwnership bufferOwnership
   ) {
     this.mutable = mutable;
-    this.shape = shape;
+    this.shape = bufferOwnership.apply(shape);
     this.size = IndexingFns.shapeToSize(shape);
-    this.stride = stride;
-    this.data = data;
+    this.stride = bufferOwnership.apply(stride);
+    this.data = bufferOwnership.apply(data);
     this.dataOffset = dataOffset;
   }
 
@@ -579,6 +649,33 @@ public final class ZTensor
   }
 
   /**
+   * Asserts that this tensor is read-only / immutable.
+   */
+  public void assertReadOnly() {
+    if (mutable) {
+      throw new IllegalStateException("tensor is mutable");
+    }
+  }
+
+  /**
+   * Return an immutable tensor with the same data.
+   *
+   * <p>If this tensor is already immutable, returns this; otherwise, returns an immutable clone.
+   *
+   * <p>Semantically equivalent to {@code clone(false)}.
+   *
+   * <p>A performance oriented Tensor library would track open mutable views of the underlying
+   * data, and perform copy-on-write when necessary; as this is a correctness-oriented Tensor
+   * library, we simply clone the data to go from mutable to immutable.
+   *
+   * @return an immutable tensor.
+   */
+  @Nonnull
+  public ZTensor asImmutable() {
+    return clone(false);
+  }
+
+  /**
    * Return if this tensor is compact.
    *
    * <p>A tensor is compact if its data array is exactly the size of the tensor.
@@ -603,7 +700,7 @@ public final class ZTensor
   }
 
   @Override
-  public boolean equals(Object other) {
+  public boolean equals(@Nullable Object other) {
     if (this == other) return true;
     if (other == null) return false;
 
@@ -620,7 +717,7 @@ public final class ZTensor
    * @param other the other object.
    * @return true iff equals.
    */
-  private boolean equalsTree(Object other) {
+  private boolean equalsTree(@Nonnull Object other) {
     // TODO: implement tree-walking comparison without a constructor.
     var that = newFromArrayNull(other);
     if (that == null) {
@@ -635,7 +732,7 @@ public final class ZTensor
    * @param other the other object.
    * @return true iff equals.
    */
-  private boolean equalsZTensor(ZTensor other) {
+  private boolean equalsZTensor(@Nonnull ZTensor other) {
     if (!Arrays.equals(shape, other.shape)) {
       return false;
     }
@@ -713,7 +810,14 @@ public final class ZTensor
     var res = new ZTensor(shape);
     forEach(res::set, BufferOwnership.REUSED);
     if (!mutable) {
-      return new ZTensor(false, res.shape, res.stride, res.data, res.dataOffset);
+      return new ZTensor(
+        false,
+        res.shape,
+        res.stride,
+        res.data,
+        res.dataOffset,
+        BufferOwnership.REUSED
+      );
     }
     return res;
   }
@@ -787,7 +891,9 @@ public final class ZTensor
     for (var selIdx = 0; selIdx < selectors.size(); selIdx++) {
       var selector = Objects.requireNonNull(selectors.get(selIdx), "selector");
       switch (selector) {
-        case Selector.Index index -> cur = cur.selectDim(nextDim, index.getIndex()); // shrinks cur, so we don't increment nextDim.
+        case Selector.Index index ->
+          // shrinks cur, so we don't increment nextDim.
+          cur = cur.selectDim(nextDim, index.getIndex());
         case Selector.NewAxis newAxis -> {
           cur = cur.unsqueeze(nextDim);
           nextDim++;
@@ -1164,22 +1270,16 @@ public final class ZTensor
     }
 
     if (isScalar() && IndexingFns.shapeToSize(targetShape) == 0) {
-      return new ZTensor(
-        mutable,
-        targetShape,
-        IndexingFns.shapeToLfsStrides(targetShape),
-        new int[0],
-        0
-      );
+      return new ZTensor(mutable, targetShape.clone(), new int[0], 0, BufferOwnership.REUSED);
     }
 
     var res = this;
     if (res.getNDim() > targetShape.length) {
       throw new IllegalArgumentException(
         "Cannot broadcast shape %s to %s".formatted(
-            Arrays.toString(shape),
-            Arrays.toString(targetShape)
-          )
+          Arrays.toString(shape),
+          Arrays.toString(targetShape)
+        )
       );
     }
     while (res.getNDim() < targetShape.length) {
@@ -1189,9 +1289,9 @@ public final class ZTensor
       if (res.shape[i] > 1 && res.shape[i] != targetShape[i]) {
         throw new IllegalArgumentException(
           "Cannot broadcast shape %s to %s".formatted(
-              Arrays.toString(this.shape),
-              Arrays.toString(targetShape)
-            )
+            Arrays.toString(this.shape),
+            Arrays.toString(targetShape)
+          )
         );
       }
       if (res.shape[i] == 1 && targetShape[i] > 1) {
@@ -1216,7 +1316,8 @@ public final class ZTensor
       IndexingFns.addIdx(shape, rDim, 1),
       IndexingFns.addIdx(stride, rDim, 0),
       data,
-      dataOffset
+      dataOffset,
+      BufferOwnership.REUSED
     );
   }
 
@@ -1236,9 +1337,14 @@ public final class ZTensor
       );
     }
 
-    int[] shape1 = IndexingFns.removeIdx(shape, rDim);
-    int[] stride1 = IndexingFns.removeIdx(stride, rDim);
-    return new ZTensor(mutable, shape1, stride1, data, dataOffset);
+    return new ZTensor(
+      mutable,
+      IndexingFns.removeIdx(shape, rDim),
+      IndexingFns.removeIdx(stride, rDim),
+      data,
+      dataOffset,
+      BufferOwnership.REUSED
+    );
   }
 
   /**
@@ -1257,13 +1363,13 @@ public final class ZTensor
       );
     }
 
-    var new_shape = shapeAsArray();
-    new_shape[dim] = size;
+    var newShape = shapeAsArray();
+    newShape[dim] = size;
 
-    var new_stride = stride.clone();
-    new_stride[dim] = 0;
+    var newStride = stride.clone();
+    newStride[dim] = 0;
 
-    return new ZTensor(mutable, new_shape, new_stride, data, dataOffset);
+    return new ZTensor(mutable, newShape, newStride, data, dataOffset, BufferOwnership.REUSED);
   }
 
   /**
@@ -1360,12 +1466,10 @@ public final class ZTensor
     @Nonnull ZTensorWrapper lhs,
     @Nonnull ZTensorWrapper rhs
   ) {
-    var zlhs = lhs.unwrap();
-    var zrhs = rhs.unwrap();
     assertMutable();
-    zlhs = zlhs.broadcastLike(this);
-    zrhs = zrhs.broadcastLike(this);
-    for (int[] coords : byCoords(BufferOwnership.REUSED)) {
+    var zlhs = lhs.unwrap().broadcastLike(this);
+    var zrhs = rhs.unwrap().broadcastLike(this);
+    for (var coords : byCoords(BufferOwnership.REUSED)) {
       _unchecked_set(coords, op.applyAsInt(zlhs.get(coords), zrhs.get(coords)));
     }
   }
@@ -1426,33 +1530,6 @@ public final class ZTensor
    */
   public void assertMatchingShape(@Nonnull ZTensorWrapper other) {
     IndexingFns.assertShape(shape, other.unwrap().shape);
-  }
-
-  /**
-   * Return an immutable tensor with the same data.
-   *
-   * <p>If this tensor is already immutable, returns this; otherwise, returns an immutable clone.
-   *
-   * <p>Semantically equivalent to {@code clone(false)}.
-   *
-   * <p>A performance oriented Tensor library would track open mutable views of the underlying
-   * data, and perform copy-on-write when necessary; as this is a correctness-oriented Tensor
-   * library, we simply clone the data to go from mutable to immutable.
-   *
-   * @return an immutable tensor.
-   */
-  @Nonnull
-  public ZTensor asImmutable() {
-    return clone(false);
-  }
-
-  /**
-   * Asserts that this tensor is read-only / immutable.
-   */
-  public void assertReadOnly() {
-    if (mutable) {
-      throw new IllegalStateException("tensor is mutable");
-    }
   }
 
   /**
@@ -1548,7 +1625,8 @@ public final class ZTensor
       IndexingFns.applyResolvedPermutation(shape, perm),
       IndexingFns.applyResolvedPermutation(stride, perm),
       data,
-      dataOffset
+      dataOffset,
+      BufferOwnership.REUSED
     );
   }
 
@@ -1589,7 +1667,7 @@ public final class ZTensor
 
     int newOffset = dataOffset + (shape[rDim] - 1) * stride[rDim];
 
-    return new ZTensor(mutable, shape, newStride, data, newOffset);
+    return new ZTensor(mutable, shape, newStride, data, newOffset, BufferOwnership.REUSED);
   }
 
   /**
@@ -1663,7 +1741,8 @@ public final class ZTensor
     new_stride[d] = 0;
     int new_offset = dataOffset + i * stride[d];
 
-    return new ZTensor(mutable, new_shape, new_stride, data, new_offset).squeeze(d);
+    return new ZTensor(mutable, new_shape, new_stride, data, new_offset, BufferOwnership.REUSED)
+      .squeeze(d);
   }
 
   /**
@@ -1679,7 +1758,7 @@ public final class ZTensor
    *     </ul>
    *
    * @param dim the dimension to slice.
-   * @param slice the slice description..
+   * @param slice the slice description.
    * @return a view of this tensor with the given dimension sliced.
    */
   @Nonnull
@@ -1717,20 +1796,20 @@ public final class ZTensor
     } else if (step > 0 && start > end) {
       throw new IllegalArgumentException(
         "slice start (%d) must be less than end (%d) for positive step (%d): %s".formatted(
-            start,
-            end,
-            step,
-            slice
-          )
+          start,
+          end,
+          step,
+          slice
+        )
       );
     } else if (step < 0 && start < end) {
       throw new IllegalArgumentException(
         "slice start (%d) must be greater than end (%d) for negative step (%d): %s".formatted(
-            start,
-            end,
-            step,
-            slice
-          )
+          start,
+          end,
+          step,
+          slice
+        )
       );
     }
 
@@ -1747,7 +1826,7 @@ public final class ZTensor
 
     int new_offset = dataOffset + start * stride[d];
 
-    return new ZTensor(mutable, new_shape, new_stride, data, new_offset);
+    return new ZTensor(mutable, new_shape, new_stride, data, new_offset, BufferOwnership.REUSED);
   }
 
   @Nonnull
@@ -1826,7 +1905,7 @@ public final class ZTensor
       }
 
       @Override
-      @SuppressWarnings({ "Convert2Lambda", "Anonymous2MethodRef" })
+      @SuppressWarnings({"Convert2Lambda", "Anonymous2MethodRef"})
       public void serialize(
         @Nonnull ZTensor value,
         @Nonnull JsonGenerator gen,
@@ -1847,7 +1926,8 @@ public final class ZTensor
               gen.writeEndArray();
             }
           },
-          () -> {},
+          () -> {
+          },
           new Consumer<>() {
             @Override
             @SneakyThrows
@@ -1859,7 +1939,7 @@ public final class ZTensor
       }
     }
 
-    public class Deserializer extends StdDeserializer<ZTensor> {
+    public final class Deserializer extends StdDeserializer<ZTensor> {
 
       public Deserializer() {
         super(ZTensor.class);

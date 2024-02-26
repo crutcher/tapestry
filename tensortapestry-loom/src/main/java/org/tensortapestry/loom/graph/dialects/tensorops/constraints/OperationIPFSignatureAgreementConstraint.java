@@ -3,6 +3,7 @@ package org.tensortapestry.loom.graph.dialects.tensorops.constraints;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
+import javax.annotation.Nonnull;
 import org.tensortapestry.common.json.JsonPathUtils;
 import org.tensortapestry.common.validation.ValidationIssue;
 import org.tensortapestry.common.validation.ValidationIssueCollector;
@@ -29,9 +30,9 @@ public class OperationIPFSignatureAgreementConstraint implements LoomEnvironment
 
   @Override
   public void validateConstraint(
-    @SuppressWarnings("unused") LoomEnvironment env,
-    LoomGraph graph,
-    ValidationIssueCollector issueCollector
+    @Nonnull @SuppressWarnings("unused") LoomEnvironment env,
+    @Nonnull LoomGraph graph,
+    @Nonnull ValidationIssueCollector issueCollector
   ) {
     for (var operation : graph.byType(OperationNode.class)) {
       if (operation.hasTag(TensorOpNodes.IPF_SIGNATURE_ANNOTATION_TYPE)) {

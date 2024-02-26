@@ -2,6 +2,7 @@ package org.tensortapestry.loom.graph.dialects.common;
 
 import java.net.URI;
 import java.util.List;
+import javax.annotation.Nonnull;
 import org.tensortapestry.common.json.JsonPathUtils;
 import org.tensortapestry.common.json.JsonUtil;
 import org.tensortapestry.common.validation.ValidationIssue;
@@ -15,18 +16,18 @@ public class SchemaTypeConstraint implements LoomEnvironment.Constraint {
 
   @Override
   public void validateConstraint(
-    LoomEnvironment env,
-    LoomGraph graph,
-    ValidationIssueCollector issueCollector
+    @Nonnull LoomEnvironment env,
+    @Nonnull LoomGraph graph,
+    @Nonnull ValidationIssueCollector issueCollector
   ) {
     var manager = env.getJsonSchemaFactoryManager();
     graph.getNodes().values().forEach(node -> checkNode(manager, node, issueCollector));
   }
 
   private void checkNode(
-    JsonSchemaFactoryManager manager,
-    LoomNode node,
-    ValidationIssueCollector issueCollector
+    @Nonnull JsonSchemaFactoryManager manager,
+    @Nonnull LoomNode node,
+    @Nonnull ValidationIssueCollector issueCollector
   ) {
     var nodeType = node.getType();
     var nodeSchema = manager.loadSchema(URI.create(nodeType));

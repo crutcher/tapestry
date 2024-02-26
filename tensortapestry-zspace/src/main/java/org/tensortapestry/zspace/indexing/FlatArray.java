@@ -22,10 +22,10 @@ import lombok.experimental.UtilityClass;
 @Data
 @JsonSerialize(using = FlatArray.Serialization.Serializer.class)
 @JsonDeserialize(using = FlatArray.Serialization.Deserializer.class)
-public class FlatArray {
+public final class FlatArray {
 
-  int[] shape;
-  int[] data;
+  final int[] shape;
+  final int[] data;
 
   @JsonIgnore
   @Getter(lazy = true)
@@ -75,7 +75,7 @@ public class FlatArray {
       }
     }
 
-    public class Deserializer extends StdDeserializer<FlatArray> {
+    public final class Deserializer extends StdDeserializer<FlatArray> {
 
       public Deserializer() {
         super(FlatArray.class);

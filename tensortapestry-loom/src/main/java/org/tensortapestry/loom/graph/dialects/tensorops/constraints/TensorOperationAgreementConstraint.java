@@ -3,6 +3,7 @@ package org.tensortapestry.loom.graph.dialects.tensorops.constraints;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
+import javax.annotation.Nonnull;
 import org.tensortapestry.common.json.JsonPathUtils;
 import org.tensortapestry.common.lazy.LazyString;
 import org.tensortapestry.common.lazy.Thunk;
@@ -23,9 +24,9 @@ public class TensorOperationAgreementConstraint implements LoomEnvironment.Const
 
   @Override
   public void validateConstraint(
-    @SuppressWarnings("unused") LoomEnvironment env,
-    LoomGraph graph,
-    ValidationIssueCollector issueCollector
+    @Nonnull @SuppressWarnings("unused") LoomEnvironment env,
+    @Nonnull LoomGraph graph,
+    @Nonnull ValidationIssueCollector issueCollector
   ) {
     for (var operation : graph.byType(OperationNode.class)) {
       validateOperationNode(graph, operation, issueCollector);

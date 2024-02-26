@@ -36,9 +36,9 @@ public class TypeRestrictionConstraint
 
   @Override
   public void validateConstraint(
-    LoomEnvironment env,
-    LoomGraph graph,
-    ValidationIssueCollector issueCollector
+    @Nonnull LoomEnvironment env,
+    @Nonnull LoomGraph graph,
+    @Nonnull ValidationIssueCollector issueCollector
   ) {
     graph.getNodes().values().forEach(node -> checkNode(node, issueCollector));
   }

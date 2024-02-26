@@ -7,6 +7,7 @@ import java.util.UUID;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import javax.annotation.Nonnull;
 import org.tensortapestry.common.json.JsonPathUtils;
 import org.tensortapestry.common.lazy.LazyString;
 import org.tensortapestry.common.lazy.Thunk;
@@ -33,9 +34,9 @@ public class OperationApplicationAgreementConstraint implements LoomEnvironment.
 
   @Override
   public void validateConstraint(
-    @SuppressWarnings("unused") LoomEnvironment env,
-    LoomGraph graph,
-    ValidationIssueCollector issueCollector
+    @Nonnull @SuppressWarnings("unused") LoomEnvironment env,
+    @Nonnull LoomGraph graph,
+    @Nonnull ValidationIssueCollector issueCollector
   ) {
     for (var application : graph.byType(ApplicationNode.class)) {
       ValidationUtils.validateNodeReference(

@@ -34,19 +34,19 @@ public final class LoomEnvironment {
      * @throws IllegalStateException if the environment does not support the requirements of this
      */
     @ExcludeFromJacocoGeneratedReport
-    default void checkRequirements(LoomEnvironment env) {}
+    default void checkRequirements(@Nonnull LoomEnvironment env) {}
 
     void validateConstraint(
-      LoomEnvironment env,
-      LoomGraph graph,
-      ValidationIssueCollector issueCollector
+      @Nonnull LoomEnvironment env,
+      @Nonnull LoomGraph graph,
+      @Nonnull ValidationIssueCollector issueCollector
     );
   }
 
   public interface TypeSupportProvider extends Constraint {
-    boolean supportsNodeType(String type);
+    boolean supportsNodeType(@Nonnull String type);
 
-    boolean supportsTagType(String type);
+    boolean supportsTagType(@Nonnull String type);
   }
 
   @Nonnull
