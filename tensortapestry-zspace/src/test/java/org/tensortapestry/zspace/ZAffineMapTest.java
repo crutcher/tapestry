@@ -1,9 +1,25 @@
 package org.tensortapestry.zspace;
 
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.tensortapestry.zspace.experimental.ZSpaceTestAssertions;
 
 public class ZAffineMapTest implements ZSpaceTestAssertions {
+
+  @Test
+  public void test_newIdentityMap() {
+    assertThat(ZAffineMap.newIdentityMap(0)).isEqualTo(new ZAffineMap(ZTensor.newDiagonalMatrix()));
+    assertThat(ZAffineMap.newIdentityMap(2))
+      .isEqualTo(new ZAffineMap(ZTensor.newDiagonalMatrix(1, 1)));
+  }
+
+  @Test
+  public void test_newFromDiagonal() {
+    assertThat(ZAffineMap.newFromDiagonal(1, 2, 3))
+      .isEqualTo(ZAffineMap.newFromDiagonal(List.of(1, 2, 3)))
+      .isEqualTo(ZAffineMap.newFromDiagonal(ZTensor.newVector(1, 2, 3)))
+      .isEqualTo(new ZAffineMap(ZTensor.newDiagonalMatrix(1, 2, 3)));
+  }
 
   @Test
   public void test_constructor() {

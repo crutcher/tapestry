@@ -55,6 +55,10 @@ public class ZTensorTest implements ZSpaceTestAssertions {
     assertThatExceptionOfType(NullPointerException.class)
       .isThrownBy(() -> t.select(null, null))
       .withMessage("selector");
+
+    assertThatExceptionOfType(IllegalArgumentException.class)
+      .isThrownBy(() -> t.select(new BrokenSelector()))
+      .withMessageContaining("Unsupported selector");
   }
 
   @Test

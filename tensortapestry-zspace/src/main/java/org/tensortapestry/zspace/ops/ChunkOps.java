@@ -44,7 +44,7 @@ public class ChunkOps {
       var tensor = tensors.get(i).unwrap();
       if (tensor.getNDim() != first.getNDim()) {
         throw new IllegalArgumentException(
-          "tensors have different ndim: %s != %s".formatted(tensor.getNDim(), first.getNDim())
+          "tensors have different ndim: %s != %s".formatted(first.getNDim(), tensor.getNDim())
         );
       }
       shape[axis] += tensor.shape(axis);
@@ -54,10 +54,10 @@ public class ChunkOps {
         }
         if (tensor.shape(j) != first.shape(j)) {
           throw new IllegalArgumentException(
-            "tensors have incompatible shape for axis=%d: %s != %s".formatted(
-                j,
-                tensor.shapeAsList(),
-                first.shapeAsList()
+            "tensors have incompatible shape for axis=%d: %s vs %s".formatted(
+                axis,
+                first.shapeAsList(),
+                tensor.shapeAsList()
               )
           );
         }

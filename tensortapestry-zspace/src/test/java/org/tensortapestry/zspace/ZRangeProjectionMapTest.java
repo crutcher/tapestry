@@ -1,9 +1,71 @@
 package org.tensortapestry.zspace;
 
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.tensortapestry.zspace.experimental.ZSpaceTestAssertions;
 
 public class ZRangeProjectionMapTest implements ZSpaceTestAssertions {
+
+  @Test
+  public void test_identity() {
+    assertThat(ZRangeProjectionMap.builder().identityMap(3).shape(4, 4, 1).build())
+      .isEqualTo(
+        new ZRangeProjectionMap(
+          new ZAffineMap(
+            ZTensor.newMatrix(new int[][] { { 1, 0, 0 }, { 0, 1, 0 }, { 0, 0, 1 } }),
+            ZTensor.newVector(0, 0, 0)
+          ),
+          ZPoint.of(4, 4, 1)
+        )
+      );
+  }
+
+  @Test
+  public void test_fromDiagonal() {
+    assertThat(ZRangeProjectionMap.builder().fromDiagonal(1, 2, 3).shape(4, 4, 1).build())
+      .isEqualTo(
+        ZRangeProjectionMap.builder().fromDiagonal(List.of(1, 2, 3)).shape(4, 4, 1).build()
+      )
+      .isEqualTo(
+        ZRangeProjectionMap.builder().fromDiagonal(ZPoint.of(1, 2, 3)).shape(4, 4, 1).build()
+      )
+      .isEqualTo(
+        new ZRangeProjectionMap(
+          new ZAffineMap(
+            ZTensor.newMatrix(new int[][] { { 1, 0, 0 }, { 0, 2, 0 }, { 0, 0, 3 } }),
+            ZTensor.newVector(0, 0, 0)
+          ),
+          ZPoint.of(4, 4, 1)
+        )
+      );
+  }
+
+  @Test
+  public void test_affineMap() {
+    assertThat(
+      ZRangeProjectionMap
+        .builder()
+        .affineMap(new int[][] { { 1, 0 }, { 0, 1 }, { 1, 1 } })
+        .shape(4, 4, 1)
+        .build()
+    )
+      .isEqualTo(
+        ZRangeProjectionMap
+          .builder()
+          .affineMap(ZTensor.newMatrix(new int[][] { { 1, 0 }, { 0, 1 }, { 1, 1 } }))
+          .shape(4, 4, 1)
+          .build()
+      )
+      .isEqualTo(
+        new ZRangeProjectionMap(
+          new ZAffineMap(
+            ZTensor.newMatrix(new int[][] { { 1, 0 }, { 0, 1 }, { 1, 1 } }),
+            ZTensor.newVector(0, 0, 0)
+          ),
+          ZPoint.of(4, 4, 1)
+        )
+      );
+  }
 
   @Test
   public void test_json() {
@@ -18,18 +80,18 @@ public class ZRangeProjectionMapTest implements ZSpaceTestAssertions {
     assertObjectJsonEquivalence(
       ipf,
       """
-            {
-              "affineMap": {
-                "projection": [
-                  [1, 0],
-                  [0, 1],
-                  [1, 1]
-                ],
-                "offset": [10, 20, 30]
-              },
-              "shape": [4, 4, 1]
-            }
-            """
+        {
+          "affineMap": {
+            "projection": [
+              [1, 0],
+              [0, 1],
+              [1, 1]
+            ],
+            "offset": [10, 20, 30]
+          },
+          "shape": [4, 4, 1]
+        }
+        """
     );
   }
 

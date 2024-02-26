@@ -7,9 +7,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.tensortapestry.loom.graph.LoomGraph;
 import org.tensortapestry.loom.graph.dialects.tensorops.*;
-import org.tensortapestry.zspace.ZAffineMap;
-import org.tensortapestry.zspace.ZRange;
-import org.tensortapestry.zspace.ZRangeProjectionMap;
+import org.tensortapestry.zspace.*;
 import org.tensortapestry.zspace.indexing.IndexingFns;
 
 public class CellWiseAccumulatorMetaKernel extends DataTypeCheckingMetaKernel {
@@ -77,7 +75,7 @@ public class CellWiseAccumulatorMetaKernel extends DataTypeCheckingMetaKernel {
             .map(ts ->
               ZRangeProjectionMap
                 .builder()
-                .affineMap(ZAffineMap.newBroadcastMatrix(shape.length, ts.getShape()))
+                .affineMap(newBroadcastMatrix(shape.length, ts.getShape()))
                 .translate(ts.getRange().getStart())
                 .build()
             )
@@ -90,5 +88,16 @@ public class CellWiseAccumulatorMetaKernel extends DataTypeCheckingMetaKernel {
     OperationUtils.createIpfShards(op, List.of(index));
 
     return op;
+  }
+
+  @Nonnull
+  public static ZAffineMap newBroadcastMatrix(int inputSize, ZPoint targetShape) {
+    int targetSize = targetShape.getNDim();
+    var proj = ZTensor.newZeros(targetSize, inputSize);
+    int offset = inputSize - targetSize;
+    for (int i = 0; i < targetSize; i++) {
+      proj.set(new int[] { i, i + offset }, targetShape.get(i) == 1 ? 0 : 1);
+    }
+    return ZAffineMap.fromMatrix(proj);
   }
 }

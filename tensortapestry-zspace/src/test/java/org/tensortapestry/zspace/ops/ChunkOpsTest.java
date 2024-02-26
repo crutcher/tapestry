@@ -15,5 +15,17 @@ class ChunkOpsTest implements WithAssertions {
       .isEqualTo(ZTensor.newMatrix(new int[][] { { 1, 2 }, { 3, 4 }, { 5, 6 }, { 7, 8 } }));
     assertThat(ChunkOps.concat(1, a, b))
       .isEqualTo(ZTensor.newMatrix(new int[][] { { 1, 2, 5, 6 }, { 3, 4, 7, 8 } }));
+
+    assertThatExceptionOfType(IllegalArgumentException.class)
+      .isThrownBy(() -> ChunkOps.concat(0))
+      .withMessage("tensors is empty");
+
+    assertThatExceptionOfType(IllegalArgumentException.class)
+      .isThrownBy(() -> ChunkOps.concat(0, ZTensor.newZeros(2, 3), ZTensor.newZeros(2, 3, 4)))
+      .withMessage("tensors have different ndim: 2 != 3");
+
+    assertThatExceptionOfType(IllegalArgumentException.class)
+      .isThrownBy(() -> ChunkOps.concat(1, ZTensor.newZeros(2, 3), ZTensor.newZeros(3, 3)))
+      .withMessage("tensors have incompatible shape for axis=1: [2, 3] vs [3, 3]");
   }
 }

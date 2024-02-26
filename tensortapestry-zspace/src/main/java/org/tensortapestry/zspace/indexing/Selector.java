@@ -7,7 +7,7 @@ import javax.annotation.Nullable;
 import lombok.*;
 import org.tensortapestry.common.text.TextUtils;
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
+@NoArgsConstructor(access = AccessLevel.PACKAGE)
 public abstract class Selector {
 
   /**

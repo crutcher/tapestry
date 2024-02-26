@@ -887,7 +887,7 @@ public final class ZTensor
 
     for (var selIdx = 0; selIdx < selectors.size(); selIdx++) {
       var selector = Objects.requireNonNull(selectors.get(selIdx), "selector");
-      switch (selector) {
+      switch (selectors.get(selIdx)) {
         case Selector.Index index -> cur = cur.selectDim(nextDim, index.getIndex()); // shrinks cur, so we don't increment nextDim.
         case Selector.NewAxis newAxis -> {
           cur = cur.unsqueeze(nextDim);
@@ -908,7 +908,7 @@ public final class ZTensor
           var skipDims = selectors.size() - selIdx - 1 - renaming;
           nextDim += skipDims;
         }
-        default -> throw new IllegalArgumentException("Unknown selector: " + selector);
+        default -> throw new IllegalArgumentException("Unsupported selector: " + selector);
       }
     }
     return cur;

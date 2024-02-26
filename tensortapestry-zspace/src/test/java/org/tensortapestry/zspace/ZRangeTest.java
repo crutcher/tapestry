@@ -151,6 +151,10 @@ public class ZRangeTest implements ZSpaceTestAssertions {
   public void test_fromShape() {
     {
       var range = ZRange.newFromShape(2, 3);
+      assertThat(range)
+        .isEqualTo(ZRange.newFromShape(List.of(2, 3)))
+        .isEqualTo(ZRange.newFromShape(ZTensor.newVector(2, 3)));
+
       assertThat(range.getNDim()).isEqualTo(2);
       assertThat(range.getSize()).isEqualTo(6);
     }
