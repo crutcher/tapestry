@@ -1,8 +1,20 @@
 # Tapestry Project Overview
 
+- [Tapestry Documentation](README.md)
+
+### Contents
+
 - [Introduction](#introduction)
 - [Motivation](#motivation)
-- [Modular Graph Representation](#modular-graph-representation)
+- [Target Developer Experience](#target-developer-experience)
+- [Target Compiler Researcher Experience](#target-compiler-researcher-experience)
+- [Modular IR](#modular-ir)
+- [Loom Dialects](#Loom-dialects)
+- [Metakernels](#metakernels)
+  - [Template Metakernels](#template-metakernels)
+- [Graph Rewrite Rules](#graph-rewrite-rules)
+- [Optimization](#optimization)
+- [Target Environments](#target-environments)
 
 ## Introduction
 
@@ -131,7 +143,79 @@ Their development budgets are driven by small scale gains with massive compoundi
 result the teams are largely precluded from exploring ground-up re-writes of their tensor algebras
 to support aggressive re-write operations.
 
-## Modular Graph Representation
+### Target Developer Experience
+
+The goal of the **Tapestry** project is to provide a complete and developer-friendly toolchain for
+generating, visualizing, transforming, compiling, and optimizing polyhedral type tensor block
+algebra expressions into optimized code for a variety of target architectures.
+
+The developer experience should resemble modern SQL development; or symbolic execution data flow
+languages such as [Apache Beam](https://beam.apache.org/) or
+[Apache Spark](https://spark.apache.org/).
+
+Expressions can be built up using symbolic operations (which produce a description of the work,
+rather than immediately doing the work), and passed to either compilers or execution engines which
+can produce optimized code for a variety of target architectures.
+
+For example, the following symbolic expression:
+
+```java
+Tensor input = ...;
+// dtype: float32
+// range:
+//   start: [-40, 20]
+//   end: [60, 32]
+//   shape: (100, 12)
+
+Tensor weights = ...;
+// dtype: float32
+// range:
+//   start: [0, 0]
+//   end: [12, 32]
+//   shape: [12, 32]
+
+Tensor bias = ...;
+// dtype: float32
+// range:
+//   start: [0]
+//   end: [32]
+//   shape: [32]
+
+Tnesor z = Linear(input, weights, bias);
+
+Tensor y = Relu(z);
+
+Tapestry.run(y);
+```
+
+Could be expanded and manipulated in various stages of transformation to expand and optimize the
+code in a variety of ways, and then passed to a compiler or execution engine to produce optimized
+code for a variety of target architectures:
+
+<table cellborder="0">
+  <tr>
+    <td>
+      <div style="width: 100%; margin: auto">
+        <img alt="linear.relu" src="media/linear.relu.ortho.jpg"/>
+      </div>
+    </td>
+    <td>
+      <div style="width: 100%; margin: auto">
+        <img alt="linear.relu.4x" src="media/linear.relu.4x.ortho.jpg"/>
+      </div>
+    </td>
+  </tr>
+</table>
+
+Additionally, the toolchain should provide a rich set of debugging and visualization tools for
+exploring the intermediate representations of the expressions, and for exploring the optimizations
+applied to the expressions.
+
+## Target Compiler Researcher Experience
+
+TBD
+
+## Modular IR
 
 > **IR is Destiny.**
 
@@ -164,10 +248,129 @@ As the core representation, serialization, and scanning code are shared by all d
 verification and manipulation code can be shared as well; and the code which is not shared is
 written in a type-safe way which is appropriate for the layer of the toolchain being targeted.
 
+The **Tapestry** **IR** is called **loom**.
+
+A **LoomGraph** is a collection of nodes, paired with a **LoomEnvironment** defining constraints on
+what constitutes legal values and relationships for those nodes.
+
+A raw **LoomGraph** is a JSON document collection of nodes:
+
+```json
+{
+  "id": <UUID>,
+  "nodes": [
+    {
+      "id": <UUID>,
+      "label": <string>,
+      "type": <string>,
+      "body": <JSON>,
+      "tags": {
+        "<type>": <JSON>
+      }
+    },
+    ...
+  ]
+}
+```
+
+Each node has:
+
+- `id` - a unique UUID identifier
+- `label` - an optional, non-unique string label
+- `type` - a string type identifier
+- `body` - a `type`-dependent JSON structure
+- `tags` - a tag type keyed map of `{<type>: <JSON>}` of tag type dependent node extensions
+
+Each **node type** and **tag type** is expected to have a corresponding schema, defined and enforced
+by the **LoomEnvironment**; and is expected to be parsable by type-dependent node wrappers, which
+understand the data and can provide a type-safe api for manipulating the data.
+
+By defining additional types and constraints, we can compositionally construct language dialects
+with strict semantics, reusing types and constraints across several dialects.
+
+#### Example
+
+Assuming two very simple types, a tensor and a simple operation with no sharding information, we
+could define types and graphs such that a desaturation operation is performed on a tensor of images:
+
+```json
+{
+  "id": "d290f1ee-6c54-4b01-90e6-d701748f0851",
+  "nodes": [
+    {
+      "id": "8e3f8f1e-6c54-4b01-90e6-0ae1a048f0851",
+      "type": "https://<schema-url>#/types/Tensor",
+      "label": "Images",
+      "body": {
+        "dtype": "uint8",
+        "shape": [100, 256, 256, 3]
+      }
+    },
+    {
+      "id": "8e3f8f1e-6c54-4b01-90e6-0ae1a048f9000",
+      "type": "https://<schema-url>#/types/Tensor",
+      "label": "Monochrome",
+      "body": {
+        "dtype": "uint8",
+        "shape": [100, 256, 256]
+      }
+    },
+    {
+      "id": "8e3f8f1e-6c54-4b01-90e6-0ae1a048faaaa",
+      "type": "https://<schema-url>#/types/Operation",
+      "body": {
+        "kernel": "desaturate",
+        "inputs": ["8e3f8f1e-6c54-4b01-90e6-0ae1a048f0851"],
+        "outputs": ["8e3f8f1e-6c54-4b01-90e6-0ae1a048f9000"]
+      }
+    }
+  ]
+}
+```
+
+> **NOTE**: The modern XML standards family provides a very strong environment for defining and
+> validating complex data structures. The XML family is also very well supported in many languages
+> and platforms.
+>
+> However, the standards which provide the fully fleshed out versions of schemas and query language,
+> the 2.0/3.0 family of XSD, XPath, XQuery, and XSLT, have only one conformant implementation
+> family, which charges very high per-seat licensing fees for the use of the software.
+>
+> As such, it is not a viable target for an open-source project.
+
+## Loom Dialects
+
+The goal of loom dialects are to define strictly limited expression IRs for a targeted layers of the
+toolchain.
+
+In doing so, we can define:
+
+- An **Abstract Expression Dialect** for describing applications of tensor algebra expressions,
+  abstracted from the intermediate result shapes.
+- An **Operation Expression Dialect** for describing concrete polyhedral type tensor algebra block
+  expressions, decorated with polyhedral signatures and intermediate result shapes.
+- An **Application Expression Dialect** for describing concrete block sharding of sub-operation
+  applications, and their index locations in the polyhedral index space of their parent operation.
+- Families of **Target Environment Dialects**, expanding the **Application Expression Dialect** with
+  additional primitives and constraints to represent execution and memory placement and scheduling
+  information for a variety of target environments.
+
+## Metakernels
+
 TBD
 
-### Alternative IR
+### Template Metakernels
 
-Many, many alternative representations were considered and experimented with.
+TBD
+
+## Graph Rewrite Rules
+
+TBD
+
+## Optimization
+
+TBD
+
+## Target Environments
 
 TBD

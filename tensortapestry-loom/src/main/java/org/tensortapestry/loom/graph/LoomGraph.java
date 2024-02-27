@@ -76,8 +76,8 @@ import org.tensortapestry.loom.graph.dialects.common.JsdType;
  *       "type": "https://<schema-url>#/types/Tensor",
  *       "label": "Images",
  *       "body": {
- *         "dtype": "uint8"
- *         "shape": [100, 256, 256, 3],
+ *         "dtype": "uint8",
+ *         "shape": [100, 256, 256, 3]
  *       }
  *     },
  *     {
@@ -85,8 +85,8 @@ import org.tensortapestry.loom.graph.dialects.common.JsdType;
  *       "type": "https://<schema-url>#/types/Tensor",
  *       "label": "Monochrome",
  *       "body": {
- *         "dtype": "uint8"
- *         "shape": [100, 256, 256, 3],
+ *         "dtype": "uint8",
+ *         "shape": [100, 256, 256]
  *       }
  *     },
  *     {
@@ -95,7 +95,7 @@ import org.tensortapestry.loom.graph.dialects.common.JsdType;
  *       "body": {
  *         "kernel": "desaturate",
  *         "inputs": ["8e3f8f1e-6c54-4b01-90e6-0ae1a048f0851"],
- *         "outputs": ["8e3f8f1e-6c54-4b01-90e6-0ae1a048f9000"],
+ *         "outputs": ["8e3f8f1e-6c54-4b01-90e6-0ae1a048f9000"]
  *       }
  *     }
  *   ]
