@@ -35,7 +35,8 @@ static class Example {
 
 Core Features:
 
-- [ZTensor](../tensortapestry-zspace/src/main/java/org/tensortapestry/zspace/ZTensor.java): n-dimensional integer tensor.
+- [ZTensor](../tensortapestry-zspace/src/main/java/org/tensortapestry/zspace/ZTensor.java):
+  n-dimensional integer tensor.
 
   - Supports mutable and immutable tensors.
   - Supports broadcasting and element wise operations.
@@ -43,21 +44,23 @@ Core Features:
   - Supports view manipulation and reshaping.
   - Supports serialization and deserialization to and from JSON, Java Arrays, and MsgPack.
 
-- [ZPoint](../tensortapestry-zspace/src/main/java/org/tensortapestry/zspace/ZPoint.java): immutable coordinate
+- [ZPoint](../tensortapestry-zspace/src/main/java/org/tensortapestry/zspace/ZPoint.java): immutable
+  coordinate
 
   - Supports point addition, subtraction, and scalar multiplication.
   - Supports dominance ordering point comparison and equality.
 
-- [ZRange](../tensortapestry-zspace/src/main/java/org/tensortapestry/zspace/ZRange.java): immutable n-dimensional coordinate
-  range
+- [ZRange](../tensortapestry-zspace/src/main/java/org/tensortapestry/zspace/ZRange.java): immutable
+  n-dimensional coordinate range
 
   - Supports range addition, subtraction, and scalar multiplication.
   - Supports range intersection, union, and containment.
   - Supports range iteration and enumeration.
 
-- [ZMatrix](../tensortapestry-zspace/src/main/java/org/tensortapestry/zspace/ZMatrix.java): immutable 2-dimensional
-- [ZAffineMap](../tensortapestry-zspace/src/main/java/org/tensortapestry/zspace/ZAffineMap.java): immutable affine coordinate
-  projection
+- [ZMatrix](../tensortapestry-zspace/src/main/java/org/tensortapestry/zspace/ZMatrix.java):
+  immutable 2-dimensional
+- [ZAffineMap](../tensortapestry-zspace/src/main/java/org/tensortapestry/zspace/ZAffineMap.java):
+  immutable affine coordinate projection
 - [ZRangeProjectionMap](../tensortapestry-zspace/src/main/java/org/tensortapestry/zspace/ZRangeProjectionMap.java):
   ZAffineMap decorated with a shape.
 

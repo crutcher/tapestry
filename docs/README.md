@@ -1,4 +1,11 @@
-# Tensor Tapestry Compiler Suite
+# Tapestry Project
+
+> **Read the [Tapestry Project Overview](TapestryProjectOverview.md) for a from-scratch overview of
+> the background and goals of the project.**
+
+The **Tapestry Project** is a research project to develop a complete and developer-friendly
+toolchain for generating, visualizing, transforming, compiling, and optimizing polyhedral type
+tensor block algebra expressions into optimized code for a variety of target architectures.
 
 ## Table of Contents
 
@@ -12,8 +19,9 @@
   - [Tapestry Weft](TapestryWeft.md)
   - [Tapestry ZSpace](TapestryZSpace.md)
 
-
 ## Overview
+
+See: [Tapestry Project Overview](TapestryProjectOverview.md)
 
 There is a [Tapestry Project Writeup](https://crutcher.github.io/Tapestry/) for a more detailed
 overview (~100 pages) of the theory and goals of the project. Note that this document was written
@@ -45,8 +53,8 @@ Roughly, the target layers of **Tapestry** are intended to be:
 In the current stage of development, **Tapestry** is a research prototype. It lacks many features,
 including code generation and optimization machinery.
 
-See the [Loom Graph Semantics](LoomGraphSemantics.md) document for a detailed discussion
-of the extensible graph representation and semantics.
+See the [Loom Graph Semantics](LoomGraphSemantics.md) document for a detailed discussion of the
+extensible graph representation and semantics.
 
 An example intermediate static graph, showcasing block sharding:
 
@@ -70,14 +78,14 @@ An example intermediate static graph, showcasing block sharding:
 The **Tapestry** values are, in order of precedence:
 
 1. **long term velocity** - the ability to add new features and fix bugs over the long term.
-    - **clean apis** - every layer of the apis should be easy to understand and extend.
-    - **clean tests** - the readability and extendability of the tests should be a priority.
-    - **documentation** - all behavior should be documented.
+   - **clean apis** - every layer of the apis should be easy to understand and extend.
+   - **clean tests** - the readability and extendability of the tests should be a priority.
+   - **documentation** - all behavior should be documented.
 2. **clean theory** - the mechanics being modeled should be consistent and correct.
-    - **no escape hatches** - the behavior models should not have catch-all escape hatches.
+   - **no escape hatches** - the behavior models should not have catch-all escape hatches.
 3. **speed** - the algorithms should be fast.
 4. **extensibility** - the ability to add new features.
-    - **plugins** - as much behavior as possible should be implemented as plugins.
+   - **plugins** - as much behavior as possible should be implemented as plugins.
 5. **usefulness** - the ability to solve real-world problems.
 
 As the target for **Tapestry** is a high-throughput stochastic pareto-front optimizer; speed and
@@ -93,22 +101,23 @@ and correctness of tapestry over short-term feature velocity of applications.
 
 Tapestry is structured with a modular graph system.
 
-A given graph is attached to a *LoomEnvironment*, which defines the legal node and tag types
-used in the graph; along with a collection of constraints and rules for the graph.
+A given graph is attached to a _LoomEnvironment_, which defines the legal node and tag types used in
+the graph; along with a collection of constraints and rules for the graph.
 
-In this way, dialects focused on different aspects of the tool chain can be developed and
-remain strictly defined, while sharing common scan and validation tooling.
+In this way, dialects focused on different aspects of the tool chain can be developed and remain
+strictly defined, while sharing common scan and validation tooling.
 
 ### Operation Expression Dialect
 
-The [Operation Expression Dialect](dialects/OperationExpressionDialect.md) is a dialect for representing un-sharded operations and tensors in a graph.
+The [Operation Expression Dialect](dialects/OperationExpressionDialect.md) is a dialect for
+representing un-sharded operations and tensors in a graph.
 
 <img src="dialects/OperationExpressionDialect/example1.dot.png" width="25%"/>
 
 ### Application Expression Dialect
 
-The [Application Expression Dialect](dialects/ApplicationExpressionDialect.md) is a dialect for representing application sharded
-operations and tensors in a graph.
+The [Application Expression Dialect](dialects/ApplicationExpressionDialect.md) is a dialect for
+representing application sharded operations and tensors in a graph.
 
 It extends the [Operation Expression Dialect](dialects/OperationExpressionDialect.md) to include
 Application shards, and constraints for application sharded operations.

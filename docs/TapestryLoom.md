@@ -96,12 +96,13 @@ This graph would serialize to the following JSON (ignoring the IPF components fo
 
 ## Loom Graphs
 
-A [LoomGraph](../tensortapestry-loom/src/main/java/org/tensortapestry/loom/graph/LoomGraph.java) is a collection of
+A [LoomGraph](../tensortapestry-loom/src/main/java/org/tensortapestry/loom/graph/LoomGraph.java) is
+a collection of
 [LoomNode](../tensortapestry-loom/src/main/java/org/tensortapestry/loom/graph/LoomNode.java)s.
 
 The types of nodes and annotations are defined by URI strings; and paired (in a given
-[LoomEnvironment](../tensortapestry-loom/src/main/java/org/tensortapestry/loom/graph/LoomEnvironment.java) with type-aware
-validators and serializers.
+[LoomEnvironment](../tensortapestry-loom/src/main/java/org/tensortapestry/loom/graph/LoomEnvironment.java)
+with type-aware validators and serializers.
 
 > **NOTE**: the URI structure of types is in flux; it is currently a URL to a JSD schema, but this
 > is likely to change and be replaced with a more abstract URI scheme, to permit multiple type

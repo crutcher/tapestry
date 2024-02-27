@@ -383,6 +383,7 @@
             <includes>
               <include>*.md</include>
               <include>src/**/*.md</include>
+              <include>docs/**/*.md</include>
             </includes>
             <excludes>
               <exclude>**/target/**</exclude>

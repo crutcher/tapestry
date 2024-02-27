@@ -2,15 +2,11 @@ package org.tensortapestry.weft.metakernels.expressions;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
-
 import java.util.*;
-import java.util.function.Function;
-import java.util.function.IntFunction;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.antlr.v4.runtime.CharStreams;
@@ -94,8 +90,7 @@ class SelectionMapShapeMatcherTest implements CommonAssertions {
   @Value
   @EqualsAndHashCode(callSuper = true)
   @SuperBuilder
-  public static class DimShapeIndex extends DimShapeMatcher.DimGroupBase {
-  }
+  public static class DimShapeIndex extends DimShapeMatcher.DimGroupBase {}
 
   @Value
   @RequiredArgsConstructor
@@ -119,7 +114,12 @@ class SelectionMapShapeMatcherTest implements CommonAssertions {
     }
 
     public ShapePattern find(String name) {
-      return patterns.stream().map(p -> p.find(name)).filter(Objects::nonNull).findFirst().orElse(null);
+      return patterns
+        .stream()
+        .map(p -> p.find(name))
+        .filter(Objects::nonNull)
+        .findFirst()
+        .orElse(null);
     }
 
     public DimLayout match(ZPoint shape) {
@@ -234,8 +234,7 @@ class SelectionMapShapeMatcherTest implements CommonAssertions {
       }
 
       @Override
-      @Nullable
-      public ShapePattern find(String name) {
+      @Nullable public ShapePattern find(String name) {
         return getName().equals(name) ? this : null;
       }
     }
@@ -310,18 +309,22 @@ class SelectionMapShapeMatcherTest implements CommonAssertions {
       }
 
       @Override
-      @Nullable
-      public ShapePattern find(String name) {
-        return getName().equals(name) ? this :
-          expressions.stream().map(e -> e.find(name)).filter(Objects::nonNull).findFirst().orElse(null);
+      @Nullable public ShapePattern find(String name) {
+        return getName().equals(name)
+          ? this
+          : expressions
+            .stream()
+            .map(e -> e.find(name))
+            .filter(Objects::nonNull)
+            .findFirst()
+            .orElse(null);
       }
     }
 
     @Nonnull
     public abstract Stream<ShapePattern> flatLeaves();
 
-    @Nullable
-    public abstract ShapePattern find(String name);
+    @Nullable public abstract ShapePattern find(String name);
   }
 
   @VisibleForTesting
@@ -501,6 +504,7 @@ class SelectionMapShapeMatcherTest implements CommonAssertions {
 
   @Value
   public static class ShapeConfig {
+
     String pattern;
     String cardinality;
   }
@@ -508,9 +512,11 @@ class SelectionMapShapeMatcherTest implements CommonAssertions {
   @Value
   @Builder
   public static class TensorMapShapeMatch {
+
     @Value
     @Builder
     public static class TensorShapeIndex {
+
       List<ZPoint> shapes;
       Map<String, ZPoint> patternIndex;
       DimLocationIndex locations;
@@ -523,39 +529,49 @@ class SelectionMapShapeMatcherTest implements CommonAssertions {
 
   public static TensorMapShapeMatch f(
     Map<String, ShapeConfig> patterns,
-    Map<String, List<ZPoint>> tensorShapes) {
-
+    Map<String, List<ZPoint>> tensorShapes
+  ) {
     Map<String, TensorMapShapeMatch.TensorShapeIndex.TensorShapeIndexBuilder> indexBuilderMap =
-      patterns.entrySet().stream().collect(Collectors.toUnmodifiableMap(
-        Map.Entry::getKey,
-        e -> TensorMapShapeMatch.TensorShapeIndex.builder()
-      ));
+      patterns
+        .entrySet()
+        .stream()
+        .collect(
+          Collectors.toUnmodifiableMap(
+            Map.Entry::getKey,
+            e -> TensorMapShapeMatch.TensorShapeIndex.builder()
+          )
+        );
 
     {
       var keys = Set.copyOf(tensorShapes.keySet());
       keys.removeAll(patterns.keySet());
       if (!keys.isEmpty()) {
         throw new IllegalArgumentException(
-          "Input tensors %s have no matching pattern entries.".formatted(keys));
+          "Input tensors %s have no matching pattern entries.".formatted(keys)
+        );
       }
     }
 
-    var shapeMap = patterns.entrySet().stream().collect(Collectors.toUnmodifiableMap(
-      Map.Entry::getKey,
-      e -> {
-        var shapes = tensorShapes.get(e.getKey());
-        if (shapes == null) {
-          shapes = List.of();
-        } else {
-          shapes = List.copyOf(shapes);
-        }
-        indexBuilderMap.get(e.getKey()).shapes(shapes);
-        return shapes;
-      }
-    ));
+    var shapeMap = patterns
+      .entrySet()
+      .stream()
+      .collect(
+        Collectors.toUnmodifiableMap(
+          Map.Entry::getKey,
+          e -> {
+            var shapes = tensorShapes.get(e.getKey());
+            if (shapes == null) {
+              shapes = List.of();
+            } else {
+              shapes = List.copyOf(shapes);
+            }
+            indexBuilderMap.get(e.getKey()).shapes(shapes);
+            return shapes;
+          }
+        )
+      );
 
     Map<String, Object> env = new HashMap<>();
-
 
     for (var e : patterns.entrySet()) {
       var key = e.getKey();
@@ -570,24 +586,32 @@ class SelectionMapShapeMatcherTest implements CommonAssertions {
         if (count == 0) {
           continue;
         }
-
       } else if (card.equals("+")) {
         if (count == 0) {
           throw new IllegalArgumentException(
             "Expected cardinality of \"%s\" for \"%s\", found: %d".formatted(
-              config.getCardinality(), key, count));
+                config.getCardinality(),
+                key,
+                count
+              )
+          );
         }
       } else if (shapeMap.containsKey(card)) {
         var thatCount = shapeMap.get(card).size();
         if (count != thatCount) {
           throw new IllegalArgumentException(
             "Input \"%s\" has cardinality \"%s\", which is (%d), but has size (%d)".formatted(
-              key, card, thatCount, count));
+                key,
+                card,
+                thatCount,
+                count
+              )
+          );
         }
-
       } else {
         throw new IllegalArgumentException(
-          "Unknown cardinality for \"%s\": \"%s\"".formatted(key, card));
+          "Unknown cardinality for \"%s\": \"%s\"".formatted(key, card)
+        );
       }
 
       var matcher = new ShapeExpressionMatcher(config.getPattern());
@@ -604,7 +628,12 @@ class SelectionMapShapeMatcherTest implements CommonAssertions {
           if (!locationIndex.equals(layout.getLocations())) {
             throw new IllegalArgumentException(
               "Mismatched layout for \"%s\" at index %d: %s != %s".formatted(
-                key, i, locationIndex, layout.getLocations()));
+                  key,
+                  i,
+                  locationIndex,
+                  layout.getLocations()
+                )
+            );
           }
         }
 
@@ -628,11 +657,15 @@ class SelectionMapShapeMatcherTest implements CommonAssertions {
               var expectedIndexValue = shapes.size();
               if (!env.containsKey(indexVar)) {
                 env.put(indexVar, expectedIndexValue);
-
               } else if (!env.get(indexVar).equals(expectedIndexValue)) {
                 throw new IllegalArgumentException(
                   "Mismatched value for \"%s\" at index %d: %s != %s".formatted(
-                    indexVar, i, env.get(indexVar), value));
+                      indexVar,
+                      i,
+                      env.get(indexVar),
+                      value
+                    )
+                );
               }
 
               var iv = (List<Integer>) env.computeIfAbsent(dimKey, k -> new ArrayList<>());
@@ -643,17 +676,22 @@ class SelectionMapShapeMatcherTest implements CommonAssertions {
                 if (!env.get(dimKey).equals(value)) {
                   throw new IllegalArgumentException(
                     "Mismatched value for \"%s\" at index %d: %s != %s".formatted(
-                      dimKey, i, env.get(dimKey), value));
+                        dimKey,
+                        i,
+                        env.get(dimKey),
+                        value
+                      )
+                  );
                 }
               } else {
                 env.put(dimKey, value);
               }
             }
             default -> throw new IllegalArgumentException(
-              "Unexpected shape pattern for \"%s\": %s".formatted(dimKey, shapePattern));
+              "Unexpected shape pattern for \"%s\": %s".formatted(dimKey, shapePattern)
+            );
           }
         }
-
       }
     }
 
@@ -662,12 +700,7 @@ class SelectionMapShapeMatcherTest implements CommonAssertions {
       indexBuilderMap
         .entrySet()
         .stream()
-        .collect(
-          Collectors.toUnmodifiableMap(
-            Map.Entry::getKey,
-            e -> e.getValue().build()
-          )
-        )
+        .collect(Collectors.toUnmodifiableMap(Map.Entry::getKey, e -> e.getValue().build()))
     );
     /*
     tmsBuilder.env(Map.copyOf(env));
@@ -772,7 +805,6 @@ class SelectionMapShapeMatcherTest implements CommonAssertions {
       ScalarDim(value=7),
       ScalarDim(value=2)))
       */
-
 
     /*
 
