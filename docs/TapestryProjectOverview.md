@@ -2,6 +2,7 @@
 
 - [Introduction](#introduction)
 - [Motivation](#motivation)
+- [Modular Graph Representation](#modular-graph-representation)
 
 ## Introduction
 
@@ -17,7 +18,7 @@ a 1-dimensional tensor. Tensor algebra is a generalization of matrix algebra, an
 scientific and engineering applications, such as artificial intelligence, quantum mechanics, fluid
 dynamics, and computer graphics.
 
-A expression in a tensor algebra derives its value from a series of functional operations performed
+An expression in a tensor algebra derives its value from a series of functional operations performed
 on one or more tensors; and producing one or more tensors, for example, consider a basic matrix
 multiplication:
 
@@ -120,7 +121,7 @@ restrictions.
 
 **NumPy** wasn't written to be optimized in this way. A large portion of the api surface is
 compatible with the necessary restrictions, but a significant portion is not. The same is true of
-the libraries which were written to developer model replacements for numpy.
+the libraries which were written as developer api replacements for numpy.
 
 At the same time, the total investment being spent on power and compute resources for large tensor
 operations is growing rapidly; even small improvements in the efficiency of the above libraries
@@ -129,3 +130,44 @@ translates into millions of dollars of savings in power and compute resources.
 Their development budgets are driven by small scale gains with massive compounding effects; and as a
 result the teams are largely precluded from exploring ground-up re-writes of their tensor algebras
 to support aggressive re-write operations.
+
+## Modular Graph Representation
+
+> **IR is Destiny.**
+
+A compiler's internal representation (commonly called the
+[intermediate representation](https://en.wikipedia.org/wiki/Intermediate_representation), as it
+exists between the source code which was parsed and the target code to be generated) determines most
+things about the complexity and capabilities of the compiler.
+
+Information which can be retrieved or verified easily in an **IR** can be used for analysis and
+manipulation with a little code; information which is fragile or difficult to retrieve or verify
+requires a lot of code to work with. And code which is difficult to work with is code which is
+difficult to maintain, and difficult to extend.
+
+In targeting a toolchain which spans from abstract tensor algebra expressions to optimized code for
+a variety of target architectures, the **IR** is the most important part of the toolchain; and the
+ability to extend and constrain the **IR** for different layers of that toolchain, and for different
+primitives appropriate to different target architectures, is the most important part of the **IR**.
+
+Tapestry is designed with a modular **IR** which permits the easy addition of new node types, node
+tags, and graph constraints. By selectively including a set of types and constraints, strictly
+defined sub-dialects can be created which are appropriate for different layers of the toolchain, and
+for different primitives appropriate to different target architectures.
+
+In this way, toolchain operations which transform from one layer to another can be written in a
+type-safe way which transform from one dialect to another; and targeted query, debugging, and
+visualization tools can be written which are appropriate for the layer of the toolchain being
+targeted.
+
+As the core representation, serialization, and scanning code are shared by all dialects, much of the
+verification and manipulation code can be shared as well; and the code which is not shared is
+written in a type-safe way which is appropriate for the layer of the toolchain being targeted.
+
+TBD
+
+### Alternative IR
+
+Many, many alternative representations were considered and experimented with.
+
+TBD
