@@ -11,8 +11,6 @@ and goals of the project.
 
 - [Overview](#overview)
 - [Development Philosophy](#development-philosophy)
-- Theory
-  - [Polyhedral Types and Index Projection](PolyhedralTypesAndIndexProjection.md)
 - [Sub-Projects](#sub-projects)
 
 ## Overview
@@ -50,6 +48,10 @@ Roughly, the target layers of **Tapestry** are intended to be:
 
 In the current stage of development, **Tapestry** is a research prototype. It lacks many features,
 including code generation and optimization machinery.
+
+**Tapestry** heavily leverages
+[Polyhedral Types and Index Projection](PolyhedralTypesAndIndexProjection.md) theory to model tensor
+block algebra expressions.
 
 See the [Loom Graph Semantics](LoomGraphSemantics.md) document for a detailed discussion of the
 extensible graph representation and semantics.
