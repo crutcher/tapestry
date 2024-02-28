@@ -1,11 +1,11 @@
 # Tapestry Project
 
-> **Read the [Tapestry Project Overview](TapestryProjectOverview.md) for a from-scratch overview of
-> the background and goals of the project.**
-
 The **Tapestry Project** is a research project to develop a complete and developer-friendly
 toolchain for generating, visualizing, transforming, compiling, and optimizing polyhedral type
 tensor block algebra expressions into optimized code for a variety of target architectures.
+
+Read the [Tapestry Project Overview](TapestryProjectOverview.md) for an overview of the background
+and goals of the project.
 
 ## Table of Contents
 
@@ -13,21 +13,19 @@ tensor block algebra expressions into optimized code for a variety of target arc
 - [Development Philosophy](#development-philosophy)
 - Theory
   - [Polyhedral Types and Index Projection](PolyhedralTypesAndIndexProjection.md)
-- [Dialects](#Dialects)
-- Sub-Projects
-  - [Tapestry Loom](TapestryLoom.md)
-  - [Tapestry Weft](TapestryWeft.md)
-  - [Tapestry ZSpace](TapestryZSpace.md)
+- [Sub-Projects](#sub-projects)
 
 ## Overview
 
-See: [Tapestry Project Overview](TapestryProjectOverview.md)
+Read the [Tapestry Project Overview](TapestryProjectOverview.md) for an overview of the background
+and goals of the project.
 
-There is a [Tapestry Project Writeup](https://crutcher.github.io/Tapestry/) for a more detailed
-overview (~100 pages) of the theory and goals of the project. Note that this document was written
-before the current development project, and is more of a research direction plan and overview of
-polyhedral optimization theory than a description of the current state of the project's
-architecture.
+> **Note**: Additionally, there is a historical pre-development writeup available at
+> [Tapestry Project Writeup](https://crutcher.github.io/Tapestry/) for a more detailed overview
+> (~100 pages) of the theory and goals of the project. Note that this document was written before
+> the current development project, and is more of a research direction plan and overview of
+> polyhedral optimization theory than a description of the current state of the project's
+> architecture.
 
 **Tapestry** is an experimental tensor expression optimizing compiler suite.
 
@@ -97,29 +95,24 @@ to understand, verify, visualize, and extend the code.
 **Usefulness** is the last on the list. This represents a focus on the long-term internal velocity
 and correctness of tapestry over short-term feature velocity of applications.
 
-## Dialects
+## Sub-Projects
 
-Tapestry is structured with a modular graph system.
+### Loom
 
-A given graph is attached to a _LoomEnvironment_, which defines the legal node and tag types used in
-the graph; along with a collection of constraints and rules for the graph.
+[Tapestry Loom](TapestryLoom.md) is a graph representation and manipulation library for representing
+and manipulating tensor block algebra expressions.
 
-In this way, dialects focused on different aspects of the tool chain can be developed and remain
-strictly defined, while sharing common scan and validation tooling.
+There are a number of [Loom Dialects](dialects/README.md) which are used to define the legal node
+and tag types used in layers of the system, along with a collection of constraints and rules for the
+graph.
 
-### Operation Expression Dialect
+### Weft
 
-The [Operation Expression Dialect](dialects/OperationExpressionDialect.md) is a dialect for
-representing un-sharded operations and tensors in a graph.
+[Tapestry Weft](TapestryWeft.md) is a library for symbolic execution of metakernels to static block
+operation graphs. It includes the libraries for authoring metakernels, and the development work on
+template metakernels.
 
-<img src="dialects/OperationExpressionDialect/example1.dot.png" width="25%"/>
+### ZSpace
 
-### Application Expression Dialect
-
-The [Application Expression Dialect](dialects/ApplicationExpressionDialect.md) is a dialect for
-representing application sharded operations and tensors in a graph.
-
-It extends the [Operation Expression Dialect](dialects/OperationExpressionDialect.md) to include
-Application shards, and constraints for application sharded operations.
-
-<img src="dialects/ApplicationExpressionDialect/example1.jpg" width="25%"/>
+[Tapestry ZSpace](TapestryZSpace.md) is a library for coordinate space range and projection api for
+describing kernel index projections, as a GPU-independent Z-Space (integer) tensor library.

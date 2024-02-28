@@ -1,11 +1,11 @@
 # Tensor Tapestry Compiler Suite
 
+See the full [Tapestry Documentation](docs/README.md) for detailed information.
+
 **Tapestry** is an experimental tensor expression optimizing compiler suite.
 
 It exists to make it easy to optimize applications (such as AI) to maximally exploit both
 datacenters full of GPUs, and integrated FPGA stacks.
-
-See the [Tapestry Documentation](docs/README.md) for more information.
 
 The goal of **Tapestry** is to provide an ecosystem for a high-performance stochastic pareto-front
 optimizer for distributed tensor expressions, targeting optimizations which are permitted to search
