@@ -657,11 +657,10 @@ many search machines, proportional to the expected value of improvements for the
 application.
 
 Over time, research can improve the efficiency of the optimizer, and the quality of the cost models,
-and the quality of the re-write and sharding rules, and the quality of the metakernels,
-
-But even initial versions of the optimizer can be expected to produce significant improvements in
-the efficiency of the target applications; if sufficient resources are allocated to the optimizer
-search process.
+and the quality of the re-write and sharding rules, and the quality of the metakernels. But even
+initial versions of the optimizer can be expected to produce significant improvements in the
+efficiency of the target applications; if sufficient resources are allocated to the optimizer search
+process.
 
 ## Target Environments
 
