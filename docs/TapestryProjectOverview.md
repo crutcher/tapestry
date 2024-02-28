@@ -272,6 +272,23 @@ applied to the expressions.
 
 ## Target Compiler Researcher Experience
 
+- Good R&D Tools => Cheap R&D Cycles
+- Cheap R&D Cycles => More R&D Cycles
+- More R&D Cycles => Greater Velocity
+- Therefore,
+  - **Good R&D Tools => Greater Velocity**
+
+A critical goal of the **Tapestry** project is to provide as much support to internal development
+and research teams as possible, to reduce the future costs of R&D on **Tapestry**.
+
+The development cost of new graph re-write rules, new metakernels, and new target environments and
+cost models should be easy to write, easy to visualize, easy to validate, and easy to debug.
+
+To this extent, the validation reporting tooling, constraint validation system, and associated
+tooling for mechanically constructing and reporting complex errors, reporting them in structured
+data, and visualizing those errors in common formats, such as rendered as text for exception
+handlers, is a major part of the **Tapestry** project.
+
 ## Loom Modular IR
 
 > **IR is Destiny.**
