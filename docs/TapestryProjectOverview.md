@@ -4,17 +4,75 @@
 
 ### Contents
 
+- [Abstract](#abstract)
 - [Introduction](#introduction)
 - [Motivation](#motivation)
 - [Target Developer Experience](#target-developer-experience)
 - [Target Compiler Researcher Experience](#target-compiler-researcher-experience)
-- [Modular IR](#modular-ir)
-- [Loom Dialects](#Loom-dialects)
+- [Loom Modular IR](#loom-modular-ir)
+  - [Loom Dialects](#Loom-dialects)
 - [Metakernels](#metakernels)
   - [Template Metakernels](#template-metakernels)
 - [Graph Rewrite Rules](#graph-rewrite-rules)
 - [Optimization](#optimization)
 - [Target Environments](#target-environments)
+
+## Abstract
+
+The goal of the **Tapestry Project** is to provide a complete and developer-friendly aggressive
+toolchain for generating, visualizing, transforming, compiling, and optimizing AI and scientific
+computing applications which are optimized for a variety of target architectures.
+
+- [Motivation](#motivation)
+
+The existing GPU-accelerated tensor environments (such as [PyTorch](https://pytorch.org/)) are
+largely focused on providing a near drop-in equivalents for the [Numpy Api](https://numpy.org/), and
+their focus on user-friendliness and compatibility with existing codebases has impeded R&D efforts
+towards aggressive optimization of tensor applications.
+
+Existing tensor applications often have run costs in the 10k GPU-year range; and even small
+improvements in the efficiency of the above libraries translates into millions of dollars of savings
+in power and compute resources.
+
+A ground-up re-imagination of the development tensor algebra is possible on the back of the
+polyhedral model, and this opens the possibility of a new generation of tensor algebra which is
+optimized for aggressive re-write operations; replacing small efficiency gains with large
+double-digit percentage gains.
+
+- [Target Developer Experience](#target-developer-experience)
+
+The target developer experience should resemble modern SQL or
+[Apache Spark](https://spark.apache.com) / [Apache Beam](https://beam.apache.org/) development,
+where expressions can be built up using symbolic operations, and passed to either compilers or
+execution engines which can produce optimized code for a variety of target architectures.
+
+- [Target Compiler Researcher Experience](#target-compiler-researcher-experience)
+
+The target compiler researcher experience should permit developers and researches focused in tensor
+algebras, polyhedral models, compiler optimizations, and system engineering pragmatics (such as RDMA
+transfers, or GPU kernel programming) to work independently of each other, and to produce and share
+their work in a way which is compatible with the work of others.
+
+- [Loom Modular IR](#loom-modular-ir)
+
+The **Tapestry Project** is built upon a modular and extensible IR (intermediate representation)
+called **loom**, which permits strict targeted sub-dialects for each transform layer, with
+appropriate graph semantics constraints, visualizers, and debuggers. This further contributes to
+layer-isolation for development and research.
+
+By developing and exploiting the layers, symbolic execution graphs can be transformed into concrete
+polyhedral type operation graphs, and then sharded and optimized for different families of target
+execution environments.
+
+Directly competing with large existing compiler/language toolchains is an expensive task; and the
+primary goal of **Tapestry** is to develop tools at each stage which reduce the future costs of R&D
+on **Tapestry**, in support of being able to build the strongest possible optimizer for the
+restricted _polyhedral type tensor block expression algebra_ which **Tapestry** represents.
+
+- [Needs](#needs)
+
+We are recruiting project development resources, research and implementation contributors, and grant
+funding frameworks to further develop the project.
 
 ## Introduction
 
@@ -159,7 +217,7 @@ can produce optimized code for a variety of target architectures.
 
 For example, the following symbolic expression:
 
-```java
+```
 Tensor input = ...;
 // dtype: float32
 // range:
@@ -192,7 +250,7 @@ Could be expanded and manipulated in various stages of transformation to expand 
 code in a variety of ways, and then passed to a compiler or execution engine to produce optimized
 code for a variety of target architectures:
 
-<table cellborder="0">
+<table style="border: 0">
   <tr>
     <td>
       <div style="width: 100%; margin: auto">
@@ -215,7 +273,7 @@ applied to the expressions.
 
 TBD
 
-## Modular IR
+## Loom Modular IR
 
 > **IR is Destiny.**
 
@@ -257,15 +315,15 @@ A raw **LoomGraph** is a JSON document collection of nodes:
 
 ```json
 {
-  "id": <UUID>,
+  "id": "<UUID>",
   "nodes": [
     {
-      "id": <UUID>,
-      "label": <string>,
-      "type": <string>,
+      "id": "<UUID>",
+      "label": "<Label>",
+      "type": "<Type>",
       "body": <JSON>,
       "tags": {
-        "<type>": <JSON>
+        "<Type>": <JSON>
       }
     },
     ...
@@ -273,7 +331,7 @@ A raw **LoomGraph** is a JSON document collection of nodes:
 }
 ```
 
-Each node has:
+Each **LoomNode** has:
 
 - `id` - a unique UUID identifier
 - `label` - an optional, non-unique string label
@@ -329,7 +387,7 @@ could define types and graphs such that a desaturation operation is performed on
 ```
 
 > **NOTE**: The modern XML standards family provides a very strong environment for defining and
-> validating complex data structures. The XML family is also very well supported in many languages
+> validating complex data structures. The XML family is also very well-supported in many languages
 > and platforms.
 >
 > However, the standards which provide the fully fleshed out versions of schemas and query language,
@@ -338,7 +396,7 @@ could define types and graphs such that a desaturation operation is performed on
 >
 > As such, it is not a viable target for an open-source project.
 
-## Loom Dialects
+### Loom Dialects
 
 The goal of loom dialects are to define strictly limited expression IRs for a targeted layers of the
 toolchain.
@@ -357,6 +415,10 @@ In doing so, we can define:
 
 ## Metakernels
 
+Symbolic execution requires that for each kernel we wish to represent in a symbolic execution graph,
+we have a corresponding **metakernel** which can be applied to symbolic representations of inputs to
+describe the kernel's behavior in a way which
+
 TBD
 
 ### Template Metakernels
@@ -372,5 +434,21 @@ TBD
 TBD
 
 ## Target Environments
+
+TBD
+
+## Needs
+
+TBD
+
+### Funding
+
+TBD
+
+### Project Support
+
+TBD
+
+### R&D Support
 
 TBD
