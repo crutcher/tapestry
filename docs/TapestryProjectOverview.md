@@ -11,11 +11,12 @@
 - [Target Compiler Researcher Experience](#target-compiler-researcher-experience)
 - [Loom Modular IR](#loom-modular-ir)
   - [Loom Dialects](#Loom-dialects)
+- [Validation Reporting Tooling](#validation-reporting-tooling)
 - [Metakernels](#metakernels)
-  - [Template Metakernels](#template-metakernels)
 - [Graph Rewrite Rules](#graph-rewrite-rules)
 - [Optimization](#optimization)
 - [Target Environments](#target-environments)
+- [Needs](#needs)
 
 ## Abstract
 
@@ -271,8 +272,6 @@ applied to the expressions.
 
 ## Target Compiler Researcher Experience
 
-TBD
-
 ## Loom Modular IR
 
 > **IR is Destiny.**
@@ -413,42 +412,283 @@ In doing so, we can define:
   additional primitives and constraints to represent execution and memory placement and scheduling
   information for a variety of target environments.
 
+## Validation Reporting Tooling
+
+As the a high level goal is to drive the cost of R&D on **Tapestry** down, a core part of the
+**Loom** environment is the constraint validation system, and the associated tooling for
+mechanically constructing and reporting complex errors, reporting them in structured data, and
+visualizing those errors in common formats, such as rendered as text for exception handlers.
+
+Consider the following constraint error, detecting reference cycles in a graph:
+
+<details>
+<summary>Click for Validation Builder</summary>
+
+```java
+@Override
+public void validateConstraint(
+        @Nonnull @SuppressWarnings("unused") LoomEnvironment env,
+        @Nonnull LoomGraph graph,
+        @Nonnull ValidationIssueCollector issueCollector
+) {
+  for (var cycle : TraversalUtils.findOperationSimpleCycles(graph)) {
+    var cycleDesc = cycle
+          .stream()
+          .map(item -> {
+            var desc = new HashMap<>();
+            desc.put("id", item.getId());
+            desc.put("type", item.getType());
+            if (item.getLabel() != null) {
+              desc.put("label", item.getLabel());
+            }
+            return desc;
+          })
+          .toList();
+
+    issueCollector.addIssue(
+          ValidationIssue
+                  .builder()
+                  .type(LoomConstants.Errors.REFERENCE_CYCLE_ERROR)
+                  .summary("Reference Cycle detected")
+                  .context(b -> b.name("Cycle").data(cycleDesc))
+    );
+  }
+}
+```
+
+</details>
+
+<details>
+<summary>Click for JSON Error</summary>
+
+```json
+[
+  {
+    "type": "ReferenceCycle",
+    "summary": "Reference Cycle detected",
+    "contexts": [
+      {
+        "name": "Cycle",
+        "data": [
+          {
+            "id": "3eaa349d-818d-4084-8f71-aaecb2a674cb",
+            "label": "Add",
+            "type": "http://tensortapestry.org/schemas/loom/2024-01/node_types.jsd#/nodes/Operation"
+          },
+          {
+            "id": "58236994-20f1-4932-add5-3721f609c0aa",
+            "label": "A",
+            "type": "http://tensortapestry.org/schemas/loom/2024-01/node_types.jsd#/nodes/Tensor"
+          }
+        ]
+      }
+    ]
+  }
+]
+```
+
+</details>
+
+```
+org.tensortapestry.common.validation.LoomValidationError: Validation failed with 1 issues:
+
+* Error [ReferenceCycle]: Reference Cycle detected
+
+  - Cycle::
+
+    |> [ {
+    |>   "id" : "d0e577e8-4e3b-450e-a89d-be06db502db6",
+    |>   "label" : "Add",
+    |>   "type" : "http://tensortapestry.org/schemas/loom/2024-01/node_types.jsd#/nodes/Operation"
+    |> }, {
+    |>   "id" : "14c9064e-b30a-4d09-84c6-e61d05ba107c",
+    |>   "label" : "A",
+    |>   "type" : "http://tensortapestry.org/schemas/loom/2024-01/node_types.jsd#/nodes/Tensor"
+    |> } ]
+
+
+	at org.tensortapestry.common.validation.ListValidationIssueCollector.check(ListValidationIssueCollector.java:47)
+	at org.tensortapestry.loom.graph.LoomEnvironment.validateGraph(LoomEnvironment.java:175)
+	at org.tensortapestry.loom.graph.LoomGraph.validate(LoomGraph.java:164)
+
+```
+
 ## Metakernels
 
-Symbolic execution requires that for each kernel we wish to represent in a symbolic execution graph,
-we have a corresponding **metakernel** which can be applied to symbolic representations of inputs to
-describe the kernel's behavior in a way which
+The code implementing an operation is generally referred to as the **kernel** for that operation.
+Given actual data for an operation, calling the **kernel** in an appropriate environment will
+validate the structure of that data (correct parameters and inputs passed, etc), and produce a
+result.
 
-TBD
+To describe the behavior of a kernel we do not wish to execute, but to **symbolically execute**,
+processing not data, but symbolic descriptions of data, we need a program which will consume the
+symbolic representation of the inputs and parameters, validate that they are well formed versus the
+**kernel**'s expectations, and produce a symbolic representation of the expected outputs of the
+**kernel**.
 
-### Template Metakernels
+In **Tapestry** we call this program a **metakernel**, at it is executed on the symbolic level,
+rather than the data level.
 
-TBD
+**Tapestry** requires that for each kernel we wish to represent in a symbolic execution graph, we
+have a corresponding **metakernel** which can be applied to symbolic representations of inputs to
+describe the kernel's behavior. Additionally, this **metakernel** must attach a **polyhedral type
+signature** to the symbolic representation of the output, which describes the spatial type of the
+output in terms of the polyhedral model, to enable re-write and re-sharding operations.
+
+As we need a **metakernel** for each external **kernel** in a target execution environment, and as
+we expect third party libraries and developer applications to frequently provide their own
+**kernels**, we need a way to describe **metakernels** in a way which is easy to write, easy to
+validate, and easy to share.
+
+Were we required to write a compliant **metakernel** for each target **kernel** _for each
+**Tapestry** compiler environment_, the cost of R&D on **Tapestry** would be very high, and the cost
+of R&D on **Tapestry** for third party developers would be even higher.
+
+A major goal of **Tapestry** is to reduce this cost by developing a portable template environment in
+which portable **template metakernels** can be written, validated, and shared.
+
+Consider the following draft-proposal for a **template metakernel** for a matrix multiplication,
+which is a common operation in tensor algebra.
+
+In this proposal, we match a shape expression language on the inputs (`X` and `W`), such that we
+extract batch dimensions from the input (`X`), and constrain `$b` to match between the `X` and `W`
+inputs. Then polyhedral type signatures are attached to the inputs and outputs in terms of their
+matched shapes; and a common polyhedral index is used to describe the spatial extent of the
+operation, and the mapping to the output.
+
+```yaml
+matmul:
+  index: "[$shape..., $a, $c]"
+
+  constraints:
+    dtype:
+      enum:
+        - int32
+        - int64
+        - float32
+        - float64
+        - complex64
+        - complex128
+
+  inputs:
+    X:
+      shape: "[$shape..., $a, $b]"
+      dtype: "$dtype"
+
+      # this is shorthand for:
+      # ipf:
+      #   map: "[..., 1, 0]"
+      #   shape: "[..., 1, $b]"
+      #
+      # which is shorthand for:
+      # ipf:
+      #   map: "[ones($index.size - 2)..., 1, 0]"
+      #   shape: "[ones($index.size - 2)..., 1, $b]"
+      #
+      # Where the map unpacks to a diagonal matrix
+      # with 1s on the prefix dimensions.
+      ipf: "[..., 1, 0] :> [..., 1, $b]"
+
+    W:
+      shape: "[$b, $c]"
+      dtype: "$dtype"
+      ipf: "[..., 0, 1] :> [..., $b, 1]"
+
+  outputs:
+    result:
+      # shape defaults to: "[$.index...]"
+      # ipf defaults to: "[...] >: [...]"
+      dtype: "$dtype"
+```
+
+The work on **template metakernels** is ongoing, and is expected to be a major part of the
+**Tapestry** project.
 
 ## Graph Rewrite Rules
 
-TBD
+Graph re-write rules are a common tool in compiler optimization, and are used to describe how one
+general form of an expression can be transformed into another form that is at least equivalent, and
+preferably more efficient to calculate. In **Tapestry**, graph re-write rules are used to describe
+how one sub-graph expression can be transformed into another equivalent form.
+
+The intention is to heavily leverage the [Metakernels](#metakernels) template language to describe
+the behavior of the re-write rules, and to use the same language to describe the behavior of the
+**metakernels** which are being re-written.
+
+This work is ongoing, and is expected to be a major part of the **Tapestry** project.
 
 ## Optimization
 
-TBD
+Given a family of semantics preserving re-write and sharding rules, all that is needed in order to
+produce an initial optimizer is a way to assign value to variations in the graph.
+
+For each given [Target Environment](#target-environments), we can develop a target cost model which
+assigns a vector of labeled costs (wall-clock time, machine count, memory usage, idle resource
+count) to a graph expression instances.
+
+Plural cost models are perfect fits for Pareto optimization environments; and Pareto optimization
+environments are [embarrassingly parallel](https://en.wikipedia.org/wiki/Embarrassingly_parallel),
+in that we can horizontally add as many additional worker threads or machines as we like, for linear
+speedups in the optimization search process.
+
+As it is common to encounter AI models which see 10k GPU-year run costs, and as it is common to
+encounter AI models which are run in production environments with 1000s of machines, the potential
+impact of even small improvements in the efficiency of the optimizer is quite large.
+
+As the optimizer can be run in parallel, large optimization search spaces can be examined by tasking
+many search machines, proportional to the expected value of improvements for the given target
+application.
+
+Over time, research can improve the efficiency of the optimizer, and the quality of the cost models,
+and the quality of the re-write and sharding rules, and the quality of the metakernels,
+
+But even initial versions of the optimizer can be expected to produce significant improvements in
+the efficiency of the target applications; if sufficient resources are allocated to the optimizer
+search process.
 
 ## Target Environments
 
-TBD
+Each new target environment will likely a new **loom** dialect, adding primitives and constraints
+describing placement and scheduling of operations in the target environment.
+
+Each new target environment will likely also require a new symbolic cost model, which assigns a
+vector of labeled costs (wall-clock time, machine count, memory usage, idle resource count) to a
+graph expression instance in the target environment's loom dialect.
+
+There is a possibility of sharing many common **kernel** (and their associated **metakernels**)
+across target environments, and the **Tapestry** project is expected to develop tooling to support
+this.
 
 ## Needs
 
-TBD
-
-### Funding
-
-TBD
-
-### Project Support
-
-TBD
+**Tapestry** is at a recruiting / growth stage in the project, and we are looking for the following
+types of support:
 
 ### R&D Support
 
-TBD
+We need additional technical and research contributors to help develop the project from initial
+research stage to a fully functional optimizer targeting PyTorch and Jax backends.
+
+### Project Support
+
+We need project management and development resources to help organize the project and recruit
+additional contributors.
+
+### Funding
+
+We need grant funding frameworks to further develop the project.
+
+Historically, languages and compilers have not been successful outside of open source / free
+software models. **Subscription** compilers do exist, but as performance options when open reference
+compilers also exist for an environment. Developers have been historically unwilling to tie their
+work to a proprietary language or compiler.
+
+Finding a funding model which is compatible with the open source / free software model for the base
+environment is a major goal of the project.
+
+There are development models where the base environment is open source / free software, and support
+services are offered to companies which wish to prioritize their extension and development needs for
+the environment.
+
+There are also models where the base environment is open source / free software, and products are
+developed which commercially exploit the environment under the same funding structure.
