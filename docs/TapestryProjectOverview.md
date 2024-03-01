@@ -169,38 +169,58 @@ The space of GPU-accelerated tensor environments is already dominated by a few w
 ecosystems; most notably [PyTorch](https://pytorch.org/), [TensorFlow](https://www.tensorflow.org/),
 and [Jax](https://jax.readthedocs.io/).
 
-These projects all started with an API surface they wished to replicate, namely the
-[NumPy API](https://numpy.org/), which is a popular library for numerical computing in Python; and
-is itself a partial clone of [R](https://www.r-project.org/), a popular language for statistical
-computing. These statistical libraries have deep roots in the statistical and artificial
-intelligence communities, and have been optimized for the ease of use of researchers, analysts, and
-developers working in statistics, signal processing, and artificial intelligence.
+The semantics of these environments take strong motivation from the [NumPy API](https://numpy.org/),
+which is a popular library for numerical computing in Python; and is itself a partial clone of
+[R](https://www.r-project.org/), a popular language for statistical computing. These statistical
+libraries have deep roots in the statistical and artificial intelligence communities, and have been
+optimized for the ease of use of researchers, analysts, and developers working in statistics, signal
+processing, and artificial intelligence.
 
-As the primary goal of the extant GPU-accelerated tensor environments was to support acceleration of
-research communities which were already working in numpy, R, and other similar languages, the
-initial versions of these libraries focused heavily on providing a drop-in replacement for numpy,
-and on providing a similar high-level API for the manipulation of tensors.
+As sharding and re-write safe semantics are complex mathematical properties, they are not present by
+default in expression algebras; the algebras must be carefully designed to support them, and must
+strictly exclude operations which are not compatible with these properties.
 
-Optimization-friendly expression algebras (which support aggressive re-write operations) require a
-significant amount of additional information about the operations being performed, and place strong
-restrictions on the families of operations which are even permitted.
+The semantics of NumPy's operations were not designed with sharding and aggressive re-write
+operations in mind; and while a large portion of the api surface is compatible with the necessary
+restrictions, a significant portion is not. Complicating the matter, the libraries are generally
+embedded in interpreted languages, and frequently intermixed with arbitrary code in those languages.
 
-Worse, due to the restrictions, it is quite difficult to retrofit an existing tensor algebra with
-the necessary information to support aggressive re-write operations; as it is quite likely than many
-existing operations in the algebra to be retrofitted will not be compatible with the necessary
-restrictions.
+In order to successfully extract a polyhedral type tensor block algebra expression from a PyTorch
+program; it is necessary to retro-fit signatures onto PyTorch, to write python code walking
+analysis, and to force that code to lie inside a complex semantic boundary which is extremely
+difficult to explain to users. Despite this, due to the extreme machine costs of large tensor
+operations, a number of projects attempt to do just this; at larger and large costs for smaller and
+smaller gains.
 
-**NumPy** wasn't written to be optimized in this way. A large portion of the api surface is
-compatible with the necessary restrictions, but a significant portion is not. The same is true of
-the libraries which were written as developer api replacements for numpy.
+A single training run of a large AI model can cost more than $100M; and the execution lifetime of a
+trained model can easily consume 10k GPU-years.
 
-At the same time, the total investment being spent on power and compute resources for large tensor
-operations is growing rapidly; even small improvements in the efficiency of the above libraries
-translates into millions of dollars of savings in power and compute resources.
+A ground-up re-imagination of the development tensor algebra is possible on the back of the
+polyhedral model, and this opens the possibility of a new generation of tensor algebra which is
+optimized for aggressive re-write operations; replacing small efficiency gains with large
+double-digit percentage gains.
 
-Their development budgets are driven by small scale gains with massive compounding effects; and as a
-result the teams are largely precluded from exploring ground-up re-writes of their tensor algebras
-to support aggressive re-write operations.
+The development cost is akin to bootstrapping any new optimizing compiler; and the primary goal of
+the **Tapestry** project is to develop tools at each stage which reduce the future costs of R&D on
+**Tapestry**, in support of being able to build the strongest possible optimizer for the restricted
+_polyhedral type tensor block expression algebra_ which **Tapestry** represents.
+
+The expectation is not a drop-in replacement for PyTorch, Jax, or NumPy; not an environment where
+Tensor operations freely intermix with arbitrary code; but something more akin to SQL or Apache
+Spark/Beam, where expressions are built up using symbolic operations, and passed to either compilers
+or execution engines which can produce optimized code for a variety of target architectures.
+
+If we take the machine budgets of existing AI companies at face value, where some companies have
+$1B/year machine budgets; finding a 10% improvement in the efficiency of the optimizer would be
+worth $100M/year to that company.
+
+PyTorch, TensorFlow, and Jax are all pursuing the top-end of this problem; seeking ways to improve
+the efficiency of code written using their runtime / semantics models, without changing the
+semantics of the code.
+
+**Tapestry** is pursuing the bottom-end of this problem; seeking a better foundation for the
+development of tensor algebra expressions, with a target on never needing to develop
+program-understanding code scanners, or back port missing semantics to the tensor algebra.
 
 ### Target Developer Experience
 
