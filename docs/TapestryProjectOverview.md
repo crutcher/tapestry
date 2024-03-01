@@ -187,10 +187,9 @@ embedded in interpreted languages, and frequently intermixed with arbitrary code
 
 In order to successfully extract a polyhedral type tensor block algebra expression from a PyTorch
 program; it is necessary to retro-fit signatures onto PyTorch, to write python code walking
-analysis, and to force that code to lie inside a complex semantic boundary which is extremely
-difficult to explain to users. Despite this, due to the extreme machine costs of large tensor
-operations, a number of projects attempt to do just this; at larger and large costs for smaller and
-smaller gains.
+analysis, and to force that code to lie inside a complex semantic boundary which is difficult to
+explain to users. Despite this, due to the high machine costs of large tensor operations, a number
+of projects attempt to do just this; at larger and larger costs for smaller and smaller gains.
 
 A single training run of a large AI model can cost more than $100M; and the execution lifetime of a
 trained model can easily consume 10k GPU-years.
