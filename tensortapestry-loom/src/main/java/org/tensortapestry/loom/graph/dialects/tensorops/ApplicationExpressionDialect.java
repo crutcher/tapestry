@@ -10,7 +10,7 @@ import org.tensortapestry.loom.graph.dialects.common.NoteNode;
 import org.tensortapestry.loom.graph.dialects.common.SchemaTypeConstraint;
 import org.tensortapestry.loom.graph.dialects.common.TypeRestrictionConstraint;
 import org.tensortapestry.loom.graph.dialects.tensorops.constraints.*;
-import org.tensortapestry.loom.graph.export.graphviz.GraphVisualizer;
+import org.tensortapestry.loom.graph.export.graphviz.ApplicationExpressionGraphVisualizer;
 
 @UtilityClass
 public class ApplicationExpressionDialect {
@@ -47,7 +47,7 @@ public class ApplicationExpressionDialect {
   }
 
   public Image toImage(LoomGraph graph) {
-    var exporter = GraphVisualizer.buildDefault();
+    var exporter = ApplicationExpressionGraphVisualizer.builder().build();
     var export = exporter.export(graph);
     var gv = export.getGraphviz();
     // System.err.println(export.getDotGraph());
