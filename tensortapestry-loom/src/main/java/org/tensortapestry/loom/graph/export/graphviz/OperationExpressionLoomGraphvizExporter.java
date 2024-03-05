@@ -3,6 +3,7 @@ package org.tensortapestry.loom.graph.export.graphviz;
 import java.util.*;
 import java.util.List;
 import javax.annotation.Nullable;
+
 import lombok.experimental.SuperBuilder;
 import org.apache.commons.lang3.tuple.Pair;
 import org.tensortapestry.graphviz.DotGraph;
@@ -24,25 +25,33 @@ public class OperationExpressionLoomGraphvizExporter extends LoomGraphvizExporte
    * @param op Operation node.
    * @return a pair of the operation cluster and the operation node.
    */
-  protected static Map.Entry<DotGraph.Node, DotGraph.Cluster> exportOperationEntityNodeAndCluster(
+  protected Map.Entry<DotGraph.Node, DotGraph.Cluster> exportOperationEntityNodeAndCluster(
     ExportContext context,
     OperationNode op
   ) {
-    var opCluster = context.getDotGraph().createCluster(op.getId() + "_op_cluster");
+    var outer = context.getDotGraph().getRoot();
+
+    var isIoOp = op.hasTag(TensorOpNodes.IO_SEQUENCE_POINT_TYPE);
+
+    if (isIoOp) {
+      outer = outer.createCluster(op.getId() + "_op_cluster_io");
+      outer
+        .getAttributes()
+        .set(GraphvizAttribute.MARGIN, 24)
+        .set(GraphvizAttribute.PERIPHERIES, 2)
+        .set(GraphvizAttribute.PENWIDTH, 4)
+        .set(GraphvizAttribute.BGCOLOR, "yellow:gray:yellow:gray:yellow:gray:yellow:gray")
+        .set(GraphvizAttribute.STYLE, "striped");
+    }
+
+    var opCluster = outer.createCluster(op.getId() + "_op_cluster");
     opCluster
       .getAttributes()
       .set(GraphvizAttribute.MARGIN, 16)
       .set(GraphvizAttribute.PERIPHERIES, 2)
       .set(GraphvizAttribute.PENWIDTH, 4)
-      .set(GraphvizAttribute.STYLE, "rounded");
-
-    if (op.hasTag(TensorOpNodes.IO_SEQUENCE_POINT_TYPE)) {
-      // TODO: color alone is not enough to distinguish IO operations..
-      opCluster
-        .getAttributes()
-        .set(GraphvizAttribute.BGCOLOR, "lightblue")
-        .set(GraphvizAttribute.STYLE, "filled, rounded");
-    }
+      .set(GraphvizAttribute.BGCOLOR, getBgColor())
+      .set(GraphvizAttribute.STYLE, "filled, rounded");
 
     var opDotNode = exportOperationNode(context, op, opCluster);
 

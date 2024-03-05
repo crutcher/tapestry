@@ -4,9 +4,11 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import guru.nidi.graphviz.engine.Graphviz;
+
 import java.util.Map;
 import java.util.UUID;
 import javax.annotation.Nonnull;
+
 import lombok.Builder;
 import lombok.Data;
 import lombok.Getter;
@@ -27,12 +29,16 @@ public abstract class LoomGraphvizExporter {
   @Builder.Default
   private final UuidAliasEnv uuidAliasEnv = new UuidAliasEnv();
 
+  @Builder.Default
+  private final String bgColor = "#E2E2E2";
+
   protected final ExportContext newContext(LoomGraph graph) {
     var context = new ExportContext(graph, OperationExpressionColoring.builder().build(graph));
 
     context
       .getDotGraph()
       .getAttributes()
+      // .set(GraphvizAttribute.SMOOTHING, "avg_dist")
       .set(GraphvizAttribute.SCALE, 2.5)
       .set(GraphvizAttribute.NEWRANK, true)
       .set(GraphvizAttribute.SPLINES, "ortho")
@@ -40,7 +46,7 @@ public abstract class LoomGraphvizExporter {
       // .set(GraphAttribute.CLUSTERRANK, "local")
       // .set(GraphAttribute.NODESEP, 0.4)
       .set(GraphvizAttribute.RANKSEP, 0.6)
-      .set(GraphvizAttribute.BGCOLOR, "#E2E2E2");
+      .set(GraphvizAttribute.BGCOLOR, getBgColor());
 
     return context;
   }

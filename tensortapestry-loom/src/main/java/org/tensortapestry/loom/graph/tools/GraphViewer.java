@@ -2,8 +2,10 @@ package org.tensortapestry.loom.graph.tools;
 
 import java.awt.*;
 import java.awt.event.*;
+
 import lombok.*;
 import org.tensortapestry.loom.graph.LoomGraph;
+import org.tensortapestry.loom.graph.dialects.tensorops.ApplicationExpressionDialect;
 import org.tensortapestry.loom.graph.dialects.tensorops.OperationExpressionDialect;
 
 public class GraphViewer {
