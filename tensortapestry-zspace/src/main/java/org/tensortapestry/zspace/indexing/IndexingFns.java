@@ -20,6 +20,62 @@ import org.tensortapestry.zspace.HasDimension;
 public class IndexingFns {
 
   /**
+   * Absolute value of an integer, with special handling for Integer.MIN_VALUE.
+   *
+   * <p>Integer.MIN_VALUE is a special case, as it has no positive equivalent.
+   * {@code Math.abs(Integer.MIN_VALUE)} returns {@code Integer.MIN_VALUE}; which is not a valid
+   * positive integer. Legal choices are:
+   * </p>
+   *
+   * <ul>
+   *   <li>return {@code Integer.MIN_VALUE}, which is negative.</li>
+   *   <li>return {@code Integer.MAX_VALUE}, which is incorrect.</li>
+   *   <li>throw an exception</li>
+   * </ul>
+   *
+   * <p>
+   * This function throws an exception, as it is the most likely to catch
+   * programming errors.
+   * </p>
+   *
+   * @param val the value.
+   * @return the absolute value of the integer.
+   * @throws IllegalArgumentException if the value is Integer.MIN_VALUE.
+   */
+  public int throwOnMinAbs(int val) {
+    if (val == Integer.MIN_VALUE) {
+      throw new IllegalArgumentException("cannot take the absolute value of Integer.MIN_VALUE");
+    }
+    return val < 0 ? -val : val;
+  }
+
+  /**
+   * Absolute value of an integer, with special handling for Integer.MIN_VALUE.
+   *
+   * <p>Integer.MIN_VALUE is a special case, as it has no positive equivalent.
+   * {@code Math.abs(Integer.MIN_VALUE)} returns {@code Integer.MIN_VALUE}; which is not a valid
+   * positive integer. Legal choices are:
+   * </p>
+   *
+   * <ul>
+   *   <li>return {@code Integer.MIN_VALUE}, which is negative.</li>
+   *   <li>return {@code Integer.MAX_VALUE}, which is incorrect.</li>
+   *   <li>throw an exception</li>
+   *   </ul>
+   *
+   * This function returns {@code Integer.MAX_VALUE}, which is incorrect.
+   *
+   * @param val the value.
+   * @return the absolute value of the integer.
+   */
+  public int incorrectOnMinAbs(int val) {
+    if (val == Integer.MIN_VALUE) {
+      return Integer.MAX_VALUE;
+    }
+    return val < 0 ? -val : val;
+  }
+
+  /**
    * Sum the elements of an array of integers.
    *
    * @param arr the array of integers.

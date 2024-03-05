@@ -87,7 +87,7 @@ public final class JsonUtil {
      * @param object The object to adapt.
      * @return The Stream.
      */
-    public Stream<Map.Entry<String, JsonNode>> stream(ObjectNode object) {
+    public Stream<Map.Entry<String, JsonNode>> entryStream(ObjectNode object) {
       Iterable<Map.Entry<String, JsonNode>> entries = object::fields;
       return StreamSupport.stream(entries.spliterator(), false);
     }

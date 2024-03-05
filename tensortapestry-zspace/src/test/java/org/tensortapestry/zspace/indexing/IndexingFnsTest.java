@@ -6,6 +6,27 @@ import org.tensortapestry.zspace.experimental.ZSpaceTestAssertions;
 public class IndexingFnsTest implements ZSpaceTestAssertions {
 
   @Test
+  public void test_abs() {
+    {
+      assertThat(IndexingFns.throwOnMinAbs(0)).isEqualTo(0);
+      assertThat(IndexingFns.throwOnMinAbs(-0)).isEqualTo(0);
+
+      assertThat(IndexingFns.throwOnMinAbs(Integer.MIN_VALUE + 1)).isEqualTo(Integer.MAX_VALUE);
+
+      assertThatExceptionOfType(IllegalArgumentException.class)
+        .isThrownBy(() -> IndexingFns.throwOnMinAbs(Integer.MIN_VALUE))
+        .withMessage("cannot take the absolute value of Integer.MIN_VALUE");
+    }
+
+    {
+      assertThat(IndexingFns.incorrectOnMinAbs(0)).isEqualTo(0);
+      assertThat(IndexingFns.incorrectOnMinAbs(-0)).isEqualTo(0);
+      assertThat(IndexingFns.incorrectOnMinAbs(-3)).isEqualTo(3);
+      assertThat(IndexingFns.incorrectOnMinAbs(Integer.MIN_VALUE)).isEqualTo(Integer.MAX_VALUE);
+    }
+  }
+
+  @Test
   public void test_arrayContains() {
     assertThat(IndexingFns.arrayContains(new int[] {}, 0)).isFalse();
     assertThat(IndexingFns.arrayContains(new int[] { 0, 1, 2 }, 0)).isTrue();

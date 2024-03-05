@@ -225,6 +225,7 @@ public final class LoomNode implements LoomNodeWrapper<LoomNode>, HasToJsonStrin
    * @return the graph.
    * @throws IllegalStateException if the node does not belong to a graph.
    */
+  @Override
   @Nonnull
   public LoomGraph assertGraph() {
     if (graph == null) {
@@ -239,6 +240,8 @@ public final class LoomNode implements LoomNodeWrapper<LoomNode>, HasToJsonStrin
    * @return the environment.
    * @throws IllegalStateException if the node does not belong to an environment.
    */
+  @Override
+  @Nonnull
   public LoomEnvironment assertEnvironment() {
     return assertGraph().assertEnv();
   }
