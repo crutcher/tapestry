@@ -2,11 +2,13 @@ package org.tensortapestry.weft.metakernels.expressions;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
+
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.jackson.Jacksonized;
@@ -92,7 +94,8 @@ class SelectionMapShapeMatcherTest implements CommonAssertions {
   @Value
   @EqualsAndHashCode(callSuper = true)
   @SuperBuilder
-  public static class DimShapeIndex extends DimShapeMatcher.DimGroupBase {}
+  public static class DimShapeIndex extends DimShapeMatcher.DimGroupBase {
+  }
 
   @Value
   @RequiredArgsConstructor
@@ -236,7 +239,8 @@ class SelectionMapShapeMatcherTest implements CommonAssertions {
       }
 
       @Override
-      @Nullable public ShapePattern find(String name) {
+      @Nullable
+      public ShapePattern find(String name) {
         return getName().equals(name) ? this : null;
       }
     }
@@ -311,22 +315,24 @@ class SelectionMapShapeMatcherTest implements CommonAssertions {
       }
 
       @Override
-      @Nullable public ShapePattern find(String name) {
+      @Nullable
+      public ShapePattern find(String name) {
         return getName().equals(name)
           ? this
           : expressions
-            .stream()
-            .map(e -> e.find(name))
-            .filter(Objects::nonNull)
-            .findFirst()
-            .orElse(null);
+          .stream()
+          .map(e -> e.find(name))
+          .filter(Objects::nonNull)
+          .findFirst()
+          .orElse(null);
       }
     }
 
     @Nonnull
     public abstract Stream<ShapePattern> flatLeaves();
 
-    @Nullable public abstract ShapePattern find(String name);
+    @Nullable
+    public abstract ShapePattern find(String name);
   }
 
   @VisibleForTesting
@@ -651,10 +657,10 @@ class SelectionMapShapeMatcherTest implements CommonAssertions {
           if (count == 0) {
             throw new IllegalArgumentException(
               "Expected cardinality of \"%s\" for \"%s\", found: %d".formatted(
-                  config.getCardinality(),
-                  key,
-                  count
-                )
+                config.getCardinality(),
+                key,
+                count
+              )
             );
           }
         } else {
@@ -662,11 +668,11 @@ class SelectionMapShapeMatcherTest implements CommonAssertions {
           if (count != thatCount) {
             throw new IllegalArgumentException(
               "Input \"%s\" has cardinality \"%s\", which is (%d), but has size (%d)".formatted(
-                  key,
-                  cardinality,
-                  thatCount,
-                  count
-                )
+                key,
+                cardinality,
+                thatCount,
+                count
+              )
             );
           }
         }
@@ -710,13 +716,17 @@ class SelectionMapShapeMatcherTest implements CommonAssertions {
 
     var shapeGroups = Map.of(
       "tensors",
-      List.of(ZPoint.of(100, 128, 256, 512, 3, 8), ZPoint.of(100, 128, 256, 512, 1, 12)),
+      List.of(
+        ZPoint.of(100, 128, 256, 512, 3, 8),
+        ZPoint.of(100, 128, 256, 512, 1, 12)),
       "masks",
-      List.of(ZPoint.of(256, 512, 3), ZPoint.of(256, 512, 1))
+      List.of(
+        ZPoint.of(256, 512, 3),
+        ZPoint.of(256, 512, 1))
     );
 
     var m = mapMatcher.match(shapeGroups);
-    System.out.println(JsonUtil.toPrettyJson(m));
+    System.out.println(JsonUtil.toYaml(m));
   }
 
   @Test
