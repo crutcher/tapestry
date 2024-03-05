@@ -10,6 +10,7 @@ import javax.annotation.Nonnull;
 import lombok.Builder;
 import lombok.Data;
 import lombok.Getter;
+import lombok.Value;
 import lombok.experimental.Delegate;
 import lombok.experimental.SuperBuilder;
 import org.tensortapestry.common.json.JsonUtil;
@@ -27,12 +28,19 @@ public abstract class LoomGraphvizExporter {
   @Builder.Default
   private final UuidAliasEnv uuidAliasEnv = new UuidAliasEnv();
 
+  @Builder.Default
+  private final boolean showUuids = false;
+
+  @Builder.Default
+  private final String bgColor = "#E2E2E2";
+
   protected final ExportContext newContext(LoomGraph graph) {
     var context = new ExportContext(graph, OperationExpressionColoring.builder().build(graph));
 
     context
       .getDotGraph()
       .getAttributes()
+      // .set(GraphvizAttribute.SMOOTHING, "avg_dist")
       .set(GraphvizAttribute.SCALE, 2.5)
       .set(GraphvizAttribute.NEWRANK, true)
       .set(GraphvizAttribute.SPLINES, "ortho")
@@ -40,12 +48,28 @@ public abstract class LoomGraphvizExporter {
       // .set(GraphAttribute.CLUSTERRANK, "local")
       // .set(GraphAttribute.NODESEP, 0.4)
       .set(GraphvizAttribute.RANKSEP, 0.6)
-      .set(GraphvizAttribute.BGCOLOR, "#E2E2E2");
+      .set(GraphvizAttribute.BGCOLOR, getBgColor());
 
     return context;
   }
 
   public abstract ExportContext export(LoomGraph graph);
+
+  @Value
+  public static class EntityNodeContext {
+
+    @Nonnull
+    LoomNodeWrapper<?> loomNode;
+
+    @Nonnull
+    DotGraph.SubGraph subGraph;
+
+    @Nonnull
+    DotGraph.Node dotNode;
+
+    @Nonnull
+    GH.TableWrapper labelTable;
+  }
 
   @Data
   public final class ExportContext {
@@ -69,31 +93,51 @@ public abstract class LoomGraphvizExporter {
     }
 
     public String nodeAlias(UUID nodeId) {
-      return uuidAliasEnv.getIdAlias(nodeId);
+      return "«%s»".formatted(uuidAliasEnv.getIdAlias(nodeId));
     }
 
-    public void decorateEntityNode(LoomNodeWrapper<?> loomNode, DotGraph.Node dotNode) {
-      var table = GH
-        .table()
-        .border(0)
-        .cellborder(0)
-        .cellspacing(0)
-        .cellpadding(0)
-        .add(GH.bold(nodeAlias(loomNode.getId())));
+    public EntityNodeContext createEntityNode(
+      String title,
+      LoomNodeWrapper<?> loomNode,
+      DotGraph.SubGraph subGraph
+    ) {
+      var dotNode = subGraph.createNode(loomNode.getId().toString());
+      dotNode.set(GraphvizAttribute.SHAPE, "box").set(GraphvizAttribute.STYLE, "filled");
 
-      if (loomNode.getLabel() != null) {
-        table.add(GH.font().color("green").add(GH.bold("\"%s\"".formatted(loomNode.getLabel()))));
+      GH.TableWrapper labelTable = GH
+        .table()
+        .bgcolor("white")
+        .border(0)
+        .cellborder(1)
+        .cellspacing(0);
+
+      labelTable.add(
+        GH
+          .tr()
+          .add(
+            GH.td().colspan(2).border(1).add(GH.font().add(GH.bold(nodeAlias(loomNode.getId()))))
+          )
+      );
+
+      if (showUuids) {
+        labelTable.add(
+          GH
+            .tr()
+            .add(
+              GH
+                .td()
+                .colspan(2)
+                .border(1)
+                .add(GH.font().add(GH.italic(loomNode.getId().toString())))
+            )
+        );
       }
 
-      dotNode.set(GraphvizAttribute.XLABEL, HtmlLabel.from(table));
+      addTitleRow(labelTable, title);
 
-      dotNode.set(GraphvizAttribute.PENWIDTH, 2);
-    }
+      dotNode.set(GraphvizAttribute.LABEL, HtmlLabel.from(labelTable));
 
-    public DotGraph.Node createEntityNode(LoomNodeWrapper<?> node) {
-      var dotNode = getDotGraph().createNode(node.getId().toString());
-      decorateEntityNode(node, dotNode);
-      return dotNode;
+      return new EntityNodeContext(loomNode, getDotGraph().getRoot(), dotNode, labelTable);
     }
 
     public void renderNodeTags(LoomNodeWrapper<?> node) {
@@ -149,20 +193,26 @@ public abstract class LoomGraphvizExporter {
     }
 
     public GH.TableWrapper renderDataTable(String title, JsonNode data) {
-      return GH
-        .table()
-        .border(0)
-        .cellborder(1)
-        .cellspacing(0)
-        .cellpadding(0)
-        .add(
-          GH
-            .td()
-            .colspan(2)
-            .align(GH.TableDataAlign.LEFT)
-            .add(GH.font().color("teal").add(GH.bold(" %s ".formatted(title))))
-        )
-        .add(GH.td().colspan(2).add(jsonToElement(data)));
+      var table = GH.table().border(0).cellborder(1).cellspacing(0).cellpadding(0);
+
+      addDataTableRows(table, title, data);
+
+      return table;
+    }
+
+    public void addTitleRow(GH.TableWrapper table, String title) {
+      table.add(
+        GH
+          .td()
+          .colspan(2)
+          .align(GH.TableDataAlign.LEFT)
+          .add(GH.font().color("teal").add(GH.bold(" %s ".formatted(title))))
+      );
+    }
+
+    public void addDataTableRows(GH.TableWrapper table, String title, JsonNode data) {
+      addTitleRow(table, title);
+      table.add(GH.td().colspan(2).add(jsonToElement(data)));
     }
 
     public GH.ElementWrapper<?> asDataKeyValueTr(Object key, Object... values) {
@@ -178,11 +228,28 @@ public abstract class LoomGraphvizExporter {
     }
 
     public GH.TableDataWrapper asDataValueTd(Object... value) {
-      return GH
-        .td()
-        .align(GH.TableDataAlign.LEFT)
-        .valign(GH.VerticalAlign.TOP)
-        .add(GH.bold().add(" ").add(value).add(" "));
+      var td = GH.td().align(GH.TableDataAlign.LEFT).valign(GH.VerticalAlign.TOP);
+
+      if (value.length == 1 && value[0] instanceof GH.TableWrapper tw) {
+        tw.border(0);
+
+        td.cellpadding(0);
+        td.add(value[0]);
+      } else {
+        td.add(GH.bold().add(" ").add(value).add(" "));
+      }
+
+      return td;
+    }
+
+    public void addObjectDataRows(GH.TableWrapper table, ObjectNode object) {
+      table.addAll(
+        JsonUtil.Tree
+          .entryStream(object)
+          .map(entry ->
+            GH.tr(asDataKeyTd(entry.getKey()), asDataValueTd(jsonToElement(entry.getValue())))
+          )
+      );
     }
 
     public GH.ElementWrapper<?> jsonToElement(JsonNode node) {
@@ -206,18 +273,10 @@ public abstract class LoomGraphvizExporter {
           if (object.isEmpty()) {
             return GH.bold("(empty)");
           }
-          return GH
-            .table()
-            .border(0)
-            .cellborder(1)
-            .cellspacing(0)
-            .addAll(
-              JsonUtil.Tree
-                .entryStream(object)
-                .map(entry ->
-                  GH.tr(asDataKeyTd(entry.getKey()), asDataValueTd(jsonToElement(entry.getValue())))
-                )
-            );
+          var table = GH.table().border(0).cellborder(1).cellspacing(0);
+
+          addObjectDataRows(table, object);
+          return table;
         }
         default -> {
           var text = node.asText();

@@ -4,7 +4,7 @@ import java.awt.*;
 import java.awt.event.*;
 import lombok.*;
 import org.tensortapestry.loom.graph.LoomGraph;
-import org.tensortapestry.loom.graph.dialects.tensorops.OperationExpressionDialect;
+import org.tensortapestry.loom.graph.dialects.tensorops.ApplicationExpressionDialect;
 
 public class GraphViewer {
 
@@ -114,7 +114,7 @@ public class GraphViewer {
     var initialHeight = (int) (screenSize.getHeight() * 0.8);
     var initialWidth = (int) (screenSize.getWidth() * 0.8);
 
-    Image img = OperationExpressionDialect.toImage(graph);
+    Image img = ApplicationExpressionDialect.toImage(graph);
     var imgComponent = new ImageComponent(img);
     imgComponent.setSize(initialWidth, initialHeight);
     imgComponent.scaleToFit();
