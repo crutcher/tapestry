@@ -9,10 +9,12 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import lombok.extern.jackson.Jacksonized;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.junit.jupiter.api.Test;
 import org.tensortapestry.common.collections.EnumerationUtils;
+import org.tensortapestry.common.json.JsonUtil;
 import org.tensortapestry.common.testing.CommonAssertions;
 import org.tensortapestry.weft.metakernels.antlr.generated.IndexedDimShapesExpressionsBaseVisitor;
 import org.tensortapestry.weft.metakernels.antlr.generated.IndexedDimShapesExpressionsLexer;
@@ -453,9 +455,10 @@ class SelectionMapShapeMatcherTest implements CommonAssertions {
     return validateExpressionList(expressions);
   }
 
+  @Value
   public static class ShapeListMatcher {
 
-    private final ShapeExpressionMatcher shapeMatcher;
+    ShapeExpressionMatcher shapeMatcher;
 
     public ShapeListMatcher(String expression) {
       this.shapeMatcher = new ShapeExpressionMatcher(expression);
@@ -503,6 +506,20 @@ class SelectionMapShapeMatcherTest implements CommonAssertions {
    */
 
   @Value
+  public static class ShapeListPatternMatch {
+
+    /**
+     * The shapes that were matched.
+     */
+    List<ZPoint> shapes;
+
+    /**
+     * A map from index variables to sizes.
+     */
+    Map<String, Integer> indexSizes;
+  }
+
+  @Value
   public static class ShapeConfig {
 
     String pattern;
@@ -527,362 +544,179 @@ class SelectionMapShapeMatcherTest implements CommonAssertions {
     Map<String, ZTensor> env;
   }
 
-  public static TensorMapShapeMatch f(
-    Map<String, ShapeConfig> patterns,
-    Map<String, List<ZPoint>> tensorShapes
-  ) {
-    Map<String, TensorMapShapeMatch.TensorShapeIndex.TensorShapeIndexBuilder> indexBuilderMap =
-      patterns
-        .entrySet()
-        .stream()
-        .collect(
-          Collectors.toUnmodifiableMap(
-            Map.Entry::getKey,
-            e -> TensorMapShapeMatch.TensorShapeIndex.builder()
-          )
-        );
+  @Value
+  public static class SelectionMapMatcher {
 
-    {
-      var keys = Set.copyOf(tensorShapes.keySet());
-      keys.removeAll(patterns.keySet());
-      if (!keys.isEmpty()) {
-        throw new IllegalArgumentException(
-          "Input tensors %s have no matching pattern entries.".formatted(keys)
-        );
+    @Value
+    @Jacksonized
+    @Builder
+    public static class SelectionMapMatcherConfig {
+
+      @Value
+      @Jacksonized
+      @Builder
+      public static class GroupPattern {
+
+        @Builder.Default
+        boolean optional = false;
+
+        String expression;
+        String cardinality;
       }
+
+      @Singular
+      @Nonnull
+      Map<String, GroupPattern> groups;
     }
 
-    var shapeMap = patterns
-      .entrySet()
-      .stream()
-      .collect(
-        Collectors.toUnmodifiableMap(
-          Map.Entry::getKey,
-          e -> {
-            var shapes = tensorShapes.get(e.getKey());
-            if (shapes == null) {
-              shapes = List.of();
-            } else {
-              shapes = List.copyOf(shapes);
-            }
-            indexBuilderMap.get(e.getKey()).shapes(shapes);
-            return shapes;
-          }
-        )
-      );
+    @Value
+    @Builder
+    public static class Match {
 
-    Map<String, Object> env = new HashMap<>();
+      @Value
+      @Builder
+      public static class ShapeListMatch {
 
-    for (var e : patterns.entrySet()) {
-      var key = e.getKey();
-      var config = e.getValue();
-
-      var shapes = shapeMap.get(key);
-      var count = shapes.size();
-
-      var card = config.getCardinality();
-
-      if (card.equals("*")) {
-        if (count == 0) {
-          continue;
-        }
-      } else if (card.equals("+")) {
-        if (count == 0) {
-          throw new IllegalArgumentException(
-            "Expected cardinality of \"%s\" for \"%s\", found: %d".formatted(
-                config.getCardinality(),
-                key,
-                count
-              )
-          );
-        }
-      } else if (shapeMap.containsKey(card)) {
-        var thatCount = shapeMap.get(card).size();
-        if (count != thatCount) {
-          throw new IllegalArgumentException(
-            "Input \"%s\" has cardinality \"%s\", which is (%d), but has size (%d)".formatted(
-                key,
-                card,
-                thatCount,
-                count
-              )
-          );
-        }
-      } else {
-        throw new IllegalArgumentException(
-          "Unknown cardinality for \"%s\": \"%s\"".formatted(key, card)
-        );
+        ShapeListMatcher matcher;
+        List<ZPoint> shapes;
+        List<DimLayout> layout;
       }
 
-      var matcher = new ShapeExpressionMatcher(config.getPattern());
-      DimLocationIndex locationIndex = null;
-      for (int i = 0; i < shapes.size(); ++i) {
-        var shape = shapes.get(i);
-        @SuppressWarnings("unused")
-        var layout = matcher.match(shape);
+      @Singular
+      @Nonnull
+      Map<String, ShapeListMatch> shapeLists;
+    }
 
-        if (i == 0) {
-          locationIndex = layout.getLocations();
-          indexBuilderMap.get(key).locations(locationIndex);
-        } else {
-          if (!locationIndex.equals(layout.getLocations())) {
+    SelectionMapMatcherConfig mapMatcherConfig;
+    Map<String, ShapeListMatcher> matchers;
+
+    SelectionMapMatcher(SelectionMapMatcherConfig mapMatcherConfig) {
+      this.mapMatcherConfig = mapMatcherConfig;
+      Map<String, ShapeListMatcher> matchers = new HashMap<>();
+
+      for (var groupPattern : mapMatcherConfig.getGroups().entrySet()) {
+        var name = groupPattern.getKey();
+        var pattern = groupPattern.getValue();
+
+        var cardinality = pattern.getCardinality();
+
+        if (cardinality.equals("*") || cardinality.equals("+")) {
+          // pass
+
+        } else if (!mapMatcherConfig.getGroups().containsKey(cardinality)) {
+          throw new IllegalArgumentException(
+            "Unknown cardinality for \"%s\": \"%s\"".formatted(name, cardinality)
+          );
+        }
+
+        var matcher = new ShapeListMatcher(pattern.getExpression());
+        matchers.put(name, matcher);
+      }
+
+      this.matchers = Map.copyOf(matchers);
+    }
+
+    public Match match(Map<String, List<ZPoint>> shapeGroups) {
+      {
+        var keys = new HashSet<>(shapeGroups.keySet());
+        keys.removeAll(mapMatcherConfig.getGroups().keySet());
+        if (!keys.isEmpty()) {
+          throw new IllegalArgumentException(
+            "Input shape groups %s have no matching pattern entries.".formatted(keys)
+          );
+        }
+      }
+
+      var matchBuilder = Match.builder();
+
+      for (var kv : mapMatcherConfig.getGroups().entrySet()) {
+        var key = kv.getKey();
+        var config = kv.getValue();
+        var matcher = matchers.get(key);
+
+        var shapes = shapeGroups.get(key);
+        if (shapes == null) {
+          if (config.isOptional()) {
+            continue;
+          }
+
+          throw new IllegalArgumentException("Missing required shape group: %s".formatted(key));
+        }
+
+        var count = shapes.size();
+        var cardinality = config.getCardinality();
+        if (cardinality.equals("*")) {
+          // pass;
+        } else if (cardinality.equals("+")) {
+          if (count == 0) {
             throw new IllegalArgumentException(
-              "Mismatched layout for \"%s\" at index %d: %s != %s".formatted(
+              "Expected cardinality of \"%s\" for \"%s\", found: %d".formatted(
+                  config.getCardinality(),
                   key,
-                  i,
-                  locationIndex,
-                  layout.getLocations()
+                  count
+                )
+            );
+          }
+        } else {
+          var thatCount = shapeGroups.getOrDefault(cardinality, List.of()).size();
+          if (count != thatCount) {
+            throw new IllegalArgumentException(
+              "Input \"%s\" has cardinality \"%s\", which is (%d), but has size (%d)".formatted(
+                  key,
+                  cardinality,
+                  thatCount,
+                  count
                 )
             );
           }
         }
 
-        var sizes = layout.getShapes();
+        var dimLayout = matcher.match(shapes);
 
-        /*
-         for simple scalars : int   : Integer
-         for simple groups : int[]  : List<Integer>
-         for index scalars : int[]  : List<Integer>
-         for index groups : int[][] : List<List<Integer>>
-         */
-
-        for (var dims : sizes.getDims().entrySet()) {
-          var dimKey = dims.getKey();
-          var value = dims.getValue();
-          var shapePattern = matcher.find(dimKey);
-
-          switch (shapePattern) {
-            case ShapePattern.IndexedDim iDim -> {
-              var indexVar = iDim.getIndex();
-              var expectedIndexValue = shapes.size();
-              if (!env.containsKey(indexVar)) {
-                env.put(indexVar, expectedIndexValue);
-              } else if (!env.get(indexVar).equals(expectedIndexValue)) {
-                throw new IllegalArgumentException(
-                  "Mismatched value for \"%s\" at index %d: %s != %s".formatted(
-                      indexVar,
-                      i,
-                      env.get(indexVar),
-                      value
-                    )
-                );
-              }
-
-              var iv = (List<Integer>) env.computeIfAbsent(dimKey, k -> new ArrayList<>());
-              iv.add(value);
-            }
-            case ShapePattern.NamedDim namedDim -> {
-              if (env.containsKey(dimKey)) {
-                if (!env.get(dimKey).equals(value)) {
-                  throw new IllegalArgumentException(
-                    "Mismatched value for \"%s\" at index %d: %s != %s".formatted(
-                        dimKey,
-                        i,
-                        env.get(dimKey),
-                        value
-                      )
-                  );
-                }
-              } else {
-                env.put(dimKey, value);
-              }
-            }
-            default -> throw new IllegalArgumentException(
-              "Unexpected shape pattern for \"%s\": %s".formatted(dimKey, shapePattern)
-            );
-          }
-        }
+        matchBuilder.shapeList(
+          key,
+          Match.ShapeListMatch.builder().matcher(matcher).shapes(shapes).layout(dimLayout).build()
+        );
       }
+
+      return matchBuilder.build();
     }
-
-    var tmsBuilder = TensorMapShapeMatch.builder();
-    tmsBuilder.tensors(
-      indexBuilderMap
-        .entrySet()
-        .stream()
-        .collect(Collectors.toUnmodifiableMap(Map.Entry::getKey, e -> e.getValue().build()))
-    );
-    /*
-    tmsBuilder.env(Map.copyOf(env));
-
-     */
-    return tmsBuilder.build();
   }
 
   @Test
-  public void test() {
-    String tensorPattern =
-      "[$batch..., $shape[$i]=($height, $width, $channels[$i]), $features[$i]]";
-    String maskPattern = "[$shape[$i]=($height, $width, $channels[$i])]";
-    var matcher = new ShapeListMatcher(tensorPattern);
+  public void test_xxx() {
+    var config = SelectionMapMatcher.SelectionMapMatcherConfig
+      .builder()
+      .group(
+        "tensors",
+        SelectionMapMatcher.SelectionMapMatcherConfig.GroupPattern
+          .builder()
+          .expression("[$batch..., $shape[$i]=($height, $width, $channels[$i]), $features[$i]]")
+          .cardinality("+")
+          .build()
+      )
+      .group(
+        "masks",
+        SelectionMapMatcher.SelectionMapMatcherConfig.GroupPattern
+          .builder()
+          .expression("[$shape[$i]=($height, $width, $channels[$i])]")
+          .optional(true)
+          .cardinality("tensors")
+          .build()
+      )
+      .build();
 
-    var tensorShapes = List.of(
-      ZPoint.of(100, 128, 256, 512, 7, 3),
-      ZPoint.of(100, 128, 256, 512, 2, 12)
+    var mapMatcher = new SelectionMapMatcher(config);
+
+    var shapeGroups = Map.of(
+      "tensors",
+      List.of(ZPoint.of(100, 128, 256, 512, 3, 8), ZPoint.of(100, 128, 256, 512, 1, 12)),
+      "masks",
+      List.of(ZPoint.of(256, 512, 3), ZPoint.of(256, 512, 1))
     );
-    var maskShapes = List.of(ZPoint.of(256, 512, 7), ZPoint.of(256, 512, 2));
 
-    /*
-
-    Given Pattern:
-    ```json
-    {
-      "tensors": {
-        "shape": "[batch..., shape[i]=(height, width, channels[*]), features[i]]",
-        "cardinality": "+"
-      },
-      "masks": {
-        "shape": "[shape[i]=(height, width, channels[i])]";
-        "cardinality": "tensors"
-      }
-    }
-    ```
-
-    And input:
-    ```json
-    {
-      "tensors": [
-        [100, 128, 256, 512, 7, 3],
-        [100, 128, 256, 512, 2, 12]
-      ],
-      "masks": [
-        [256, 512, 7],
-        [256, 512, 2]
-      ]
-    }
-    ```
-
-    Env:
-      inputs.tensors.shape = [
-        [100, 128, 256, 512, 7, 3],
-        [100, 128, 256, 512, 2, 12]
-      ]
-      inputs.tensors.index.batch = [0, 1]
-      inputs.tensors.index.shape = [2, 3, 4]
-      inputs.tensors.index.height = 2
-      inputs.tensors.index.width = 3
-      inputs.tensors.index.channels = 4
-      inputs.tensors.index.features = 5
-
-      inputs.masks.shape = [
-        [256, 512, 7],
-        [256, 512, 2]
-      ]
-      inputs.masks.index.shape = [0, 1, 2]
-      inputs.masks.index.height = 0
-      inputs.masks.index.width = 1
-      inputs.masks.index.channels = 2
-
-      $batch = [100, 128]
-      $shape = [
-        [256, 512, 7],
-        [256, 512, 3]
-      ]
-      $height = 256
-      $width = 512
-      $channels = [7, 2]
-      $features = [3, 12]
-
-     */
-
-    /*
-    Map<String, DimSize> r = matcher.match(shapes);
-
-    r.get("$i") == IndexSize(value=2)
-    r.get("$height") == ScalarDim(value=256)
-    r.get("$width") == ScalarDim(value=512)
-    r.get("$batch") == DimGroup(value=List.of(100, 128))
-
-    r.get("$shape") == IndexGroup(List.of(
-      DimGroup(value=List.of(256, 512, 7)),
-      DimGroup(value=List.of(256, 512, 3))
-    ))
-
-    r.get("$features") == IndexGroup(List.of(
-      ScalarDim(value=3),
-      ScalarDim(12)))
-    r.get("$channels") == IndexGroup(List.of(
-      ScalarDim(value=7),
-      ScalarDim(value=2)))
-      */
-
-    /*
-
-    r.sizes().scalar("$height") == 256
-    r.sizes().scalar("$width") == 512
-    r.sizes().group("$batch") == List.of(100, 128)
-    r.sizes().indexScalar("$channels") == List.of(7, 2)
-    r.sizes().indexScalar("$features") == List.of(3, 12)
-
-    r.sizes().group("$shape") == List.of(
-      List.of(256, 512, 7),
-      List.of(256, 512, 3)
-      )
-
-    r.sizes().indexGroup("$shape") == List.of(
-      List.of(256, 512, 7),
-      List.of(256, 512, 3)
-      )
-
-     */
-
-    var layouts = matcher.match(tensorShapes);
-    // The goal is, from a pattern like ...:
-    // {
-    //   <group_name>: {
-    //     "shape": <shape_expression>
-    //     <cardinality?>
-    // }
-    //
-    // And given a map of `{ <name>: [<shape>, ...] }`:
-    //
-    // Produce a structure with group size counts,
-    // index locations, and bindings to the dim, group, and index variables.
-    //
-    // Open questions, what is the expected result?
-    // - we expect the index locations to be the same for all shapes.
-    // - we expect non-indexed groups and dimensions to be the same for all shapes.
-    //
-    // What should the result object look like?
-    //
-    // Notionally, we want to be able to recover:
-    // - the shapes passed in
-    // - the index locations associated with the patterns
-    // - the shapes associated with the index locations
-    //
-    // Some fields are scalar valued, and some are list valued.
-    // How to represent this?
-    // - Polymorphic return types?
-    // - Distinct lookup machinery?
-    /*
-
-    //          | *scalar* | *group*
-    // *global* | int      | int[]
-    // *index*  | int[]    | ??? int[][] ???
-
-    r.shapes() : Map<String, List<List<Integer>>>
-    r.contains(<name>) : boolean
-    r.isScalar() : boolean
-    r.isGroup() : boolean // contains(<name>) && !isScalar()
-    r.index().scalar(<name>) : int
-    r.index().group(<name>) : List<Integer>
-
-
-    result.index().scalar("$height") == 256
-    result.sizes().scalar("$height") == 256
-    result.index().group("$shape") == List.of(2, 3)
-    result.sizes().group("$shape") == List.of(256, 512)
-
-    result.index().scalar("$features") == 4
-    result.sizes().group("$features") == List.of(3, 12)
-
-    // no index for $i ?
-    result.sizes().scalar("$i") == 2
-
-    // how to represent indexed groups?
-    // ["$shape[$i]=($height, $width, $channels[$i])"]
-
-     */
+    var m = mapMatcher.match(shapeGroups);
+    System.out.println(JsonUtil.toPrettyJson(m));
   }
 
   @Test
