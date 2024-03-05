@@ -1,12 +1,10 @@
 package org.tensortapestry.loom.graph.dialects.tensorops;
 
-import guru.nidi.graphviz.engine.Format;
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.tensortapestry.common.testing.CommonAssertions;
 import org.tensortapestry.loom.graph.dialects.tensorops.constraints.OperationIPFSignatureAgreementConstraint;
-import org.tensortapestry.loom.graph.export.graphviz.GraphVisualizer;
 import org.tensortapestry.zspace.ZPoint;
 import org.tensortapestry.zspace.ZRange;
 import org.tensortapestry.zspace.ZRangeProjectionMap;
@@ -109,18 +107,5 @@ public class OperationIPFSignatureAgreementConstraintTest implements CommonAsser
       Map.of("axis", 1)
     );
     graph.validate();
-
-    if (false) {
-      // This is for dev on the graphviz stuff; it should be moved.
-      var exporter = GraphVisualizer.buildDefault();
-      var export = exporter.export(graph);
-      var gv = export.getGraphviz();
-
-      // System.out.println(export.getExportGraph());
-
-      var img = gv.render(Format.PNG).toImage();
-
-      System.out.println("here");
-    }
   }
 }

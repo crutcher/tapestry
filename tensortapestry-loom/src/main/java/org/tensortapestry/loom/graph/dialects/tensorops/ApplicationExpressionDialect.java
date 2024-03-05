@@ -1,6 +1,7 @@
 package org.tensortapestry.loom.graph.dialects.tensorops;
 
 import guru.nidi.graphviz.engine.Format;
+import guru.nidi.graphviz.engine.Graphviz;
 import java.awt.*;
 import lombok.experimental.UtilityClass;
 import org.tensortapestry.loom.graph.CommonEnvironments;
@@ -10,7 +11,8 @@ import org.tensortapestry.loom.graph.dialects.common.NoteNode;
 import org.tensortapestry.loom.graph.dialects.common.SchemaTypeConstraint;
 import org.tensortapestry.loom.graph.dialects.common.TypeRestrictionConstraint;
 import org.tensortapestry.loom.graph.dialects.tensorops.constraints.*;
-import org.tensortapestry.loom.graph.export.graphviz.ApplicationExpressionGraphVisualizer;
+import org.tensortapestry.loom.graph.export.graphviz.ApplicationExpressionLoomGraphvizExporter;
+import org.tensortapestry.loom.graph.export.graphviz.LoomGraphvizExporter;
 
 @UtilityClass
 public class ApplicationExpressionDialect {
@@ -46,11 +48,19 @@ public class ApplicationExpressionDialect {
     return ENVIRONMENT.newGraph();
   }
 
+  public LoomGraphvizExporter getGraphvizExporter() {
+    return ApplicationExpressionLoomGraphvizExporter.builder().build();
+  }
+
+  public LoomGraphvizExporter.ExportContext export(LoomGraph graph) {
+    return getGraphvizExporter().export(graph);
+  }
+
+  public Graphviz toGraphviz(LoomGraph graph) {
+    return export(graph).toGraphvizWrapper();
+  }
+
   public Image toImage(LoomGraph graph) {
-    var exporter = ApplicationExpressionGraphVisualizer.builder().build();
-    var export = exporter.export(graph);
-    var gv = export.getGraphviz();
-    // System.err.println(export.getDotGraph());
-    return gv.render(Format.PNG).toImage();
+    return toGraphviz(graph).render(Format.PNG).toImage();
   }
 }

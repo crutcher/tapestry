@@ -6,7 +6,7 @@ import javax.annotation.Nonnull;
 import lombok.Value;
 
 @Value(staticConstructor = "of")
-public class SchemeMapColorSchemeProvider implements GraphEntityColorSchemeProvider {
+public class SchemeMapColorSchemeEnv implements EntityColorSchemeEnv {
 
   @Nonnull
   Map<UUID, GraphEntityColorScheme> nodeColorings;

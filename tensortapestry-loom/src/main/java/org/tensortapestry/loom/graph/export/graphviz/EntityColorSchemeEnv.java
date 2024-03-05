@@ -3,8 +3,9 @@ package org.tensortapestry.loom.graph.export.graphviz;
 import java.util.UUID;
 import org.tensortapestry.loom.graph.LoomNodeWrapper;
 
-public interface GraphEntityColorSchemeProvider {
-  default GraphEntityColorScheme colorSchemeForNode(LoomNodeWrapper node) {
+@SuppressWarnings("unused")
+public interface EntityColorSchemeEnv {
+  default GraphEntityColorScheme colorSchemeForNode(LoomNodeWrapper<?> node) {
     return colorSchemeForNode(node.getId());
   }
 

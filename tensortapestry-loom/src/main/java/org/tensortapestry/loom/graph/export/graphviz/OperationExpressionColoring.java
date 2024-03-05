@@ -1,10 +1,12 @@
 package org.tensortapestry.loom.graph.export.graphviz;
 
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
+
 import java.awt.*;
 import java.util.*;
 import java.util.List;
 import javax.annotation.Nonnull;
+
 import lombok.Data;
 import lombok.experimental.Delegate;
 import org.tensortapestry.common.collections.EnumerationUtils;
@@ -12,9 +14,9 @@ import org.tensortapestry.loom.graph.LoomGraph;
 import org.tensortapestry.loom.graph.TraversalUtils;
 
 @Data
-public class OperationExpressionColoring implements GraphEntityColorSchemeProvider {
+public class OperationExpressionColoring implements EntityColorSchemeEnv {
 
-  public static GraphEntityColorSchemeProvider colorTensorOperationNodes(
+  public static EntityColorSchemeEnv colorTensorOperationNodes(
     LoomGraph graph,
     List<Color> colorList
   ) {
@@ -46,26 +48,18 @@ public class OperationExpressionColoring implements GraphEntityColorSchemeProvid
       }
     }
 
-    return SchemeMapColorSchemeProvider.of(schemeMap);
+    return SchemeMapColorSchemeEnv.of(schemeMap);
   }
 
   public static class Builder {
-
-    @Nonnull
-    private LoomGraph graph;
-
-    @Nonnull
-    private List<Color> colorList = List
-      .of("#f43143", "#01be5e", "#088ce4", "#7a50f0", "#a938bc", "#e6518f", "#455d75")
-      .stream()
-      .map(Color::decode)
-      .toList();
-
-    @CanIgnoreReturnValue
-    public Builder graph(@Nonnull LoomGraph graph) {
-      this.graph = graph;
-      return this;
+    public static List<Color> decodeRgbColorList(List<String> colorList) {
+      return colorList.stream().map(Color::decode).toList();
     }
+
+    @Nonnull
+    private List<Color> colorList = decodeRgbColorList(
+      List.of("#f43143", "#01be5e", "#088ce4", "#7a50f0", "#a938bc", "#e6518f", "#455d75")
+    );
 
     @CanIgnoreReturnValue
     public Builder colorList(@Nonnull List<Color> colorList) {
@@ -74,13 +68,12 @@ public class OperationExpressionColoring implements GraphEntityColorSchemeProvid
     }
 
     @CanIgnoreReturnValue
-    public Builder rgbColorList(@Nonnull List<String> colorList) {
-      this.colorList = colorList.stream().map(Color::decode).toList();
-      return this;
+    public Builder rgbColorList(@Nonnull List<String> rgbList) {
+      return colorList(decodeRgbColorList(rgbList));
     }
 
-    public OperationExpressionColoring build() {
-      return new OperationExpressionColoring(Objects.requireNonNull(graph, "graph"), colorList);
+    public OperationExpressionColoring build(@Nonnull LoomGraph graph) {
+      return new OperationExpressionColoring(graph, colorList);
     }
   }
 
@@ -96,7 +89,7 @@ public class OperationExpressionColoring implements GraphEntityColorSchemeProvid
 
   @Delegate
   @Nonnull
-  private final GraphEntityColorSchemeProvider colorSchemes;
+  private final EntityColorSchemeEnv colorSchemes;
 
   public OperationExpressionColoring(@Nonnull LoomGraph graph, @Nonnull List<Color> colorList) {
     this.graph = graph;

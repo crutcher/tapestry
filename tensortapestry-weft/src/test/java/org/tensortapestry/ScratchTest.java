@@ -12,6 +12,7 @@ import org.tensortapestry.zspace.ZRange;
 public class ScratchTest implements CommonAssertions {
 
   @Test
+  @SuppressWarnings("unused")
   public void test() {
     var graph = ApplicationExpressionDialect.newGraph();
 

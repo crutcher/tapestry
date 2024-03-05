@@ -50,7 +50,7 @@ public class JsonUtilTest implements CommonAssertions, JsonUtil.WithNodeBuilders
   @Test
   public void test_stream() {
     assertThat(
-      JsonUtil.Tree.stream((ObjectNode) JsonUtil.parseToJsonNodeTree("{\"a\" : 1, \"b\" : 2}"))
+      JsonUtil.Tree.entryStream((ObjectNode) JsonUtil.parseToJsonNodeTree("{\"a\" : 1, \"b\" : 2}"))
     )
       .containsOnly(Map.entry("a", numberNode(1)), Map.entry("b", numberNode(2)));
 
