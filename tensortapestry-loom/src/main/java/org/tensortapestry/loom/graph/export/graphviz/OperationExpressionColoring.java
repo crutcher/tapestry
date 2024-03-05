@@ -1,12 +1,10 @@
 package org.tensortapestry.loom.graph.export.graphviz;
 
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
-
 import java.awt.*;
 import java.util.*;
 import java.util.List;
 import javax.annotation.Nonnull;
-
 import lombok.Data;
 import lombok.experimental.Delegate;
 import org.tensortapestry.common.collections.EnumerationUtils;
@@ -52,6 +50,7 @@ public class OperationExpressionColoring implements EntityColorSchemeEnv {
   }
 
   public static class Builder {
+
     public static List<Color> decodeRgbColorList(List<String> colorList) {
       return colorList.stream().map(Color::decode).toList();
     }

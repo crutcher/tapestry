@@ -1,9 +1,11 @@
 package org.tensortapestry.loom.graph.export.graphviz;
 
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import java.awt.*;
 import java.util.*;
 import java.util.List;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
-
 import lombok.experimental.SuperBuilder;
 import org.apache.commons.lang3.tuple.Pair;
 import org.tensortapestry.graphviz.DotGraph;
@@ -34,13 +36,21 @@ public class OperationExpressionLoomGraphvizExporter extends LoomGraphvizExporte
     var isIoOp = op.hasTag(TensorOpNodes.IO_SEQUENCE_POINT_TYPE);
 
     if (isIoOp) {
+      var stripes = Collections
+        .nCopies(4, List.of(Color.decode("#EDED5D"), Color.decode("#A0A0A0")))
+        .stream()
+        .flatMap(List::stream)
+        .map(FormatUtils::colorToRgbaString)
+        .map(s -> s + "C0")
+        .collect(Collectors.joining(":"));
+
       outer = outer.createCluster(op.getId() + "_op_cluster_io");
       outer
         .getAttributes()
         .set(GraphvizAttribute.MARGIN, 24)
         .set(GraphvizAttribute.PERIPHERIES, 2)
         .set(GraphvizAttribute.PENWIDTH, 4)
-        .set(GraphvizAttribute.BGCOLOR, "yellow:gray:yellow:gray:yellow:gray:yellow:gray")
+        .set(GraphvizAttribute.BGCOLOR, stripes)
         .set(GraphvizAttribute.STYLE, "striped");
     }
 
@@ -80,34 +90,28 @@ public class OperationExpressionLoomGraphvizExporter extends LoomGraphvizExporte
   protected static void exportTensorNode(ExportContext context, TensorNode tensorNode) {
     var colorScheme = context.colorSchemeForNode(tensorNode);
 
-    var dotNode = context.createEntityNode(tensorNode.unwrap());
-    dotNode
+    var entityContext = context.createEntityNode(
+      "Tensor",
+      tensorNode,
+      context.getDotGraph().getRoot()
+    );
+
+    entityContext
+      .getDotNode()
       .set(GraphvizAttribute.SHAPE, "box3d")
-      .set(GraphvizAttribute.STYLE, "filled")
       .set(GraphvizAttribute.FILLCOLOR, colorScheme.getPrimary())
       .set(GraphvizAttribute.GRADIENTANGLE, 315)
       .set(GraphvizAttribute.MARGIN, 0.2);
 
     context.renderNodeTags(tensorNode);
 
-    GH.TableWrapper labelTable = GH
-      .table()
-      .bgcolor("white")
-      .border(1)
-      .cellborder(0)
-      .cellspacing(0)
+    entityContext
+      .getLabelTable()
       .add(
-        GH
-          .td()
-          .colspan(2)
-          .align(GH.TableDataAlign.LEFT)
-          .add(GH.font().add(GH.bold(" %s ".formatted(tensorNode.getTypeAlias())))),
         context.asDataKeyValueTr("dtype", tensorNode.getDtype()),
         context.asDataKeyValueTr("range", tensorNode.getRange().toRangeString()),
         context.asDataKeyValueTr("shape", tensorNode.getRange().toShapeString())
       );
-
-    dotNode.set(GraphvizAttribute.LABEL, HtmlLabel.from(labelTable));
   }
 
   protected static DotGraph.Node exportOperationNode(
@@ -117,28 +121,22 @@ public class OperationExpressionLoomGraphvizExporter extends LoomGraphvizExporte
   ) {
     var opColorScheme = context.colorSchemeForNode(operationNode);
 
-    var dotNode = opCluster.createNode(operationNode.getId().toString());
-    context.decorateEntityNode(operationNode.unwrap(), dotNode);
-    dotNode
+    var entityContext = context.createEntityNode("Operation", operationNode, opCluster);
+
+    entityContext
+      .getDotNode()
       .set(GraphvizAttribute.SHAPE, "tab")
       .set(GraphvizAttribute.STYLE, "filled")
       .set(GraphvizAttribute.FILLCOLOR, opColorScheme.getPrimary());
 
-    context.renderNodeTags(operationNode.unwrap(), opCluster);
+    context.addObjectDataRows(
+      entityContext.getLabelTable(),
+      (ObjectNode) operationNode.viewBodyAsJsonNode()
+    );
 
-    GH.TableWrapper labelTable = GH
-      .table()
-      .bgcolor("white")
-      .border(0)
-      .cellborder(0)
-      .cellspacing(0)
-      .add(
-        context.renderDataTable(operationNode.getTypeAlias(), operationNode.viewBodyAsJsonNode())
-      );
+    context.renderNodeTags(operationNode, opCluster);
 
-    dotNode.set(GraphvizAttribute.LABEL, HtmlLabel.from(labelTable));
-
-    return dotNode;
+    return entityContext.getDotNode();
   }
 
   protected static void exportSelectionMap(
@@ -192,12 +190,11 @@ public class OperationExpressionLoomGraphvizExporter extends LoomGraphvizExporte
             GH
               .table()
               .bgcolor("white")
-              .border(1)
-              .cellborder(0)
+              .border(0)
+              .cellborder(1)
               .cellspacing(0)
-              .cellpadding(0)
               .add(
-                GH.tr(GH.bold(selDesc), GH.bold(context.nodeAlias(tensorId))),
+                GH.tr(GH.bold(selDesc), GH.bold(" " + context.nodeAlias(tensorId) + " ")),
                 context.asDataKeyValueTr("range", tensorSelection.getRange().toRangeString()),
                 context.asDataKeyValueTr("shape", tensorSelection.getRange().toShapeString())
               )

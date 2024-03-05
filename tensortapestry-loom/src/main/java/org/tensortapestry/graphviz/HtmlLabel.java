@@ -6,13 +6,13 @@ import lombok.Value;
 public class HtmlLabel {
 
   public static HtmlLabel from(Object label) {
-    return new HtmlLabel(label.toString());
+    return new HtmlLabel(label);
   }
 
-  String label;
+  Object label;
 
   @Override
   public String toString() {
-    return "<" + label + ">";
+    return "<" + label.toString() + ">";
   }
 }

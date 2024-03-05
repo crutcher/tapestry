@@ -1,5 +1,6 @@
 package org.tensortapestry.loom.graph.export.graphviz;
 
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.awt.*;
 import java.util.*;
 import java.util.List;
@@ -8,7 +9,6 @@ import lombok.experimental.SuperBuilder;
 import org.tensortapestry.graphviz.DotGraph;
 import org.tensortapestry.graphviz.FormatUtils;
 import org.tensortapestry.graphviz.GraphvizAttribute;
-import org.tensortapestry.graphviz.HtmlLabel;
 import org.tensortapestry.loom.graph.LoomGraph;
 import org.tensortapestry.loom.graph.dialects.tensorops.*;
 
@@ -197,12 +197,14 @@ public class ApplicationExpressionLoomGraphvizExporter
       .set(GraphvizAttribute.GRADIENTANGLE, 315)
       .set(GraphvizAttribute.STYLE, "filled, dashed, bold, rounded");
 
-    var appDotNode = dotCluster.createNode(application.getId().toString());
-    context.decorateEntityNode(application.unwrap(), appDotNode);
-    appDotNode
+    var entityContext = context.createEntityNode("Application", application, opCluster);
+
+    entityContext
+      .getDotNode()
       .set(GraphvizAttribute.SHAPE, "note")
-      .set(GraphvizAttribute.STYLE, "filled")
       .set(GraphvizAttribute.FILLCOLOR, operationColor);
+
+    var appDotNode = entityContext.getDotNode();
 
     dotGraph.sameRank(appDotNode, operationDotNode);
 
@@ -213,15 +215,10 @@ public class ApplicationExpressionLoomGraphvizExporter
 
     context.renderNodeTags(application.unwrap(), dotCluster);
 
-    GH.TableWrapper labelTable = GH
-      .table()
-      .bgcolor("white")
-      .border(0)
-      .cellborder(0)
-      .cellspacing(0)
-      .add(context.renderDataTable(application.getTypeAlias(), application.viewBodyAsJsonNode()));
-
-    appDotNode.set(GraphvizAttribute.LABEL, HtmlLabel.from(labelTable));
+    context.addObjectDataRows(
+      entityContext.getLabelTable(),
+      (ObjectNode) application.viewBodyAsJsonNode()
+    );
 
     exportSelectionMap(
       context,
