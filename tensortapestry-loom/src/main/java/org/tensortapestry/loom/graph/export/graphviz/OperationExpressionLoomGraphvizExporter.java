@@ -1,6 +1,5 @@
 package org.tensortapestry.loom.graph.export.graphviz;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.awt.*;
 import java.util.*;
 import java.util.List;
@@ -9,6 +8,7 @@ import javax.annotation.Nullable;
 import lombok.Builder;
 import lombok.experimental.SuperBuilder;
 import org.apache.commons.lang3.tuple.Pair;
+import org.tensortapestry.common.collections.EnumerationUtils;
 import org.tensortapestry.graphviz.DotGraph;
 import org.tensortapestry.graphviz.FormatUtils;
 import org.tensortapestry.graphviz.GraphvizAttribute;
@@ -171,10 +171,14 @@ public class OperationExpressionLoomGraphvizExporter extends LoomGraphvizExporte
       .set(GraphvizAttribute.STYLE, "filled")
       .set(GraphvizAttribute.FILLCOLOR, opColorScheme.getPrimary());
 
-    context.addObjectDataRows(
-      entityContext.getLabelTable(),
-      (ObjectNode) operationNode.viewBodyAsJsonNode()
-    );
+    var labelTable = entityContext.getLabelTable();
+
+    labelTable.add(context.asDataKeyValueTr("Kernel", operationNode.getKernel()));
+
+    var selTable = ioSelectionTable(context, operationNode.getInputs(), operationNode.getOutputs());
+    if (selTable != null) {
+      labelTable.add(GH.td().colspan(2).add(selTable));
+    }
 
     context.renderNodeTags(operationNode, opCluster);
 
@@ -320,5 +324,73 @@ public class OperationExpressionLoomGraphvizExporter extends LoomGraphvizExporte
         }
       }
     }
+  }
+
+  @Nullable protected GH.TableWrapper ioSelectionTable(
+    ExportContext context,
+    Map<String, List<TensorSelection>> inputs,
+    Map<String, List<TensorSelection>> outputs
+  ) {
+    if (inputs.size() == 0 && outputs.size() == 0) {
+      return null;
+    }
+
+    var table = GH.table();
+
+    table.border(0).cellborder(1).cellpadding(2).cellspacing(0);
+
+    if (inputs.size() > 0) {
+      table.add(GH.td().colspan(3).add(GH.bold("Inputs")));
+
+      for (var entry : inputs.entrySet()) {
+        var key = entry.getKey();
+        var selections = entry.getValue();
+
+        for (var iv : EnumerationUtils.enumerate(selections)) {
+          var idx = iv.getKey();
+          var sel = iv.getValue();
+
+          var tr = GH.tr();
+          table.add(tr);
+
+          if (idx == 0) {
+            tr.add(GH.td().rowspan(selections.size()).add(GH.bold(key)));
+          }
+
+          tr.add(
+            GH.td(GH.bold(context.nodeAlias(sel.getTensorId()))),
+            GH.td(GH.bold(sel.getRange().toString()))
+          );
+        }
+      }
+    }
+
+    if (outputs.size() > 0) {
+      table.add(GH.td().colspan(3).add(GH.bold("Outputs")));
+
+      for (var entry : outputs.entrySet()) {
+        var key = entry.getKey();
+        var selections = entry.getValue();
+
+        for (var iv : EnumerationUtils.enumerate(selections)) {
+          var idx = iv.getKey();
+          var sel = iv.getValue();
+
+          var tr = GH.tr();
+          table.add(tr);
+
+          if (idx == 0) {
+            tr.add(GH.td().rowspan(selections.size()).add(GH.bold(key)));
+          }
+
+          tr.add(
+            GH.td(GH.bold(context.nodeAlias(sel.getTensorId()))),
+            GH.td(GH.bold(sel.getRange().toString()))
+          );
+        }
+      }
+    }
+
+    return table;
   }
 }

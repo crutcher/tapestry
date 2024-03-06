@@ -1,10 +1,10 @@
 package org.tensortapestry.loom.graph.export.graphviz;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.awt.*;
 import java.util.*;
 import java.util.List;
 import javax.annotation.Nullable;
+import lombok.Builder;
 import lombok.experimental.SuperBuilder;
 import org.tensortapestry.graphviz.DotGraph;
 import org.tensortapestry.graphviz.FormatUtils;
@@ -16,6 +16,9 @@ import org.tensortapestry.zspace.ZRange;
 @SuperBuilder
 public class ApplicationExpressionLoomGraphvizExporter
   extends OperationExpressionLoomGraphvizExporter {
+
+  @Builder.Default
+  private final boolean showOperations = true;
 
   @Override
   public ExportContext export(LoomGraph graph) {
@@ -30,9 +33,14 @@ public class ApplicationExpressionLoomGraphvizExporter
     Map<UUID, List<Map.Entry<String, ZRange>>> outputSelections = new HashMap<>();
 
     for (var op : graph.byType(OperationNode.class)) {
-      var opPair = exportOperationEntityNodeAndCluster(context, op);
-      var opDotNode = opPair.getKey();
-      var opCluster = opPair.getValue();
+      DotGraph.Node opDotNode = null;
+      DotGraph.SubGraph opCluster = context.getDotGraph().getRoot();
+
+      if (showOperations) {
+        var opPair = exportOperationEntityNodeAndCluster(context, op);
+        opDotNode = opPair.getKey();
+        opCluster = opPair.getValue();
+      }
 
       Map<UUID, DotGraph.Node> routeProxies = new HashMap<>();
       if (op.getApplicationNodes().stream().count() > 1) {
@@ -43,6 +51,7 @@ public class ApplicationExpressionLoomGraphvizExporter
       for (var app : op.getApplicationNodes()) {
         exportApplicationNode(context, op, opDotNode, opCluster, routeProxies, app);
 
+        // TODO: common iteration for input and output selections
         for (var entry : app.getInputs().entrySet()) {
           var tensorId = entry.getKey();
           var slices = entry.getValue();
@@ -259,7 +268,7 @@ public class ApplicationExpressionLoomGraphvizExporter
   protected DotGraph.Node exportApplicationNode(
     ExportContext context,
     OperationNode operation,
-    DotGraph.Node operationDotNode,
+    @Nullable DotGraph.Node operationDotNode,
     DotGraph.SubGraph opCluster,
     @Nullable Map<UUID, DotGraph.Node> routeProxies,
     ApplicationNode application
@@ -293,19 +302,27 @@ public class ApplicationExpressionLoomGraphvizExporter
 
     var appDotNode = entityContext.getDotNode();
 
-    dotGraph.sameRank(appDotNode, operationDotNode);
+    if (operationDotNode != null) {
+      dotGraph.sameRank(appDotNode, operationDotNode);
 
-    dotGraph
-      .createEdge(appDotNode, operationDotNode)
-      .set(GraphvizAttribute.CONSTRAINT, false)
-      .set(GraphvizAttribute.STYLE, "invis");
+      dotGraph
+        .createEdge(appDotNode, operationDotNode)
+        .set(GraphvizAttribute.CONSTRAINT, false)
+        .set(GraphvizAttribute.STYLE, "invis");
+    }
 
     context.renderNodeTags(application.unwrap(), dotCluster);
 
-    context.addObjectDataRows(
-      entityContext.getLabelTable(),
-      (ObjectNode) application.viewBodyAsJsonNode()
+    var labelTable = entityContext.getLabelTable();
+
+    labelTable.add(
+      context.asDataKeyValueTr("Operation", context.nodeAlias(application.getOperationId()))
     );
+
+    var selTable = ioSelectionTable(context, application.getInputs(), application.getOutputs());
+    if (selTable != null) {
+      labelTable.add(GH.td().colspan(2).add(selTable));
+    }
 
     exportSelectionMap(
       context,
