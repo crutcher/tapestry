@@ -115,6 +115,7 @@ public class GraphViewer {
     var initialWidth = (int) (screenSize.getWidth() * 0.8);
 
     Image img = ApplicationExpressionDialect.toImage(graph);
+    //    Image img = OperationExpressionDialect.toImage(graph);
     var imgComponent = new ImageComponent(img);
     imgComponent.setSize(initialWidth, initialHeight);
     imgComponent.scaleToFit();

@@ -29,10 +29,13 @@ public abstract class LoomGraphvizExporter {
   private final UuidAliasEnv uuidAliasEnv = new UuidAliasEnv();
 
   @Builder.Default
-  private final boolean showUuids = false;
+  private final boolean showUuids = true;
 
   @Builder.Default
   private final String bgColor = "#E2E2E2";
+
+  @Builder.Default
+  private final String fontName = "Helvetica";
 
   protected final ExportContext newContext(LoomGraph graph) {
     var context = new ExportContext(graph, OperationExpressionColoring.builder().build(graph));
@@ -49,6 +52,8 @@ public abstract class LoomGraphvizExporter {
       // .set(GraphAttribute.NODESEP, 0.4)
       .set(GraphvizAttribute.RANKSEP, 0.6)
       .set(GraphvizAttribute.BGCOLOR, getBgColor());
+
+    context.getDotGraph().getNodeDefaults().set(GraphvizAttribute.FONTNAME, fontName);
 
     return context;
   }
@@ -111,11 +116,31 @@ public abstract class LoomGraphvizExporter {
         .cellborder(1)
         .cellspacing(0);
 
+      addTitleRow(labelTable, title);
+
+      var nodeLabel = loomNode.getLabel();
+      if (nodeLabel != null && !nodeLabel.isEmpty()) {
+        labelTable.add(
+          GH
+            .td()
+            .colspan(2)
+            .add(GH.font().color("teal").add(GH.bold("\"%s\"".formatted(nodeLabel))))
+        );
+      }
+
+      var gradColors = "#C5E8EE:#E9C5EF";
       labelTable.add(
         GH
           .tr()
           .add(
-            GH.td().colspan(2).border(1).add(GH.font().add(GH.bold(nodeAlias(loomNode.getId()))))
+            GH
+              .td()
+              .colspan(2)
+              .bgcolor(gradColors)
+              .border(1)
+              .sides("LRT")
+              .gradientangle(315)
+              .add(GH.font().add(GH.bold(nodeAlias(loomNode.getId()))))
           )
       );
 
@@ -128,12 +153,13 @@ public abstract class LoomGraphvizExporter {
                 .td()
                 .colspan(2)
                 .border(1)
-                .add(GH.font().add(GH.italic(loomNode.getId().toString())))
+                .sides("LRB")
+                .bgcolor(gradColors)
+                .gradientangle(315)
+                .add(GH.font().pointSize(10).add(GH.bold(GH.italic(loomNode.getId().toString()))))
             )
         );
       }
-
-      addTitleRow(labelTable, title);
 
       dotNode.set(GraphvizAttribute.LABEL, HtmlLabel.from(labelTable));
 
@@ -205,8 +231,7 @@ public abstract class LoomGraphvizExporter {
         GH
           .td()
           .colspan(2)
-          .align(GH.TableDataAlign.LEFT)
-          .add(GH.font().color("teal").add(GH.bold(" %s ".formatted(title))))
+          .add(GH.font().pointSize(18).color("teal").add(GH.bold(" %s ".formatted(title))))
       );
     }
 

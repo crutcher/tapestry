@@ -23,10 +23,15 @@ public class CommonMetaKernels {
     var op = OperationNode
       .on(graph)
       .body(b -> {
-        b.kernel("loom:import");
+        b.kernel("op:import");
         b.outputs(outputs);
       })
       .build();
+
+    var label = tensorNode.getLabel();
+    if (label != null && !label.isEmpty()) {
+      op.setLabel(label);
+    }
 
     op.addTag(TensorOpNodes.IO_SEQUENCE_POINT_TYPE, IOSequencePoint.builder().build());
 
@@ -41,10 +46,15 @@ public class CommonMetaKernels {
     var op = OperationNode
       .on(graph)
       .body(b -> {
-        b.kernel("loom:export");
+        b.kernel("op:export");
         b.inputs(inputs);
       })
       .build();
+
+    var label = tensorNode.getLabel();
+    if (label != null && !label.isEmpty()) {
+      op.setLabel(label);
+    }
 
     op.addTag(TensorOpNodes.IO_SEQUENCE_POINT_TYPE, IOSequencePoint.builder().build());
 

@@ -1,6 +1,9 @@
 package org.tensortapestry.loom.graph.export.graphviz;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import org.tensortapestry.zspace.indexing.IndexingFns;
 
 public final class UuidAliasEnv {
@@ -15,19 +18,36 @@ public final class UuidAliasEnv {
     "cyan",
     "magenta",
     "lime",
-    "pink"
+    "pink",
+    "happy",
+    "sleepy",
+    "funny",
+    "silly",
+    "bouncy",
+    "jumpy",
+    "dizzy"
   );
   private static final List<String> VOCAB2 = List.of(
     "apple",
     "banana",
     "cherry",
     "date",
-    "elderberry",
     "fig",
     "grape",
-    "honeydew",
     "kiwi",
-    "lemon"
+    "lemon",
+    "mango",
+    "elf",
+    "monkey",
+    "leader",
+    "penguin",
+    "tiger",
+    "bear",
+    "lion",
+    "cat",
+    "dog",
+    "fish",
+    "bird"
   );
 
   private final Map<UUID, String> aliasMap;
@@ -46,11 +66,11 @@ public final class UuidAliasEnv {
 
   public synchronized String getIdAlias(UUID uuid) {
     if (!aliasMap.containsKey(uuid)) {
-      int h = IndexingFns.throwOnMinAbs(uuid.hashCode());
+      int h = IndexingFns.incorrectOnMinAbs(uuid.hashCode());
       var base =
         VOCAB1.get(h % VOCAB1.size()) + ":" + VOCAB2.get((h / VOCAB1.size()) % VOCAB2.size());
 
-      for (int i = 1;; i++) {
+      for (int i = (h % 32) + 10;; i++) {
         var alias = base + ":" + i;
         if (!hasIdAlias(alias)) {
           aliasMap.put(uuid, alias);

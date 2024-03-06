@@ -6,6 +6,7 @@ import java.util.*;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
+import lombok.Builder;
 import lombok.experimental.SuperBuilder;
 import org.apache.commons.lang3.tuple.Pair;
 import org.tensortapestry.graphviz.DotGraph;
@@ -17,6 +18,9 @@ import org.tensortapestry.loom.graph.dialects.tensorops.*;
 
 @SuperBuilder
 public class OperationExpressionLoomGraphvizExporter extends LoomGraphvizExporter {
+
+  @Builder.Default
+  private final boolean labelOperationGroups = true;
 
   /**
    * Export an Operation node and its Cluster.
@@ -34,6 +38,42 @@ public class OperationExpressionLoomGraphvizExporter extends LoomGraphvizExporte
     var outer = context.getDotGraph().getRoot();
 
     var isIoOp = op.hasTag(TensorOpNodes.IO_SEQUENCE_POINT_TYPE);
+
+    if (labelOperationGroups) {
+      var clusterGroupDescription = "Operation";
+      if (isIoOp) {
+        List<String> mods = new ArrayList<>();
+        if (!op.getInputs().isEmpty()) {
+          mods.add("Sink");
+        }
+        if (!op.getOutputs().isEmpty()) {
+          mods.add("Source");
+        }
+        clusterGroupDescription = String.join(" / ", mods) + " " + clusterGroupDescription;
+      }
+      clusterGroupDescription += " [%s]".formatted(op.getKernel());
+      {
+        var label = op.getLabel();
+        if (label != null && !label.isEmpty() && !label.equals(op.getKernel())) {
+          clusterGroupDescription += " : \"%s\"".formatted(label);
+        }
+      }
+
+      var labelCluster = outer.createCluster(op.getId() + "_op_label_cluster");
+      labelCluster
+        .getAttributes()
+        .set(GraphvizAttribute.LABELJUST, "l")
+        .set(GraphvizAttribute.LABELLOC, "t")
+        .set(GraphvizAttribute.PERIPHERIES, 0)
+        .set(
+          GraphvizAttribute.LABEL,
+          HtmlLabel.from(
+            GH.font().color("black").pointSize(48).add(GH.bold(clusterGroupDescription))
+          )
+        );
+
+      outer = labelCluster;
+    }
 
     if (isIoOp) {
       var stripes = Collections
@@ -87,7 +127,7 @@ public class OperationExpressionLoomGraphvizExporter extends LoomGraphvizExporte
     return context;
   }
 
-  protected static void exportTensorNode(ExportContext context, TensorNode tensorNode) {
+  protected DotGraph.Node exportTensorNode(ExportContext context, TensorNode tensorNode) {
     var colorScheme = context.colorSchemeForNode(tensorNode);
 
     var entityContext = context.createEntityNode(
@@ -112,9 +152,11 @@ public class OperationExpressionLoomGraphvizExporter extends LoomGraphvizExporte
         context.asDataKeyValueTr("range", tensorNode.getRange().toRangeString()),
         context.asDataKeyValueTr("shape", tensorNode.getRange().toShapeString())
       );
+
+    return entityContext.getDotNode();
   }
 
-  protected static DotGraph.Node exportOperationNode(
+  protected DotGraph.Node exportOperationNode(
     ExportContext context,
     OperationNode operationNode,
     DotGraph.SubGraph opCluster
@@ -139,7 +181,11 @@ public class OperationExpressionLoomGraphvizExporter extends LoomGraphvizExporte
     return entityContext.getDotNode();
   }
 
-  protected static void exportSelectionMap(
+  protected String selectionDotNodeId(String nodeId, String desc, String key, int idx) {
+    return nodeId + "_" + desc + "_sel_" + key + "_" + idx;
+  }
+
+  protected void exportSelectionMap(
     ExportContext context,
     DotGraph.SubGraph dotCluster,
     @Nullable Map<UUID, DotGraph.Node> routeProxies,
@@ -168,38 +214,56 @@ public class OperationExpressionLoomGraphvizExporter extends LoomGraphvizExporte
 
         String selDesc = "%s[%d]".formatted(key, idx);
 
-        String selNodeId = nodeId + "_sel_" + key + "_" + idx;
+        String selNodeId = selectionDotNodeId(nodeId, ioDesc, key, idx);
 
         UUID tensorId = tensorSelection.getTensorId();
         var tensorNode = context.getLoomGraph().assertNode(tensorId, TensorNode.class);
+
+        var isTotalSelection = tensorNode.getRange().equals(tensorSelection.getRange());
 
         var tensorColor = context.colorSchemeForNode(tensorNode).getPrimary();
 
         var dotSelectionNode = selCluster.createNode(selNodeId);
         dotSelectionNode
           .set(GraphvizAttribute.SHAPE, "box3d")
+          .set(GraphvizAttribute.PENWIDTH, 2)
           .set(GraphvizAttribute.FILLCOLOR, tensorColor)
           .set(GraphvizAttribute.STYLE, "filled")
           .set(GraphvizAttribute.GRADIENTANGLE, 315)
-          .set(GraphvizAttribute.PENWIDTH, 2)
           .set(GraphvizAttribute.MARGIN, 0.15);
 
-        dotSelectionNode.set(
-          GraphvizAttribute.LABEL,
-          HtmlLabel.from(
-            GH
-              .table()
-              .bgcolor("white")
-              .border(0)
-              .cellborder(1)
-              .cellspacing(0)
-              .add(
-                GH.tr(GH.bold(selDesc), GH.bold(" " + context.nodeAlias(tensorId) + " ")),
-                context.asDataKeyValueTr("range", tensorSelection.getRange().toRangeString()),
-                context.asDataKeyValueTr("shape", tensorSelection.getRange().toShapeString())
-              )
-          )
-        );
+        if (isTotalSelection) {
+          dotSelectionNode.set(
+            GraphvizAttribute.LABEL,
+            HtmlLabel.from(
+              GH
+                .table()
+                .bgcolor("white")
+                .border(0)
+                .cellborder(1)
+                .cellspacing(0)
+                .cellpadding(2)
+                .add(GH.bold(selDesc + " "))
+            )
+          );
+        } else {
+          dotSelectionNode.set(
+            GraphvizAttribute.LABEL,
+            HtmlLabel.from(
+              GH
+                .table()
+                .bgcolor("white")
+                .border(0)
+                .cellborder(1)
+                .cellspacing(0)
+                .add(
+                  GH.tr(GH.bold(selDesc), GH.bold(" " + context.nodeAlias(tensorId) + " ")),
+                  context.asDataKeyValueTr("range", tensorSelection.getRange().toRangeString()),
+                  context.asDataKeyValueTr("shape", tensorSelection.getRange().toShapeString())
+                )
+            )
+          );
+        }
 
         boolean isRouteProxy;
         DotGraph.Node targetTensorRouteNode;
@@ -224,6 +288,10 @@ public class OperationExpressionLoomGraphvizExporter extends LoomGraphvizExporte
         } else {
           selEdge = dotCluster.createEdge(selectionParentDotNode, dotSelectionNode);
           routeEdge = dotGraph.createEdge(dotSelectionNode, targetTensorRouteNode);
+
+          if (!isRouteProxy) {
+            routeEdge.set(GraphvizAttribute.WEIGHT, 10);
+          }
 
           if (isRouteProxy) {
             routeEdge.set(GraphvizAttribute.HEADCLIP, false);
