@@ -11,6 +11,7 @@ import org.tensortapestry.graphviz.FormatUtils;
 import org.tensortapestry.graphviz.GraphvizAttribute;
 import org.tensortapestry.loom.graph.LoomGraph;
 import org.tensortapestry.loom.graph.dialects.tensorops.*;
+import org.tensortapestry.zspace.ZRange;
 
 @SuperBuilder
 public class ApplicationExpressionLoomGraphvizExporter
@@ -19,10 +20,15 @@ public class ApplicationExpressionLoomGraphvizExporter
   @Override
   public ExportContext export(LoomGraph graph) {
     var context = newContext(graph);
+    DotGraph dotGraph = context.getDotGraph();
 
     for (var t : graph.byType(TensorNode.class)) {
       exportTensorNode(context, t);
     }
+
+    Map<UUID, List<Map.Entry<String, ZRange>>> inputSelections = new HashMap<>();
+    Map<UUID, List<Map.Entry<String, ZRange>>> outputSelections = new HashMap<>();
+
     for (var op : graph.byType(OperationNode.class)) {
       var opPair = exportOperationEntityNodeAndCluster(context, op);
       var opDotNode = opPair.getKey();
@@ -30,19 +36,98 @@ public class ApplicationExpressionLoomGraphvizExporter
 
       Map<UUID, DotGraph.Node> routeProxies = new HashMap<>();
       if (op.getApplicationNodes().stream().count() > 1) {
-        routeProxies.putAll(selectionMapRibbonRouteProxies(context, op, op.getInputs(), true));
-        routeProxies.putAll(selectionMapRibbonRouteProxies(context, op, op.getOutputs(), false));
+        routeProxies.putAll(renderRibbonProxies(context, op, op.getInputs(), true));
+        routeProxies.putAll(renderRibbonProxies(context, op, op.getOutputs(), false));
       }
 
       for (var app : op.getApplicationNodes()) {
         exportApplicationNode(context, op, opDotNode, opCluster, routeProxies, app);
+
+        for (var entry : app.getInputs().entrySet()) {
+          var tensorId = entry.getKey();
+          var slices = entry.getValue();
+          for (int i = 0; i < slices.size(); i++) {
+            var selection = slices.get(i);
+            var range = selection.getRange();
+
+            var selDotNodeId = selectionDotNodeId(app.getId().toString(), "input", tensorId, i);
+
+            inputSelections
+              .computeIfAbsent(selection.getTensorId(), k -> new ArrayList<>())
+              .add(Map.entry(selDotNodeId, range));
+          }
+        }
+        for (var entry : app.getOutputs().entrySet()) {
+          var tensorId = entry.getKey();
+          var slices = entry.getValue();
+          for (int i = 0; i < slices.size(); i++) {
+            var selection = slices.get(i);
+            var range = selection.getRange();
+
+            var selDotNodeId = selectionDotNodeId(app.getId().toString(), "output", tensorId, i);
+
+            outputSelections
+              .computeIfAbsent(selection.getTensorId(), k -> new ArrayList<>())
+              .add(Map.entry(selDotNodeId, range));
+          }
+        }
+      }
+    }
+
+    for (var t : graph.byType(TensorNode.class)) {
+      var is = inputSelections.get(t.getId());
+      var os = outputSelections.get(t.getId());
+
+      if (is == null || os == null) {
+        continue;
+      }
+
+      Map<ZRange, Map.Entry<List<String>, List<String>>> matchingSelections = new HashMap<>();
+
+      for (var inputEntry : is) {
+        var inputDotNode = inputEntry.getKey();
+        var inputRange = inputEntry.getValue();
+
+        for (var outputEntry : os) {
+          var outputRange = outputEntry.getValue();
+          var outputDotNode = outputEntry.getKey();
+
+          if (inputRange.equals(outputRange)) {
+            var rangeMatches = matchingSelections.computeIfAbsent(
+              inputRange,
+              k -> new AbstractMap.SimpleEntry<>(new ArrayList<>(), new ArrayList<>())
+            );
+
+            rangeMatches.getKey().add(outputDotNode);
+            rangeMatches.getValue().add(inputDotNode);
+          }
+        }
+      }
+
+      for (var e : matchingSelections.values()) {
+        var outputs = e.getKey();
+        var inputs = e.getValue();
+
+        if (outputs.size() == 1 && inputs.size() == 1) {
+          var outputDotNode = outputs.get(0);
+          var inputDotNode = inputs.get(0);
+
+          var fusionEdge = dotGraph.createEdge(
+            dotGraph.assertLookup(outputDotNode, DotGraph.Node.class),
+            dotGraph.assertLookup(inputDotNode, DotGraph.Node.class)
+          );
+          fusionEdge
+            .set(GraphvizAttribute.WEIGHT, 15)
+            .set(GraphvizAttribute.STYLE, "dotted")
+            .set(GraphvizAttribute.PENWIDTH, 12);
+        }
       }
     }
 
     return context;
   }
 
-  protected static Map<UUID, DotGraph.Node> selectionMapRibbonRouteProxies(
+  protected Map<UUID, DotGraph.Node> renderRibbonProxies(
     ExportContext context,
     OperationNode operationNode,
     Map<String, List<TensorSelection>> selectionMap,
@@ -101,6 +186,8 @@ public class ApplicationExpressionLoomGraphvizExporter
         } else {
           routeEdge = dotGraph.createEdge(routeNode, tensorDotNode);
           routeEdge.set(GraphvizAttribute.TAILCLIP, false);
+
+          routeEdge.set(GraphvizAttribute.WEIGHT, 10);
         }
 
         routeEdge
@@ -169,7 +256,7 @@ public class ApplicationExpressionLoomGraphvizExporter
     return routeProxies;
   }
 
-  public static void exportApplicationNode(
+  protected DotGraph.Node exportApplicationNode(
     ExportContext context,
     OperationNode operation,
     DotGraph.Node operationDotNode,
@@ -236,5 +323,7 @@ public class ApplicationExpressionLoomGraphvizExporter
       application.getOutputs(),
       false
     );
+
+    return entityContext.getDotNode();
   }
 }

@@ -204,6 +204,7 @@ public class DotGraph {
     public Cluster createCluster(@Nonnull String id) {
       checkIdConflict(id);
       var cluster = new Cluster(id);
+      cluster.getAttributes().set(GraphvizAttribute.LABEL, "");
       subGraphs.add(cluster);
       return cluster;
     }
