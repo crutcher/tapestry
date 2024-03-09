@@ -2,11 +2,9 @@ package org.tensortapestry.zspace;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.google.errorprone.annotations.Immutable;
-
 import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.ThreadSafe;
-
 import org.tensortapestry.zspace.indexing.IndexingFns;
 
 /**

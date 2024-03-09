@@ -1,11 +1,10 @@
 package org.tensortapestry.common.collections;
 
-import lombok.experimental.UtilityClass;
-
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.function.Function;
+import lombok.experimental.UtilityClass;
 
 @UtilityClass
 public class CollectionContracts {
@@ -33,14 +32,26 @@ public class CollectionContracts {
    * @param <T> the type of the elements in the collections.
    * @throws IllegalArgumentException if the collections are not distinct.
    */
-  public <T> void expectDistinct(Collection<T> lhs, Collection<T> rhs, String itemDesc, String lhsDesc, String rhsDesc) {
+  public <T> void expectDistinct(
+    Collection<T> lhs,
+    Collection<T> rhs,
+    String itemDesc,
+    String lhsDesc,
+    String rhsDesc
+  ) {
     for (var e : lhs) {
       if (rhs.contains(e)) {
         var overlap = new HashSet<>(lhs);
         overlap.retainAll(rhs);
 
         throw new IllegalArgumentException(
-          "Overlapping %s between \"%s\" and \"%s\": %s".formatted(itemDesc, lhsDesc, rhsDesc, overlap));
+          "Overlapping %s between \"%s\" and \"%s\": %s".formatted(
+              itemDesc,
+              lhsDesc,
+              rhsDesc,
+              overlap
+            )
+        );
       }
     }
   }
@@ -64,5 +75,4 @@ public class CollectionContracts {
       }
     }
   }
-
 }
