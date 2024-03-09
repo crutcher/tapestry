@@ -2,9 +2,11 @@ package org.tensortapestry.zspace;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.google.errorprone.annotations.Immutable;
+
 import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.ThreadSafe;
+
 import org.tensortapestry.zspace.indexing.IndexingFns;
 
 /**
@@ -80,6 +82,19 @@ public final class ZPoint extends ImmutableZTensorWrapper<ZPoint> implements Has
   @Override
   public int getNDim() {
     return tensor.shape(0);
+  }
+
+  /**
+   * Create a ZPoint of the given coordinates.
+   *
+   * <p>Equivalent to {@code new ZPoint(coords)}.
+   *
+   * @param coords the coordinates.
+   * @return a new ZPoint.
+   */
+  @Nonnull
+  public static ZPoint of(@Nonnull List<Integer> coords) {
+    return new ZPoint(coords);
   }
 
   /**
