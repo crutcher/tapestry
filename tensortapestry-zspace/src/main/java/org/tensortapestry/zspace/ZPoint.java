@@ -91,6 +91,19 @@ public final class ZPoint extends ImmutableZTensorWrapper<ZPoint> implements Has
    * @return a new ZPoint.
    */
   @Nonnull
+  public static ZPoint of(@Nonnull List<Integer> coords) {
+    return new ZPoint(coords);
+  }
+
+  /**
+   * Create a ZPoint of the given coordinates.
+   *
+   * <p>Equivalent to {@code new ZPoint(coords)}.
+   *
+   * @param coords the coordinates.
+   * @return a new ZPoint.
+   */
+  @Nonnull
   public static ZPoint of(@Nonnull int... coords) {
     return new ZPoint(coords);
   }
