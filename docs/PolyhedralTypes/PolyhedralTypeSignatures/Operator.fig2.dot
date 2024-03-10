@@ -1,0 +1,187 @@
+digraph G {
+    rankdir=RL;
+    A1, A2, B1, B2, X1, X2, Y1, Y2 [shape=box3d, fillcolor="#d0d0ff", style=filled];
+
+    A [
+        shape="plain",
+        label=<
+        <table cellpadding="8">
+            <tr>
+                <td>⋱</td>
+                <td>⋰</td>
+                </tr>
+            <tr>
+                <td bgcolor="#D6EAF8">A<sub>i,m</sub></td>
+                <td bgcolor="#D6EAF8">…</td>
+                </tr>
+            <tr>
+                <td>⋰</td>
+                <td>⋱</td>
+                </tr>
+            </table>
+        >,
+    ];
+
+    B [
+        shape="plain",
+        label=<
+        <table cellpadding="8">
+            <tr>
+                <td>⋱</td>
+                <td bgcolor="#D6EAF8">…</td>
+                <td>⋰</td>
+                </tr>
+            <tr>
+                <td>…</td>
+                <td bgcolor="#D6EAF8">B<sub>m,n</sub></td>
+                <td>…</td>
+                </tr>
+            <tr>
+                <td>⋰</td>
+                <td bgcolor="#D6EAF8">…</td>
+                <td>⋱</td>
+                </tr>
+            </table>
+        >,
+    ];
+
+    op1 [
+        label=<Operator<sub>1</sub>>,
+        shape=rarrow,
+        style=filled,
+        fillcolor="#E5E8E8",
+        margin=0.25
+    ];
+    op2 [
+        label=<Operator<sub>2</sub>>,
+        shape=rarrow,
+        style=filled,
+        fillcolor="#E5E8E8",
+        margin=0.25
+    ];
+
+    X [
+        shape="plain",
+        label=<
+        <table cellpadding="8">
+            <tr>
+                <td>⋱</td>
+                <td>…</td>
+                <td>⋰</td>
+                </tr>
+            <tr>
+                <td>…</td>
+                <td bgcolor="#D6EAF8">X<sub>i,n</sub></td>
+                <td>…</td>
+                </tr>
+            <tr>
+                <td>⋰</td>
+                <td>…</td>
+                <td>⋱</td>
+                </tr>
+            </table>
+        >,
+    ];
+
+    Y [
+        shape="plain",
+        label=<
+        <table cellpadding="8">
+            <tr>
+                <td>⋱</td>
+                <td>…</td>
+                <td>⋰</td>
+                </tr>
+            <tr>
+                <td>…</td>
+                <td bgcolor="#D6EAF8">Y<sub>i,n</sub></td>
+                <td>…</td>
+                </tr>
+            <tr>
+                <td>⋰</td>
+                <td>…</td>
+                <td>⋱</td>
+                </tr>
+            </table>
+        >,
+    ];
+
+    SA1 [
+      label=<slice>,
+      margin=0,
+      shape=parallelogram,
+      style=filled,
+      fillcolor="#a0d0d0",
+      color=black,
+    ];
+    SA2 [
+      label=<slice>,
+      margin=0,
+      shape=parallelogram,
+      style=filled,
+      fillcolor="#a0d0d0",
+      color=black,
+    ];
+    SB1 [
+      label=<slice>,
+      margin=0,
+      shape=parallelogram,
+      style=filled,
+      fillcolor="#a0d0d0",
+      color=black,
+    ];
+    SB2 [
+      label=<slice>,
+      margin=0,
+      shape=parallelogram,
+      style=filled,
+      fillcolor="#a0d0d0",
+      color=black,
+    ];
+
+    SX [
+      label=<concat>,
+      margin=0,
+      shape=parallelogram,
+      style=filled,
+      fillcolor="#a0d0d0",
+      color=black,
+    ];
+    SY [
+      label=<concat>,
+      margin=0,
+      shape=parallelogram,
+      style=filled,
+      fillcolor="#a0d0d0",
+      color=black,
+    ];
+
+    SA1 -> A;
+    SA2 -> A;
+    A1 -> SA1;
+    A2 -> SA2;
+
+    SB1 -> B;
+    SB2 -> B;
+    B1 -> SB1;
+    B2 -> SB2;
+
+    op1 -> A1;
+    op1 -> B1;
+    X1 -> op1;
+    Y1 -> op1;
+
+    op2 -> A2;
+    op2 -> B2;
+    X2 -> op2;
+    Y2 -> op2;
+
+    SX -> X1;
+    SX -> X2;
+
+    SY -> Y1;
+    SY -> Y2;
+
+    X -> SX;
+    Y -> SY;
+}
