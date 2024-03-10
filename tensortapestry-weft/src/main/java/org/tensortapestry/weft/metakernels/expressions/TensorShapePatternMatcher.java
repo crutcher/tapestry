@@ -1,14 +1,18 @@
 package org.tensortapestry.weft.metakernels.expressions;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+
 import java.util.*;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
+
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
 import lombok.Value;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
+import org.tensortapestry.common.collections.EnumerationUtils;
 import org.tensortapestry.weft.metakernels.antlr.generated.IndexedDimShapesExpressionsLexer;
 import org.tensortapestry.weft.metakernels.antlr.generated.IndexedDimShapesExpressionsParser;
 import org.tensortapestry.zspace.ZPoint;
@@ -38,6 +42,7 @@ public class TensorShapePatternMatcher {
   }
 
   @Value
+  @EqualsAndHashCode(callSuper = true)
   public static class IndexedSymbol extends Symbol {
 
     public static IndexedSymbol of(String name, String index) {
@@ -66,9 +71,8 @@ public class TensorShapePatternMatcher {
   @RequiredArgsConstructor
   public abstract static class PatternItem {
 
-    final Symbol symbol;
-
     @Value
+    @EqualsAndHashCode(callSuper = true)
     public static class SimpleDim extends PatternItem {
 
       public SimpleDim(Symbol name) {
@@ -79,9 +83,15 @@ public class TensorShapePatternMatcher {
       public String toString() {
         return symbol.toString();
       }
+
+      @Override
+      public List<PatternItem> leaves() {
+        return List.of(this);
+      }
     }
 
     @Value
+    @EqualsAndHashCode(callSuper = true)
     public static class EllipsisGroup extends PatternItem {
 
       public EllipsisGroup(Symbol name) {
@@ -92,9 +102,15 @@ public class TensorShapePatternMatcher {
       public String toString() {
         return symbol.toString() + "...";
       }
+
+      @Override
+      public List<PatternItem> leaves() {
+        return List.of(this);
+      }
     }
 
     @Value
+    @EqualsAndHashCode(callSuper = true)
     public static class PatternGroup extends PatternItem {
 
       List<PatternItem> items;
@@ -112,7 +128,16 @@ public class TensorShapePatternMatcher {
           items.stream().map(Object::toString).collect(Collectors.joining(", ", "(", ")"))
         );
       }
+
+      @Override
+      public List<PatternItem> leaves() {
+        return items.stream().flatMap(i -> i.leaves().stream()).toList();
+      }
     }
+
+    final Symbol symbol;
+
+    public abstract List<PatternItem> leaves();
   }
 
   public static TensorShapePatternMatcher parse(String source) {
@@ -140,10 +165,26 @@ public class TensorShapePatternMatcher {
     Set<String> names = new HashSet<>();
     Set<String> indexNames = new HashSet<>();
     Set<String> duplicates = new LinkedHashSet<>();
-    List<PatternItem.EllipsisGroup> ellipsisList = new ArrayList<>();
 
-    int eStart = -1;
-    List<PatternItem> leaves = new ArrayList<>();
+    List<PatternItem> leaves = items.stream().flatMap(i -> i.leaves().stream()).toList();
+
+    {
+      var ess = EnumerationUtils
+        .enumerate(leaves)
+        .stream()
+        .filter(e -> e.getValue() instanceof PatternItem.EllipsisGroup)
+        .toList();
+
+      if (ess.size() > 1) {
+        throw new IllegalArgumentException("Multiple ellipsis: " + ess.stream().map(Map.Entry::getValue).toList());
+      }
+      if (ess.size() == 1) {
+        this.ellipsisStart = ess.getFirst().getKey();
+      } else {
+        this.ellipsisStart = -1;
+      }
+    }
+
     List<PatternItem> visitQueue = new ArrayList<>(items);
     List<PatternItem.PatternGroup> depthFirstGroupOrder = new ArrayList<>();
     while (!visitQueue.isEmpty()) {
@@ -155,32 +196,19 @@ public class TensorShapePatternMatcher {
         duplicates.add(patternName.getName());
       }
 
-      switch (expr) {
-        case PatternItem.SimpleDim simple -> {
-          leaves.add(expr);
-          if (simple.getSymbol() instanceof IndexedSymbol indexedSymbol) {
-            indexNames.add(indexedSymbol.getIndexVar());
-          }
-        }
-        case PatternItem.EllipsisGroup ellipsis -> {
-          eStart = leaves.size();
-          leaves.add(expr);
-          ellipsisList.add(ellipsis);
-        }
-        case PatternItem.PatternGroup patternGroup -> {
-          depthFirstGroupOrder.addFirst(patternGroup);
-          visitQueue.addAll(patternGroup.getItems());
-        }
-        default -> {
-          leaves.add(expr);
-          // pass
-        }
+      var sym = expr.getSymbol();
+      if (sym.hasIndexVar()) {
+        indexNames.add(sym.getIndexVar());
+      }
+
+      if (expr instanceof PatternItem.PatternGroup patternGroup) {
+        depthFirstGroupOrder.addFirst(patternGroup);
+        visitQueue.addAll(patternGroup.getItems());
       }
     }
     this.indexNames = Set.copyOf(indexNames);
     this.leaves = List.copyOf(leaves);
     this.depthFirstGroupOrder = List.copyOf(depthFirstGroupOrder);
-    this.ellipsisStart = eStart;
 
     var overlap = new HashSet<>(names);
     overlap.retainAll(indexNames);
@@ -190,9 +218,6 @@ public class TensorShapePatternMatcher {
 
     if (!duplicates.isEmpty()) {
       throw new IllegalArgumentException("Duplicate names: " + duplicates);
-    }
-    if (ellipsisList.size() > 1) {
-      throw new IllegalArgumentException("Multiple ellipsis: " + ellipsisList);
     }
   }
 
