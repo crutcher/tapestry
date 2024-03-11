@@ -1,18 +1,29 @@
 digraph D {
-    rankdir=RL;
-    X, W, b, Z [shape=box3d, fillcolor="#d0d0ff", style=filled];
-
-    Matmul -> X;
-    Matmul -> W;
-
-    Matmul, Sum [
-        shape=rarrow,
-        margin=0.25,
-        style=filled,
-        fillcolor="#E5E8E8",
+  rankdir=RL;
+  subgraph tensors {
+    Node [
+      shape=box3d;
+      fillcolor="#d0d0ff";
+      style=filled;
     ];
-
-    Sum -> Matmul;
-    Sum -> b;
-    Z -> Sum;
+    X;
+    W;
+    b;
+    Z;
+  }
+  Matmul -> X;
+  Matmul -> W;
+  subgraph operations {
+    Node [
+      shape=rarrow;
+      margin=0.25;
+      style=filled;
+      fillcolor="#E5E8E8";
+    ];
+    Matmul;
+    Sum;
+  }
+  Sum -> Matmul;
+  Sum -> b;
+  Z -> Sum;
 }

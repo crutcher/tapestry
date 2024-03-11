@@ -373,6 +373,22 @@
         <artifactId>spotless-maven-plugin</artifactId>
         <version>${spotless.plugin.version}</version>
         <configuration>
+          <formats>
+            <format>
+              <includes>
+                <include>docs/**/*.dot</include>
+              </includes>
+              <prettier>
+                <devDependencies>
+                  <prettier>${spotless.prettier.version}</prettier>
+                  <prettier-plugin-dot>0.4.1</prettier-plugin-dot>
+                </devDependencies>
+                <config>
+                  <plugins>prettier-plugin-dot</plugins>
+                </config>
+              </prettier>
+            </format>
+          </formats>
           <pom>
             <sortPom>
               <keepBlankLines>false</keepBlankLines>

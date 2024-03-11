@@ -1,18 +1,31 @@
 digraph D {
-    rankdir=RL;
-    X, W, b, Z, Y [shape=box3d, fillcolor="#d0d0ff", style=filled];
-    Linear, ReLU [
-        shape=rarrow,
-        margin=0.25,
-        style=filled,
-        fillcolor="#E5E8E8",
+  rankdir=RL;
+  subgraph tensors {
+    Node [
+      shape=box3d;
+      fillcolor="#d0d0ff";
+      style=filled;
     ];
-
-    Linear -> X;
-    Linear -> W;
-    Linear -> b;
-
-    Z -> Linear;
-    ReLU -> Z;
-    Y -> ReLU;
+    X;
+    W;
+    b;
+    Z;
+    Y;
+  }
+  subgraph operations {
+    Node [
+      shape=rarrow;
+      margin=0.25;
+      style=filled;
+      fillcolor="#E5E8E8";
+    ];
+    Linear;
+    ReLU;
+  }
+  Linear -> X;
+  Linear -> W;
+  Linear -> b;
+  Z -> Linear;
+  ReLU -> Z;
+  Y -> ReLU;
 }

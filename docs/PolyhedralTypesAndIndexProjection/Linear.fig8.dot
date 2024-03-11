@@ -1,184 +1,173 @@
 digraph G {
-    rankdir=RL;
-
-    x [
-        shape="plain",
-        label=<
-        <table cellpadding="8">
-            <tr>
-                <td bgcolor="#D6EAF8">x<sub>i,m</sub></td>
-                <td bgcolor="#D6EAF8">…</td>
-                </tr>
-            <tr>
-                <td bgcolor="#EBDEF0">…</td>
-                <td bgcolor="#EBDEF0">⋱</td>
-                </tr>
-            </table>
-        >,
-    ];
-
-    y [
-        shape="plain",
-        label=<
-        <table cellpadding="8">
-            <tr>
-                <td bgcolor="#D6EAF8">y<sub>i,n</sub></td>
-                <td bgcolor="#D6EAF8">…</td>
-                </tr>
-            <tr>
-                <td bgcolor="#EBDEF0">…</td>
-                <td bgcolor="#EBDEF0">⋱</td>
-                </tr>
-            </table>
-        >,
-    ];
-
-    w [
-        shape="plain",
-        label=<
-        <table bgcolor="#D5F5E3" cellpadding="8">
-            <tr>
-                <td>w<sub>m,n</sub></td>
-                <td>…</td>
-                </tr>
-            <tr>
-                <td>…</td>
-                <td>⋱</td>
-                </tr>
-            </table>
-        >,
-    ];
-
-    b [
-        shape="plain",
-        label=<
-        <table bgcolor="#D5F5E3" cellpadding="8">
-            <tr>
-                <td>b<sub>n</sub></td>
-                <td>…</td>
-                </tr>
-            </table>
-        >,
-    ];
-
-
-    subgraph cluster_0 {
-
+  rankdir=RL;
+  x [
+    shape="plain";
+    label=<
+      <table cellpadding="8">
+        <tr>
+          <td bgcolor="#D6EAF8">x<sub>i,m</sub></td>
+          <td bgcolor="#D6EAF8">…</td>
+        </tr>
+        <tr>
+          <td bgcolor="#EBDEF0">…</td>
+          <td bgcolor="#EBDEF0">⋱</td>
+        </tr>
+      </table>
+    >;
+  ];
+  y [
+    shape="plain";
+    label=<
+      <table cellpadding="8">
+        <tr>
+          <td bgcolor="#D6EAF8">y<sub>i,n</sub></td>
+          <td bgcolor="#D6EAF8">…</td>
+        </tr>
+        <tr>
+          <td bgcolor="#EBDEF0">…</td>
+          <td bgcolor="#EBDEF0">⋱</td>
+        </tr>
+      </table>
+    >;
+  ];
+  w [
+    shape="plain";
+    label=<
+      <table bgcolor="#D5F5E3" cellpadding="8">
+        <tr>
+          <td>w<sub>m,n</sub></td>
+          <td>…</td>
+        </tr>
+        <tr>
+          <td>…</td>
+          <td>⋱</td>
+        </tr>
+      </table>
+    >;
+  ];
+  b [
+    shape="plain";
+    label=<
+      <table bgcolor="#D5F5E3" cellpadding="8">
+        <tr>
+          <td>b<sub>n</sub></td>
+          <td>…</td>
+        </tr>
+      </table>
+    >;
+  ];
+  subgraph cluster_0 {
     x0 [
-        shape="plain",
-        label=<
+      shape="plain";
+      label=<
         <table bgcolor="#D6EAF8" cellpadding="8">
-            <tr>
-                <td>x<sub>0,m</sub></td>
-                <td>…</td>
-                </tr>
-            <tr>
-                <td>…</td>
-                <td>…</td>
-                </tr>
-            <tr>
-                <td>x<sub>k,m</sub></td>
-                <td>…</td>
-                </tr>
-            </table>
-        >,
+          <tr>
+            <td>x<sub>0,m</sub></td>
+            <td>…</td>
+          </tr>
+          <tr>
+            <td>…</td>
+            <td>…</td>
+          </tr>
+          <tr>
+            <td>x<sub>k,m</sub></td>
+            <td>…</td>
+          </tr>
+        </table>
+      >;
     ];
-
     op0 [
-        label=<Linear<sub>0</sub>>,
-        shape=rarrow,
-        style=filled,
-        fillcolor="#E5E8E8",
-        margin=0.25
+      label=<Linear<sub>0</sub>>;
+      shape=rarrow;
+      style=filled;
+      fillcolor="#E5E8E8";
+      margin=0.25;
     ];
-
     y0 [
-        shape="plain",
-        label=<
+      shape="plain";
+      label=<
         <table bgcolor="#D6EAF8" cellpadding="8">
-            <tr>
-                <td>y<sub>0,n</sub></td>
-                <td>…</td>
-                </tr>
-            <tr>
-                <td>…</td>
-                <td>…</td>
-                </tr>
-            <tr>
-                <td>y<sub>k,n</sub></td>
-                <td>…</td>
-                </tr>
-            </table>
-        >,
+          <tr>
+            <td>y<sub>0,n</sub></td>
+            <td>…</td>
+          </tr>
+          <tr>
+            <td>…</td>
+            <td>…</td>
+          </tr>
+          <tr>
+            <td>y<sub>k,n</sub></td>
+            <td>…</td>
+          </tr>
+        </table>
+      >;
     ];
-
     op0 -> x0;
     y0 -> op0;
-    }
-
-    subgraph cluster_1 {
-
+  }
+  subgraph cluster_1 {
     xk [
-        shape="plain",
-        label=<
+      shape="plain";
+      label=<
         <table bgcolor="#EBDEF0" cellpadding="8">
-            <tr>
-                <td>x<sub>k+1,m</sub></td>
-                <td>…</td>
-                </tr>
-            <tr>
-                <td>…</td>
-                <td>…</td>
-                </tr>
-            <tr>
-                <td>x<sub>i,m</sub></td>
-                <td>…</td>
-                </tr>
-            </table>
-        >,
+          <tr>
+            <td>x<sub>k+1,m</sub></td>
+            <td>…</td>
+          </tr>
+          <tr>
+            <td>…</td>
+            <td>…</td>
+          </tr>
+          <tr>
+            <td>x<sub>i,m</sub></td>
+            <td>…</td>
+          </tr>
+        </table>
+      >;
     ];
-
     yk [
-        shape="plain",
-        label=<
+      shape="plain";
+      label=<
         <table bgcolor="#EBDEF0" cellpadding="8">
-            <tr>
-                <td>y<sub>k+1,m</sub></td>
-                <td>…</td>
-                </tr>
-            <tr>
-                <td>…</td>
-                <td>…</td>
-                </tr>
-            <tr>
-                <td>y<sub>i,m</sub></td>
-                <td>…</td>
-                </tr>
-            </table>
-        >,
+          <tr>
+            <td>y<sub>k+1,m</sub></td>
+            <td>…</td>
+          </tr>
+          <tr>
+            <td>…</td>
+            <td>…</td>
+          </tr>
+          <tr>
+            <td>y<sub>i,m</sub></td>
+            <td>…</td>
+          </tr>
+        </table>
+      >;
     ];
-
     opk [
-        label=<Linear<sub>1</sub>>,
-        shape=rarrow,
-        style=filled,
-        fillcolor="#E5E8E8",
-        margin=0.25
+      label=<Linear<sub>1</sub>>;
+      shape=rarrow;
+      style=filled;
+      fillcolor="#E5E8E8";
+      margin=0.25;
     ];
-
     opk -> xk;
     yk -> opk;
-
-    }
-
-    op0 -> w [weight=0];
-    opk -> w [weight=0];
-
-    op0 -> b [weight=0];
-    opk -> b [weight=0];
-
-    x0 -> x;
-    xk -> x;
-    y -> y0;
-    y -> yk;
+  }
+  op0 -> w [
+    weight=0;
+  ];
+  opk -> w [
+    weight=0;
+  ];
+  op0 -> b [
+    weight=0;
+  ];
+  opk -> b [
+    weight=0;
+  ];
+  x0 -> x;
+  xk -> x;
+  y -> y0;
+  y -> yk;
 }

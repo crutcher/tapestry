@@ -1,278 +1,257 @@
 digraph G {
-    rankdir=RL;
-
-    x [
-        shape="plain",
-        label=<
-        <table bgcolor="#D5F5E3" cellpadding="8">
-            <tr>
-                <td>x<sub>batch,in</sub></td>
-                <td>…</td>
-                </tr>
-            <tr>
-                <td>…</td>
-                <td>⋱</td>
-                </tr>
-            </table>
-        >,
-    ];
-
-    w [
-        shape="plain",
-        label=<
-        <table bgcolor="#D5F5E3" cellpadding="8">
-            <tr>
-                <td bgcolor="#D6EAF8">w<sub>in,out</sub></td>
-                <td bgcolor="#EBDEF0">…</td>
-                </tr>
-            <tr>
-                <td bgcolor="#D6EAF8">…</td>
-                <td bgcolor="#EBDEF0">⋱</td>
-                </tr>
-            </table>
-        >,
-    ];
-
-    b [
-        shape="plain",
-        label=<
-        <table bgcolor="#D5F5E3" cellpadding="8">
-            <tr>
-                <td bgcolor="#D6EAF8">b<sub>out</sub></td>
-                <td bgcolor="#EBDEF0">…</td>
-                </tr>
-            </table>
-        >,
-    ];
-
-
-    subgraph cluster_0 {
-
+  rankdir=RL;
+  x [
+    shape="plain";
+    label=<
+      <table bgcolor="#D5F5E3" cellpadding="8">
+        <tr>
+          <td>x<sub>batch,in</sub></td>
+          <td>…</td>
+        </tr>
+        <tr>
+          <td>…</td>
+          <td>⋱</td>
+        </tr>
+      </table>
+    >;
+  ];
+  w [
+    shape="plain";
+    label=<
+      <table bgcolor="#D5F5E3" cellpadding="8">
+        <tr>
+          <td bgcolor="#D6EAF8">w<sub>in,out</sub></td>
+          <td bgcolor="#EBDEF0">…</td>
+        </tr>
+        <tr>
+          <td bgcolor="#D6EAF8">…</td>
+          <td bgcolor="#EBDEF0">⋱</td>
+        </tr>
+      </table>
+    >;
+  ];
+  b [
+    shape="plain";
+    label=<
+      <table bgcolor="#D5F5E3" cellpadding="8">
+        <tr>
+          <td bgcolor="#D6EAF8">b<sub>out</sub></td>
+          <td bgcolor="#EBDEF0">…</td>
+        </tr>
+      </table>
+    >;
+  ];
+  subgraph cluster_0 {
     w0 [
-        shape="plain",
-        label=<
+      shape="plain";
+      label=<
         <table bgcolor="#D6EAF8" cellpadding="8">
-            <tr>
-                <td>w<sub>0,0</sub></td>
-                <td>…</td>
-                <td>w<sub>0,k</sub></td>
-                </tr>
-            <tr>
-                <td>…</td>
-                <td>…</td>
-                <td>…</td>
-                </tr>
-            <tr>
-                <td>w<sub>in,0</sub></td>
-                <td>…</td>
-                <td>w<sub>in,k</sub></td>
-                </tr>
-            </table>
-        >,
+          <tr>
+            <td>w<sub>0,0</sub></td>
+            <td>…</td>
+            <td>w<sub>0,k</sub></td>
+          </tr>
+          <tr>
+            <td>…</td>
+            <td>…</td>
+            <td>…</td>
+          </tr>
+          <tr>
+            <td>w<sub>in,0</sub></td>
+            <td>…</td>
+            <td>w<sub>in,k</sub></td>
+          </tr>
+        </table>
+      >;
     ];
-
     SW0 [
-      label=<slice[:, 0:k]>,
-      margin=0,
-      shape=parallelogram,
-      style=filled,
-      fillcolor="#a0d0d0",
-      color=black,
+      label=<slice[:, 0:k]>;
+      margin=0;
+      shape=parallelogram;
+      style=filled;
+      fillcolor="#a0d0d0";
+      color=black;
     ];
-
     b0 [
-        shape="plain",
-        label=<
+      shape="plain";
+      label=<
         <table bgcolor="#D6EAF8" cellpadding="8">
-            <tr>
-                <td>b<sub>0</sub></td>
-                <td>…</td>
-                <td>b<sub>k</sub></td>
-                </tr>
-            </table>
-        >,
+          <tr>
+            <td>b<sub>0</sub></td>
+            <td>…</td>
+            <td>b<sub>k</sub></td>
+          </tr>
+        </table>
+      >;
     ];
-
     Sb0 [
-      label=<slice[:, 0:k]>,
-      margin=0,
-      shape=parallelogram,
-      style=filled,
-      fillcolor="#a0d0d0",
-      color=black,
+      label=<slice[:, 0:k]>;
+      margin=0;
+      shape=parallelogram;
+      style=filled;
+      fillcolor="#a0d0d0";
+      color=black;
     ];
-
     op0 [
-        label=<Linear<sub>0</sub>>,
-        shape=rarrow,
-        style=filled,
-        fillcolor="#E5E8E8",
-        margin=0.25
+      label=<Linear<sub>0</sub>>;
+      shape=rarrow;
+      style=filled;
+      fillcolor="#E5E8E8";
+      margin=0.25;
     ];
-
     y0 [
-        shape="plain",
-        label=<
+      shape="plain";
+      label=<
         <table bgcolor="#D6EAF8" cellpadding="8">
-            <tr>
-                <td>y<sub>0,0</sub></td>
-                <td>…</td>
-                <td>y<sub>0,k</sub></td>
-                </tr>
-            <tr>
-                <td>…</td>
-                <td>…</td>
-                <td>…</td>
-                </tr>
-            <tr>
-                <td>y<sub>batch,0</sub></td>
-                <td>…</td>
-                <td>y<sub>batch,k</sub></td>
-                </tr>
-            </table>
-        >,
+          <tr>
+            <td>y<sub>0,0</sub></td>
+            <td>…</td>
+            <td>y<sub>0,k</sub></td>
+          </tr>
+          <tr>
+            <td>…</td>
+            <td>…</td>
+            <td>…</td>
+          </tr>
+          <tr>
+            <td>y<sub>batch,0</sub></td>
+            <td>…</td>
+            <td>y<sub>batch,k</sub></td>
+          </tr>
+        </table>
+      >;
     ];
-
     op0 -> b0;
     y0 -> op0;
-
-    }
-
-    subgraph cluster_1 {
-
+  }
+  subgraph cluster_1 {
     wk [
-        shape="plain",
-        label=<
+      shape="plain";
+      label=<
         <table bgcolor="#EBDEF0" cellpadding="8">
-            <tr>
-                <td>w<sub>0,k+1</sub></td>
-                <td>…</td>
-                <td>w<sub>0,out</sub></td>
-                </tr>
-            <tr>
-                <td>…</td>
-                <td>…</td>
-                <td>…</td>
-                </tr>
-            <tr>
-                <td>w<sub>in,k+1</sub></td>
-                <td>…</td>
-                <td>w<sub>in,out</sub></td>
-                </tr>
-            </table>
-        >,
+          <tr>
+            <td>w<sub>0,k+1</sub></td>
+            <td>…</td>
+            <td>w<sub>0,out</sub></td>
+          </tr>
+          <tr>
+            <td>…</td>
+            <td>…</td>
+            <td>…</td>
+          </tr>
+          <tr>
+            <td>w<sub>in,k+1</sub></td>
+            <td>…</td>
+            <td>w<sub>in,out</sub></td>
+          </tr>
+        </table>
+      >;
     ];
-
     SWk [
-      label=<slice[:, k:]>,
-      margin=0,
-      shape=parallelogram,
-      style=filled,
-      fillcolor="#a0d0d0",
-      color=black,
+      label=<slice[:, k:]>;
+      margin=0;
+      shape=parallelogram;
+      style=filled;
+      fillcolor="#a0d0d0";
+      color=black;
     ];
-
     bk [
-        shape="plain",
-        label=<
+      shape="plain";
+      label=<
         <table bgcolor="#EBDEF0" cellpadding="8">
-            <tr>
-                <td>b<sub>k+1</sub></td>
-                <td>…</td>
-                <td>b<sub>out</sub></td>
-                </tr>
-            </table>
-        >,
+          <tr>
+            <td>b<sub>k+1</sub></td>
+            <td>…</td>
+            <td>b<sub>out</sub></td>
+          </tr>
+        </table>
+      >;
     ];
-
     Sbk [
-      label=<slice[:, k:]>,
-      margin=0,
-      shape=parallelogram,
-      style=filled,
-      fillcolor="#a0d0d0",
-      color=black,
+      label=<slice[:, k:]>;
+      margin=0;
+      shape=parallelogram;
+      style=filled;
+      fillcolor="#a0d0d0";
+      color=black;
     ];
-
     yk [
-        shape="plain",
-        label=<
+      shape="plain";
+      label=<
         <table bgcolor="#EBDEF0" cellpadding="8">
-            <tr>
-                <td>y<sub>0,k+1</sub></td>
-                <td>…</td>
-                <td>y<sub>0,out</sub></td>
-                </tr>
-            <tr>
-                <td>…</td>
-                <td>…</td>
-                <td>…</td>
-                </tr>
-            <tr>
-                <td>y<sub>batch,k+1</sub></td>
-                <td>…</td>
-                <td>y<sub>batch,out</sub></td>
-                </tr>
-            </table>
-        >,
+          <tr>
+            <td>y<sub>0,k+1</sub></td>
+            <td>…</td>
+            <td>y<sub>0,out</sub></td>
+          </tr>
+          <tr>
+            <td>…</td>
+            <td>…</td>
+            <td>…</td>
+          </tr>
+          <tr>
+            <td>y<sub>batch,k+1</sub></td>
+            <td>…</td>
+            <td>y<sub>batch,out</sub></td>
+          </tr>
+        </table>
+      >;
     ];
-
     opk [
-        label=<Linear<sub>1</sub>>,
-        shape=rarrow,
-        style=filled,
-        fillcolor="#E5E8E8",
-        margin=0.25
+      label=<Linear<sub>1</sub>>;
+      shape=rarrow;
+      style=filled;
+      fillcolor="#E5E8E8";
+      margin=0.25;
     ];
-
     opk -> bk;
     yk -> opk;
-
-    }
-
-    y [
-        shape="plain",
-        label=<
-        <table cellpadding="8">
-            <tr>
-                <td bgcolor="#D6EAF8">y<sub>batch,out</sub></td>
-                <td bgcolor="#EBDEF0">…</td>
-                </tr>
-            <tr>
-                <td bgcolor="#D6EAF8">…</td>
-                <td bgcolor="#EBDEF0">⋱</td>
-                </tr>
-            </table>
-        >,
-    ];
-
-    op0 -> x [weight=0];
-    opk -> x [weight=0];
-
-    w0 -> SW0 -> w;
-    wk -> SWk -> w;
-
-    b0 -> Sb0 -> b;
-    bk -> Sbk -> b;
-
-    op0 -> w0;
-    opk -> wk;
-
-    SC [
-      label=<
-         <table border="0" cellspacing="0" cellpadding="0">
-           <tr><td>concat</td></tr>
-           <tr><td>dim=1</td></tr>
-           </table>
-      >,
-      margin=0,
-      shape=parallelogram,
-      style=filled,
-      fillcolor="#a0d0d0",
-      color=black,
-    ];
-
-    SC -> y0;
-    SC -> yk;
-    y -> SC;
+  }
+  y [
+    shape="plain";
+    label=<
+      <table cellpadding="8">
+        <tr>
+          <td bgcolor="#D6EAF8">y<sub>batch,out</sub></td>
+          <td bgcolor="#EBDEF0">…</td>
+        </tr>
+        <tr>
+          <td bgcolor="#D6EAF8">…</td>
+          <td bgcolor="#EBDEF0">⋱</td>
+        </tr>
+      </table>
+    >;
+  ];
+  op0 -> x [
+    weight=0;
+  ];
+  opk -> x [
+    weight=0;
+  ];
+  w0 -> SW0 -> w;
+  wk -> SWk -> w;
+  b0 -> Sb0 -> b;
+  bk -> Sbk -> b;
+  op0 -> w0;
+  opk -> wk;
+  SC [
+    label=<
+      <table border="0" cellspacing="0" cellpadding="0">
+        <tr>
+          <td>concat</td>
+        </tr>
+        <tr>
+          <td>dim=1</td>
+        </tr>
+      </table>
+    >;
+    margin=0;
+    shape=parallelogram;
+    style=filled;
+    fillcolor="#a0d0d0";
+    color=black;
+  ];
+  SC -> y0;
+  SC -> yk;
+  y -> SC;
 }

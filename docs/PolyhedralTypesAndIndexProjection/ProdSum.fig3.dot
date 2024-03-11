@@ -1,173 +1,204 @@
 digraph G {
-    rankdir=RL;
-
-    idx [
-        shape="plain",
-        label=<
-	<table border="0">
-        <tr><td>
-          <table><tr><td>
+  rankdir=RL;
+  idx [
+    shape="plain";
+    label=<
+      <table border="0">
+        <tr>
+          <td>
+            <table>
+              <tr>
+                <td>
+                  <table cellpadding="8">
+                    <tr>
+                      <td>…</td>
+                      <td>…</td>
+                    </tr>
+                    <tr>
+                      <td bgcolor="#D6EAF8" align="center">batch,in,out</td>
+                      <td>…</td>
+                    </tr>
+                    <tr>
+                      <td>…</td>
+                      <td>…</td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+        <tr>
+          <td><i>index</i></td>
+        </tr>
+      </table>
+    >;
+  ];
+  x [
+    shape="plain";
+    label=<
+      <table cellpadding="8">
+        <tr>
+          <td>⋱</td>
+          <td>⋰</td>
+        </tr>
+        <tr>
+          <td bgcolor="#D6EAF8">x<sub>batch,in</sub></td>
+          <td>…</td>
+        </tr>
+        <tr>
+          <td>⋰</td>
+          <td>⋱</td>
+        </tr>
+      </table>
+    >;
+  ];
+  w [
+    shape="plain";
+    label=<
+      <table cellpadding="8">
+        <tr>
+          <td>⋱</td>
+          <td>⋰</td>
+        </tr>
+        <tr>
+          <td bgcolor="#D6EAF8">w<sub>in,out</sub></td>
+          <td>…</td>
+        </tr>
+        <tr>
+          <td>⋰</td>
+          <td>⋱</td>
+        </tr>
+      </table>
+    >;
+  ];
+  Prod [
+    label=Prod;
+    shape=rarrow;
+    style=filled;
+    fillcolor="#E5E8E8";
+    margin=0.25;
+  ];
+  z [
+    shape="plain";
+    label=<
+      <table>
+        <tr>
+          <td>
             <table cellpadding="8">
-                <tr>
-                    <td>…</td>
-                    <td>…</td>
-                    </tr>
-                <tr>
-                    <td bgcolor="#D6EAF8" align="center">batch,in,out</td>
-                    <td>…</td>
-                    </tr>
-                <tr>
-                    <td>…</td>
-                    <td>…</td>
-                    </tr>
-                </table>
-              </td></tr></table>
-	  </td></tr>
-        <tr><td><i>index</i></td></tr>
-	  </table>
-        >,
-    ];
-
-    x [
-        shape="plain",
-        label=<
-        <table cellpadding="8">
-            <tr>
-                <td>⋱</td>
-                <td>⋰</td>
-                </tr>
-            <tr>
-                <td bgcolor="#D6EAF8">x<sub>batch,in</sub></td>
+              <tr>
                 <td>…</td>
-                </tr>
-            <tr>
-                <td>⋰</td>
-                <td>⋱</td>
-                </tr>
-            </table>
-        >,
-    ];
-
-    w [
-        shape="plain",
-        label=<
-        <table cellpadding="8">
-            <tr>
-                <td>⋱</td>
-                <td>⋰</td>
-                </tr>
-            <tr>
-                <td bgcolor="#D6EAF8">w<sub>in,out</sub></td>
-                <td>…</td>
-                </tr>
-            <tr>
-                <td>⋰</td>
-                <td>⋱</td>
-                </tr>
-            </table>
-        >,
-    ];
-
-    Prod [
-        label=Prod,
-        shape=rarrow,
-        style=filled,
-        fillcolor="#E5E8E8",
-        margin=0.25
-    ];
-
-    z [
-        shape="plain",
-        label=<
-        <table><tr><td>
-        <table cellpadding="8">
-            <tr>
-                <td>…</td>
-                </tr>
-            <tr>
+              </tr>
+              <tr>
                 <td bgcolor="#D6EAF8">Z<sub>batch,in,out</sub></td>
-                </tr>
-            <tr>
+              </tr>
+              <tr>
                 <td>…</td>
-                </tr>
+              </tr>
             </table>
-            </td></tr></table>
-        >,
-    ];
-
-    Prod -> x;
-    Prod -> w;
-    z -> Prod;
-
-    idx -> x [label=<P<sub>X</sub>(i)>, constraint=false, style=dotted, arrowhead=empty];
-    idx -> w [label=<P<sub>W</sub>(i)>, constraint=false, style=dotted, arrowhead=empty];
-    idx -> z [label=<P<sub>Z</sub>(i)>, constraint=false, style=dotted, arrowhead=empty];
-
-    { rank=same; Prod; idx; }
-
-    idx2 [
-        shape="plain",
-        label=<
-	<table border="0">
-        <tr><td align="center">
-	      <table border="0">
-            <tr><td align="center">
-              <table cellpadding="8">
-                  <tr>
+          </td>
+        </tr>
+      </table>
+    >;
+  ];
+  Prod -> x;
+  Prod -> w;
+  z -> Prod;
+  idx -> x [
+    label=<P<sub>X</sub>(i)>;
+    constraint=false;
+    style=dotted;
+    arrowhead=empty;
+  ];
+  idx -> w [
+    label=<P<sub>W</sub>(i)>;
+    constraint=false;
+    style=dotted;
+    arrowhead=empty;
+  ];
+  idx -> z [
+    label=<P<sub>Z</sub>(i)>;
+    constraint=false;
+    style=dotted;
+    arrowhead=empty;
+  ];
+  { rank=same; Prod; idx; }
+  idx2 [
+    shape="plain";
+    label=<
+      <table border="0">
+        <tr>
+          <td align="center">
+            <table border="0">
+              <tr>
+                <td align="center">
+                  <table cellpadding="8">
+                    <tr>
                       <td>…</td>
                       <td>…</td>
-                      </tr>
-                  <tr>
+                    </tr>
+                    <tr>
                       <td bgcolor="#D6EAF8" align="center">batch,out</td>
                       <td>…</td>
-                      </tr>
-                  <tr>
+                    </tr>
+                    <tr>
                       <td>…</td>
                       <td>…</td>
-                      </tr>
+                    </tr>
                   </table>
-              </td></tr>
-              <tr><td align="center">⟪in⟫</td></tr>
-              </table>
-	  </td></tr>
-        <tr><td><i>index</i></td></tr>
-	  </table>
-        >,
-    ];
-
-    SumDim [
-        label=SumDim,
-        shape=rpromoter,
-        style=filled,
-        fillcolor="#E5E8E8",
-        margin=0.25
-    ];
-
-    y [
-        shape="plain",
-        label=<
-        <table cellpadding="8">
-            <tr>
-                <td>…</td>
-                <td>…</td>
-                </tr>
-            <tr>
-                <td bgcolor="#D6EAF8">y<sub>batch,out</sub></td>
-                <td>…</td>
-                </tr>
-            <tr>
-                <td>…</td>
-                <td>…</td>
-                </tr>
+                </td>
+              </tr>
+              <tr>
+                <td align="center">⟪in⟫</td>
+              </tr>
             </table>
-        >,
-    ];
-
-    SumDim -> z;
-    y -> SumDim;
-
-    idx2 -> z [label=<P<sub>X</sub>(i)>, constraint=false, style=dotted, arrowhead=empty];
-    idx2 -> y [label=<P<sub>Y</sub>(i)>, constraint=false, style=dotted, arrowhead=empty];
-
-    { rank=same; SumDim; idx2; }
+          </td>
+        </tr>
+        <tr>
+          <td><i>index</i></td>
+        </tr>
+      </table>
+    >;
+  ];
+  SumDim [
+    label=SumDim;
+    shape=rpromoter;
+    style=filled;
+    fillcolor="#E5E8E8";
+    margin=0.25;
+  ];
+  y [
+    shape="plain";
+    label=<
+      <table cellpadding="8">
+        <tr>
+          <td>…</td>
+          <td>…</td>
+        </tr>
+        <tr>
+          <td bgcolor="#D6EAF8">y<sub>batch,out</sub></td>
+          <td>…</td>
+        </tr>
+        <tr>
+          <td>…</td>
+          <td>…</td>
+        </tr>
+      </table>
+    >;
+  ];
+  SumDim -> z;
+  y -> SumDim;
+  idx2 -> z [
+    label=<P<sub>X</sub>(i)>;
+    constraint=false;
+    style=dotted;
+    arrowhead=empty;
+  ];
+  idx2 -> y [
+    label=<P<sub>Y</sub>(i)>;
+    constraint=false;
+    style=dotted;
+    arrowhead=empty;
+  ];
+  { rank=same; SumDim; idx2; }
 }
