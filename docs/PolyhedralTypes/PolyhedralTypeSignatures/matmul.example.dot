@@ -33,22 +33,22 @@ digraph G {
         shape="plain",
         label=<
 <table border="0">
-<tr><td colspan="2"><b>L Tensor</b></td></tr>
+<tr><td colspan="2"><b>K Tensor</b></td></tr>
 <tr><td colspan="2">
         <table cellpadding="8">
             <tr>
                 <td>⋱</td>
-                <td>…</td>
+                <td bgcolor="#D6EAF8">…</td>
                 <td>⋰</td>
                 </tr>
             <tr>
                 <td>…</td>
-                <td bgcolor="#D6EAF8">L<sub>a,c</sub></td>
+                <td bgcolor="#D6EAF8">K<sub>a,c</sub></td>
                 <td>…</td>
                 </tr>
             <tr>
                 <td>⋰</td>
-                <td>…</td>
+                <td bgcolor="#D6EAF8">…</td>
                 <td>⋱</td>
                 </tr>
             </table>
@@ -65,22 +65,22 @@ digraph G {
         shape="plain",
         label=<
 <table border="0">
-<tr><td colspan="2"><b>K Tensor</b></td></tr>
+<tr><td colspan="2"><b>L Tensor</b></td></tr>
 <tr><td colspan="2">
         <table cellpadding="8">
             <tr>
                 <td>⋱</td>
-                <td bgcolor="#D6EAF8">…</td>
+                <td>…</td>
                 <td>⋰</td>
                 </tr>
             <tr>
                 <td>…</td>
-                <td bgcolor="#D6EAF8">K<sub>b,c</sub></td>
+                <td bgcolor="#D6EAF8">L<sub>b,c</sub></td>
                 <td>…</td>
                 </tr>
             <tr>
                 <td>⋰</td>
-                <td bgcolor="#D6EAF8">…</td>
+                <td>…</td>
                 <td>⋱</td>
                 </tr>
             </table>
