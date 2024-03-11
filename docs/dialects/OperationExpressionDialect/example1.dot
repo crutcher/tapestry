@@ -1,217 +1,249 @@
 digraph G {
-  t0, t1, m, z [shape=box]
-
-  t0 [xlabel=<$t0>];
-  t1 [xlabel=<$t1>];
-  m [xlabel=<$mask>];
-  z [xlabel=<$z>];
-
-  op [shape=box, label=<
-  <table cellspacing="0" border="0" cellborder="1">
-    <tr>
-      <td><b>kernel</b> </td>
-      <td>builtins:add</td>
-    </tr>
-    <tr>
-      <td colspan="2"><b>params</b> </td>
-      </tr>
-    <tr>
-      <td>mask_value</td>
-      <td>12</td>
-    </tr>
-    <tr>
-      <td colspan="2"><b>inputs</b> </td>
-    </tr>
-    <tr>
-      <td>tensors</td>
-      <td>
-        <table border="0" cellspacing="0" cellborder="1">
-          <tr>
-            <td>
-             <table border="0" cellspacing="0" cellborder="1">
-               <tr>
-                 <td><b>tensorId</b> </td>
-                 <td>$t0</td>
-               </tr>
-               <tr>
-                 <td><b>start</b> </td>
-                 <td>[ 0, 0 ]</td>
-                 </tr>
-               <tr>
-                 <td><b>end</b> </td>
-                 <td>[ 10, 5 ]</td>
-               </tr>
-             </table>
-            </td>
-          </tr>
+  subgraph tensors {
+    Node [
+      shape=box;
+    ];
+    t0;
+    t1;
+    m;
+    z;
+  }
+  t0 [
+    xlabel=<$t0>;
+  ];
+  t1 [
+    xlabel=<$t1>;
+  ];
+  m [
+    xlabel=<$mask>;
+  ];
+  z [
+    xlabel=<$z>;
+  ];
+  op [
+    shape=box;
+    label=<
+      <table cellspacing="0" border="0" cellborder="1">
         <tr>
+          <td><b>kernel</b></td>
+          <td>builtins:add</td>
+        </tr>
+        <tr>
+          <td colspan="2"><b>params</b></td>
+        </tr>
+        <tr>
+          <td>mask_value</td>
+          <td>12</td>
+        </tr>
+        <tr>
+          <td colspan="2"><b>inputs</b></td>
+        </tr>
+        <tr>
+          <td>tensors</td>
           <td>
             <table border="0" cellspacing="0" cellborder="1">
               <tr>
-                <td><b>tensorId</b> </td>
-                <td>$t1</td>
-                </tr>
+                <td>
+                  <table border="0" cellspacing="0" cellborder="1">
+                    <tr>
+                      <td><b>tensorId</b></td>
+                      <td>$t0</td>
+                    </tr>
+                    <tr>
+                      <td><b>start</b></td>
+                      <td>[ 0, 0 ]</td>
+                    </tr>
+                    <tr>
+                      <td><b>end</b></td>
+                      <td>[ 10, 5 ]</td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
               <tr>
-                <td><b>start</b> </td>
-                <td>[ 200, 50 ]</td>
-                </tr>
+                <td>
+                  <table border="0" cellspacing="0" cellborder="1">
+                    <tr>
+                      <td><b>tensorId</b></td>
+                      <td>$t1</td>
+                    </tr>
+                    <tr>
+                      <td><b>start</b></td>
+                      <td>[ 200, 50 ]</td>
+                    </tr>
+                    <tr>
+                      <td><b>end</b></td>
+                      <td>[ 210, 55 ]</td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+        <tr>
+          <td>mask</td>
+          <td>
+            <table border="0" cellspacing="0" cellborder="1">
               <tr>
-                <td><b>end</b> </td>
-                <td>[ 210, 55 ]</td>
+                <td>
+                  <table border="0" cellspacing="0" cellborder="1">
+                    <tr>
+                      <td><b>tensorId</b></td>
+                      <td>$mask</td>
+                    </tr>
+                    <tr>
+                      <td><b>start</b></td>
+                      <td>[ 0, 0 ]</td>
+                    </tr>
+                    <tr>
+                      <td><b>end</b></td>
+                      <td>[ 10, 5 ]</td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+        <tr>
+          <td colspan="2"><b>outputs</b></td>
+        </tr>
+        <tr>
+          <td>result</td>
+          <td>
+            <table border="0" cellspacing="0" cellborder="1">
+              <tr>
+                <td>
+                  <table border="0" cellspacing="0" cellborder="1">
+                    <tr>
+                      <td><b>tensorId</b></td>
+                      <td>$z</td>
+                    </tr>
+                    <tr>
+                      <td><b>start</b></td>
+                      <td>[ 0, 0 ]</td>
+                    </tr>
+                    <tr>
+                      <td><b>end</b></td>
+                      <td>[ 10, 5 ]</td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </table>
+    >;
+  ];
+  t0 -> op [
+    label="tensors[0]";
+  ];
+  t1 -> op [
+    label="tensors[1]";
+  ];
+  m -> op [
+    label="mask[0]";
+  ];
+  subgraph common {
+    t0;
+    z;
+    Node [
+      label=<
+        <table cellspacing="0" border="0" cellborder="1">
+          <tr>
+            <td><b>dtype</b></td>
+            <td>int32</td>
+          </tr>
+          <tr>
+            <td><b>range</b></td>
+            <td>
+              <table border="0" cellspacing="0" cellborder="1">
+                <tr>
+                  <td>
+                    <table border="0" cellspacing="0" cellborder="1">
+                      <tr>
+                        <td><b>start</b></td>
+                        <td>[ 0, 0 ]</td>
+                      </tr>
+                      <tr>
+                        <td><b>end</b></td>
+                        <td>[ 10, 5 ]</td>
+                      </tr>
+                    </table>
+                  </td>
                 </tr>
               </table>
             </td>
           </tr>
         </table>
-      </td>
-    </tr>
-    <tr>
-      <td>mask</td>
-      <td>
-        <table border="0" cellspacing="0" cellborder="1">
-          <tr>
-            <td>
-             <table border="0" cellspacing="0" cellborder="1">
-               <tr>
-                 <td><b>tensorId</b> </td>
-                 <td>$mask</td>
-               </tr>
-               <tr>
-                 <td><b>start</b> </td>
-                 <td>[ 0, 0 ]</td>
-                 </tr>
-               <tr>
-                 <td><b>end</b> </td>
-                 <td>[ 10, 5 ]</td>
-               </tr>
-             </table>
-            </td>
-          </tr>
-        </table>
-      </td>
-    </tr>
-    <tr>
-      <td colspan="2"><b>outputs</b> </td>
-    </tr>
-    <tr>
-      <td>result</td>
-      <td>
-        <table border="0" cellspacing="0" cellborder="1">
-          <tr>
-            <td>
-             <table border="0" cellspacing="0" cellborder="1">
-               <tr>
-                 <td><b>tensorId</b> </td>
-                 <td>$z</td>
-               </tr>
-               <tr>
-                 <td><b>start</b> </td>
-                 <td>[ 0, 0 ]</td>
-                 </tr>
-               <tr>
-                 <td><b>end</b> </td>
-                 <td>[ 10, 5 ]</td>
-               </tr>
-             </table>
-            </td>
-          </tr>
-        </table>
-      </td>
-    </tr>
-  </table>
-  >];
-
-  t0 -> op [label="tensors[0]"];
-  t1 -> op [label="tensors[1]"];
-  m -> op [label="mask[0]"];
-
-  t0, z [label=<
-  <table cellspacing="0" border="0" cellborder="1">
-    <tr>
-      <td><b>dtype</b> </td>
-      <td>int32</td>
-    </tr>
-    <tr>
-      <td><b>range</b> </td>
-      <td>
-        <table border="0" cellspacing="0" cellborder="1">
-          <tr>
-            <td>
-             <table border="0" cellspacing="0" cellborder="1">
-               <tr>
-                 <td><b>start</b> </td>
-                 <td>[ 0, 0 ]</td>
-                 </tr>
-               <tr>
-                 <td><b>end</b> </td>
-                 <td>[ 10, 5 ]</td>
-               </tr>
-             </table>
-            </td>
-          </tr>
-        </table>
-      </td>
-    </tr>
-    </table>
-  >];
-  t1 [label=<
-  <table cellspacing="0" border="0" cellborder="1">
-    <tr>
-      <td><b>dtype</b> </td>
-      <td>int32</td>
-    </tr>
-    <tr>
-      <td><b>range</b> </td>
-      <td>
-        <table border="0" cellspacing="0" cellborder="1">
-          <tr>
-            <td>
-             <table border="0" cellspacing="0" cellborder="1">
-               <tr>
-                 <td><b>start</b> </td>
-                 <td>[ 200, 50 ]</td>
-                 </tr>
-               <tr>
-                 <td><b>end</b> </td>
-                 <td>[ 210, 55 ]</td>
-               </tr>
-             </table>
-            </td>
-          </tr>
-        </table>
-      </td>
-    </tr>
-    </table>
-  >];
-  m [label=<
-  <table cellspacing="0" border="0" cellborder="1">
-    <tr>
-      <td><b>dtype</b> </td>
-      <td>boolean</td>
-    </tr>
-    <tr>
-      <td><b>range</b> </td>
-      <td>
-        <table border="0" cellspacing="0" cellborder="1">
-          <tr>
-            <td>
-             <table border="0" cellspacing="0" cellborder="1">
-               <tr>
-                 <td><b>start</b> </td>
-                 <td>[ 0, 0 ]</td>
-                 </tr>
-               <tr>
-                 <td><b>end</b> </td>
-                 <td>[ 10, 5 ]</td>
-               </tr>
-             </table>
-            </td>
-          </tr>
-        </table>
-      </td>
-    </tr>
-    </table>
-  >];
-
-  op -> z [label="result[0]"];
+      >;
+    ];
+  }
+  t1 [
+    label=<
+      <table cellspacing="0" border="0" cellborder="1">
+        <tr>
+          <td><b>dtype</b></td>
+          <td>int32</td>
+        </tr>
+        <tr>
+          <td><b>range</b></td>
+          <td>
+            <table border="0" cellspacing="0" cellborder="1">
+              <tr>
+                <td>
+                  <table border="0" cellspacing="0" cellborder="1">
+                    <tr>
+                      <td><b>start</b></td>
+                      <td>[ 200, 50 ]</td>
+                    </tr>
+                    <tr>
+                      <td><b>end</b></td>
+                      <td>[ 210, 55 ]</td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </table>
+    >;
+  ];
+  m [
+    label=<
+      <table cellspacing="0" border="0" cellborder="1">
+        <tr>
+          <td><b>dtype</b></td>
+          <td>boolean</td>
+        </tr>
+        <tr>
+          <td><b>range</b></td>
+          <td>
+            <table border="0" cellspacing="0" cellborder="1">
+              <tr>
+                <td>
+                  <table border="0" cellspacing="0" cellborder="1">
+                    <tr>
+                      <td><b>start</b></td>
+                      <td>[ 0, 0 ]</td>
+                    </tr>
+                    <tr>
+                      <td><b>end</b></td>
+                      <td>[ 10, 5 ]</td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </table>
+    >;
+  ];
+  op -> z [
+    label="result[0]";
+  ];
 }

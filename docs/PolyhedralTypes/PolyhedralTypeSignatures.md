@@ -135,7 +135,7 @@ So for this operation, we can define an **Operation Index** `I` over (`AxB`) as 
 
 ### `X` Index Projection
 
-The minimal unit of work for the `X` parameter is a row in `X`, and so we can define an index
+The minimal unit of work for the `X` input tensor is a row in `X`, and so we can define an index
 projection for `X` as:
 
 - **Matrix**:
@@ -149,7 +149,7 @@ that all points with the same `A` in index space will select the same row in `X`
 
 ### `Y` Index Projection
 
-The minimal unit of work for the `Y` parameter is a column in `Y`, and so we can define an index
+The minimal unit of work for the `Y` input tensor is a column in `Y`, and so we can define an index
 projection for `Y` as:
 
 - **Matrix**:

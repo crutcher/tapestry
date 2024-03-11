@@ -1,71 +1,94 @@
 digraph D {
-    rankdir=RL;
-    X, X_1, X_2, W, b, Y, Y_1, Y_2 [shape=box3d, fillcolor="#d0d0ff", style=filled];
-    Op_1, Op_2 [
-        shape=rarrow,
-        margin=0.25,
-        style=filled,
-        fillcolor="#E5E8E8",
+  rankdir=RL;
+  subgraph tensors {
+    Node [
+      shape=box3d;
+      fillcolor="#d0d0ff";
+      style=filled;
     ];
-
-    SX1 [
-      label=<slice[:, 0:k]>,
-      margin=0,
-      shape=parallelogram,
-      style=filled,
-      fillcolor="#a0d0d0",
-      color=black,
+    X;
+    X_1;
+    X_2;
+    W;
+    b;
+    Y;
+    Y_1;
+    Y_2;
+  }
+  subgraph operations {
+    Node [
+      shape=rarrow;
+      margin=0.25;
+      style=filled;
+      fillcolor="#E5E8E8";
     ];
-    SX2 [
-      label=<slice[:, k:0]>,
-      margin=0,
-      shape=parallelogram,
-      style=filled,
-      fillcolor="#a0d0d0",
-      color=black,
-    ];
-
-    SX1 -> X;
-    SX2 -> X;
-
-    X_1 [label=<X<sub>1</sub>>];
-    X_2 [label=<X<sub>2</sub>>];
-
-    X_1 -> SX1;
-    X_2 -> SX2;
-
-    Op_1 [label=<Linear =&gt; ReLU<sub>1</sub>>];
-    Op_2 [label=<Linear =&gt; ReLU<sub>2</sub>>];
-
-    Y_1 [label=<Y<sub>1</sub>>];
-    Y_2 [label=<Y<sub>2</sub>>];
-
-    Op_1 -> X_1;
-    Op_1 -> W;
-    Op_1 -> b;
-    Y_1 -> Op_1;
-
-    Op_2 -> X_2;
-    Op_2 -> W;
-    Op_2 -> b;
-    Y_2 -> Op_2;
-
-    SY [
-      label=<
-         <table border="0" cellspacing="0" cellpadding="0">
-           <tr><td>concat</td></tr>
-           <tr><td>dim=0</td></tr>
-           </table>
-      >,
-      margin=0,
-      shape=parallelogram,
-      style=filled,
-      fillcolor="#a0d0d0",
-      color=black,
-    ];
-
-    SY -> Y_1;
-    SY -> Y_2;
-
-    Y -> SY;
+    Op_1;
+    Op_2;
+  }
+  SX1 [
+    label=<slice[:, 0:k]>;
+    margin=0;
+    shape=parallelogram;
+    style=filled;
+    fillcolor="#a0d0d0";
+    color=black;
+  ];
+  SX2 [
+    label=<slice[:, k:0]>;
+    margin=0;
+    shape=parallelogram;
+    style=filled;
+    fillcolor="#a0d0d0";
+    color=black;
+  ];
+  SX1 -> X;
+  SX2 -> X;
+  X_1 [
+    label=<X<sub>1</sub>>;
+  ];
+  X_2 [
+    label=<X<sub>2</sub>>;
+  ];
+  X_1 -> SX1;
+  X_2 -> SX2;
+  Op_1 [
+    label=<Linear =&gt; ReLU<sub>1</sub>>;
+  ];
+  Op_2 [
+    label=<Linear =&gt; ReLU<sub>2</sub>>;
+  ];
+  Y_1 [
+    label=<Y<sub>1</sub>>;
+  ];
+  Y_2 [
+    label=<Y<sub>2</sub>>;
+  ];
+  Op_1 -> X_1;
+  Op_1 -> W;
+  Op_1 -> b;
+  Y_1 -> Op_1;
+  Op_2 -> X_2;
+  Op_2 -> W;
+  Op_2 -> b;
+  Y_2 -> Op_2;
+  SY [
+    label=<
+      <table border="0" cellspacing="0" cellpadding="0">
+        <tr>
+          <td>concat</td>
+        </tr>
+        <tr>
+          <td>dim=0</td>
+        </tr>
+      </table>
+    >;
+    margin=0;
+    shape=parallelogram;
+    style=filled;
+    fillcolor="#a0d0d0";
+    color=black;
+  ];
+  SY -> Y_1;
+  SY -> Y_2;
+  Y -> SY;
 }
