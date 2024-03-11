@@ -51,6 +51,31 @@ A **Polyhedral Type Signature** has:
   Space**, for each input and output tensor; defining the way a point in the index space maps to a
   region of the tensor coordinate space.
 
+<div style="width: 100%; margin: auto">
+  <img alt="sharded ops" src="PolyhedralTypeSignatures/ipf.example.dot.png"/>
+</div>
+
+> **Note**: here we are using doubly-augmented matrix notation; where the projection matrix is
+> augmented with an offset vector, and a shape vector.
+>
+> So that this:
+>
+> <table>
+>   <tr><td>1</td><td>0</td><td>-10</td><td>1</td></tr>
+>   <tr><td>0</td><td>0</td><td>0</td><td>5</td></tr>
+> </table>
+>
+> Is equivalent to this:
+>
+> ```yaml
+> matrix:
+>   - [1, 0]
+>   - [0, 0]
+> offset: [-10, 0]
+> shape: [1, 5]
+> ```
+
+
 An **Operation** annotated with a **Polyhedral Type Signature** must also be annotated with an
 **Operation Index** in the **Operation Index Space**; this index defines the scope of the operation
 as projected through the **Index Projection Maps**.
@@ -244,26 +269,6 @@ operation:
 <div style="width: 100%; margin: auto">
   <img alt="sharded ops" src="PolyhedralTypeSignatures/matmul.example.dot.png"/>
 </div>
-
-> **Note**: here we are using doubly-augmented matrix notation; where the projection matrix is
-> augmented with an offset vector, and a shape vector.
->
-> So that this:
->
-> <table>
->   <tr><td>1</td><td>0</td><td>-10</td><td>1</td></tr>
->   <tr><td>0</td><td>0</td><td>0</td><td>5</td></tr>
-> </table>
->
-> Is equivalent to this:
->
-> ```yaml
-> matrix:
->   - [1, 0]
->   - [0, 0]
-> offset: [-10, 0]
-> shape: [1, 5]
-> ```
 
 This operation can be sharded along the `A` and `C` axes.
 

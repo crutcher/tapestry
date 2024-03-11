@@ -1,0 +1,193 @@
+digraph G {
+  rankdir=LR;
+  newrank=true;
+  bgcolor="#E2E2E2";
+  Index [
+    shape="plain";
+    label=<
+      <table border="0" cellborder="0">
+        <tr>
+          <td><b>Operation Index Space</b></td>
+        </tr>
+        <tr>
+          <td>
+            <table border="0" cellborder="0" cellspacing="4">
+              <tr>
+                <td>⋯</td>
+                <td>⋯</td>
+                <td>⋯</td>
+                <td>⋯</td>
+                <td>⋯</td>
+              </tr>
+              <tr>
+                <td>⋯</td>
+                <td>(3, 2)</td>
+                <td>(3, 3)</td>
+                <td>(3, 4)</td>
+                <td>⋯</td>
+              </tr>
+              <tr>
+                <td>⋯</td>
+                <td>(4, 2)</td>
+                <td port="from" bgcolor="white">(4, 3)</td>
+                <td>(4, 4)</td>
+                <td>⋯</td>
+              </tr>
+              <tr>
+                <td>⋯</td>
+                <td>(5, 2)</td>
+                <td>(5, 3)</td>
+                <td>(5, 4)</td>
+                <td>⋯</td>
+              </tr>
+              <tr>
+                <td>⋯</td>
+                <td>⋯</td>
+                <td>⋯</td>
+                <td>⋯</td>
+                <td>⋯</td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </table>
+    >;
+  ];
+  Tensor [
+    shape="plain";
+    label=<
+      <table border="0" cellborder="0">
+        <tr>
+          <td><b>Tensor Index Space</b></td>
+        </tr>
+        <tr>
+          <td>
+            <table border="0" cellborder="0" cellspacing="0" cellpadding="2">
+              <tr>
+                <td>⋯</td>
+                <td>⋯</td>
+                <td>⋯</td>
+                <td>⋯</td>
+                <td>⋯</td>
+                <td>⋯</td>
+              </tr>
+              <tr>
+                <td>⋯</td>
+                <td>(2, 5)</td>
+                <td>(2, 6)</td>
+                <td>(2, 7)</td>
+                <td>(2, 8)</td>
+                <td>⋯</td>
+              </tr>
+              <tr>
+                <td>⋯</td>
+                <td>(3, 5)</td>
+                <td port="to" border="2" sides="LTB" bgcolor="white">(3, 6)</td>
+                <td border="2" sides="TBR" bgcolor="white">(3, 7)</td>
+                <td>(3, 8)</td>
+                <td>⋯</td>
+              </tr>
+              <tr>
+                <td>⋯</td>
+                <td>(4, 5)</td>
+                <td>(4, 6)</td>
+                <td>(4, 7)</td>
+                <td>(4, 8)</td>
+                <td>⋯</td>
+              </tr>
+              <tr>
+                <td>⋯</td>
+                <td>⋯</td>
+                <td>⋯</td>
+                <td>⋯</td>
+                <td>⋯</td>
+                <td>⋯</td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </table>
+    >;
+  ];
+  P [
+    shape="plain";
+    label=<
+      <table border="0">
+        <tr>
+          <td><b>Projection</b></td>
+        </tr>
+        <tr>
+          <td>(4, 6)</td>
+        </tr>
+      </table>
+    >;
+  ];
+  O [
+    shape="plain";
+    label=<
+      <table border="0">
+        <tr>
+          <td><b>Offset</b></td>
+        </tr>
+        <tr>
+          <td>(3, 6)</td>
+        </tr>
+      </table>
+    >;
+  ];
+  S [
+    shape="plain";
+    label=<
+      <table border="0">
+        <tr>
+          <td colspan="2"><b>Shape</b></td>
+        </tr>
+        <tr>
+          <td><b>start</b></td>
+          <td>(3, 6)</td>
+        </tr>
+        <tr>
+          <td><b>end</b></td>
+          <td>(3, 8)</td>
+        </tr>
+      </table>
+    >;
+  ];
+  subgraph links {
+    Edge [
+      penwidth=6;
+      color="#E000E040";
+    ];
+    Index:from -> Tensor:to [
+      label=<
+        <table border="0">
+          <tr>
+            <td><b>Index Projection</b></td>
+          </tr>
+          <tr>
+            <td>
+              <table color="black" cellborder="1" border="0" cellspacing="0">
+                <tr>
+                  <td sides="L">1</td>
+                  <td sides="R">0</td>
+                  <td sides="R">-1</td>
+                  <td sides="R">1</td>
+                </tr>
+                <tr>
+                  <td sides="L">0</td>
+                  <td sides="R">2</td>
+                  <td sides="R">0</td>
+                  <td sides="R">2</td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
+      >;
+    ];
+    Index:from -> P;
+    P -> O;
+    O -> S;
+    S -> Tensor:to;
+  }
+}
