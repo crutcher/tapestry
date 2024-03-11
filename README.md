@@ -2,7 +2,8 @@
 
 See the full [Tapestry Documentation](docs/README.md) for detailed information.
 
-![Discord Banner 3](https://discordapp.com/api/guilds/1216844850104635484/widget.png?style=banner3)
+Join the Discord Server:
+[![Banner](https://invidget.switchblade.xyz/PNpSrFMeUb?theme=light)](https://discord.gg/PNpSrFMeUb)
 
 **Tapestry** is an experimental tensor expression optimizing compiler suite.
 
