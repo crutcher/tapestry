@@ -8,15 +8,16 @@
  viewBox="0.00 0.00 829.00 436.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
 <g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 432)">
 <title>G</title>
-<polygon fill="white" stroke="none" points="-4,4 -4,-432 825,-432 825,4 -4,4"/>
+<polygon fill="#e2e2e2" stroke="none" points="-4,4 -4,-432 825,-432 825,4 -4,4"/>
 <g id="clust1" class="cluster">
 <title>cluster_0</title>
-<path fill="none" stroke="black" stroke-dasharray="5,2" d="M167,-37C167,-37 657,-37 657,-37 663,-37 669,-43 669,-49 669,-49 669,-347 669,-347 669,-353 663,-359 657,-359 657,-359 167,-359 167,-359 161,-359 155,-353 155,-347 155,-347 155,-49 155,-49 155,-43 161,-37 167,-37"/>
+<path fill="#e2e2e2" stroke="black" stroke-dasharray="5,2" d="M167,-37C167,-37 657,-37 657,-37 663,-37 669,-43 669,-49 669,-49 669,-347 669,-347 669,-353 663,-359 657,-359 657,-359 167,-359 167,-359 161,-359 155,-353 155,-347 155,-347 155,-49 155,-49 155,-43 161,-37 167,-37"/>
 </g>
 <!-- j -->
 <g id="node1" class="node">
 <title>j</title>
 <text text-anchor="start" x="38.62" y="-411.7" font-family="Times,serif" font-weight="bold" font-size="14.00">J Tensor</text>
+<polygon fill="white" stroke="none" points="23,-296 23,-402 103,-402 103,-296 23,-296"/>
 <polygon fill="none" stroke="black" points="26,-368 26,-399 64.5,-399 64.5,-368 26,-368"/>
 <text text-anchor="start" x="38.5" y="-376.7" font-family="Times,serif" font-size="14.00">⋱</text>
 <polygon fill="none" stroke="black" points="66.5,-368 66.5,-399 100,-399 100,-368 66.5,-368"/>
@@ -44,6 +45,7 @@
 <g id="node2" class="node">
 <title>k</title>
 <text text-anchor="start" x="36.38" y="-191.7" font-family="Times,serif" font-weight="bold" font-size="14.00">K Tensor</text>
+<polygon fill="white" stroke="none" points="4,-70 4,-182 122,-182 122,-70 4,-70"/>
 <polygon fill="none" stroke="black" points="7,-145 7,-179 39.67,-179 39.67,-145 7,-145"/>
 <text text-anchor="start" x="16.58" y="-155.45" font-family="Times,serif" font-size="14.00">⋱</text>
 <polygon fill="#d6eaf8" stroke="none" points="41.67,-145 41.67,-179 84.33,-179 84.33,-145 41.67,-145"/>
@@ -78,6 +80,7 @@
 <g id="node3" class="node">
 <title>l</title>
 <text text-anchor="start" x="734" y="-296.7" font-family="Times,serif" font-weight="bold" font-size="14.00">L Tensor</text>
+<polygon fill="white" stroke="none" points="702,-175 702,-287 817,-287 817,-175 702,-175"/>
 <polygon fill="none" stroke="black" points="705,-250 705,-284 737.67,-284 737.67,-250 705,-250"/>
 <text text-anchor="start" x="714.58" y="-260.45" font-family="Times,serif" font-size="14.00">⋱</text>
 <polygon fill="none" stroke="black" points="739.67,-250 739.67,-284 779.33,-284 779.33,-250 739.67,-250"/>
@@ -127,6 +130,7 @@
 <g id="node4" class="node">
 <title>idx</title>
 <text text-anchor="start" x="368.62" y="-236.7" font-family="Times,serif" font-weight="bold" font-size="14.00">Operation Index</text>
+<polygon fill="white" stroke="none" points="362.5,-115 362.5,-227 471.5,-227 471.5,-115 362.5,-115"/>
 <polygon fill="none" stroke="black" points="365.5,-190 365.5,-224 398.17,-224 398.17,-190 365.5,-190"/>
 <text text-anchor="start" x="375.08" y="-200.45" font-family="Times,serif" font-size="14.00">⋱</text>
 <polygon fill="none" stroke="black" points="400.17,-190 400.17,-224 433.83,-224 433.83,-190 400.17,-190"/>
@@ -173,6 +177,7 @@
 <text text-anchor="start" x="288.38" y="-286.2" font-family="Times,serif" font-weight="bold" font-size="14.00">P</text>
 <text text-anchor="start" x="296.62" y="-286.2" font-family="Times,serif" font-weight="bold" baseline-shift="sub" font-size="14.00">X</text>
 <text text-anchor="start" x="304.88" y="-286.2" font-family="Times,serif" font-weight="bold" font-size="14.00">(i)</text>
+<polygon fill="white" stroke="none" points="273,-232 273,-276 333,-276 333,-232 273,-232"/>
 <polyline fill="none" stroke="black" points="273,-276 273,-254"/>
 <text text-anchor="start" x="275.62" y="-259.7" font-family="Times,serif" font-size="14.00">1</text>
 <polyline fill="none" stroke="black" points="297,-254 297,-276"/>
@@ -209,6 +214,7 @@
 <text text-anchor="start" x="288.38" y="-184.2" font-family="Times,serif" font-weight="bold" font-size="14.00">P</text>
 <text text-anchor="start" x="296.62" y="-184.2" font-family="Times,serif" font-weight="bold" baseline-shift="sub" font-size="14.00">Y</text>
 <text text-anchor="start" x="304.88" y="-184.2" font-family="Times,serif" font-weight="bold" font-size="14.00">(i)</text>
+<polygon fill="white" stroke="none" points="279,-130 279,-174 327,-174 327,-130 279,-130"/>
 <polyline fill="none" stroke="black" points="279,-174 279,-152"/>
 <text text-anchor="start" x="281.62" y="-157.7" font-family="Times,serif" font-size="14.00">0</text>
 <polyline fill="none" stroke="black" points="303,-152 303,-174"/>
@@ -246,6 +252,7 @@
 <text text-anchor="start" x="510.75" y="-247.2" font-family="Times,serif" font-weight="bold" font-size="14.00">P</text>
 <text text-anchor="start" x="519" y="-247.2" font-family="Times,serif" font-weight="bold" baseline-shift="sub" font-size="14.00">Z</text>
 <text text-anchor="start" x="526.5" y="-247.2" font-family="Times,serif" font-weight="bold" font-size="14.00">(i)</text>
+<polygon fill="white" stroke="none" points="501,-193 501,-237 549,-237 549,-193 501,-193"/>
 <polyline fill="none" stroke="black" points="501,-237 501,-215"/>
 <text text-anchor="start" x="503.62" y="-220.7" font-family="Times,serif" font-size="14.00">1</text>
 <polyline fill="none" stroke="black" points="525,-215 525,-237"/>

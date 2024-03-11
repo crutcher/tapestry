@@ -1,6 +1,7 @@
 digraph G {
     rankdir=RL;
     newrank=true;
+    bgcolor="#E2E2E2";
 
     j [
         shape="plain"
@@ -8,7 +9,7 @@ digraph G {
 <table border="0">
 <tr><td colspan="2"><b>J Tensor</b></td></tr>
 <tr><td colspan="2">
-        <table cellpadding="8">
+        <table bgcolor="white" cellpadding="8">
             <tr>
                 <td>⋱</td>
                 <td>⋰</td>
@@ -35,7 +36,7 @@ digraph G {
 <table border="0">
 <tr><td colspan="2"><b>K Tensor</b></td></tr>
 <tr><td colspan="2">
-        <table cellpadding="8">
+        <table bgcolor="white" cellpadding="8">
             <tr>
                 <td>⋱</td>
                 <td bgcolor="#D6EAF8">…</td>
@@ -67,7 +68,7 @@ digraph G {
 <table border="0">
 <tr><td colspan="2"><b>L Tensor</b></td></tr>
 <tr><td colspan="2">
-        <table cellpadding="8">
+        <table bgcolor="white" cellpadding="8">
             <tr>
                 <td>⋱</td>
                 <td>…</td>
@@ -102,7 +103,7 @@ digraph G {
 	<table border="0">
     <tr><td colspan="2"><b>Operation Index</b></td></tr>
         <tr><td colspan="2">
-          <table cellpadding="8">
+          <table bgcolor="white" cellpadding="8">
               <tr>
                   <td>⋱</td>
                   <td>…</td>
@@ -196,7 +197,7 @@ digraph G {
   <tr><td><b>P<sub>X</sub>(i)</b></td></tr>
   <tr>
       <td>
-        <table border="0" cellspacing="0" cellborder="1">
+        <table bgcolor="white" border="0" cellspacing="0" cellborder="1">
           <tr><td sides="L">1</td><td sides="R">0</td><td sides="R">-10</td><td sides="R">1</td></tr>
           <tr><td sides="L">0</td><td sides="R">0</td><td sides="R">0</td><td sides="R">5</td></tr>
           </table>
@@ -210,7 +211,7 @@ digraph G {
   <tr><td><b>P<sub>Y</sub>(i)</b></td></tr>
   <tr>
       <td>
-        <table border="0" cellspacing="0" cellborder="1">
+        <table bgcolor="white" border="0" cellspacing="0" cellborder="1">
           <tr><td sides="L">0</td><td sides="R">0</td><td sides="R">0</td><td sides="R">5</td></tr>
           <tr><td sides="L">0</td><td sides="R">1</td><td sides="R">0</td><td sides="R">1</td></tr>
           </table>
@@ -224,7 +225,7 @@ digraph G {
   <tr><td><b>P<sub>Z</sub>(i)</b></td></tr>
   <tr>
       <td>
-        <table border="0" cellspacing="0" cellborder="1">
+        <table bgcolor="white" border="0" cellspacing="0" cellborder="1">
           <tr><td sides="L">1</td><td sides="R">0</td><td sides="R">0</td><td sides="R">1</td></tr>
           <tr><td sides="L">0</td><td sides="R">1</td><td sides="R">0</td><td sides="R">1</td></tr>
           </table>
