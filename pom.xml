@@ -183,6 +183,11 @@
         <artifactId>graphviz-java</artifactId>
         <version>0.18.1</version>
       </dependency>
+      <dependency>
+        <groupId>org.graalvm.js</groupId>
+        <artifactId>js</artifactId>
+        <version>20.0.0</version>
+      </dependency>
       <!-- ANTLR -->
       <dependency>
         <groupId>org.antlr</groupId>
