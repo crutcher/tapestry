@@ -1,11 +1,14 @@
 # Polyhedral Type Signatures
 
-This document describes the semantics of _Polyhedral Type Signatures_ as used in _Tapestry_.
-
-## Background
+## Overview
 
 The [Polyhedral / Polytope Model](https://en.wikipedia.org/wiki/Polyhedral_model) is a mathematical
 model for representing and reasoning about finite index sets and their associated iteration spaces.
+
+The motivation and derivation is discussed in much more detail in the
+[Polyhedral Types and Index Projection](../PolyhedralTypesAndIndexProjection.md) document.
+
+This document describes the semantics of _Polyhedral Type Signatures_ as used in _Tapestry_.
 
 ## Introduction
 
@@ -238,7 +241,9 @@ operation:
 
 </details>
 
-![matmul example](PolyhedralTypeSignatures/matmul.example.dot.png)
+<div style="width: 100%; margin: auto">
+  <img alt="sharded ops" src="PolyhedralTypeSignatures/matmul.example.dot.png"/>
+</div>
 
 > **Note**: here we are using doubly-augmented matrix notation; where the projection matrix is
 > augmented with an offset vector, and a shape vector.
@@ -259,3 +264,18 @@ operation:
 > offset: [-10, 0]
 > shape: [1, 5]
 > ```
+
+This operation can be sharded along the `A` and `C` axes.
+
+Here, we call the shards of an **Operation** an **Application**.
+
+The union of the **Application Index Space** of all the **Applications** of an **Operation** is the
+**Operation Index Space**; and the union of the **Application Tensor Index Space**, for a given
+tensor, of all the **Applications** of an **Operation** is the selected **Tensor Index Space**
+region used by the **Operation**.
+
+In this example, we shard by both `A` and `C`:
+
+<div style="width: 100%; margin: auto">
+  <img alt="sharded ops" src="PolyhedralTypeSignatures/matmul.example.x4.dot.png"/>
+</div>

@@ -4,6 +4,10 @@ The **Tapestry Project** is a research project to develop a complete and develop
 toolchain for generating, visualizing, transforming, compiling, and optimizing polyhedral type
 tensor block algebra expressions into optimized code for a variety of target architectures.
 
+**Tapestry** heavily leverages
+[Polyhedral Type Signatures](PolyhedralTypes/PolyhedralTypeSignatures.md) to model shardable tensor
+block algebra expressions.
+
 Read the [Tapestry Project Overview](TapestryProjectOverview.md) for an overview of the background
 and goals of the project.
 
@@ -50,7 +54,7 @@ In the current stage of development, **Tapestry** is a research prototype. It la
 including code generation and optimization machinery.
 
 **Tapestry** heavily leverages
-[Polyhedral Types and Index Projection](PolyhedralTypesAndIndexProjection.md) theory to model tensor
+[Polyhedral Type Signatures](PolyhedralTypes/PolyhedralTypeSignatures.md) to model shardable tensor
 block algebra expressions.
 
 See the [Loom Graph Semantics](LoomGraphSemantics.md) document for a detailed discussion of the

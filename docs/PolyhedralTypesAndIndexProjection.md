@@ -9,6 +9,10 @@ iteration space of a loop nest. They are used in the context of polyhedral compi
 the iteration space of a loop nest as a polyhedron, and to represent the access patterns of array
 references as a set of affine functions.
 
+The [Polyhedral Type Signature](PolyhedralTypes/PolyhedralTypeSignatures.md) document describes the
+concrete semantics of _Polyhedral Type Signatures_ as used in _Tapestry_; without the derivation
+background and motivation material.
+
 ## Introduction
 
 **Polyhedral Types**, **Polytrope Types**, **the polytrope model**, and **index projection
