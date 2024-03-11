@@ -59,22 +59,18 @@ A **Polyhedral Type Signature** has:
 > augmented with an offset vector, and a shape vector.
 >
 > So that this:
->
-> <table>
->   <tr><td>1</td><td>0</td><td>-10</td><td>1</td></tr>
->   <tr><td>0</td><td>0</td><td>0</td><td>5</td></tr>
-> </table>
+> 
+> ![ipf](PolyhedralTypeSignatures/ipf.simple.dot.png)
 >
 > Is equivalent to this:
 >
 > ```yaml
 > matrix:
 >   - [1, 0]
->   - [0, 0]
-> offset: [-10, 0]
-> shape: [1, 5]
+>   - [0, 2]
+> offset: [-1, 0]
+> shape: [1, 2]
 > ```
-
 
 An **Operation** annotated with a **Polyhedral Type Signature** must also be annotated with an
 **Operation Index** in the **Operation Index Space**; this index defines the scope of the operation

@@ -1,0 +1,22 @@
+digraph G {
+  bgcolor="#E2E2E2";
+  Simple [
+    shape="plain";
+    label=<
+      <table color="black" cellborder="1" border="0" cellspacing="0">
+        <tr>
+          <td sides="L">1</td>
+          <td sides="R">0</td>
+          <td sides="R">-1</td>
+          <td sides="R">1</td>
+        </tr>
+        <tr>
+          <td sides="L">0</td>
+          <td sides="R">2</td>
+          <td sides="R">0</td>
+          <td sides="R">2</td>
+        </tr>
+      </table>
+    >;
+  ];
+}
