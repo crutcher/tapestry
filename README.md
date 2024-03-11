@@ -3,6 +3,7 @@
 See the full [Tapestry Documentation](docs/README.md) for detailed information.
 
 Join the Discord Server:
+
 [![Banner](https://invidget.switchblade.xyz/PNpSrFMeUb?theme=light)](https://discord.gg/PNpSrFMeUb)
 
 **Tapestry** is an experimental tensor expression optimizing compiler suite.
