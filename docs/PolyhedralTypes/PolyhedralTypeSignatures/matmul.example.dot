@@ -55,8 +55,8 @@ digraph G {
             </table>
 </td></tr>
 <tr><td><b>start</b></td><td>[0, 0]</td></tr>
-<tr><td><b>end</b></td><td>[10, 12]</td></tr>
-<tr><td><b>shape</b></td><td>[10, 12]</td></tr>
+<tr><td><b>end</b></td><td>[5, 12]</td></tr>
+<tr><td><b>shape</b></td><td>[5, 12]</td></tr>
 </table>
         >,
     ];
@@ -87,8 +87,8 @@ digraph G {
             </table>
                 </td></tr>
             <tr><td><b>start</b></td><td>[0, 0]</td></tr>
-            <tr><td><b>end</b></td><td>[5, 12]</td></tr>
-            <tr><td><b>shape</b></td><td>[5, 12]</td></tr>
+            <tr><td><b>end</b></td><td>[10, 12]</td></tr>
+            <tr><td><b>shape</b></td><td>[10, 12]</td></tr>
                 </table>
         >,
         ];
