@@ -1,0 +1,1215 @@
+digraph G {
+  rankdir=RL;
+  newrank=true;
+  bgcolor="#E2E2E2";
+  ranksep=0.8;
+  subgraph cluster_op {
+    style="dashed, rounded";
+    peripheries=1;
+    idx [
+      shape="plain";
+      label=<
+        <table border="0">
+          <tr>
+            <td colspan="2"><b>Operation Index</b></td>
+          </tr>
+          <tr>
+            <td colspan="2">
+              <table bgcolor="white" cellpadding="8">
+                <tr>
+                  <td>⋱</td>
+                  <td>…</td>
+                  <td>⋰</td>
+                </tr>
+                <tr>
+                  <td>…</td>
+                  <td bgcolor="#D6EAF8">a,c</td>
+                  <td>…</td>
+                </tr>
+                <tr>
+                  <td>⋰</td>
+                  <td>…</td>
+                  <td>⋱</td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <tr>
+            <td><b>start</b></td>
+            <td>[0, 0]</td>
+          </tr>
+          <tr>
+            <td><b>end</b></td>
+            <td>[10, 12]</td>
+          </tr>
+          <tr>
+            <td><b>shape</b></td>
+            <td>[10, 12]</td>
+          </tr>
+        </table>
+      >;
+    ];
+    x [
+      shape="plain";
+      label=<
+        <table border="0">
+          <tr>
+            <td colspan="2"><b>X Input</b></td>
+          </tr>
+          <tr>
+            <td><b>start</b></td>
+            <td>[-10, 0]</td>
+          </tr>
+          <tr>
+            <td><b>end</b></td>
+            <td>[0, 5]</td>
+          </tr>
+          <tr>
+            <td><b>shape</b></td>
+            <td>[10, 5]</td>
+          </tr>
+        </table>
+      >;
+    ];
+    y [
+      shape="plain";
+      label=<
+        <table border="0">
+          <tr>
+            <td colspan="2"><b>Y Input</b></td>
+          </tr>
+          <tr>
+            <td><b>start</b></td>
+            <td>[0, 0]</td>
+          </tr>
+          <tr>
+            <td><b>end</b></td>
+            <td>[5, 12]</td>
+          </tr>
+          <tr>
+            <td><b>shape</b></td>
+            <td>[5, 12]</td>
+          </tr>
+        </table>
+      >;
+    ];
+    z [
+      shape="plain";
+      label=<
+        <table border="0">
+          <tr>
+            <td colspan="2"><b>Z Output</b></td>
+          </tr>
+          <tr>
+            <td><b>start</b></td>
+            <td>[0, 0]</td>
+          </tr>
+          <tr>
+            <td><b>end</b></td>
+            <td>[10, 12]</td>
+          </tr>
+          <tr>
+            <td><b>shape</b></td>
+            <td>[10, 12]</td>
+          </tr>
+        </table>
+      >;
+    ];
+    op [
+      label=<
+        <table border="0" cellborder="1" cellspacing="0" bgcolor="white">
+          <tr>
+            <td colspan="2"><b>Operation</b></td>
+          </tr>
+          <tr>
+            <td><b>kernel</b></td>
+            <td><i>matmul</i></td>
+          </tr>
+        </table>
+      >;
+      shape=rarrow;
+      style=filled;
+      fillcolor="#E5B8DC";
+      margin=0.25;
+    ];
+  }
+  // end cluster_op
+  subgraph x_edges {
+    Edge [
+      penwidth=6;
+      color="#A95BB980";
+    ];
+    op -> x;
+  }
+  subgraph y_edges {
+    Edge [
+      penwidth=6;
+      color="#38DAE080";
+    ];
+    op -> y;
+  }
+  subgraph z_edges {
+    Edge [
+      penwidth=6;
+      color="#53B80280";
+    ];
+    z -> op;
+  }
+  idx -> x [
+    label=<
+      <table border="0" cellborder="0">
+        <tr>
+          <td><b>P<sub>X</sub>(i)</b></td>
+        </tr>
+        <tr>
+          <td>
+            <table bgcolor="white" border="0" cellspacing="0" cellborder="1">
+              <tr>
+                <td sides="L">1</td>
+                <td sides="R">0</td>
+                <td sides="R">-10</td>
+                <td sides="R">1</td>
+              </tr>
+              <tr>
+                <td sides="L">0</td>
+                <td sides="R">0</td>
+                <td sides="R">0</td>
+                <td sides="R">5</td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </table>
+    >;
+    style=dotted;
+    arrowhead=empty;
+  ];
+  idx -> y [
+    label=<
+      <table border="0" cellborder="0">
+        <tr>
+          <td><b>P<sub>Y</sub>(i)</b></td>
+        </tr>
+        <tr>
+          <td>
+            <table bgcolor="white" border="0" cellspacing="0" cellborder="1">
+              <tr>
+                <td sides="L">0</td>
+                <td sides="R">0</td>
+                <td sides="R">0</td>
+                <td sides="R">5</td>
+              </tr>
+              <tr>
+                <td sides="L">0</td>
+                <td sides="R">1</td>
+                <td sides="R">0</td>
+                <td sides="R">1</td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </table>
+    >;
+    style=dotted;
+    arrowhead=empty;
+  ];
+  z -> idx [
+    label=<
+      <table border="0" cellborder="0">
+        <tr>
+          <td><b>P<sub>Z</sub>(i)</b></td>
+        </tr>
+        <tr>
+          <td>
+            <table bgcolor="white" border="0" cellspacing="0" cellborder="1">
+              <tr>
+                <td sides="L">1</td>
+                <td sides="R">0</td>
+                <td sides="R">0</td>
+                <td sides="R">1</td>
+              </tr>
+              <tr>
+                <td sides="L">0</td>
+                <td sides="R">1</td>
+                <td sides="R">0</td>
+                <td sides="R">1</td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </table>
+    >;
+    style=dotted;
+    arrowtail=empty;
+    dir=back;
+  ];
+  { rank=same; op; idx; }
+  j [
+    shape="plain";
+    label=<
+      <table border="0">
+        <tr>
+          <td colspan="2"><b>J Tensor</b></td>
+        </tr>
+        <tr>
+          <td colspan="2">
+            <table border="0" cellborder="1" cellspacing="0">
+              <tr>
+                <td bgcolor="#D6EAF8">…</td>
+                <td bgcolor="#D6EAF8">…</td>
+                <td bgcolor="#D6EAF8">…</td>
+                <td bgcolor="#D6EAF8">…</td>
+                <td bgcolor="#D6EAF8">…</td>
+              </tr>
+              <tr>
+                <td bgcolor="#D6EAF8">…</td>
+                <td bgcolor="#D6EAF8">…</td>
+                <td bgcolor="#D6EAF8">…</td>
+                <td bgcolor="#D6EAF8">…</td>
+                <td bgcolor="#D6EAF8">…</td>
+              </tr>
+              <tr>
+                <td bgcolor="#D6EAF8">…</td>
+                <td bgcolor="#D6EAF8">…</td>
+                <td port="top" bgcolor="#D6EAF8">…</td>
+                <td bgcolor="#D6EAF8">…</td>
+                <td bgcolor="#D6EAF8">…</td>
+              </tr>
+              <tr>
+                <td bgcolor="#D6EAF8">…</td>
+                <td bgcolor="#D6EAF8">…</td>
+                <td bgcolor="#D6EAF8">…</td>
+                <td bgcolor="#D6EAF8">…</td>
+                <td bgcolor="#D6EAF8">…</td>
+              </tr>
+              <tr>
+                <td bgcolor="#D6EAF8">…</td>
+                <td bgcolor="#D6EAF8">…</td>
+                <td bgcolor="#D6EAF8">…</td>
+                <td bgcolor="#D6EAF8">…</td>
+                <td bgcolor="#D6EAF8">…</td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+        <tr>
+          <td colspan="2">
+            <table border="0" cellborder="1" cellspacing="0">
+              <tr>
+                <td bgcolor="#F8C9E3">…</td>
+                <td bgcolor="#F8C9E3">…</td>
+                <td bgcolor="#F8C9E3">…</td>
+                <td bgcolor="#F8C9E3">…</td>
+                <td bgcolor="#F8C9E3">…</td>
+              </tr>
+              <tr>
+                <td bgcolor="#F8C9E3">…</td>
+                <td bgcolor="#F8C9E3">…</td>
+                <td bgcolor="#F8C9E3">…</td>
+                <td bgcolor="#F8C9E3">…</td>
+                <td bgcolor="#F8C9E3">…</td>
+              </tr>
+              <tr>
+                <td bgcolor="#F8C9E3">…</td>
+                <td bgcolor="#F8C9E3">…</td>
+                <td port="bottom" bgcolor="#F8C9E3">…</td>
+                <td bgcolor="#F8C9E3">…</td>
+                <td bgcolor="#F8C9E3">…</td>
+              </tr>
+              <tr>
+                <td bgcolor="#F8C9E3">…</td>
+                <td bgcolor="#F8C9E3">…</td>
+                <td bgcolor="#F8C9E3">…</td>
+                <td bgcolor="#F8C9E3">…</td>
+                <td bgcolor="#F8C9E3">…</td>
+              </tr>
+              <tr>
+                <td bgcolor="#F8C9E3">…</td>
+                <td bgcolor="#F8C9E3">…</td>
+                <td bgcolor="#F8C9E3">…</td>
+                <td bgcolor="#F8C9E3">…</td>
+                <td bgcolor="#F8C9E3">…</td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+        <tr>
+          <td><b>start</b></td>
+          <td>[-10, 0]</td>
+        </tr>
+        <tr>
+          <td><b>end</b></td>
+          <td>[0, 5]</td>
+        </tr>
+        <tr>
+          <td><b>shape</b></td>
+          <td>[10, 5]</td>
+        </tr>
+      </table>
+    >;
+  ];
+  k [
+    shape="plain";
+    label=<
+      <table border="0">
+        <tr>
+          <td colspan="2"><b>K Tensor</b></td>
+        </tr>
+        <tr>
+          <td colspan="2">
+            <table border="0" cellborder="1" cellspacing="0">
+              <tr>
+                <td bgcolor="#DEF8EA">…</td>
+                <td bgcolor="#DEF8EA">…</td>
+                <td bgcolor="#DEF8EA">…</td>
+                <td bgcolor="#DEF8EA">…</td>
+                <td bgcolor="#DEF8EA">…</td>
+                <td bgcolor="#DEF8EA">…</td>
+                <td sides="LR"></td>
+                <td bgcolor="#F8E3D9">…</td>
+                <td bgcolor="#F8E3D9">…</td>
+                <td bgcolor="#F8E3D9">…</td>
+                <td bgcolor="#F8E3D9">…</td>
+                <td bgcolor="#F8E3D9">…</td>
+                <td bgcolor="#F8E3D9">…</td>
+              </tr>
+              <tr>
+                <td bgcolor="#DEF8EA">…</td>
+                <td bgcolor="#DEF8EA">…</td>
+                <td bgcolor="#DEF8EA">…</td>
+                <td bgcolor="#DEF8EA">…</td>
+                <td bgcolor="#DEF8EA">…</td>
+                <td bgcolor="#DEF8EA">…</td>
+                <td sides="LR"></td>
+                <td bgcolor="#F8E3D9">…</td>
+                <td bgcolor="#F8E3D9">…</td>
+                <td bgcolor="#F8E3D9">…</td>
+                <td bgcolor="#F8E3D9">…</td>
+                <td bgcolor="#F8E3D9">…</td>
+                <td bgcolor="#F8E3D9">…</td>
+              </tr>
+              <tr>
+                <td bgcolor="#DEF8EA">…</td>
+                <td bgcolor="#DEF8EA">…</td>
+                <td port="left" bgcolor="#DEF8EA">…</td>
+                <td bgcolor="#DEF8EA">…</td>
+                <td bgcolor="#DEF8EA">…</td>
+                <td bgcolor="#DEF8EA">…</td>
+                <td sides="LR"></td>
+                <td bgcolor="#F8E3D9">…</td>
+                <td bgcolor="#F8E3D9">…</td>
+                <td port="right" bgcolor="#F8E3D9">…</td>
+                <td bgcolor="#F8E3D9">…</td>
+                <td bgcolor="#F8E3D9">…</td>
+                <td bgcolor="#F8E3D9">…</td>
+              </tr>
+              <tr>
+                <td bgcolor="#DEF8EA">…</td>
+                <td bgcolor="#DEF8EA">…</td>
+                <td bgcolor="#DEF8EA">…</td>
+                <td bgcolor="#DEF8EA">…</td>
+                <td bgcolor="#DEF8EA">…</td>
+                <td bgcolor="#DEF8EA">…</td>
+                <td sides="LR"></td>
+                <td bgcolor="#F8E3D9">…</td>
+                <td bgcolor="#F8E3D9">…</td>
+                <td bgcolor="#F8E3D9">…</td>
+                <td bgcolor="#F8E3D9">…</td>
+                <td bgcolor="#F8E3D9">…</td>
+                <td bgcolor="#F8E3D9">…</td>
+              </tr>
+              <tr>
+                <td bgcolor="#DEF8EA">…</td>
+                <td bgcolor="#DEF8EA">…</td>
+                <td bgcolor="#DEF8EA">…</td>
+                <td bgcolor="#DEF8EA">…</td>
+                <td bgcolor="#DEF8EA">…</td>
+                <td bgcolor="#DEF8EA">…</td>
+                <td sides="LR"></td>
+                <td bgcolor="#F8E3D9">…</td>
+                <td bgcolor="#F8E3D9">…</td>
+                <td bgcolor="#F8E3D9">…</td>
+                <td bgcolor="#F8E3D9">…</td>
+                <td bgcolor="#F8E3D9">…</td>
+                <td bgcolor="#F8E3D9">…</td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+        <tr>
+          <td><b>start</b></td>
+          <td>[0, 0]</td>
+        </tr>
+        <tr>
+          <td><b>end</b></td>
+          <td>[5, 12]</td>
+        </tr>
+        <tr>
+          <td><b>shape</b></td>
+          <td>[5, 12]</td>
+        </tr>
+      </table>
+    >;
+  ];
+  l [
+    shape="plain";
+    label=<
+      <table border="0" cellspacing="0" cellpadding="0">
+        <tr>
+          <td colspan="2" cellpadding="2"><b>L Tensor</b></td>
+        </tr>
+        <tr>
+          <td colspan="2">
+            <table border="0" cellborder="1" cellspacing="0" cellpadding="12">
+              <tr>
+                <td sides="LTR" bgcolor="#DEF8EA">
+                  <table
+                    bgcolor="#D6EAF8"
+                    border="0"
+                    cellborder="1"
+                    cellspacing="0"
+                  >
+                    <tr>
+                      <td>…</td>
+                      <td>…</td>
+                      <td>…</td>
+                      <td>…</td>
+                      <td>…</td>
+                      <td>…</td>
+                    </tr>
+                    <tr>
+                      <td>…</td>
+                      <td>…</td>
+                      <td>…</td>
+                      <td>…</td>
+                      <td>…</td>
+                      <td>…</td>
+                    </tr>
+                    <tr>
+                      <td>…</td>
+                      <td>…</td>
+                      <td port="l0">…</td>
+                      <td>…</td>
+                      <td>…</td>
+                      <td>…</td>
+                    </tr>
+                    <tr>
+                      <td>…</td>
+                      <td>…</td>
+                      <td>…</td>
+                      <td>…</td>
+                      <td>…</td>
+                      <td>…</td>
+                    </tr>
+                    <tr>
+                      <td>…</td>
+                      <td>…</td>
+                      <td>…</td>
+                      <td>…</td>
+                      <td>…</td>
+                      <td>…</td>
+                    </tr>
+                  </table>
+                </td>
+                <td sides="LTR" bgcolor="#F8E3D9">
+                  <table
+                    bgcolor="#D6EAF8"
+                    border="0"
+                    cellborder="1"
+                    cellspacing="0"
+                  >
+                    <tr>
+                      <td>…</td>
+                      <td>…</td>
+                      <td>…</td>
+                      <td>…</td>
+                      <td>…</td>
+                      <td>…</td>
+                    </tr>
+                    <tr>
+                      <td>…</td>
+                      <td>…</td>
+                      <td>…</td>
+                      <td>…</td>
+                      <td>…</td>
+                      <td>…</td>
+                    </tr>
+                    <tr>
+                      <td>…</td>
+                      <td>…</td>
+                      <td port="l2">…</td>
+                      <td>…</td>
+                      <td>…</td>
+                      <td>…</td>
+                    </tr>
+                    <tr>
+                      <td>…</td>
+                      <td>…</td>
+                      <td>…</td>
+                      <td>…</td>
+                      <td>…</td>
+                      <td>…</td>
+                    </tr>
+                    <tr>
+                      <td>…</td>
+                      <td>…</td>
+                      <td>…</td>
+                      <td>…</td>
+                      <td>…</td>
+                      <td>…</td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+              <tr>
+                <td sides="LBR" bgcolor="#DEF8EA">
+                  <table
+                    bgcolor="#F8C9E3"
+                    border="0"
+                    cellborder="1"
+                    cellspacing="0"
+                  >
+                    <tr>
+                      <td>…</td>
+                      <td>…</td>
+                      <td>…</td>
+                      <td>…</td>
+                      <td>…</td>
+                      <td>…</td>
+                    </tr>
+                    <tr>
+                      <td>…</td>
+                      <td>…</td>
+                      <td>…</td>
+                      <td>…</td>
+                      <td>…</td>
+                      <td>…</td>
+                    </tr>
+                    <tr>
+                      <td>…</td>
+                      <td>…</td>
+                      <td port="l1">…</td>
+                      <td>…</td>
+                      <td>…</td>
+                      <td>…</td>
+                    </tr>
+                    <tr>
+                      <td>…</td>
+                      <td>…</td>
+                      <td>…</td>
+                      <td>…</td>
+                      <td>…</td>
+                      <td>…</td>
+                    </tr>
+                    <tr>
+                      <td>…</td>
+                      <td>…</td>
+                      <td>…</td>
+                      <td>…</td>
+                      <td>…</td>
+                      <td>…</td>
+                    </tr>
+                  </table>
+                </td>
+                <td sides="LBR" bgcolor="#F8E3D9">
+                  <table
+                    bgcolor="#F8C9E3"
+                    border="0"
+                    cellborder="1"
+                    cellspacing="0"
+                  >
+                    <tr>
+                      <td>…</td>
+                      <td>…</td>
+                      <td>…</td>
+                      <td>…</td>
+                      <td>…</td>
+                      <td>…</td>
+                    </tr>
+                    <tr>
+                      <td>…</td>
+                      <td>…</td>
+                      <td>…</td>
+                      <td>…</td>
+                      <td>…</td>
+                      <td>…</td>
+                    </tr>
+                    <tr>
+                      <td>…</td>
+                      <td>…</td>
+                      <td port="l3">…</td>
+                      <td>…</td>
+                      <td>…</td>
+                      <td>…</td>
+                    </tr>
+                    <tr>
+                      <td>…</td>
+                      <td>…</td>
+                      <td>…</td>
+                      <td>…</td>
+                      <td>…</td>
+                      <td>…</td>
+                    </tr>
+                    <tr>
+                      <td>…</td>
+                      <td>…</td>
+                      <td>…</td>
+                      <td>…</td>
+                      <td>…</td>
+                      <td>…</td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+        <tr>
+          <td><b>start</b></td>
+          <td>[0, 0]</td>
+        </tr>
+        <tr>
+          <td><b>end</b></td>
+          <td>[10, 12]</td>
+        </tr>
+        <tr>
+          <td><b>shape</b></td>
+          <td>[10, 12]</td>
+        </tr>
+      </table>
+    >;
+  ];
+  subgraph cluster_0 {
+    style="dashed, rounded";
+    peripheries=1;
+    idx0 [
+      shape="plain";
+      label=<
+        <table border="0">
+          <tr>
+            <td colspan="2"><b>Operation Index</b></td>
+          </tr>
+          <tr>
+            <td><b>start</b></td>
+            <td>[0, 0]</td>
+          </tr>
+          <tr>
+            <td><b>end</b></td>
+            <td>[5, 6]</td>
+          </tr>
+          <tr>
+            <td><b>shape</b></td>
+            <td>[5, 6]</td>
+          </tr>
+        </table>
+      >;
+    ];
+    x0 [
+      shape="plain";
+      label=<
+        <table border="0" bgcolor="#D6EAF8">
+          <tr>
+            <td colspan="2"><b>X0 Input</b></td>
+          </tr>
+          <tr>
+            <td><b>start</b></td>
+            <td>[-10, 0]</td>
+          </tr>
+          <tr>
+            <td><b>end</b></td>
+            <td>[-5, 5]</td>
+          </tr>
+          <tr>
+            <td><b>shape</b></td>
+            <td>[5, 5]</td>
+          </tr>
+        </table>
+      >;
+    ];
+    y0 [
+      shape="plain";
+      label=<
+        <table border="0" bgcolor="#DEF8EA">
+          <tr>
+            <td colspan="2"><b>Y0 Input</b></td>
+          </tr>
+          <tr>
+            <td><b>start</b></td>
+            <td>[0, 0]</td>
+          </tr>
+          <tr>
+            <td><b>end</b></td>
+            <td>[5, 6]</td>
+          </tr>
+          <tr>
+            <td><b>shape</b></td>
+            <td>[5, 6]</td>
+          </tr>
+        </table>
+      >;
+    ];
+    z0 [
+      shape="plain";
+      style="striped";
+      fillcolor="#DEF8EA:#D6EAF8";
+      label=<
+        <table border="0">
+          <tr>
+            <td colspan="2"><b>Z0 Output</b></td>
+          </tr>
+          <tr>
+            <td><b>start</b></td>
+            <td>[0, 0]</td>
+          </tr>
+          <tr>
+            <td><b>end</b></td>
+            <td>[5, 6]</td>
+          </tr>
+          <tr>
+            <td><b>shape</b></td>
+            <td>[5, 6]</td>
+          </tr>
+        </table>
+      >;
+    ];
+    op0 [
+      label=<
+        <table border="0" cellborder="1" cellspacing="0" bgcolor="white">
+          <tr>
+            <td colspan="2">
+              <b>Application<sub>0</sub></b>
+            </td>
+          </tr>
+          <tr>
+            <td><b>kernel</b></td>
+            <td><i>matmul</i></td>
+          </tr>
+        </table>
+      >;
+      shape=rarrow;
+      style=filled;
+      fillcolor="#E587C9";
+      margin=0.25;
+    ];
+  }
+  // end cluster_0
+  subgraph cluster_1 {
+    style="dashed, rounded";
+    peripheries=1;
+    idx1 [
+      shape="plain";
+      label=<
+        <table border="0">
+          <tr>
+            <td colspan="2"><b>Operation Index</b></td>
+          </tr>
+          <tr>
+            <td><b>start</b></td>
+            <td>[5, 0]</td>
+          </tr>
+          <tr>
+            <td><b>end</b></td>
+            <td>[10, 6]</td>
+          </tr>
+          <tr>
+            <td><b>shape</b></td>
+            <td>[5, 6]</td>
+          </tr>
+        </table>
+      >;
+    ];
+    x1 [
+      shape="plain";
+      label=<
+        <table border="0" bgcolor="#F8C9E3">
+          <tr>
+            <td colspan="2"><b>X1 Input</b></td>
+          </tr>
+          <tr>
+            <td><b>start</b></td>
+            <td>[-5, 0]</td>
+          </tr>
+          <tr>
+            <td><b>end</b></td>
+            <td>[0, 5]</td>
+          </tr>
+          <tr>
+            <td><b>shape</b></td>
+            <td>[5, 5]</td>
+          </tr>
+        </table>
+      >;
+    ];
+    y1 [
+      shape="plain";
+      label=<
+        <table border="0" bgcolor="#DEF8EA">
+          <tr>
+            <td colspan="2"><b>Y1 Input</b></td>
+          </tr>
+          <tr>
+            <td><b>start</b></td>
+            <td>[0, 0]</td>
+          </tr>
+          <tr>
+            <td><b>end</b></td>
+            <td>[5, 6]</td>
+          </tr>
+          <tr>
+            <td><b>shape</b></td>
+            <td>[5, 6]</td>
+          </tr>
+        </table>
+      >;
+    ];
+    z1 [
+      shape="plain";
+      style="striped";
+      fillcolor="#DEF8EA:#F8C9E3";
+      label=<
+        <table border="0">
+          <tr>
+            <td colspan="2"><b>Z1 Output</b></td>
+          </tr>
+          <tr>
+            <td><b>start</b></td>
+            <td>[5, 0]</td>
+          </tr>
+          <tr>
+            <td><b>end</b></td>
+            <td>[10, 6]</td>
+          </tr>
+          <tr>
+            <td><b>shape</b></td>
+            <td>[5, 6]</td>
+          </tr>
+        </table>
+      >;
+    ];
+    op1 [
+      label=<
+        <table border="0" cellborder="1" cellspacing="0" bgcolor="white">
+          <tr>
+            <td colspan="2">
+              <b>Application<sub>1</sub></b>
+            </td>
+          </tr>
+          <tr>
+            <td><b>kernel</b></td>
+            <td><i>matmul</i></td>
+          </tr>
+        </table>
+      >;
+      shape=rarrow;
+      style=filled;
+      fillcolor="#E587C9";
+      margin=0.25;
+    ];
+  }
+  // end cluster_1
+  subgraph cluster_2 {
+    style="dashed, rounded";
+    peripheries=1;
+    idx2 [
+      shape="plain";
+      label=<
+        <table border="0">
+          <tr>
+            <td colspan="2"><b>Operation Index</b></td>
+          </tr>
+          <tr>
+            <td><b>start</b></td>
+            <td>[0, 6]</td>
+          </tr>
+          <tr>
+            <td><b>end</b></td>
+            <td>[5, 12]</td>
+          </tr>
+          <tr>
+            <td><b>shape</b></td>
+            <td>[5, 6]</td>
+          </tr>
+        </table>
+      >;
+    ];
+    x2 [
+      shape="plain";
+      label=<
+        <table border="0" bgcolor="#D6EAF8">
+          <tr>
+            <td colspan="2"><b>X2 Input</b></td>
+          </tr>
+          <tr>
+            <td><b>start</b></td>
+            <td>[-10, 0]</td>
+          </tr>
+          <tr>
+            <td><b>end</b></td>
+            <td>[-5, 5]</td>
+          </tr>
+          <tr>
+            <td><b>shape</b></td>
+            <td>[5, 5]</td>
+          </tr>
+        </table>
+      >;
+    ];
+    y2 [
+      shape="plain";
+      label=<
+        <table border="0" bgcolor="#F8E3D9">
+          <tr>
+            <td colspan="2"><b>Y2 Input</b></td>
+          </tr>
+          <tr>
+            <td><b>start</b></td>
+            <td>[0, 6]</td>
+          </tr>
+          <tr>
+            <td><b>end</b></td>
+            <td>[5, 12]</td>
+          </tr>
+          <tr>
+            <td><b>shape</b></td>
+            <td>[5, 12]</td>
+          </tr>
+        </table>
+      >;
+    ];
+    z2 [
+      shape="plain";
+      style="striped";
+      fillcolor="#F8E3D9:#D6EAF8";
+      label=<
+        <table border="0">
+          <tr>
+            <td colspan="2"><b>Z2 Output</b></td>
+          </tr>
+          <tr>
+            <td><b>start</b></td>
+            <td>[0, 6]</td>
+          </tr>
+          <tr>
+            <td><b>end</b></td>
+            <td>[5, 12]</td>
+          </tr>
+          <tr>
+            <td><b>shape</b></td>
+            <td>[5, 6]</td>
+          </tr>
+        </table>
+      >;
+    ];
+    op2 [
+      label=<
+        <table border="0" cellborder="1" cellspacing="0" bgcolor="white">
+          <tr>
+            <td colspan="2">
+              <b>Application<sub>2</sub></b>
+            </td>
+          </tr>
+          <tr>
+            <td><b>kernel</b></td>
+            <td><i>matmul</i></td>
+          </tr>
+        </table>
+      >;
+      shape=rarrow;
+      style=filled;
+      fillcolor="#E587C9";
+      margin=0.25;
+    ];
+  }
+  // end cluster_2
+  subgraph cluster_3 {
+    style="dashed, rounded";
+    peripheries=1;
+    idx3 [
+      shape="plain";
+      label=<
+        <table border="0">
+          <tr>
+            <td colspan="2"><b>Operation Index</b></td>
+          </tr>
+          <tr>
+            <td><b>start</b></td>
+            <td>[5, 6]</td>
+          </tr>
+          <tr>
+            <td><b>end</b></td>
+            <td>[10, 12]</td>
+          </tr>
+          <tr>
+            <td><b>shape</b></td>
+            <td>[5, 6]</td>
+          </tr>
+        </table>
+      >;
+    ];
+    x3 [
+      shape="plain";
+      label=<
+        <table border="0" bgcolor="#F8C9E3">
+          <tr>
+            <td colspan="2"><b>X3 Input</b></td>
+          </tr>
+          <tr>
+            <td><b>start</b></td>
+            <td>[-5, 0]</td>
+          </tr>
+          <tr>
+            <td><b>end</b></td>
+            <td>[0, 5]</td>
+          </tr>
+          <tr>
+            <td><b>shape</b></td>
+            <td>[5, 5]</td>
+          </tr>
+        </table>
+      >;
+    ];
+    y3 [
+      shape="plain";
+      label=<
+        <table border="0" bgcolor="#F8E3D9">
+          <tr>
+            <td colspan="2"><b>Y3 Input</b></td>
+          </tr>
+          <tr>
+            <td><b>start</b></td>
+            <td>[0, 6]</td>
+          </tr>
+          <tr>
+            <td><b>end</b></td>
+            <td>[5, 12]</td>
+          </tr>
+          <tr>
+            <td><b>shape</b></td>
+            <td>[5, 6]</td>
+          </tr>
+        </table>
+      >;
+    ];
+    z3 [
+      shape="plain";
+      style="striped";
+      fillcolor="#F8E3D9:#F8C9E3";
+      label=<
+        <table border="0">
+          <tr>
+            <td colspan="2"><b>Z3 Output</b></td>
+          </tr>
+          <tr>
+            <td><b>start</b></td>
+            <td>[5, 6]</td>
+          </tr>
+          <tr>
+            <td><b>end</b></td>
+            <td>[10, 12]</td>
+          </tr>
+          <tr>
+            <td><b>shape</b></td>
+            <td>[5, 6]</td>
+          </tr>
+        </table>
+      >;
+    ];
+    op3 [
+      label=<
+        <table border="0" cellborder="1" cellspacing="0" bgcolor="white">
+          <tr>
+            <td colspan="2">
+              <b>Application<sub>3</sub></b>
+            </td>
+          </tr>
+          <tr>
+            <td><b>kernel</b></td>
+            <td><i>matmul</i></td>
+          </tr>
+        </table>
+      >;
+      shape=rarrow;
+      style=filled;
+      fillcolor="#E587C9";
+      margin=0.25;
+    ];
+  }
+  // end cluster_3
+  subgraph x_edges {
+    Edge [
+      penwidth=6;
+      color="#A95BB980";
+    ];
+    op0 -> x0;
+    x0 -> j:top;
+    op1 -> x1;
+    x1 -> j:bottom;
+    op2 -> x2;
+    x2 -> j:top;
+    op3 -> x3;
+    x3 -> j:bottom;
+  }
+  subgraph y_edges {
+    Edge [
+      penwidth=6;
+      color="#38DAE080";
+    ];
+    op0 -> y0;
+    y0 -> k:left;
+    op1 -> y1;
+    y1 -> k:left;
+    op2 -> y2;
+    y2 -> k:right;
+    op3 -> y3;
+    y3 -> k:right;
+  }
+  subgraph z_edges {
+    Edge [
+      penwidth=6;
+      color="#53B80280";
+    ];
+    l:l0 -> z0;
+    z0 -> op0;
+    l:l1 -> z1;
+    z1 -> op1;
+    l:l2 -> z2;
+    z2 -> op2;
+    l:l3 -> z3;
+    z3 -> op3;
+  }
+  subgraph px_edges {
+    Edge [
+      label=<<b>P<sub>X</sub>(i)</b>>;
+      style=dotted;
+      arrowhead=empty;
+    ];
+    idx0 -> x0;
+    idx1 -> x1;
+    idx2 -> x2;
+    idx3 -> x3;
+  }
+  subgraph py_edges {
+    Edge [
+      label=<<b>P<sub>Y</sub>(i)</b>>;
+      style=dotted;
+      arrowhead=empty;
+    ];
+    idx0 -> y0;
+    idx1 -> y1;
+    idx2 -> y2;
+    idx3 -> y3;
+  }
+  subgraph px_edges {
+    Edge [
+      label=<<b>P<sub>Z</sub>(i)</b>>;
+      style=dotted;
+      arrowhead=empty;
+      dir=back;
+    ];
+    z0 -> idx0;
+    z1 -> idx1;
+    z2 -> idx2;
+    z3 -> idx3;
+  }
+  { rank=same; op0; idx0; op1; idx1; op2; idx2; op3; idx3; op; idx; }
+}

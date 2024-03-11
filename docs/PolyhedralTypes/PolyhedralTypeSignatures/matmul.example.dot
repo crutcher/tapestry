@@ -131,7 +131,7 @@ digraph G {
       </table>
     >;
   ];
-  subgraph cluster_0 {
+  subgraph cluster_op {
     style="dashed, rounded";
     peripheries=1;
     idx [
@@ -168,11 +168,11 @@ digraph G {
           </tr>
           <tr>
             <td><b>end</b></td>
-            <td>[10, 5]</td>
+            <td>[10, 12]</td>
           </tr>
           <tr>
             <td><b>shape</b></td>
-            <td>[10, 5]</td>
+            <td>[10, 12]</td>
           </tr>
         </table>
       >;
@@ -262,12 +262,30 @@ digraph G {
     ];
   }
   // end cluster_0
-  op -> x;
-  x -> j;
-  op -> y;
-  y -> k;
-  l -> z;
-  z -> op;
+  subgraph x_edges {
+    Edge [
+      penwidth=6;
+      color="#A95BB980";
+    ];
+    op -> x;
+    x -> j;
+  }
+  subgraph y_edges {
+    Edge [
+      penwidth=6;
+      color="#38DAE080";
+    ];
+    op -> y;
+    y -> k;
+  }
+  subgraph z_edges {
+    Edge [
+      penwidth=6;
+      color="#53B80280";
+    ];
+    l -> z;
+    z -> op;
+  }
   idx -> x [
     label=<
       <table border="0" cellborder="0">
