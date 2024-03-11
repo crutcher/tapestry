@@ -43,7 +43,7 @@ digraph G {
                 </tr>
             <tr>
                 <td>…</td>
-                <td bgcolor="#D6EAF8">K<sub>a,c</sub></td>
+                <td bgcolor="#D6EAF8">K<sub>b,c</sub></td>
                 <td>…</td>
                 </tr>
             <tr>
@@ -75,7 +75,7 @@ digraph G {
                 </tr>
             <tr>
                 <td>…</td>
-                <td bgcolor="#D6EAF8">L<sub>b,c</sub></td>
+                <td bgcolor="#D6EAF8">L<sub>a,c</sub></td>
                 <td>…</td>
                 </tr>
             <tr>
