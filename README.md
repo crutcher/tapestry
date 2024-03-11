@@ -2,6 +2,8 @@
 
 See the full [Tapestry Documentation](docs/README.md) for detailed information.
 
+![Discord Banner 3](https://discordapp.com/api/guilds/1216844850104635484/widget.png?style=banner3)
+
 **Tapestry** is an experimental tensor expression optimizing compiler suite.
 
 It exists to make it easy to optimize applications (such as AI) to maximally exploit both
