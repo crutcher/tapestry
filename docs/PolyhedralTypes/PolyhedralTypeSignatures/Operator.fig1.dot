@@ -1,0 +1,105 @@
+digraph G {
+    rankdir=RL;
+
+    A [
+        shape="plain",
+        label=<
+        <table cellpadding="8">
+            <tr>
+                <td>⋱</td>
+                <td>⋰</td>
+                </tr>
+            <tr>
+                <td bgcolor="#D6EAF8">A<sub>i,m</sub></td>
+                <td bgcolor="#D6EAF8">…</td>
+                </tr>
+            <tr>
+                <td>⋰</td>
+                <td>⋱</td>
+                </tr>
+            </table>
+        >,
+    ];
+
+    B [
+        shape="plain",
+        label=<
+        <table cellpadding="8">
+            <tr>
+                <td>⋱</td>
+                <td bgcolor="#D6EAF8">…</td>
+                <td>⋰</td>
+                </tr>
+            <tr>
+                <td>…</td>
+                <td bgcolor="#D6EAF8">B<sub>m,n</sub></td>
+                <td>…</td>
+                </tr>
+            <tr>
+                <td>⋰</td>
+                <td bgcolor="#D6EAF8">…</td>
+                <td>⋱</td>
+                </tr>
+            </table>
+        >,
+    ];
+
+    op [
+        label=Operator,
+        shape=rarrow,
+        style=filled,
+        fillcolor="#E5E8E8",
+        margin=0.25
+    ];
+
+    X [
+        shape="plain",
+        label=<
+        <table cellpadding="8">
+            <tr>
+                <td>⋱</td>
+                <td>…</td>
+                <td>⋰</td>
+                </tr>
+            <tr>
+                <td>…</td>
+                <td bgcolor="#D6EAF8">X<sub>i,n</sub></td>
+                <td>…</td>
+                </tr>
+            <tr>
+                <td>⋰</td>
+                <td>…</td>
+                <td>⋱</td>
+                </tr>
+            </table>
+        >,
+    ];
+
+    Y [
+        shape="plain",
+        label=<
+        <table cellpadding="8">
+            <tr>
+                <td>⋱</td>
+                <td>…</td>
+                <td>⋰</td>
+                </tr>
+            <tr>
+                <td>…</td>
+                <td bgcolor="#D6EAF8">Y<sub>i,n</sub></td>
+                <td>…</td>
+                </tr>
+            <tr>
+                <td>⋰</td>
+                <td>…</td>
+                <td>⋱</td>
+                </tr>
+            </table>
+        >,
+    ];
+
+    op -> A;
+    op -> B;
+    X -> op;
+    Y -> op;
+}

@@ -1,11 +1,9 @@
 package org.tensortapestry.weft.metakernels.expressions;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-
 import java.util.*;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
-
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
@@ -176,7 +174,9 @@ public class TensorShapePatternMatcher {
         .toList();
 
       if (ess.size() > 1) {
-        throw new IllegalArgumentException("Multiple ellipsis: " + ess.stream().map(Map.Entry::getValue).toList());
+        throw new IllegalArgumentException(
+          "Multiple ellipsis: " + ess.stream().map(Map.Entry::getValue).toList()
+        );
       }
       if (ess.size() == 1) {
         this.ellipsisStart = ess.getFirst().getKey();

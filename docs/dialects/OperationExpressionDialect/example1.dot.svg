@@ -97,7 +97,7 @@
 <text text-anchor="start" x="257.25" y="-299.2" font-family="Times,serif" font-weight="bold" font-size="14.00">tensorId</text>
 <text text-anchor="start" x="306" y="-299.2" font-family="Times,serif" font-size="14.00"> </text>
 <polygon fill="none" stroke="black" points="315.75,-292.5 315.75,-314.5 372.25,-314.5 372.25,-292.5 315.75,-292.5"/>
-<text text-anchor="start" x="335" y="-298.2" font-family="Times,serif" font-size="14.00">$m</text>
+<text text-anchor="start" x="326" y="-298.2" font-family="Times,serif" font-size="14.00">$mask</text>
 <polygon fill="none" stroke="black" points="251.25,-270.5 251.25,-292.5 315.75,-292.5 315.75,-270.5 251.25,-270.5"/>
 <text text-anchor="start" x="268.12" y="-277.2" font-family="Times,serif" font-weight="bold" font-size="14.00">start</text>
 <text text-anchor="start" x="295.12" y="-277.2" font-family="Times,serif" font-size="14.00"> </text>
@@ -195,7 +195,7 @@
 <text text-anchor="start" x="461.88" y="-631.7" font-family="Times,serif" font-size="14.00"> </text>
 <polygon fill="none" stroke="black" points="471.25,-625 471.25,-647 521.25,-647 521.25,-625 471.25,-625"/>
 <text text-anchor="start" x="474.12" y="-630.7" font-family="Times,serif" font-size="14.00">[ 10, 5 ]</text>
-<text text-anchor="start" x="361.25" y="-704.2" font-family="Times,serif" font-size="14.00">$m</text>
+<text text-anchor="start" x="343.25" y="-704.2" font-family="Times,serif" font-size="14.00">$mask</text>
 </g>
 <!-- m&#45;&gt;op -->
 <g id="edge3" class="edge">
