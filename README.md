@@ -1,10 +1,8 @@
 # Tapestry Tensor Expression Compiler Suite
 
-<center><b>"It's Just One Ocean"<br/>-Crutcher</b></center>
+<b>"It's Just One Ocean" -Crutcher</b>
 
 ## Overview
-
-<img style="float: right; width: 20%; margin: 10px" alt="linear.relu.4x" src="docs/media/linear.relu.4x.ortho.jpg"/>
 
 **Tapestry** is an experimental tensor expression compiler framework.
 
@@ -49,6 +47,8 @@ practical parity with existing frameworks is substantial. There are many opportu
 development applications along the way, empowered by that solid theoretical foundation. We are
 seeking contributors, reviewers, and enthusiasts to help bring this project to life sooner. Funding
 support, or safe-harbor in a larger organization, would also be very helpful.
+
+<img style="width: 20%" alt="linear.relu.4x" src="docs/media/linear.relu.4x.ortho.jpg"/>
 
 ## Getting Started
 
