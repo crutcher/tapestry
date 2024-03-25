@@ -1,4 +1,6 @@
-# Polyhedral Type Signatures
+# Operation Projection Signatures
+
+> deprecated: "Polyhedral Type Signatures" is now "Operation Projection Signatures"
 
 ## Overview
 
@@ -8,7 +10,7 @@ model for representing and reasoning about finite index sets and their associate
 The motivation and derivation is discussed in much more detail in the
 [Polyhedral Types and Index Projection](../PolyhedralTypesAndIndexProjection.md) document.
 
-This document describes the semantics of _Polyhedral Type Signatures_ as used in _Tapestry_.
+This document describes the semantics of the _Polyhedral Model_ as used in _Tapestry_.
 
 ## Introduction
 
@@ -35,15 +37,15 @@ shard the application of this operation along some sharding of the input and out
   </tr>
 </table>
 
-A **Polyhedral Type Signature** defines the way an operation's inputs and outputs co-range under
-sharding.
+An **Operation Projection Signature** defines the way an operation's inputs and outputs co-range
+under sharding.
 
 > **Note**: While many tensor block operations, and composites of tensor block operations can be
 > sharded in a way which is consistent with the Polyhedral Model, this is not universally the case.
 > Operations which cannot can be described by a trivial projection signature, but they will not be
 > able to be sharded.
 
-A **Polyhedral Type Signature** has:
+An **Operation Projection Signature** has:
 
 - On **Operation Index Space**, a finite n-dimensional **Z**-space of integer coordinates; where
   each point in the space corresponds to a minimal block application of the operation.
@@ -59,7 +61,7 @@ A **Polyhedral Type Signature** has:
 > augmented with an offset vector, and a shape vector.
 >
 > So that this:
-> 
+>
 > ![ipf](PolyhedralTypeSignatures/ipf.simple.dot.png)
 >
 > Is equivalent to this:
@@ -72,7 +74,7 @@ A **Polyhedral Type Signature** has:
 > shape: [1, 2]
 > ```
 
-An **Operation** annotated with a **Polyhedral Type Signature** must also be annotated with an
+An **Operation** annotated with an **Operation Projection Signature** must also be annotated with an
 **Operation Index** in the **Operation Index Space**; this index defines the scope of the operation
 as projected through the **Index Projection Maps**.
 
@@ -119,7 +121,7 @@ Making this more concrete:
   - **Operation Index** (P-dimensional)
     - **start** - inclusive P-dim point in the tensor coordinate space
     - **end** - exclusive P-dim point in the tensor coordinate space
-  - **Polyhedral Type Signature** (P-dimensional)
+  - **Operation Projection Signature** (P-dimensional)
     - **inputs** / **outputs**
       - _{name}_:
         - **Index Projection Map** (P-dimensional to K-dimensional)
