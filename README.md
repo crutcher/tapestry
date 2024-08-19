@@ -52,6 +52,13 @@ support, or safe-harbor in a larger organization, would also be very helpful.
 
 ## Getting Started
 
+### Basics
+
+```bash
+$ sudo apt-get install maven openjdk-21-jdk
+$ ./mvnw verify
+```
+
 ### Read the Documentation
 
 The full [Tapestry Documentation](docs/README.md) provides much more detailed information about the
