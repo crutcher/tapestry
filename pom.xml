@@ -235,6 +235,11 @@
     </dependencies>
   </dependencyManagement>
   <dependencies>
+    <dependency>
+      <groupId>org.apache.maven.plugins</groupId>
+      <artifactId>maven-wrapper-plugin</artifactId>
+      <version>3.3.2</version>
+    </dependency>
     <!-- Build / Annotations -->
     <dependency>
       <groupId>org.projectlombok</groupId>
