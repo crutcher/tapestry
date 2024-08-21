@@ -54,6 +54,21 @@ support, or safe-harbor in a larger organization, would also be very helpful.
 
 ### Basics
 
+The project requires a JDK 21 and Maven to build.
+
+The project uses the Maven Wrapper; which downloads the correct version of Maven for the project
+automatically. The first time you run the project, it will download the correct version of Maven and
+cache it in the project directory.
+
+The project is a multi-module Maven project; and the "test and verify everything" rule can
+can be built with the following command:
+    
+    ```bash
+    $ ./mvnw verify
+    ```
+
+#### Ubuntu
+
 ```bash
 $ sudo apt-get install maven openjdk-21-jdk
 $ ./mvnw verify
@@ -63,24 +78,6 @@ $ ./mvnw verify
 
 The full [Tapestry Documentation](docs/README.md) provides much more detailed information about the
 project's motivation, goals, design, and implementation.
-
-### Join the Discord
-
-[![Banner](https://invidget.switchblade.xyz/PNpSrFMeUb?theme=light)](https://discord.gg/PNpSrFMeUb)
-
-If you have any interest in the project, please join the Discord server. We are actively looking for
-reviewers, contributors, fans, theorists, and developers and would love to have you involved.
-
-A huge portion of bringing this project to life is building a community of enthusiasts and experts
-who can help guide the project, not only through theory and code; but also through iterative
-development of the documentation, making the project accessible to wider audiences.
-
-We are particularly interested in:
-
-- document reviewers
-- project managers
-- programmers
-- compiler theorists
 
 ### File an Issue / Bug
 
