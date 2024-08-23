@@ -4,15 +4,9 @@
   <groupId>org.tensortapestry</groupId>
   <artifactId>tensortapestry</artifactId>
   <version>0.1.0-SNAPSHOT</version>
-  <packaging>pom</packaging>
+  <packaging>jar</packaging>
   <name>tapestry</name>
-  <modules>
-    <module>tensortapestry-common</module>
-    <module>tensortapestry-common-testlib</module>
-    <module>tensortapestry-zspace</module>
-    <module>tensortapestry-loom</module>
-    <module>tensortapestry-weft</module>
-  </modules>
+
   <distributionManagement>
     <site>
       <id>github</id>
@@ -35,44 +29,14 @@
     <javadoc.plugin.version>3.6.3</javadoc.plugin.version>
     <antlr.version>4.13.1</antlr.version>
   </properties>
-  <!--
   <repositories>
     <repository>
       <id>jitpack.io</id>
       <url>https://jitpack.io</url>
     </repository>
   </repositories>
-  -->
   <dependencyManagement>
     <dependencies>
-      <!--
-      <dependency>
-        <groupId>org.tensortapestry</groupId>
-        <artifactId>tensortapestry-common</artifactId>
-        <version>0.1.0-SNAPSHOT</version>
-      </dependency>
-      <dependency>
-        <groupId>org.tensortapestry</groupId>
-        <artifactId>tensortapestry-common-testlib</artifactId>
-        <scope>test</scope>
-        <version>0.1.0-SNAPSHOT</version>
-      </dependency>
-      <dependency>
-        <groupId>org.tensortapestry</groupId>
-        <artifactId>tensortapestry-zspace</artifactId>
-        <version>0.1.0-SNAPSHOT</version>
-      </dependency>
-      <dependency>
-        <groupId>org.tensortapestry</groupId>
-        <artifactId>tensortapestry-loom</artifactId>
-        <version>0.1.0-SNAPSHOT</version>
-      </dependency>
-      <dependency>
-        <groupId>org.tensortapestry</groupId>
-        <artifactId>tensortapestry-weft</artifactId>
-        <version>0.1.0-SNAPSHOT</version>
-      </dependency>
-      -->
       <!-- Build / Annotations -->
       <dependency>
         <groupId>org.projectlombok</groupId>
@@ -235,6 +199,50 @@
     </dependencies>
   </dependencyManagement>
   <dependencies>
+    <!-- Misc -->
+    <dependency>
+      <groupId>org.jgrapht</groupId>
+      <artifactId>jgrapht-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-lang3</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-text</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-math3</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.networknt</groupId>
+      <artifactId>json-schema-validator</artifactId>
+    </dependency>
+    <!-- Jackson / JSON -->
+    <dependency>
+      <groupId>org.glassfish</groupId>
+      <artifactId>javax.json</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>guru.nidi</groupId>
+      <artifactId>graphviz-java</artifactId>
+    </dependency>
+    <!-- ANTLR -->
+    <dependency>
+      <groupId>org.antlr</groupId>
+      <artifactId>antlr4-runtime</artifactId>
+    </dependency>
+    <!-- XML -->
+    <dependency>
+      <groupId>org.dom4j</groupId>
+      <artifactId>dom4j</artifactId>
+    </dependency>
     <dependency>
       <groupId>org.apache.maven.plugins</groupId>
       <artifactId>maven-wrapper-plugin</artifactId>
@@ -261,6 +269,11 @@
     <dependency>
       <groupId>com.google.code.findbugs</groupId>
       <artifactId>jsr305</artifactId>
+    </dependency>
+    <!-- Common Libs -->
+    <dependency>
+    <groupId>com.google.guava</groupId>
+    <artifactId>guava</artifactId>
     </dependency>
     <!-- Jackson / JSON -->
     <dependency>
@@ -300,12 +313,12 @@
     <dependency>
       <groupId>org.assertj</groupId>
       <artifactId>assertj-core</artifactId>
-      <scope>test</scope>
+      <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>net.javacrumbs.json-unit</groupId>
       <artifactId>json-unit-assertj</artifactId>
-      <scope>test</scope>
+      <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.mockito</groupId>
@@ -315,12 +328,12 @@
     <dependency>
       <groupId>org.xmlunit</groupId>
       <artifactId>xmlunit-core</artifactId>
-      <scope>test</scope>
+      <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.xmlunit</groupId>
       <artifactId>xmlunit-assertj3</artifactId>
-      <scope>test</scope>
+      <scope>compile</scope>
     </dependency>
   </dependencies>
   <build>
@@ -555,6 +568,10 @@
       <plugin>
         <groupId>org.projectlombok</groupId>
         <artifactId>lombok-maven-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <groupId>org.antlr</groupId>
+        <artifactId>antlr4-maven-plugin</artifactId>
       </plugin>
     </plugins>
     <extensions>
