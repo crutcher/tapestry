@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.util.*;
+import java.util.stream.Stream;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
@@ -12,7 +13,7 @@ import javax.annotation.concurrent.ThreadSafe;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Value;
-import org.tensortapestry.common.json.HasToJsonString;
+import org.tensortapestry.common.collections.IteratorUtils;
 import org.tensortapestry.common.json.JsonUtil;
 import org.tensortapestry.common.text.TextUtils;
 import org.tensortapestry.zspace.indexing.BufferOwnership;
@@ -49,7 +50,7 @@ import org.tensortapestry.zspace.ops.RangeOps;
 @Immutable
 @Value
 @EqualsAndHashCode(cacheStrategy = EqualsAndHashCode.CacheStrategy.LAZY)
-public class ZRange implements Cloneable, HasSize, HasPermute<ZRange>, HasToJsonString {
+public class ZRange implements ZPointCollection<ZRange> {
 
   /**
    * ZRange builder.
@@ -421,6 +422,25 @@ public class ZRange implements Cloneable, HasSize, HasPermute<ZRange>, HasToJson
 
   @Override
   @Nonnull
+  public Iterator<ZPoint> iterator() {
+    return new Iterator<>() {
+      private final Iterator<int[]> iter = byCoords(BufferOwnership.REUSED).iterator();
+
+      @Override
+      public boolean hasNext() {
+        return iter.hasNext();
+      }
+
+      @Override
+      public ZPoint next() {
+        return new ZPoint(iter.next());
+      }
+    };
+  }
+
+
+  @Override
+  @Nonnull
   public ZRange permute(@Nonnull int... permutation) {
     return new ZRange(start.permute(permutation), end.permute(permutation));
   }
@@ -467,6 +487,7 @@ public class ZRange implements Cloneable, HasSize, HasPermute<ZRange>, HasToJson
    * @param p the point.
    * @return true if this range contains the point.
    */
+  @Override
   public boolean contains(@Nonnull ZTensorWrapper p) {
     return (!isEmpty() && (getNDim() == 0 || (start.le(p) && DominanceOrderingOps.lt(p, end))));
   }

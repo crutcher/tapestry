@@ -8,6 +8,17 @@ import org.tensortapestry.zspace.indexing.BufferOwnership;
 public class ZRangeTest implements ZSpaceTestAssertions {
 
   @Test
+  public void test_Iterable() {
+    var r = ZRange.builder().start(2, 3).end(4, 5).build();
+
+    assertThat(r.getSize()).isEqualTo(4);
+
+    var points = r.stream().toList();
+    assertThat(points)
+      .isEqualTo(List.of(new ZPoint(2, 3), new ZPoint(2, 4), new ZPoint(3, 3), new ZPoint(3, 4)));
+  }
+
+  @Test
   public void test_clone() {
     var r = new ZRange(new ZPoint(1, 2, 3), new ZPoint(4, 5, 6));
     assertThat(r.clone()).isEqualTo(r).isSameAs(r);

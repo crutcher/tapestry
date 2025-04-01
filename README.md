@@ -60,9 +60,9 @@ The project uses the Maven Wrapper; which downloads the correct version of Maven
 automatically. The first time you run the project, it will download the correct version of Maven and
 cache it in the project directory.
 
-The project is a multi-module Maven project; and the "test and verify everything" rule can
-can be built with the following command:
-    
+The project is a multi-module Maven project; and the "test and verify everything" rule can can be
+built with the following command:
+
     ```bash
     $ ./mvnw verify
     ```
